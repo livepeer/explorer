@@ -1,0 +1,8 @@
+query protocol {
+  protocol(id: 0) {
+    id
+    totalVolumeUSD
+    totalVolumeETH
+    participationRate
+  }
+}

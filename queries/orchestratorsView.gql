@@ -1,0 +1,83 @@
+query transcoders(
+  $where: Transcoder_filter
+  $first: Int
+  $skip: Int
+  $orderBy: Transcoder_orderBy
+  $orderDirection: OrderDirection
+) {
+  transcoders(
+    where: $where
+    first: $first
+    skip: $skip
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
+    id
+    totalVolumeETH
+    feeShare
+    activationRound
+    deactivationRound
+    rewardCut
+    totalStake
+    price
+    scores {
+      global
+      mdw
+      fra
+      sin
+      nyc
+      lax
+      lon
+      prg
+    }
+    successRates {
+      global
+      mdw
+      fra
+      sin
+      nyc
+      lax
+      lon
+      prg
+    }
+    roundTripScores {
+      global
+      mdw
+      fra
+      sin
+      nyc
+      lax
+      lon
+      prg
+    }
+    threeBoxSpace {
+      __typename
+      id
+      did
+      name
+      website
+      description
+      image
+    }
+    delegator {
+      startRound
+      bondedAmount
+      unbondingLocks {
+        withdrawRound
+      }
+    }
+    pools(first: 30, orderBy: id, orderDirection: desc) {
+      rewardTokens
+    }
+  }
+  protocol(id: "0") {
+    id
+    totalSupply
+    totalActiveStake
+    inflation
+    inflationChange
+    currentRound {
+      id
+    }
+  }
+}

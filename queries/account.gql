@@ -1,0 +1,34 @@
+query delegator($account: ID!) {
+  delegator(id: $account) {
+    id
+    pendingStake
+    bondedAmount
+    principal
+    unbonded
+    pendingFees
+    startRound
+    lastClaimRound {
+      id
+    }
+    unbondingLocks {
+      id
+      amount
+      unbondingLockId
+      withdrawRound
+      delegate {
+        id
+      }
+    }
+    delegate {
+      id
+      rewardCut
+      totalStake
+    }
+  }
+  account(id: $account) {
+    id
+    tokenBalance
+    ethBalance
+    allowance
+  }
+}
