@@ -1,0 +1,15 @@
+mutation claimStake(
+  $delegate: String!
+  $stake: String!
+  $fees: String!
+  $proof: [String]!
+  $newDelegate: String!
+) {
+  tx: claimStake(
+    delegate: $delegate
+    stake: $stake
+    fees: $fees
+    proof: $proof
+    newDelegate: $newDelegate
+  )
+}
