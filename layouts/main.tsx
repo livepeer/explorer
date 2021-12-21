@@ -40,6 +40,7 @@ import TxSummaryDialog from "@components/TxSummaryDialog";
 import useWindowSize from "react-use/lib/useWindowSize";
 import WalletModal from "@components/WalletModal";
 import Claim from "@components/Claim";
+import Wallet from "@components/Wallet";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -395,8 +396,15 @@ const Layout = ({
                   <Box>
                     <AppBar size="2" color="neutral" border sticky>
                       <Container size="3">
-                        <Flex css={{ alignItems: "center", height: 40 }}>
+                        <Flex
+                          css={{
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            height: 40,
+                          }}
+                        >
                           <Search />
+                          <Wallet />
                         </Flex>
                       </Container>
                     </AppBar>

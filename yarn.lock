@@ -752,7 +752,7 @@
     "@ethersproject/properties" ">=5.0.0-beta.140"
     "@ethersproject/transactions" ">=5.0.0-beta.135"
 
-"@ethersproject/contracts@5.5.0", "@ethersproject/contracts@^5.0.1":
+"@ethersproject/contracts@5.5.0", "@ethersproject/contracts@^5.0.1", "@ethersproject/contracts@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/contracts/-/contracts-5.5.0.tgz#b735260d4bd61283a670a82d5275e2a38892c197"
   integrity sha512-2viY7NzyvJkh+Ug17v7g3/IJC8HqZBDcOjYARZLdzRxrfGlRgmYgl6xPRKVbEzy1dWKw/iv7chDcS83pg6cLxg==
@@ -925,7 +925,7 @@
     bech32 "1.1.4"
     ws "7.4.6"
 
-"@ethersproject/providers@5.5.1":
+"@ethersproject/providers@5.5.1", "@ethersproject/providers@^5.5.0":
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.5.1.tgz#ba87e3c93219bbd2e2edf8b369873aee774abf04"
   integrity sha512-2zdD5sltACDWhjUE12Kucg2PcgM6V2q9JMyVvObtVGnzJu+QSmibbP+BHQyLWZUBfLApx2942+7DC5D+n4wBQQ==
@@ -9131,6 +9131,15 @@ get-caller-file@^2.0.1:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
   integrity sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
+
+get-ens@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/get-ens/-/get-ens-2.0.3.tgz#861858d3bc9c4640340291de269e8e7a48c133d1"
+  integrity sha512-WwFD1QWZ6w5Bf2pd5sJQiiHNxRDhE2rg4tfVBn+nSZjdtE2aDUrdDN1e4g6Yh/oTv2AfVOjlkl1cLFhdO4Pmzg==
+  dependencies:
+    "@ethersproject/contracts" "^5.5.0"
+    "@ethersproject/hash" "^5.5.0"
+    "@ethersproject/providers" "^5.5.0"
 
 get-folder-size@^2.0.0:
   version "2.0.1"
@@ -18924,6 +18933,13 @@ use-debounce@^3.3.0:
   version "3.4.3"
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-3.4.3.tgz#5df9322322b3f1b1c263d46413f9facf6d8b56ab"
   integrity sha512-nxy+opOxDccWfhMl36J5BSCTpvcj89iaQk2OZWLAtBJQj7ISCtx1gh+rFbdjGfMl6vtCZf6gke/kYvrkVfHMoA==
+
+use-ens@^0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/use-ens/-/use-ens-0.0.16.tgz#9dbcf989d71fa472b52cdf22abe52265e255c048"
+  integrity sha512-NNB4M/Ecj/WeRr16oVfjMNVjfdz6BKLnajxE5Is7L0aVGX02hmIg6o5eRUKZCGodl2m7gcI1bfRLWO/2hpZ85w==
+  dependencies:
+    get-ens "^2.0.3"
 
 use-sidecar@^1.0.1, use-sidecar@^1.0.5:
   version "1.0.5"

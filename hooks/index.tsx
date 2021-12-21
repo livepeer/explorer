@@ -4,6 +4,7 @@ import { useWeb3React } from "@web3-react/core";
 import { Injected } from "../lib/connectors";
 import { isMobile } from "react-device-detect";
 import submittedTxsQuery from "../queries/transactions.gql";
+import { ethers } from "ethers";
 
 export function useWeb3Mutation(mutation, options) {
   const client: any = useApolloClient();
@@ -19,18 +20,16 @@ export function useWeb3Mutation(mutation, options) {
     }
   `;
 
-  const {
-    data: transactionStatusData,
-    loading: transactionStatusLoading,
-  } = useQuery(GET_TRANSACTION_STATUS, {
-    ...options,
-    variables: {
-      txHash: data?.tx?.txHash,
-    },
-    fetchPolicy: "no-cache",
-    notifyOnNetworkStatusChange: true,
-    context: options?.context,
-  });
+  const { data: transactionStatusData, loading: transactionStatusLoading } =
+    useQuery(GET_TRANSACTION_STATUS, {
+      ...options,
+      variables: {
+        txHash: data?.tx?.txHash,
+      },
+      fetchPolicy: "no-cache",
+      notifyOnNetworkStatusChange: true,
+      context: options?.context,
+    });
 
   const GET_TRANSACTION = gql`
     query transaction($txHash: String) {
@@ -329,4 +328,53 @@ export function useOnClickOutside(ref, handler) {
     // ... passing it into this hook.
     [ref, handler]
   );
+}
+
+export function useENS() {
+  const { account, library } = useWeb3React();
+  const [ens, setENS] = useState(null);
+
+  useEffect(() => {
+    async function getENS() {
+      if (library) {
+        const name = await library.lookupAddress(account);
+        setENS(name);
+      }
+    }
+    getENS();
+  }, [account]);
+  return ens;
+}
+
+export function useBalance() {
+  const { account, library, chainId } = useWeb3React();
+
+  const [balance, setBalance] = useState(null);
+  useEffect(() => {
+    if (!!account && !!library) {
+      let stale = false;
+
+      library
+        .getBalance(account)
+        .then((balance) => {
+          if (!stale) {
+            setBalance(
+              +parseFloat(ethers.utils.formatEther(balance)).toFixed(4)
+            );
+          }
+        })
+        .catch(() => {
+          if (!stale) {
+            setBalance(null);
+          }
+        });
+
+      return () => {
+        stale = true;
+        setBalance(undefined);
+      };
+    }
+  }, [account, library, chainId]);
+
+  return balance;
 }

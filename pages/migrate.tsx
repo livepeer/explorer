@@ -25,7 +25,7 @@ import arbRetryableTxABI from "../abis/arbRetryableTx.json";
 import nodeInterfaceABI from "../abis/nodeInterface.json";
 import l2MigratorABI from "../abis/L2Migrator.json";
 
-import { ARBITRUM_NETWORK } from "@lib/utils";
+import { NETWORKS } from "@lib/utils";
 
 const MIGRATOR_ADDRESS_RINKEBY = "0x7cfB164BDdB051da1CF6d66B1395dA0FBB18E749";
 const BONDING_MANAGER_RINKEBY = "0x595ab11a0bffbca8134d2105bcf985e85732af5c";
@@ -150,12 +150,12 @@ const stepperStyles = {
 function getArbitrumCoreContracts(l2) {
   return {
     arbRetryableTx: new ethers.Contract(
-      ARBITRUM_NETWORK[process.env.NEXT_PUBLIC_NETWORK].arbRetryableTx,
+      NETWORKS["arbitrum-rinkeby"].arbRetryableTx,
       arbRetryableTxABI,
       l2
     ),
     nodeInterface: new ethers.Contract(
-      ARBITRUM_NETWORK[process.env.NEXT_PUBLIC_NETWORK].nodeInterface,
+      NETWORKS["arbitrum-rinkeby"].nodeInterface,
       nodeInterfaceABI,
       l2
     ),

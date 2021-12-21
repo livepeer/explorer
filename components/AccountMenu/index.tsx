@@ -4,28 +4,8 @@ import { useRef, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
 import WalletIcon from "../../public/img/wallet.svg";
-import {
-  ChevronDownIcon,
-  ExitIcon,
-  ResetIcon,
-  PersonIcon,
-} from "@modulz/radix-icons";
-import {
-  Box,
-  Flex,
-  Link as A,
-  Button,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
-  DropdownMenuGroup,
-  DropdownMenuRadioGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@livepeer/design-system";
+import { ExitIcon, ResetIcon, PersonIcon } from "@modulz/radix-icons";
+import { Box, Flex, Link as A, Button } from "@livepeer/design-system";
 import WalletModal from "components/WalletModal";
 
 const AccountMenu = ({ isInHeader = false }) => {

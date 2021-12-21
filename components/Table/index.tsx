@@ -53,15 +53,15 @@ function DataTable({ heading = "", data }) {
                       {textTruncate(row.values.username, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2", fontWeight: 500 }}>
-                      {row.values.ens
-                        ? row.values.ens
+                      {row.values.ens.name
+                        ? row.values.ens.name
                         : row.values.address.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 500 }}>
-                    {row.values.ens
-                      ? row.values.ens
+                    {row.values.ens.name
+                      ? row.values.ens.name
                       : row.values.address.replace(
                           row.values.address.slice(7, 37),
                           "…"
