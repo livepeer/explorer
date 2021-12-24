@@ -2,13 +2,13 @@ import { getLayout } from "@layouts/main";
 import Head from "next/head";
 import { getOrchestrators } from "@lib/utils";
 import { Flex, Container, Heading, Box } from "@livepeer/design-system";
-import OrchestratorList from "@components/OrchestratorList";
+import PerformanceList from "@components/PerformanceList";
 
-const OrchestratorsPage = ({ orchestrators }) => {
+const LeaderboardPage = ({ orchestrators }) => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Orchestrators</title>
+        <title>Livepeer Explorer - Performance Leaderboard</title>
       </Head>
       <Container size="3" css={{ width: "100%" }}>
         <Flex
@@ -29,10 +29,10 @@ const OrchestratorsPage = ({ orchestrators }) => {
               },
             }}
           >
-            Orchestrators
+            Performance Leaderboard
           </Heading>
           <Box css={{ mb: "$5" }}>
-            <OrchestratorList data={orchestrators} pageSize={20} />
+            <PerformanceList data={orchestrators} pageSize={20} />
           </Box>
         </Flex>
       </Container>
@@ -42,7 +42,6 @@ const OrchestratorsPage = ({ orchestrators }) => {
 
 export async function getStaticProps() {
   const orchestrators = await getOrchestrators();
-
   return {
     props: {
       orchestrators: orchestrators.sort((a, b) =>
@@ -53,6 +52,6 @@ export async function getStaticProps() {
   };
 }
 
-OrchestratorsPage.getLayout = getLayout;
+LeaderboardPage.getLayout = getLayout;
 
-export default OrchestratorsPage;
+export default LeaderboardPage;

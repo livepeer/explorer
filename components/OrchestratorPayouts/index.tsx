@@ -1,36 +1,99 @@
 import { NetworkStatus, useQuery } from "@apollo/client";
-import Box from "../Box";
-import { useEffect } from "react";
-import Spinner from "../Spinner";
-import { usePageVisibility } from "../../hooks";
+import Spinner from "@components/Spinner";
 import winningTicketsQuery from "../../queries/winningTicketsQuery.gql";
-import Table from "./Table";
+import Table from "@components/Table";
+import { useMemo } from "react";
+import Link from "next/link";
+import { Flex, Box, Link as A } from "@livepeer/design-system";
+import moment from "moment";
 
-const Index = ({ pageSize = 10, title = "" }) => {
-  const isVisible = usePageVisibility();
-  const pollInterval = 20000;
-
+const Index = ({ title = "" }) => {
   const variables = {
     orderBy: "timestamp",
     orderDirection: "desc",
   };
 
-  const { data, networkStatus, startPolling, stopPolling } = useQuery(
-    winningTicketsQuery,
-    {
-      variables,
-      notifyOnNetworkStatusChange: true,
-      pollInterval,
-    }
+  const { data, networkStatus, error } = useQuery(winningTicketsQuery, {
+    variables,
+    notifyOnNetworkStatusChange: true,
+  });
+  console.log("error", error);
+  console.log("data", data);
+  const columns: any = useMemo(
+    () => [
+      {
+        Header: "Orchestrator",
+        accessor: "recipient",
+        Cell: ({ row }) => (
+          <Link href={`/accounts/${row.values.recipient.id}/history`} passHref>
+            <A>
+              {row.values.recipient.id.replace(
+                row.values.recipient.id.slice(5, 39),
+                "…"
+              )}
+            </A>
+          </Link>
+        ),
+      },
+      {
+        Header: "Amount",
+        accessor: "faceValue",
+        Cell: ({ row }) => (
+          <Flex css={{ alignItems: "center" }}>
+            <Flex
+              css={{
+                alignItems: "center",
+                fontWeight: 600,
+              }}
+            >
+              <Box>{parseFloat((+row.values.faceValue).toFixed(3))}</Box>{" "}
+              <Box css={{ mx: "$1" }}>ETH</Box>
+              <Box css={{ fontWeight: 400 }}>
+                ({`$${parseFloat((+row.values.faceValueUSD).toFixed(2))}`})
+              </Box>
+            </Flex>
+          </Flex>
+        ),
+      },
+      {
+        Header: "Value (USD)",
+        accessor: "faceValueUSD",
+      },
+      {
+        Header: "Transaction",
+        accessor: "transaction",
+      },
+      {
+        Header: "Broadcaster",
+        accessor: "sender",
+        Cell: ({ row }) => (
+          <Link href={`/accounts/${row.values.sender.id}/history`} passHref>
+            <A>
+              {row.values.sender.id.replace(
+                row.values.sender.id.slice(5, 39),
+                "…"
+              )}
+            </A>
+          </Link>
+        ),
+      },
+      {
+        Header: "Time",
+        accessor: "timestamp",
+        Cell: ({ row }) => (
+          <A
+            rel="noopener noreferrer"
+            target="_blank"
+            href={`https://etherscan.io/tx/${row.values.transaction.id}`}
+          >
+            {moment(row.values.timestamp * 1000).fromNow()}
+          </A>
+        ),
+        sortType: "number",
+      },
+    ],
+    []
   );
-
-  useEffect(() => {
-    if (!isVisible) {
-      startPolling(pollInterval);
-    } else {
-      stopPolling();
-    }
-  }, [isVisible, startPolling, stopPolling]);
 
   return (
     <Box className="tour-step-6">
@@ -39,21 +102,10 @@ const Index = ({ pageSize = 10, title = "" }) => {
           {title}
         </Box>
       )}
-      <Box
-        css={{
-          position: "relative",
-          pt: "$1",
-          mb: "$4",
-          minHeight: 500,
-          width: "100%",
-          backgroundColor: "$panel",
-          borderRadius: "$4",
-          border: "1px solid $neutral4",
-        }}
-      >
+      <Box>
         {/* Show loading indicator if this is the first time time fetching or we're refetching
         https://github.com/apollographql/apollo-client/blob/main/src/core/networkStatus.ts */}
-        {!data || networkStatus === NetworkStatus.refetch ? (
+        {!data ? (
           <Box
             css={{
               position: "absolute",
@@ -70,10 +122,12 @@ const Index = ({ pageSize = 10, title = "" }) => {
         ) : (
           <Box>
             <Table
-              pageSize={pageSize}
-              data={{
-                tickets: data.tickets,
-                currentRound: data.protocol.currentRound,
+              data={data.tickets}
+              columns={columns}
+              initialState={{
+                pageSize: 10,
+                sortBy: [{ id: "timestamp", desc: true }],
+                hiddenColumns: ["transaction", "faceValueUSD"],
               }}
             />
           </Box>

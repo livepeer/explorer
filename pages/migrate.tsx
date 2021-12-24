@@ -227,6 +227,61 @@ const Migrate = () => {
     setActiveStep(0);
   };
 
+  const onApprove = async () => {
+    const seqNo = 7;
+    const stake = 100;
+    const fees = 200;
+    const delegatedStake = 300;
+    const delegate = context.account;
+
+    const migrateDelegatorParams = {
+      l1Addr: context.account,
+      l2Addr: context.account,
+      stake,
+      delegatedStake,
+      fees,
+      delegate,
+    };
+
+    const l2Calldata = l2Migrator.interface.encodeFunctionData(
+      "finalizeMigrateDelegator",
+      [migrateDelegatorParams]
+    );
+
+    const gasPriceBid = await arbProvider.getGasPrice();
+
+    const [submissionPrice] = await getArbitrumCoreContracts(
+      arbProvider
+    ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
+    const maxSubmissionPrice = submissionPrice.mul(4);
+
+    const [estimatedGas] = await getArbitrumCoreContracts(
+      arbProvider
+    ).nodeInterface.estimateRetryableTicket(
+      context.account,
+      ethers.utils.parseEther("0.05"),
+      context.account,
+      0,
+      maxSubmissionPrice,
+      context.account,
+      context.account,
+      0,
+      gasPriceBid,
+      l2Calldata
+    );
+    const maxGas = estimatedGas.mul(4);
+
+    const signer = l1Migrator.connect(context.library.getSigner());
+    const tx = await signer.migrateDelegator(
+      context.account,
+      context.account,
+      "0x",
+      maxGas,
+      gasPriceBid,
+      maxSubmissionPrice
+    );
+  };
+
   const getSigningStepContent = (step) => {
     switch (step) {
       case 0:
@@ -319,61 +374,55 @@ const Migrate = () => {
                 variant="primary"
                 css={{ mr: "$2" }}
                 onClick={async () => {
-                  const seqNo = 7;
-                  const stake = 100;
-                  const fees = 200;
-                  const delegatedStake = 300;
-                  const delegate = context.account;
-
-                  const migrateDelegatorParams = {
-                    l1Addr: context.account,
-                    l2Addr: context.account,
-                    stake,
-                    delegatedStake,
-                    fees,
-                    delegate,
-                  };
-
-                  const l2Calldata = l2Migrator
-                    .createInterface()
-                    .encodeFunctionData("finalizeMigrateDelegator", [
-                      migrateDelegatorParams,
-                    ]);
-
-                  const gasPriceBid = await arbProvider.getGasPrice();
-
-                  const [submissionPrice] = await getArbitrumCoreContracts(
-                    arbProvider
-                  ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
-                  const maxSubmissionPrice = submissionPrice.mul(4);
-
-                  const [estimatedGas] = await getArbitrumCoreContracts(
-                    arbProvider
-                  ).nodeInterface.estimateRetryableTicket(
-                    context.account,
-                    ethers.utils.parseEther("0.05"),
-                    context.account,
-                    0,
-                    maxSubmissionPrice,
-                    context.account,
-                    context.account,
-                    0,
-                    gasPriceBid,
-                    l2Calldata
-                  );
-                  const maxGas = estimatedGas.mul(4);
-
-                  const signer = l1Migrator.connect(
-                    context.library.getSigner()
-                  );
-                  const tx = await signer.migrateDelegator(
-                    context.account,
-                    context.account,
-                    "0x",
-                    maxGas,
-                    gasPriceBid,
-                    maxSubmissionPrice
-                  );
+                  // const seqNo = 7;
+                  // const stake = 100;
+                  // const fees = 200;
+                  // const delegatedStake = 300;
+                  // const delegate = context.account;
+                  // const migrateDelegatorParams = {
+                  //   l1Addr: context.account,
+                  //   l2Addr: context.account,
+                  //   stake,
+                  //   delegatedStake,
+                  //   fees,
+                  //   delegate,
+                  // };
+                  // const l2Calldata = l2Migrator
+                  //   .createInterface()
+                  //   .encodeFunctionData("finalizeMigrateDelegator", [
+                  //     migrateDelegatorParams,
+                  //   ]);
+                  // const gasPriceBid = await arbProvider.getGasPrice();
+                  // const [submissionPrice] = await getArbitrumCoreContracts(
+                  //   arbProvider
+                  // ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
+                  // const maxSubmissionPrice = submissionPrice.mul(4);
+                  // const [estimatedGas] = await getArbitrumCoreContracts(
+                  //   arbProvider
+                  // ).nodeInterface.estimateRetryableTicket(
+                  //   context.account,
+                  //   ethers.utils.parseEther("0.05"),
+                  //   context.account,
+                  //   0,
+                  //   maxSubmissionPrice,
+                  //   context.account,
+                  //   context.account,
+                  //   0,
+                  //   gasPriceBid,
+                  //   l2Calldata
+                  // );
+                  // const maxGas = estimatedGas.mul(4);
+                  // const signer = l1Migrator.connect(
+                  //   context.library.getSigner()
+                  // );
+                  // const tx = await signer.migrateDelegator(
+                  //   context.account,
+                  //   context.account,
+                  //   "0x",
+                  //   maxGas,
+                  //   gasPriceBid,
+                  //   maxSubmissionPrice
+                  // );
                   //setMigrationViewState(dummyStateData[2]);
                 }}
               >
@@ -511,63 +560,7 @@ const Migrate = () => {
             variant="primary"
             size="4"
             css={{ width: "100%" }}
-            onClick={async () => {
-              const seqNo = 7;
-              const stake = 100;
-              const fees = 200;
-              const delegatedStake = 300;
-              const delegate = context.account;
-
-              const migrateDelegatorParams = {
-                l1Addr: context.account,
-                l2Addr: context.account,
-                stake,
-                delegatedStake,
-                fees,
-                delegate,
-              };
-
-              const l2Calldata = l2Migrator.interface.encodeFunctionData(
-                "finalizeMigrateDelegator",
-                [migrateDelegatorParams]
-              );
-
-              const gasPriceBid = await arbProvider.getGasPrice();
-
-              const [submissionPrice] = await getArbitrumCoreContracts(
-                arbProvider
-              ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
-              const maxSubmissionPrice = submissionPrice.mul(4);
-
-              const [estimatedGas] = await getArbitrumCoreContracts(
-                arbProvider
-              ).nodeInterface.estimateRetryableTicket(
-                context.account,
-                ethers.utils.parseEther("0.05"),
-                context.account,
-                0,
-                maxSubmissionPrice,
-                context.account,
-                context.account,
-                0,
-                gasPriceBid,
-                l2Calldata
-              );
-              const maxGas = estimatedGas.mul(4);
-
-              const signer = l1Migrator.connect(context.library.getSigner());
-              const tx = await signer.migrateDelegator(
-                context.account,
-                context.account,
-                "0x",
-                maxGas,
-                gasPriceBid,
-                maxSubmissionPrice
-              );
-              //setMigrationViewState(dummyStateData[2]);
-
-              //setMigrationViewState(dummyStateData[2])
-            }}
+            onClick={onApprove}
           >
             Approve Migration
           </Button>

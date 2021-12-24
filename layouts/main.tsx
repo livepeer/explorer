@@ -417,7 +417,7 @@ const Layout = ({
                     >
                       <Box css={{ width: "100%" }}>
                         {pathname !== "/migrate" && (
-                          <Container size="3">
+                          <Container size="3" css={{ mb: "$7" }}>
                             <Claim />
                           </Container>
                         )}

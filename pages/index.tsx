@@ -3,9 +3,18 @@ import OrchestratorPayouts from "@components/OrchestratorPayouts";
 import Link from "next/link";
 import GlobalChart from "@components/GlobalChart";
 import Flickity from "react-flickity-component";
-import { Box, Flex, Heading, Container } from "@livepeer/design-system";
-import Table from "@components/Table";
+import {
+  Box,
+  Flex,
+  Heading,
+  Container,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@livepeer/design-system";
 import { getOrchestrators } from "@lib/utils";
+import OrchestratorList from "@components/OrchestratorList";
 
 const Panel = ({ children }) => (
   <Flex
@@ -125,8 +134,8 @@ const Home = ({ orchestrators }) => {
                 alignItems: "center",
               }}
             >
-              <Heading size="1" css={{ fontWeight: 600 }}>
-                Top Orchestrators
+              <Heading size="2" css={{ fontWeight: 600 }}>
+                Orchestrators
               </Heading>
               <Link href="/orchestrators" passHref>
                 <Box as="a" css={{ color: "$white", fontSize: "$2", pr: "$3" }}>
@@ -134,9 +143,24 @@ const Home = ({ orchestrators }) => {
                 </Box>
               </Link>
             </Flex>
-            <Table data={orchestrators} />
+            <OrchestratorList data={orchestrators} pageSize={20} />
+            {/* <Tabs defaultValue="tab-one">
+              <TabsList>
+                <TabsTrigger value="tab-one">Orchestrators</TabsTrigger>
+                <TabsTrigger value="tab-two">
+                  Performance Leaderboard
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="tab-one">
+                <OrchestratorList data={orchestrators} pageSize={20} />
+              </TabsContent>
+              <TabsContent value="tab-two">
+                <OrchestratorList data={orchestrators} pageSize={20} />
+              </TabsContent>
+            </Tabs> */}
           </Box>
-          <Box>
+          {/* <Box>
             <Flex
               css={{
                 justifyContent: "space-between",
@@ -149,7 +173,7 @@ const Home = ({ orchestrators }) => {
               </Box>
             </Flex>
             <OrchestratorPayouts />
-          </Box>
+          </Box> */}
         </Flex>
       </Container>
     </>

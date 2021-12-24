@@ -64,7 +64,7 @@ const Claim = () => {
           >
             1.2 ETH
           </Box>
-          is available to claim on Arbitrum.
+          are available to claim on Arbitrum.
         </Text>
       </Box>
       <Dialog>
