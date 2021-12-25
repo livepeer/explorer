@@ -7,12 +7,11 @@ import { useWeb3React } from "@web3-react/core";
 import PollTokenApproval from "@components/PollTokenApproval";
 import { useQuery, gql } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
-import { MutationsContext } from "../../contexts";
+import { MutationsContext } from "core/contexts";
 import Utils from "web3-utils";
 import Head from "next/head";
-import { usePageVisibility } from "../../hooks";
+import { usePageVisibility } from "core/hooks";
 import Spinner from "@components/Spinner";
-import * as Label from "@radix-ui/react-label";
 import {
   Box,
   Flex,
@@ -24,6 +23,7 @@ import {
   RadioCard,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { CHAIN_INFO } from "constants/chains";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const context = useWeb3React();
@@ -307,7 +307,7 @@ export async function getStaticProps() {
   });
   const { data } = await apolloFetch({ query: lipsQuery });
   const apolloSubgraphFetch = createApolloFetch({
-    uri: process.env.NEXT_PUBLIC_SUBGRAPH,
+    uri: CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].subgraph,
   });
   const { data: pollsData } = await apolloSubgraphFetch({
     query: `{ polls { proposal } }`,

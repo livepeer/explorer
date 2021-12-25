@@ -1,7 +1,7 @@
 import { useWeb3React } from "@web3-react/core";
 import { isMobile } from "react-device-detect";
-import { Injected, WalletLink } from "../../lib/connectors";
-import { SUPPORTED_WALLETS } from "../../lib/constants";
+import { injected, walletlink } from "../../lib/connectors";
+import { SUPPORTED_WALLETS } from "../../constants/wallet";
 import {
   Link as A,
   Button,
@@ -24,7 +24,7 @@ const AccountDetails = ({ openOptions }) => {
       .filter(
         (k) =>
           SUPPORTED_WALLETS[k].connector === connector &&
-          (connector !== Injected || isMetaMask === (k === "METAMASK"))
+          (connector !== injected || isMetaMask === (k === "METAMASK"))
       )
       .map((k) => SUPPORTED_WALLETS[k].name)[0];
     return <Box>{name}</Box>;
@@ -69,7 +69,7 @@ const AccountDetails = ({ openOptions }) => {
         >
           <Flex css={{ mb: "$3", justifyContent: "space-between" }}>
             {formatConnectorName()}
-            {connector !== Injected && connector !== WalletLink && (
+            {connector !== injected && connector !== walletlink && (
               <Button
                 color="primary"
                 outline

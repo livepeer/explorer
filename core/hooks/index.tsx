@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
 import { useWeb3React } from "@web3-react/core";
-import { Injected } from "../lib/connectors";
+import { injected } from "@lib/connectors";
 import { isMobile } from "react-device-detect";
 import { transactionsQuery } from "core/queries/transactionsQuery";
 import { ethers } from "ethers";
@@ -132,14 +132,14 @@ export function useEagerConnect() {
   const [tried, setTried] = useState(false);
 
   useEffect(() => {
-    Injected.isAuthorized().then((isAuthorized: boolean) => {
+    injected.isAuthorized().then((isAuthorized: boolean) => {
       if (isAuthorized) {
-        activate(Injected, undefined, true).catch(() => {
+        activate(injected, undefined, true).catch(() => {
           setTried(true);
         });
       } else {
         if (isMobile && window["ethereum"]) {
-          activate(Injected, undefined, true).catch(() => {
+          activate(injected, undefined, true).catch(() => {
             setTried(true);
           });
         } else {
@@ -168,19 +168,19 @@ export function useInactiveListener(suppress = false) {
     if (ethereum && ethereum.on && !active && !error && !suppress) {
       const handleChainChanged = () => {
         // eat errors
-        activate(Injected, undefined, true).catch(() => {});
+        activate(injected, undefined, true).catch(() => {});
       };
 
       const handleAccountsChanged = (accounts) => {
         if (accounts.length > 0) {
           // eat errors
-          activate(Injected, undefined, true).catch(() => {});
+          activate(injected, undefined, true).catch(() => {});
         }
       };
 
       const handleNetworkChanged = () => {
         // eat errors
-        activate(Injected, undefined, true).catch(() => {});
+        activate(injected, undefined, true).catch(() => {});
       };
 
       ethereum.on("chainChanged", handleChainChanged);

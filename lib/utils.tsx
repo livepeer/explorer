@@ -6,43 +6,15 @@ import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
 import { blockClient } from "../core/apollo";
-import { request } from "graphql-request";
 import bondingManagerABI from "../abis/bondingManager.json";
-import ThreeBox from "3box";
-
-export const NETWORKS = {
-  mainnet: {
-    bondingManager: "0x511bc4556d823ae99630ae8de28b9b80df90ea2e",
-  },
-  rinkeby: {
-    bondingManager: "0xe75a5DccfFe8939F7f16CC7f63EB252bB542FE95",
-  },
-  arbitrum: {
-    l1GatewayRouter: "0x72Ce9c846789fdB6fC1f34aC4AD25Dd9ef7031ef",
-    l2GatewayRouter: "0x5288c571Fd7aD117beA99bF60FE0846C4E84F933",
-    inbox: "0x4c6f947Ae67F572afa4ae0730947DE7C874F95Ef",
-    outbox: "0x760723CD2e632826c38Fef8CD438A4CC7E7E1A40",
-    arbRetryableTx: "0x000000000000000000000000000000000000006E",
-    nodeInterface: "0x00000000000000000000000000000000000000C8",
-  },
-  "arbitrum-rinkeby": {
-    l1GatewayRouter: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
-    l2GatewayRouter: "0x9413AD42910c1eA60c737dB5f58d1C504498a3cD",
-    inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-    outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-    arbRetryableTx: "0x000000000000000000000000000000000000006E",
-    nodeInterface: "0x00000000000000000000000000000000000000C8",
-  },
-};
+import { CHAIN_INFO, INFURA_NETWORK_URLS } from "constants/chains";
 
 export const provider = new ethers.providers.JsonRpcProvider(
-  process.env.NEXT_PUBLIC_NETWORK === "mainnet"
-    ? process.env.NEXT_PUBLIC_RPC_URL_1
-    : process.env.NEXT_PUBLIC_RPC_URL_4
+  INFURA_NETWORK_URLS[process.env.NEXT_PUBLIC_NETWORK]
 );
 
 export const bondingManagerContract = new ethers.Contract(
-  NETWORKS[process.env.NEXT_PUBLIC_NETWORK].bondingManager,
+  CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.bondingManager,
   bondingManagerABI,
   provider
 );
@@ -689,134 +661,6 @@ export const scientificToDecimal = (x) => {
     }
   }
   return x;
-};
-
-export const getOrchestrators = async () => {
-  const currentRoundData = await request(
-    process.env.NEXT_PUBLIC_SUBGRAPH,
-    gql`
-      {
-        protocol(id: "0") {
-          currentRound {
-            id
-          }
-        }
-      }
-    `
-  );
-
-  const currentRound = currentRoundData?.protocol.currentRound.id;
-
-  const query = gql`
-  {
-    transcoders(
-      orderBy: "totalStake"
-      orderDirection: "desc"
-      where: {
-        activationRound_lte: ${currentRound},
-        deactivationRound_gt: ${currentRound},
-      }
-    ) {
-      id
-      activationRound
-      deactivationRound
-      totalStake
-      totalVolumeETH
-      rewardCut
-      feeShare
-      delegator {
-        startRound
-      }
-      pools(first: 30, orderBy: id, orderDirection: desc, where: { round_not: "${currentRound}" }) {
-        rewardTokens
-      }
-      delegators(first: 1000) {
-        id
-      }
-    }
-    protocol(id: "0") {
-      currentRound {
-        id
-      }
-    }
-  }
-`;
-
-  const subgraphData = await request(process.env.NEXT_PUBLIC_SUBGRAPH, query);
-
-  const regions = ["FRA", "MDW", "SIN", "NYC", "LAX", "LON", "PRG"];
-
-  let orchestrators = [];
-
-  const response = await fetch(
-    `https://leaderboard-serverless.vercel.app/api/aggregated_stats`
-  );
-  const performanceScores = await response.json();
-
-  await Promise.all(
-    subgraphData.transcoders.map(async (transcoder) => {
-      const scores = [];
-      await new Promise((resolve, _reject) => {
-        regions.forEach(async (region, index, array) => {
-          if (
-            performanceScores[transcoder.id] &&
-            performanceScores[transcoder.id][region]
-          ) {
-            scores.push(performanceScores[transcoder.id][region]?.score);
-          }
-          if (index === array.length - 1) {
-            resolve(true);
-          }
-        });
-      });
-
-      const currentHighScore = Math.max(...scores);
-      const averageScore = performanceScores[transcoder.id]
-        ? avg(performanceScores[transcoder.id], "score")
-        : 0;
-
-      const space = await ThreeBox.getSpace(transcoder.id, "livepeer");
-
-      let selfStake = "0";
-      try {
-        selfStake = await bondingManagerContract.pendingStake(
-          transcoder.id,
-          currentRound
-        );
-      } catch (e) {
-        console.log(e);
-      }
-
-      selfStake = ethers.utils.formatUnits(selfStake, 18);
-      const name = await provider.lookupAddress(transcoder.id);
-      const resolver = await provider.getResolver(transcoder.id);
-      const ens = {
-        name,
-        url: resolver ? await resolver.getText("email") : null,
-        avatar: resolver ? await resolver.getText("avatar") : null,
-        description: resolver ? await resolver.getText("description") : null,
-      };
-
-      orchestrators.push({
-        address: transcoder.id,
-        ens,
-        totalStake: parseFloat(transcoder.totalStake),
-        currentHighScore,
-        averageScore,
-        totalVolumeETH: transcoder.totalVolumeETH,
-        pools: transcoder.pools,
-        selfStake,
-        delegatedStake:
-          parseFloat(transcoder.totalStake) - parseFloat(selfStake),
-        username: space?.name ? space.name : null,
-        avatar: space?.image ? space.image : null,
-        totalDelegators: transcoder.delegators.length,
-        rewardCut: parseInt(transcoder.rewardCut, 10) / 10000,
-        feeCut: 100 - parseInt(transcoder.feeShare, 10) / 10000,
-      });
-    })
-  );
-  return orchestrators;
 };
 
 export function roundToTwo(num) {

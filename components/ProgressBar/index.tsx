@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useTimeEstimate } from "../../hooks";
+import { useTimeEstimate } from "core/hooks";
 import { txMessages } from "../../lib/utils";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import Spinner from "@components/Spinner";

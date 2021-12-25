@@ -3,7 +3,7 @@ import CircularProgressbar from "../CircularProgressBar";
 import { buildStyles } from "react-circular-progressbar";
 import moment from "moment";
 import { useEffect } from "react";
-import { usePageVisibility } from "../../hooks";
+import { usePageVisibility } from "core/hooks";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import { useTheme } from "next-themes";
 import {

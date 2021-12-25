@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import Button from "../Button";
 import { MAXIUMUM_VALUE_UINT256, initTransaction } from "../../lib/utils";
-import { MutationsContext } from "../../contexts";
+import { MutationsContext } from "core/contexts";
 import { useApolloClient } from "@apollo/client";
 
 const Index = () => {

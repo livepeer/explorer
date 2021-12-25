@@ -1,11 +1,12 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+import { CHAIN_INFO } from "constants/chains";
 import merge from "lodash.merge";
 import { useMemo } from "react";
 import createApolloClient from "./createApolloClient";
 
 export const client = new ApolloClient({
   link: new HttpLink({
-    uri: process.env.NEXT_PUBLIC_SUBGRAPH,
+    uri: CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].subgraph,
   }),
   cache: new InMemoryCache(),
 });

@@ -13,6 +13,7 @@ import { protocolDataByBlockQuery } from "core/queries/protocolDataByBlockQuery"
 import { protocolDataQuery } from "core/queries/protocolDataQuery";
 import { client } from "..";
 import { ethers } from "ethers";
+import { INFURA_NETWORK_URLS } from "constants/chains";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -64,9 +65,7 @@ export async function txPrediction(_obj, _args, _ctx, _info) {
 
 export async function ens(_obj, _args, _ctx, _info) {
   const provider = new ethers.providers.JsonRpcProvider(
-    process.env.NEXT_PUBLIC_NETWORK === "mainnet"
-      ? process.env.NEXT_PUBLIC_RPC_URL_1
-      : process.env.NEXT_PUBLIC_RPC_URL_4
+    INFURA_NETWORK_URLS[process.env.NEXT_PUBLIC_NETWORK]
   );
   const name = await provider.lookupAddress(_args.id);
   const resolver = await provider.getResolver(_args.id);

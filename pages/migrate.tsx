@@ -19,13 +19,11 @@ import WalletModal from "@components/WalletModal";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
-import bondingManagerABI from "../abis/bondingManager.json";
-import migratorABI from "../abis/migrator.json";
+import migratorABI from "../abis/L1Migrator.json";
 import arbRetryableTxABI from "../abis/arbRetryableTx.json";
 import nodeInterfaceABI from "../abis/nodeInterface.json";
 import l2MigratorABI from "../abis/L2Migrator.json";
-
-import { NETWORKS } from "@lib/utils";
+import { CHAIN_INFO } from "constants/chains";
 
 const MIGRATOR_ADDRESS_RINKEBY = "0x7cfB164BDdB051da1CF6d66B1395dA0FBB18E749";
 const BONDING_MANAGER_RINKEBY = "0x595ab11a0bffbca8134d2105bcf985e85732af5c";
@@ -46,15 +44,15 @@ const ReadOnlyCard = styled(Box, {
 const dummyStateData = [
   {
     step: 0,
-    title: "Arbitrum Migration Tool",
+    title: "Migrate Stake to Arbitrum",
     subtitle:
-      "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
+      "This tool will safely migrate your orchestrator’s delegated stake and fees from Ethereum Mainnet to Arbitrum.",
     loading: false,
     image: "/img/arbitrum.svg",
   },
   {
     step: 1,
-    title: "Arbitrum Migration Tool",
+    title: "Migrate Stake to Arbitrum",
     subtitle:
       "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
     loading: false,
@@ -150,12 +148,12 @@ const stepperStyles = {
 function getArbitrumCoreContracts(l2) {
   return {
     arbRetryableTx: new ethers.Contract(
-      NETWORKS["arbitrum-rinkeby"].arbRetryableTx,
+      CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.arbRetryableTx,
       arbRetryableTxABI,
       l2
     ),
     nodeInterface: new ethers.Contract(
-      NETWORKS["arbitrum-rinkeby"].nodeInterface,
+      CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.nodeInterface,
       nodeInterfaceABI,
       l2
     ),
@@ -201,7 +199,7 @@ const Migrate = () => {
     if (!context.account) {
       setMigrationViewState({
         step: 0,
-        title: "Arbitrum Migration Tool",
+        title: "Migrate Stake to Arbitrum",
         subtitle:
           "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
         loading: false,

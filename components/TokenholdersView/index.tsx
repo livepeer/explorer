@@ -1,15 +1,14 @@
-import Box from "../Box";
-import Flex from "../Flex";
 import { useRouter } from "next/router";
 import { useQuery, gql } from "@apollo/client";
-import Spinner from "../Spinner";
-import Tokenholders from "../Tokenholders";
+import Spinner from "@components/Spinner";
+import Tokenholders from "@components/Tokenholders";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useEffect } from "react";
-import { usePageVisibility } from "../../hooks";
+import { usePageVisibility } from "core/hooks";
+import { Box, Flex } from "@livepeer/design-system";
 
 const GET_DATA = gql`
-  query($account: ID!, $first: Int!, $skip: Int!) {
+  query ($account: ID!, $first: Int!, $skip: Int!) {
     transcoder(id: $account) {
       id
       rewardCut
@@ -74,7 +73,8 @@ const Index = () => {
           width: "100%",
           justifyContent: "center",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Spinner />
       </Flex>
     );
@@ -111,7 +111,8 @@ const Index = () => {
           });
         }
       }}
-      hasMore={true}>
+      hasMore={true}
+    >
       <Box css={{ pt: "$5", position: "relative", pb: 6 }}>
         <Tokenholders
           protocol={data.protocol}
@@ -127,7 +128,8 @@ const Index = () => {
               width: "100%",
               justifyContent: "center",
               alignItems: "center",
-            }}>
+            }}
+          >
             <Spinner />
           </Flex>
         )}

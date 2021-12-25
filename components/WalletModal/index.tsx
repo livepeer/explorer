@@ -2,14 +2,14 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { useState, useEffect } from "react";
 import MetaMaskIcon from "../../public/img/metamask.svg";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
-import { SUPPORTED_WALLETS } from "../../lib/constants";
-import { Injected } from "../../lib/connectors";
+import { SUPPORTED_WALLETS } from "../../constants/wallet";
+import { injected } from "../../lib/connectors";
 import { isMobile } from "react-device-detect";
 import { useWeb3React } from "@web3-react/core";
 import Option from "./Option";
 import PendingView from "./PendingView";
 import AccountDetails from "./AccountDetails";
-import { usePrevious } from "../../hooks";
+import { usePrevious } from "core/hooks";
 import ReactGA from "react-ga";
 import {
   Box,
@@ -118,7 +118,7 @@ const Index = ({ trigger = null }) => {
       }
 
       // overwrite injected when needed
-      if (option.connector === Injected) {
+      if (option.connector === injected) {
         // don't show injected if there's no injected provider
         if (!(window["web3"] || window["ethereum"])) {
           if (option.name === "MetaMask") {

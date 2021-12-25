@@ -1,4 +1,4 @@
-import { useInactiveListener, useEagerConnect } from "../../hooks";
+import { useInactiveListener, useEagerConnect } from "core/hooks";
 
 const Index = ({ children }) => {
   const triedEager = useEagerConnect();

@@ -12,7 +12,7 @@ import { checkAddressEquality } from "@lib/utils";
 import HistoryView from "@components/HistoryView";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { usePageVisibility } from "../../../hooks";
+import { usePageVisibility } from "core/hooks";
 import { useEffect } from "react";
 import { accountQuery } from "core/queries/accountQuery";
 import { gql } from "@apollo/client";

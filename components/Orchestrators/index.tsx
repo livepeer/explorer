@@ -1,17 +1,11 @@
 import { NetworkStatus, useQuery, gql } from "@apollo/client";
-import Box from "../Box";
-import Flex from "../Flex";
 import PerformanceTable from "./PerformanceTable";
 import StakingTable from "./StakingTable";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-// import {
-//   Menu,
-//   MenuItemRadioGroup,
-//   MenuItemRadio,
-// } from "@modulz/radix/dist/index.es";
-import Spinner from "../Spinner";
-import { usePageVisibility } from "../../hooks";
+import { Box, Flex } from "@livepeer/design-system";
+import Spinner from "@components/Spinner";
+import { usePageVisibility } from "core/hooks";
 
 const regions = {
   global: "Global",

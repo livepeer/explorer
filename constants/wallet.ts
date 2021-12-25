@@ -1,20 +1,12 @@
-import {
-  Injected,
-  Portis,
-  Fortmatic,
-  WalletLink,
-  WalletConnect,
-} from "./connectors";
+import { injected, walletlink, walletconnect } from "@lib/connectors";
 import MetaMaskIcon from "../public/img/metamask.svg";
-import PortisIcon from "../public/img/portis.svg";
-import FortmaticIcon from "../public/img/fortmatic.svg";
 import CoinbaseWalletIcon from "../public/img/coinbase-wallet.svg";
 import WalletConnectIcon from "../public/img/wallet-connect.svg";
 import InjectedIcon from "../public/img/arrow-right.svg";
 
 export const SUPPORTED_WALLETS = {
   INJECTED: {
-    connector: Injected,
+    connector: injected,
     name: "Injected",
     icon: InjectedIcon,
     description: "Injected web3 provider.",
@@ -23,7 +15,7 @@ export const SUPPORTED_WALLETS = {
     primary: true,
   },
   METAMASK: {
-    connector: Injected,
+    connector: injected,
     name: "MetaMask",
     icon: MetaMaskIcon,
     description: "Easy-to-use browser extension.",
@@ -31,7 +23,7 @@ export const SUPPORTED_WALLETS = {
     color: "#E8831D",
   },
   WALLET_CONNECT: {
-    connector: WalletConnect,
+    connector: walletconnect,
     name: "WalletConnect",
     icon: WalletConnectIcon,
     description: "Connect to Trust Wallet, Rainbow Wallet and more...",
@@ -40,7 +32,7 @@ export const SUPPORTED_WALLETS = {
     mobile: true,
   },
   WALLET_LINK: {
-    connector: WalletLink,
+    connector: walletlink,
     name: "Coinbase Wallet",
     icon: CoinbaseWalletIcon,
     description: "Use Coinbase Wallet app on mobile device",
@@ -57,11 +49,3 @@ export const SUPPORTED_WALLETS = {
     mobileOnly: true,
   },
 };
-
-export const timeframeOptions = {
-  WEEK: "1 week",
-  MONTH: "1 month",
-  ALL_TIME: "All time",
-};
-
-export const PRICING_TOOL_API = "https://nyc.livepeer.com/orchestratorStats";

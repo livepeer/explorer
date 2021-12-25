@@ -203,6 +203,174 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_l1Addr",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_l2Addr",
+        "type": "address"
+      }
+    ],
+    "name": "getMigrateDelegatorParams",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "l1Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "l2Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "stake",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "delegatedStake",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fees",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "delegate",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IMigrator.MigrateDelegatorParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_l1Addr",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_l2Addr",
+        "type": "address"
+      }
+    ],
+    "name": "getMigrateSenderParams",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "l1Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "l2Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deposit",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserve",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IMigrator.MigrateSenderParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_l1Addr",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_l2Addr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_unbondingLockIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getMigrateUnbondingLocksParams",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "l1Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "l2Addr",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "total",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "unbondingLockIds",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct IMigrator.MigrateUnbondingLocksParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "inbox",
     "outputs": [
@@ -263,7 +431,7 @@
     ],
     "name": "migrateDelegator",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -301,7 +469,7 @@
     ],
     "name": "migrateSender",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -344,7 +512,7 @@
     ],
     "name": "migrateUnbondingLocks",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

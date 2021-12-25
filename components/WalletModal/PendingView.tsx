@@ -1,9 +1,9 @@
 import Box from "../Box";
 import Flex from "../Flex";
 import Spinner from "../Spinner";
-import { SUPPORTED_WALLETS } from "../../lib/constants";
+import { SUPPORTED_WALLETS } from "../../constants/wallet";
 import Option from "./Option";
-import { Injected } from "../../lib/connectors";
+import { injected } from "../../lib/connectors";
 
 const PendingView = ({ connector }) => {
   const isMetamask = window["ethereum"] && window["ethereum"].isMetaMask;
@@ -25,7 +25,7 @@ const PendingView = ({ connector }) => {
       {Object.keys(SUPPORTED_WALLETS).map((key) => {
         const option = SUPPORTED_WALLETS[key];
         if (option.connector === connector) {
-          if (option.connector === Injected) {
+          if (option.connector === injected) {
             if (isMetamask && option.name !== "MetaMask") {
               return null;
             }

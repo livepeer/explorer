@@ -13,7 +13,7 @@ import moment from "moment";
 import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
 import Head from "next/head";
-import { usePageVisibility } from "../../hooks";
+import { usePageVisibility } from "core/hooks";
 import { pollQuery } from "core/queries/pollQuery";
 import { accountQuery } from "core/queries/accountQuery";
 import { voteQuery } from "core/queries/voteQuery";

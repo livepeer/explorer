@@ -10,6 +10,7 @@ import {
 import createSchema from "./createSchema";
 import LivepeerSDK from "@livepeer/sdk";
 import { execute } from "graphql/execution/execute";
+import { CHAIN_INFO, INFURA_NETWORK_URLS } from "../../constants/chains";
 
 export default function createApolloClient(
   initialState: object,
@@ -76,12 +77,13 @@ export default function createApolloClient(
           const context = operation.getContext();
           const provider = context?.library
             ? context.library
-            : process.env.NEXT_PUBLIC_NETWORK === "rinkeby"
-            ? process.env.NEXT_PUBLIC_RPC_URL_4
-            : process.env.NEXT_PUBLIC_RPC_URL_1;
+            : INFURA_NETWORK_URLS[process.env.NEXT_PUBLIC_NETWORK];
+
           const sdk = await LivepeerSDK({
-            controllerAddress: process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS,
-            pollCreatorAddress: process.env.NEXT_PUBLIC_POLL_CREATOR_ADDRESS,
+            controllerAddress:
+              CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.controller,
+            pollCreatorAddress:
+              CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.pollCreator,
             provider,
             account: context?.account,
           });
