@@ -137,7 +137,6 @@ function DataTable({ pageSize = 20, heading = null, data }) {
         Header: "Delegated Stake",
         id: "pendingStake",
         accessor: (row) => {
-          console.log(row);
           return row.pendingStake.toLocaleString("en-US", {
             maximumFractionDigits: 2,
           });

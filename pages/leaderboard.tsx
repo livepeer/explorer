@@ -1,10 +1,27 @@
 import { getLayout } from "@layouts/main";
 import Head from "next/head";
-import { getOrchestrators } from "@lib/utils";
+// import { getOrchestrators } from "@lib/utils";
 import { Flex, Container, Heading, Box } from "@livepeer/design-system";
 import PerformanceList from "@components/PerformanceList";
+// import { getApollo } from "core/apollo";
+import { getApollo } from "core/apollo";
+import { getOrchestrators } from "core/api";
+import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
+import { gql, useQuery } from "@apollo/client";
 
-const LeaderboardPage = ({ orchestrators }) => {
+const LeaderboardPage = () => {
+  const { data: protocolData } = useQuery(gql`
+    {
+      protocol(id: "0") {
+        currentRound {
+          id
+        }
+      }
+    }
+  `);
+  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
+  const { data } = useQuery(query);
+
   return (
     <>
       <Head>
@@ -32,7 +49,7 @@ const LeaderboardPage = ({ orchestrators }) => {
             Performance Leaderboard
           </Heading>
           <Box css={{ mb: "$5" }}>
-            <PerformanceList data={orchestrators} pageSize={20} />
+            <PerformanceList data={data.transcoders} pageSize={20} />
           </Box>
         </Flex>
       </Container>
@@ -41,12 +58,12 @@ const LeaderboardPage = ({ orchestrators }) => {
 };
 
 export async function getStaticProps() {
-  const orchestrators = await getOrchestrators();
+  const client = getApollo();
+  await getOrchestrators(client);
+
   return {
     props: {
-      orchestrators: orchestrators.sort((a, b) =>
-        +b.totalVolumeETH > +a.totalVolumeETH ? 1 : -1
-      ),
+      initialApolloState: client.cache.extract(),
     },
     revalidate: 1,
   };

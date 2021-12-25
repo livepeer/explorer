@@ -1,9 +1,6 @@
 import Box from "../Box";
 import Flex from "../Flex";
-import { useMemo } from "react";
 import { useTable, useSortBy, usePagination } from "react-table";
-import moment from "moment";
-import Link from "next/link";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -18,91 +15,13 @@ import {
   Tr,
   Th,
   Td,
-  Badge,
 } from "@livepeer/design-system";
 
 const OrchestratorPayoutsTable = ({
   pageSize = 10,
-  data: { currentRound, tickets },
+  columns,
+  data: { tickets },
 }) => {
-  const columns: any = useMemo(
-    () => [
-      {
-        Header: "Orchestrator",
-        accessor: "recipient",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.recipient.id}/history`} passHref>
-            <A>
-              {row.values.recipient.id.replace(
-                row.values.recipient.id.slice(5, 39),
-                "…"
-              )}
-            </A>
-          </Link>
-        ),
-      },
-      {
-        Header: "Amount",
-        accessor: "faceValue",
-        Cell: ({ row }) => (
-          <Flex css={{ alignItems: "center" }}>
-            <Badge size="2">
-              <Flex
-                css={{
-                  alignItems: "center",
-                  fontWeight: 600,
-                }}
-              >
-                <Box>{parseFloat((+row.values.faceValue).toFixed(3))}</Box>{" "}
-                <Box css={{ mx: "$1" }}>ETH</Box>
-                <Box css={{ fontWeight: 400 }}>
-                  ({`$${parseFloat((+row.values.faceValueUSD).toFixed(2))}`})
-                </Box>
-              </Flex>
-            </Badge>
-          </Flex>
-        ),
-      },
-      {
-        Header: "Value (USD)",
-        accessor: "faceValueUSD",
-      },
-      {
-        Header: "Transaction",
-        accessor: "transaction",
-      },
-      {
-        Header: "Broadcaster",
-        accessor: "sender",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.sender.id}/history`} passHref>
-            <A>
-              {row.values.sender.id.replace(
-                row.values.sender.id.slice(5, 39),
-                "…"
-              )}
-            </A>
-          </Link>
-        ),
-      },
-      {
-        Header: "Time",
-        accessor: "timestamp",
-        Cell: ({ row }) => (
-          <A
-            rel="noopener noreferrer"
-            target="_blank"
-            href={`https://etherscan.io/tx/${row.values.transaction.id}`}
-          >
-            {moment(row.values.timestamp * 1000).fromNow()}
-          </A>
-        ),
-        sortType: "number",
-      },
-    ],
-    []
-  );
-
   const tableOptions: any = {
     columns,
     data: tickets,

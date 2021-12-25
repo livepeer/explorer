@@ -1,11 +1,11 @@
-import { EarningsTree } from "../../lib/earningsTree";
+import { EarningsTree } from "../../../lib/earningsTree";
 import { utils } from "ethers";
 let earningsSnapshot;
 
 if (process.env.NEXT_PUBLIC_NETWORK === "mainnet") {
-  earningsSnapshot = require("../../data/earningsTree");
+  earningsSnapshot = require("../../../data/earningsTree");
 } else if (process.env.NEXT_PUBLIC_NETWORK === "rinkeby") {
-  earningsSnapshot = require("../../data/earningsTree_rinkeby");
+  earningsSnapshot = require("../../../data/earningsTree_rinkeby");
 } else {
   earningsSnapshot = "";
 }

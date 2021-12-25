@@ -55,18 +55,22 @@ const Stake = ({
 
   const onStake = () => {
     const tx = async () => {
-      await bond({
-        variables: {
-          amount: Utils.toWei(amount ? amount.toString() : "0"),
-          to,
-          oldDelegateNewPosPrev,
-          oldDelegateNewPosNext,
-          currDelegateNewPosPrev,
-          currDelegateNewPosNext,
-          delegator: delegator?.id,
-          lastClaimRound: parseInt(delegator?.lastClaimRound.id, 10),
-        },
-      });
+      try {
+        await bond({
+          variables: {
+            amount: Utils.toWei(amount ? amount.toString() : "0"),
+            to,
+            oldDelegateNewPosPrev,
+            oldDelegateNewPosNext,
+            currDelegateNewPosPrev,
+            currDelegateNewPosNext,
+            delegator: delegator?.id,
+            lastClaimRound: parseInt(delegator?.lastClaimRound.id, 10),
+          },
+        });
+      } catch (e) {
+        console.error(e);
+      }
     };
 
     initTransaction(client, tx);

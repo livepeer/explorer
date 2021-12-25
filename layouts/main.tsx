@@ -25,7 +25,7 @@ import AppBar from "@components/AppBar";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import Drawer from "@components/Drawer";
-import GET_SUBMITTED_TXS from "../queries/transactions.gql";
+import { transactionsQuery } from "core/queries/transactionsQuery";
 import Head from "next/head";
 import Header from "@components/Header";
 import Link from "next/link";
@@ -117,7 +117,7 @@ const Layout = ({
     `
   );
   const mutations = useMutations();
-  const { data: transactionsData } = useQuery(GET_SUBMITTED_TXS);
+  const { data: transactionsData } = useQuery(transactionsQuery);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
   const [txDialogState, setTxDialogState]: any = useState([]);

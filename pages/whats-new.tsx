@@ -2,7 +2,6 @@ import Spinner from "@components/Spinner";
 import moment from "moment";
 import { getLayout } from "../layouts/main";
 import Markdown from "markdown-to-jsx";
-import { withApollo } from "../apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { useEffect, useState } from "react";
 import Head from "next/head";
@@ -207,6 +206,4 @@ const WhatsNew = () => {
 
 WhatsNew.getLayout = getLayout;
 
-export default withApollo({
-  ssr: false,
-})(WhatsNew);
+export default WhatsNew;

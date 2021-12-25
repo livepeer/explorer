@@ -10,12 +10,11 @@ import Spinner from "@components/Spinner";
 import { useWeb3React } from "@web3-react/core";
 import { checkAddressEquality } from "@lib/utils";
 import HistoryView from "@components/HistoryView";
-import { withApollo } from "../../../apollo";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { usePageVisibility } from "../../../hooks";
 import { useEffect } from "react";
-import accountQuery from "../../../queries/account.gql";
+import { accountQuery } from "core/queries/accountQuery";
 import { gql } from "@apollo/client";
 import { NextPage } from "next";
 import {
@@ -47,9 +46,7 @@ const Account = () => {
     }
   `);
 
-  const accountViewQuery = getAccountViewQuery(
-    currentRoundData?.protocol.currentRound.id
-  );
+  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
 
   const account = query?.account?.toString().toLowerCase();
 
@@ -59,7 +56,7 @@ const Account = () => {
     refetch,
     startPolling: startPollingAccount,
     stopPolling: stopPollingAccount,
-  } = useQuery(accountViewQuery, {
+  } = useQuery(q, {
     variables: {
       account,
     },
@@ -85,7 +82,7 @@ const Account = () => {
     data: dataMyAccount,
     startPolling: startPollingMyAccount,
     stopPolling: stopPollingMyAccount,
-  } = useQuery(accountQuery, {
+  } = useQuery(q, {
     variables: {
       account: context?.account?.toLowerCase(),
     },
@@ -332,9 +329,7 @@ const Account = () => {
 
 Account.getLayout = getLayout;
 
-export default withApollo({
-  ssr: false,
-})(Account as NextPage);
+export default Account;
 
 function getTabs(
   role: string,
@@ -366,76 +361,4 @@ function getTabs(
   }
 
   return tabs;
-}
-
-function getAccountViewQuery(currentRound) {
-  return gql`
-    query delegator($account: ID!) {
-      delegator(id: $account) {
-        id
-        pendingStake
-        bondedAmount
-        principal
-        unbonded
-        pendingFees
-        withdrawnFees
-        startRound
-        lastClaimRound {
-          id
-        }
-        unbondingLocks {
-          id
-          amount
-          unbondingLockId
-          withdrawRound
-          delegate {
-            id
-          }
-        }
-        delegate(id: $account) {
-          id
-          active
-          status
-          active
-          totalStake
-        }
-      }
-      transcoder(id: $account) {
-        id
-        active
-        feeShare
-        rewardCut
-        price
-        status
-        active
-        totalStake
-        totalVolumeETH
-        activationRound
-        deactivationRound
-        lastRewardRound {
-          id
-        }
-        pools(first: 30, orderBy: id, orderDirection: desc where: { round_not: "${currentRound}" }) {
-          rewardTokens
-        }
-      }
-      account(id: $account) {
-        id
-        tokenBalance
-        ethBalance
-        allowance
-      }
-      protocol(id: "0") {
-        id
-        totalSupply
-        totalActiveStake
-        participationRate
-        inflation
-        inflationChange
-        currentRound {
-          id
-        }
-      }
-    }
-  `;
 }

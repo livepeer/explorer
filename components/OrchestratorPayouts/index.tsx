@@ -1,6 +1,6 @@
 import { NetworkStatus, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import winningTicketsQuery from "../../queries/winningTicketsQuery.gql";
+import { winningTicketsQuery } from "core/queries/winningTicketsQuery";
 import Table from "@components/Table";
 import { useMemo } from "react";
 import Link from "next/link";
@@ -17,8 +17,7 @@ const Index = ({ title = "" }) => {
     variables,
     notifyOnNetworkStatusChange: true,
   });
-  console.log("error", error);
-  console.log("data", data);
+
   const columns: any = useMemo(
     () => [
       {

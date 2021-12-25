@@ -3,7 +3,7 @@ import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
 import { useWeb3React } from "@web3-react/core";
 import { Injected } from "../lib/connectors";
 import { isMobile } from "react-device-detect";
-import submittedTxsQuery from "../queries/transactions.gql";
+import { transactionsQuery } from "core/queries/transactionsQuery";
 import { ethers } from "ethers";
 
 export function useWeb3Mutation(mutation, options) {
@@ -69,7 +69,7 @@ export function useWeb3Mutation(mutation, options) {
     }
   );
 
-  const { data: transactionsData } = useQuery(submittedTxsQuery);
+  const { data: transactionsData } = useQuery(transactionsQuery);
 
   useEffect(() => {
     if (data) {
@@ -201,7 +201,7 @@ export function useInactiveListener(suppress = false) {
 }
 
 export function useMutations() {
-  const mutations = require("../mutations").default;
+  const mutations = require("@core/mutations").default;
   const context = useWeb3React();
   const mutationsObj = {};
   for (const key in mutations) {

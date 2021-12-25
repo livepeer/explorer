@@ -13,8 +13,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@livepeer/design-system";
-import { getOrchestrators } from "@lib/utils";
+import { getOrchestrators } from "core/api";
 import OrchestratorList from "@components/OrchestratorList";
+import { getApollo } from "core/apollo";
+import { gql, useQuery } from "@apollo/client";
+import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
 
 const Panel = ({ children }) => (
   <Flex
@@ -41,7 +44,19 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Home = ({ orchestrators }) => {
+const Home = () => {
+  const { data: protocolData } = useQuery(gql`
+    {
+      protocol(id: "0") {
+        currentRound {
+          id
+        }
+      }
+    }
+  `);
+  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
+  const { data } = useQuery(query);
+
   const flickityOptions = {
     wrapAround: true,
     cellAlign: "left",
@@ -143,7 +158,7 @@ const Home = ({ orchestrators }) => {
                 </Box>
               </Link>
             </Flex>
-            <OrchestratorList data={orchestrators} pageSize={20} />
+            <OrchestratorList data={data.transcoders} pageSize={20} />
             {/* <Tabs defaultValue="tab-one">
               <TabsList>
                 <TabsTrigger value="tab-one">Orchestrators</TabsTrigger>
@@ -181,15 +196,14 @@ const Home = ({ orchestrators }) => {
 };
 
 export async function getStaticProps() {
-  const orchestrators = await getOrchestrators();
+  const client = getApollo();
+  await getOrchestrators(client);
 
   return {
     props: {
-      orchestrators: orchestrators.sort((a, b) =>
-        +b.totalVolumeETH > +a.totalVolumeETH ? 1 : -1
-      ),
+      initialApolloState: client.cache.extract(),
     },
-    revalidate: 1,
+    revalidate: 60,
   };
 }
 

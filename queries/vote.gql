@@ -1,7 +1,0 @@
-query vote($id: ID!) {
-  vote(id: $id) {
-    choiceID
-    voteStake
-    nonVoteStake
-  }
-}

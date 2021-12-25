@@ -1,6 +1,6 @@
 import { getLayout } from "layouts/main";
 import { useQuery } from "@apollo/client";
-import Spinner from "../../components/Spinner";
+import Spinner from "@components/Spinner";
 import IPFS from "ipfs-mini";
 import fm from "front-matter";
 import { useEffect, useState } from "react";
@@ -8,7 +8,7 @@ import moment from "moment";
 import Link from "next/link";
 import Head from "next/head";
 import { usePageVisibility } from "../../hooks";
-import allPollsQuery from "../../queries/allPolls.gql";
+import { pollsQuery } from "core/queries/pollsQuery";
 import {
   Container,
   Heading,
@@ -41,7 +41,7 @@ const Voting = () => {
   const pollInterval = 20000;
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { data, startPolling, stopPolling } = useQuery(allPollsQuery, {
+  const { data, startPolling, stopPolling } = useQuery(pollsQuery, {
     pollInterval,
   });
 

@@ -10,9 +10,9 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
     () => [
       {
         Header: "Orchestrator",
-        accessor: "address",
+        accessor: "id",
         Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.address}/orchestrating`} passHref>
+          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
             <A
               css={{
                 width: 300,
@@ -41,7 +41,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                 >
                   {+row.id + 1}
                 </Box>
-                {row.values.avatar ? (
+                {row.values.threeBoxSpace?.image ? (
                   <Box
                     as="img"
                     css={{
@@ -52,7 +52,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                       maxHeight: 24,
                       borderRadius: 1000,
                     }}
-                    src={`https://ipfs.infura.io/ipfs/${row.values.avatar}`}
+                    src={`https://ipfs.infura.io/ipfs/${row.values.threeBoxSpace.image}`}
                   />
                 ) : (
                   <Box
@@ -65,11 +65,11 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                       maxWidth: 24,
                       maxHeight: 24,
                     }}
-                    fgColor={`#${row.values.address.substr(2, 6)}`}
-                    value={row.values.address}
+                    fgColor={`#${row.values.id.substr(2, 6)}`}
+                    value={row.values.id}
                   />
                 )}
-                {row.values.username ? (
+                {row.values.threeBoxSpace?.name ? (
                   <Flex css={{ fontWeight: 600, ai: "center" }}>
                     <Box
                       css={{
@@ -77,22 +77,19 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                         fontSize: "$3",
                       }}
                     >
-                      {textTruncate(row.values.username, 12, "…")}
+                      {textTruncate(row.values.threeBoxSpace.name, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
                       {row.values.ens.name
                         ? row.values.ens.name
-                        : row.values.address.substring(0, 6)}
+                        : row.values.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
                     {row.values.ens.name
                       ? row.values.ens.name
-                      : row.values.address.replace(
-                          row.values.address.slice(7, 37),
-                          "…"
-                        )}
+                      : row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
                 )}
               </Flex>
@@ -101,16 +98,12 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
         ),
       },
       {
-        Header: "Username",
-        accessor: "username",
-      },
-      {
-        Header: "Avatar",
-        accessor: "avatar",
-      },
-      {
         Header: "ENS",
         accessor: "ens",
+      },
+      {
+        Header: "ThreeBoxSpace",
+        accessor: "threeBoxSpace",
       },
       {
         Header: "Total Fees",
@@ -124,14 +117,10 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
       },
       {
         Header: "Total Stake",
-        id: "totalStake",
-        accessor: (row) =>
-          row.totalStake.toLocaleString("en-US", {
-            maximumFractionDigits: 2,
-          }),
+        accessor: "totalStake",
         Cell: ({ row }) => (
           <Box>
-            {row.values.totalStake.toLocaleString("en-US", {
+            {parseFloat(row.values.totalStake).toLocaleString("en-US", {
               maximumFractionDigits: 2,
             })}{" "}
             LPT
@@ -142,20 +131,26 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
       {
         Header: "Reward Cut",
         accessor: "rewardCut",
-        Cell: ({ row }) => <Box>{roundToTwo(row.values.rewardCut)}%</Box>,
+        Cell: ({ row }) => (
+          <Box>{roundToTwo(parseInt(row.values.rewardCut, 10) / 10000)}%</Box>
+        ),
         sortType: "number",
       },
       {
         Header: "Fee Cut",
-        accessor: "feeCut",
-        Cell: ({ row }) => <Box>{roundToTwo(row.values.feeCut)}%</Box>,
+        accessor: "feeShare",
+        Cell: ({ row }) => (
+          <Box>
+            {roundToTwo(100 - parseInt(row.values.feeShare, 10) / 10000)}%
+          </Box>
+        ),
         sortType: "number",
       },
 
       {
         Header: "Total Delegators",
-        accessor: "totalDelegators",
-        Cell: ({ row }) => <Box>{row.values.totalDelegators}</Box>,
+        accessor: "delegators",
+        Cell: ({ row }) => <Box>{row.values.delegators.length}</Box>,
       },
       {
         Header: "Reward Calls",
@@ -174,7 +169,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
       columns={columns}
       initialState={{
         pageSize,
-        hiddenColumns: ["username", "avatar", "ens"],
+        hiddenColumns: ["threeBoxSpace", "ens"],
       }}
     />
   );

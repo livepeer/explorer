@@ -5,7 +5,7 @@ import parseDomain from "parse-domain";
 import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
-import { blockClient } from "../apollo";
+import { blockClient } from "../core/apollo";
 import { request } from "graphql-request";
 import bondingManagerABI from "../abis/bondingManager.json";
 import ThreeBox from "3box";

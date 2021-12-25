@@ -6,8 +6,8 @@ import { ethers } from "ethers";
 import { CookiesProvider } from "react-cookie";
 import Web3ReactManager from "../components/Web3ReactManager";
 import Layout from "layouts/main";
-import { withApollo } from "../apollo";
-import { NextPage } from "next";
+import { useApollo } from "../core/apollo";
+import { ApolloProvider } from "@apollo/client";
 
 function getLibrary(provider) {
   const library = new ethers.providers.Web3Provider(provider);
@@ -16,6 +16,7 @@ function getLibrary(provider) {
 }
 
 function App({ Component, pageProps }) {
+  const client = useApollo(pageProps.initialApolloState);
   const getLayout =
     Component.getLayout || ((page) => <Layout children={page} />);
   return (
@@ -32,17 +33,17 @@ function App({ Component, pageProps }) {
           rel="stylesheet"
         />
       </Head>
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <Web3ReactManager>
-          <CookiesProvider>
-            {getLayout(<Component {...pageProps} />)}
-          </CookiesProvider>
-        </Web3ReactManager>
-      </Web3ReactProvider>
+      <ApolloProvider client={client}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <Web3ReactManager>
+            <CookiesProvider>
+              {getLayout(<Component {...pageProps} />)}
+            </CookiesProvider>
+          </Web3ReactManager>
+        </Web3ReactProvider>
+      </ApolloProvider>
     </>
   );
 }
 
-export default withApollo({
-  ssr: false,
-})(App as NextPage);
+export default App;

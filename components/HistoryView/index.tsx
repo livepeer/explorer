@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import moment from "moment";
 import InfiniteScroll from "react-infinite-scroll-component";
-import historyQuery from "@queries/historyView.gql";
+import { historyQuery } from "core/queries/historyQuery";
 import {
   Flex,
   Box,

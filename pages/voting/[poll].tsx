@@ -14,9 +14,9 @@ import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
 import Head from "next/head";
 import { usePageVisibility } from "../../hooks";
-import pollQuery from "../../queries/poll.gql";
-import accountQuery from "../../queries/account.gql";
-import voteQuery from "../../queries/vote.gql";
+import { pollQuery } from "core/queries/pollQuery";
+import { accountQuery } from "core/queries/accountQuery";
+import { voteQuery } from "core/queries/voteQuery";
 import FourZeroFour from "../404";
 import {
   Container,
@@ -53,11 +53,23 @@ const Poll = () => {
     pollInterval,
   });
 
+  const { data: currentRoundData } = useQuery(gql`
+    {
+      protocol(id: "0") {
+        currentRound {
+          id
+        }
+      }
+    }
+  `);
+
+  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
+
   const {
     data: myAccountData,
     startPolling: startPollingMyAccount,
     stopPolling: stopPollingMyAccount,
-  } = useQuery(accountQuery, {
+  } = useQuery(q, {
     variables: {
       account: context?.account?.toLowerCase(),
     },
@@ -157,19 +169,20 @@ const Poll = () => {
         <title>Livepeer Explorer - Voting</title>
       </Head>
       <Container size="3" css={{ width: "100%" }}>
-        <Flex css={{ justifyContent: "space-between", width: "100%" }}>
+        <Flex>
           <Flex
             css={{
-              pr: 0,
-              width: "100%",
               flexDirection: "column",
+              mb: "$6",
+              pr: 0,
+              pt: "$2",
+              width: "100%",
               "@bp3": {
-                pt: "$4",
                 pr: "$7",
               },
             }}
           >
-            <Box css={{ mb: "$4", width: "100%" }}>
+            <Box css={{ mb: "$4" }}>
               <Flex
                 css={{
                   mb: "$2",
@@ -376,6 +389,9 @@ const Poll = () => {
                   a: {
                     color: "$primary11",
                   },
+                  pre: {
+                    whiteSpace: "pre-wrap",
+                  },
                 }}
               >
                 <ReactMarkdown source={pollData.text} />
@@ -387,12 +403,12 @@ const Poll = () => {
             <Flex
               css={{
                 display: "none",
-                position: "sticky",
-                alignSelf: "flex-start",
-                top: "$5",
-                mt: "$4",
-                width: "40%",
                 "@bp3": {
+                  position: "sticky",
+                  alignSelf: "flex-start",
+                  top: "$9",
+                  mt: "$6",
+                  width: "40%",
                   display: "flex",
                 },
               }}

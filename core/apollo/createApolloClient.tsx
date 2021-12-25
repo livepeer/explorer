@@ -7,7 +7,7 @@ import {
   NormalizedCacheObject,
   Observable,
 } from "@apollo/client";
-import createSchema from "../createSchema";
+import createSchema from "./createSchema";
 import LivepeerSDK from "@livepeer/sdk";
 import { execute } from "graphql/execution/execute";
 

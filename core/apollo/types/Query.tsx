@@ -22,12 +22,20 @@ type ThreeBoxSpace {
   defaultProfile: String
 }
 
+type ENS {
+  name: String
+  url: String
+  avatar: String
+  description: String
+}
+
 type Query {
   account(id: ID!): Account
   getTxReceiptStatus(txHash: String): TransactionStatus
   txPrediction(gasPrice: String!): JSON
   transaction(txHash: String): JSON
   threeBoxSpace(id: ID!): ThreeBoxSpace
+  ens(id: ID!): ENS
   block: JSON
   getChartData: JSON
 }

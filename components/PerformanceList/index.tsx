@@ -17,7 +17,7 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
     sin: "Singapore",
   };
 
-  const region = "Global";
+  const region = "global";
 
   const initialState = {
     pageSize: 20,
@@ -71,9 +71,10 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
     () => [
       {
         Header: "Orchestrator",
-        accessor: "address",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.address}/orchestrating`} passHref>
+        accessor: "id",
+        defaultCanSort: false,
+        Cell: ({ row }, i) => (
+          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
             <A
               css={{
                 width: 300,
@@ -83,26 +84,7 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
               }}
             >
               <Flex css={{ alignItems: "center" }}>
-                <Box
-                  css={{
-                    mr: "$2",
-                    backgroundColor: "$neutral4",
-                    borderRadius: 1000,
-                    color: "$neutral11",
-                    fontWeight: 700,
-                    width: 24,
-                    height: 24,
-                    minWidth: 24,
-                    minHeight: 24,
-                    fontSize: 11,
-                    justifyContent: "center",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {+row.id + 1}
-                </Box>
-                {row.values.avatar ? (
+                {row.values.threeBoxSpace?.image ? (
                   <Box
                     as="img"
                     css={{
@@ -113,7 +95,7 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
                       maxHeight: 24,
                       borderRadius: 1000,
                     }}
-                    src={`https://ipfs.infura.io/ipfs/${row.values.avatar}`}
+                    src={`https://ipfs.infura.io/ipfs/${row.values.threeBoxSpace.image}`}
                   />
                 ) : (
                   <Box
@@ -126,11 +108,11 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
                       maxWidth: 24,
                       maxHeight: 24,
                     }}
-                    fgColor={`#${row.values.address.substr(2, 6)}`}
-                    value={row.values.address}
+                    fgColor={`#${row.values.id.substr(2, 6)}`}
+                    value={row.values.id}
                   />
                 )}
-                {row.values.username ? (
+                {row.values.threeBoxSpace?.name ? (
                   <Flex css={{ fontWeight: 600, ai: "center" }}>
                     <Box
                       css={{
@@ -138,22 +120,19 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
                         fontSize: "$3",
                       }}
                     >
-                      {textTruncate(row.values.username, 12, "…")}
+                      {textTruncate(row.values.threeBoxSpace.name, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
                       {row.values.ens.name
                         ? row.values.ens.name
-                        : row.values.address.substring(0, 6)}
+                        : row.values.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
                     {row.values.ens.name
                       ? row.values.ens.name
-                      : row.values.address.replace(
-                          row.values.address.slice(7, 37),
-                          "…"
-                        )}
+                      : row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
                 )}
               </Flex>
@@ -195,17 +174,45 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
         sortDescFirst: true,
         defaultCanSort: true,
         Cell: ({ row }) => {
-          console.log(row);
-          return <Box />;
+          if (
+            typeof row.values["scores.global"] === "undefined" ||
+            row.values["scores.global"] === null
+          ) {
+            return null;
+          }
+          return <Box>{(row.values["scores.global"] / 1000).toFixed(2)}</Box>;
         },
       },
       {
         Header: "Success Rate (%)",
         accessor: `successRates.${region}`,
+        Cell: ({ row }) => {
+          if (
+            typeof row.values["successRates.global"] === "undefined" ||
+            row.values["successRates.global"] === null
+          ) {
+            return null;
+          }
+
+          return <Box>{row.values["successRates.global"].toFixed(2)}%</Box>;
+        },
       },
       {
         Header: "Latency Score (0-10)",
         accessor: `roundTripScores.${region}`,
+        Cell: ({ row }) => {
+          if (
+            typeof row.values["roundTripScores.global"] === "undefined" ||
+            row.values["roundTripScores.global"] === null
+          ) {
+            return null;
+          }
+          return (
+            <Box>
+              {(row.values["roundTripScores.global"] / 1000).toFixed(2)}
+            </Box>
+          );
+        },
       },
     ],
     [region]

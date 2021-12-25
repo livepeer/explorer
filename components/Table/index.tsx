@@ -1,4 +1,4 @@
-import { useTable, useSortBy, usePagination, TableInstance } from "react-table";
+import { useTable, useSortBy, usePagination } from "react-table";
 import {
   Flex,
   Box,
@@ -16,13 +16,7 @@ import {
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
 
-function DataTable({
-  heading = "",
-  pageSize = 10,
-  data,
-  columns,
-  initialState = {},
-}) {
+function DataTable({ heading = null, data, columns, initialState = {} }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -45,12 +39,13 @@ function DataTable({
     usePagination
   );
 
-  // Render the UI for your table
   return (
     <>
-      <Flex align="center" css={{ jc: "space-between" }}>
-        {heading}
-      </Flex>
+      {heading && (
+        <Flex align="center" css={{ jc: "space-between" }}>
+          {heading}
+        </Flex>
+      )}
       <Box
         css={{
           border: "1px solid $colors$neutral4",

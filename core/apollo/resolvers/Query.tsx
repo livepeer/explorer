@@ -7,11 +7,12 @@ import {
   getLivepeerComUsageData,
   getPercentChange,
   getTotalFeeDerivedMinutes,
-} from "../../lib/utils";
-import dayDataQuery from "../../queries/days.gql";
-import protocolDataByBlockQuery from "../../queries/protocolDataByBlock.gql";
-import protocolDataQuery from "../../queries/protocolData.gql";
-import { client } from "../";
+} from "../../../lib/utils";
+import { dayDataQuery } from "core/queries/dayDataQuery";
+import { protocolDataByBlockQuery } from "core/queries/protocolDataByBlockQuery";
+import { protocolDataQuery } from "core/queries/protocolDataQuery";
+import { client } from "..";
+import { ethers } from "ethers";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -59,6 +60,23 @@ export async function txPrediction(_obj, _args, _ctx, _info) {
     `https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice=${_args.gasPrice}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   return await response.json();
+}
+
+export async function ens(_obj, _args, _ctx, _info) {
+  const provider = new ethers.providers.JsonRpcProvider(
+    process.env.NEXT_PUBLIC_NETWORK === "mainnet"
+      ? process.env.NEXT_PUBLIC_RPC_URL_1
+      : process.env.NEXT_PUBLIC_RPC_URL_4
+  );
+  const name = await provider.lookupAddress(_args.id);
+  const resolver = await provider.getResolver(_args.id);
+  const ens = {
+    name,
+    url: resolver ? await resolver.getText("url") : null,
+    avatar: resolver ? await resolver.getText("avatar") : null,
+    description: resolver ? await resolver.getText("description") : null,
+  };
+  return ens;
 }
 
 export async function threeBoxSpace(_obj, _args, _ctx, _info) {

@@ -6,7 +6,13 @@ import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "../../lib/utils";
 
-const Unstake = ({ amount, newPosPrev, newPosNext, delegator, disabled }) => {
+const Undelegate = ({
+  amount,
+  newPosPrev,
+  newPosNext,
+  delegator,
+  disabled,
+}) => {
   const context = useWeb3React();
   const client = useApolloClient();
   const { unbond }: any = useContext(MutationsContext);
@@ -46,4 +52,4 @@ const Unstake = ({ amount, newPosPrev, newPosNext, delegator, disabled }) => {
   );
 };
 
-export default Unstake;
+export default Undelegate;

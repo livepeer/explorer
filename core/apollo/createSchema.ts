@@ -11,12 +11,12 @@ import {
   getBlockByNumber,
   getEstimatedBlockCountdown,
   mergeObjectsInUnique,
-} from "../lib/utils";
+} from "../../lib/utils";
 import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { PRICING_TOOL_API } from "../lib/constants";
+import { PRICING_TOOL_API } from "../../lib/constants";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -48,6 +48,7 @@ const createSchema = async () => {
   const linkTypeDefs = `
     extend type Transcoder {
       threeBoxSpace: ThreeBoxSpace
+      ens: ENS
       price: Float
       scores: PerformanceLog
       successRates: PerformanceLog
@@ -122,6 +123,21 @@ const createSchema = async () => {
     },
     resolvers: {
       Transcoder: {
+        ens: {
+          async resolve(_transcoder, _args, _ctx, _info) {
+            const ens = await delegateToSchema({
+              schema: schema,
+              operation: "query",
+              fieldName: "ens",
+              args: {
+                id: _transcoder.id,
+              },
+              context: _ctx,
+              info: _info,
+            });
+            return ens;
+          },
+        },
         threeBoxSpace: {
           async resolve(_transcoder, _args, _ctx, _info) {
             const threeBoxSpace = await delegateToSchema({
@@ -353,9 +369,16 @@ const createSchema = async () => {
           return arr.reduce(sum)[key] / arr.length;
         }
 
+        const oneDayAgo = Math.floor(
+          new Date(new Date().setDate(new Date().getDate() - 1)).getTime() /
+            1000
+        );
+
         if (selectionSet.includes("scores")) {
           const metricsResponse = await fetch(
-            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?since=${ctx.since}`
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?since=${
+              ctx.since ? ctx.since : oneDayAgo
+            }`
           );
           const metrics = await metricsResponse.json();
 
