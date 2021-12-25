@@ -2,7 +2,6 @@ import React from "react";
 import { txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
 import Utils from "web3-utils";
-import { useWindowSize } from "react-use";
 import Router from "next/router";
 import {
   Box,
@@ -25,7 +24,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent>
+      <DialogContent onPointerDownOutside={onDismiss}>
         <DialogTitle asChild>
           <Heading
             size="1"
@@ -82,11 +81,14 @@ function renderSwitch({ tx, onDismiss }) {
               </Box>
             </Box>
           </Table>
-          <DialogClose asChild>
-            <Button size="4" variant="primary" css={{ width: "100%" }}>
-              Close
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={onDismiss}
+            size="4"
+            variant="primary"
+            css={{ width: "100%" }}
+          >
+            Close
+          </Button>
         </Box>
       );
     case "unbond":
@@ -202,11 +204,6 @@ function renderSwitch({ tx, onDismiss }) {
     case "createPoll":
       return (
         <Box>
-          {/* <Confetti
-            canvasRef={React.createRef()}
-            width={width}
-            height={height}
-          /> */}
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>

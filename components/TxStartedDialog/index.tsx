@@ -14,6 +14,7 @@ import {
   DialogContent,
   Heading,
   Badge,
+  Link as A,
 } from "@livepeer/design-system";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
@@ -52,7 +53,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
           </Badge>
         </Heading>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent css={{ minWidth: 370 }}>
         <Box
           css={{
             position: "absolute",
@@ -67,27 +68,13 @@ const Index = ({ tx, isOpen, onDismiss }) => {
           }}
         />
 
-        <Box
-          css={{
-            borderRadius: 10,
-            border: "1px solid",
-            borderColor: "$neutral4",
-            mb: "$4",
-          }}
-        >
+        <Box>
           <Header tx={tx} timeLeft={timeLeft} />
-          <Box
-            css={{
-              px: "$3",
-              py: "$4",
-            }}
-          >
-            {Table({ tx, timeLeft })}
-          </Box>
+          <Box>{Table({ tx, timeLeft })}</Box>
         </Box>
 
         <DialogClose asChild>
-          <Button variant="primary" size="3" css={{ width: "100%" }}>
+          <Button size="4" variant="primary" css={{ width: "100%" }}>
             Close
           </Button>
         </DialogClose>
@@ -100,12 +87,20 @@ export default Index;
 
 function Table({ tx, timeLeft }) {
   return (
-    <Box>
+    <Box
+      css={{
+        border: "1px solid $neutral5",
+        borderRadius: "$4",
+        bc: "$neutral3",
+        mb: "$4",
+        p: "$3",
+      }}
+    >
       <Row>
         <Box>Your account</Box> {tx.from.replace(tx.from.slice(7, 37), "…")}
       </Row>
       <Inputs tx={tx} />
-      <Row>
+      {/* <Row>
         <Box>Max Transaction fee</Box>{" "}
         {tx.gasPrice && tx.gas
           ? `${parseFloat(Utils.fromWei(tx.gasPrice)) * tx.gas} ETH`
@@ -118,7 +113,7 @@ function Table({ tx, timeLeft }) {
             ? `~${moment.duration(timeLeft, "seconds").humanize()} remaining`
             : "Estimating..."}
         </Box>
-      </Row>
+      </Row> */}
     </Box>
   );
 }
@@ -198,7 +193,10 @@ function Row({ css = {}, children, ...props }) {
         mb: "$3",
         alignItems: "center",
         justifyContent: "space-between",
-        fontSize: "$2",
+        fontSize: "$3",
+        "&:last-child": {
+          mb: 0,
+        },
         ...css,
       }}
       {...props}
@@ -212,15 +210,14 @@ function Header({ css = {}, tx, timeLeft }) {
   return (
     <Flex
       css={{
-        borderBottom: "1px solid",
-        borderColor: "$neutral4",
-        p: "$3",
         alignItems: "center",
         justifyContent: "space-between",
+        mb: "$3",
         ...css,
       }}
     >
-      <Flex
+      <Spinner />
+      {/* <Flex
         css={{
           mr: "$3",
           color: "$hiContrast",
@@ -235,11 +232,13 @@ function Header({ css = {}, tx, timeLeft }) {
                 : "100"
             }%`
           : "0%"}
-      </Flex>
-      <Box css={{ fontWeight: 700 }}>{txMessages[tx?.__typename]?.pending}</Box>
-      <Box
-        as="a"
-        css={{ display: "flex", alignItems: "center" }}
+      </Flex> */}
+      <Box css={{ fontWeight: 700, fontSize: "$5" }}>
+        {txMessages[tx?.__typename]?.pending}
+      </Box>
+      <A
+        variant="primary"
+        css={{ display: "flex", ai: "center" }}
         target="_blank"
         rel="noopener noreferrer"
         href={`https://${
@@ -248,7 +247,7 @@ function Header({ css = {}, tx, timeLeft }) {
       >
         Details{" "}
         <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />
-      </Box>
+      </A>
     </Flex>
   );
 }

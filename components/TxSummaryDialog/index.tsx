@@ -32,21 +32,25 @@ const Index = ({ isOpen, onDismiss }) => {
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent css={{ minWidth: 370 }}>
-        <DialogClose asChild>
-          <Flex
+      <DialogContent css={{ minWidth: 370 }} onPointerDownOutside={onDismiss}>
+        <Flex
+          css={{
+            justifyContent: "flex-end",
+          }}
+        >
+          <Box
+            as={CloseIcon}
             css={{
-              justifyContent: "flex-end",
-              cursor: "pointer",
               zIndex: 1,
               right: 20,
+              cursor: "pointer",
               top: 20,
               color: "$white",
             }}
-          >
-            <CloseIcon />
-          </Flex>
-        </DialogClose>
+            onClick={onDismiss}
+          />
+        </Flex>
+
         <Flex
           css={{
             py: "$5",
