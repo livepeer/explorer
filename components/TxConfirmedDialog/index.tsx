@@ -46,7 +46,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
             </Badge>
           </Heading>
         </DialogTitle>
-        <Box
+        {/* <Box
           css={{
             position: "absolute",
             top: 0,
@@ -56,7 +56,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
             background:
               "linear-gradient(260.35deg, #F1BC00 0.25%, #E926BE 47.02%, #9326E9 97.86%)",
           }}
-        />
+        /> */}
         {renderSwitch({ tx, onDismiss })}
       </DialogContent>
     </Dialog>

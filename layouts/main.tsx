@@ -495,7 +495,8 @@ const Layout = ({
                   <Box
                     css={{
                       position: "fixed",
-                      bg: "$surface",
+                      bc: "$panel",
+                      borderTop: "1px solid $neutral4",
                       bottom: 0,
                       width: "100%",
                       left: 0,
