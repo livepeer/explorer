@@ -71,7 +71,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
           css={{
             borderRadius: 10,
             border: "1px solid",
-            borderColor: "$border",
+            borderColor: "$neutral4",
             mb: "$4",
           }}
         >
@@ -213,7 +213,7 @@ function Header({ css = {}, tx, timeLeft }) {
     <Flex
       css={{
         borderBottom: "1px solid",
-        borderColor: "$border",
+        borderColor: "$neutral4",
         p: "$3",
         alignItems: "center",
         justifyContent: "space-between",
@@ -223,7 +223,7 @@ function Header({ css = {}, tx, timeLeft }) {
       <Flex
         css={{
           mr: "$3",
-          color: "white",
+          color: "$hiContrast",
           fontSize: "$1",
           fontWeight: "bold",
         }}
@@ -247,7 +247,7 @@ function Header({ css = {}, tx, timeLeft }) {
         }etherscan.io/tx/${tx?.txHash}`}
       >
         Details{" "}
-        <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary" }} />
+        <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />
       </Box>
     </Flex>
   );

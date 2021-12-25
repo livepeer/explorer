@@ -74,8 +74,8 @@ export default function createApolloClient(
       Promise.resolve(createSchema())
         .then(async (data) => {
           const context = operation.getContext();
-          const provider = context?.library?._web3Provider
-            ? context.library._web3Provider
+          const provider = context?.library
+            ? context.library
             : process.env.NEXT_PUBLIC_NETWORK === "rinkeby"
             ? process.env.NEXT_PUBLIC_RPC_URL_4
             : process.env.NEXT_PUBLIC_RPC_URL_1;

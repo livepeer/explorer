@@ -3,7 +3,6 @@ import { txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
 import Utils from "web3-utils";
 import { useWindowSize } from "react-use";
-import Confetti from "react-confetti";
 import Router from "next/router";
 import {
   Box,
@@ -20,8 +19,6 @@ import {
 import { CheckIcon } from "@modulz/radix-icons";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
-  const { width, height } = useWindowSize();
-
   if (!isOpen) {
     return null;
   }
@@ -61,7 +58,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
               "linear-gradient(260.35deg, #F1BC00 0.25%, #E926BE 47.02%, #9326E9 97.86%)",
           }}
         />
-        {renderSwitch({ tx, onDismiss, width, height })}
+        {renderSwitch({ tx, onDismiss })}
       </DialogContent>
     </Dialog>
   );
@@ -69,18 +66,13 @@ const Index = ({ tx, isOpen, onDismiss }) => {
 
 export default Index;
 
-function renderSwitch({ tx, onDismiss, width, height }) {
+function renderSwitch({ tx, onDismiss }) {
   const inputData = JSON.parse(tx.inputData);
 
   switch (tx.__typename) {
     case "bond":
       return (
         <Box>
-          {/* <Confetti
-            canvasRef={React.createRef()}
-            width={width}
-            height={height}
-          /> */}
           <Table css={{ mb: "$3" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>

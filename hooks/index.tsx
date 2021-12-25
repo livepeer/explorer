@@ -208,7 +208,7 @@ export function useMutations() {
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     const { mutate } = useWeb3Mutation(mutations[key], {
       context: {
-        library: context?.library,
+        library: context.library?.provider,
         account: context?.account?.toLowerCase(),
         returnTxHash: true,
       },
