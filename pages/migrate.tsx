@@ -42,17 +42,17 @@ const ReadOnlyCard = styled(Box, {
 const dummyStateData = [
   {
     step: 0,
-    title: "Migrate Stake & Fees to Arbitrum",
+    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
     subtitle:
-      "This tool will safely migrate your orchestrator’s delegated stake and fees from Ethereum Mainnet to Arbitrum.",
+      "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
     loading: false,
     image: "/img/arbitrum.svg",
   },
   {
     step: 1,
-    title: "Migrate Stake & Fees to Arbitrum",
+    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
     subtitle:
-      "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
+      "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
     loading: false,
     isOrchestrator: true,
     disclaimer:
@@ -180,39 +180,45 @@ const Migrate = () => {
 
   useEffect(() => {
     const init = async () => {
-      const l1MigratorAddress =
-        CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.l1Migrator;
-      let l1Migrator = new ethers.Contract(
-        l1MigratorAddress,
-        migratorABI,
-        context.library
-      );
-      // // fetch Calldata to be submitted for calling L2 function
-      const { data, params } = await l1Migrator.getMigrateDelegatorParams(
-        context.account,
-        context.account
-      );
-      console.log(params);
-      setMigrationData(data);
-      setMigrationParams({
-        delegate: params.delegate,
-        delegatedStake: params.delegatedStake,
-        stake: params.stake,
-        fees: params.fees,
-        l1Addr: params.l1Addr,
-        l2Addr: params.l2Addr,
-      });
+      try {
+        const l1MigratorAddress =
+          CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.l1Migrator;
+        let l1Migrator = new ethers.Contract(
+          l1MigratorAddress,
+          migratorABI,
+          context.library
+        );
+        // // fetch Calldata to be submitted for calling L2 function
+        const { data, params } = await l1Migrator.getMigrateDelegatorParams(
+          context.account,
+          context.account
+        );
+
+        setMigrationData(data);
+        setMigrationParams({
+          delegate: params.delegate,
+          delegatedStake: params.delegatedStake,
+          stake: params.stake,
+          fees: params.fees,
+          l1Addr: params.l1Addr,
+          l2Addr: params.l2Addr,
+        });
+      } catch (e) {
+        console.log(e);
+      }
     };
-    if (context.account) init();
-  }, [context.account]);
+    if (context.account) {
+      init();
+    }
+  }, [context.account, context.chainId]);
 
   useEffect(() => {
     if (!context.account) {
       setMigrationViewState({
         step: 0,
-        title: "Migrate Stake & Fees to Arbitrum",
+        title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
         subtitle:
-          "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
+          "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
         loading: false,
         image: "/img/arbitrum.svg",
       });

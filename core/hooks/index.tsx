@@ -337,8 +337,12 @@ export function useENS() {
   useEffect(() => {
     async function getENS() {
       if (library) {
-        const name = await library.lookupAddress(account);
-        setENS(name);
+        try {
+          const name = await library.lookupAddress(account);
+          setENS(name);
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
     getENS();

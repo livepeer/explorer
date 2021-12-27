@@ -25,7 +25,6 @@ const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
-  const context = useWeb3React();
   const { initializeRound }: any = useContext(MutationsContext);
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
