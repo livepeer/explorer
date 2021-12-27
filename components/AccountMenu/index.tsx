@@ -154,17 +154,15 @@ const AccountMenu = ({ isInHeader = false }) => {
       {isInHeader ? (
         <Button
           css={{
-            mt: "3px",
-            fontSize: 14,
+            mt: "$1",
+            fontSize: "%1",
             textTransform: "initial",
-            borderRadius: 8,
             ml: "$3",
             fontWeight: 600,
             cursor: "pointer",
           }}
-          color="primary"
-          outline
-          size="small"
+          variant="primary"
+          size="2"
         >
           Connect Wallet
         </Button>

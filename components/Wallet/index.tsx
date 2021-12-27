@@ -91,18 +91,29 @@ const Wallet = () => {
         }}
       >
         <Box css={{ px: "$2" }}>{balance} ETH</Box>
-        <Button
-          size="3"
-          css={{
-            bc: "$neutral4",
-            borderRadius: "$4",
-            height: 35,
-            px: "$2",
-            py: "$1",
-          }}
-        >
-          {ens ? ens : account.replace(account.slice(6, 38), "…")}
-        </Button>
+        <Link href={`/accounts/${account}/delegating`} passHref>
+          <Button
+            asChild
+            size="3"
+            css={{
+              bc: "$neutral4",
+              borderRadius: "$4",
+              height: 35,
+              px: "$2",
+              py: "$1",
+            }}
+          >
+            <A
+              css={{
+                "&:hover": {
+                  textDecoration: "none",
+                },
+              }}
+            >
+              {ens ? ens : account.replace(account.slice(6, 38), "…")}
+            </A>
+          </Button>
+        </Link>
       </Flex>
       <Popover>
         <PopoverTrigger asChild>

@@ -23,7 +23,14 @@ const Index = ({ tx, isOpen, onDismiss }) => {
   }
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onDismiss();
+        }
+      }}
+    >
       <DialogContent onPointerDownOutside={onDismiss}>
         <DialogTitle asChild>
           <Heading
@@ -121,7 +128,10 @@ function renderSwitch({ tx, onDismiss }) {
               {inputData.type === "createPoll" ? (
                 <Box>Nice one! You may now proceed with creating a poll.</Box>
               ) : (
-                <Box>Nice one! You may now proceed with staking LPT.</Box>
+                <Box>
+                  Nice one! You may now proceed with delegating your LPT with an
+                  orchestrator.
+                </Box>
               )}
             </Box>
           </Table>

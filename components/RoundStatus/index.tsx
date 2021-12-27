@@ -2,7 +2,7 @@ import { useQuery, gql } from "@apollo/client";
 import CircularProgressbar from "../CircularProgressBar";
 import { buildStyles } from "react-circular-progressbar";
 import moment from "moment";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { usePageVisibility } from "core/hooks";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import { useTheme } from "next-themes";
@@ -15,12 +15,18 @@ import {
   DialogContent,
   DialogTitle,
   themes,
+  Button,
 } from "@livepeer/design-system";
+import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
+import { MutationsContext } from "@core/contexts";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
+  const context = useWeb3React();
+  const { initializeRound }: any = useContext(MutationsContext);
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];
@@ -162,7 +168,7 @@ const Index = () => {
               mb: "$5",
             }}
           >
-            <Box css={{ fontWeight: 600 }}>Round #{currentRoundNumber}</Box>
+            <Box css={{ fontWeight: 700 }}>Round #{currentRoundNumber}</Box>
             <Flex
               css={{ alignItems: "center", fontSize: "$3", fontWeight: 700 }}
             >
@@ -259,6 +265,22 @@ const Index = () => {
             begins.
           </Box>
         </Flex>
+        {!initialized && (
+          <Button
+            size="4"
+            variant="primary"
+            css={{ width: "100%" }}
+            onClick={async () => {
+              try {
+                await initializeRound();
+              } catch (e) {
+                console.log(e);
+              }
+            }}
+          >
+            Initialize Round
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );

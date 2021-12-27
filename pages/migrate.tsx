@@ -24,10 +24,8 @@ import arbRetryableTxABI from "../abis/arbRetryableTx.json";
 import nodeInterfaceABI from "../abis/nodeInterface.json";
 import l2MigratorABI from "../abis/L2Migrator.json";
 import { CHAIN_INFO } from "constants/chains";
+import { useENS } from "@core/hooks";
 
-const MIGRATOR_ADDRESS_RINKEBY = "0x7cfB164BDdB051da1CF6d66B1395dA0FBB18E749";
-const BONDING_MANAGER_RINKEBY = "0x595ab11a0bffbca8134d2105bcf985e85732af5c";
-const CONTROLLER_RINKEBY = "0x4f1a76b331b3bdd4a5351a21510119738310cf55";
 const L2MIGRATOR_RINKEBY = "0x49a8B5Fbe9AC1ddcE947d951a36376A33f7d5c19";
 
 const ReadOnlyCard = styled(Box, {
@@ -44,7 +42,7 @@ const ReadOnlyCard = styled(Box, {
 const dummyStateData = [
   {
     step: 0,
-    title: "Migrate Stake to Arbitrum",
+    title: "Migrate Stake & Fees to Arbitrum",
     subtitle:
       "This tool will safely migrate your orchestrator’s delegated stake and fees from Ethereum Mainnet to Arbitrum.",
     loading: false,
@@ -52,7 +50,7 @@ const dummyStateData = [
   },
   {
     step: 1,
-    title: "Migrate Stake to Arbitrum",
+    title: "Migrate Stake & Fees to Arbitrum",
     subtitle:
       "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
     loading: false,
@@ -163,7 +161,9 @@ function getArbitrumCoreContracts(l2) {
 const Migrate = () => {
   const context = useWeb3React();
   const [activeStep, setActiveStep] = useState(0);
-  const [l1Migrator, setL1Migrator] = useState(null);
+  const ens = useENS();
+  const [migrationParams, setMigrationParams] = useState(null);
+  const [migrationData, setMigrationData] = useState(null);
   const [migrationViewState, setMigrationViewState] = useState(
     dummyStateData[0]
   );
@@ -172,34 +172,45 @@ const Migrate = () => {
     process.env.NEXT_PUBLIC_RPC_ARB_RINKEBY_URL
   );
 
-  useEffect(() => {
-    if (context.library) {
-      const l1Migrator = new ethers.Contract(
-        MIGRATOR_ADDRESS_RINKEBY,
-        migratorABI,
-        context.library
-      );
-      setL1Migrator(l1Migrator);
-    }
-  }, [context.library]);
-
-  // const bondingManager = new ethers.Contract(
-  //   BONDING_MANAGER_RINKEBY,
-  //   bondingManagerABI,
-  //   context.library.provider
-  // );
-
-  const l2Migrator = new ethers.Contract(
+  let l2Migrator = new ethers.Contract(
     L2MIGRATOR_RINKEBY,
     l2MigratorABI,
     arbProvider
   );
 
   useEffect(() => {
+    const init = async () => {
+      const l1MigratorAddress =
+        CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.l1Migrator;
+      let l1Migrator = new ethers.Contract(
+        l1MigratorAddress,
+        migratorABI,
+        context.library
+      );
+      // // fetch Calldata to be submitted for calling L2 function
+      const { data, params } = await l1Migrator.getMigrateDelegatorParams(
+        context.account,
+        context.account
+      );
+      console.log(params);
+      setMigrationData(data);
+      setMigrationParams({
+        delegate: params.delegate,
+        delegatedStake: params.delegatedStake,
+        stake: params.stake,
+        fees: params.fees,
+        l1Addr: params.l1Addr,
+        l2Addr: params.l2Addr,
+      });
+    };
+    if (context.account) init();
+  }, [context.account]);
+
+  useEffect(() => {
     if (!context.account) {
       setMigrationViewState({
         step: 0,
-        title: "Migrate Stake to Arbitrum",
+        title: "Migrate Stake & Fees to Arbitrum",
         subtitle:
           "This tool will safely migrate your orchestrator’s stake and fees from Ethereum Mainnet to Arbitrum.",
         loading: false,
@@ -269,15 +280,15 @@ const Migrate = () => {
     );
     const maxGas = estimatedGas.mul(4);
 
-    const signer = l1Migrator.connect(context.library.getSigner());
-    const tx = await signer.migrateDelegator(
-      context.account,
-      context.account,
-      "0x",
-      maxGas,
-      gasPriceBid,
-      maxSubmissionPrice
-    );
+    // const signer = l1Migrator.connect(context.library.getSigner());
+    // const tx = await signer.migrateDelegator(
+    //   context.account,
+    //   context.account,
+    //   "0x",
+    //   maxGas,
+    //   gasPriceBid,
+    //   maxSubmissionPrice
+    // );
   };
 
   const getSigningStepContent = (step) => {
@@ -510,7 +521,8 @@ const Migrate = () => {
           </Box>
         )}
 
-        {migrationViewState.isOrchestrator &&
+        {migrationParams &&
+          migrationViewState.isOrchestrator &&
           migrationViewState.step !== 5 &&
           migrationViewState.step !== 0 && (
             <>
@@ -519,25 +531,37 @@ const Migrate = () => {
                   <Box css={{ fontWeight: 500, color: "$neutral10" }}>
                     Address
                   </Box>
-                  <Box>0x212a</Box>
+                  <Box>
+                    {migrationParams.delegate.replace(
+                      migrationParams.delegate.slice(6, 38),
+                      "…"
+                    )}
+                  </Box>
                 </ReadOnlyCard>
                 <ReadOnlyCard css={{ mb: "$2" }}>
                   <Box css={{ fontWeight: 500, color: "$neutral10" }}>
                     Self stake
                   </Box>
-                  <Box>100 LPT</Box>
+                  <Box>
+                    {ethers.utils.formatEther(migrationParams.stake)} LPT
+                  </Box>
                 </ReadOnlyCard>
                 <ReadOnlyCard css={{ mb: "$2" }}>
                   <Box css={{ fontWeight: 500, color: "$neutral10" }}>
                     Delegated Stake
                   </Box>
-                  <Box>200 LPT</Box>
+                  <Box>
+                    {ethers.utils.formatEther(migrationParams.delegatedStake)}{" "}
+                    LPT
+                  </Box>
                 </ReadOnlyCard>
                 <ReadOnlyCard>
                   <Box css={{ fontWeight: 500, color: "$neutral10" }}>
                     Earned fees
                   </Box>
-                  <Box>1.2 ETH</Box>
+                  <Box>
+                    {ethers.utils.formatEther(migrationParams.fees)} ETH
+                  </Box>
                 </ReadOnlyCard>
               </Box>
             </>

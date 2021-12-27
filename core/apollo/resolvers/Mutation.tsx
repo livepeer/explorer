@@ -1,5 +1,7 @@
 import { EarningsTree } from "../../../lib/earningsTree";
-import { utils } from "ethers";
+import { ethers, utils } from "ethers";
+import { INFURA_NETWORK_URLS } from "constants/chains";
+import { provider } from "@lib/utils";
 let earningsSnapshot;
 
 if (process.env.NEXT_PUBLIC_NETWORK === "mainnet") {
@@ -374,7 +376,9 @@ export async function initializeRound(_obj, _args, _ctx) {
     "initializeRound",
     []
   );
+
   const txHash = await _ctx.livepeer.rpc.initializeRound({
+    ..._ctx.livepeer.config.defaultTx,
     gas,
     returnTxHash: true,
   });

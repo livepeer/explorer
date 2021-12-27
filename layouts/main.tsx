@@ -10,6 +10,7 @@ import {
   themes,
   Badge,
   SnackbarProvider,
+  DesignSystemProvider,
 } from "@livepeer/design-system";
 import { EyeOpenIcon } from "@modulz/radix-icons";
 import { FiArrowRight, FiX } from "react-icons/fi";
@@ -233,7 +234,7 @@ const Layout = ({
   globalStyles();
 
   return (
-    <IdProvider>
+    <DesignSystemProvider>
       <ThemeProvider
         disableTransitionOnChange
         attribute="class"
@@ -518,7 +519,7 @@ const Layout = ({
           </>
         </SnackbarProvider>
       </ThemeProvider>
-    </IdProvider>
+    </DesignSystemProvider>
   );
 };
 

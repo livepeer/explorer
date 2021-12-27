@@ -181,6 +181,8 @@ function Inputs({ tx }) {
       return null;
     case "approve":
       return null;
+    case "initializeRound":
+      return null;
     default:
       return null;
   }

@@ -7,6 +7,7 @@ import rebondFromUnbonded from "./rebondFromUnbonded.gql";
 import rebond from "./rebond.gql";
 import createPoll from "./createPoll.gql";
 import vote from "./vote.gql";
+import initializeRound from "./initializeRound.gql";
 
 export default {
   approve,
@@ -18,4 +19,5 @@ export default {
   rebond,
   createPoll,
   vote,
+  initializeRound,
 };

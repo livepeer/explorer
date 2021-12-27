@@ -94,6 +94,7 @@ export default function createApolloClient(
             null,
             {
               livepeer: sdk,
+              provider,
               ...context,
             },
             operation.variables,
