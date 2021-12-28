@@ -42,6 +42,7 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import WalletModal from "@components/WalletModal";
 import Claim from "@components/Claim";
 import Wallet from "@components/Wallet";
+import NetworkDialog from "@components/NetworkDialog";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -101,7 +102,8 @@ const Layout = ({
   headerTitle = "",
 }) => {
   const client = useApolloClient();
-  const context = useWeb3React();
+  const { error } = useWeb3React();
+
   const { pathname } = useRouter();
   const { data } = useQuery(
     gql`
@@ -255,28 +257,7 @@ const Layout = ({
         </Head>
         <SnackbarProvider>
           <>
-            <Dialog
-              open={
-                context.chainId &&
-                !networksTypes.hasOwnProperty(context.chainId)
-              }
-            >
-              <DialogContent>
-                <DialogTitle>Oops, you’re on the wrong network</DialogTitle>
-                <Box
-                  css={{
-                    border: "1px solid",
-                    borderColor: "$border",
-                    borderRadius: 10,
-                    p: "$3",
-                    mb: "$2",
-                  }}
-                >
-                  Supported networks: Arbitrum, Arbitrum Rinkeby, Mainnet,
-                  Rinkeby
-                </Box>
-              </DialogContent>
-            </Dialog>
+            <NetworkDialog />
             <MutationsContext.Provider value={mutations}>
               <Box css={{ height: "calc(100vh - 82px)" }}>
                 {data?.protocol.paused && (

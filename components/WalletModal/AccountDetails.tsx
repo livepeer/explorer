@@ -103,6 +103,7 @@ const AccountDetails = ({ openOptions }) => {
         {!(isMobile && (window["web3"] || window["ethereum"])) && (
           <Box css={{ textAlign: "center", mt: "$4" }}>
             <Button
+              variant="primary"
               size="4"
               onClick={() => {
                 openOptions();

@@ -1,7 +1,5 @@
 import { EarningsTree } from "../../../lib/earningsTree";
-import { ethers, utils } from "ethers";
-import { INFURA_NETWORK_URLS } from "constants/chains";
-import { provider } from "@lib/utils";
+import { utils } from "ethers";
 let earningsSnapshot;
 
 if (process.env.NEXT_PUBLIC_NETWORK === "MAINNET") {

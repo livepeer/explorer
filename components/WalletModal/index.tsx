@@ -5,7 +5,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { SUPPORTED_WALLETS } from "../../constants/wallet";
 import { injected } from "../../lib/connectors";
 import { isMobile } from "react-device-detect";
-import { useWeb3React } from "@web3-react/core";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import Option from "./Option";
 import PendingView from "./PendingView";
 import AccountDetails from "./AccountDetails";
@@ -61,7 +61,12 @@ const Index = ({ trigger = null }) => {
       _connector.walletConnectProvider = undefined;
     }
 
-    activate(_connector, undefined, true);
+    activate(_connector, undefined, true).catch((error) => {
+      if (error instanceof UnsupportedChainIdError) {
+        activate(_connector);
+        setWalletView(WALLET_VIEWS.ACCOUNT);
+      }
+    });
   };
 
   const activePrevious = usePrevious(active);
