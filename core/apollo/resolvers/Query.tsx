@@ -71,15 +71,19 @@ export async function ens(_obj, _args, _ctx, _info) {
   const provider = new ethers.providers.JsonRpcProvider(
     INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
   );
-  const name = await provider.lookupAddress(_args.id);
-  const resolver = await provider.getResolver(_args.id);
-  const ens = {
-    name,
-    url: resolver ? await resolver.getText("url") : null,
-    avatar: resolver ? await resolver.getText("avatar") : null,
-    description: resolver ? await resolver.getText("description") : null,
-  };
-  return ens;
+  try {
+    const name = await provider.lookupAddress(_args.id);
+    const resolver = await provider.getResolver(_args.id);
+    const ens = {
+      name,
+      url: resolver ? await resolver.getText("url") : null,
+      avatar: resolver ? await resolver.getText("avatar") : null,
+      description: resolver ? await resolver.getText("description") : null,
+    };
+    return ens;
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function threeBoxSpace(_obj, _args, _ctx, _info) {

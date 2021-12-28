@@ -6,7 +6,6 @@ import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
 import { blockClient } from "../core/apollo";
-import bondingManagerABI from "../abis/bondingManager.json";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
@@ -651,4 +650,10 @@ export const scientificToDecimal = (x) => {
 
 export function roundToTwo(num) {
   return Math.round(num * 100 + Number.EPSILON) / 100;
+}
+
+export function toTitleCase(str) {
+  return str.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
 }

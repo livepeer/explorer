@@ -91,7 +91,6 @@ export default function createApolloClient(
             provider,
             account: context?.account,
           });
-
           return execute(
             data,
             operation.query,

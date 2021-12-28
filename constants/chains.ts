@@ -125,12 +125,12 @@ export const CHAIN_INFO = {
       },
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
     },
-    subgraph:
-      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-arbitrum-rinkeby",
+    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: {
-      controller: "0x4f1a76b331b3bdd4a5351a21510119738310cf55",
+      controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
       pollCreator: "",
-      l2GatewayRouter: "0x9413AD42910c1eA60c737dB5f58d1C504498a3cD",
+      l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
+      l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
       inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
       outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
       arbRetryableTx: "0x000000000000000000000000000000000000006E",

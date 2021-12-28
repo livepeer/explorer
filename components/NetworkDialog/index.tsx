@@ -9,7 +9,7 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { useWeb3React } from "@web3-react/core";
-import { DEFAULT_CHAIN_ID } from "constants/chains";
+import { DEFAULT_CHAIN_ID, CHAIN_INFO } from "constants/chains";
 
 const NetworkDialog = () => {
   const { chainId, error, library } = useWeb3React();
@@ -30,7 +30,7 @@ const NetworkDialog = () => {
               borderBottom: "1px solid $neutral4",
             }}
           >
-            Wrong Network Detected
+            Unsupported Network Detected
           </Heading>
         </DialogTitle>
         <Box css={{ p: "$5" }}>
@@ -39,7 +39,8 @@ const NetworkDialog = () => {
               fontSize: "$4",
             }}
           >
-            To use the Explorer, please switch your network to Arbitrum Rinkeby.
+            To use the Explorer, please switch your network to{" "}
+            {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
           {isMetamask && (
             <Button
@@ -50,7 +51,7 @@ const NetworkDialog = () => {
               variant="primary"
               css={{ mt: "$4", width: "100%" }}
             >
-              Switch Network
+              Switch to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
             </Button>
           )}
         </Box>

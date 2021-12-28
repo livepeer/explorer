@@ -80,14 +80,14 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                       {textTruncate(row.values.threeBoxSpace.name, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values.ens.name
+                      {row.values?.ens?.name
                         ? row.values.ens.name
                         : row.values.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
-                    {row.values.ens.name
+                    {row.values?.ens?.name
                       ? row.values.ens.name
                       : row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
