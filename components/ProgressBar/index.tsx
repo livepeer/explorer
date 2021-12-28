@@ -3,6 +3,7 @@ import { useTimeEstimate } from "core/hooks";
 import { txMessages } from "../../lib/utils";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import Spinner from "@components/Spinner";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const Index = ({ tx }) => {
   const { __typename, startTime, estimate, txHash } = tx;
@@ -75,9 +76,7 @@ const Index = ({ tx }) => {
           css={{ fontSize: "$1", justifySelf: "flex-end" }}
           target="_blank"
           rel="noopener noreferrer"
-          href={`https://${
-            process.env.NEXT_PUBLIC_NETWORK === "rinkeby" ? "rinkeby." : ""
-          }etherscan.io/tx/${txHash}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${txHash}`}
         >
           Details
         </A>

@@ -13,6 +13,7 @@ import {
   styled,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const Card = styled(CardBase, {
   border: "1px solid $neutral3",
@@ -130,7 +131,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -193,7 +194,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -249,7 +250,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -309,7 +310,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -369,7 +370,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -428,7 +429,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -493,7 +494,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -550,7 +551,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -607,7 +608,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -664,7 +665,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -726,7 +727,7 @@ function renderSwitch(event: any, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://etherscan.io/tx/${event.transaction.id}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{

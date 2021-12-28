@@ -13,6 +13,7 @@ import {
   Flex,
 } from "@livepeer/design-system";
 import { Cross1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const AccountDetails = ({ openOptions }) => {
   const { account, connector } = useWeb3React();
@@ -92,7 +93,7 @@ const AccountDetails = ({ openOptions }) => {
               color: "$primary10",
               alignItems: "center",
             }}
-            href={`https://etherscan.io/address/${account}`}
+            href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${account}`}
             target="__blank"
           >
             {account}

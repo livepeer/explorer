@@ -7,7 +7,7 @@ if (typeof INFURA_KEY === "undefined") {
 }
 
 /**
- * List of all the networks supported by the Uniswap Interface
+ * List of all the networks supported by the Livepeer Explorer
  */
 export enum SupportedChainId {
   MAINNET = 1,
@@ -17,6 +17,9 @@ export enum SupportedChainId {
   ARBITRUM_RINKEBY = 421611,
 }
 
+export const DEFAULT_CHAIN_ID =
+  SupportedChainId[process.env.NEXT_PUBLIC_NETWORK];
+
 /**
  * Array of all the supported chain IDs
  */
@@ -25,7 +28,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(
 ).filter((id) => typeof id === "number") as SupportedChainId[];
 
 /**
- * These are the network URLs used by the interface when there is not another available source of chain data
+ * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
  */
 export const INFURA_NETWORK_URLS: { [key in SupportedChainId]: string } = {
   [SupportedChainId.MAINNET]: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
@@ -43,6 +46,7 @@ export const CHAIN_INFO = {
   [SupportedChainId.MAINNET]: {
     networkType: NetworkType.L1,
     explorer: "https://etherscan.io/",
+    explorerAPI: "https://api.arbiscan.io/api",
     label: "Ethereum",
     // logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
@@ -61,6 +65,7 @@ export const CHAIN_INFO = {
   [SupportedChainId.RINKEBY]: {
     networkType: NetworkType.L1,
     explorer: "https://rinkeby.etherscan.io/",
+    explorerAPI: "https://testnet.arbiscan.io/api",
     label: "Rinkeby",
     // logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
@@ -82,6 +87,7 @@ export const CHAIN_INFO = {
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://arbiscan.io/",
+    explorerAPI: "https://api.arbiscan.io/api",
     label: "Arbitrum",
     // logoUrl: arbitrumLogoUrl,
     // defaultListUrl: ARBITRUM_LIST,
@@ -106,7 +112,8 @@ export const CHAIN_INFO = {
     networkType: NetworkType.L2,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
-    explorer: "https://rinkeby-explorer.arbitrum.io/",
+    explorer: "https://testnet.arbiscan.io/",
+    explorerAPI: "https://testnet.arbiscan.io/api",
     label: "Arbitrum Rinkeby",
     // logoUrl: arbitrumLogoUrl,
     // defaultListUrl: ARBITRUM_LIST,

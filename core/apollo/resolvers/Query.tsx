@@ -13,7 +13,11 @@ import { protocolDataByBlockQuery } from "core/queries/protocolDataByBlockQuery"
 import { protocolDataQuery } from "core/queries/protocolDataQuery";
 import { client } from "..";
 import { ethers } from "ethers";
-import { INFURA_NETWORK_URLS } from "constants/chains";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  INFURA_NETWORK_URLS,
+} from "constants/chains";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -58,14 +62,14 @@ export async function transaction(_obj, _args, _ctx, _info) {
 
 export async function txPrediction(_obj, _args, _ctx, _info) {
   const response = await fetch(
-    `https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice=${_args.gasPrice}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=gastracker&action=gasestimate&gasprice=${_args.gasPrice}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   return await response.json();
 }
 
 export async function ens(_obj, _args, _ctx, _info) {
   const provider = new ethers.providers.JsonRpcProvider(
-    INFURA_NETWORK_URLS[process.env.NEXT_PUBLIC_NETWORK]
+    INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
   );
   const name = await provider.lookupAddress(_args.id);
   const resolver = await provider.getResolver(_args.id);

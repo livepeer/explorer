@@ -7,14 +7,18 @@ import { gql } from "@apollo/client";
 import Numeral from "numeral";
 import { blockClient } from "../core/apollo";
 import bondingManagerABI from "../abis/bondingManager.json";
-import { CHAIN_INFO, INFURA_NETWORK_URLS } from "constants/chains";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  INFURA_NETWORK_URLS,
+} from "constants/chains";
 
 export const provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[process.env.NEXT_PUBLIC_NETWORK]
+  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );
 
 export const bondingManagerContract = new ethers.Contract(
-  CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.bondingManager,
+  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.bondingManager,
   bondingManagerABI,
   provider
 );
@@ -318,11 +322,7 @@ export const initTransaction = async (client, mutation) => {
 
 export const getBlock = async () => {
   const blockDataResponse = await fetch(
-    `https://${
-      process.env.NEXT_PUBLIC_NETWORK === "rinkeby" ? "api-rinkeby" : "api"
-    }.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=${
-      process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY
-    }`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=proxy&action=eth_blockNumber&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   const { result } = await blockDataResponse.json();
   return Utils.hexToNumber(result);
@@ -330,11 +330,7 @@ export const getBlock = async () => {
 
 export const getBlockByNumber = async (number) => {
   const blockDataResponse = await fetch(
-    `https://${
-      process.env.NEXT_PUBLIC_NETWORK === "rinkeby" ? "api-rinkeby" : "api"
-    }.etherscan.io/api?module=block&action=getblockreward&blockno=${number}&apikey=${
-      process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY
-    }`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   const { result } = await blockDataResponse.json();
   return result;
@@ -342,11 +338,7 @@ export const getBlockByNumber = async (number) => {
 
 export const getEstimatedBlockCountdown = async (number) => {
   const countdownRaw = await fetch(
-    `https://${
-      process.env.NEXT_PUBLIC_NETWORK === "rinkeby" ? "api-rinkeby" : "api"
-    }.etherscan.io/api?module=block&action=getblockcountdown&blockno=${number}&apikey=${
-      process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY
-    }`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockcountdown&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   const { result } = await countdownRaw.json();
   return result;

@@ -4,9 +4,9 @@ import { INFURA_NETWORK_URLS } from "constants/chains";
 import { provider } from "@lib/utils";
 let earningsSnapshot;
 
-if (process.env.NEXT_PUBLIC_NETWORK === "mainnet") {
+if (process.env.NEXT_PUBLIC_NETWORK === "MAINNET") {
   earningsSnapshot = require("../../../data/earningsTree");
-} else if (process.env.NEXT_PUBLIC_NETWORK === "rinkeby") {
+} else if (process.env.NEXT_PUBLIC_NETWORK === "RINKEBY") {
   earningsSnapshot = require("../../../data/earningsTree_rinkeby");
 } else {
   earningsSnapshot = "";

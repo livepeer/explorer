@@ -16,7 +16,7 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -30,16 +30,13 @@ const schema = makeExecutableSchema({
 const createSchema = async () => {
   const executor = async ({ document, variables }) => {
     const query = print(document);
-    const fetchResult = await fetch(
-      CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].subgraph,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, variables }),
-      }
-    );
+    const fetchResult = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables }),
+    });
     return fetchResult.json();
   };
 
@@ -91,7 +88,7 @@ const createSchema = async () => {
   `;
   async function getTotalStake(_ctx, _blockNumber) {
     const Web3 = require("web3");
-    const web3 = new Web3(CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK]);
+    const web3 = new Web3(CHAIN_INFO[DEFAULT_CHAIN_ID]);
     const contract = new web3.eth.Contract(
       _ctx.livepeer.config.contracts.LivepeerToken.abi,
       _ctx.livepeer.config.contracts.LivepeerToken.address
@@ -157,7 +154,7 @@ const createSchema = async () => {
         pendingStake: {
           async resolve(_delegator, _args, _ctx, _info) {
             const apolloFetch = createApolloFetch({
-              uri: CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].subgraph,
+              uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
             });
             const { data } = await apolloFetch({
               query: `{
@@ -178,7 +175,7 @@ const createSchema = async () => {
         pendingFees: {
           async resolve(_delegator, _args, _ctx, _info) {
             const apolloFetch = createApolloFetch({
-              uri: CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].subgraph,
+              uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
             });
             const { data } = await apolloFetch({
               query: `{
@@ -306,9 +303,7 @@ const createSchema = async () => {
           return delegator;
         }
 
-        const response = await fetch(
-          CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].pricingUrl
-        );
+        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
         const transcodersWithPrice = await response.json();
         const transcoderWithPrice = transcodersWithPrice.filter(
           (t) =>
@@ -332,9 +327,7 @@ const createSchema = async () => {
           return transcoder;
         }
 
-        const response = await fetch(
-          CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].pricingUrl
-        );
+        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
         const transcodersWithPrice = await response.json();
         const transcoderWithPrice = transcodersWithPrice.filter(
           (t) => t.Address.toLowerCase() === args.id.toLowerCase()
@@ -353,9 +346,7 @@ const createSchema = async () => {
         //if selection set includes 'price', return transcoders merge prices and performance metrics
         if (selectionSet.includes("price")) {
           // get price data
-          const response = await fetch(
-            CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].pricingUrl
-          );
+          const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
           const transcodersWithPrice = await response.json();
 
           for (const t of transcodersWithPrice) {

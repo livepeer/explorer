@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { Flex, Box, Link as A } from "@livepeer/design-system";
 import moment from "moment";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const Index = ({ title = "" }) => {
   const variables = {
@@ -83,7 +84,7 @@ const Index = ({ title = "" }) => {
           <A
             rel="noopener noreferrer"
             target="_blank"
-            href={`https://etherscan.io/tx/${row.values.transaction.id}`}
+            href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${row.values.transaction.id}`}
           >
             {moment(row.values.timestamp * 1000).fromNow()}
           </A>

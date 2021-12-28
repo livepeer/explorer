@@ -16,6 +16,7 @@ import {
   Badge,
   Link as A,
 } from "@livepeer/design-system";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
   const { timeLeft } = useTimeEstimate({
@@ -243,9 +244,7 @@ function Header({ css = {}, tx, timeLeft }) {
         css={{ display: "flex", ai: "center" }}
         target="_blank"
         rel="noopener noreferrer"
-        href={`https://${
-          process.env.NEXT_PUBLIC_NETWORK === "rinkeby" ? "rinkeby." : ""
-        }etherscan.io/tx/${tx?.txHash}`}
+        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.txHash}`}
       >
         Details{" "}
         <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />
