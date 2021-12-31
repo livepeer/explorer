@@ -76,7 +76,7 @@ const WhatsNew = () => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - What's New</title>
+        <title>Livepeer Explorer - What&apos;s New</title>
       </Head>
       <Container size="3" css={{ width: "100%" }}>
         {!changeFeedData ? (
@@ -123,7 +123,7 @@ const WhatsNew = () => {
                 <Box as="span" css={{ mr: "$2" }}>
                   🌟
                 </Box>{" "}
-                What's New
+                What&apos;s New
               </Heading>
               <Box css={{ img: { maxWidth: "100%" } }}>
                 {changeFeedData.projectBySlugs.releases.edges.map(

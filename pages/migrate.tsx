@@ -7,8 +7,6 @@ import {
   Card,
   styled,
   Button,
-  Code,
-  IconButton,
   TextField,
 } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
@@ -20,13 +18,14 @@ import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
 import migratorABI from "../abis/L1Migrator.json";
-import arbRetryableTxABI from "../abis/arbRetryableTx.json";
-import nodeInterfaceABI from "../abis/nodeInterface.json";
-import l2MigratorABI from "../abis/L2Migrator.json";
-import { CHAIN_INFO } from "constants/chains";
-import { useENS } from "@core/hooks";
-
-const L2MIGRATOR_RINKEBY = "0x49a8B5Fbe9AC1ddcE947d951a36376A33f7d5c19";
+import arbRetryableTxABI from "../abis/ArbRetryableTx.json";
+import nodeInterfaceABI from "../abis/NodeInterface.json";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  INFURA_NETWORK_URLS,
+} from "constants/chains";
+import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 
 const ReadOnlyCard = styled(Box, {
   display: "flex",
@@ -39,70 +38,19 @@ const ReadOnlyCard = styled(Box, {
   p: "$3",
 });
 
-const dummyStateData = [
-  {
-    step: 0,
-    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
-    subtitle:
-      "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
-    loading: false,
-    image: "/img/arbitrum.svg",
-  },
-  {
-    step: 1,
-    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
-    subtitle:
-      "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
-    loading: false,
-    isOrchestrator: true,
-    disclaimer:
-      "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
-  },
-  {
-    step: 2,
-    title: "Initiate Migration",
-    subtitle: "Confirm the transaction in your wallet.",
-    loading: true,
-    disclaimer:
-      "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
-  },
-  {
-    step: 3,
-    title: "Starting Migration",
-    subtitle: "Confirming on Mainnet",
-    loading: true,
-    mainnetTransactionHash:
-      "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
-    disclaimer:
-      "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
-  },
-  {
-    step: 4,
-    title: "En enroute to Arbitrum",
-    subtitle: "Estimated arrival time: 9 minutes",
-    loading: true,
-    mainnetTransactionHash:
-      "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
-    arbitrumTransactionHash:
-      "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
-    disclaimer:
-      "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
-  },
-  {
-    step: 5,
-    title: "Migration Complete",
-    subtitle: null,
-    loading: false,
-    mainnetTransactionHash:
-      "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
-    arbitrumTransactionHash:
-      "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
-    image: "/img/arbitrum.svg",
-    showNetworkSwitcher: true,
-    disclaimer: null,
-    finalized: true,
-  },
-];
+type MigrationState = {
+  step: number;
+  title: string;
+  subtitle: string;
+  loading: boolean;
+  isOrchestrator?: boolean;
+  mainnetTransactionHash?: string;
+  arbitrumTransactionHash?: string;
+  image?: string;
+  showNetworkSwitcher?: boolean;
+  disclaimer?: string;
+  finalized?: boolean;
+};
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -143,58 +91,60 @@ const stepperStyles = {
   },
 };
 
-function getArbitrumCoreContracts(l2) {
-  return {
-    arbRetryableTx: new ethers.Contract(
-      CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.arbRetryableTx,
-      arbRetryableTxABI,
-      l2
-    ),
-    nodeInterface: new ethers.Contract(
-      CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.nodeInterface,
-      nodeInterfaceABI,
-      l2
-    ),
-  };
-}
-
 const Migrate = () => {
   const context = useWeb3React();
   const [activeStep, setActiveStep] = useState(0);
-  const ens = useENS();
-  const [migrationParams, setMigrationParams] = useState(null);
-  const [migrationData, setMigrationData] = useState(null);
-  const [migrationViewState, setMigrationViewState] = useState(
-    dummyStateData[0]
+  const [migrationParams, setMigrationParams] = useState(undefined);
+  const [migrationCallData, setMigrationCallData] = useState(undefined);
+  const [migrationViewState, setMigrationViewState] = useState<
+    MigrationState | undefined
+  >({
+    step: 0,
+    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+    subtitle:
+      "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
+    loading: false,
+    image: "/img/arbitrum.svg",
+  });
+
+  const L1_CHAIN_ID = CHAIN_INFO[DEFAULT_CHAIN_ID].l1;
+
+  const l1Provider = new ethers.providers.JsonRpcProvider(
+    INFURA_NETWORK_URLS[L1_CHAIN_ID]
   );
 
-  const arbProvider = new ethers.providers.JsonRpcProvider(
-    process.env.NEXT_PUBLIC_RPC_ARB_RINKEBY_URL
+  const l2Provider = new ethers.providers.JsonRpcProvider(
+    INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
   );
 
-  let l2Migrator = new ethers.Contract(
-    L2MIGRATOR_RINKEBY,
-    l2MigratorABI,
-    arbProvider
+  const l1Migrator = new ethers.Contract(
+    CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+    migratorABI,
+    l1Provider
+  );
+
+  const arbRetryableTx = new ethers.Contract(
+    CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.arbRetryableTx,
+    arbRetryableTxABI,
+    l2Provider
+  );
+
+  const nodeInterface = new ethers.Contract(
+    CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+    nodeInterfaceABI,
+    l2Provider
   );
 
   useEffect(() => {
     const init = async () => {
       try {
-        const l1MigratorAddress =
-          CHAIN_INFO[process.env.NEXT_PUBLIC_NETWORK].contracts.l1Migrator;
-        let l1Migrator = new ethers.Contract(
-          l1MigratorAddress,
-          migratorABI,
-          context.library
-        );
-        // // fetch Calldata to be submitted for calling L2 function
+        // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
           context.account,
           context.account
         );
 
-        setMigrationData(data);
+        setMigrationCallData(data);
         setMigrationParams({
           delegate: params.delegate,
           delegatedStake: params.delegatedStake,
@@ -210,6 +160,7 @@ const Migrate = () => {
     if (context.account) {
       init();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context.account, context.chainId]);
 
   useEffect(() => {
@@ -225,10 +176,19 @@ const Migrate = () => {
     }
     if (context.account) {
       if (migrationViewState.step === 0) {
-        setMigrationViewState(dummyStateData[1]);
+        setMigrationViewState({
+          step: 1,
+          title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+          subtitle:
+            "This tool will safely migrate your orchestrator’s stake and fees from Rinkeby to Arbitrum Rinkeby.",
+          loading: false,
+          isOrchestrator: true,
+          disclaimer:
+            "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
+        });
       }
     }
-  }, [context.account]);
+  }, [migrationViewState.step, context.account]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -243,36 +203,29 @@ const Migrate = () => {
   };
 
   const onApprove = async () => {
-    const seqNo = 7;
-    const stake = 100;
-    const fees = 200;
-    const delegatedStake = 300;
-    const delegate = context.account;
+    setMigrationViewState({
+      step: 2,
+      title: "Initiate Migration",
+      subtitle: "Confirm the transaction in your wallet.",
+      loading: true,
+      disclaimer:
+        "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
+    });
+    const gasPriceBid = await l2Provider.getGasPrice();
 
-    const migrateDelegatorParams = {
-      l1Addr: context.account,
-      l2Addr: context.account,
-      stake,
-      delegatedStake,
-      fees,
-      delegate,
-    };
-
-    const l2Calldata = l2Migrator.interface.encodeFunctionData(
-      "finalizeMigrateDelegator",
-      [migrateDelegatorParams]
+    // fetching submission price
+    // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
+    const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
+      migrationCallData.length
     );
 
-    const gasPriceBid = await arbProvider.getGasPrice();
-
-    const [submissionPrice] = await getArbitrumCoreContracts(
-      arbProvider
-    ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
+    // overpaying submission price to account for increase
+    // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
+    // the excess will be sent back to the refund address
     const maxSubmissionPrice = submissionPrice.mul(4);
 
-    const [estimatedGas] = await getArbitrumCoreContracts(
-      arbProvider
-    ).nodeInterface.estimateRetryableTicket(
+    // calculating estimated gas for the tx
+    const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
       context.account,
       ethers.utils.parseEther("0.05"),
       context.account,
@@ -282,19 +235,83 @@ const Migrate = () => {
       context.account,
       0,
       gasPriceBid,
-      l2Calldata
+      migrationCallData
     );
+
+    // overpaying gas just in case
+    // the excess will be sent back to the refund address
     const maxGas = estimatedGas.mul(4);
 
-    // const signer = l1Migrator.connect(context.library.getSigner());
-    // const tx = await signer.migrateDelegator(
-    //   context.account,
-    //   context.account,
-    //   "0x",
-    //   maxGas,
-    //   gasPriceBid,
-    //   maxSubmissionPrice
-    // );
+    // ethValue will be sent as callvalue
+    // this entire amount will be used for successfully completing
+    // the L2 side of the transaction
+    // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
+    const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
+
+    const signer = l1Migrator.connect(context.library.getSigner());
+    const promise = signer.migrateDelegator(
+      context.account,
+      context.account,
+      "0x",
+      maxGas,
+      gasPriceBid,
+      maxSubmissionPrice,
+      {
+        value: ethValue,
+      }
+    );
+
+    setMigrationViewState({
+      step: 3,
+      title: "Starting Migration",
+      subtitle: "Confirming on Mainnet",
+      loading: true,
+      mainnetTransactionHash:
+        "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
+      disclaimer:
+        "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
+    });
+
+    const tx = await promise;
+    console.log("tx", tx);
+
+    setMigrationViewState({
+      step: 4,
+      title: "En enroute to Arbitrum",
+      subtitle: "Estimated arrival time: 9 minutes",
+      loading: true,
+      mainnetTransactionHash:
+        "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
+      arbitrumTransactionHash:
+        "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
+      disclaimer:
+        "Note: This migration will take about 10 minutes before it’s considered final on Arbitrum.",
+    });
+
+    // Ticket redemption hash is the one which has the L2 function call
+    // L2 Tx Hash is just aliased L1 address redeeming ticket
+    // users must be shown L2 Ticket Redemption hash
+    const tx2 = await waitToRelayTxsToL2(
+      waitForTx(tx),
+      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
+      l1Provider,
+      l2Provider
+    );
+    console.log("tx2", tx2);
+    setMigrationViewState({
+      step: 5,
+      title: "Migration Complete",
+      subtitle: null,
+      loading: false,
+      mainnetTransactionHash:
+        "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
+      arbitrumTransactionHash:
+        "0xa9d96ebcf955b6760ea4ada915639451de0e3194a376ebcbbb2f88dcc9a26558",
+      image: "/img/arbitrum.svg",
+      showNetworkSwitcher: true,
+      disclaimer: null,
+      finalized: true,
+    });
   };
 
   const getSigningStepContent = (step) => {
@@ -317,9 +334,9 @@ const Migrate = () => {
         return (
           <Box>
             <Text css={{ mb: "$3" }}>
-              Run the Livepeer CLI and select the option to "Sign a message".
-              When prompted for a message to sign, copy and paste the following
-              message.
+              Run the Livepeer CLI and select the option to &quot;Sign a
+              message&quot;. When prompted for a message to sign, copy and paste
+              the following message.
             </Text>
 
             <CodeBlock
@@ -388,58 +405,7 @@ const Migrate = () => {
                 size="4"
                 variant="primary"
                 css={{ mr: "$2" }}
-                onClick={async () => {
-                  // const seqNo = 7;
-                  // const stake = 100;
-                  // const fees = 200;
-                  // const delegatedStake = 300;
-                  // const delegate = context.account;
-                  // const migrateDelegatorParams = {
-                  //   l1Addr: context.account,
-                  //   l2Addr: context.account,
-                  //   stake,
-                  //   delegatedStake,
-                  //   fees,
-                  //   delegate,
-                  // };
-                  // const l2Calldata = l2Migrator
-                  //   .createInterface()
-                  //   .encodeFunctionData("finalizeMigrateDelegator", [
-                  //     migrateDelegatorParams,
-                  //   ]);
-                  // const gasPriceBid = await arbProvider.getGasPrice();
-                  // const [submissionPrice] = await getArbitrumCoreContracts(
-                  //   arbProvider
-                  // ).arbRetryableTx.getSubmissionPrice(l2Calldata.length);
-                  // const maxSubmissionPrice = submissionPrice.mul(4);
-                  // const [estimatedGas] = await getArbitrumCoreContracts(
-                  //   arbProvider
-                  // ).nodeInterface.estimateRetryableTicket(
-                  //   context.account,
-                  //   ethers.utils.parseEther("0.05"),
-                  //   context.account,
-                  //   0,
-                  //   maxSubmissionPrice,
-                  //   context.account,
-                  //   context.account,
-                  //   0,
-                  //   gasPriceBid,
-                  //   l2Calldata
-                  // );
-                  // const maxGas = estimatedGas.mul(4);
-                  // const signer = l1Migrator.connect(
-                  //   context.library.getSigner()
-                  // );
-                  // const tx = await signer.migrateDelegator(
-                  //   context.account,
-                  //   context.account,
-                  //   "0x",
-                  //   maxGas,
-                  //   gasPriceBid,
-                  //   maxSubmissionPrice
-                  // );
-                  //setMigrationViewState(dummyStateData[2]);
-                }}
+                onClick={onApprove}
               >
                 Approve Migration
               </Button>

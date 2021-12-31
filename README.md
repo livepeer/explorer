@@ -10,6 +10,6 @@ yarn
 yarn dev
 ```
 
-## Developing on Rinkeby
+## Developing on Arbitrum Rinkeby
 
-Rename .env.example to .env.rinkeby and run `yarn dev:rinkeby`
+Set NEXT_PUBLIC_NETWORK to ARBITRUM_RINKEBY inside .env

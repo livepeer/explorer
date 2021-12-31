@@ -71,10 +71,11 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
             }}
           >
             <Thead>
-              {headerGroups.map((headerGroup) => (
-                <Tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroups.map((headerGroup, i) => (
+                <Tr key={i} {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column: any, i) => (
                     <Th
+                      key={i}
                       {...column.getHeaderProps(
                         column.getSortByToggleProps({ title: undefined })
                       )}
@@ -113,13 +114,14 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
               ))}
             </Thead>
             <Tbody {...getTableBodyProps()}>
-              {page.map((row, _i) => {
+              {page.map((row, i) => {
                 prepareRow(row);
                 return (
-                  <Tr {...row.getRowProps()}>
+                  <Tr key={i} {...row.getRowProps()}>
                     {row.cells.map((cell, i) => {
                       return (
                         <Td
+                          key={i}
                           {...cell.getCellProps()}
                           css={{
                             fontSize: "$3",

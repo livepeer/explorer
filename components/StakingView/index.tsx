@@ -34,8 +34,8 @@ const Index = ({
       return (
         <Box css={{ pt: "$4" }}>
           <Box css={{ mr: "$3", mb: "$3" }}>
-            You haven't staked LPT. Stake with an Orchestrator to begin earning
-            rewards and a share of the fees being paid into the Livepeer
+            You haven&apos;t staked LPT. Stake with an Orchestrator to begin
+            earning rewards and a share of the fees being paid into the Livepeer
             network.
           </Box>
           <Link href="/orchestrators" passHref>

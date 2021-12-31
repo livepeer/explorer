@@ -95,8 +95,9 @@ const Index = () => {
   const currentRoundNumber = Math.floor(
     blockData.block.number / protocolData.protocol.roundLength
   );
+
   const initialized =
-    +protocolData.protocol.lastInitializedRound.id === currentRoundNumber;
+    +protocolData.protocol.lastInitializedRound?.id === currentRoundNumber;
   const blocksRemaining = initialized
     ? +protocolData.protocol.roundLength -
       (blockData.block.number - +protocolData.protocol.currentRound.startBlock)

@@ -157,7 +157,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
           {!lips?.length && (
             <Box>
               There are currently no LIPs in a proposed state for which there
-              hasn't been a poll created yet.
+              hasn&apos;t been a poll created yet.
             </Box>
           )}
           <RadioCardGroup

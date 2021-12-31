@@ -2,10 +2,6 @@ import {
   Box,
   Container,
   Flex,
-  Text,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   globalCss,
   themes,
   Badge,
@@ -14,10 +10,8 @@ import {
 } from "@livepeer/design-system";
 import { EyeOpenIcon } from "@modulz/radix-icons";
 import { FiArrowRight, FiX } from "react-icons/fi";
-import { IdProvider } from "@radix-ui/react-id";
 import { isMobile } from "react-device-detect";
 import { MutationsContext } from "core/contexts";
-import { networksTypes } from "../lib/utils";
 import { ThemeProvider } from "next-themes";
 import { useMutations, useOnClickOutside } from "core/hooks";
 import { useQuery, useApolloClient, gql } from "@apollo/client";

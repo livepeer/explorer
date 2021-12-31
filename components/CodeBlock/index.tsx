@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, IconButton } from "@livepeer/design-system";
 import copy from "copy-to-clipboard";
 import { ClipboardIcon, CheckIcon } from "@radix-ui/react-icons";
@@ -13,11 +13,11 @@ export function CodeBlock({
   isHighlightingLines = true,
   css = {},
 }) {
-  const [hasCopied, setHasCopied] = React.useState(false);
-  const [code, setCode] = React.useState(undefined);
-  const preRef = React.useRef(null);
+  const [hasCopied, setHasCopied] = useState(false);
+  const [code, setCode] = useState(undefined);
+  const preRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (preRef.current) {
       const codeElement = preRef.current.querySelector("code");
       // remove double line breaks
@@ -26,10 +26,10 @@ export function CodeBlock({
     }
   }, [preRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (hasCopied) copy(code);
     setTimeout(() => setHasCopied(false), 1500);
-  }, [hasCopied]);
+  }, [code, hasCopied]);
 
   return (
     <Box
@@ -63,7 +63,7 @@ export function CodeBlock({
           className={className}
           id={id}
         >
-          <code className={className} children={children} />
+          <code className={className}>{children}</code>
         </Pre>
       </Box>
       <IconButton

@@ -72,10 +72,11 @@ const OrchestratorPayoutsTable = ({
           }}
         >
           <Thead>
-            {headerGroups.map((headerGroup) => (
-              <Tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroups.map((headerGroup, i) => (
+              <Tr key={i} {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column, i) => (
                   <Th
+                    key={i}
                     {...column.getHeaderProps(
                       column.getSortByToggleProps({ title: undefined })
                     )}
@@ -112,13 +113,14 @@ const OrchestratorPayoutsTable = ({
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
-            {rows.map((row, _i) => {
+            {rows.map((row, i) => {
               prepareRow(row);
               return (
-                <Tr {...row.getRowProps()}>
+                <Tr key={i} {...row.getRowProps()}>
                   {row.cells.map((cell, i) => {
                     return (
                       <Td
+                        key={i}
                         {...cell.getCellProps()}
                         css={{
                           px: i === 0 ? "$5" : "$1",

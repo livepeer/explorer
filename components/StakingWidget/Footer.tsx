@@ -101,7 +101,8 @@ const Footer = ({
         />
         {+amount >= 0 && !isMyTranscoder && isStaked && (
           <Footnote>
-            Enter "0" to move your delegated stake to this orchestrator.
+            Enter &quot;0&quot; to move your delegated stake to this
+            orchestrator.
           </Footnote>
         )}
       </Box>
@@ -148,7 +149,7 @@ function renderUnstakeWarnings(
     return <Footnote>One must stake before one can unstake.</Footnote>;
   }
   if (!isMyTranscoder) {
-    return <Footnote>You're not staked to this orchestrator.</Footnote>;
+    return <Footnote>You&apos;re not staked to this orchestrator.</Footnote>;
   }
   if (parseFloat(amount) && !sufficientStake) {
     return <Footnote>Insufficient stake</Footnote>;
@@ -156,8 +157,8 @@ function renderUnstakeWarnings(
   return (
     <Footnote>
       Looking to move your delegated stake? No need to undelegate. Simply
-      navigate to the delegate you wish to switch to, enter "0", and hit
-      "delegate".
+      navigate to the delegate you wish to switch to, enter &quot;0&quot;, and
+      hit &quot;Delegate&quot;.
     </Footnote>
   );
 }

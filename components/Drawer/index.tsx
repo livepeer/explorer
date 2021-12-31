@@ -181,7 +181,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               <Box>
                 <Link href="/whats-new" passHref>
                   <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    What's New
+                    What&apos;s New
                   </A>
                 </Link>
               </Box>

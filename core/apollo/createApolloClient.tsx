@@ -20,9 +20,6 @@ export default function createApolloClient(
   initialState: object,
   _ctx: NextPageContext | null
 ) {
-  // The `ctx` (NextPageContext) will only be present on the server.
-  // use it to extract auth headers (ctx.req) or similar.
-
   const cache = new InMemoryCache().restore(
     (initialState || {}) as NormalizedCacheObject
   );
@@ -46,7 +43,6 @@ export default function createApolloClient(
           error
         }
         txs
-        tourOpen
         roi
         principle
       }
@@ -68,7 +64,6 @@ export default function createApolloClient(
         error: false,
       },
       txs: [],
-      tourOpen: false,
       roi: 0.0,
       principle: 0.0,
     },
@@ -91,6 +86,7 @@ export default function createApolloClient(
             provider,
             account: context?.account,
           });
+
           return execute(
             data,
             operation.query,

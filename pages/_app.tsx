@@ -17,21 +17,11 @@ function getLibrary(provider) {
 
 function App({ Component, pageProps }) {
   const client = useApollo(pageProps.initialApolloState);
-  const getLayout =
-    Component.getLayout || ((page) => <Layout children={page} />);
+  const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
   return (
     <>
       <Head>
         <title>Livepeer Explorer</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link
-          href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900"
-          rel="stylesheet"
-        />
       </Head>
       <ApolloProvider client={client}>
         <Web3ReactProvider getLibrary={getLibrary}>

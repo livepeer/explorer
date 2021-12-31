@@ -84,7 +84,7 @@ function renderSwitch({ tx, onDismiss }) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
-                Congrats! You've successfully delegated{" "}
+                Congrats! You&apos;ve successfully delegated{" "}
                 {Utils.fromWei(inputData.amount)} LPT.
               </Box>
             </Box>
@@ -106,7 +106,7 @@ function renderSwitch({ tx, onDismiss }) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
-                You've successfully undelegated{" "}
+                You&apos;ve successfully undelegated{" "}
                 {Utils.fromWei(inputData.amount)} LPT. The unbonding period is
                 ~7 days after which you may withdraw the undelegated LPT into
                 your wallet.
@@ -163,7 +163,7 @@ function renderSwitch({ tx, onDismiss }) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              You've successfully redelegated to orchestrator{" "}
+              You&apos;ve successfully redelegated to orchestrator{" "}
               {tx.inputData &&
                 inputData.delegate.replace(
                   inputData.delegate.slice(7, 37),
@@ -184,7 +184,7 @@ function renderSwitch({ tx, onDismiss }) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              You've successfully casted a vote{" "}
+              You&apos;ve successfully casted a vote{" "}
               {tx.inputData && inputData.choiceId === 0 ? '"Yes"' : '"No"'}
             </Box>
           </Table>
@@ -218,7 +218,8 @@ function renderSwitch({ tx, onDismiss }) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              Nice one! You've successfully created a poll. Head on over to the{" "}
+              Nice one! You&apos;ve successfully created a poll. Head on over to
+              the{" "}
               <Box
                 as="a"
                 css={{ cursor: "pointer" }}

@@ -324,9 +324,9 @@ const Index = ({ data }) => {
           <Box as="ol" css={{ pl: 15 }}>
             <Box as="li" css={{ mb: "$4" }}>
               <Box css={{ mb: "$3" }}>
-                Run the Livepeer CLI and select the option to "Vote on a poll".
-                When prompted for a contract address, copy and paste this poll's
-                contract address:
+                Run the Livepeer CLI and select the option to &quot;Vote on a
+                poll&quot;. When prompted for a contract address, copy and paste
+                this poll&apos;s contract address:
               </Box>
               <Box
                 css={{
@@ -384,7 +384,7 @@ const Index = ({ data }) => {
             <Box as="li" css={{ mb: "$4" }}>
               <Box css={{ mb: "$3" }}>
                 The Livepeer CLI will prompt you for your vote. Enter 0 to vote
-                "Yes" or 1 to vote "No".
+                &quot;Yes&quot; or 1 to vote &quot;No&quot;.
               </Box>
             </Box>
             <Box as="li" css={{ mb: 0 }}>
