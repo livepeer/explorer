@@ -96,7 +96,7 @@ const Migrate = () => {
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [validSignerAddress, setValidSignerAddress] = useState(undefined);
   const [migrationCallData, setMigrationCallData] = useState(undefined);
-  const { register, handleSubmit, formState, watch } = useForm();
+  const { register, watch } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
   const time = new Date();
@@ -112,7 +112,7 @@ const Migrate = () => {
     MigrationState | undefined
   >({
     step: 0,
-    title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+    title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
     subtitle:
       "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
     loading: false,
@@ -181,7 +181,7 @@ const Migrate = () => {
         setMigrationViewState((m) => ({
           ...m,
           step: 0,
-          title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+          title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
           subtitle:
             "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
           loading: false,
@@ -202,7 +202,7 @@ const Migrate = () => {
           setMigrationViewState((m) => ({
             ...m,
             step: 1,
-            title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+            title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
             subtitle:
               "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
             loading: false,
@@ -236,7 +236,7 @@ const Migrate = () => {
     setMigrationViewState({
       ...migrationViewState,
       step: 1,
-      title: `Migrate Rinkeby Stake & Fees to Arbitrum Rinkeby`,
+      title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
       subtitle:
         "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
       loading: false,
