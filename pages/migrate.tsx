@@ -412,13 +412,24 @@ const Migrate = () => {
           types,
           value
         );
-        const signer = ethers.utils.verifyTypedData(
-          domain,
-          types,
-          value,
-          signature
-        );
-        console.log(signer);
+        let signer = "";
+
+        if (signature) {
+          try {
+            signer = ethers.utils.verifyTypedData(
+              domain,
+              types,
+              value,
+              signature
+            );
+          } catch (e) {
+            console.log(e);
+          }
+        }
+
+        const validSignature =
+          isValidAddress(signer) === isValidAddress(migrationParams.delegate);
+
         return (
           <Box>
             <Text css={{ mb: "$3" }}>
@@ -427,18 +438,17 @@ const Migrate = () => {
               the following message.
             </Text>
 
-            {payload && (
-              <CodeBlock
-                key={Math.random()}
-                css={{ mb: "$4" }}
-                showLineNumbers={false}
-                id="message"
-                variant="primary"
-                isHighlightingLines={false}
-              >
-                {JSON.stringify(payload)}
-              </CodeBlock>
-            )}
+            <CodeBlock
+              key={Math.random()}
+              css={{ mb: "$4" }}
+              showLineNumbers={false}
+              id="message"
+              variant="primary"
+              isHighlightingLines={false}
+            >
+              {JSON.stringify(payload)}
+            </CodeBlock>
+
             <Text css={{ mb: "$2" }}>
               The CLI will generate a signed message signature. It should begin
               with “0x”. Paste it here.
@@ -449,21 +459,31 @@ const Migrate = () => {
               placeholder="Signature"
               size="3"
             />
+            {signature && (
+              <Text size="1" css={{ mt: "$1", mb: "$1" }}>
+                {validSignature
+                  ? "Valid"
+                  : `Invalid. Message must be signed by ${migrationParams.delegate}`}
+              </Text>
+            )}
             <Box>
               <Button
+                disabled={!validSignature}
+                variant={validSignature ? "primary" : "neutral"}
                 onClick={handleNext}
                 size="4"
-                variant="primary"
                 css={{ mt: "$4", mr: "$2" }}
               >
                 Continue
               </Button>
+
               <Button onClick={handleBack} ghost size="4">
                 Back
               </Button>
             </Box>
           </Box>
         );
+
       case 2:
         return (
           <Box>

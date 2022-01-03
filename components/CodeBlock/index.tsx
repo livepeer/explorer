@@ -22,7 +22,6 @@ export function CodeBlock({
       const codeElement = preRef.current.querySelector("code");
       // remove double line breaks
       const code = codeElement.innerText.replace(/\n{3,}/g, "\n");
-      console.log("wat", code);
       setCode(code);
     }
   }, [preRef]);

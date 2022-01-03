@@ -301,11 +301,11 @@ const Layout = ({
                       }}
                     >
                       <Box as="span" css={{ fontWeight: 600 }}>
-                        What's New:
+                        What&apos;s New:
                       </Box>{" "}
                       <Box as="span">Showcasing Network Usage</Box>
                     </Box>
-                    <Link href="/whats-new">
+                    <Link passHref href="/whats-new">
                       <Box
                         as="a"
                         css={{
