@@ -31,7 +31,7 @@
     "@graphql-tools/schema": "7.1.5",
     "@graphql-tools/stitch": "7.5.3",
     "@graphql-tools/wrap": "7.0.8",
-    "@livepeer/design-system": "^0.0.0-beta.1",
+    "@livepeer/design-system": "^0.0.0-beta.2",
     "@material-ui/core": "^4.12.3",
     "@mdx-js/loader": "^1.5.5",
     "@mdx-js/react": "^1.4.5",
