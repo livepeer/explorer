@@ -361,7 +361,7 @@ const Migrate = () => {
     switch (step) {
       case 0:
         return (
-          <Box key="test">
+          <Box>
             <TextField
               ref={register}
               size="3"
@@ -390,25 +390,35 @@ const Migrate = () => {
         if (!validSignerAddress) {
           return;
         }
+        const domain = {
+          name: "Livepeer L1Migrator",
+          version: "1",
+          chainId: L1_CHAIN_ID,
+          verifyingContract: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        };
+        const types = {
+          MigrateDelegator: [
+            { name: "l1Addr", type: "address" },
+            { name: "l2Addr", type: "address" },
+          ],
+        };
+        const value = {
+          l1Addr: validSignerAddress,
+          l2Addr: validSignerAddress,
+        };
+
         const payload = ethers.utils._TypedDataEncoder.getPayload(
-          {
-            name: "Livepeer L1Migrator",
-            version: "1",
-            chainId: L1_CHAIN_ID,
-            verifyingContract:
-              CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-          },
-          {
-            MigrateDelegator: [
-              { name: "l1Addr", type: "address" },
-              { name: "l2Addr", type: "address" },
-            ],
-          },
-          {
-            l1Addr: validSignerAddress,
-            l2Addr: validSignerAddress,
-          }
+          domain,
+          types,
+          value
         );
+        const signer = ethers.utils.verifyTypedData(
+          domain,
+          types,
+          value,
+          signature
+        );
+        console.log(signer);
         return (
           <Box>
             <Text css={{ mb: "$3" }}>
@@ -433,7 +443,12 @@ const Migrate = () => {
               The CLI will generate a signed message signature. It should begin
               with “0x”. Paste it here.
             </Text>
-            <TextField placeholder="Signature" size="3" />
+            <TextField
+              ref={register}
+              name="signature"
+              placeholder="Signature"
+              size="3"
+            />
             <Box>
               <Button
                 onClick={handleNext}
