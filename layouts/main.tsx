@@ -96,8 +96,6 @@ const Layout = ({
   headerTitle = "",
 }) => {
   const client = useApolloClient();
-  const { error } = useWeb3React();
-
   const { pathname } = useRouter();
   const { data } = useQuery(
     gql`
@@ -234,7 +232,7 @@ const Layout = ({
       <ThemeProvider
         disableTransitionOnChange
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="dark"
         value={{
           ...themeMap,
           dark: "dark-theme-green",
