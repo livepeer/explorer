@@ -53,7 +53,7 @@ const NetworkDialog = () => {
               </Box>
             ) : (
               <Box>
-                To use the Explorer, please switch your network to
+                To use the Explorer, please switch your network to{" "}
                 {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
               </Box>
             )}

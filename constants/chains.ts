@@ -42,6 +42,17 @@ export enum NetworkType {
   L2,
 }
 
+// Bridge abis
+const abis = {
+  l1Migrator: require("../abis/bridge/L1Migrator.json"),
+  l2Migrator: require("../abis/bridge/L2Migrator.json"),
+  l2GatewayRouter: require("../abis/bridge/L2LPTGateway.json"),
+  inbox: require("../abis/bridge/Inbox.json"),
+  outbox: require("../abis/bridge/Outbox.json"),
+  arbRetryableTx: require("../abis/bridge/ArbRetryableTx.json"),
+  nodeInterface: require("../abis/bridge/NodeInterface.json"),
+};
+
 export const CHAIN_INFO = {
   [SupportedChainId.MAINNET]: {
     networkType: NetworkType.L1,
@@ -59,11 +70,13 @@ export const CHAIN_INFO = {
     contracts: {
       controller: "0xA268AEa9D048F8d3A592dD7f1821297972D4C8Ea",
     },
+    abis,
   },
   [SupportedChainId.RINKEBY]: {
     networkType: NetworkType.L1,
     explorer: "https://rinkeby.etherscan.io/",
     explorerAPI: "https://testnet.arbiscan.io/api",
+    pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Rinkeby",
     // logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
@@ -74,7 +87,7 @@ export const CHAIN_INFO = {
     contracts: {
       controller: "0x7159fa1e24c05a91d4c03f98ff49069602ab88c3",
     },
-    pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
+    abis,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
     networkType: NetworkType.L2,
@@ -101,6 +114,7 @@ export const CHAIN_INFO = {
       arbRetryableTx: "0x000000000000000000000000000000000000006E",
       nodeInterface: "0x00000000000000000000000000000000000000C8",
     },
+    abis,
   },
   [SupportedChainId.ARBITRUM_RINKEBY]: {
     networkType: NetworkType.L2,
@@ -133,14 +147,8 @@ export const CHAIN_INFO = {
       arbRetryableTx: "0x000000000000000000000000000000000000006E",
       nodeInterface: "0x00000000000000000000000000000000000000C8",
     },
-    abis: {
-      l1Migrator: require("../abis/L1Migrator.json"),
-      l2Migrator: require("../abis/L2Migrator.json"),
-      l2GatewayRouter: require("../abis/L2LPTGateway.json"),
-      inbox: require("../abis/Inbox.json"),
-      outbox: require("../abis/Outbox.json"),
-      arbRetryableTx: require("../abis/ArbRetryableTx.json"),
-      nodeInterface: require("../abis/NodeInterface.json"),
-    },
+    abis,
   },
 };
+
+export const L1_CHAIN_ID = CHAIN_INFO[DEFAULT_CHAIN_ID].l1;

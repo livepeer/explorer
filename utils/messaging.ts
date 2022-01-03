@@ -5,7 +5,7 @@ import {
   providers,
   utils,
 } from "ethers";
-import InboxABI from "../abis/Inbox.json";
+import InboxABI from "../abis/bridge/Inbox.json";
 
 export async function waitForTx(
   tx: Promise<ContractTransaction>,
@@ -86,6 +86,8 @@ export async function waitToRelayTxsToL2(
 
   //   expect(redemptionReceipt.status).equals(1);
   console.log("Xchain message arrived");
+
+  return redemptionReceipt;
 }
 
 async function getInboxSeqNumFromContractTransaction(

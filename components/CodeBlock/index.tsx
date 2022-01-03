@@ -22,6 +22,7 @@ export function CodeBlock({
       const codeElement = preRef.current.querySelector("code");
       // remove double line breaks
       const code = codeElement.innerText.replace(/\n{3,}/g, "\n");
+      console.log("wat", code);
       setCode(code);
     }
   }, [preRef]);
@@ -69,12 +70,18 @@ export function CodeBlock({
       <IconButton
         aria-label="Copy code to clipboard"
         css={{
-          color: "$primary11",
+          cursor: "pointer",
+          color: "$hiContrast",
           position: "absolute",
           top: "$2",
           right: "$2",
           display: "inline-flex",
           opacity: 1,
+          transition: "background-color .3s",
+          "&:hover": {
+            bc: "$primary5",
+            transition: "background-color .3s",
+          },
         }}
         onClick={() => setHasCopied(true)}
       >

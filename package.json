@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "run-p dev:next",
-    "dev:next": "next",
+    "dev": "next",
     "build": "next build",
-    "start": "NODE_ENV=production next start",
+    "start": "next start",
     "lint": "next lint"
   },
   "devDependencies": {
@@ -22,7 +21,6 @@
     "babel-plugin-inline-react-svg": "^1.1.1",
     "eslint": "8.5.0",
     "eslint-config-next": "12.0.7",
-    "npm-run-all": "^4.1.5",
     "typescript": "^4.1.5"
   },
   "dependencies": {
@@ -107,6 +105,7 @@
     "react-number-format": "^4.3.1",
     "react-show-more-text": "1.2.3",
     "react-table": "^7.7.0",
+    "react-timer-hook": "^3.0.5",
     "react-tooltip": "^4.2.11",
     "react-truncate": "^2.4.0",
     "react-use": "^12.2.0",

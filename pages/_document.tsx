@@ -7,7 +7,6 @@ export default class Document extends NextDocument {
     return (
       <Html lang="en">
         <Head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link
             href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500&display=optional"
             rel="stylesheet"

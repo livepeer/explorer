@@ -93,7 +93,7 @@ const Wallet = () => {
         <Box css={{ px: "$2" }}>{balance} ETH</Box>
         <Link href={`/accounts/${account}/delegating`} passHref>
           <Button
-            asChild
+            as={A}
             size="3"
             css={{
               bc: "$neutral4",
@@ -101,17 +101,12 @@ const Wallet = () => {
               height: 35,
               px: "$2",
               py: "$1",
+              "&:hover": {
+                textDecoration: "none",
+              },
             }}
           >
-            <A
-              css={{
-                "&:hover": {
-                  textDecoration: "none",
-                },
-              }}
-            >
-              {ens ? ens : account.replace(account.slice(6, 38), "…")}
-            </A>
+            {ens ? ens : account.replace(account.slice(6, 38), "…")}
           </Button>
         </Link>
       </Flex>

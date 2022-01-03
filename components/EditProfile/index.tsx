@@ -1,15 +1,9 @@
 import { useState, useEffect } from "react";
 import { ThreeBoxSpace } from "../../@types";
 import Camera from "../../public/img/camera.svg";
-import ReactTooltip from "react-tooltip";
-import Check from "../../public/img/check.svg";
-import Copy from "../../public/img/copy.svg";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import Textfield from "../Textfield";
 import useForm from "react-hook-form";
 import { useMutation, gql } from "@apollo/client";
 import QRCode from "qrcode.react";
-import ExternalAccount from "../ExternalAccount";
 import { useDebounce } from "use-debounce";
 import ThreeBoxSteps from "../ThreeBoxSteps";
 import Spinner from "../Spinner";
@@ -24,6 +18,7 @@ import {
   Box,
   Flex,
   Button,
+  TextField,
 } from "@livepeer/design-system";
 
 interface Props {
@@ -501,14 +496,14 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                       type="file"
                     />
                   </Box>
-                  <Textfield
+                  <TextField
                     ref={register}
                     defaultValue={threeBoxSpace ? threeBoxSpace.name : ""}
                     name="name"
                     placeholder="Name"
                     css={{ mb: "$3", width: "100%" }}
                   />
-                  <Textfield
+                  <TextField
                     ref={register}
                     defaultValue={threeBoxSpace ? threeBoxSpace.website : ""}
                     placeholder="Website"
