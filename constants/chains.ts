@@ -91,7 +91,7 @@ export const CHAIN_INFO = {
   },
   [SupportedChainId.ARBITRUM_ONE]: {
     networkType: NetworkType.L2,
-    l1: [SupportedChainId.MAINNET],
+    l1: SupportedChainId.MAINNET,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://arbiscan.io/",
@@ -118,7 +118,7 @@ export const CHAIN_INFO = {
   },
   [SupportedChainId.ARBITRUM_RINKEBY]: {
     networkType: NetworkType.L2,
-    l1: [SupportedChainId.RINKEBY],
+    l1: SupportedChainId.RINKEBY,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",

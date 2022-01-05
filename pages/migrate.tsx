@@ -297,7 +297,7 @@ const Migrate = () => {
       const tx1 = await signer.migrateDelegator(
         context.account,
         context.account,
-        "0x",
+        signature ? signature : "0x",
         maxGas,
         gasPriceBid,
         maxSubmissionPrice,

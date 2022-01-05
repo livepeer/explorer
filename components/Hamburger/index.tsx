@@ -12,9 +12,13 @@ const Index = ({ ...props }) => {
       }}
       {...props}
     >
-      <Box css={{ mb: "5px", bg: "white", height: "1px", width: "20px" }} />
-      <Box css={{ mb: "5px", bg: "white", height: "1px", width: "16px" }} />
-      <Box css={{ bg: "white", height: "1px", width: "20px" }} />
+      <Box
+        css={{ mb: "5px", bc: "$hiContrast", height: "1px", width: "20px" }}
+      />
+      <Box
+        css={{ mb: "5px", bc: "$hiContrast", height: "1px", width: "16px" }}
+      />
+      <Box css={{ bc: "$hiContrast", height: "1px", width: "20px" }} />
     </Flex>
   );
 };

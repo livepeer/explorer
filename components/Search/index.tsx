@@ -13,7 +13,7 @@ function handleSubmit(e) {
   );
 }
 
-const Index = ({ ...props }) => {
+const Index = ({ css = {}, ...props }) => {
   return (
     <Box
       as="form"
@@ -22,8 +22,9 @@ const Index = ({ ...props }) => {
         borderRadius: 10,
         display: "flex",
         alignItems: "center",
-        width: "400px",
+        width: "320px",
         position: "relative",
+        ...css,
       }}
       {...props}
     >

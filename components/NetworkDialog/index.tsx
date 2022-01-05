@@ -9,22 +9,36 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { useWeb3React } from "@web3-react/core";
-import { DEFAULT_CHAIN_ID, CHAIN_INFO } from "constants/chains";
+import { DEFAULT_CHAIN_ID, CHAIN_INFO, L1_CHAIN_ID } from "constants/chains";
 import { useRouter } from "next/router";
 
 const NetworkDialog = () => {
   const { chainId, error, library } = useWeb3React();
   const { route } = useRouter();
-
   const isMetamask = library?.connection?.url === "metamask";
 
+  let targetChain = DEFAULT_CHAIN_ID;
+  let title = "Unsupported Network Detected";
+  let subtitle = (
+    <Box>
+      To use the Explorer, please switch your network to{" "}
+      {CHAIN_INFO[targetChain].label}
+    </Box>
+  );
   if (route === "/migrate") {
-    return null;
+    title = "Migration Tool";
+    subtitle = (
+      <Box>
+        Switch your network to {CHAIN_INFO[L1_CHAIN_ID].label} to proceed with
+        migrating your stake and fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+      </Box>
+    );
+    targetChain = L1_CHAIN_ID;
   }
 
   return (
-    <Dialog open={!!error || (chainId && chainId !== DEFAULT_CHAIN_ID)}>
-      <DialogContent css={{ maxWidth: 370, p: 0 }}>
+    <Dialog open={!!error || (chainId && chainId !== targetChain)}>
+      <DialogContent css={{ maxWidth: 370, width: "100%", p: 0 }}>
         <DialogTitle asChild>
           <Heading
             size="1"
@@ -37,7 +51,7 @@ const NetworkDialog = () => {
               borderBottom: "1px solid $neutral4",
             }}
           >
-            Unsupported Network Detected
+            {title}
           </Heading>
         </DialogTitle>
         <Box css={{ p: "$5" }}>
@@ -46,28 +60,18 @@ const NetworkDialog = () => {
               fontSize: "$4",
             }}
           >
-            {route === "/migrate" ? (
-              <Box>
-                To migrate your stake and fees to{" "}
-                {CHAIN_INFO[DEFAULT_CHAIN_ID].label} switch your network to
-              </Box>
-            ) : (
-              <Box>
-                To use the Explorer, please switch your network to{" "}
-                {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
-              </Box>
-            )}
+            {subtitle}
           </Text>
           {isMetamask && (
             <Button
               onClick={() => {
-                switchToNetwork({ library, chainId: DEFAULT_CHAIN_ID });
+                switchToNetwork({ library, chainId: targetChain });
               }}
               size="4"
               variant="primary"
               css={{ mt: "$4", width: "100%" }}
             >
-              Switch to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
+              Switch to {CHAIN_INFO[targetChain].label}
             </Button>
           )}
         </Box>

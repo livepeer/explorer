@@ -37,6 +37,7 @@ import WalletModal from "@components/WalletModal";
 import Claim from "@components/Claim";
 import Wallet from "@components/Wallet";
 import NetworkDialog from "@components/NetworkDialog";
+import Hamburger from "@components/Hamburger";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -348,7 +349,6 @@ const Layout = ({
                   </Flex>
                 )}
 
-                <Header title={headerTitle} onDrawerOpen={onDrawerOpen} />
                 <WalletModal />
                 <Box
                   css={{
@@ -377,8 +377,27 @@ const Layout = ({
                             height: 40,
                           }}
                         >
-                          <Search />
-                          <Wallet />
+                          <Box
+                            css={{
+                              "@bp3": {
+                                py: "$3",
+                                display: "none",
+                              },
+                            }}
+                          >
+                            <Hamburger onClick={onDrawerOpen} />
+                          </Box>
+                          <Search
+                            css={{
+                              display: "none",
+                              "@bp2": {
+                                display: "flex",
+                              },
+                            }}
+                          />
+                          <Flex css={{ ml: "auto" }}>
+                            <Wallet />
+                          </Flex>
                         </Flex>
                       </Container>
                     </AppBar>

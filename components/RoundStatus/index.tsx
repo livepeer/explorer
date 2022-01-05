@@ -100,11 +100,11 @@ const Index = () => {
     +protocolData.protocol.lastInitializedRound?.id === currentRoundNumber;
   const blocksRemaining = initialized
     ? +protocolData.protocol.roundLength -
-      (blockData.block.number - +protocolData.protocol.currentRound.startBlock)
+      (+blockData.block.number - +protocolData.protocol.currentRound.startBlock)
     : 0;
   const timeRemaining = BLOCK_TIME * blocksRemaining;
   const blocksSinceCurrentRoundStart = initialized
-    ? blockData.block.number - +protocolData.protocol.currentRound.startBlock
+    ? +blockData.block.number - +protocolData.protocol.currentRound.startBlock
     : 0;
   const percentage =
     (blocksSinceCurrentRoundStart / +protocolData.protocol.roundLength) * 100;
