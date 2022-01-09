@@ -168,7 +168,7 @@ const Poll = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container size="3" css={{ mt: "$4", width: "100%" }}>
         <Flex>
           <Flex
             css={{
