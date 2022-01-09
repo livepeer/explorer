@@ -70,6 +70,7 @@ export const CHAIN_INFO = {
     subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: {
       controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
+      pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
       l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
@@ -95,6 +96,7 @@ export const CHAIN_INFO = {
     subgraph: "https://api.thegraph.com/subgraphs/name/adamsoffer/livepeer",
     contracts: {
       controller: "0x7159fa1e24c05a91d4c03f98ff49069602ab88c3",
+      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
       l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
@@ -124,6 +126,7 @@ export const CHAIN_INFO = {
       "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-arbitrum",
     contracts: {
       controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
+      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
       l2GatewayRouter: "0x5288c571Fd7aD117beA99bF60FE0846C4E84F933",
@@ -157,6 +160,7 @@ export const CHAIN_INFO = {
       "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
     contracts: {
       controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
+      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
       l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
