@@ -149,8 +149,8 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
 
       {
         Header: "Total Delegators",
-        accessor: "delegators",
-        Cell: ({ row }) => <Box>{row.values.delegators.length}</Box>,
+        accessor: (row) => row.delegators.length,
+        sortType: "number",
       },
       {
         Header: "Reward Calls",
