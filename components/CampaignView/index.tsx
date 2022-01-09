@@ -1,44 +1,10 @@
-import Card from "../Card";
-import { abbreviateNumber, expandedPriceLabels } from "../../lib/utils";
-import ReactTooltip from "react-tooltip";
-import { useRef, useState } from "react";
-import Price from "../Price";
+import { abbreviateNumber } from "../../lib/utils";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import HelpIcon from "../HelpIcon";
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Card as CardBase,
-  Tooltip,
-} from "@livepeer/design-system";
+import { Box, Flex, Tooltip } from "@livepeer/design-system";
 import Stat from "../Stat";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 
-const Subtitle = ({ css = {}, children }) => {
-  return (
-    <Box
-      css={{
-        fontSize: "$4",
-        color: "$text",
-        fontWeight: 500,
-        fontFamily: "$monospace",
-        "@bp2": {
-          fontSize: "$5",
-        },
-        ...css,
-      }}
-    >
-      {children}
-    </Box>
-  );
-};
-
 const Index = ({ currentRound, transcoder }) => {
-  const [isPriceSettingOpen, setIsPriceSettingOpen] = useState(false);
-  const targetRef = useRef();
-  const [priceSetting, setPriceSetting] = useState("pixel");
   const callsMade = transcoder.pools.filter(
     (r) => r.rewardTokens != null
   ).length;
@@ -46,33 +12,6 @@ const Index = ({ currentRound, transcoder }) => {
     transcoder?.activationRound <= currentRound.id &&
     transcoder?.deactivationRound > currentRound.id;
 
-  const PriceSettingToggle = () => (
-    <Box
-      as="span"
-      ref={targetRef}
-      onClick={(e) => {
-        e.stopPropagation();
-        setIsPriceSettingOpen(true);
-      }}
-      css={{
-        cursor: "pointer",
-        fontSize: 12,
-      }}
-    >
-      <Box as="span" css={{ mx: "4px" }}>
-        /
-      </Box>
-      <Box
-        as="span"
-        title={`Price of transcoding per ${expandedPriceLabels[priceSetting]}`}
-        css={{
-          color: "$text",
-        }}
-      >
-        {priceSetting}
-      </Box>
-    </Box>
-  );
   return (
     <Box css={{ pt: "$4" }}>
       <Box
