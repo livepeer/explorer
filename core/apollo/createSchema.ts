@@ -16,7 +16,8 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider } from "constants/chains";
+import { ethers } from "ethers";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -87,20 +88,18 @@ const createSchema = async () => {
     }
   `;
   async function getTotalStake(_ctx, _blockNumber) {
-    const Web3 = require("web3");
-    const web3 = new Web3(CHAIN_INFO[DEFAULT_CHAIN_ID]);
-    const contract = new web3.eth.Contract(
+    const contract = new ethers.Contract(
+      _ctx.livepeer.config.contracts.LivepeerToken.address,
       _ctx.livepeer.config.contracts.LivepeerToken.abi,
-      _ctx.livepeer.config.contracts.LivepeerToken.address
+      l1Provider
     );
-
-    return await contract.methods
-      .balanceOf(
-        _blockNumber < 10686186
-          ? "0x8573f2f5a3bd960eee3d998473e50c75cdbe6828"
-          : _ctx.livepeer.config.contracts.Minter.address
-      )
-      .call({}, _blockNumber ? _blockNumber : null);
+    let balance = await contract.balanceOf(
+      _blockNumber < 10686186
+        ? "0x8573f2f5a3bd960eee3d998473e50c75cdbe6828"
+        : _ctx.livepeer.config.contracts.Minter.address,
+      { blockTag: _blockNumber ? +_blockNumber : "latest" }
+    );
+    return balance.toString();
   }
 
   const gatewaySchema = stitchSchemas({
@@ -252,6 +251,7 @@ const createSchema = async () => {
             } else {
               return "Quorum not met";
             }
+            return "passed";
           },
         },
         isActive: {
@@ -260,6 +260,7 @@ const createSchema = async () => {
               "latest"
             );
             return blockNumber <= parseInt(_poll.endBlock);
+            return false;
           },
         },
         estimatedTimeRemaining: {
