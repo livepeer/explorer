@@ -12,9 +12,40 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ChevronDownIcon, Link1Icon } from "@modulz/radix-icons";
+import { useWeb3React } from "@web3-react/core";
+import { l1Migrator, l2Migrator } from "constants/chains";
+import { ethers } from "ethers";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
 const Claim = () => {
-  return (
+  const context = useWeb3React();
+  const [migrationParams, setMigrationParams] = useState(undefined);
+  const [loading, setLoading] = useState(true);
+  const delegateMigrated = true;
+
+  useEffect(() => {
+    const init = async () => {
+      if (context.account) {
+        setLoading(true);
+        // fetch calldata to be submitted for calling L2 function
+        const { params } = await l1Migrator.getMigrateDelegatorParams(
+          context.account,
+          context.account
+        );
+
+        setMigrationParams({
+          delegate: params.delegate,
+          stake: params.stake,
+          fees: params.fees,
+        });
+        setLoading(false);
+      }
+    };
+    init();
+  }, [context.account]);
+
+  return loading ? null : (
     <Box
       css={{
         mt: "$5",
@@ -48,8 +79,30 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            1,241.21 LPT
+            {ethers.utils.formatEther(migrationParams.stake)} LPT
           </Box>
+          {delegateMigrated && (
+            <Box css={{ display: "inline" }}>
+              (delegated with
+              <Box
+                css={{
+                  display: "inline",
+                  fontWeight: 700,
+                  borderBottom: "1px dashed $neutral11",
+                  fontSize: "$3",
+                  color: "$hiContrast",
+                  ml: "$1",
+                  letterSpacing: "-.4px",
+                }}
+              >
+                {migrationParams.delegate.replace(
+                  migrationParams.delegate.slice(6, 38),
+                  "…"
+                )}
+              </Box>
+              )
+            </Box>
+          )}{" "}
           and fees of
           <Box
             css={{
@@ -62,103 +115,136 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            1.2 ETH
+            {ethers.utils.formatEther(migrationParams.fees)} ETH
           </Box>
           are available to claim on Arbitrum.
         </Text>
       </Box>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Box
-            css={{
-              mt: "$3",
-              mb: "$5",
-              borderBottom: "1px solid rgba(255,255,255, .2)",
-              transition: ".1s border-bottom",
-              pb: "$1",
-              maxWidth: 300,
-              cursor: "pointer",
-              "&:hover": {
-                transition: ".1s border-bottom",
-                borderBottom: "1px solid rgba(255,255,255, 1)",
-              },
-            }}
-          >
-            <Text
-              css={{
-                fontSize: "$1",
-                lineHeight: 1.9,
-                color: "rgba(255,255,255, .6)",
-              }}
-            >
-              Continue delegating with
-            </Text>
+      {!delegateMigrated && (
+        <Dialog>
+          <DialogTrigger asChild>
             <Box
               css={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                mt: "$3",
+                mb: "$5",
+                maxWidth: 300,
+                cursor: "pointer",
+                "&:hover": {
+                  ".delegateAddress": {
+                    transition: ".2s border-bottom",
+                    borderBottom: "1px solid rgba(255,255,255, 1)",
+                  },
+                },
               }}
             >
-              titannode.eth <Box css={{ mr: "$2" }} as={ChevronDownIcon} />
-            </Box>
-          </Box>
-        </DialogTrigger>
-        <DialogContent css={{ p: 0 }}>
-          <Box css={{ minWidth: 375 }}>
-            <Flex
-              css={{
-                py: "$2",
-                px: "$4",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderBottom: "1px solid $neutral5",
-              }}
-            >
-              <DialogTitle asChild>
-                <TextField
-                  size="3"
-                  css={{
-                    boxShadow: "none",
-                    border: 0,
-                    fontSize: "$4",
-                    bc: "transparent",
-                    "&:active": {
-                      border: 0,
-                      boxShadow: "none",
-                    },
-                    "&:focus": {
-                      border: 0,
-                      boxShadow: "none",
-                    },
-                  }}
-                  placeholder="Search orchestrators..."
-                />
-              </DialogTitle>
-            </Flex>
+              <Text
+                css={{
+                  fontSize: "$1",
+                  lineHeight: 1.9,
+                  color: "rgba(255,255,255, .6)",
+                }}
+              >
+                Continue delegating with
+              </Text>
+              <Box
+                className="delegateAddress"
+                css={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  pb: "$1",
+                  borderBottom: "1px solid rgba(255,255,255, .2)",
+                  transition: ".1s border-bottom",
+                  "&:hover": {
+                    transition: ".1s border-bottom",
+                    borderBottom: "1px solid rgba(255,255,255, 1)",
+                  },
+                }}
+              >
+                {migrationParams.delegate.replace(
+                  migrationParams.delegate.slice(6, 38),
+                  "…"
+                )}
 
-            <Box
-              css={{
-                overflowY: "scroll",
-                maxHeight: 300,
-              }}
-            >
-              <Box css={{ px: "$3", pb: "$4" }}>
-                <OrchestratorCard active />
-                <OrchestratorCard />
-                <OrchestratorCard />
-                <OrchestratorCard />
-                <OrchestratorCard />
-                <OrchestratorCard />
-                <OrchestratorCard />
+                <Box css={{ mr: "$2" }} as={ChevronDownIcon} />
               </Box>
             </Box>
-          </Box>
-        </DialogContent>
-      </Dialog>
+          </DialogTrigger>
+          <DialogContent css={{ p: 0 }}>
+            <Box css={{ minWidth: 375 }}>
+              <Flex
+                css={{
+                  py: "$2",
+                  px: "$4",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid $neutral5",
+                }}
+              >
+                <DialogTitle asChild>
+                  <TextField
+                    size="3"
+                    css={{
+                      boxShadow: "none",
+                      border: 0,
+                      fontSize: "$4",
+                      bc: "transparent",
+                      "&:active": {
+                        border: 0,
+                        boxShadow: "none",
+                      },
+                      "&:focus": {
+                        border: 0,
+                        boxShadow: "none",
+                      },
+                    }}
+                    placeholder="Search orchestrators..."
+                  />
+                </DialogTitle>
+              </Flex>
+
+              <Box
+                css={{
+                  overflowY: "scroll",
+                  maxHeight: 300,
+                }}
+              >
+                <Box css={{ px: "$3", pb: "$4" }}>
+                  <OrchestratorCard active />
+                  <OrchestratorCard />
+                  <OrchestratorCard />
+                  <OrchestratorCard />
+                  <OrchestratorCard />
+                  <OrchestratorCard />
+                  <OrchestratorCard />
+                </Box>
+              </Box>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <Flex css={{ mt: "$3", alignItems: "center" }}>
-        <Button size="3" variant="transparentWhite" css={{ mr: "$2" }}>
+        <Button
+          onClick={async () => {
+            const signer = l2Migrator.connect(context.library.getSigner());
+            try {
+              const tx = await signer.claimStake(
+                migrationParams.delegate,
+                migrationParams.stake.toString(),
+                migrationParams.fees.toString(),
+                [],
+                ethers.constants.AddressZero
+              );
+              console.log(tx);
+            } catch (e) {
+              console.log(e);
+            }
+          }}
+          size="3"
+          variant="transparentWhite"
+          css={{ mr: "$2" }}
+        >
           Claim Stake & Fees
         </Button>
         <Button size="3" variant="transparentWhite" ghost>

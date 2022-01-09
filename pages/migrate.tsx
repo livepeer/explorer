@@ -19,14 +19,16 @@ import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
 import useForm from "react-hook-form";
-import migratorABI from "../abis/bridge/L1Migrator.json";
-import arbRetryableTxABI from "../abis/bridge/ArbRetryableTx.json";
-import nodeInterfaceABI from "../abis/bridge/NodeInterface.json";
 import {
+  arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
+  l1Migrator,
+  l1Provider,
   L1_CHAIN_ID,
+  l2Provider,
+  nodeInterface,
 } from "constants/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import LivepeerSDK from "@livepeer/sdk";
@@ -63,32 +65,6 @@ const signingSteps = [
   "Sign message",
   "Approve migration",
 ];
-
-const l1Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[L1_CHAIN_ID]
-);
-
-const l2Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-);
-
-const l1Migrator = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-  migratorABI,
-  l1Provider
-);
-
-const arbRetryableTx = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.arbRetryableTx,
-  arbRetryableTxABI,
-  l2Provider
-);
-
-const nodeInterface = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
-  nodeInterfaceABI,
-  l2Provider
-);
 
 const Migrate = () => {
   const context = useWeb3React();

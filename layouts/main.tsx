@@ -38,6 +38,7 @@ import Claim from "@components/Claim";
 import Wallet from "@components/Wallet";
 import NetworkDialog from "@components/NetworkDialog";
 import Hamburger from "@components/Hamburger";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -409,11 +410,12 @@ const Layout = ({
                       }}
                     >
                       <Box css={{ width: "100%" }}>
-                        {pathname !== "/migrate" && (
-                          <Container size="3" css={{ mb: "$7" }}>
-                            <Claim />
-                          </Container>
-                        )}
+                        {pathname !== "/migrate" &&
+                          CHAIN_INFO[DEFAULT_CHAIN_ID].networkType === "L2" && (
+                            <Container size="3" css={{ mb: "$7" }}>
+                              <Claim />
+                            </Container>
+                          )}
                         {children}
                       </Box>
                     </Flex>
