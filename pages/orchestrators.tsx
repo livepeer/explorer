@@ -28,7 +28,7 @@ const OrchestratorsPage = () => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$4",
+            mt: "$5",
             width: "100%",
           }}
         >
@@ -37,7 +37,7 @@ const OrchestratorsPage = () => {
             as="h1"
             css={{
               mb: "$4",
-              fontWeight: 600,
+              fontWeight: 700,
               "@bp2": {
                 fontSize: 26,
               },

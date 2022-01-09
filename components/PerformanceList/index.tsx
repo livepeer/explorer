@@ -2,23 +2,10 @@ import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import QRCode from "qrcode.react";
 
-const PerformanceList = ({ data, pageSize = 10 }) => {
-  const regions = {
-    global: "Global",
-    fra: "Frankfurt",
-    lax: "Los Angeles",
-    lon: "London",
-    mdw: "Chicago",
-    nyc: "New York City",
-    prg: "Prague",
-    sin: "Singapore",
-  };
-
-  const region = "global";
-
+const PerformanceList = ({ data, pageSize = 10, region }) => {
   const initialState = {
     pageSize: 20,
     sortBy: [
@@ -175,12 +162,14 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
         defaultCanSort: true,
         Cell: ({ row }) => {
           if (
-            typeof row.values["scores.global"] === "undefined" ||
-            row.values["scores.global"] === null
+            typeof row.values[`scores.${region}`] === "undefined" ||
+            row.values[`scores.${region}`] === null
           ) {
             return null;
           }
-          return <Box>{(row.values["scores.global"] / 1000).toFixed(2)}</Box>;
+          return (
+            <Box>{(row.values[`scores.${region}`] / 1000).toFixed(2)}</Box>
+          );
         },
       },
       {
@@ -188,13 +177,13 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
         accessor: `successRates.${region}`,
         Cell: ({ row }) => {
           if (
-            typeof row.values["successRates.global"] === "undefined" ||
-            row.values["successRates.global"] === null
+            typeof row.values[`successRates.${region}`] === "undefined" ||
+            row.values[`successRates.${region}`] === null
           ) {
             return null;
           }
 
-          return <Box>{row.values["successRates.global"].toFixed(2)}%</Box>;
+          return <Box>{row.values[`successRates.${region}`].toFixed(2)}%</Box>;
         },
       },
       {
@@ -202,14 +191,14 @@ const PerformanceList = ({ data, pageSize = 10 }) => {
         accessor: `roundTripScores.${region}`,
         Cell: ({ row }) => {
           if (
-            typeof row.values["roundTripScores.global"] === "undefined" ||
-            row.values["roundTripScores.global"] === null
+            typeof row.values[`roundTripScores.${region}`] === "undefined" ||
+            row.values[`roundTripScores.${region}`] === null
           ) {
             return null;
           }
           return (
             <Box>
-              {(row.values["roundTripScores.global"] / 1000).toFixed(2)}
+              {(row.values[`roundTripScores.${region}`] / 1000).toFixed(2)}
             </Box>
           );
         },
