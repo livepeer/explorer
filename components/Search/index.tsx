@@ -36,17 +36,24 @@ const Index = ({ css = {}, ...props }) => {
           mr: "$1",
           display: "flex",
           alignItems: "center",
-          backgroundColor: "transparent",
+          bc: "transparent",
           p: 0,
+          "&:hover": {
+            svg: {
+              transition: ".15s color",
+              color: "$hiContrast",
+            },
+          },
         }}
         type="submit"
       >
         <Box
           as={MagnifyingGlassIcon}
           css={{
-            width: 20,
-            height: 20,
-            color: "$muted",
+            transition: ".15s color",
+            width: 18,
+            height: 18,
+            color: "$neutral9",
             bc: "transparent",
           }}
         />
@@ -55,6 +62,7 @@ const Index = ({ css = {}, ...props }) => {
         placeholder="Search Orchestrators & Delegators"
         type="search"
         size="2"
+        css={{ pr: "$7" }}
       />
     </Box>
   );
