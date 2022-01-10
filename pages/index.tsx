@@ -1,5 +1,4 @@
 import { getLayout } from "@layouts/main";
-import OrchestratorPayouts from "@components/OrchestratorPayouts";
 import Link from "next/link";
 import GlobalChart from "@components/GlobalChart";
 import Flickity from "react-flickity-component";
@@ -8,16 +7,15 @@ import {
   Flex,
   Heading,
   Container,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+  Button,
+  Link as A,
 } from "@livepeer/design-system";
 import { getOrchestrators } from "core/api";
 import OrchestratorList from "@components/OrchestratorList";
 import { getApollo } from "core/apollo";
 import { gql, useQuery } from "@apollo/client";
 import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
+import { ArrowRightIcon } from "@modulz/radix-icons";
 
 const Panel = ({ children }) => (
   <Flex
@@ -149,31 +147,40 @@ const Home = () => {
                 alignItems: "center",
               }}
             >
-              <Heading size="2" css={{ fontWeight: 600 }}>
-                Orchestrators
-              </Heading>
-              <Link href="/orchestrators" passHref>
-                <Box as="a" css={{ color: "$white", fontSize: "$2", pr: "$3" }}>
-                  See All
-                </Box>
-              </Link>
+              <Flex align="center">
+                <Heading size="2" css={{ fontWeight: 600 }}>
+                  Orchestrators
+                </Heading>
+                <Link href="/leaderboard" passHref>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{
+                      mr: "$3",
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      ml: "$5",
+                    }}
+                  >
+                    <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
+                    Performance Leaderboard
+                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  </Button>
+                </Link>
+              </Flex>
+              <Flex align="center">
+                <Link href="/orchestrators" passHref>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2" }}
+                  >
+                    View All
+                  </Button>
+                </Link>
+              </Flex>
             </Flex>
             <OrchestratorList data={data.transcoders} pageSize={20} />
-            {/* <Tabs defaultValue="tab-one">
-              <TabsList>
-                <TabsTrigger value="tab-one">Orchestrators</TabsTrigger>
-                <TabsTrigger value="tab-two">
-                  Performance Leaderboard
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="tab-one">
-                <OrchestratorList data={orchestrators} pageSize={20} />
-              </TabsContent>
-              <TabsContent value="tab-two">
-                <OrchestratorList data={orchestrators} pageSize={20} />
-              </TabsContent>
-            </Tabs> */}
           </Box>
           {/* <Box>
             <Flex
