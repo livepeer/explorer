@@ -2,26 +2,12 @@ import Logo from "../Logo";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import RoundStatus from "../RoundStatus";
-import { gql, useApolloClient } from "@apollo/client";
 import UniswapModal from "../UniswapModal";
 import AccountMenu from "../AccountMenu";
-import { Box, Flex, Text, styled, Link as A } from "@livepeer/design-system";
-
-const BottomLink = styled("a", {
-  display: "flex",
-  alignItems: "center",
-  fontSize: "$2",
-  color: "$muted",
-  transition: "color .3s",
-  "&:hover": {
-    color: "$primary",
-    transition: "color .3s",
-  },
-});
+import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
   const router = useRouter();
-  const client = useApolloClient();
   const { asPath } = router;
 
   Router.events.on("routeChangeStart", () => {
@@ -185,6 +171,11 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
                   </A>
                 </Link>
               </Box>
+              <Link href="/migrate" passHref>
+                <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
+                  Migration Tool
+                </A>
+              </Link>
             </Box>
             <RoundStatus />
           </Box>
