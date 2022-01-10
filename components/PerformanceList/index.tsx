@@ -2,7 +2,7 @@ import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import QRCode from "qrcode.react";
 
 const PerformanceList = ({ data, pageSize = 10, region }) => {

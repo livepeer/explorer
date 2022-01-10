@@ -121,6 +121,11 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               >
                 Livepeer.org
               </A>
+              <Link href="/migrate" passHref>
+                <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
+                  Migration Tool
+                </A>
+              </Link>
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org/docs"
@@ -129,6 +134,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               >
                 Docs
               </A>
+
               <UniswapModal
                 trigger={
                   <A
@@ -171,11 +177,6 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
                   </A>
                 </Link>
               </Box>
-              <Link href="/migrate" passHref>
-                <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                  Migration Tool
-                </A>
-              </Link>
             </Box>
             <RoundStatus />
           </Box>

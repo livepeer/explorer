@@ -94,7 +94,11 @@ const LeaderboardPage = () => {
                 </Box>
                 <Box
                   as={ChevronDownIcon}
-                  css={{ right: 6, position: "absolute" }}
+                  css={{
+                    pointerEvents: "none",
+                    right: 6,
+                    position: "absolute",
+                  }}
                 />
               </Flex>
             </Flex>

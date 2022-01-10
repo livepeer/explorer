@@ -106,35 +106,11 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
           css={{
             mt: "$6",
             mb: "$4",
-            alignItems: "center",
-            justifyContent: "space-between",
           }}
         >
-          <Heading size="2">Create Poll</Heading>
-          {!context.account && (
-            <Button
-              css={{
-                display: "none",
-                "@bp3": {
-                  display: "block",
-                },
-              }}
-              onClick={() => {
-                client.writeQuery({
-                  query: gql`
-                    query {
-                      walletModalOpen
-                    }
-                  `,
-                  data: {
-                    walletModalOpen: true,
-                  },
-                });
-              }}
-            >
-              Connect Wallet
-            </Button>
-          )}
+          <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
+            Create Poll
+          </Heading>
         </Flex>
         <Box
           as="form"
@@ -180,6 +156,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                   p: "$4",
                   mb: "$4",
                   display: "flex",
+                  borderRadius: "$4",
                 }}
               >
                 <Flex css={{ alignItems: "center", width: "100%" }}>
