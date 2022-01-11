@@ -121,11 +121,11 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               >
                 Livepeer.org
               </A>
-              {/* <Link href="/migrate" passHref>
+              <Link href="/migrate" passHref>
                 <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
                   Migration Tool
                 </A>
-              </Link> */}
+              </Link>
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org/docs"

@@ -2,7 +2,6 @@ import {
   Box,
   Container,
   Flex,
-  globalCss,
   themes,
   Badge,
   SnackbarProvider,
@@ -15,66 +14,36 @@ import { MutationsContext } from "core/contexts";
 import { ThemeProvider } from "next-themes";
 import { useMutations, useOnClickOutside } from "core/hooks";
 import { useQuery, useApolloClient, gql } from "@apollo/client";
-import { useWeb3React } from "@web3-react/core";
-import AppBar from "@components/AppBar";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import useWindowSize from "react-use/lib/useWindowSize";
+import { globalStyles } from "@lib/globalStyles";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
-import Drawer from "@components/Drawer";
 import { transactionsQuery } from "core/queries/transactionsQuery";
 import Head from "next/head";
-import Header from "@components/Header";
 import Link from "next/link";
-import ProgressBar from "@components/ProgressBar";
 import React, { useState, useEffect, useRef } from "react";
 import ReactGA from "react-ga";
 import Router, { useRouter } from "next/router";
+import AppBar from "@components/AppBar";
+import Drawer from "@components/Drawer";
+import ProgressBar from "@components/ProgressBar";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import useWindowSize from "react-use/lib/useWindowSize";
 import WalletModal from "@components/WalletModal";
 import Claim from "@components/Claim";
 import Wallet from "@components/Wallet";
 import NetworkDialog from "@components/NetworkDialog";
 import Hamburger from "@components/Hamburger";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { isL2ChainId } from "@lib/chains";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
 } else {
   ReactGA.initialize("test", { testMode: true });
 }
-
-const globalStyles = globalCss({
-  "*, *::before, *::after": {
-    boxSizing: "border-box",
-  },
-
-  body: {
-    backgroundColor: "$loContrast",
-    margin: 0,
-    color: "$hiContrast",
-    fontFamily: "$body",
-    WebkitFontSmoothing: "antialiased",
-    MozOsxFontSmoothing: "grayscale",
-    WebkitTextSizeAdjust: "100%",
-  },
-
-  svg: {
-    display: "block",
-    verticalAlign: "middle",
-  },
-
-  "pre, code": { margin: 0, fontFamily: "$mono" },
-
-  "#__next": {
-    position: "relative",
-    zIndex: 0,
-  },
-
-  "h1, h2, h3, h4, h5": { fontWeight: 500 },
-});
 
 const themeMap = {};
 Object.keys(themes).map(
@@ -92,11 +61,7 @@ type DrawerItem = {
 // increment this value when updating the banner
 const uniqueBannerID = 2;
 
-const Layout = ({
-  children,
-  title = "Livepeer Explorer",
-  headerTitle = "",
-}) => {
+const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const client = useApolloClient();
   const { pathname } = useRouter();
   const { data } = useQuery(
@@ -227,6 +192,7 @@ const Layout = ({
   useOnClickOutside(ref, () => {
     onDrawerClose();
   });
+
   globalStyles();
 
   return (
@@ -411,7 +377,7 @@ const Layout = ({
                     >
                       <Box css={{ width: "100%" }}>
                         {pathname !== "/migrate" &&
-                          CHAIN_INFO[DEFAULT_CHAIN_ID].networkType === "L2" && (
+                          isL2ChainId(DEFAULT_CHAIN_ID) && (
                             <Container size="3" css={{ mb: "$7" }}>
                               <Claim />
                             </Container>

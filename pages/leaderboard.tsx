@@ -75,7 +75,6 @@ const LeaderboardPage = () => {
                   as="select"
                   onChange={(e) => {
                     setRegion(e.target.value);
-                    console.log(e.target.value);
                   }}
                   css={{
                     py: "$1",

@@ -19,6 +19,13 @@ export enum SupportedChainId {
   ARBITRUM_RINKEBY = 421611,
 }
 
+export const L2_CHAIN_IDS = [
+  SupportedChainId.ARBITRUM_ONE,
+  SupportedChainId.ARBITRUM_RINKEBY,
+] as const;
+
+export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
+
 export const DEFAULT_CHAIN_ID =
   SupportedChainId[process.env.NEXT_PUBLIC_NETWORK];
 

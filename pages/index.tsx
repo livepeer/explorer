@@ -102,7 +102,7 @@ const Home = () => {
                 backgroundColor: "$neutral6",
               },
               ".dot.is-selected": {
-                backgroundColor: "$primary",
+                backgroundColor: "$primary11",
               },
             }}
           >
