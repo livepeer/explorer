@@ -93,7 +93,8 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[SupportedChainId.RINKEBY],
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/adamsoffer/livepeer",
+    subgraph:
+      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
     contracts: {
       controller: "0xA268AEa9D048F8d3A592dD7f1821297972D4C8Ea",
       pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
