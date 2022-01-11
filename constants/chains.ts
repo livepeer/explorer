@@ -95,7 +95,7 @@ export const CHAIN_INFO = {
     },
     subgraph: "https://api.thegraph.com/subgraphs/name/adamsoffer/livepeer",
     contracts: {
-      controller: "0x7159fa1e24c05a91d4c03f98ff49069602ab88c3",
+      controller: "0xA268AEa9D048F8d3A592dD7f1821297972D4C8Ea",
       pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",

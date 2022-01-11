@@ -81,7 +81,7 @@ export function useWeb3Mutation(mutation, options) {
         `,
         data: {
           txs: [
-            ...transactionsData.txs.filter((t) => t.txHash !== data.tx.txHash),
+            ...transactionsData?.txs.filter((t) => t.txHash !== data.tx.txHash),
             {
               __typename: mutation.definitions[0].name.value,
               txHash: data.tx.txHash,
