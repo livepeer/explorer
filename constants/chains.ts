@@ -103,8 +103,8 @@ export const CHAIN_INFO = {
     subgraph:
       "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
     contracts: {
-      controller: "0xA268AEa9D048F8d3A592dD7f1821297972D4C8Ea",
-      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
+      controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
+      pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
       l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
       l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
       l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
