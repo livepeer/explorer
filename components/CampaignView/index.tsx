@@ -67,9 +67,13 @@ const Index = ({ currentRound, transcoder }) => {
           label="Fee Cut"
           value={
             <>
-              {!transcoder.feeShare
-                ? 0
-                : 100 - parseInt(transcoder.feeShare, 10) / 10000}
+              {
+                +(
+                  !transcoder.feeShare
+                    ? 0
+                    : 100 - parseInt(transcoder.feeShare, 10) / 10000
+                ).toFixed(5)
+              }
               %
             </>
           }
