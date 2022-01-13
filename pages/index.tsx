@@ -158,7 +158,7 @@ const Home = () => {
                 <Heading size="2" css={{ fontWeight: 600 }}>
                   Orchestrators
                 </Heading>
-                <Link href="/leaderboard" passHref>
+                {/* <Link href="/leaderboard" passHref>
                   <Button
                     ghost
                     as={A}
@@ -173,7 +173,7 @@ const Home = () => {
                     Performance Leaderboard
                     <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                   </Button>
-                </Link>
+                </Link> */}
               </Flex>
               <Flex align="center">
                 <Link href="/orchestrators" passHref>

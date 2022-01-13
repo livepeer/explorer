@@ -45,7 +45,7 @@ const OrchestratorsPage = () => {
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
             </Heading>
-            <Link href="/leaderboard" passHref>
+            {/* <Link href="/leaderboard" passHref>
               <Button
                 ghost
                 as={A}
@@ -60,7 +60,7 @@ const OrchestratorsPage = () => {
                 Leaderboard
                 <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
               </Button>
-            </Link>
+            </Link> */}
           </Flex>
           <Box css={{ mb: "$5" }}>
             <OrchestratorList data={data.transcoders} pageSize={20} />
