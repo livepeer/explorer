@@ -545,25 +545,11 @@ export const getBlocksFromTimestamps = async (timestamps) => {
   }
   const blocks = [];
   for (const timestamp of timestamps) {
-    const { data } = await blockClient.query({
-      query: gql`
-        query blocks($timestampFrom: Int!, $timestampTo: Int!) {
-          blocks(
-            first: 1
-            orderBy: timestamp
-            orderDirection: asc
-            where: { timestamp_gt: $timestampFrom, timestamp_lt: $timestampTo }
-          ) {
-            id
-            number
-            timestamp
-          }
-        }
-      `,
-      fetchPolicy: "network-only",
-      variables: { timestampFrom: timestamp, timestampTo: timestamp + 600 },
-    });
-    blocks.push(+data.blocks[0].number);
+    const blockDataResponse = await fetch(
+      `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+    );
+    const { result } = await blockDataResponse.json();
+    blocks.push(+result);
   }
 
   return blocks;

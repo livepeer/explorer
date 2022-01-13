@@ -248,6 +248,7 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
 
     const dayDataResult = await getDayData();
     dayData = dayDataResult.data.days;
+
     let livepeerComDayData = [];
     let livepeerComOneWeekData = [];
     let livepeerComTwoWeekData = [];
@@ -352,14 +353,14 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
 
     const [oneWeekVolumeUSD, weeklyVolumeChangeUSD] = getTwoPeriodPercentChange(
       +data.totalVolumeUSD,
-      +oneWeekData.totalVolumeUSD,
-      +twoWeekData.totalVolumeUSD
+      +oneWeekData?.totalVolumeUSD,
+      +twoWeekData?.totalVolumeUSD
     );
 
     const [oneWeekVolumeETH] = getTwoPeriodPercentChange(
       +data.totalVolumeETH,
-      +oneWeekData.totalVolumeETH,
-      +twoWeekData.totalVolumeETH
+      +oneWeekData?.totalVolumeETH,
+      +twoWeekData?.totalVolumeETH
     );
 
     const [oneWeekUsage, weeklyUsageChange] = getTwoPeriodPercentChange(
@@ -412,6 +413,5 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
   } catch (e) {
     console.log(e);
   }
-
   return data;
 }
