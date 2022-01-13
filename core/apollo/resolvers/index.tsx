@@ -1,7 +1,9 @@
 import * as Query from "./Query";
 import * as Mutation from "./Mutation";
 
-export default {
+const apollo = {
   Mutation,
   Query,
 };
+
+export default apollo;
