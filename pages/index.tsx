@@ -16,6 +16,7 @@ import { getApollo } from "core/apollo";
 import { gql, useQuery } from "@apollo/client";
 import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { IS_TESTNET } from "constants/chains";
 
 const Panel = ({ children }) => (
   <Flex
@@ -33,7 +34,7 @@ const Panel = ({ children }) => (
       border: "1px solid $colors$neutral4",
       width: "100%",
       "@bp2": {
-        width: "43%",
+        width: IS_TESTNET ? "49%" : "43%",
       },
     }}
   >
@@ -59,6 +60,8 @@ const Home = () => {
     wrapAround: true,
     cellAlign: "left",
     prevNextButtons: false,
+    draggable: IS_TESTNET ? false : true,
+    pageDots: IS_TESTNET ? false : true,
   };
 
   return (
@@ -97,7 +100,9 @@ const Home = () => {
           <Box
             css={{
               mb: "$7",
-              boxShadow: "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)",
+              boxShadow: !IS_TESTNET
+                ? "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)"
+                : "none",
               ".dot": {
                 backgroundColor: "$neutral6",
               },
@@ -114,14 +119,16 @@ const Home = () => {
               reloadOnUpdate
               static
             >
-              <Panel>
-                <GlobalChart
-                  display="volume"
-                  title="Estimated Usage (7d)"
-                  field="weeklyUsageMinutes"
-                  unit="minutes"
-                />
-              </Panel>
+              {!IS_TESTNET && (
+                <Panel>
+                  <GlobalChart
+                    display="volume"
+                    title="Estimated Usage (7d)"
+                    field="weeklyUsageMinutes"
+                    unit="minutes"
+                  />
+                </Panel>
+              )}
               <Panel>
                 <GlobalChart
                   display="volume"

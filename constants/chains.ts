@@ -26,8 +26,15 @@ export const L2_CHAIN_IDS = [
 
 export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
 
+export const TESTNET_CHAIN_IDS = [
+  SupportedChainId.RINKEBY,
+  SupportedChainId.ARBITRUM_RINKEBY,
+] as const;
+
 export const DEFAULT_CHAIN_ID =
   SupportedChainId[process.env.NEXT_PUBLIC_NETWORK];
+
+export const IS_TESTNET = TESTNET_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
 
 /**
  * Array of all the supported chain IDs
