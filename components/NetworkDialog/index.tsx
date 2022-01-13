@@ -26,7 +26,7 @@ const NetworkDialog = () => {
     </Box>
   );
   if (route === "/migrate") {
-    title = "Migration Tool";
+    title = "Arbitrum Migration Tool";
     subtitle = (
       <Box>
         Switch your network to {CHAIN_INFO[L1_CHAIN_ID].label} to proceed with

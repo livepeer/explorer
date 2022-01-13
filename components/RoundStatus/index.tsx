@@ -265,7 +265,7 @@ const Index = () => {
             begins.
           </Box>
         </Flex>
-        {!initialized && (
+        {/* {!initialized && (
           <Button
             size="4"
             variant="primary"
@@ -280,7 +280,7 @@ const Index = () => {
           >
             Initialize Round
           </Button>
-        )}
+        )} */}
       </DialogContent>
     </Dialog>
   );

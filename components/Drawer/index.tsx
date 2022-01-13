@@ -123,7 +123,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               </A>
               <Link href="/migrate" passHref>
                 <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                  Migration Tool
+                  L2 Migration Tool
                 </A>
               </Link>
               <A
