@@ -17,6 +17,7 @@ import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
+  IS_TESTNET,
 } from "constants/chains";
 
 // format dayjs with the libraries that we need
@@ -247,16 +248,22 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
 
     const dayDataResult = await getDayData();
     dayData = dayDataResult.data.days;
+    let livepeerComDayData = [];
+    let livepeerComOneWeekData = [];
+    let livepeerComTwoWeekData = [];
 
-    const livepeerComDayData = await getLivepeerComUsageData();
-    const livepeerComOneWeekData = await getLivepeerComUsageData({
-      fromTime: +new Date(2020, 0),
-      toTime: utcOneWeekBack * 1000, // Livepeer.com api uses milliseconds
-    });
-    const livepeerComTwoWeekData = await getLivepeerComUsageData({
-      fromTime: +new Date(2020, 0),
-      toTime: utcTwoWeeksBack * 1000, // Livepeer.com api uses milliseconds
-    });
+    // No need to fetch usage data on testnets
+    if (!IS_TESTNET) {
+      livepeerComDayData = await getLivepeerComUsageData();
+      livepeerComOneWeekData = await getLivepeerComUsageData({
+        fromTime: +new Date(2020, 0),
+        toTime: utcOneWeekBack * 1000, // Livepeer.com api uses milliseconds
+      });
+      livepeerComTwoWeekData = await getLivepeerComUsageData({
+        fromTime: +new Date(2020, 0),
+        toTime: utcTwoWeeksBack * 1000, // Livepeer.com api uses milliseconds
+      });
+    }
 
     let totalFeeDerivedMinutes = 0;
     let totalFeeDerivedMinutesOneWeekAgo = 0;
