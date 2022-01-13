@@ -20,6 +20,7 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { MutationsContext } from "@core/contexts";
+import { getCurrentRound } from "utils/currentRound";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
@@ -42,6 +43,10 @@ const Index = () => {
         protocol(id: "0") {
           id
           roundLength
+          lastRoundLengthUpdateStartBlock
+          lastRoundLengthUpdateRound {
+            id
+          }
           lastInitializedRound {
             id
           }
@@ -92,9 +97,14 @@ const Index = () => {
     return null;
   }
 
-  const currentRoundNumber = Math.floor(
-    blockData.block.number / protocolData.protocol.roundLength
-  );
+  let currentRoundNumber = getCurrentRound({
+    blockNum: blockData.block.number,
+    lastRoundLengthUpdateStartBlock:
+      protocolData.protocol.lastRoundLengthUpdateStartBlock,
+    lastRoundLengthUpdateRound:
+      protocolData.protocol.lastRoundLengthUpdateRound.id,
+    roundLength: protocolData.protocol.roundLength,
+  });
 
   const initialized =
     +protocolData.protocol.lastInitializedRound?.id === currentRoundNumber;
