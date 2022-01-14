@@ -114,11 +114,7 @@ function renderSwitch(cell, protocol) {
             fgColor={`#${cell.value.substr(2, 6)}`}
             value={cell.value}
           />
-          <Link
-            href="/accounts/[account]/[slug]"
-            as={`/accounts/${cell.value}/delegating`}
-            passHref
-          >
+          <Link href={`/accounts/${cell.value}/delegating`} passHref>
             <Box
               as="a"
               css={{

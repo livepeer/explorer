@@ -28,7 +28,6 @@ export const accountQuery = (currentRound) => {
           id
           active
           status
-          active
           totalStake
         }
       }

@@ -230,8 +230,7 @@ const Index = ({
               <Flex>
                 {threeBoxSpace.addressLinks.map((link, i) => (
                   <Link
-                    href={`/accounts/[account]/[slug]`}
-                    as={`/accounts/${link.address}/orchestrating`}
+                    href={`/accounts/${link.address}/orchestrating`}
                     passHref
                     key={i}
                   >

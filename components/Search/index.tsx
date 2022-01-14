@@ -8,7 +8,7 @@ function handleSubmit(e) {
   e.preventDefault();
   const [, input] = e.target.children;
   Router.push(
-    `/accounts/[account]/[slug]`,
+    `/accounts/[account]/delegating`,
     `/accounts/${input.value}/delegating`
   );
 }

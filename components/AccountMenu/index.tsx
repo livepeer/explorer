@@ -18,11 +18,7 @@ const AccountMenu = ({ isInHeader = false }) => {
   return context?.active ? (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
-        <Link
-          href="/accounts/[account]/[slug]"
-          as={`/accounts/${context.account}/delegating`}
-          passHref
-        >
+        <Link href={`/accounts/${context.account}/delegating`} passHref>
           <A
             variant="subtle"
             css={{
@@ -81,11 +77,7 @@ const AccountMenu = ({ isInHeader = false }) => {
             fontSize: "$2",
           }}
         >
-          <Link
-            href="/accounts/[account]/[slug]"
-            as={`/accounts/${context.account}/delegating`}
-            passHref
-          >
+          <Link href={`/accounts/${context.account}/delegating`} passHref>
             <A
               variant="subtle"
               css={{

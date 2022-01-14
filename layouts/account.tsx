@@ -4,20 +4,17 @@ import { useQuery } from "@apollo/client";
 import Tabs, { TabType } from "@components/Tabs";
 import Profile from "@components/Profile";
 import StakingWidget from "@components/StakingWidget";
-import CampaignView from "@components/CampaignView";
-import StakingView from "@components/StakingView";
 import Spinner from "@components/Spinner";
 import { useWeb3React } from "@web3-react/core";
 import { checkAddressEquality } from "@lib/utils";
-import HistoryView from "@components/HistoryView";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { usePageVisibility } from "core/hooks";
 import { useEffect } from "react";
 import { accountQuery } from "core/queries/accountQuery";
 import { gql } from "@apollo/client";
-import { NextPage } from "next";
 import {
+  Link as A,
   Flex,
   Container,
   Sheet,
@@ -28,13 +25,12 @@ import {
 
 const pollInterval = 5000;
 
-const Account = () => {
+const AccountLayout = ({ children }) => {
   const context = useWeb3React();
   const { width } = useWindowSize();
   const isVisible = usePageVisibility();
   const router = useRouter();
   const { query, asPath } = router;
-  const slug = query.slug;
 
   const { data: currentRoundData } = useQuery(gql`
     {
@@ -263,25 +259,7 @@ const Account = () => {
             )}
           </Flex>
           <Tabs tabs={tabs} />
-          {slug === "orchestrating" && (
-            <CampaignView
-              currentRound={data.protocol.currentRound}
-              transcoder={data.transcoder}
-            />
-          )}
-          {/* {slug === "fees" && (
-            <FeesView delegator={data.delegator} isMyAccount={isMyAccount} />
-          )} */}
-          {slug === "delegating" && (
-            <StakingView
-              transcoders={dataTranscoders.transcoders}
-              delegator={data.delegator}
-              protocol={data.protocol}
-              delegateProfile={delegateProfile?.threeBoxSpace}
-              currentRound={data.protocol.currentRound}
-            />
-          )}
-          {slug === "history" && <HistoryView />}
+          {children}
         </Flex>
         {(role === "Orchestrator" || isMyDelegate) &&
           (width > 1020 ? (
@@ -327,9 +305,9 @@ const Account = () => {
   );
 };
 
-Account.getLayout = getLayout;
+AccountLayout.getLayout = getLayout;
 
-export default Account;
+export default AccountLayout;
 
 function getTabs(
   role: string,
@@ -340,13 +318,13 @@ function getTabs(
   const tabs: Array<TabType> = [
     {
       name: "Delegating",
-      href: "/accounts/[account]/[slug]",
+      href: "/accounts/[account]/delegating",
       as: `/accounts/${account}/delegating`,
       isActive: asPath === `/accounts/${account}/delegating`,
     },
     {
       name: "History",
-      href: "/accounts/[account]/[slug]",
+      href: "/accounts/[account]/history",
       as: `/accounts/${account}/history`,
       isActive: asPath === `/accounts/${account}/history`,
     },
@@ -354,7 +332,7 @@ function getTabs(
   if (role === "Orchestrator" || isMyDelegate) {
     tabs.unshift({
       name: "Orchestrating",
-      href: "/accounts/[account]/[slug]",
+      href: "/accounts/[account]/orchestrating",
       as: `/accounts/${account}/orchestrating`,
       isActive: asPath === `/accounts/${account}/orchestrating`,
     });

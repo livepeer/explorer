@@ -93,12 +93,17 @@ const createSchema = async () => {
       _ctx.livepeer.config.contracts.LivepeerToken.abi,
       l1Provider
     );
-    let balance = await contract.balanceOf(
-      _blockNumber < 10686186
+
+    // Minter address changed on mainnet at block 10686186
+    let minterAddress =
+      _blockNumber < 10686186 && process.env.NEXT_PUBLIC_NETWORK === "MAINNET"
         ? "0x8573f2f5a3bd960eee3d998473e50c75cdbe6828"
-        : _ctx.livepeer.config.contracts.Minter.address,
-      { blockTag: _blockNumber ? +_blockNumber : "latest" }
-    );
+        : _ctx.livepeer.config.contracts.Minter.address;
+
+    let balance = await contract.balanceOf(minterAddress, {
+      blockTag: _blockNumber ? +_blockNumber : "latest",
+    });
+
     return balance.toString();
   }
 
