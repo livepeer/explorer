@@ -9,9 +9,9 @@ import { useWeb3React } from "@web3-react/core";
 import { checkAddressEquality } from "@lib/utils";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { usePageVisibility } from "core/hooks";
+import { usePageVisibility } from "../hooks";
 import { useEffect } from "react";
-import { accountQuery } from "core/queries/accountQuery";
+import { accountQuery } from "../queries/accountQuery";
 import { gql } from "@apollo/client";
 import {
   Link as A,

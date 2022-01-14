@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import Utils from "web3-utils";
-import { MutationsContext } from "core/contexts";
+import { MutationsContext } from "../../contexts";
 import { initTransaction, MAXIUMUM_VALUE_UINT256 } from "../../lib/utils";
 import ProgressSteps from "../ProgressSteps";
 import { Box, Button } from "@livepeer/design-system";

@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useWeb3React } from "@web3-react/core";
-import { MutationsContext } from "core/contexts";
+import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "../../lib/utils";
 import { Button } from "@livepeer/design-system";

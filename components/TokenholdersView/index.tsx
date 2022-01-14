@@ -4,7 +4,7 @@ import Spinner from "@components/Spinner";
 import Tokenholders from "@components/Tokenholders";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useEffect } from "react";
-import { usePageVisibility } from "core/hooks";
+import { usePageVisibility } from "../../hooks";
 import { Box, Flex } from "@livepeer/design-system";
 
 const GET_DATA = gql`

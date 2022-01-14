@@ -10,11 +10,11 @@ import {
   Button,
   Link as A,
 } from "@livepeer/design-system";
-import { getOrchestrators } from "core/api";
+import { getOrchestrators } from "api";
 import OrchestratorList from "@components/OrchestratorList";
-import { getApollo } from "core/apollo";
+import { getApollo } from "../apollo";
 import { gql, useQuery } from "@apollo/client";
-import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
+import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { IS_TESTNET } from "constants/chains";
 

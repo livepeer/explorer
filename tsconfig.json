@@ -4,7 +4,8 @@
       "@components/*": ["components/*"],
       "@layouts/*": ["layouts/*"],
       "@lib/*": ["lib/*"],
-      "@core/*": ["core/*"]
+      "@mutations/*": ["mutations/*"],
+      "@api/*": ["api/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

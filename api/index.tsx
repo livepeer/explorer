@@ -1,5 +1,5 @@
-import { getApollo } from "core/apollo";
-import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
+import { getApollo } from "../apollo";
+import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { gql } from "@apollo/client";
 
 export async function getOrchestrators(client = getApollo()) {

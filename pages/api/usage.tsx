@@ -1,4 +1,4 @@
-import { getChartData } from "../../core/apollo/resolvers/Query";
+import { getChartData } from "../../apollo/resolvers/Query";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const usageData = async (_req: NextApiRequest, res: NextApiResponse) => {

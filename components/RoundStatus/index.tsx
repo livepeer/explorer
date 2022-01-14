@@ -3,7 +3,7 @@ import CircularProgressbar from "../CircularProgressBar";
 import { buildStyles } from "react-circular-progressbar";
 import moment from "moment";
 import { useContext, useEffect } from "react";
-import { usePageVisibility } from "core/hooks";
+import { usePageVisibility } from "../../hooks";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import { useTheme } from "next-themes";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@livepeer/design-system";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
-import { MutationsContext } from "@core/contexts";
+import { MutationsContext } from "../../contexts";
 import { getCurrentRound } from "utils/currentRound";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds

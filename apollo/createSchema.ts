@@ -11,7 +11,7 @@ import {
   getBlockByNumber,
   getEstimatedBlockCountdown,
   mergeObjectsInUnique,
-} from "../../lib/utils";
+} from "@lib/utils";
 import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";

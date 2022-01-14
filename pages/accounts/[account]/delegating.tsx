@@ -4,9 +4,9 @@ import AccountLayout from "@layouts/account";
 import { useQuery } from "@apollo/client";
 import DelegatingView from "@components/DelegatingView";
 import Spinner from "@components/Spinner";
-import { usePageVisibility } from "core/hooks";
+import { usePageVisibility } from "../../../hooks";
 import { useEffect } from "react";
-import { accountQuery } from "core/queries/accountQuery";
+import { accountQuery } from "../../../queries/accountQuery";
 import { gql } from "@apollo/client";
 import { Flex } from "@livepeer/design-system";
 

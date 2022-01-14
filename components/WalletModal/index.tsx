@@ -9,7 +9,7 @@ import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import Option from "./Option";
 import PendingView from "./PendingView";
 import AccountDetails from "./AccountDetails";
-import { usePrevious } from "core/hooks";
+import { usePrevious } from "../../hooks";
 import ReactGA from "react-ga";
 import {
   Box,

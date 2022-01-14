@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import Link from "next/link";
 import Head from "next/head";
-import { usePageVisibility } from "core/hooks";
-import { pollsQuery } from "core/queries/pollsQuery";
+import { usePageVisibility } from "../../hooks";
+import { pollsQuery } from "../../queries/pollsQuery";
 import {
   Container,
   Heading,

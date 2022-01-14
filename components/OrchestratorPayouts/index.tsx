@@ -1,6 +1,6 @@
 import { NetworkStatus, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import { winningTicketsQuery } from "core/queries/winningTicketsQuery";
+import { winningTicketsQuery } from "../../queries/winningTicketsQuery";
 import Table from "@components/Table";
 import { useMemo } from "react";
 import Link from "next/link";

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
 import { useWeb3React } from "@web3-react/core";
 import { injected } from "@lib/connectors";
 import { isMobile } from "react-device-detect";
-import { transactionsQuery } from "core/queries/transactionsQuery";
+import { transactionsQuery } from "../queries/transactionsQuery";
 import { ethers } from "ethers";
 
 export function useWeb3Mutation(mutation, options) {
@@ -201,7 +201,7 @@ export function useInactiveListener(suppress = false) {
 }
 
 export function useMutations() {
-  const mutations = require("@core/mutations").default;
+  const mutations = require("../mutations").default;
   const context = useWeb3React();
   const mutationsObj = {};
   for (const key in mutations) {

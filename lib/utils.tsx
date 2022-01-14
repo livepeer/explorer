@@ -5,7 +5,6 @@ import parseDomain from "parse-domain";
 import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
-import { blockClient } from "../core/apollo";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,

@@ -13,10 +13,10 @@ import moment from "moment";
 import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
 import Head from "next/head";
-import { usePageVisibility } from "core/hooks";
-import { pollQuery } from "core/queries/pollQuery";
-import { accountQuery } from "core/queries/accountQuery";
-import { voteQuery } from "core/queries/voteQuery";
+import { usePageVisibility } from "../../hooks";
+import { pollQuery } from "../../queries/pollQuery";
+import { accountQuery } from "../../queries/accountQuery";
+import { voteQuery } from "../../queries/voteQuery";
 import FourZeroFour from "../404";
 import {
   Container,

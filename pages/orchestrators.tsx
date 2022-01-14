@@ -9,10 +9,10 @@ import {
   Button,
 } from "@livepeer/design-system";
 import OrchestratorList from "@components/OrchestratorList";
-import { orchestratorsQuery } from "core/queries/orchestratorsQuery";
+import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { gql, useQuery } from "@apollo/client";
-import { getApollo } from "core/apollo";
-import { getOrchestrators } from "core/api";
+import { getApollo } from "../apollo";
+import { getOrchestrators } from "api";
 import Link from "next/link";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 

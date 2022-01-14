@@ -7,10 +7,10 @@ import { useWeb3React } from "@web3-react/core";
 import PollTokenApproval from "@components/PollTokenApproval";
 import { useQuery, gql } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
-import { MutationsContext } from "core/contexts";
+import { MutationsContext } from "../../contexts";
 import Utils from "web3-utils";
 import Head from "next/head";
-import { usePageVisibility } from "core/hooks";
+import { usePageVisibility } from "../../hooks";
 import Spinner from "@components/Spinner";
 import {
   Box,

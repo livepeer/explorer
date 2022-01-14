@@ -17,7 +17,7 @@ import {
 } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import Link from "next/link";
-import { useENS, useBalance } from "core/hooks";
+import { useENS, useBalance } from "../../hooks";
 
 const StyledLink = ({ href, children }) => {
   return (

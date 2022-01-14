@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import { CookiesProvider } from "react-cookie";
 import Web3ReactManager from "../components/Web3ReactManager";
 import Layout from "layouts/main";
-import { useApollo } from "../core/apollo";
+import { useApollo } from "../apollo";
 import { ApolloProvider } from "@apollo/client";
 
 function getLibrary(provider) {

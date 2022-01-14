@@ -1,7 +1,6 @@
-import { useTimeEstimate } from "core/hooks";
-import { txMessages } from "../../lib/utils";
+import { useTimeEstimate } from "../../hooks";
+import { txMessages } from "@lib/utils";
 import Utils from "web3-utils";
-import moment from "moment";
 import Spinner from "../Spinner";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {

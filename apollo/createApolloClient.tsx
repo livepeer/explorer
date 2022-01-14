@@ -14,7 +14,7 @@ import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
-} from "../../constants/chains";
+} from "../constants/chains";
 
 export default function createApolloClient(
   initialState: object,

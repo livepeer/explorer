@@ -7,10 +7,10 @@ import {
   getLivepeerComUsageData,
   getPercentChange,
   getTotalFeeDerivedMinutes,
-} from "../../../lib/utils";
-import { dayDataQuery } from "core/queries/dayDataQuery";
-import { protocolDataByBlockQuery } from "core/queries/protocolDataByBlockQuery";
-import { protocolDataQuery } from "core/queries/protocolDataQuery";
+} from "@lib/utils";
+import { dayDataQuery } from "../../queries/dayDataQuery";
+import { protocolDataByBlockQuery } from "../..//queries/protocolDataByBlockQuery";
+import { protocolDataQuery } from "../..//queries/protocolDataQuery";
 import { client } from "..";
 import { ethers } from "ethers";
 import {
