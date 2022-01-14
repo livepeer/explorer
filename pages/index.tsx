@@ -187,7 +187,7 @@ const Home = () => {
                 </Link>
               </Flex>
             </Flex>
-            <OrchestratorList data={data.transcoders} pageSize={20} />
+            <OrchestratorList data={data?.transcoders} pageSize={20} />
           </Box>
           {/* <Box>
             <Flex
