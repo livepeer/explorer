@@ -6,7 +6,14 @@ import Link from "next/link";
 import StakeTransactions from "../StakeTransactions";
 import ReactTooltip from "react-tooltip";
 import Stat from "@components/Stat";
-import { Link as A, Box, Flex, Button, Text } from "@livepeer/design-system";
+import {
+  Link as A,
+  Box,
+  Flex,
+  Button,
+  Text,
+  Tooltip,
+} from "@livepeer/design-system";
 import Masonry from "react-masonry-css";
 import NumberFormat from "react-number-format";
 import { scientificToDecimal } from "../../lib/utils";
@@ -149,20 +156,19 @@ const Index = ({
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Lifetime Undelegated</Box>
-                  <Flex>
-                    <ReactTooltip
-                      id="tooltip-unstaked"
-                      className="tooltip"
-                      place="top"
-                      type="dark"
-                      effect="solid"
-                    />
-                    <Box
-                      as={QuestionMarkCircledIcon}
-                      data-tip="This is the amount undelegated over the lifetime of this account."
-                      data-for="tooltip-unstaked"
-                    />
-                  </Flex>
+                  <Tooltip
+                    multiline
+                    content={
+                      <Box>
+                        This is the amount undelegated over the lifetime of this
+                        account.
+                      </Box>
+                    }
+                  >
+                    <Flex css={{ ml: "$1" }}>
+                      <QuestionMarkCircledIcon />
+                    </Flex>
+                  </Tooltip>
                 </Flex>
                 <Box>
                   {unbonded > 0 ? (
@@ -179,20 +185,18 @@ const Index = ({
               <Flex css={{ fontSize: "$2", justifyContent: "space-between" }}>
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Lifetime Rewards</Box>
-                  <Flex>
-                    <ReactTooltip
-                      id="tooltip-rewards"
-                      className="tooltip"
-                      place="top"
-                      type="dark"
-                      effect="solid"
-                    />
-                    <Box
-                      as={QuestionMarkCircledIcon}
-                      data-tip="Account's total rewards earned all-time."
-                      data-for="tooltip-rewards"
-                    />
-                  </Flex>
+                  <Tooltip
+                    multiline
+                    content={
+                      <Box>
+                        The account&apos;s total rewards earned all-time.
+                      </Box>
+                    }
+                  >
+                    <Flex css={{ ml: "$1" }}>
+                      <QuestionMarkCircledIcon />
+                    </Flex>
+                  </Tooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
                   +{abbreviateNumber(rewards, 6)} LPT
@@ -242,20 +246,19 @@ const Index = ({
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Withdrawn</Box>
-                  <Flex>
-                    <ReactTooltip
-                      id="tooltip-withdrawn"
-                      className="tooltip"
-                      place="top"
-                      type="dark"
-                      effect="solid"
-                    />
-                    <Box
-                      as={QuestionMarkCircledIcon}
-                      data-tip="Total fees withdrawn over the lifetime of this account."
-                      data-for="tooltip-withdrawn"
-                    />
-                  </Flex>
+                  <Tooltip
+                    multiline
+                    content={
+                      <Box>
+                        The total fees withdrawn over the lifetime of this
+                        account.
+                      </Box>
+                    }
+                  >
+                    <Flex css={{ ml: "$1" }}>
+                      <QuestionMarkCircledIcon />
+                    </Flex>
+                  </Tooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
                   <NumberFormat
@@ -290,20 +293,18 @@ const Index = ({
             label={
               <Flex css={{ alignItems: "center" }}>
                 <Box>Network Equity</Box>
-                <Flex>
-                  <ReactTooltip
-                    id="tooltip-equity"
-                    className="tooltip"
-                    place="top"
-                    type="dark"
-                    effect="solid"
-                  />
-                  <Box
-                    as={QuestionMarkCircledIcon}
-                    data-tip="Account's equity relative to the entire network."
-                    data-for="tooltip-equity"
-                  />
-                </Flex>
+                <Tooltip
+                  multiline
+                  content={
+                    <Box>
+                      The account&apos;s equity relative to the entire network.
+                    </Box>
+                  }
+                >
+                  <Flex css={{ ml: "$1" }}>
+                    <QuestionMarkCircledIcon />
+                  </Flex>
+                </Tooltip>
               </Flex>
             }
             value={

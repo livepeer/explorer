@@ -1,8 +1,11 @@
-import { abbreviateNumber } from "../../lib/utils";
-import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import { abbreviateNumber } from "@lib/utils";
 import { Box, Flex, Tooltip } from "@livepeer/design-system";
-import Stat from "../Stat";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import Stat from "@components/Stat";
+import {
+  CheckIcon,
+  Cross1Icon,
+  QuestionMarkCircledIcon,
+} from "@modulz/radix-icons";
 
 const Index = ({ currentRound, transcoder }) => {
   const callsMade = transcoder.pools.filter(
@@ -80,19 +83,21 @@ const Index = ({ currentRound, transcoder }) => {
         />
         <Stat
           label={
-            <Tooltip
-              multiline
-              content={
-                <Box>
-                  Price of transcoding per pixel orchestrator is charging
-                </Box>
-              }
-            >
-              <Flex css={{ ai: "center" }}>
-                <Box css={{ mr: "$1" }}>Price / Pixel</Box>
-                <QuestionMarkCircledIcon />
-              </Flex>
-            </Tooltip>
+            <Flex css={{ ai: "center" }}>
+              <Box>Price / Pixel</Box>
+              <Tooltip
+                multiline
+                content={
+                  <Box>
+                    Price of transcoding per pixel orchestrator is charging
+                  </Box>
+                }
+              >
+                <Flex css={{ ml: "$1" }}>
+                  <QuestionMarkCircledIcon />
+                </Flex>
+              </Tooltip>
+            </Flex>
           }
           value={
             <>
@@ -108,21 +113,23 @@ const Index = ({ currentRound, transcoder }) => {
         {transcoder?.lastRewardRound?.id && (
           <Stat
             label={
-              <Tooltip
-                multiline
-                content={
-                  <Box>
-                    The last round that an orchestrator received rewards while
-                    active. A checkmark indicates it called reward for the
-                    current round.
-                  </Box>
-                }
-              >
-                <Flex css={{ ai: "center" }}>
-                  <Box css={{ mr: "$1" }}>Last Reward Round</Box>
-                  <QuestionMarkCircledIcon />
-                </Flex>
-              </Tooltip>
+              <Flex css={{ ai: "center" }}>
+                <Box>Last Reward Round</Box>
+                <Tooltip
+                  multiline
+                  content={
+                    <Box>
+                      The last round that an orchestrator received rewards while
+                      active. A checkmark indicates it called reward for the
+                      current round.
+                    </Box>
+                  }
+                >
+                  <Flex css={{ ml: "$1" }}>
+                    <QuestionMarkCircledIcon />
+                  </Flex>
+                </Tooltip>
+              </Flex>
             }
             value={
               <Flex css={{ alignItems: "center" }}>
