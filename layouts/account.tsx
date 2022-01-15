@@ -225,7 +225,7 @@ const AccountLayout = ({ children }) => {
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <StakingWidget
                     transcoders={dataTranscoders.transcoders}
-                    selectedAction="stake"
+                    selectedAction="delegate"
                     currentRound={data.protocol.currentRound}
                     delegator={dataMyAccount?.delegator}
                     account={dataMyAccount?.account}
@@ -246,7 +246,7 @@ const AccountLayout = ({ children }) => {
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <StakingWidget
                     transcoders={dataTranscoders.transcoders}
-                    selectedAction="unstake"
+                    selectedAction="undelegate"
                     currentRound={data.protocol.currentRound}
                     delegator={dataMyAccount?.delegator}
                     account={dataMyAccount?.account}

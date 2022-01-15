@@ -1,9 +1,8 @@
-import Box from "../Box";
-import Flex from "../Flex";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import StepContent from "@material-ui/core/StepContent";
+import { Box, Flex } from "@livepeer/design-system";
 
 function getSteps(hasProfile) {
   if (hasProfile) {

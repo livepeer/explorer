@@ -5,7 +5,6 @@ import {
   simulateNewActiveSetOrder,
 } from "../../lib/utils";
 import { UnbondingLock } from "../../@types";
-import List from "../List";
 import Restake from "../Restake";
 import RestakeFromUnstaked from "../RestakeFromUnstaked";
 import WithdrawStake from "../WithdrawStake";

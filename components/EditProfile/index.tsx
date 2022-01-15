@@ -9,7 +9,6 @@ import ThreeBoxSteps from "../ThreeBoxSteps";
 import Spinner from "../Spinner";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
-import Textarea from "../Textarea";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +18,7 @@ import {
   Flex,
   Button,
   TextField,
+  TextArea,
 } from "@livepeer/design-system";
 
 interface Props {
@@ -511,7 +511,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                     name="website"
                     css={{ mb: "$3", width: "100%" }}
                   />
-                  <Textarea
+                  <TextArea
                     ref={register}
                     defaultValue={
                       threeBoxSpace ? threeBoxSpace.description : ""

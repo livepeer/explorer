@@ -9,8 +9,8 @@ import {
 } from "../../lib/utils";
 import { useWeb3React } from "@web3-react/core";
 import Footnote from "./Footnote";
-import Box from "../Box";
 import ConnectWallet from "./connect-wallet";
+import { Box } from "@livepeer/design-system";
 
 type FooterData = {
   transcoders: [Transcoder];

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { formattedNum } from "../../lib/utils";
-import Box from "../Box";
+import { Box } from "@livepeer/design-system";
 
 dayjs.extend(utc);
 

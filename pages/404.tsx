@@ -1,5 +1,4 @@
-import Box from "../components/Box";
-import Flex from "../components/Flex";
+import { Box, Flex } from "@livepeer/design-system";
 
 function Error() {
   return (
@@ -8,7 +7,7 @@ function Error() {
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        bg: "$background",
+        bc: "$loContrast",
       }}
     >
       <Box
@@ -17,7 +16,7 @@ function Error() {
           pr: "$4",
           mr: "$4",
           borderRight: "1px solid",
-          borderColor: "white",
+          borderColor: "$hiContrast",
         }}
       >
         404

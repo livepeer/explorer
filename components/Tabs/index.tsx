@@ -1,6 +1,5 @@
 import Link from "next/link";
-import Box from "../Box";
-import { Link as A } from "@livepeer/design-system";
+import { Link as A, Box } from "@livepeer/design-system";
 export interface TabType {
   name: string;
   href: string;

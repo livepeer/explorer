@@ -4,7 +4,6 @@
       "@components/*": ["components/*"],
       "@layouts/*": ["layouts/*"],
       "@lib/*": ["lib/*"],
-      "@mutations/*": ["mutations/*"],
       "@api/*": ["api/*"]
     },
     "target": "es5",

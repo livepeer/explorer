@@ -1,5 +1,3 @@
-import Box from "../Box";
-import Flex from "../Flex";
 import { useTable, useSortBy, usePagination } from "react-table";
 import {
   ChevronDownIcon,
@@ -8,7 +6,8 @@ import {
   ArrowRightIcon,
 } from "@modulz/radix-icons";
 import {
-  Link as A,
+  Box,
+  Flex,
   Table,
   Thead,
   Tbody,

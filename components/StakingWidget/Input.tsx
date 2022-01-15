@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from "@apollo/client";
 import useWindowSize from "react-use/lib/useWindowSize";
-import Box from "../Box";
+import { Box } from "@livepeer/design-system";
 
 const hoursPerYear = 8760;
 const averageHoursPerRound = 21;
@@ -50,7 +50,8 @@ const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
         width: "100%",
         position: "relative",
       }}
-      {...props}>
+      {...props}
+    >
       <Box
         as="input"
         placeholder="0.0"

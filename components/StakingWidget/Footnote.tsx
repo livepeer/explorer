@@ -1,4 +1,4 @@
-import Box from "../Box";
+import { Box } from "@livepeer/design-system";
 
 const Footnote = ({ children }) => {
   return (
@@ -9,7 +9,8 @@ const Footnote = ({ children }) => {
         textAlign: "center",
         fontSize: "$1",
         lineHeight: 1.7,
-      }}>
+      }}
+    >
       {children}
     </Box>
   );

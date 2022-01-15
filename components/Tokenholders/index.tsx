@@ -1,11 +1,10 @@
-import Box from "../Box";
-import Flex from "../Flex";
 import { useMemo } from "react";
 import { useTable } from "react-table";
 import QRCode from "qrcode.react";
 import Link from "next/link";
 import Utils from "web3-utils";
 import { abbreviateNumber } from "../../lib/utils";
+import { Box, Flex } from "@livepeer/design-system";
 
 const Index = ({ protocol, delegators, ...props }) => {
   const columns: any = useMemo(

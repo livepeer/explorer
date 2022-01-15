@@ -1,9 +1,8 @@
-import Box from "../Box";
-import Flex from "../Flex";
-import Spinner from "../Spinner";
+import Spinner from "@components/Spinner";
 import { SUPPORTED_WALLETS } from "../../constants/wallet";
 import Option from "./Option";
-import { injected } from "../../lib/connectors";
+import { injected } from "@lib/connectors";
+import { Box, Flex } from "@livepeer/design-system";
 
 const PendingView = ({ connector }) => {
   const isMetamask = window["ethereum"] && window["ethereum"].isMetaMask;

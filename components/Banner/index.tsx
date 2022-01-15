@@ -1,5 +1,5 @@
-import Box from "../Box";
 import React from "react";
+import { Box } from "@livepeer/design-system";
 
 interface Props {
   open?: boolean;

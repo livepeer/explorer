@@ -5,13 +5,13 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import StakeTransactions from "../StakeTransactions";
 import ReactTooltip from "react-tooltip";
-import HelpIcon from "../HelpIcon";
 import Stat from "@components/Stat";
 import { Link as A, Box, Flex, Button, Text } from "@livepeer/design-system";
 import Masonry from "react-masonry-css";
 import NumberFormat from "react-number-format";
 import { scientificToDecimal } from "../../lib/utils";
 import WithdrawFees from "@components/WithdrawFees";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 
 const Index = ({
   delegator,
@@ -157,7 +157,8 @@ const Index = ({
                       type="dark"
                       effect="solid"
                     />
-                    <HelpIcon
+                    <Box
+                      as={QuestionMarkCircledIcon}
                       data-tip="This is the amount undelegated over the lifetime of this account."
                       data-for="tooltip-unstaked"
                     />
@@ -186,7 +187,8 @@ const Index = ({
                       type="dark"
                       effect="solid"
                     />
-                    <HelpIcon
+                    <Box
+                      as={QuestionMarkCircledIcon}
                       data-tip="Account's total rewards earned all-time."
                       data-for="tooltip-rewards"
                     />
@@ -248,7 +250,8 @@ const Index = ({
                       type="dark"
                       effect="solid"
                     />
-                    <HelpIcon
+                    <Box
+                      as={QuestionMarkCircledIcon}
                       data-tip="Total fees withdrawn over the lifetime of this account."
                       data-for="tooltip-withdrawn"
                     />
@@ -295,7 +298,8 @@ const Index = ({
                     type="dark"
                     effect="solid"
                   />
-                  <HelpIcon
+                  <Box
+                    as={QuestionMarkCircledIcon}
                     data-tip="Account's equity relative to the entire network."
                     data-for="tooltip-equity"
                   />

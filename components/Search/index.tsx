@@ -1,8 +1,7 @@
 import Router from "next/router";
-import Box from "../Box";
 import { MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Button from "../Button";
-import { TextField } from "@livepeer/design-system";
+import { Box, TextField } from "@livepeer/design-system";
 
 function handleSubmit(e) {
   e.preventDefault();

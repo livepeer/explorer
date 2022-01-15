@@ -10,7 +10,7 @@ import {
   Button,
   Link as A,
 } from "@livepeer/design-system";
-import { getOrchestrators } from "api";
+import { getOrchestrators } from "../api";
 import OrchestratorList from "@components/OrchestratorList";
 import { getApollo } from "../apollo";
 import { gql, useQuery } from "@apollo/client";

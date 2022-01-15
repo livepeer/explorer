@@ -33,7 +33,7 @@ const Index = ({
   transcoder,
   protocol,
   currentRound,
-  selectedAction = "stake",
+  selectedAction = "delegate",
   delegateProfile,
 }: Props) => {
   const [amount, setAmount] = useState("");
@@ -56,8 +56,10 @@ const Index = ({
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
       <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
         <Tabs
-          defaultIndex={selectedAction === "stake" ? 0 : 1}
-          onChange={(index: number) => setAction(index ? "unstake" : "stake")}
+          defaultIndex={selectedAction === "delegate" ? 0 : 1}
+          onChange={(index: number) =>
+            setAction(index ? "undelegate" : "delegate")
+          }
         >
           <TabList>
             <Tab>Delegate</Tab>

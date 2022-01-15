@@ -12,4 +12,4 @@ yarn dev
 
 ## Developing on Arbitrum Rinkeby
 
-Set NEXT_PUBLIC_NETWORK to ARBITRUM_RINKEBY inside .env
+Set `NEXT_PUBLIC_NETWORK` to `ARBITRUM_RINKEBY` inside `.env`
