@@ -1,12 +1,12 @@
-import Stake from "./Stake";
-import Unstake from "./Unstake";
+import Delegate from "./Delegate";
+import Undelegate from "./Undelegate";
 import { Account, Delegator, Transcoder, Round } from "../../@types";
 import Utils from "web3-utils";
 import {
   getDelegatorStatus,
   getHint,
   simulateNewActiveSetOrder,
-} from "../../lib/utils";
+} from "@lib/utils";
 import { useWeb3React } from "@web3-react/core";
 import Footnote from "./Footnote";
 import ConnectWallet from "./connect-wallet";
@@ -51,13 +51,14 @@ const Footer = ({
   const transferAllowance =
     account && parseFloat(Utils.fromWei(account.allowance));
   const delegatorStatus = getDelegatorStatus(delegator, currentRound);
-  const isStaked = delegator?.bondedAmount && delegator?.bondedAmount !== "0";
+  const isDelegated =
+    delegator?.bondedAmount && delegator?.bondedAmount !== "0";
   const stake = delegator?.pendingStake
     ? parseFloat(Utils.fromWei(delegator.pendingStake))
     : 0;
   const isMyTranscoder = delegator?.delegate?.id === transcoder?.id;
   const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
-  const canUnstake = isMyTranscoder && isStaked && parseFloat(amount) > 0;
+  const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
   const newActiveSetOrder = simulateNewActiveSetOrder({
     action,
     transcoders: JSON.parse(JSON.stringify(transcoders)),
@@ -74,8 +75,8 @@ const Footer = ({
     newPosNext: currDelegateNewPosNext,
   } = getHint(transcoder.id, newActiveSetOrder);
 
-  if (action === "stake") {
-    if (!isStaked) {
+  if (action === "delegate") {
+    if (!isDelegated) {
       delegator = {
         id: account?.id,
         lastClaimRound: { id: "0" },
@@ -84,11 +85,11 @@ const Footer = ({
 
     return (
       <Box css={{ ...css }}>
-        <Stake
+        <Delegate
           delegator={delegator}
           to={transcoder.id}
           amount={amount}
-          switching={!isMyTranscoder && isStaked}
+          switching={!isMyTranscoder && isDelegated}
           tokenBalance={tokenBalance}
           transferAllowance={transferAllowance}
           reset={reset}
@@ -99,7 +100,7 @@ const Footer = ({
             currDelegateNewPosNext: currDelegateNewPosNext,
           }}
         />
-        {+amount >= 0 && !isMyTranscoder && isStaked && (
+        {+amount >= 0 && !isMyTranscoder && isDelegated && (
           <Footnote>
             Enter &quot;0&quot; to move your delegated stake to this
             orchestrator.
@@ -110,17 +111,17 @@ const Footer = ({
   }
   return (
     <Box css={{ ...css }}>
-      <Unstake
+      <Undelegate
         amount={amount}
         newPosPrev={newPosPrev}
         newPosNext={newPosNext}
         delegator={delegator}
-        disabled={!canUnstake}
+        disabled={!canUndelegate}
       />
       {renderUnstakeWarnings(
         amount,
         delegatorStatus,
-        isStaked,
+        isDelegated,
         sufficientStake,
         isMyTranscoder
       )}
@@ -133,23 +134,23 @@ export default Footer;
 function renderUnstakeWarnings(
   amount,
   delegatorStatus,
-  isStaked,
+  isDelegated,
   sufficientStake,
   isMyTranscoder
 ) {
   if (delegatorStatus === "Pending") {
     return (
       <Footnote>
-        Your account is in a pending state. You can unstake during the next
+        Your account is in a pending state. You can undelegate during the next
         round.
       </Footnote>
     );
   }
-  if (!isStaked) {
-    return <Footnote>One must stake before one can unstake.</Footnote>;
+  if (!isDelegated) {
+    return <Footnote>One must delegate before one can undelegate.</Footnote>;
   }
   if (!isMyTranscoder) {
-    return <Footnote>You&apos;re not staked to this orchestrator.</Footnote>;
+    return <Footnote>You&apos;re not delegated to this orchestrator.</Footnote>;
   }
   if (parseFloat(amount) && !sufficientStake) {
     return <Footnote>Insufficient stake</Footnote>;
@@ -157,8 +158,8 @@ function renderUnstakeWarnings(
   return (
     <Footnote>
       Looking to move your delegated stake? No need to undelegate. Simply
-      navigate to the delegate you wish to switch to, enter &quot;0&quot;, and
-      hit &quot;Delegate&quot;.
+      navigate to the orchestrator you wish to switch to, enter &quot;0&quot;,
+      and hit &quot;Delegate&quot;.
     </Footnote>
   );
 }

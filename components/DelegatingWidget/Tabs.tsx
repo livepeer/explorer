@@ -31,15 +31,23 @@ export const Tab = (props) => (
       outline: "none",
       cursor: "pointer",
       textAlign: "center",
-      color: props.isSelected ? "$primary11" : "$neutral10",
+      color: props.isSelected
+        ? props.children === "Delegate"
+          ? "$primary11"
+          : "$red11"
+        : "$neutral10",
       py: "10px",
       width: "50%",
       fontSize: "$3",
       borderRadius: "$4",
       fontWeight: 600,
       border: "2px solid",
-      backgroundColor: "transparent",
-      borderColor: props.isSelected ? "$primary11" : "transparent",
+      bc: "transparent",
+      borderColor: props.isSelected
+        ? props.children === "Delegate"
+          ? "$primary11"
+          : "$red11"
+        : "transparent",
     }}
     {...props}
   />

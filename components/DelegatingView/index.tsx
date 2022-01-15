@@ -4,7 +4,6 @@ import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import StakeTransactions from "../StakeTransactions";
-import ReactTooltip from "react-tooltip";
 import Stat from "@components/Stat";
 import {
   Link as A,

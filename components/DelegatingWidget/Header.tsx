@@ -1,5 +1,5 @@
 import QRCode from "qrcode.react";
-import { Heading, Text, Box, Flex } from "@livepeer/design-system";
+import { Heading, Box, Flex } from "@livepeer/design-system";
 
 const Header = ({ transcoder, delegateProfile }) => {
   return (

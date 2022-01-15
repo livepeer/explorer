@@ -3,7 +3,7 @@ import { getLayout } from "@layouts/main";
 import { useQuery } from "@apollo/client";
 import Tabs, { TabType } from "@components/Tabs";
 import Profile from "@components/Profile";
-import StakingWidget from "@components/StakingWidget";
+import DelegatingWidget from "@components/DelegatingWidget";
 import Spinner from "@components/Spinner";
 import { useWeb3React } from "@web3-react/core";
 import { checkAddressEquality } from "@lib/utils";
@@ -223,7 +223,7 @@ const AccountLayout = ({ children }) => {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
-                  <StakingWidget
+                  <DelegatingWidget
                     transcoders={dataTranscoders.transcoders}
                     selectedAction="delegate"
                     currentRound={data.protocol.currentRound}
@@ -244,7 +244,7 @@ const AccountLayout = ({ children }) => {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
-                  <StakingWidget
+                  <DelegatingWidget
                     transcoders={dataTranscoders.transcoders}
                     selectedAction="undelegate"
                     currentRound={data.protocol.currentRound}
@@ -276,7 +276,7 @@ const AccountLayout = ({ children }) => {
                 },
               }}
             >
-              <StakingWidget
+              <DelegatingWidget
                 currentRound={data.protocol.currentRound}
                 transcoders={dataTranscoders.transcoders}
                 delegator={dataMyAccount?.delegator}
@@ -288,7 +288,7 @@ const AccountLayout = ({ children }) => {
             </Flex>
           ) : (
             <BottomDrawer>
-              <StakingWidget
+              <DelegatingWidget
                 transcoders={dataTranscoders.transcoders}
                 selectedAction={selectedStakingAction?.selectedStakingAction}
                 currentRound={data.protocol.currentRound}

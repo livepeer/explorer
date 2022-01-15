@@ -31,13 +31,13 @@ const ProjectionBox = ({ action }) => {
               justifyContent: "space-between",
             }}
           >
-            <Box css={{ color: "$muted" }}>
-              {action === "stake"
+            <Box css={{ color: "$neutral11" }}>
+              {action === "delegate"
                 ? "Projected Rewards (1Y)"
                 : "Projected Opportunity Cost (1Y)"}
             </Box>
-            {action === "stake" && (
-              <Box css={{ fontFamily: "$monospace", color: "$muted" }}>
+            {action === "delegate" && (
+              <Box css={{ fontFamily: "$monospace", color: "$neutral11" }}>
                 +
                 {data.principle
                   ? ((data.roi / +data.principle) * 100).toFixed(2) + "%"

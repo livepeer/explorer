@@ -27,6 +27,9 @@ const Undelegate = ({
         size="4"
         variant="red"
         disabled={disabled}
+        css={{
+          width: "100%",
+        }}
         onClick={() => {
           initTransaction(client, async () => {
             try {
@@ -44,7 +47,6 @@ const Undelegate = ({
             }
           });
         }}
-        css={{ width: "100%" }}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
       </Button>

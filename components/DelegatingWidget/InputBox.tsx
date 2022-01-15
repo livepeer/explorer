@@ -2,7 +2,7 @@ import React from "react";
 import Input from "./Input";
 import Utils from "web3-utils";
 import ReactTooltip from "react-tooltip";
-import { Box, Flex, Card } from "@livepeer/design-system";
+import { Box, Flex, Card, Tooltip } from "@livepeer/design-system";
 
 const InputBox = ({
   account,
@@ -36,46 +36,32 @@ const InputBox = ({
             <Box css={{ color: "$muted" }}>Input</Box>
 
             {account &&
-              (action === "stake" ? (
-                <Box
-                  data-tip="Enter max"
-                  data-for="balance"
-                  onClick={() => setAmount(tokenBalance)}
-                  css={{ cursor: "pointer", color: "$muted" }}
-                >
-                  <ReactTooltip
-                    id="balance"
-                    className="tooltip"
-                    place="top"
-                    type="dark"
-                    effect="solid"
-                  />
-                  Balance:{" "}
-                  <Box as="span" css={{ fontFamily: "$monospace" }}>
-                    {parseFloat(tokenBalance)}
+              (action === "delegate" ? (
+                <Tooltip content="Enter Max">
+                  <Box
+                    onClick={() => setAmount(tokenBalance)}
+                    css={{ cursor: "pointer", color: "$muted" }}
+                  >
+                    Balance:{" "}
+                    <Box as="span" css={{ fontFamily: "$monospace" }}>
+                      {parseFloat(tokenBalance)}
+                    </Box>
                   </Box>
-                </Box>
+                </Tooltip>
               ) : (
                 <>
                   {+stake > 0 && (
-                    <Box
-                      data-tip="Enter max"
-                      data-for="stake"
-                      onClick={() => setAmount(stake)}
-                      css={{ cursor: "pointer", color: "$muted" }}
-                    >
-                      <ReactTooltip
-                        id="stake"
-                        className="tooltip"
-                        place="top"
-                        type="dark"
-                        effect="solid"
-                      />
-                      Stake:{" "}
-                      <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {+stake}
+                    <Tooltip content="Enter Max">
+                      <Box
+                        onClick={() => setAmount(stake)}
+                        css={{ cursor: "pointer", color: "$muted" }}
+                      >
+                        Stake:{" "}
+                        <Box as="span" css={{ fontFamily: "$monospace" }}>
+                          {+stake}
+                        </Box>
                       </Box>
-                    </Box>
+                    </Tooltip>
                   )}
                 </>
               ))}

@@ -1,4 +1,3 @@
-import { useApolloClient, gql } from "@apollo/client";
 import WalletModal from "@components/WalletModal";
 import { Button } from "@livepeer/design-system";
 

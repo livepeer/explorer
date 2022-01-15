@@ -2,11 +2,11 @@ import React, { useContext, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import Utils from "web3-utils";
 import { MutationsContext } from "../../contexts";
-import { initTransaction, MAXIUMUM_VALUE_UINT256 } from "../../lib/utils";
+import { initTransaction, MAXIUMUM_VALUE_UINT256 } from "@lib/utils";
 import ProgressSteps from "../ProgressSteps";
 import { Box, Button } from "@livepeer/design-system";
 
-const Stake = ({
+const Delegate = ({
   to,
   amount,
   switching,
@@ -53,7 +53,7 @@ const Stake = ({
     initTransaction(client, tx);
   };
 
-  const onStake = () => {
+  const onDelegate = () => {
     const tx = async () => {
       try {
         await bond({
@@ -113,7 +113,7 @@ const Stake = ({
             size="4"
             disabled={!sufficientTransferAllowance}
             variant="primary"
-            onClick={onStake}
+            onClick={onDelegate}
             css={{ width: "100%" }}
           >
             {+amount >= 0 && switching ? "Move Delegated Stake" : "Delegate"}
@@ -130,7 +130,7 @@ const Stake = ({
   return (
     <Button
       size="4"
-      onClick={onStake}
+      onClick={onDelegate}
       variant="primary"
       css={{ width: "100%" }}
     >
@@ -139,4 +139,4 @@ const Stake = ({
   );
 };
 
-export default Stake;
+export default Delegate;
