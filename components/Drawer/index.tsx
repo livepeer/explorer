@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import RoundStatus from "../RoundStatus";
 import UniswapModal from "../UniswapModal";
-import AccountMenu from "../AccountMenu";
+import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
@@ -103,7 +103,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
                 </A>
               </Link>
             ))}
-            <AccountMenu />
+            <Account />
           </Box>
           <Box css={{ mb: "$4" }}>
             <Box
