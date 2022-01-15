@@ -19,6 +19,7 @@ import {
   Button,
   TextField,
   TextArea,
+  Text,
 } from "@livepeer/design-system";
 
 interface Props {
@@ -148,10 +149,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
       setEditProfileOpen(true);
     } else {
       setCreateProfileModalOpen(true);
-      const box = await ThreeBox.openBox(
-        account,
-        context.library._web3Provider
-      );
+      const box = await ThreeBox.openBox(account, context.library.provider);
       setActiveStep(1);
       await box.syncDone;
 
@@ -199,7 +197,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
     setSaving(true);
     const box = await ThreeBox.openBox(
       context.account,
-      context.library._web3Provider
+      context.library.provider
     );
     let hash = null;
 
@@ -275,18 +273,19 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
       <Dialog open={createProfileModalOpen}>
         <DialogContent>
           <DialogTitle asChild>
-            <Heading size="1">Profile setup</Heading>
+            <Heading size="1" css={{ fontWeight: 700, mb: "$1" }}>
+              Profile setup
+            </Heading>
           </DialogTitle>
-          <Box css={{ mb: "$3" }}>
+          <Text css={{ mb: "$3" }}>
             Approve the signing prompts in your web3 wallet to continue setting
             up your profile.
-          </Box>
+          </Text>
           <Box
             css={{
               backgroundColor: "$neutral3",
               border: "1px solid $neutral4",
               borderRadius: "$4",
-              p: "$4",
               alignItems: "center",
               justifyContent: "center",
               mb: "$4",
@@ -340,7 +339,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                 const ThreeBox = require("3box");
                 const box = await ThreeBox.openBox(
                   context.account,
-                  context.library._web3Provider
+                  context.library.provider
                 );
                 await updateProfile({
                   variables: {
@@ -369,7 +368,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                 const ThreeBox = require("3box");
                 const box = await ThreeBox.openBox(
                   context.account,
-                  context.library._web3Provider
+                  context.library.provider
                 );
                 await updateProfile({
                   variables: {
@@ -392,7 +391,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
       <Dialog open={editProfileOpen}>
         <DialogContent css={{ overflow: "scroll" }}>
           <DialogTitle asChild>
-            <Heading size="1" css={{ mb: "$4" }}>
+            <Heading size="2" css={{ mb: "$4" }}>
               Edit Profile
             </Heading>
           </DialogTitle>
@@ -500,6 +499,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                     ref={register}
                     defaultValue={threeBoxSpace ? threeBoxSpace.name : ""}
                     name="name"
+                    size="3"
                     placeholder="Name"
                     css={{ mb: "$3", width: "100%" }}
                   />
@@ -509,6 +509,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                     placeholder="Website"
                     type="url"
                     name="website"
+                    size="3"
                     css={{ mb: "$3", width: "100%" }}
                   />
                   <TextArea
@@ -666,14 +667,7 @@ const Index = ({ threeBoxSpace, refetch, account }: Props) => {
                 <Button
                   variant="primary"
                   size="4"
-                  disabled={
-                    !formState.dirty ||
-                    saving ||
-                    (threeBoxSpace.defaultProfile === "3box" && !verified) ||
-                    (threeBoxSpace.defaultProfile === "livepeer" &&
-                      (signature || ethereumAccount) &&
-                      !verified)
-                  }
+                  disabled={!formState.dirty || saving}
                   type="submit"
                 >
                   <Flex css={{ alignItems: "center" }}>

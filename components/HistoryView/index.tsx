@@ -38,6 +38,7 @@ const Index = () => {
     }
   );
 
+  console.log("data", data);
   if (error) {
     console.error(error);
   }

@@ -117,10 +117,5 @@
     "use-ens": "^0.0.16",
     "web3-utils": "^1.3.1"
   },
-  "main": "package.json",
-  "resolutions": {
-    "muport-did-resolver": "1.0.1",
-    "pull-ws": "3.3.2",
-    "recharts-scale": "0.4.3"
-  }
+  "main": "package.json"
 }
