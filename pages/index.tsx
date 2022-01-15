@@ -54,7 +54,7 @@ const Home = () => {
     }
   `);
   const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
-  const { data } = useQuery(query);
+  const { data, loading } = useQuery(query);
 
   const flickityOptions = {
     wrapAround: true,
@@ -187,7 +187,10 @@ const Home = () => {
                 </Link>
               </Flex>
             </Flex>
-            <OrchestratorList data={data?.transcoders} pageSize={20} />
+            <OrchestratorList
+              data={loading ? [] : data?.transcoders}
+              pageSize={20}
+            />
           </Box>
           {/* <Box>
             <Flex
