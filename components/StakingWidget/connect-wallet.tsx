@@ -1,29 +1,16 @@
 import { useApolloClient, gql } from "@apollo/client";
+import WalletModal from "@components/WalletModal";
 import { Button } from "@livepeer/design-system";
 
 const ConnectWallet = () => {
-  const client = useApolloClient();
-
   return (
-    <Button
-      variant="primary"
-      size="4"
-      onClick={() =>
-        client.writeQuery({
-          query: gql`
-            query {
-              walletModalOpen
-            }
-          `,
-          data: {
-            walletModalOpen: true,
-          },
-        })
+    <WalletModal
+      trigger={
+        <Button css={{ width: "100%" }} variant="primary" size="4">
+          Connect Wallet
+        </Button>
       }
-      css={{ width: "100%" }}
-    >
-      Connect Wallet
-    </Button>
+    />
   );
 };
 
