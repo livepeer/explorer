@@ -1704,10 +1704,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.3.tgz#0300943770e04231041a51bd39f0439b5c7ab4f0"
   integrity sha512-nkalE/f1RvRGChwBnEIoBfSEYOXnCRdleKuv6+lePbMDrMZXeDQnqak5XDOeBgrPPyPfAdcCu/B5z+v3VhplGg==
 
-"@livepeer/design-system@^0.0.0-beta.3":
-  version "0.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/@livepeer/design-system/-/design-system-0.0.0-beta.3.tgz#495e349d4f83bc233837cf4253649cb3dc7b099a"
-  integrity sha512-ufGzUUD9v/vPKwAc6QCp+9BCxdp+0FwcT7G8PGB/spITMAHMoI2BNt9xZ9a3rAqd2TnQRxbuxF3oQ2ISAitc3Q==
+"@livepeer/design-system@^0.0.0-beta.4":
+  version "0.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@livepeer/design-system/-/design-system-0.0.0-beta.4.tgz#a4c0f3b1dad48c576502405cc48a2ed2172e0cdd"
+  integrity sha512-F/+TP242T+5xn78YcxEgOfbfUYJUV7OF8zlizliCrh5lEbXvp0p94FnJqOqJaX/1WVGWlJX50OMFZubOaKPI4g==
   dependencies:
     "@modulz/design-system" "0.6.1"
     "@radix-ui/colors" "0.1.7"
