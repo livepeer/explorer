@@ -33,7 +33,7 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
   }: any = useTable(
     {
       columns,
-      data: data ? data : [],
+      data,
       initialState,
     },
     useSortBy,
@@ -54,7 +54,7 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
           borderRadius: "$4",
         }}
       >
-        {!data ? (
+        {!data.length ? (
           <Flex align="center" justify="center" css={{ p: "$6" }}>
             <Spinner />
           </Flex>
