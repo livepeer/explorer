@@ -49,6 +49,9 @@ export const accountQuery = (currentRound) => {
         pools(first: 30, orderBy: id, orderDirection: desc where: { round_not: "${currentRound}" }) {
           rewardTokens
         }
+        delegators(first: 1000) {
+          id
+        }
       }
       account(id: $account) {
         id

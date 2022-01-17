@@ -61,6 +61,11 @@ const Index = ({ currentRound, transcoder }) => {
         />
         <Stat
           className="masonry-grid_item"
+          label="Status"
+          value={active ? "Active" : "Inactive"}
+        />
+        <Stat
+          className="masonry-grid_item"
           label="Earned Fees"
           value={
             <>
@@ -72,6 +77,11 @@ const Index = ({ currentRound, transcoder }) => {
               </Box>
             </>
           }
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Total Delegators"
+          value={transcoder.delegators.length}
         />
         <Stat
           className="masonry-grid_item"
@@ -135,11 +145,6 @@ const Index = ({ currentRound, transcoder }) => {
               )}
             </>
           }
-        />
-        <Stat
-          className="masonry-grid_item"
-          label="Status"
-          value={active ? "Active" : "Inactive"}
         />
         {transcoder?.lastRewardRound?.id && (
           <Stat
