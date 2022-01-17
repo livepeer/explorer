@@ -75,7 +75,7 @@ export const CHAIN_INFO = {
     explorer: "https://etherscan.io/",
     explorerAPI: "https://api.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
-    label: "Ethereum",
+    label: "Ethereum Mainnet",
     // logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
@@ -165,8 +165,8 @@ export const CHAIN_INFO = {
     // defaultListUrl: ARBITRUM_LIST,
     addNetworkInfo: {
       nativeCurrency: {
-        name: "Rinkeby Arbitrum Ether",
-        symbol: "rinkArbETH",
+        name: "Arbitrum Rinkeby Ether",
+        symbol: "ARETH",
         decimals: 18,
       },
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
