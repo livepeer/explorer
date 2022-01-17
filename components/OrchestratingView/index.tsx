@@ -106,6 +106,7 @@ const Index = ({ currentRound, transcoder }) => {
             </>
           }
         />
+
         <Stat
           className="masonry-grid_item"
           label={
@@ -135,7 +136,11 @@ const Index = ({ currentRound, transcoder }) => {
             </>
           }
         />
-
+        <Stat
+          className="masonry-grid_item"
+          label="Status"
+          value={active ? "Active" : "Inactive"}
+        />
         {transcoder?.lastRewardRound?.id && (
           <Stat
             className="masonry-grid_item"
