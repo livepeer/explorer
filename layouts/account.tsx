@@ -197,14 +197,10 @@ const AccountLayout = ({ children }) => {
         >
           <Profile
             account={query?.account.toString()}
-            delegator={data.delegator}
-            isMyDelegate={isMyDelegate}
             isMyAccount={isMyAccount}
             refetch={refetch}
             role={role}
-            transcoder={data.transcoder}
             threeBoxSpace={threeBoxData?.threeBoxSpace}
-            currentRound={data.protocol.currentRound}
           />
           <Flex
             css={{
