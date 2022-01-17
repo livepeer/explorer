@@ -6,6 +6,7 @@ import {
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
+import Masonry from "react-masonry-css";
 
 const Index = ({ currentRound, transcoder }) => {
   const callsMade = transcoder.pools.filter(
@@ -15,19 +16,39 @@ const Index = ({ currentRound, transcoder }) => {
     transcoder?.activationRound <= currentRound.id &&
     transcoder?.deactivationRound > currentRound.id;
 
+  const breakpointColumnsObj = {
+    default: 2,
+    1100: 2,
+    700: 2,
+    500: 1,
+  };
+
   return (
-    <Box css={{ pt: "$4" }}>
-      <Box
-        css={{
-          display: "grid",
-          gridGap: "$3",
-          gridTemplateColumns: "repeat(auto-fit, minmax(33%, 1fr))",
-          "@bp3": {
-            gridTemplateColumns: "repeat(auto-fit, minmax(30%, 1fr))",
-          },
-        }}
+    <Box
+      css={{
+        pt: "$4",
+        ".masonry-grid": {
+          display: "flex",
+          marginLeft: "-$3",
+          width: "auto",
+        },
+        ".masonry-grid_column": {
+          paddingLeft: "$3",
+          backgroundClip: "padding-box",
+        },
+
+        ".masonry-grid_column > .masonry-grid_item": {
+          marginBottom: "$3",
+        },
+      }}
+    >
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="masonry-grid"
+        columnClassName="masonry-grid_column"
       >
         <Stat
+          className="masonry-grid_item"
           label="Total Stake"
           value={
             <>
@@ -39,6 +60,7 @@ const Index = ({ currentRound, transcoder }) => {
           }
         />
         <Stat
+          className="masonry-grid_item"
           label="Earned Fees"
           value={
             <>
@@ -52,10 +74,12 @@ const Index = ({ currentRound, transcoder }) => {
           }
         />
         <Stat
+          className="masonry-grid_item"
           label="Reward Calls"
           value={`${callsMade}/${transcoder.pools.length}`}
         />
         <Stat
+          className="masonry-grid_item"
           label="Reward Cut"
           value={
             <>
@@ -67,6 +91,7 @@ const Index = ({ currentRound, transcoder }) => {
           }
         />
         <Stat
+          className="masonry-grid_item"
           label="Fee Cut"
           value={
             <>
@@ -82,6 +107,7 @@ const Index = ({ currentRound, transcoder }) => {
           }
         />
         <Stat
+          className="masonry-grid_item"
           label={
             <Flex css={{ ai: "center" }}>
               <Box>Price / Pixel</Box>
@@ -112,6 +138,7 @@ const Index = ({ currentRound, transcoder }) => {
 
         {transcoder?.lastRewardRound?.id && (
           <Stat
+            className="masonry-grid_item"
             label={
               <Flex css={{ ai: "center" }}>
                 <Box>Last Reward Round</Box>
@@ -153,7 +180,7 @@ const Index = ({ currentRound, transcoder }) => {
             }
           />
         )}
-      </Box>
+      </Masonry>
     </Box>
   );
 };
