@@ -36,6 +36,8 @@ import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useTimer } from "react-timer-hook";
 import { stepperStyles } from "../utils/stepperStyles";
 import { isValidAddress } from "utils/validAddress";
+import { isL2ChainId } from "@lib/chains";
+import { useRouter } from "next/router";
 
 type MigrationState = {
   step: number;
@@ -67,6 +69,15 @@ const signingSteps = [
 ];
 
 const Migrate = () => {
+  const router = useRouter();
+
+  // Redirect if not on an L2
+  useEffect(() => {
+    if (!isL2ChainId(DEFAULT_CHAIN_ID)) {
+      router.push("/");
+    }
+  }, [router]);
+
   const context = useWeb3React();
   const [activeStep, setActiveStep] = useState(0);
   const [migrationParams, setMigrationParams] = useState(undefined);
@@ -89,8 +100,7 @@ const Migrate = () => {
   >({
     step: 0,
     title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-    subtitle:
-      "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
+    subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
     loading: false,
     image: "/img/arbitrum.svg",
   });
@@ -158,8 +168,7 @@ const Migrate = () => {
           ...m,
           step: 0,
           title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-          subtitle:
-            "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
+          subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
           loading: false,
           image: "/img/arbitrum.svg",
         }));
@@ -179,12 +188,10 @@ const Migrate = () => {
             ...m,
             step: 1,
             title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-            subtitle:
-              "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
+            subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
             loading: false,
             image: null,
-            disclaimer:
-              "Note: It will take 10 minutes for you to see your stake and fee balances credited on Arbitrum once you initiate the migration.",
+            disclaimer: `Note: It will take 10 minutes for you to see your stake and fee balances credited on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} once you initiate the migration.`,
           }));
         }
       }
@@ -214,7 +221,7 @@ const Migrate = () => {
       step: 1,
       title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
       subtitle:
-        "This tool will safely migrate your orchestrator's stake and fees from Rinkeby to Arbitrum Rinkeby.",
+        "This tool will safely migrate your orchestrator's stake and fees to Arbitrum Rinkeby.",
       loading: false,
       image: null,
       disclaimer:
