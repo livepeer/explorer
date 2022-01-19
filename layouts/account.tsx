@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { getLayout } from "@layouts/main";
 import { useQuery } from "@apollo/client";
-import Tabs, { TabType } from "@components/Tabs";
 import Profile from "@components/Profile";
 import DelegatingWidget from "@components/DelegatingWidget";
 import Spinner from "@components/Spinner";
@@ -21,9 +20,17 @@ import {
   SheetTrigger,
   Button,
   SheetContent,
+  Box,
 } from "@livepeer/design-system";
+import Link from "next/link";
 
 const pollInterval = 5000;
+
+export interface TabType {
+  name: string;
+  href: string;
+  isActive?: boolean;
+}
 
 const AccountLayout = ({ children }) => {
   const context = useWeb3React();
@@ -187,7 +194,7 @@ const AccountLayout = ({ children }) => {
             flexDirection: "column",
             mb: "$6",
             pr: 0,
-            pt: "$2",
+            pt: "$4",
             width: "100%",
             "@bp3": {
               pt: "$6",
@@ -254,7 +261,38 @@ const AccountLayout = ({ children }) => {
               </Sheet>
             )}
           </Flex>
-          <Tabs tabs={tabs} />
+          <Box
+            css={{
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+              position: "relative",
+              borderBottom: "1px solid",
+              borderColor: "$neutral6",
+            }}
+          >
+            {tabs.map((tab: TabType, i: number) => (
+              <Link scroll={false} key={i} href={tab.href} passHref>
+                <A
+                  variant="subtle"
+                  css={{
+                    color: tab.isActive ? "$hiContrast" : "$neutral11",
+                    mr: "$4",
+                    pb: "$2",
+                    fontSize: "$3",
+                    fontWeight: 500,
+                    borderBottom: "2px solid",
+                    borderColor: tab.isActive ? "$primary11" : "transparent",
+                    "&:hover": {
+                      textDecoration: "none",
+                    },
+                  }}
+                >
+                  {tab.name}
+                </A>
+              </Link>
+            ))}
+          </Box>
           {children}
         </Flex>
         {(role === "Orchestrator" || isMyDelegate) &&
@@ -314,22 +352,19 @@ function getTabs(
   const tabs: Array<TabType> = [
     {
       name: "Delegating",
-      href: "/accounts/[account]/delegating",
-      as: `/accounts/${account}/delegating`,
+      href: `/accounts/${account}/delegating`,
       isActive: asPath === `/accounts/${account}/delegating`,
     },
     {
       name: "History",
-      href: "/accounts/[account]/history",
-      as: `/accounts/${account}/history`,
+      href: `/accounts/${account}/history`,
       isActive: asPath === `/accounts/${account}/history`,
     },
   ];
   if (role === "Orchestrator" || isMyDelegate) {
     tabs.unshift({
       name: "Orchestrating",
-      href: "/accounts/[account]/orchestrating",
-      as: `/accounts/${account}/orchestrating`,
+      href: `/accounts/${account}/orchestrating`,
       isActive: asPath === `/accounts/${account}/orchestrating`,
     });
   }
