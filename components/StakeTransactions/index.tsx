@@ -28,7 +28,9 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
     <Box css={{ mt: "$6" }}>
       {!!pendingStakeTransactions.length && (
         <Box css={{ mb: "$6" }}>
-          <Heading size="1">Pending Transactions</Heading>
+          <Heading size="1" css={{ mb: "$4" }}>
+            Pending Transactions
+          </Heading>
           {pendingStakeTransactions.map((lock) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
               action: "stake",
