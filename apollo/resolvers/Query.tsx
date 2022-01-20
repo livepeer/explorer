@@ -152,12 +152,15 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
     totalUsage: 0,
     participationRate: 0,
     oneDayVolumeUSD: 0,
+    oneDayVolumeETH: 0,
     oneWeekVolumeUSD: 0,
     oneWeekVolumeETH: 0,
     oneWeekUsage: 0,
     weeklyVolumeChangeUSD: 0,
+    weeklyVolumeChangeETH: 0,
     weeklyUsageChange: 0,
     volumeChangeUSD: 0,
+    volumeChangeETH: 0,
     participationRateChange: 0,
   };
 
@@ -165,10 +168,12 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
   const weeklyData = [];
   let oneDayData = {
     totalVolumeUSD: 0,
+    totalVolumeETH: 0,
     participationRate: 0,
   };
   let twoDayData = {
     totalVolumeUSD: 0,
+    totalVolumeETH: 0,
     participationRate: 0,
   };
 
@@ -347,18 +352,24 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
 
     const [oneDayVolumeUSD, volumeChangeUSD] = getTwoPeriodPercentChange(
       +data.totalVolumeUSD,
-      +oneDayData.totalVolumeUSD,
-      +twoDayData.totalVolumeUSD
+      +oneDayData?.totalVolumeUSD,
+      +twoDayData?.totalVolumeUSD
+    );
+
+    const [oneDayVolumeETH, volumeChangeETH] = getTwoPeriodPercentChange(
+      +data?.totalVolumeETH,
+      +oneDayData?.totalVolumeETH,
+      +twoDayData?.totalVolumeETH
     );
 
     const [oneWeekVolumeUSD, weeklyVolumeChangeUSD] = getTwoPeriodPercentChange(
-      +data.totalVolumeUSD,
+      +data?.totalVolumeUSD,
       +oneWeekData?.totalVolumeUSD,
       +twoWeekData?.totalVolumeUSD
     );
 
-    const [oneWeekVolumeETH] = getTwoPeriodPercentChange(
-      +data.totalVolumeETH,
+    const [oneWeekVolumeETH, weeklyVolumeChangeETH] = getTwoPeriodPercentChange(
+      +data?.totalVolumeETH,
       +oneWeekData?.totalVolumeETH,
       +twoWeekData?.totalVolumeETH
     );
@@ -371,8 +382,8 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
 
     // format the total participation change
     const participationRateChange = getPercentChange(
-      data.participationRate,
-      oneDayData.participationRate
+      data?.participationRate,
+      oneDayData?.participationRate
     );
 
     // format weekly data for weekly sized chunks
@@ -402,13 +413,16 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
     data.dayData = [...dayData].reverse();
     data.weeklyData = weeklyData;
     data.oneDayVolumeUSD = oneDayVolumeUSD;
+    data.oneDayVolumeETH = oneDayVolumeETH;
     data.oneWeekVolumeUSD = oneWeekVolumeUSD;
     data.oneWeekVolumeETH = oneWeekVolumeETH;
     data.totalUsage = totalFeeDerivedMinutes + totalLivepeerComUsage;
     data.oneWeekUsage = oneWeekUsage;
     data.weeklyUsageChange = weeklyUsageChange;
     data.weeklyVolumeChangeUSD = weeklyVolumeChangeUSD;
+    data.weeklyVolumeChangeETH = weeklyVolumeChangeETH;
     data.volumeChangeUSD = volumeChangeUSD;
+    data.volumeChangeETH = volumeChangeETH;
     data.participationRateChange = participationRateChange;
   } catch (e) {
     console.log(e);
