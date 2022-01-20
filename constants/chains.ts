@@ -1,3 +1,5 @@
+import ethereumLogoUrl from "../public/img/logos/ethereum.png";
+import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 import { ethers } from "ethers";
 
 const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
@@ -7,6 +9,78 @@ if (typeof INFURA_KEY === "undefined") {
     `NEXT_PUBLIC_INFURA_KEY must be a defined environment variable`
   );
 }
+
+const MAINNET_CONTRACTS = {
+  controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
+  pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
+  l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
+  l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
+  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+const ARBITRUM_ONE_CONTRACTS = {
+  controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
+  pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
+  l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
+  l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
+  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+const RINKEBY_CONTRACTS = {
+  controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
+  pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
+  l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
+  l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
+  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+const ARBITRUM_RINKEBY_CONTRACTS = {
+  controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
+  pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
+  l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
+  l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
+  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+const DEVNET_RINKEBY_CONTRACTS = {
+  controller: "0x1621165617F8D4b6D8c8C03Fce246CfF00450621",
+  pollCreator: "0x799124845E2b06800EFA2A6cea3CCAdd26c8d098",
+  l1Migrator: "0x464F814bbDC55069365B33d40B0C0dBb4239dfCf",
+  l2Migrator: "0xD527B4ba179F41789dC00A144c1E1e374687CD5E",
+  l2GatewayRouter: "0xF4C7c7b67Ea0A4a3c3d9c0A0BC258b27fb9c4B57",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+const DEVNET_ARBITRUM_RINKEBY_CONTRACTS = {
+  controller: "0x65ea76efD31c7566c81676f7c3C02fD69dF16C7d",
+  pollCreator: "0x3a9543D4767b2c914Ea22Fd0B07E17b0901AAeBf",
+  l1Migrator: "0x464F814bbDC55069365B33d40B0C0dBb4239dfCf",
+  l2Migrator: "0xD527B4ba179F41789dC00A144c1E1e374687CD5E",
+  l2GatewayRouter: "0xF4C7c7b67Ea0A4a3c3d9c0A0BC258b27fb9c4B57",
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
 
 /**
  * List of all the networks supported by the Livepeer Explorer
@@ -76,23 +150,13 @@ export const CHAIN_INFO = {
     explorerAPI: "https://api.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Ethereum Mainnet",
-    // logoUrl: ethereumLogoUrl,
+    logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[SupportedChainId.MAINNET],
     },
     subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
-    contracts: {
-      controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
-      pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
-      l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
-      l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-      l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
-      inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-      outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-      arbRetryableTx: "0x000000000000000000000000000000000000006E",
-      nodeInterface: "0x00000000000000000000000000000000000000C8",
-    },
+    contracts: MAINNET_CONTRACTS,
     abis,
   },
   [SupportedChainId.RINKEBY]: {
@@ -102,24 +166,17 @@ export const CHAIN_INFO = {
     explorerAPI: "https://api-rinkeby.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Rinkeby",
-    // logoUrl: ethereumLogoUrl,
+    logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[SupportedChainId.RINKEBY],
     },
-    subgraph:
-      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
-    contracts: {
-      controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
-      pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
-      l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
-      l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-      l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
-      inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-      outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-      arbRetryableTx: "0x000000000000000000000000000000000000006E",
-      nodeInterface: "0x00000000000000000000000000000000000000C8",
-    },
+    subgraph: process.env.IS_DEVNET
+      ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+    contracts: process.env.IS_DEVNET
+      ? DEVNET_RINKEBY_CONTRACTS
+      : RINKEBY_CONTRACTS,
     abis,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
@@ -131,25 +188,14 @@ export const CHAIN_INFO = {
     explorerAPI: "https://api.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum",
-    // logoUrl: arbitrumLogoUrl,
-    // defaultListUrl: ARBITRUM_LIST,
+    logoUrl: arbitrumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
     subgraph:
       "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-arbitrum",
-    contracts: {
-      controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
-      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
-      l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
-      l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-      l2GatewayRouter: "0x5288c571Fd7aD117beA99bF60FE0846C4E84F933",
-      inbox: "0x4c6f947Ae67F572afa4ae0730947DE7C874F95Ef",
-      outbox: "0x760723CD2e632826c38Fef8CD438A4CC7E7E1A40",
-      arbRetryableTx: "0x000000000000000000000000000000000000006E",
-      nodeInterface: "0x00000000000000000000000000000000000000C8",
-    },
+    contracts: ARBITRUM_ONE_CONTRACTS,
     abis,
   },
   [SupportedChainId.ARBITRUM_RINKEBY]: {
@@ -161,8 +207,7 @@ export const CHAIN_INFO = {
     explorerAPI: "https://testnet.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum Rinkeby",
-    // logoUrl: arbitrumLogoUrl,
-    // defaultListUrl: ARBITRUM_LIST,
+    logoUrl: arbitrumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: {
         name: "Arbitrum Rinkeby Ether",
@@ -171,19 +216,12 @@ export const CHAIN_INFO = {
       },
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
     },
-    subgraph:
-      "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
-    contracts: {
-      controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
-      pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
-      l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
-      l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-      l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
-      inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-      outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-      arbRetryableTx: "0x000000000000000000000000000000000000006E",
-      nodeInterface: "0x00000000000000000000000000000000000000C8",
-    },
+    subgraph: process.env.IS_DEVNET
+      ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-arbitrum-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
+    contracts: process.env.IS_DEVNET
+      ? DEVNET_ARBITRUM_RINKEBY_CONTRACTS
+      : ARBITRUM_RINKEBY_CONTRACTS,
     abis,
   },
 };
