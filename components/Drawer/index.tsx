@@ -5,6 +5,7 @@ import RoundStatus from "../RoundStatus";
 import UniswapModal from "../UniswapModal";
 import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import { IS_L2 } from "constants/chains";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
   const router = useRouter();
@@ -121,11 +122,13 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               >
                 Livepeer.org
               </A>
-              {/* <Link href="/migrate" passHref>
-                <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                  L2 Migration Tool
-                </A>
-              </Link> */}
+              {IS_L2 && (
+                <Link href="/migrate" passHref>
+                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
+                    L2 Migration Tool
+                  </A>
+                </Link>
+              )}
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org/docs"

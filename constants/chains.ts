@@ -110,6 +110,8 @@ export const DEFAULT_CHAIN_ID =
 
 export const IS_TESTNET = TESTNET_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
 
+export const IS_L2 = L2_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
+
 /**
  * Array of all the supported chain IDs
  */
