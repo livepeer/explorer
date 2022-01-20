@@ -171,10 +171,10 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[SupportedChainId.RINKEBY],
     },
-    subgraph: process.env.IS_DEVNET
+    subgraph: process.env.NEXT_PUBLIC_IS_DEVNET
       ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
       : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
-    contracts: process.env.IS_DEVNET
+    contracts: process.env.NEXT_PUBLIC_IS_DEVNET
       ? DEVNET_RINKEBY_CONTRACTS
       : RINKEBY_CONTRACTS,
     abis,
@@ -216,10 +216,10 @@ export const CHAIN_INFO = {
       },
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
     },
-    subgraph: process.env.IS_DEVNET
+    subgraph: process.env.NEXT_PUBLIC_IS_DEVNET
       ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-arbitrum-rinkeby"
       : "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
-    contracts: process.env.IS_DEVNET
+    contracts: process.env.NEXT_PUBLIC_IS_DEVNET
       ? DEVNET_ARBITRUM_RINKEBY_CONTRACTS
       : ARBITRUM_RINKEBY_CONTRACTS,
     abis,
