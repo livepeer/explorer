@@ -371,7 +371,7 @@ export const getHint = (id, transcoders) => {
   );
 
   // if transcoder is not in active set return
-  if (index < 0) {
+  if (index < 0 || transcoders.length < 2) {
     return hint;
   } else if (index === 0) {
     // if transcoder is the first in the active set, only set posNex
