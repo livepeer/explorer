@@ -204,7 +204,7 @@ export const CHAIN_INFO = {
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",
-    explorerAPI: "https://testnet.arbiscan.io/api",
+    explorerAPI: "https://api-testnet.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum Rinkeby",
     logoUrl: arbitrumLogoUrl,
