@@ -17,13 +17,7 @@ import {
 } from "@radix-ui/react-icons";
 import Spinner from "@components/Spinner";
 
-function DataTable({
-  heading = null,
-  data,
-  columns,
-  initialState = {},
-  loading = false,
-}) {
+function DataTable({ heading = null, data, columns, initialState = {} }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -39,7 +33,7 @@ function DataTable({
   }: any = useTable(
     {
       columns,
-      data: data ? data : [],
+      data,
       initialState,
     },
     useSortBy,
@@ -60,140 +54,134 @@ function DataTable({
           borderRadius: "$4",
         }}
       >
-        {loading ? (
-          <Flex align="center" justify="center" css={{ p: "$6" }}>
-            <Spinner />
-          </Flex>
-        ) : (
-          <>
-            <Box
+        <>
+          <Box
+            css={{
+              overflowY: "scroll",
+            }}
+          >
+            <Table
+              {...getTableProps()}
               css={{
-                overflowY: "scroll",
+                borderCollapse: "collapse",
+                tableLayout: "auto",
+                minWidth: 980,
+                width: "100%",
+                "@bp4": {
+                  width: "100%",
+                },
               }}
             >
-              <Table
-                {...getTableProps()}
-                css={{
-                  borderCollapse: "collapse",
-                  tableLayout: "auto",
-                  minWidth: 980,
-                  width: "100%",
-                  "@bp4": {
-                    width: "100%",
-                  },
-                }}
-              >
-                <Thead>
-                  {headerGroups.map((headerGroup, i) => (
-                    <Tr key={i} {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map((column: any, i) => (
-                        <Th
-                          key={i}
-                          {...column.getHeaderProps(
-                            column.getSortByToggleProps({ title: undefined })
-                          )}
+              <Thead>
+                {headerGroups.map((headerGroup, i) => (
+                  <Tr key={i} {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map((column: any, i) => (
+                      <Th
+                        key={i}
+                        {...column.getHeaderProps(
+                          column.getSortByToggleProps({ title: undefined })
+                        )}
+                        css={{
+                          px: i === 0 ? "$5" : 0,
+                          width: i === 0 ? "40px" : "auto",
+                        }}
+                      >
+                        <Box
                           css={{
-                            px: i === 0 ? "$5" : 0,
-                            width: i === 0 ? "40px" : "auto",
+                            fontSize: 11,
+                            color: "$neutral10",
+                            display: "flex",
+                            pt: "$2",
+                            alignItems: "center",
+                            textTransform: "uppercase",
+                            fontWeight: 700,
                           }}
                         >
-                          <Box
+                          {column.render("Header")}
+                          <Box css={{ minWidth: 20 }}>
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <ChevronDownIcon />
+                              ) : (
+                                <ChevronUpIcon />
+                              )
+                            ) : (
+                              ""
+                            )}
+                          </Box>
+                        </Box>
+                      </Th>
+                    ))}
+                  </Tr>
+                ))}
+              </Thead>
+              <Tbody {...getTableBodyProps()}>
+                {page.map((row, i) => {
+                  prepareRow(row);
+                  return (
+                    <Tr key={i} {...row.getRowProps()}>
+                      {row.cells.map((cell, i) => {
+                        return (
+                          <Td
+                            key={i}
+                            {...cell.getCellProps()}
                             css={{
-                              fontSize: 11,
-                              color: "$neutral10",
-                              display: "flex",
-                              pt: "$2",
-                              alignItems: "center",
-                              textTransform: "uppercase",
-                              fontWeight: 700,
+                              fontSize: "$3",
+                              fontWeight: 500,
+                              lineHeight: 2,
+                              px: i === 0 ? "$5" : "$1",
+                              width: i === 0 ? "40px" : "auto",
                             }}
                           >
-                            {column.render("Header")}
-                            <Box css={{ minWidth: 20 }}>
-                              {column.isSorted ? (
-                                column.isSortedDesc ? (
-                                  <ChevronDownIcon />
-                                ) : (
-                                  <ChevronUpIcon />
-                                )
-                              ) : (
-                                ""
-                              )}
-                            </Box>
-                          </Box>
-                        </Th>
-                      ))}
+                            {cell.render("Cell")}
+                          </Td>
+                        );
+                      })}
                     </Tr>
-                  ))}
-                </Thead>
-                <Tbody {...getTableBodyProps()}>
-                  {page.map((row, i) => {
-                    prepareRow(row);
-                    return (
-                      <Tr key={i} {...row.getRowProps()}>
-                        {row.cells.map((cell, i) => {
-                          return (
-                            <Td
-                              key={i}
-                              {...cell.getCellProps()}
-                              css={{
-                                fontSize: "$3",
-                                fontWeight: 500,
-                                lineHeight: 2,
-                                px: i === 0 ? "$5" : "$1",
-                                width: i === 0 ? "40px" : "auto",
-                              }}
-                            >
-                              {cell.render("Cell")}
-                            </Td>
-                          );
-                        })}
-                      </Tr>
-                    );
-                  })}
-                </Tbody>
-              </Table>
-            </Box>
-            <Flex
+                  );
+                })}
+              </Tbody>
+            </Table>
+          </Box>
+          <Flex
+            css={{
+              py: "$4",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              as={ArrowLeftIcon}
               css={{
-                py: "$4",
-                alignItems: "center",
-                justifyContent: "center",
+                cursor: "pointer",
+                color: canPreviousPage ? "$primary11" : "$hiContrast",
+                opacity: canPreviousPage ? 1 : 0.5,
               }}
-            >
-              <Box
-                as={ArrowLeftIcon}
-                css={{
-                  cursor: "pointer",
-                  color: canPreviousPage ? "$primary11" : "$hiContrast",
-                  opacity: canPreviousPage ? 1 : 0.5,
-                }}
-                onClick={() => {
-                  if (canPreviousPage) {
-                    previousPage();
-                  }
-                }}
-              />
-              <Box css={{ fontSize: "$2", mx: "$3" }}>
-                Page <Box as="span">{pageIndex + 1}</Box> of{" "}
-                <Box as="span">{pageCount}</Box>
-              </Box>
-              <Box
-                as={ArrowRightIcon}
-                css={{
-                  cursor: "pointer",
-                  color: canNextPage ? "$primary11" : "$hiContrast",
-                  opacity: canNextPage ? 1 : 0.5,
-                }}
-                onClick={() => {
-                  if (canNextPage) {
-                    nextPage();
-                  }
-                }}
-              />
-            </Flex>
-          </>
-        )}
+              onClick={() => {
+                if (canPreviousPage) {
+                  previousPage();
+                }
+              }}
+            />
+            <Box css={{ fontSize: "$2", mx: "$3" }}>
+              Page <Box as="span">{pageIndex + 1}</Box> of{" "}
+              <Box as="span">{pageCount}</Box>
+            </Box>
+            <Box
+              as={ArrowRightIcon}
+              css={{
+                cursor: "pointer",
+                color: canNextPage ? "$primary11" : "$hiContrast",
+                opacity: canNextPage ? 1 : 0.5,
+              }}
+              onClick={() => {
+                if (canNextPage) {
+                  nextPage();
+                }
+              }}
+            />
+          </Flex>
+        </>
       </Box>
     </>
   );

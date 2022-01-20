@@ -17,6 +17,7 @@ import { gql, useQuery } from "@apollo/client";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { IS_TESTNET } from "constants/chains";
+import Spinner from "@components/Spinner";
 
 const Panel = ({ children }) => (
   <Flex
@@ -187,11 +188,13 @@ const Home = () => {
                 </Link>
               </Flex>
             </Flex>
-            <OrchestratorList
-              loading={loading}
-              data={data?.transcoders}
-              pageSize={10}
-            />
+            {loading ? (
+              <Flex align="center" justify="center">
+                <Spinner />
+              </Flex>
+            ) : (
+              <OrchestratorList data={data?.transcoders} pageSize={10} />
+            )}
           </Box>
           {/* <Box>
             <Flex

@@ -15,6 +15,7 @@ import { getApollo } from "../apollo";
 import { getOrchestrators } from "api";
 import Link from "next/link";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import Spinner from "@components/Spinner";
 
 const OrchestratorsPage = () => {
   const { data: protocolData } = useQuery(gql`
@@ -63,11 +64,13 @@ const OrchestratorsPage = () => {
             </Link> */}
           </Flex>
           <Box css={{ mb: "$5" }}>
-            <OrchestratorList
-              data={data?.transcoders}
-              pageSize={20}
-              loading={loading}
-            />
+            {loading ? (
+              <Flex align="center" justify="center">
+                <Spinner />
+              </Flex>
+            ) : (
+              <OrchestratorList data={data?.transcoders} pageSize={20} />
+            )}
           </Box>
         </Flex>
       </Container>
