@@ -188,7 +188,8 @@ const Home = () => {
               </Flex>
             </Flex>
             <OrchestratorList
-              data={loading ? [] : data?.transcoders}
+              loading={loading}
+              data={data?.transcoders}
               pageSize={10}
             />
           </Box>

@@ -27,7 +27,7 @@ const OrchestratorsPage = () => {
     }
   `);
   const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
-  const { data } = useQuery(query);
+  const { data, loading } = useQuery(query);
   return (
     <>
       <Head>
@@ -63,7 +63,11 @@ const OrchestratorsPage = () => {
             </Link> */}
           </Flex>
           <Box css={{ mb: "$5" }}>
-            <OrchestratorList data={data.transcoders} pageSize={20} />
+            <OrchestratorList
+              data={data?.transcoders}
+              pageSize={20}
+              loading={loading}
+            />
           </Box>
         </Flex>
       </Container>

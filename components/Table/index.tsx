@@ -17,7 +17,13 @@ import {
 } from "@radix-ui/react-icons";
 import Spinner from "@components/Spinner";
 
-function DataTable({ heading = null, data, columns, initialState = {} }) {
+function DataTable({
+  heading = null,
+  data,
+  columns,
+  initialState = {},
+  loading = false,
+}) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -33,7 +39,7 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
   }: any = useTable(
     {
       columns,
-      data,
+      data: data ? data : [],
       initialState,
     },
     useSortBy,
@@ -54,7 +60,7 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
           borderRadius: "$4",
         }}
       >
-        {!data.length ? (
+        {loading ? (
           <Flex align="center" justify="center" css={{ p: "$6" }}>
             <Spinner />
           </Flex>

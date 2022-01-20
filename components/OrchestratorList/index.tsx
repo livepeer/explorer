@@ -5,7 +5,8 @@ import Table from "@components/Table";
 import { roundToTwo, textTruncate } from "@lib/utils";
 import QRCode from "qrcode.react";
 
-const OrchestratorList = ({ data, pageSize = 10 }) => {
+const OrchestratorList = ({ data, pageSize = 10, loading = false }) => {
+  console.log(data);
   const columns = useMemo(
     () => [
       {
@@ -165,6 +166,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
   );
   return (
     <Table
+      loading={loading}
       data={data}
       columns={columns}
       initialState={{
