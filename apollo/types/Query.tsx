@@ -37,6 +37,7 @@ type Query {
   threeBoxSpace(id: ID!): ThreeBoxSpace
   ens(id: ID!): ENS
   block: JSON
+  l1Block: JSON
   getChartData: JSON
 }
 `;

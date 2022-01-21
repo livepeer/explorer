@@ -6,7 +6,6 @@ import { roundToTwo, textTruncate } from "@lib/utils";
 import QRCode from "qrcode.react";
 
 const OrchestratorList = ({ data, pageSize = 10 }) => {
-  console.log(data);
   const columns = useMemo(
     () => [
       {

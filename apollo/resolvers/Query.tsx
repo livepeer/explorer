@@ -18,7 +18,10 @@ import {
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
   IS_TESTNET,
+  l1Provider,
+  L1_CHAIN_ID,
 } from "constants/chains";
+import LivepeerSDK from "@livepeer/sdk";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -138,6 +141,17 @@ export async function threeBoxSpace(_obj, _args, _ctx, _info) {
 
 export async function block(_obj, _args, _ctx, _info) {
   const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock("latest");
+  return {
+    number: blockNumber,
+  };
+}
+
+export async function l1Block(_obj, _args, _ctx, _info) {
+  const sdk = await LivepeerSDK({
+    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
+    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
+  });
+  const { number: blockNumber } = await sdk.rpc.getBlock("latest");
   return {
     number: blockNumber,
   };
