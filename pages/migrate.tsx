@@ -253,9 +253,9 @@ const Migrate = () => {
 
       // calculating estimated gas for the tx
       const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-        context.account,
-        ethers.utils.parseEther("0.05"),
-        context.account,
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        ethers.utils.parseEther("0.01"),
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
         0,
         maxSubmissionPrice,
         context.account,
@@ -278,8 +278,8 @@ const Migrate = () => {
       const signer = l1Migrator.connect(context.library.getSigner());
 
       const tx1 = await signer.migrateDelegator(
-        context.account,
-        context.account,
+        validSignerAddress ? validSignerAddress : context.account,
+        validSignerAddress ? validSignerAddress : context.account,
         signature ? signature : "0x",
         maxGas,
         gasPriceBid,
@@ -336,6 +336,8 @@ const Migrate = () => {
         disclaimer: null,
       });
     } catch (e) {
+      console.log(e);
+      // TODO: show error dialog and prompt user to try again or reach out to confluence-support channel
       handleReset();
     }
   };
