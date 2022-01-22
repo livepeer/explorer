@@ -69,7 +69,7 @@ const Index = () => {
   } = useQuery(
     gql`
       {
-        block
+        l1Block
       }
     `,
     {
@@ -98,7 +98,7 @@ const Index = () => {
   }
 
   let currentRoundNumber = getCurrentRound({
-    blockNum: blockData.block.number,
+    blockNum: blockData.l1Block.number,
     lastRoundLengthUpdateStartBlock:
       protocolData.protocol.lastRoundLengthUpdateStartBlock,
     lastRoundLengthUpdateRound:
@@ -110,11 +110,12 @@ const Index = () => {
     +protocolData.protocol.lastInitializedRound?.id === currentRoundNumber;
   const blocksRemaining = initialized
     ? +protocolData.protocol.roundLength -
-      (+blockData.block.number - +protocolData.protocol.currentRound.startBlock)
+      (+blockData.l1Block.number -
+        +protocolData.protocol.currentRound.startBlock)
     : 0;
   const timeRemaining = BLOCK_TIME * blocksRemaining;
   const blocksSinceCurrentRoundStart = initialized
-    ? +blockData.block.number - +protocolData.protocol.currentRound.startBlock
+    ? +blockData.l1Block.number - +protocolData.protocol.currentRound.startBlock
     : 0;
   const percentage =
     (blocksSinceCurrentRoundStart / +protocolData.protocol.roundLength) * 100;
@@ -275,7 +276,7 @@ const Index = () => {
             begins.
           </Box>
         </Flex>
-        {/* {!initialized && (
+        {!initialized && (
           <Button
             size="4"
             variant="primary"
@@ -290,7 +291,7 @@ const Index = () => {
           >
             Initialize Round
           </Button>
-        )} */}
+        )}
       </DialogContent>
     </Dialog>
   );
