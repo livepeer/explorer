@@ -95,24 +95,30 @@ const NetworkDialog = () => {
             </Button>
           )}
         </Box>
-        <Text
-          variant="neutral"
-          size="2"
-          css={{
-            textAlign: "center",
-            borderTop: "1px dashed $neutral5",
-            pt: "$3",
-            pb: "$4",
-            px: "$3",
-          }}
-        >
-          Do you operate an orchestrator? Migrate your delegated stake using the{" "}
-          <Link href="/migrate" passHref>
-            <A variant="primary" css={{ display: "inline-flex", ai: "center" }}>
-              L2 migration tool <ArrowRightIcon />
-            </A>
-          </Link>
-        </Text>
+        {IS_L2 && (
+          <Text
+            variant="neutral"
+            size="2"
+            css={{
+              textAlign: "center",
+              borderTop: "1px dashed $neutral5",
+              pt: "$3",
+              pb: "$4",
+              px: "$3",
+            }}
+          >
+            Do you operate an orchestrator? Migrate your delegated stake to{" "}
+            {CHAIN_INFO[targetChain].label} using the{" "}
+            <Link href="/migrate" passHref>
+              <A
+                variant="primary"
+                css={{ display: "inline-flex", ai: "center" }}
+              >
+                L2 migration tool <ArrowRightIcon />
+              </A>
+            </Link>
+          </Text>
+        )}
       </DialogContent>
     </Dialog>
   );
