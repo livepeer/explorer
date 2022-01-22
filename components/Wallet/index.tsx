@@ -90,7 +90,16 @@ const Wallet = () => {
           ai: "center",
         }}
       >
-        <Box css={{ px: "$2" }}>{balance} ETH</Box>
+        <Box
+          css={{
+            px: "$2",
+            fontSize: "$2",
+            display: "none",
+            "@bp2": { fontSize: "$3", display: "block" },
+          }}
+        >
+          {balance} ETH
+        </Box>
         <Link href={`/accounts/${account}/delegating`} passHref>
           <Button
             as={A}
@@ -101,8 +110,13 @@ const Wallet = () => {
               height: 35,
               px: "$2",
               py: "$1",
+              fontSize: "$2",
+              color: "$hiContrast",
               "&:hover": {
                 textDecoration: "none",
+              },
+              "@bp2": {
+                fontSize: "$3",
               },
             }}
           >

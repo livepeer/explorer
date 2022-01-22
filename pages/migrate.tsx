@@ -9,6 +9,7 @@ import {
   Button,
   TextField,
   Link as A,
+  useSnackbar,
 } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
 import { useEffect, useState } from "react";
@@ -79,11 +80,12 @@ const Migrate = () => {
   }, [router]);
 
   const context = useWeb3React();
+  const [openSnackbar] = useSnackbar();
   const [activeStep, setActiveStep] = useState(0);
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [validSignerAddress, setValidSignerAddress] = useState(undefined);
   const [migrationCallData, setMigrationCallData] = useState(undefined);
-  const { register, watch } = useForm();
+  const { register, watch, reset } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
   const time = new Date();
@@ -215,7 +217,8 @@ const Migrate = () => {
     const time = new Date();
     time.setSeconds(time.getSeconds() + 600);
     restart(time, false); // restart timer
-
+    reset();
+    setActiveStep(0);
     setMigrationViewState({
       ...migrationViewState,
       step: 1,
@@ -336,8 +339,7 @@ const Migrate = () => {
         disclaimer: null,
       });
     } catch (e) {
-      console.log(e);
-      // TODO: show error dialog and prompt user to try again or reach out to confluence-support channel
+      openSnackbar(e.message);
       handleReset();
     }
   };

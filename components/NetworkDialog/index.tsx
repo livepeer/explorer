@@ -7,10 +7,18 @@ import {
   Text,
   Heading,
   Button,
+  Link as A,
 } from "@livepeer/design-system";
 import { useWeb3React } from "@web3-react/core";
-import { DEFAULT_CHAIN_ID, CHAIN_INFO, L1_CHAIN_ID } from "constants/chains";
+import {
+  DEFAULT_CHAIN_ID,
+  CHAIN_INFO,
+  L1_CHAIN_ID,
+  IS_L2,
+} from "constants/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { ArrowRightIcon } from "@modulz/radix-icons";
 
 const NetworkDialog = () => {
   const { chainId, error, library } = useWeb3React();
@@ -18,11 +26,23 @@ const NetworkDialog = () => {
   const isMetamask = library?.connection?.url === "metamask";
 
   let targetChain = DEFAULT_CHAIN_ID;
-  let title = "Unsupported Network Detected";
+  let title = CHAIN_INFO[chainId]?.label
+    ? `You are connected to ${CHAIN_INFO[chainId]?.label}`
+    : "Unsupported network";
+
   let subtitle = (
-    <Box>
-      To use the Explorer, please switch your network to{" "}
-      {CHAIN_INFO[targetChain].label}
+    <Box css={{ textAlign: "center" }}>
+      {IS_L2 ? (
+        <Text size="4" variant="neutral">
+          Livepeer has added support for {CHAIN_INFO[targetChain].label}. To use
+          the Explorer, please switch your network.
+        </Text>
+      ) : (
+        <Text>
+          Switch your network to {CHAIN_INFO[targetChain].label} to use the
+          Explorer.
+        </Text>
+      )}
     </Box>
   );
   if (route === "/migrate") {
@@ -75,6 +95,24 @@ const NetworkDialog = () => {
             </Button>
           )}
         </Box>
+        <Text
+          variant="neutral"
+          size="2"
+          css={{
+            textAlign: "center",
+            borderTop: "1px dashed $neutral5",
+            pt: "$3",
+            pb: "$4",
+            px: "$3",
+          }}
+        >
+          Do you operate an orchestrator? Migrate your delegated stake using the{" "}
+          <Link href="/migrate" passHref>
+            <A variant="primary" css={{ display: "inline-flex", ai: "center" }}>
+              L2 migration tool <ArrowRightIcon />
+            </A>
+          </Link>
+        </Text>
       </DialogContent>
     </Dialog>
   );

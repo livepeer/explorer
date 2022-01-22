@@ -98,6 +98,11 @@ export const L2_CHAIN_IDS = [
   SupportedChainId.ARBITRUM_RINKEBY,
 ] as const;
 
+export const L1_CHAIN_IDS = [
+  SupportedChainId.MAINNET,
+  SupportedChainId.RINKEBY,
+] as const;
+
 export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
 
 export const TESTNET_CHAIN_IDS = [
@@ -111,6 +116,7 @@ export const DEFAULT_CHAIN_ID =
 export const IS_TESTNET = TESTNET_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
 
 export const IS_L2 = L2_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
+export const IS_L1 = L1_CHAIN_IDS.includes(DEFAULT_CHAIN_ID);
 
 /**
  * Array of all the supported chain IDs

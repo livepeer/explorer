@@ -31,7 +31,7 @@ const Index = () => {
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];
   const isVisible = usePageVisibility();
-  const pollInterval = 60000;
+  const pollInterval = 30000;
   const {
     data: protocolData,
     loading: protocolDataloading,
@@ -276,7 +276,7 @@ const Index = () => {
             begins.
           </Box>
         </Flex>
-        {!initialized && (
+        {/* {!initialized && (
           <Button
             size="4"
             variant="primary"
@@ -291,7 +291,7 @@ const Index = () => {
           >
             Initialize Round
           </Button>
-        )}
+        )} */}
       </DialogContent>
     </Dialog>
   );

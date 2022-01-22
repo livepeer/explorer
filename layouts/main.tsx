@@ -38,6 +38,8 @@ import Wallet from "@components/Wallet";
 import NetworkDialog from "@components/NetworkDialog";
 import Hamburger from "@components/Hamburger";
 import { isL2ChainId } from "@lib/chains";
+import Image from "next/image";
+import { useWeb3React } from "@web3-react/core";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -79,6 +81,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     `
   );
   const mutations = useMutations();
+  const { chainId } = useWeb3React();
   const { data: transactionsData } = useQuery(transactionsQuery);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
@@ -363,6 +366,43 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             }}
                           />
                           <Flex css={{ ml: "auto" }}>
+                            <Flex
+                              align="center"
+                              css={{
+                                fontWeight: 600,
+                                borderRadius: "$4",
+                                px: "$2",
+                                fontSize: "$2",
+                                border: "1px solid $neutral5",
+                                height: 35,
+                                bc: "$neutral3",
+                                ai: "center",
+                                mr: "$2",
+                              }}
+                            >
+                              <Image
+                                objectFit="contain"
+                                width={18}
+                                height={18}
+                                alt={
+                                  CHAIN_INFO[
+                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                  ].label
+                                }
+                                src={
+                                  CHAIN_INFO[
+                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                  ].logoUrl
+                                }
+                              />
+                              <Box css={{ ml: "8px" }}>
+                                {
+                                  CHAIN_INFO[
+                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                  ].label
+                                }
+                              </Box>
+                            </Flex>
                             <Wallet />
                           </Flex>
                         </Flex>
@@ -378,7 +418,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       <Box css={{ width: "100%" }}>
                         {pathname !== "/migrate" &&
                           isL2ChainId(DEFAULT_CHAIN_ID) && (
-                            <Container size="3" css={{ mb: "$7" }}>
+                            <Container size="3" css={{ mb: "$5" }}>
                               <Claim />
                             </Container>
                           )}
