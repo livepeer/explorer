@@ -95,7 +95,7 @@ const NetworkDialog = () => {
             </Button>
           )}
         </Box>
-        {IS_L2 && (
+        {IS_L2 && route !== "/migrate" && (
           <Text
             variant="neutral"
             size="2"
