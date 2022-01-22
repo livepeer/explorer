@@ -81,6 +81,7 @@ const Migrate = () => {
 
   const context = useWeb3React();
   const [openSnackbar] = useSnackbar();
+  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [validSignerAddress, setValidSignerAddress] = useState(undefined);
@@ -106,6 +107,13 @@ const Migrate = () => {
     loading: false,
     image: "/img/arbitrum.svg",
   });
+
+  // Hack to get around flash of unstyled wallet connect
+  useEffect(() => {
+    setTimeout(() => {
+      setRender(true);
+    }, 1300);
+  }, []);
 
   // Update estimation timer
   useEffect(() => {
@@ -231,6 +239,20 @@ const Migrate = () => {
         "Note: It will take 10 minutes for you to see your stake and fee balances credited on Arbitrum once you initiate the migration.",
     });
   };
+
+  useEffect(() => {
+    setMigrationViewState({
+      step: 5,
+      title: "Migration Complete",
+      subtitle: "Your stake and fees have been migrated to Arbitrum.",
+      loading: false,
+      mainnetTransactionHash: "0x",
+      arbitrumTransactionHash: "0x",
+      image: "/img/arbitrum.svg",
+      showNetworkSwitcher: true,
+      disclaimer: null,
+    });
+  }, []);
 
   const onApprove = async () => {
     try {
@@ -420,9 +442,9 @@ const Migrate = () => {
         return (
           <Box>
             <Text css={{ mb: "$3" }}>
-              Run the Livepeer CLI and select the option to &quot;Sign a
-              message&quot;. When prompted for a message to sign, copy and paste
-              the following message.
+              Run the Livepeer CLI and select the option to &quot;Sign typed
+              data&quot;. When prompted for the typed data message to sign, copy
+              and paste the following message.
             </Text>
 
             <CodeBlock
@@ -502,6 +524,18 @@ const Migrate = () => {
         return "Unknown step";
     }
   };
+
+  if (!render) {
+    return (
+      <Flex
+        align="center"
+        justify="center"
+        css={{ height: "calc(100vh - 61px)" }}
+      >
+        <Spinner />
+      </Flex>
+    );
+  }
 
   return (
     <Container
