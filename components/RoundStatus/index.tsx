@@ -117,6 +117,7 @@ const Index = () => {
   const blocksSinceCurrentRoundStart = initialized
     ? +blockData.l1Block.number - +protocolData.protocol.currentRound.startBlock
     : 0;
+
   const percentage =
     (blocksSinceCurrentRoundStart / +protocolData.protocol.roundLength) * 100;
 
@@ -200,81 +201,92 @@ const Index = () => {
         </DialogTitle>
         <Flex
           css={{
-            pb: "$4",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <Box
-            css={{
-              width: 160,
-              minWidth: 160,
-              height: 160,
-              minHeight: 160,
-              mr: "$4",
-              display: "none",
-              "@bp3": {
-                display: "block",
-              },
-            }}
-          >
-            <Box
-              as={CircularProgressbar}
-              strokeWidth={10}
-              styles={buildStyles({
-                strokeLinecap: "butt",
-                pathColor: theme.colors.primary11,
-                textColor: theme.colors.black,
-                trailColor: theme.colors.neutral7,
-              })}
-              value={Math.round(percentage)}
+          {initialized ? (
+            <Flex
+              css={{
+                pb: "$2",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
-              <Box css={{ textAlign: "center" }}>
-                <Box css={{ fontWeight: "bold", fontSize: "$5" }}>
-                  {blocksSinceCurrentRoundStart}
-                </Box>
-                <Box css={{ fontSize: "$1" }}>
-                  of {protocolData.protocol.roundLength} blocks
+              <Box
+                css={{
+                  width: 160,
+                  minWidth: 160,
+                  height: 160,
+                  minHeight: 160,
+                  mr: "$4",
+                  display: "none",
+                  "@bp3": {
+                    display: "block",
+                  },
+                }}
+              >
+                <Box
+                  as={CircularProgressbar}
+                  strokeWidth={10}
+                  styles={buildStyles({
+                    strokeLinecap: "butt",
+                    pathColor: theme.colors.primary11,
+                    textColor: theme.colors.black,
+                    trailColor: theme.colors.neutral7,
+                  })}
+                  value={Math.round(percentage)}
+                >
+                  <Box css={{ textAlign: "center" }}>
+                    <Box css={{ fontWeight: "bold", fontSize: "$5" }}>
+                      {blocksSinceCurrentRoundStart}
+                    </Box>
+                    <Box css={{ fontSize: "$1" }}>
+                      of {protocolData.protocol.roundLength} blocks
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </Box>
-          <Box css={{ lineHeight: 1.5 }}>
-            There are{" "}
-            <Box
-              as="span"
-              css={{
-                fontWeight: "bold",
-                borderBottom: "1px dashed",
-                borderColor: "$text",
-              }}
-            >
-              {blocksRemaining} blocks
-            </Box>{" "}
-            and approximately{" "}
-            <Box
-              as="span"
-              css={{
-                fontWeight: "bold",
-                borderBottom: "1px dashed",
-                borderColor: "$text",
-              }}
-            >
-              {moment().add(timeRemaining, "seconds").fromNow(true)}
-            </Box>{" "}
-            remaining until the current round ends and round{" "}
-            <Box
-              as="span"
-              css={{
-                fontWeight: "bold",
-                borderBottom: "1px dashed",
-                borderColor: "$text",
-              }}
-            >
-              #{currentRoundNumber + 1}
-            </Box>{" "}
-            begins.
-          </Box>
+              <Box css={{ lineHeight: 1.5 }}>
+                There are{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                    borderBottom: "1px dashed",
+                    borderColor: "$text",
+                  }}
+                >
+                  {blocksRemaining} blocks
+                </Box>{" "}
+                and approximately{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                    borderBottom: "1px dashed",
+                    borderColor: "$text",
+                  }}
+                >
+                  {moment().add(timeRemaining, "seconds").fromNow(true)}
+                </Box>{" "}
+                remaining until the current round ends and round{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                    borderBottom: "1px dashed",
+                    borderColor: "$text",
+                  }}
+                >
+                  #{currentRoundNumber + 1}
+                </Box>{" "}
+                begins.
+              </Box>
+            </Flex>
+          ) : (
+            <Box>The current round has not yet been initialized.</Box>
+          )}
         </Flex>
         {/* {!initialized && (
           <Button
