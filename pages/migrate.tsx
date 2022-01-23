@@ -240,20 +240,6 @@ const Migrate = () => {
     });
   };
 
-  useEffect(() => {
-    setMigrationViewState({
-      step: 5,
-      title: "Migration Complete",
-      subtitle: "Your stake and fees have been migrated to Arbitrum.",
-      loading: false,
-      mainnetTransactionHash: "0x",
-      arbitrumTransactionHash: "0x",
-      image: "/img/arbitrum.svg",
-      showNetworkSwitcher: true,
-      disclaimer: null,
-    });
-  }, []);
-
   const onApprove = async () => {
     try {
       setMigrationViewState({
