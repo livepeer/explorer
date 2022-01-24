@@ -1,5 +1,6 @@
 export const stepperStyles = {
   mb: "$5",
+  textAlign: "left",
   ".MuiPaper-root": {
     backgroundColor: "$inherit",
     color: "$hiContrast",

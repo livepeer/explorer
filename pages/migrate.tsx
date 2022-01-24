@@ -12,7 +12,7 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import Spinner from "@components/Spinner";
 import { useWeb3React } from "@web3-react/core";
 import WalletModal from "@components/WalletModal";
@@ -33,25 +33,13 @@ import {
 } from "constants/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import LivepeerSDK from "@livepeer/sdk";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useTimer } from "react-timer-hook";
 import { stepperStyles } from "../utils/stepperStyles";
 import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
-
-type MigrationState = {
-  step: number;
-  title: string;
-  subtitle: string;
-  loading: boolean;
-  isOrchestrator?: boolean;
-  mainnetTransactionHash?: string;
-  arbitrumTransactionHash?: string;
-  image?: string;
-  showNetworkSwitcher?: boolean;
-  disclaimer?: string;
-};
+import Link from "next/link";
 
 const isRegisteredOrchestrator = async (account) => {
   const sdk = await LivepeerSDK({
@@ -69,8 +57,140 @@ const signingSteps = [
   "Approve migration",
 ];
 
+const initialState = {
+  title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+  stage: "connectWallet",
+  body: (
+    <Text variant="neutral" css={{ mb: "$5" }}>
+      This tool will safely migrate your orchestrator&apos;s stake and fees to{" "}
+      {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+    </Text>
+  ),
+  receipts: null,
+  cta: (
+    <WalletModal
+      trigger={
+        <Button variant="primary" size="4" css={{ width: "100%" }}>
+          Connect Wallet
+        </Button>
+      }
+    />
+  ),
+  image: "/img/arbitrum.svg",
+  loading: false,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "initialize":
+      return {
+        ...state,
+        stage: "initialize",
+        title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+        image: false,
+        loading: false,
+        receipts: null,
+        body: (
+          <Text variant="neutral" css={{ mb: "$5" }}>
+            This tool will safely migrate your orchestrator&apos;s stake and
+            fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+          </Text>
+        ),
+        ...action.payload,
+      };
+    case "initiate":
+      return {
+        ...state,
+        stage: "initiate",
+        loading: true,
+        title: "Initiate Migration",
+        body: (
+          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+            Confirm the transaction in your wallet.
+          </Text>
+        ),
+        cta: false,
+        footnote: `Note: This migration will take about 10 minutes before it's considered final on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
+        ...action.payload,
+      };
+    case "starting":
+      return {
+        ...state,
+        stage: "starting",
+        title: "Starting Migration",
+        body: (
+          <Box css={{ mb: "$4" }}>
+            <Text css={{ display: "block", color: "$neutral11", mb: "$4" }}>
+              Confirming on {CHAIN_INFO[L1_CHAIN_ID].label}
+            </Text>
+          </Box>
+        ),
+        ...action.payload,
+      };
+    case "enRoute":
+      return {
+        ...state,
+        stage: "enRoute",
+        title: `En route to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+        ...action.payload,
+      };
+    case "complete":
+      return {
+        ...state,
+        stage: "complete",
+        title: "Migration Complete",
+        image: "/img/arbitrum.svg",
+        body: (
+          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+            Your stake and fees have been migrated to{" "}
+            {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+          </Text>
+        ),
+        loading: false,
+        footnote: false,
+        ...action.payload,
+      };
+    case "inactive":
+      return {
+        ...state,
+        ...initialState,
+      };
+    case "updateSigner":
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case "reset":
+      return {
+        ...state,
+        stage: "initialize",
+        title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+        image: false,
+        loading: false,
+        receipts: null,
+        body: (
+          <Text variant="neutral" css={{ mb: "$5" }}>
+            This tool will safely migrate your orchestrator&apos;s stake and
+            fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+          </Text>
+        ),
+        ...action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
 const Migrate = () => {
   const router = useRouter();
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Hack to get around flash of unstyled wallet connect
+  useEffect(() => {
+    setTimeout(() => {
+      setRender(true);
+    }, 1500);
+  }, []);
 
   // Redirect if not on an L2
   useEffect(() => {
@@ -83,9 +203,6 @@ const Migrate = () => {
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [migrationParams, setMigrationParams] = useState(undefined);
-  const [validSignerAddress, setValidSignerAddress] = useState(undefined);
-  const [migrationCallData, setMigrationCallData] = useState(undefined);
   const { register, watch, reset } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
@@ -98,120 +215,101 @@ const Migrate = () => {
     onExpire: () => console.warn("onExpire called"),
   });
 
-  const [migrationViewState, setMigrationViewState] = useState<
-    MigrationState | undefined
-  >({
-    step: 0,
-    title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-    subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
-    loading: false,
-    image: "/img/arbitrum.svg",
-  });
-
-  // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
-    setTimeout(() => {
-      setRender(true);
-    }, 1300);
-  }, []);
-
-  // Update estimation timer
-  useEffect(() => {
-    if (migrationViewState.step === 4) {
-      setMigrationViewState((m) => ({
-        ...m,
-        subtitle: `Estimated time remaining: ${minutes}:${seconds
-          .toString()
-          .padStart(2, "0")}`,
-      }));
+    if (!context.active) {
+      dispatch({ type: "inactive" });
     }
-  }, [migrationViewState.step, minutes, seconds]);
+  }, [context.active]);
 
+  // update timer
   useEffect(() => {
-    const init = async () => {
-      if (isValidAddress(signerAddress)) {
-        const isOrchestrator = isRegisteredOrchestrator(
-          isValidAddress(signerAddress)
-        );
-        if (isOrchestrator) {
-          setValidSignerAddress(isValidAddress(signerAddress));
-        } else {
-          setValidSignerAddress(null);
-        }
-      } else {
-        setValidSignerAddress(null);
-      }
-    };
-    init();
-  }, [signerAddress, context.chainId]);
+    if (state.stage === "enRoute") {
+      dispatch({
+        type: "enRoute",
+        payload: {
+          body: (
+            <Box css={{ mb: "$4" }}>
+              <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+                Estimated time remaining: {minutes}:
+                {seconds.toString().padStart(2, "0")}
+              </Text>
+            </Box>
+          ),
+        },
+      });
+    }
+  }, [state.stage, minutes, seconds]);
 
   useEffect(() => {
     const init = async () => {
       if (context.account) {
+        const isOrchestrator = await isRegisteredOrchestrator(context.account);
         // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
-          validSignerAddress ? validSignerAddress : context.account,
-          validSignerAddress ? validSignerAddress : context.account
+          state.signer ? state.signer : context.account,
+          state.signer ? state.signer : context.account
         );
 
-        setMigrationCallData(data);
-
-        setMigrationParams({
-          delegate: params.delegate,
-          delegatedStake: params.delegatedStake,
-          stake: params.stake,
-          fees: params.fees,
-          l1Addr: params.l1Addr,
-          l2Addr: params.l2Addr,
+        dispatch({
+          type: "initialize",
+          payload: {
+            isOrchestrator,
+            migrationCallData: data,
+            migrationParams: {
+              delegate: params.delegate,
+              delegatedStake: params.delegatedStake,
+              stake: params.stake,
+              fees: params.fees,
+              l1Addr: params.l1Addr,
+              l2Addr: params.l2Addr,
+            },
+            cta: isOrchestrator ? (
+              <Button
+                size="4"
+                variant="primary"
+                css={{ mr: "$2", width: "100%" }}
+                onClick={onApprove}
+              >
+                Approve Migration
+              </Button>
+            ) : null,
+          },
         });
       }
     };
     init();
-  }, [validSignerAddress, context.account]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.signer, context.account]);
 
   useEffect(() => {
     const init = async () => {
-      if (!context.account) {
-        // if there's no account, fallback to step 0
-        // which promps wallet connection
-        setMigrationViewState((m) => ({
-          ...m,
-          step: 0,
-          title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-          subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
-          loading: false,
-          image: "/img/arbitrum.svg",
-        }));
-      }
-
-      if (context.account) {
-        // Check if connected account belongs to register orchestrator
-        const isOrchestrator = await isRegisteredOrchestrator(context.account);
-        setMigrationViewState((m) => ({
-          ...m,
-          isOrchestrator,
-        }));
-
-        // Advance to step 1 since wallet is connected
-        if (migrationViewState.step === 0) {
-          setMigrationViewState((m) => ({
-            ...m,
-            step: 1,
-            title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-            subtitle: `This tool will safely migrate your orchestrator's stake and fees to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
-            loading: false,
-            image: null,
-            disclaimer: `Note: It will take 10 minutes for you to see your stake and fee balances credited on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} once you initiate the migration.`,
-          }));
+      if (isValidAddress(signerAddress)) {
+        if (!state.isOrchestrator) {
+          dispatch({
+            type: "updateSigner",
+            payload: {
+              signer: isValidAddress(signerAddress),
+            },
+          });
+        } else {
+          dispatch({
+            type: "updateSigner",
+            payload: {
+              signer: null,
+            },
+          });
         }
+      } else {
+        dispatch({
+          type: "updateSigner",
+          payload: {
+            signer: null,
+          },
+        });
       }
     };
     init();
-  }, [
-    migrationViewState.isOrchestrator,
-    migrationViewState.step,
-    context.account,
-  ]);
+  }, [signerAddress, context.chainId, state.isOrchestrator]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -225,36 +323,35 @@ const Migrate = () => {
     const time = new Date();
     time.setSeconds(time.getSeconds() + 600);
     restart(time, false); // restart timer
-    reset();
-    setActiveStep(0);
-    setMigrationViewState({
-      ...migrationViewState,
-      step: 1,
-      title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-      subtitle:
-        "This tool will safely migrate your orchestrator's stake and fees to Arbitrum Rinkeby.",
-      loading: false,
-      image: null,
-      disclaimer:
-        "Note: It will take 10 minutes for you to see your stake and fee balances credited on Arbitrum once you initiate the migration.",
+    dispatch({
+      type: "reset",
+      payload: {
+        cta: state.isOrchestrator ? (
+          <Button
+            size="4"
+            variant="primary"
+            css={{ mr: "$2", width: "100%" }}
+            onClick={onApprove}
+          >
+            Approve Migration
+          </Button>
+        ) : null,
+      },
     });
   };
 
   const onApprove = async () => {
     try {
-      setMigrationViewState({
-        ...migrationViewState,
-        step: 2,
-        title: "Initiate Migration",
-        subtitle: "Confirm the transaction in your wallet.",
-        loading: true,
+      dispatch({
+        type: "initiate",
       });
+
       const gasPriceBid = await l2Provider.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
       const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-        migrationCallData.length
+        state.migrationCallData.length
       );
 
       // overpaying submission price to account for increase
@@ -273,7 +370,7 @@ const Migrate = () => {
         context.account,
         0,
         gasPriceBid,
-        migrationCallData
+        state.migrationCallData
       );
 
       // overpaying gas just in case
@@ -289,8 +386,8 @@ const Migrate = () => {
       const signer = l1Migrator.connect(context.library.getSigner());
 
       const tx1 = await signer.migrateDelegator(
-        validSignerAddress ? validSignerAddress : context.account,
-        validSignerAddress ? validSignerAddress : context.account,
+        state.signer ? state.signer : context.account,
+        state.signer ? state.signer : context.account,
         signature ? signature : "0x",
         maxGas,
         gasPriceBid,
@@ -299,34 +396,34 @@ const Migrate = () => {
           value: ethValue,
         }
       );
-
-      setMigrationViewState({
-        ...migrationViewState,
-        step: 3,
-        title: "Starting Migration",
-        subtitle: `Confirming on ${CHAIN_INFO[L1_CHAIN_ID].label}`,
-        mainnetTransactionHash: tx1.hash,
-        loading: true,
+      dispatch({
+        type: "starting",
+        payload: {
+          receipts: {
+            l1: tx1.hash,
+          },
+        },
       });
 
       await tx1.wait();
 
+      // start timer
       start();
 
-      setMigrationViewState({
-        ...migrationViewState,
-        step: 4,
-        title: `En route to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
-        subtitle: `Estimated time remaining: ${minutes}:${seconds
-          .toString()
-          .padStart(2, "0")}`,
-        mainnetTransactionHash: tx1.hash,
-        loading: true,
+      dispatch({
+        type: "enRoute",
+        payload: {
+          body: (
+            <Box css={{ mb: "$4" }}>
+              <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+                Estimated time remaining: {minutes}:
+                {seconds.toString().padStart(2, "0")}
+              </Text>
+            </Box>
+          ),
+        },
       });
 
-      // Ticket redemption hash is the one which has the L2 function call
-      // L2 Tx Hash is just aliased L1 address redeeming ticket
-      // users must be shown L2 Ticket Redemption hash
       const tx2 = await waitToRelayTxsToL2(
         waitForTx(tx1),
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
@@ -334,26 +431,63 @@ const Migrate = () => {
         l2Provider
       );
 
-      setMigrationViewState({
-        ...migrationViewState,
-        step: 5,
-        title: "Migration Complete",
-        subtitle: null,
-        loading: false,
-        mainnetTransactionHash: tx1.hash,
-        arbitrumTransactionHash: tx2.transactionHash,
-        image: "/img/arbitrum.svg",
-        showNetworkSwitcher: true,
-        disclaimer: null,
+      dispatch({
+        type: "complete",
+        payload: {
+          receipts: {
+            l1: tx1.hash,
+            l2: tx2.transactionHash,
+          },
+          cta: (
+            <Box css={{ textAlign: "center" }}>
+              <Link
+                href={`/accounts/${
+                  state.signer ? state.signer : context.account
+                }/delegating`}
+                passHref
+              >
+                <Button
+                  as="A"
+                  variant="primary"
+                  size="4"
+                  css={{
+                    display: "inline-flex",
+                    ai: "center",
+                    mt: "$2",
+                    mb: "$2",
+                  }}
+                >
+                  View account on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
+                  <Box as={ArrowRightIcon} css={{ ml: "$2" }} />
+                </Button>
+              </Link>
+            </Box>
+          ),
+          loading: false,
+          footnote: null,
+        },
       });
     } catch (e) {
+      console.log(e);
       openSnackbar(e.message);
       handleReset();
     }
   };
 
-  const getSigningStepContent = (step) => {
-    switch (step) {
+  if (!render) {
+    return (
+      <Flex
+        align="center"
+        justify="center"
+        css={{ height: "calc(100vh - 61px)" }}
+      >
+        <Spinner />
+      </Flex>
+    );
+  }
+
+  const getSigningStepContent = (activeStep) => {
+    switch (activeStep) {
       case 0:
         return (
           <Box>
@@ -363,13 +497,13 @@ const Migrate = () => {
               name="signerAddress"
               placeholder="Ethereum Address"
             />
-            {validSignerAddress && (
+            {state.signer && (
               <MigrationFields
-                migrationParams={migrationParams}
+                migrationParams={state.migrationParams}
                 css={{ mt: "$3", mb: "$5" }}
               />
             )}
-            {validSignerAddress && (
+            {state.signer && (
               <Button
                 onClick={handleNext}
                 size="4"
@@ -382,7 +516,7 @@ const Migrate = () => {
           </Box>
         );
       case 1:
-        if (!validSignerAddress) {
+        if (!state.signer) {
           return;
         }
         const domain = {
@@ -398,8 +532,8 @@ const Migrate = () => {
           ],
         };
         const value = {
-          l1Addr: validSignerAddress,
-          l2Addr: validSignerAddress,
+          l1Addr: state.signer,
+          l2Addr: state.signer,
         };
 
         const payload = ethers.utils._TypedDataEncoder.getPayload(
@@ -423,7 +557,8 @@ const Migrate = () => {
         }
 
         const validSignature =
-          isValidAddress(signer) === isValidAddress(migrationParams.delegate);
+          isValidAddress(signer) ===
+          isValidAddress(state.migrationParams.delegate);
 
         return (
           <Box>
@@ -458,7 +593,7 @@ const Migrate = () => {
               <Text size="1" css={{ mt: "$1", mb: "$1" }}>
                 {validSignature
                   ? "Valid"
-                  : `Invalid. Message must be signed by ${migrationParams.delegate}`}
+                  : `Invalid. Message must be signed by ${state.migrationParams.delegate}`}
               </Text>
             )}
             <Box>
@@ -485,9 +620,9 @@ const Migrate = () => {
             <Text css={{ mb: "$3" }}>
               Approve migration on behalf of your orchestrator.
             </Text>
-            {migrationParams && (
+            {state.migrationParams && (
               <MigrationFields
-                migrationParams={migrationParams}
+                migrationParams={state.migrationParams}
                 css={{ mb: "$5" }}
               />
             )}
@@ -511,18 +646,6 @@ const Migrate = () => {
     }
   };
 
-  if (!render) {
-    return (
-      <Flex
-        align="center"
-        justify="center"
-        css={{ height: "calc(100vh - 61px)" }}
-      >
-        <Spinner />
-      </Flex>
-    );
-  }
-
   return (
     <Container
       size="2"
@@ -544,23 +667,60 @@ const Migrate = () => {
           mb: "$8",
         }}
       >
-        <Box css={{ mb: "$6", maxWidth: 500, mx: "auto", textAlign: "center" }}>
+        <Box css={{ mx: "auto", textAlign: "center" }}>
           <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
-            {migrationViewState.title}
+            {state.title}
           </Heading>
-          {migrationViewState?.subtitle && (
-            <Text css={{ color: "$neutral11" }}>
-              {migrationViewState.subtitle}
-            </Text>
+          {state?.body && <Box>{state.body}</Box>}
+
+          {state.image && (
+            <Box css={{ textAlign: "center", mb: "$5" }}>
+              <Box as="img" src="/img/arbitrum.svg" />
+            </Box>
           )}
+
+          {state.stage === "initialize" && state.isOrchestrator && (
+            <MigrationFields
+              migrationParams={state.migrationParams}
+              css={{ mb: "$5" }}
+            />
+          )}
+
+          <Box
+            css={{
+              display:
+                state.stage === "initialize" && !state.isOrchestrator
+                  ? "block"
+                  : "none",
+            }}
+          >
+            <Box css={stepperStyles}>
+              <Stepper activeStep={activeStep} orientation="vertical">
+                {signingSteps.map((step, index) => (
+                  <Step key={`step-${index}`}>
+                    <Box
+                      as={StepLabel}
+                      optional={
+                        index === 2 ? (
+                          <Text variant="neutral" size="1">
+                            Last step
+                          </Text>
+                        ) : null
+                      }
+                    >
+                      {step}
+                    </Box>
+                    <StepContent TransitionProps={{ unmountOnExit: false }}>
+                      {getSigningStepContent(index)}
+                    </StepContent>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>
+          </Box>
         </Box>
 
-        {migrationViewState.image && (
-          <Box css={{ textAlign: "center", mb: "$6" }}>
-            <Box as="img" src={migrationViewState.image} />
-          </Box>
-        )}
-        {migrationViewState.loading && (
+        {state.loading && (
           <Flex css={{ justifyContent: "center", mb: "$7" }}>
             <Spinner
               speed="1.5s"
@@ -573,117 +733,33 @@ const Migrate = () => {
             />
           </Flex>
         )}
-        {migrationViewState.mainnetTransactionHash && (
-          <Box
-            css={{
-              jc: "center",
-              display: "flex",
-              ai: "center",
-              mb: "$3",
-            }}
-          >
-            <Text variant="neutral">Etherscan:</Text>
-            <A
-              css={{ ml: "$2", display: "flex", ai: "center" }}
-              variant="primary"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`${CHAIN_INFO[L1_CHAIN_ID].explorer}tx/${migrationViewState.mainnetTransactionHash}`}
-            >
-              {migrationViewState.mainnetTransactionHash.replace(
-                migrationViewState.mainnetTransactionHash.slice(6, 62),
-                "…"
-              )}
-              <Box as={ArrowTopRightIcon} />
-            </A>
+        {state?.receipts && (
+          <Box css={{ mb: "$4" }}>
+            {state?.receipts?.l1 && (
+              <ReceiptLink
+                label="Etherscan"
+                chainId={L1_CHAIN_ID}
+                hash={state.receipts.l1}
+              />
+            )}
+
+            {state?.receipts?.l2 && (
+              <ReceiptLink
+                label="Arbiscan"
+                chainId={DEFAULT_CHAIN_ID}
+                hash={state.receipts.l2}
+              />
+            )}
           </Box>
         )}
-        {migrationViewState.arbitrumTransactionHash && (
-          <Box
-            css={{
-              display: "flex",
-              jc: "center",
-              ai: "center",
-              mb: "$3",
-            }}
-          >
-            <Text variant="neutral">Arbiscan:</Text>
-            <A
-              css={{ ml: "$2", display: "flex", ai: "center" }}
-              variant="primary"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}/tx/${migrationViewState.arbitrumTransactionHash}`}
-            >
-              {migrationViewState.arbitrumTransactionHash.replace(
-                migrationViewState.arbitrumTransactionHash.slice(6, 62),
-                "…"
-              )}
-              <Box as={ArrowTopRightIcon} />
-            </A>
-          </Box>
-        )}
-        {migrationViewState.step === 1 && !migrationViewState.isOrchestrator && (
-          <Box css={stepperStyles}>
-            <Stepper activeStep={activeStep} orientation="vertical">
-              {signingSteps.map((step, index) => (
-                <Step key={`step-${index}`}>
-                  <Box
-                    as={StepLabel}
-                    optional={
-                      index === 2 ? (
-                        <Text variant="neutral" size="1">
-                          Last step
-                        </Text>
-                      ) : null
-                    }
-                  >
-                    {step}
-                  </Box>
-                  <StepContent TransitionProps={{ unmountOnExit: false }}>
-                    {getSigningStepContent(index)}
-                  </StepContent>
-                </Step>
-              ))}
-            </Stepper>
-          </Box>
-        )}
-        {migrationParams &&
-          migrationViewState.isOrchestrator &&
-          migrationViewState.step !== 5 &&
-          migrationViewState.step !== 0 && (
-            <MigrationFields
-              migrationParams={migrationParams}
-              css={{ mb: "$5" }}
-            />
-          )}
-        {migrationViewState.step === 0 && (
-          <WalletModal
-            trigger={
-              <Button variant="primary" size="4" css={{ width: "100%" }}>
-                Connect Wallet
-              </Button>
-            }
-          />
-        )}
-        {migrationViewState.step === 1 && migrationViewState.isOrchestrator && (
-          <Button
-            variant="primary"
-            size="4"
-            css={{ width: "100%" }}
-            onClick={onApprove}
-          >
-            Approve Migration
-          </Button>
-        )}
-        {migrationViewState.disclaimer && (
+        {state.cta}
+        {state.footnote && (
           <Text
             size="1"
             variant="neutral"
             css={{ mt: "$3", textAlign: "center" }}
           >
-            Note: This migration will take about 10 minutes before it&apos;s
-            considered final on Arbitrum.
+            {state.footnote}
           </Text>
         )}
       </Card>
@@ -697,7 +773,6 @@ function MigrationFields({ migrationParams, css = {} }) {
     backgroundColor: "$neutral3",
     border: "1px solid $neutral6",
     borderRadius: "$3",
-    color: "$netural5",
     justifyContent: "space-between",
     alignItems: "center",
     p: "$3",
@@ -737,3 +812,27 @@ function MigrationFields({ migrationParams, css = {} }) {
 Migrate.getLayout = getLayout;
 
 export default Migrate;
+
+function ReceiptLink({ label, hash, chainId }) {
+  return (
+    <Box
+      css={{
+        jc: "center",
+        display: "flex",
+        ai: "center",
+      }}
+    >
+      <Text variant="neutral">{label}:</Text>
+      <A
+        css={{ ml: "$2", display: "flex", ai: "center" }}
+        variant="primary"
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`${CHAIN_INFO[chainId].explorer}tx/${hash}`}
+      >
+        {hash.replace(hash.slice(6, 62), "…")}
+        <Box as={ArrowTopRightIcon} />
+      </A>
+    </Box>
+  );
+}
