@@ -78,7 +78,7 @@ const Claim = () => {
             fontWeight: 600,
           }}
         >
-          Claim stake & fees on Arbitrum
+          Claim stake & fees on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
         </Box>
         <Text>
           Your migrated stake of
