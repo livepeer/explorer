@@ -39,8 +39,8 @@ const NetworkDialog = () => {
         </Text>
       ) : (
         <Text>
-          Switch the network inside your wallet to{" "}
-          {CHAIN_INFO[targetChain].label} to use the Explorer.
+          To use the Explorer, switch the network inside your wallet to{" "}
+          {CHAIN_INFO[targetChain].label}.
         </Text>
       )}
     </Box>

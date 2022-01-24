@@ -150,7 +150,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Staked with{" "}
+                Delegated with{" "}
                 {event.newDelegate.id.replace(
                   event.newDelegate.id.slice(7, 37),
                   "…"
@@ -329,7 +329,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Unstaked from{" "}
+                Undelegated from{" "}
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
@@ -512,7 +512,7 @@ function renderSwitch(event: any, i: number) {
             }}
           >
             <Box>
-              <Box css={{ fontWeight: 500 }}>Withdrew unstaked tokens</Box>
+              <Box css={{ fontWeight: 500 }}>Withdrew undelegated tokens</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {moment
                   .unix(event.transaction.timestamp)

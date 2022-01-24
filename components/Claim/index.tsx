@@ -1,4 +1,3 @@
-import Stat from "@components/Stat";
 import {
   Box,
   Text,

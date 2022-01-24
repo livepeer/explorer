@@ -136,7 +136,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                   }}
                 >
                   <Box>
-                    Unstaked from{" "}
+                    Undelegated from{" "}
                     {lock.delegate.id.replace(
                       lock.delegate.id.slice(7, 37),
                       "…"
