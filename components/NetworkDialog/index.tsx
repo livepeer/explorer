@@ -35,11 +35,11 @@ const NetworkDialog = () => {
       {IS_L2 ? (
         <Text size="4" variant="neutral">
           Livepeer has added support for {CHAIN_INFO[targetChain].label}. To use
-          the Explorer, switch the network inside your wallet.
+          the Explorer, switch networks inside your wallet.
         </Text>
       ) : (
         <Text>
-          To use the Explorer, switch the network inside your wallet to{" "}
+          To use the Explorer, switch networks inside your wallet to{" "}
           {CHAIN_INFO[targetChain].label}.
         </Text>
       )}
@@ -49,8 +49,8 @@ const NetworkDialog = () => {
     title = `You are connected to ${CHAIN_INFO[chainId]?.label}`;
     subtitle = (
       <Box>
-        Switch the network inside your wallet to {CHAIN_INFO[L1_CHAIN_ID].label}{" "}
-        to proceed with migrating your stake and fees.
+        Switch networks inside your wallet to {CHAIN_INFO[L1_CHAIN_ID].label} to
+        proceed with migrating your stake and fees.
       </Box>
     );
     targetChain = L1_CHAIN_ID;
@@ -103,7 +103,7 @@ const NetworkDialog = () => {
             size="4"
             css={{ mt: "$2", width: "100%" }}
           >
-            Cancel
+            Dismiss
           </Button>
         </Box>
         {IS_L2 && route !== "/migrate" && (
