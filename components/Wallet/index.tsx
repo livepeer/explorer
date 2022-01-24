@@ -229,7 +229,7 @@ const Wallet = () => {
               }}
               onClick={() => deactivate()}
             >
-              Logout
+              Disconnect
             </Box>
           </Flex>
         </PopoverContent>

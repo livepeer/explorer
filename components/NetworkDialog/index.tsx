@@ -21,7 +21,7 @@ import { useRouter } from "next/router";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 
 const NetworkDialog = () => {
-  const { chainId, error, library } = useWeb3React();
+  const { chainId, error, library, deactivate } = useWeb3React();
   const { route } = useRouter();
   const isMetamask = library?.connection?.url === "metamask";
 
@@ -35,22 +35,22 @@ const NetworkDialog = () => {
       {IS_L2 ? (
         <Text size="4" variant="neutral">
           Livepeer has added support for {CHAIN_INFO[targetChain].label}. To use
-          the Explorer, please switch your network.
+          the Explorer, switch the network inside your wallet.
         </Text>
       ) : (
         <Text>
-          Switch your network to {CHAIN_INFO[targetChain].label} to use the
-          Explorer.
+          Switch the network inside your wallet to{" "}
+          {CHAIN_INFO[targetChain].label} to use the Explorer.
         </Text>
       )}
     </Box>
   );
   if (route === "/migrate") {
-    title = "Arbitrum Migration Tool";
+    title = `You are connected to ${CHAIN_INFO[chainId]?.label}`;
     subtitle = (
       <Box>
-        Switch your network to {CHAIN_INFO[L1_CHAIN_ID].label} to proceed with
-        migrating your stake and fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+        Switch the network inside your wallet to {CHAIN_INFO[L1_CHAIN_ID].label}{" "}
+        to proceed with migrating your stake and fees.
       </Box>
     );
     targetChain = L1_CHAIN_ID;
@@ -82,6 +82,7 @@ const NetworkDialog = () => {
           >
             {subtitle}
           </Text>
+
           {isMetamask && (
             <Button
               onClick={() => {
@@ -94,6 +95,16 @@ const NetworkDialog = () => {
               Switch to {CHAIN_INFO[targetChain].label}
             </Button>
           )}
+          <Button
+            onClick={() => {
+              deactivate();
+            }}
+            variant="neutral"
+            size="4"
+            css={{ mt: "$2", width: "100%" }}
+          >
+            Cancel
+          </Button>
         </Box>
         {IS_L2 && route !== "/migrate" && (
           <Text
