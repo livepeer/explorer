@@ -765,7 +765,10 @@ const Migrate = () => {
             </Text>
           )}
         </Box>
-        <Box
+        <Flex
+          align="center"
+          justify="center"
+          direction="column"
           css={{
             px: "$4",
             py: "$3",
@@ -777,6 +780,17 @@ const Migrate = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
+            href="https://docs.livepeer.org/video-miners/how-to-guides/l2-migration"
+            target="_blank"
+            size="3"
+            ghost
+          >
+            Migration Guide
+            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+          </Button>
+          <Button
+            css={{ bottom: 20, right: 20 }}
+            as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
@@ -785,7 +799,7 @@ const Migrate = () => {
             Discord Support Channel{" "}
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
           </Button>
-        </Box>
+        </Flex>
       </Card>
     </Container>
   );
