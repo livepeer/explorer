@@ -15,16 +15,31 @@ import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
+  INFURA_NETWORK_URLS,
   l1Migrator,
+  L1_CHAIN_ID,
   l2Migrator,
 } from "constants/chains";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import LivepeerSDK from "@livepeer/sdk";
+
+const getDelegatorOnL1 = async (account) => {
+  const sdk = await LivepeerSDK({
+    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
+    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
+    account: account,
+  });
+  const delegator = await sdk.rpc.getDelegator(account);
+  const status = await sdk.rpc.getTranscoderStatus(account);
+  return { delegator, status };
+};
 
 const Claim = () => {
   const context = useWeb3React();
   const [migrationParams, setMigrationParams] = useState(undefined);
+  const [isOrchestrator, setIsOrchestrator] = useState(true);
   const [delegateMigrated, setDelegateMigrated] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -32,16 +47,22 @@ const Claim = () => {
     const init = async () => {
       if (context.account) {
         setLoading(true);
+
+        const { delegator, status } = await getDelegatorOnL1(context.account);
+
         // fetch calldata to be submitted for calling L2 function
-        const { params } = await l1Migrator.getMigrateDelegatorParams(
-          context.account,
-          context.account
-        );
+        // const { params } = await l1Migrator.getMigrateDelegatorParams(
+        //   context.account,
+        //   context.account
+        // );
+
+        setIsOrchestrator(status === "Registered" ? true : false);
 
         setMigrationParams({
-          delegate: params.delegate,
-          stake: params.stake,
-          fees: params.fees,
+          delegate: delegator.delegateAddress,
+          stake: delegator.pendingStake.toString(),
+          fees: delegator.pendingFees.toString(),
+          isOrchestrator: status === "Registered" ? true : false,
         });
         setLoading(false);
       }
@@ -59,7 +80,7 @@ const Claim = () => {
     init();
   }, [context.account]);
 
-  return loading ? null : (
+  return loading || isOrchestrator ? null : (
     <Box
       css={{
         mt: "$5",
@@ -81,7 +102,7 @@ const Claim = () => {
           Claim stake & fees on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
         </Box>
         <Text>
-          Your migrated stake of
+          Your delegated stake of
           <Box
             css={{
               display: "inline",
@@ -93,9 +114,9 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            {ethers.utils.formatEther(migrationParams.stake)} LPT,
+            {ethers.utils.formatEther(migrationParams.stake)} LPT
           </Box>
-          <Box css={{ display: "inline" }}>
+          {/* <Box css={{ display: "inline" }}>
             delegated with
             <Box
               css={{
@@ -114,8 +135,8 @@ const Claim = () => {
               )}
             </Box>
             ,
-          </Box>{" "}
-          and fees of
+          </Box>{" "} */}
+          and
           <Box
             css={{
               display: "inline",
@@ -129,8 +150,9 @@ const Claim = () => {
           >
             {ethers.utils.formatEther(migrationParams.fees)} ETH
           </Box>
-          will be available to claim on {CHAIN_INFO[DEFAULT_CHAIN_ID].label} in{" "}
-          <strong>seven</strong> rounds.
+          in earned fees will be available to claim on{" "}
+          {CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
+          state snapshot.
         </Text>
       </Box>
       {/* {!delegateMigrated && (
@@ -237,7 +259,7 @@ const Claim = () => {
         </Dialog>
       )} */}
 
-      <Flex css={{ mt: "$3", alignItems: "center" }}>
+      {/* <Flex css={{ mt: "$3", alignItems: "center" }}>
         <Button
           onClick={async () => {
             const signer = l2Migrator.connect(context.library.getSigner());
@@ -264,7 +286,7 @@ const Claim = () => {
         <Button size="3" variant="transparentWhite" ghost>
           Learn More
         </Button>
-      </Flex>
+      </Flex> */}
     </Box>
   );
 };
