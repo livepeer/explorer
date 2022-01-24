@@ -14,6 +14,7 @@ import {
   Heading,
   Card,
   Box,
+  Text,
   Flex,
   Button,
   styled,
@@ -147,6 +148,21 @@ const Voting = () => {
                 </Button>
               </Link>
             </Flex>
+            {!polls.length && (
+              <Flex
+                justify="center"
+                css={{
+                  borderRadius: "$4",
+                  p: "$6",
+                  border: "1px dashed $neutral5",
+                  mt: "$4",
+                }}
+              >
+                <Text size="3" variant="neutral">
+                  No polls found.
+                </Text>
+              </Flex>
+            )}
             <Box>
               {polls
                 .sort((a, b) => (a.endBlock < b.endBlock ? 1 : -1))
