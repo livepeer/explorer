@@ -81,7 +81,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     `
   );
   const mutations = useMutations();
-  const { chainId } = useWeb3React();
+  const { chainId, account } = useWeb3React();
   const { data: transactionsData } = useQuery(transactionsQuery);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
@@ -417,7 +417,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     >
                       <Box css={{ width: "100%" }}>
                         {pathname !== "/migrate" &&
-                          isL2ChainId(DEFAULT_CHAIN_ID) && (
+                          isL2ChainId(DEFAULT_CHAIN_ID) &&
+                          account && (
                             <Container size="3" css={{ mb: "$5" }}>
                               <Claim />
                             </Container>
