@@ -94,8 +94,7 @@ const Wallet = () => {
           css={{
             px: "$2",
             fontSize: "$2",
-            display: "none",
-            "@bp2": { fontSize: "$3", display: "block" },
+            "@bp2": { fontSize: "$3" },
           }}
         >
           {balance} ETH

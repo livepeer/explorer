@@ -370,14 +370,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               align="center"
                               css={{
                                 fontWeight: 600,
-                                borderRadius: "$4",
                                 px: "$2",
                                 fontSize: "$2",
-                                border: "1px solid $neutral5",
                                 height: 35,
-                                bc: "$neutral3",
+                                display: "none",
                                 ai: "center",
                                 mr: "$2",
+                                "@bp1": {
+                                  display: "flex",
+                                },
                               }}
                             >
                               <Image
