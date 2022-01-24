@@ -12,7 +12,12 @@ import {
 } from "@livepeer/design-system";
 import { ChevronDownIcon, Link1Icon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
-import { l1Migrator, l2Migrator } from "constants/chains";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  l1Migrator,
+  l2Migrator,
+} from "constants/chains";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -20,8 +25,8 @@ import { useEffect, useState } from "react";
 const Claim = () => {
   const context = useWeb3React();
   const [migrationParams, setMigrationParams] = useState(undefined);
+  const [delegateMigrated, setDelegateMigrated] = useState(true);
   const [loading, setLoading] = useState(true);
-  const delegateMigrated = true;
 
   useEffect(() => {
     const init = async () => {
@@ -39,6 +44,16 @@ const Claim = () => {
           fees: params.fees,
         });
         setLoading(false);
+      }
+    };
+    init();
+  }, [context.account]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (context.account) {
+        const migrated = await l2Migrator.migratedDelegators(context.account);
+        setDelegateMigrated(migrated);
       }
     };
     init();
@@ -78,11 +93,11 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            {ethers.utils.formatEther(migrationParams.stake)} LPT
+            {ethers.utils.formatEther(migrationParams.stake)} LPT,
           </Box>
           {delegateMigrated && (
             <Box css={{ display: "inline" }}>
-              (delegated with
+              delegated with
               <Box
                 css={{
                   display: "inline",
@@ -99,7 +114,7 @@ const Claim = () => {
                   "…"
                 )}
               </Box>
-              )
+              ,
             </Box>
           )}{" "}
           and fees of
@@ -116,10 +131,11 @@ const Claim = () => {
           >
             {ethers.utils.formatEther(migrationParams.fees)} ETH
           </Box>
-          are available to claim on Arbitrum.
+          will be available to claim on {CHAIN_INFO[DEFAULT_CHAIN_ID].label} in{" "}
+          <strong>seven</strong> rounds.
         </Text>
       </Box>
-      {!delegateMigrated && (
+      {/* {!delegateMigrated && (
         <Dialog>
           <DialogTrigger asChild>
             <Box
@@ -221,7 +237,7 @@ const Claim = () => {
             </Box>
           </DialogContent>
         </Dialog>
-      )}
+      )} */}
 
       <Flex css={{ mt: "$3", alignItems: "center" }}>
         <Button
@@ -242,6 +258,7 @@ const Claim = () => {
           }}
           size="3"
           variant="transparentWhite"
+          disabled
           css={{ mr: "$2" }}
         >
           Claim Stake & Fees

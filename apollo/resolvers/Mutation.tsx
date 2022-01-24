@@ -1,4 +1,5 @@
 import { EarningsTree } from "@lib/earningsTree";
+import { l2Migrator } from "constants/chains";
 import { utils } from "ethers";
 let earningsSnapshot;
 
@@ -437,6 +438,28 @@ export async function vote(_obj, _args, _ctx) {
     inputData: {
       ..._args,
     },
+  };
+}
+
+/**
+ * Claim L2 stake
+ * @param obj
+ * @return {Promise}
+ */
+export async function claimStake(_obj, _args, _ctx) {
+  const { _delegate, _stake, _fees, _proof, _newDelegate } = _args;
+  const signer = l2Migrator.connect(_ctx.provider.getSigner());
+  const tx = await signer.migrateDelegator(
+    _delegate,
+    _stake,
+    _fees,
+    _proof,
+    _newDelegate
+  );
+
+  return {
+    txHash: "0x",
+    inputData: {},
   };
 }
 
