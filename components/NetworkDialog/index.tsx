@@ -51,7 +51,7 @@ const NetworkDialog = () => {
     subtitle = (
       <Box>
         Switch networks to {CHAIN_INFO[L1_CHAIN_ID].label} to proceed with
-        migrating your stake and fees.
+        migrating your stake and fees to {CHAIN_INFO[targetChain].label}.
       </Box>
     );
     targetChain = L1_CHAIN_ID;
