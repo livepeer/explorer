@@ -15,7 +15,6 @@ const MAINNET_CONTRACTS = {
   pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
   l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
   l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -27,7 +26,6 @@ const ARBITRUM_ONE_CONTRACTS = {
   pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
   l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
   l2Migrator: "0x4547918C363f5d6452b77c6233c70F31Ae41b613",
-  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -37,9 +35,8 @@ const ARBITRUM_ONE_CONTRACTS = {
 const RINKEBY_CONTRACTS = {
   controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
   pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
-  l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
+  l1Migrator: "0xc4EA3243FE6eFA01020133C2f956C149C5a63e33",
   l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -47,11 +44,10 @@ const RINKEBY_CONTRACTS = {
 };
 
 const ARBITRUM_RINKEBY_CONTRACTS = {
-  controller: "0xa81F7622A0600cc801cB5AEb9AE022cab43562f1",
-  pollCreator: "0x149805EF90FaDA12D27e8a020b6c138F3d86A9a3",
-  l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
-  l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  l2GatewayRouter: "0x747B531D31b36c3E2fea1b0adb27e3e5f3136fE8",
+  controller: "0x9ceC649179e2C7Ab91688271bcD09fb707b3E574",
+  pollCreator: "0x7e3305D48489e43B7fBf318D575D5dF654EE175c",
+  l1Migrator: "0xc4EA3243FE6eFA01020133C2f956C149C5a63e33",
+  l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -62,8 +58,7 @@ const DEVNET_RINKEBY_CONTRACTS = {
   controller: "0x1621165617F8D4b6D8c8C03Fce246CfF00450621",
   pollCreator: "0x799124845E2b06800EFA2A6cea3CCAdd26c8d098",
   l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
-  l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  l2GatewayRouter: "0xF4C7c7b67Ea0A4a3c3d9c0A0BC258b27fb9c4B57",
+  l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -75,7 +70,6 @@ const DEVNET_ARBITRUM_RINKEBY_CONTRACTS = {
   pollCreator: "0x3a9543D4767b2c914Ea22Fd0B07E17b0901AAeBf",
   l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
   l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  l2GatewayRouter: "0xF4C7c7b67Ea0A4a3c3d9c0A0BC258b27fb9c4B57",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -143,7 +137,6 @@ export enum NetworkType {
 const abis = {
   l1Migrator: require("../abis/bridge/L1Migrator.json"),
   l2Migrator: require("../abis/bridge/L2Migrator.json"),
-  l2GatewayRouter: require("../abis/bridge/L2LPTGateway.json"),
   inbox: require("../abis/bridge/Inbox.json"),
   outbox: require("../abis/bridge/Outbox.json"),
   arbRetryableTx: require("../abis/bridge/ArbRetryableTx.json"),
@@ -179,12 +172,14 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[SupportedChainId.RINKEBY],
     },
-    subgraph: process.env.NEXT_PUBLIC_IS_DEVNET
-      ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
-      : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
-    contracts: process.env.NEXT_PUBLIC_IS_DEVNET
-      ? DEVNET_RINKEBY_CONTRACTS
-      : RINKEBY_CONTRACTS,
+    subgraph:
+      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
+        ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
+        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+    contracts:
+      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
+        ? DEVNET_RINKEBY_CONTRACTS
+        : RINKEBY_CONTRACTS,
     abis,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
@@ -224,12 +219,14 @@ export const CHAIN_INFO = {
       },
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
     },
-    subgraph: process.env.NEXT_PUBLIC_IS_DEVNET
-      ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-arbitrum-rinkeby"
-      : "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
-    contracts: process.env.NEXT_PUBLIC_IS_DEVNET
-      ? DEVNET_ARBITRUM_RINKEBY_CONTRACTS
-      : ARBITRUM_RINKEBY_CONTRACTS,
+    subgraph:
+      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
+        ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-arbitrum-rinkeby"
+        : "https://api.thegraph.com/subgraphs/name/adamsoffer/arbitrum-rinkeby",
+    contracts:
+      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
+        ? DEVNET_ARBITRUM_RINKEBY_CONTRACTS
+        : ARBITRUM_RINKEBY_CONTRACTS,
     abis,
   },
 };
