@@ -95,28 +95,26 @@ const Claim = () => {
           >
             {ethers.utils.formatEther(migrationParams.stake)} LPT,
           </Box>
-          {delegateMigrated && (
-            <Box css={{ display: "inline" }}>
-              delegated with
-              <Box
-                css={{
-                  display: "inline",
-                  fontWeight: 700,
-                  borderBottom: "1px dashed $neutral11",
-                  fontSize: "$3",
-                  color: "$hiContrast",
-                  ml: "$1",
-                  letterSpacing: "-.4px",
-                }}
-              >
-                {migrationParams.delegate.replace(
-                  migrationParams.delegate.slice(6, 38),
-                  "…"
-                )}
-              </Box>
-              ,
+          <Box css={{ display: "inline" }}>
+            delegated with
+            <Box
+              css={{
+                display: "inline",
+                fontWeight: 700,
+                borderBottom: "1px dashed $neutral11",
+                fontSize: "$3",
+                color: "$hiContrast",
+                ml: "$1",
+                letterSpacing: "-.4px",
+              }}
+            >
+              {migrationParams.delegate.replace(
+                migrationParams.delegate.slice(6, 38),
+                "…"
+              )}
             </Box>
-          )}{" "}
+            ,
+          </Box>{" "}
           and fees of
           <Box
             css={{
