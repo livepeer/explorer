@@ -96,6 +96,7 @@ function reducer(state, action) {
             fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
         ),
+        footnote: `Note: This migration will take about 10 minutes before it's considered final on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
         ...action.payload,
       };
     case "initiate":
@@ -110,7 +111,6 @@ function reducer(state, action) {
           </Text>
         ),
         cta: false,
-        footnote: `Note: This migration will take about 10 minutes before it's considered final on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
         ...action.payload,
       };
     case "starting":
@@ -660,108 +660,132 @@ const Migrate = () => {
     >
       <Card
         css={{
-          p: "$5",
+          pt: "$5",
+
           borderRadius: "$4",
           backgroundColor: "$panel",
           border: "1px solid $neutral3",
           mb: "$8",
         }}
       >
-        <Box css={{ mx: "auto", textAlign: "center" }}>
-          <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
-            {state.title}
-          </Heading>
-          {state?.body && <Box>{state.body}</Box>}
+        <Box css={{ px: "$5" }}>
+          <Box css={{ mx: "auto", textAlign: "center" }}>
+            <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
+              {state.title}
+            </Heading>
+            {state?.body && <Box>{state.body}</Box>}
 
-          {state.image && (
-            <Box css={{ textAlign: "center", mb: "$5" }}>
-              <Box as="img" src="/img/arbitrum.svg" />
-            </Box>
-          )}
+            {state.image && (
+              <Box css={{ textAlign: "center", mb: "$5" }}>
+                <Box as="img" src="/img/arbitrum.svg" />
+              </Box>
+            )}
 
-          {state.stage === "initialize" && state.isOrchestrator && (
-            <MigrationFields
-              migrationParams={state.migrationParams}
-              css={{ mb: "$5" }}
-            />
-          )}
+            {state.stage === "initialize" && state.isOrchestrator && (
+              <MigrationFields
+                migrationParams={state.migrationParams}
+                css={{ mb: "$5" }}
+              />
+            )}
 
-          <Box
-            css={{
-              display:
-                state.stage === "initialize" && !state.isOrchestrator
-                  ? "block"
-                  : "none",
-            }}
-          >
-            <Box css={stepperStyles}>
-              <Stepper activeStep={activeStep} orientation="vertical">
-                {signingSteps.map((step, index) => (
-                  <Step key={`step-${index}`}>
-                    <Box
-                      as={StepLabel}
-                      optional={
-                        index === 2 ? (
-                          <Text variant="neutral" size="1">
-                            Last step
-                          </Text>
-                        ) : null
-                      }
-                    >
-                      {step}
-                    </Box>
-                    <StepContent TransitionProps={{ unmountOnExit: false }}>
-                      {getSigningStepContent(index)}
-                    </StepContent>
-                  </Step>
-                ))}
-              </Stepper>
-            </Box>
-          </Box>
-        </Box>
-
-        {state.loading && (
-          <Flex css={{ justifyContent: "center", mb: "$7" }}>
-            <Spinner
-              speed="1.5s"
+            <Box
               css={{
-                width: 90,
-                height: 90,
-                maxWidth: 90,
-                maxHeight: 90,
+                display:
+                  state.stage === "initialize" && !state.isOrchestrator
+                    ? "block"
+                    : "none",
               }}
-            />
-          </Flex>
-        )}
-        {state?.receipts && (
-          <Box css={{ mb: "$4" }}>
-            {state?.receipts?.l1 && (
-              <ReceiptLink
-                label="Etherscan"
-                chainId={L1_CHAIN_ID}
-                hash={state.receipts.l1}
-              />
-            )}
-
-            {state?.receipts?.l2 && (
-              <ReceiptLink
-                label="Arbiscan"
-                chainId={DEFAULT_CHAIN_ID}
-                hash={state.receipts.l2}
-              />
-            )}
+            >
+              <Box css={stepperStyles}>
+                <Stepper activeStep={activeStep} orientation="vertical">
+                  {signingSteps.map((step, index) => (
+                    <Step key={`step-${index}`}>
+                      <Box
+                        as={StepLabel}
+                        optional={
+                          index === 2 ? (
+                            <Text variant="neutral" size="1">
+                              Last step
+                            </Text>
+                          ) : null
+                        }
+                      >
+                        {step}
+                      </Box>
+                      <StepContent TransitionProps={{ unmountOnExit: false }}>
+                        {getSigningStepContent(index)}
+                      </StepContent>
+                    </Step>
+                  ))}
+                </Stepper>
+              </Box>
+            </Box>
           </Box>
-        )}
-        {state.cta}
-        {state.footnote && (
-          <Text
-            size="1"
-            variant="neutral"
-            css={{ mt: "$3", textAlign: "center" }}
+
+          {state.loading && (
+            <Flex css={{ justifyContent: "center", mb: "$7" }}>
+              <Spinner
+                speed="1.5s"
+                css={{
+                  width: 90,
+                  height: 90,
+                  maxWidth: 90,
+                  maxHeight: 90,
+                }}
+              />
+            </Flex>
+          )}
+          {state?.receipts && (
+            <Box css={{ mb: "$4" }}>
+              {state?.receipts?.l1 && (
+                <ReceiptLink
+                  label="Etherscan"
+                  chainId={L1_CHAIN_ID}
+                  hash={state.receipts.l1}
+                />
+              )}
+
+              {state?.receipts?.l2 && (
+                <ReceiptLink
+                  label="Arbiscan"
+                  chainId={DEFAULT_CHAIN_ID}
+                  hash={state.receipts.l2}
+                />
+              )}
+            </Box>
+          )}
+          {state.cta}
+          {state.footnote && (
+            <Text
+              size="1"
+              variant="neutral"
+              css={{ mt: "$3", textAlign: "center" }}
+            >
+              {state.footnote}
+            </Text>
+          )}
+        </Box>
+        <Box
+          css={{
+            px: "$4",
+            py: "$3",
+            borderTop: "1px dashed $neutral4",
+            textAlign: "center",
+            mt: "$5",
+          }}
+        >
+          <Button
+            css={{ bottom: 20, right: 20 }}
+            as="a"
+            href="https://discord.gg/XYJ7aVNqkS"
+            target="_blank"
+            size="3"
+            ghost
           >
-            {state.footnote}
-          </Text>
-        )}
+            Discord Support Channel{" "}
+            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+          </Button>
+        </Box>
       </Card>
     </Container>
   );

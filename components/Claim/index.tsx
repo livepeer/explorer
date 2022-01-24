@@ -10,7 +10,11 @@ import {
   TextField,
   Link as A,
 } from "@livepeer/design-system";
-import { ChevronDownIcon, Link1Icon } from "@modulz/radix-icons";
+import {
+  ChevronDownIcon,
+  Link1Icon,
+  ArrowTopRightIcon,
+} from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
@@ -65,16 +69,6 @@ const Claim = () => {
           isOrchestrator: status === "Registered" ? true : false,
         });
         setLoading(false);
-      }
-    };
-    init();
-  }, [context.account]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (context.account) {
-        const migrated = await l2Migrator.migratedDelegators(context.account);
-        setDelegateMigrated(migrated);
       }
     };
     init();
@@ -259,8 +253,8 @@ const Claim = () => {
         </Dialog>
       )} */}
 
-      {/* <Flex css={{ mt: "$3", alignItems: "center" }}>
-        <Button
+      <Flex css={{ mt: "$3", alignItems: "center" }}>
+        {/* <Button
           onClick={async () => {
             const signer = l2Migrator.connect(context.library.getSigner());
             try {
@@ -282,11 +276,19 @@ const Claim = () => {
           css={{ mr: "$2" }}
         >
           Claim Stake & Fees
+        </Button> */}
+        <Button
+          as="a"
+          href="https://discord.gg/XYJ7aVNqkS"
+          target="_blank"
+          size="3"
+          variant="transparentWhite"
+          ghost
+        >
+          Discord Support Channel{" "}
+          <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
         </Button>
-        <Button size="3" variant="transparentWhite" ghost>
-          Learn More
-        </Button>
-      </Flex> */}
+      </Flex>
     </Box>
   );
 };
