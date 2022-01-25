@@ -96,6 +96,7 @@ function reducer(state, action) {
             fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
         ),
+        cta: false,
         footnote: `Note: This migration will take about 10 minutes before it's considered final on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`,
         ...action.payload,
       };
@@ -240,106 +241,6 @@ const Migrate = () => {
     }
   }, [state.stage, minutes, seconds]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (context.account) {
-        const isOrchestrator = await isRegisteredOrchestrator(context.account);
-        // fetch calldata to be submitted for calling L2 function
-        const { data, params } = await l1Migrator.getMigrateDelegatorParams(
-          state.signer ? state.signer : context.account,
-          state.signer ? state.signer : context.account
-        );
-
-        dispatch({
-          type: "initialize",
-          payload: {
-            isOrchestrator,
-            migrationCallData: data,
-            migrationParams: {
-              delegate: params.delegate,
-              delegatedStake: params.delegatedStake,
-              stake: params.stake,
-              fees: params.fees,
-              l1Addr: params.l1Addr,
-              l2Addr: params.l2Addr,
-            },
-            cta: isOrchestrator ? (
-              <Button
-                size="4"
-                variant="primary"
-                css={{ mr: "$2", width: "100%" }}
-                onClick={onApprove}
-              >
-                Approve Migration
-              </Button>
-            ) : null,
-          },
-        });
-      }
-    };
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.signer, context.account]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (isValidAddress(signerAddress)) {
-        if (!state.isOrchestrator) {
-          dispatch({
-            type: "updateSigner",
-            payload: {
-              signer: isValidAddress(signerAddress),
-            },
-          });
-        } else {
-          dispatch({
-            type: "updateSigner",
-            payload: {
-              signer: null,
-            },
-          });
-        }
-      } else {
-        dispatch({
-          type: "updateSigner",
-          payload: {
-            signer: null,
-          },
-        });
-      }
-    };
-    init();
-  }, [signerAddress, context.chainId, state.isOrchestrator]);
-
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-      payload: {
-        cta: state.isOrchestrator ? (
-          <Button
-            size="4"
-            variant="primary"
-            css={{ mr: "$2", width: "100%" }}
-            onClick={onApprove}
-          >
-            Approve Migration
-          </Button>
-        ) : null,
-      },
-    });
-  };
-
   const onApprove = async () => {
     try {
       dispatch({
@@ -472,6 +373,84 @@ const Migrate = () => {
       openSnackbar(e.message);
       handleReset();
     }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      if (context.account) {
+        const isOrchestrator = await isRegisteredOrchestrator(context.account);
+        // fetch calldata to be submitted for calling L2 function
+        const { data, params } = await l1Migrator.getMigrateDelegatorParams(
+          state.signer ? state.signer : context.account,
+          state.signer ? state.signer : context.account
+        );
+
+        dispatch({
+          type: "initialize",
+          payload: {
+            isOrchestrator,
+            migrationCallData: data,
+            migrationParams: {
+              delegate: params.delegate,
+              delegatedStake: params.delegatedStake,
+              stake: params.stake,
+              fees: params.fees,
+              l1Addr: params.l1Addr,
+              l2Addr: params.l2Addr,
+            },
+          },
+        });
+      }
+    };
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.signer, context.account]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (isValidAddress(signerAddress)) {
+        if (!state.isOrchestrator) {
+          dispatch({
+            type: "updateSigner",
+            payload: {
+              signer: isValidAddress(signerAddress),
+            },
+          });
+        } else {
+          dispatch({
+            type: "updateSigner",
+            payload: {
+              signer: null,
+            },
+          });
+        }
+      } else {
+        dispatch({
+          type: "updateSigner",
+          payload: {
+            signer: null,
+          },
+        });
+      }
+    };
+    init();
+  }, [signerAddress, context.chainId, state.isOrchestrator]);
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleReset = () => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 600);
+    restart(time, false); // restart timer
+    dispatch({
+      type: "reset",
+    });
   };
 
   if (!render) {
@@ -645,7 +624,6 @@ const Migrate = () => {
         return "Unknown step";
     }
   };
-
   return (
     <Container
       size="2"
@@ -755,6 +733,16 @@ const Migrate = () => {
             </Box>
           )}
           {state.cta}
+          {state.stage === "initialize" && state.isOrchestrator && (
+            <Button
+              size="4"
+              variant="primary"
+              css={{ mr: "$2", width: "100%" }}
+              onClick={onApprove}
+            >
+              Approve Migration
+            </Button>
+          )}
           {state.footnote && (
             <Text
               size="1"
