@@ -146,12 +146,11 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
         ),
         sortType: "number",
       },
-
-      {
-        Header: "Total Delegators",
-        accessor: (row) => row.delegators.length,
-        sortType: "number",
-      },
+      // {
+      //   Header: "Total Delegators",
+      //   accessor: (row) => row.delegators.length,
+      //   sortType: "number",
+      // },
       {
         Header: "Reward Calls",
         id: "pools",

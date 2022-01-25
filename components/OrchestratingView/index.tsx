@@ -78,11 +78,11 @@ const Index = ({ currentRound, transcoder }) => {
             </>
           }
         />
-        <Stat
+        {/* <Stat
           className="masonry-grid_item"
           label="Total Delegators"
           value={transcoder.delegators.length}
-        />
+        /> */}
         <Stat
           className="masonry-grid_item"
           label="Reward Calls"
