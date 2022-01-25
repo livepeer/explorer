@@ -39,6 +39,7 @@ type Query {
   block: JSON
   l1Block: JSON
   getChartData: JSON
+  currentRoundInfo: JSON
 }
 `;
 

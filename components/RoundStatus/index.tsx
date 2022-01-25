@@ -20,7 +20,6 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { MutationsContext } from "../../contexts";
-import { getCurrentRound } from "utils/currentRound";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
@@ -32,6 +31,7 @@ const Index = () => {
     : themes[`${resolvedTheme}-theme-green`];
   const isVisible = usePageVisibility();
   const pollInterval = 30000;
+
   const {
     data: protocolData,
     loading: protocolDataloading,
@@ -41,19 +41,7 @@ const Index = () => {
     gql`
       {
         protocol(id: "0") {
-          id
           roundLength
-          lastRoundLengthUpdateStartBlock
-          lastRoundLengthUpdateRound {
-            id
-          }
-          lastInitializedRound {
-            id
-          }
-          currentRound {
-            id
-            startBlock
-          }
         }
       }
     `,
@@ -77,45 +65,55 @@ const Index = () => {
     }
   );
 
+  const {
+    data: currentRoundInfo,
+    loading: currentRoundInfoLoading,
+    startPolling: startPollingCurrentRoundInfo,
+    stopPolling: stopPollingCurrentRoundInfo,
+  } = useQuery(
+    gql`
+      {
+        currentRoundInfo
+      }
+    `,
+    {
+      pollInterval,
+    }
+  );
+
   useEffect(() => {
     if (!isVisible) {
       stopPollingProtocol();
       stopPollingBlock();
+      stopPollingCurrentRoundInfo();
     } else {
       startPollingProtocol(pollInterval);
       startPollingBlock(pollInterval);
+      startPollingCurrentRoundInfo(pollInterval);
     }
   }, [
     isVisible,
     stopPollingProtocol,
     stopPollingBlock,
+    stopPollingCurrentRoundInfo,
     startPollingProtocol,
     startPollingBlock,
+    startPollingCurrentRoundInfo,
   ]);
 
-  if (protocolDataloading || blockDataLoading) {
+  if (protocolDataloading || blockDataLoading || currentRoundInfoLoading) {
     return null;
   }
 
-  let currentRoundNumber = getCurrentRound({
-    blockNum: blockData.l1Block.number,
-    lastRoundLengthUpdateStartBlock:
-      protocolData.protocol.lastRoundLengthUpdateStartBlock,
-    lastRoundLengthUpdateRound:
-      protocolData.protocol.lastRoundLengthUpdateRound.id,
-    roundLength: protocolData.protocol.roundLength,
-  });
-
-  const initialized =
-    +protocolData.protocol.lastInitializedRound?.id === currentRoundNumber;
-  const blocksRemaining = initialized
+  const blocksRemaining = currentRoundInfo.currentRoundInfo.initialized
     ? +protocolData.protocol.roundLength -
       (+blockData.l1Block.number -
-        +protocolData.protocol.currentRound.startBlock)
+        +currentRoundInfo.currentRoundInfo.startBlock)
     : 0;
   const timeRemaining = BLOCK_TIME * blocksRemaining;
-  const blocksSinceCurrentRoundStart = initialized
-    ? +blockData.l1Block.number - +protocolData.protocol.currentRound.startBlock
+  const blocksSinceCurrentRoundStart = currentRoundInfo.currentRoundInfo
+    .initialized
+    ? +blockData.l1Block.number - +currentRoundInfo.currentRoundInfo.startBlock
     : 0;
 
   const percentage =
@@ -164,7 +162,7 @@ const Index = () => {
                 value={Math.round(percentage)}
               />
             </Box>
-            Round #{currentRoundNumber}
+            Round #{currentRoundInfo.currentRoundInfo.id}
           </Flex>
         </Flex>
       </DialogTrigger>
@@ -180,12 +178,14 @@ const Index = () => {
               mb: "$5",
             }}
           >
-            <Box css={{ fontWeight: 700 }}>Round #{currentRoundNumber}</Box>
+            <Box css={{ fontWeight: 700 }}>
+              Round #{currentRoundInfo.currentRoundInfo.id}
+            </Box>
             <Flex
               css={{ alignItems: "center", fontSize: "$3", fontWeight: 700 }}
             >
               Initialized{" "}
-              {initialized ? (
+              {currentRoundInfo.currentRoundInfo.initialized ? (
                 <Box
                   as={CheckIcon}
                   css={{ ml: "$1", width: 20, height: 20, color: "$primary11" }}
@@ -205,7 +205,7 @@ const Index = () => {
             alignItems: "center",
           }}
         >
-          {initialized ? (
+          {currentRoundInfo.currentRoundInfo.initialized ? (
             <Flex
               css={{
                 pb: "$2",
@@ -279,7 +279,7 @@ const Index = () => {
                     borderColor: "$text",
                   }}
                 >
-                  #{currentRoundNumber + 1}
+                  #{currentRoundInfo.currentRoundInfo.id + 1}
                 </Box>{" "}
                 begins.
               </Box>
@@ -288,11 +288,11 @@ const Index = () => {
             <Box>The current round has not yet been initialized.</Box>
           )}
         </Flex>
-        {/* {!initialized && (
+        {/* {!currentRoundInfo.currentRoundInfo.initialized && (
           <Button
             size="4"
             variant="primary"
-            css={{ width: "100%" }}
+            css={{ mt: '$4', width: "100%" }}
             onClick={async () => {
               try {
                 await initializeRound();

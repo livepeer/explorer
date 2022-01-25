@@ -146,6 +146,13 @@ export async function block(_obj, _args, _ctx, _info) {
   };
 }
 
+export async function currentRoundInfo(_obj, _args, _ctx, _info) {
+  const id = await _ctx.livepeer.rpc.getCurrentRound();
+  const startBlock = await _ctx.livepeer.rpc.getCurrentRoundStartBlock();
+  const initialized = await _ctx.livepeer.rpc.getCurrentRoundIsInitialized();
+  return { id, startBlock, initialized };
+}
+
 export async function l1Block(_obj, _args, _ctx, _info) {
   const sdk = await LivepeerSDK({
     controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
