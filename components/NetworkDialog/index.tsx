@@ -35,8 +35,7 @@ const NetworkDialog = () => {
       {IS_L2 ? (
         <Text size="4" variant="neutral">
           Livepeer now uses {CHAIN_INFO[targetChain].label}. To use the
-          Explorer, please switch networks
-          {!isMetamask ? "in your wallet." : "."}
+          Explorer, please switch networks.
         </Text>
       ) : (
         <Text>
