@@ -119,7 +119,7 @@ const NetworkDialog = () => {
               px: "$3",
             }}
           >
-            Do you operate an orchestrator? Migrate your delegated stake to{" "}
+            Do you operate an orchestrator? Migrate your stake to{" "}
             {CHAIN_INFO[targetChain].label} using the{" "}
             <Link href="/migrate" passHref>
               <A
