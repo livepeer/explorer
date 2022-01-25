@@ -100,8 +100,8 @@ function calculateAnnualROI({
   totalStaked,
   participationRate,
 }) {
-  const percentOfTotalStaked = principle / totalStaked;
-
+  const percentOfTotalStaked =
+    principle / totalStaked ? principle / totalStaked : 0;
   let totalRewardTokens = 0;
   let roi = 0;
   let totalRewardTokensMinusFee;
