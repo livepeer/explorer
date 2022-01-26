@@ -43,10 +43,6 @@ type Mutation {
 
   "Unlink an external account from a user's 3box"
   removeAddressLink(address: String): Boolean
-
-  "Claim l2 stake"
-  claimStake(delegate: String!, stake: String!, fees: String!, proof: String!, newDelegate: String!): JSON
-
 }`;
 
 export default Mutation;
