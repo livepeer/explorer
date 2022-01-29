@@ -83,6 +83,8 @@ export default function createApolloClient(
               CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.controller,
             pollCreatorAddress:
               CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.pollCreator,
+            l2MigratorAddress:
+              CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
             provider,
             account: context?.account,
           });

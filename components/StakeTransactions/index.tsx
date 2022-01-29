@@ -8,7 +8,7 @@ import { UnbondingLock } from "../../@types";
 import Restake from "../Restake";
 import RestakeFromUnstaked from "../RestakeFromUnstaked";
 import WithdrawStake from "../WithdrawStake";
-import { Card, Box, Flex, Heading } from "@livepeer/design-system";
+import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
@@ -59,17 +59,17 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                   }}
                 >
                   <Box>
-                    <Box css={{ mb: "2px" }}>
-                      Unstaking from{" "}
+                    <Box css={{ mb: "$1" }}>
+                      Undelegating from{" "}
                       {lock.delegate.id.replace(
                         lock.delegate.id.slice(7, 37),
                         "…"
                       )}
                     </Box>
-                    <Box css={{ color: "$neutral9", fontSize: "$1" }}>
+                    <Text variant="neutral" size="1">
                       Tokens will be available for withdrawal in approximately{" "}
                       {lock.withdrawRound - parseInt(currentRound.id, 10)} days.
-                    </Box>
+                    </Text>
                   </Box>
                   <Flex css={{ alignItems: "center" }}>
                     {isMyAccount &&

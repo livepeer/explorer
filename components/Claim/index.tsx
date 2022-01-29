@@ -1,33 +1,22 @@
-import {
-  Box,
-  Text,
-  Flex,
-  Button,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Link as A,
-} from "@livepeer/design-system";
-import {
-  ChevronDownIcon,
-  Link1Icon,
-  ArrowTopRightIcon,
-} from "@modulz/radix-icons";
+import { Box, Text, Flex, Button, Link as A } from "@livepeer/design-system";
+import { Link1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
-  l1Migrator,
   L1_CHAIN_ID,
   l2Migrator,
 } from "constants/chains";
-import { ethers } from "ethers";
+import { ethers, constants, utils } from "ethers";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import LivepeerSDK from "@livepeer/sdk";
+import { EarningsTree } from "@lib/earningsTree";
+import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
+import { useApolloClient } from "@apollo/client";
+import { initTransaction } from "@lib/utils";
+import { MutationsContext } from "contexts";
 
 const getDelegatorOnL1 = async (account) => {
   const sdk = await LivepeerSDK({
@@ -37,44 +26,49 @@ const getDelegatorOnL1 = async (account) => {
   });
   const delegator = await sdk.rpc.getDelegator(account);
   const status = await sdk.rpc.getTranscoderStatus(account);
-  return { delegator, status };
+  const unbondingLocks = await sdk.rpc.getDelegatorUnbondingLocks(account);
+  return { delegator, status, unbondingLocks };
 };
 
 const Claim = () => {
   const context = useWeb3React();
+  const client = useApolloClient();
+  const { claimStake }: any = useContext(MutationsContext);
   const [migrationParams, setMigrationParams] = useState(undefined);
-  const [isOrchestrator, setIsOrchestrator] = useState(true);
-  const [delegateMigrated, setDelegateMigrated] = useState(true);
+  const [isDelegator, setIsDelegator] = useState(false);
+  const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
       if (context.account) {
-        setLoading(true);
+        const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
+          context.account
+        );
 
-        const { delegator, status } = await getDelegatorOnL1(context.account);
+        const isMigrated = await l2Migrator.migratedDelegators(context.account);
+        setIsMigrated(isMigrated);
 
-        // fetch calldata to be submitted for calling L2 function
-        // const { params } = await l1Migrator.getMigrateDelegatorParams(
-        //   context.account,
-        //   context.account
-        // );
-
-        setIsOrchestrator(status === "Registered" ? true : false);
-
-        setMigrationParams({
-          delegate: delegator.delegateAddress,
-          stake: delegator.pendingStake.toString(),
-          fees: delegator.pendingFees.toString(),
-          isOrchestrator: status === "Registered" ? true : false,
-        });
+        if (
+          status === "NotRegistered" &&
+          (delegator.pendingStake !== "0" ||
+            delegator.pendingStake !== "0" ||
+            unbondingLocks.length > 0)
+        ) {
+          setIsDelegator(true);
+          setMigrationParams({
+            delegate: delegator.delegateAddress,
+            stake: delegator.pendingStake,
+            fees: delegator.pendingFees,
+          });
+        }
         setLoading(false);
       }
     };
     init();
   }, [context.account]);
 
-  return loading || isOrchestrator ? null : (
+  return loading || !isDelegator || isMigrated ? null : (
     <Box
       css={{
         mt: "$5",
@@ -108,7 +102,7 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            {ethers.utils.formatEther(migrationParams.stake)} LPT
+            {ethers.utils.formatEther(migrationParams.stake)} LPT,
           </Box>
           {/* <Box css={{ display: "inline" }}>
             delegated with
@@ -130,7 +124,6 @@ const Claim = () => {
             </Box>
             ,
           </Box>{" "} */}
-          and
           <Box
             css={{
               display: "inline",
@@ -144,7 +137,7 @@ const Claim = () => {
           >
             {ethers.utils.formatEther(migrationParams.fees)} ETH
           </Box>
-          in earned fees will be available to claim on{" "}
+          in earned fees, and undelegated stake will be available to claim on{" "}
           {CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
           state snapshot.
         </Text>
@@ -254,29 +247,51 @@ const Claim = () => {
       )} */}
 
       <Flex css={{ mt: "$3", alignItems: "center" }}>
-        {/* <Button
+        <Button
           onClick={async () => {
-            const signer = l2Migrator.connect(context.library.getSigner());
-            try {
-              const tx = await signer.claimStake(
-                migrationParams.delegate,
-                migrationParams.stake.toString(),
-                migrationParams.fees.toString(),
-                [],
-                ethers.constants.AddressZero
-              );
-              console.log(tx);
-            } catch (e) {
-              console.log(e);
-            }
+            initTransaction(client, async () => {
+              try {
+                // generate the merkle tree from JSON
+                const tree = EarningsTree.fromJSON(
+                  JSON.stringify(delegatorClaimSnapshot)
+                );
+
+                // generate the proof
+                const leaf = utils.solidityPack(
+                  ["address", "address", "uint256", "uint256"],
+                  [
+                    context.account,
+                    migrationParams.delegate,
+                    migrationParams.stake,
+                    migrationParams.fees,
+                  ]
+                );
+
+                const proof = tree.getHexProof(leaf);
+                await claimStake({
+                  variables: {
+                    delegate: migrationParams.delegate,
+                    stake: migrationParams.stake,
+                    fees: migrationParams.fees,
+                    proof,
+                    newDelegate: constants.AddressZero,
+                  },
+                  context: {
+                    signer: context.library.getSigner(),
+                  },
+                });
+              } catch (e) {
+                console.log(e);
+                throw new Error(e);
+              }
+            });
           }}
           size="3"
           variant="transparentWhite"
-          disabled
           css={{ mr: "$2" }}
         >
           Claim Stake & Fees
-        </Button> */}
+        </Button>
         <Button
           as="a"
           href="https://discord.gg/XYJ7aVNqkS"

@@ -442,28 +442,6 @@ export async function vote(_obj, _args, _ctx) {
 }
 
 /**
- * Claim L2 stake
- * @param obj
- * @return {Promise}
- */
-export async function claimStake(_obj, _args, _ctx) {
-  const { _delegate, _stake, _fees, _proof, _newDelegate } = _args;
-  const signer = l2Migrator.connect(_ctx.provider.getSigner());
-  const tx = await signer.migrateDelegator(
-    _delegate,
-    _stake,
-    _fees,
-    _proof,
-    _newDelegate
-  );
-
-  return {
-    txHash: "0x",
-    inputData: {},
-  };
-}
-
-/**
  * Update's a user's 3box space
  * @param obj
  * @return {Promise}
@@ -507,4 +485,33 @@ export async function removeAddressLink(_obj, _args, _ctx) {
   const address = _args.address.toLowerCase();
   const box = _ctx.box;
   await box.removeAddressLink(address);
+}
+
+/**
+ * Claim L2 stake
+ * @param obj
+ * @return {Promise}
+ */
+export async function claimStake(_obj, _args, _ctx) {
+  try {
+    const { delegate, stake, fees, proof, newDelegate } = _args;
+    const l2MigratorWithSigner = l2Migrator.connect(_ctx.signer);
+    const tx = await l2MigratorWithSigner.claimStake(
+      delegate,
+      stake,
+      fees,
+      proof,
+      newDelegate
+    );
+    return {
+      txHash: tx.hash,
+      gas: 0,
+      inputData: {
+        ..._args,
+      },
+    };
+  } catch (e) {
+    console.log(e);
+    throw new Error(e);
+  }
 }

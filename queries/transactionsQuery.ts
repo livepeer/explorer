@@ -7,11 +7,6 @@ export const transactionsQuery = gql`
       confirmed
       txHash
       from
-      startTime
-      inputData
-      estimate
-      gas
-      gasPrice
       inputData
     }
   }

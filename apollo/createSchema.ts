@@ -170,6 +170,7 @@ const createSchema = async () => {
                 }
               }`,
             });
+
             return await _ctx.livepeer.rpc.getPendingStake(
               _delegator.id.toString(),
               data.protocol.currentRound.id.toString()

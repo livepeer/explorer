@@ -1,11 +1,7 @@
 [
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_l1Migrator",
-        "type": "address"
-      },
+      { "internalType": "address", "name": "_l1Migrator", "type": "address" },
       {
         "internalType": "address",
         "name": "_delegatorPoolImpl",
@@ -25,7 +21,8 @@
         "internalType": "address",
         "name": "_merkleSnapshotAddr",
         "type": "address"
-      }
+      },
+      { "internalType": "address", "name": "_tokenAddr", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -54,36 +51,16 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stake",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "stake", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "delegatedStake",
             "type": "uint256"
           },
-          {
-            "internalType": "uint256",
-            "name": "fees",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "delegate",
-            "type": "address"
-          }
+          { "internalType": "uint256", "name": "fees", "type": "uint256" },
+          { "internalType": "address", "name": "delegate", "type": "address" }
         ],
         "indexed": false,
         "internalType": "struct IMigrator.MigrateDelegatorParams",
@@ -99,26 +76,10 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deposit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "reserve",
-            "type": "uint256"
-          }
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "deposit", "type": "uint256" },
+          { "internalType": "uint256", "name": "reserve", "type": "uint256" }
         ],
         "indexed": false,
         "internalType": "struct IMigrator.MigrateSenderParams",
@@ -134,31 +95,15 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "total",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "total", "type": "uint256" },
           {
             "internalType": "uint256[]",
             "name": "unbondingLockIds",
             "type": "uint256[]"
           },
-          {
-            "internalType": "address",
-            "name": "delegate",
-            "type": "address"
-          }
+          { "internalType": "address", "name": "delegate", "type": "address" }
         ],
         "indexed": false,
         "internalType": "struct IMigrator.MigrateUnbondingLocksParams",
@@ -167,6 +112,81 @@
       }
     ],
     "name": "MigrateUnbondingLocksFinalized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "previousAdminRole",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newAdminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleRevoked",
     "type": "event"
   },
   {
@@ -233,44 +253,32 @@
   },
   {
     "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "GOVERNOR_ROLE",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "bondingManagerAddr",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_delegate",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_stake",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_fees",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_proof",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "address",
-        "name": "_newDelegate",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "_delegate", "type": "address" },
+      { "internalType": "uint256", "name": "_stake", "type": "uint256" },
+      { "internalType": "uint256", "name": "_fees", "type": "uint256" },
+      { "internalType": "bytes32[]", "name": "_proof", "type": "bytes32[]" },
+      { "internalType": "address", "name": "_newDelegate", "type": "address" }
     ],
     "name": "claimStake",
     "outputs": [],
@@ -280,64 +288,28 @@
   {
     "inputs": [],
     "name": "claimStakeEnabled",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "claimedDelegatedStake",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "delegatorPoolImpl",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "delegatorPools",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -345,36 +317,16 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stake",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "stake", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "delegatedStake",
             "type": "uint256"
           },
-          {
-            "internalType": "uint256",
-            "name": "fees",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "delegate",
-            "type": "address"
-          }
+          { "internalType": "uint256", "name": "fees", "type": "uint256" },
+          { "internalType": "address", "name": "delegate", "type": "address" }
         ],
         "internalType": "struct IMigrator.MigrateDelegatorParams",
         "name": "_params",
@@ -390,26 +342,10 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deposit",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "reserve",
-            "type": "uint256"
-          }
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "deposit", "type": "uint256" },
+          { "internalType": "uint256", "name": "reserve", "type": "uint256" }
         ],
         "internalType": "struct IMigrator.MigrateSenderParams",
         "name": "_params",
@@ -425,31 +361,15 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "l1Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "l2Addr",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "total",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "l1Addr", "type": "address" },
+          { "internalType": "address", "name": "l2Addr", "type": "address" },
+          { "internalType": "uint256", "name": "total", "type": "uint256" },
           {
             "internalType": "uint256[]",
             "name": "unbondingLockIds",
             "type": "uint256[]"
           },
-          {
-            "internalType": "address",
-            "name": "delegate",
-            "type": "address"
-          }
+          { "internalType": "address", "name": "delegate", "type": "address" }
         ],
         "internalType": "struct IMigrator.MigrateUnbondingLocksParams",
         "name": "_params",
@@ -462,101 +382,94 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" }
+    ],
+    "name": "getRoleAdmin",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "hasRole",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "l1Migrator",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "merkleSnapshotAddr",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "migratedDelegators",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "migratedSenders",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
     "name": "migratedUnbondingLocks",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
+    "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bool", "name": "_enabled", "type": "bool" }],
     "name": "setClaimStakeEnabled",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -566,9 +479,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_l1Migrator",
+        "name": "_delegatorPoolImpl",
         "type": "address"
       }
+    ],
+    "name": "setDelegatorPoolImpl",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_l1Migrator", "type": "address" }
     ],
     "name": "setL1Migrator",
     "outputs": [],
@@ -576,20 +498,27 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "ticketBrokerAddr",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
     ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "stateMutability": "payable",
-    "type": "receive"
-  }
+    "inputs": [],
+    "name": "ticketBrokerAddr",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenAddr",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "stateMutability": "payable", "type": "receive" }
 ]
