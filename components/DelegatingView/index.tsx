@@ -136,7 +136,7 @@ const Index = ({
                 mb: "$4",
               }}
             >
-              {abbreviateNumber(pendingStake, 5)}
+              {pendingStake}
               <Box as="span" css={{ ml: "$2" }}>
                 LPT
               </Box>
