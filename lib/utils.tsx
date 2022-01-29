@@ -243,6 +243,10 @@ export const txMessages = {
     pending: "Claiming Earnings",
     confirmed: "Earnings Claimed",
   },
+  claimStake: {
+    pending: "Claiming",
+    confirmed: "Claimed",
+  },
 };
 
 export const initTransaction = async (client, mutation) => {

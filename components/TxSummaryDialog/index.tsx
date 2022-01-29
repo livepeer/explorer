@@ -4,7 +4,8 @@ import {
   Flex,
   Dialog,
   DialogContent,
-  DialogClose,
+  Text,
+  Button,
 } from "@livepeer/design-system";
 import { keyframes } from "@livepeer/design-system";
 import CloseIcon from "../../public/img/close.svg";
@@ -51,28 +52,32 @@ const Index = ({ isOpen, onDismiss }) => {
           />
         </Flex>
 
-        <Flex
-          css={{
-            py: "$5",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            width: "100%",
-            alignItems: "center",
-            padding: "60px 0px",
-          }}
-        >
-          <Box
-            as="img"
-            src="/img/green-loader.svg"
-            alt="loader"
+        {data?.txSummaryModal?.error ? (
+          <Box />
+        ) : (
+          <Flex
             css={{
-              animation: `${rotate} 2s linear`,
-              animationIterationCount: "infinite",
-              height: "90px",
-              width: "90px",
+              py: "$5",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              width: "100%",
+              alignItems: "center",
+              padding: "60px 0px",
             }}
-          />
-        </Flex>
+          >
+            <Box
+              as="img"
+              src="/img/green-loader.svg"
+              alt="loader"
+              css={{
+                animation: `${rotate} 2s linear`,
+                animationIterationCount: "infinite",
+                height: "90px",
+                width: "90px",
+              }}
+            />
+          </Flex>
+        )}
         <Box
           css={{
             display: "grid",
@@ -86,11 +91,23 @@ const Index = ({ isOpen, onDismiss }) => {
               Waiting For Confirmation
             </Box>
           )}
-          <Box css={{ fontSize: "$2" }}>
-            {data?.txSummaryModal?.error
-              ? "Transaction Error"
-              : "Confirm this transaction in your wallet"}
-          </Box>
+        </Box>
+        <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
+          {data?.txSummaryModal?.error ? (
+            <>
+              <Text css={{ mb: "$3" }}>Transaction Error</Text>
+              <Button
+                onClick={onDismiss}
+                variant="primary"
+                size="4"
+                css={{ width: "100%" }}
+              >
+                Close
+              </Button>
+            </>
+          ) : (
+            <Text>Confirm this transaction in your wallet</Text>
+          )}
         </Box>
       </DialogContent>
     </Dialog>

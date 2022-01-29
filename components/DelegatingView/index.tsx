@@ -61,7 +61,6 @@ const Index = ({
   const rewards =
     pendingStake + (unbonded ? unbonded : 0) - +delegator.principal;
   const totalActiveStake = +protocol.totalActiveStake;
-
   const lifetimeEarnings = +delegator.pendingFees + +delegator.withdrawnFees;
   const withdrawButtonDisabled = delegator.pendingFees === "0";
 
@@ -197,7 +196,7 @@ const Index = ({
                   </Tooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  +{abbreviateNumber(rewards, 6)} LPT
+                  +{Math.abs(abbreviateNumber(rewards, 6))} LPT
                 </Text>
               </Flex>
             </Box>

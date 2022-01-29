@@ -8,8 +8,9 @@ import rebond from "./rebond.gql";
 import createPoll from "./createPoll.gql";
 import vote from "./vote.gql";
 import initializeRound from "./initializeRound.gql";
+import claimStake from "./claimStake.gql";
 
-export default {
+const mutations = {
   approve,
   bond,
   unbond,
@@ -20,4 +21,7 @@ export default {
   createPoll,
   vote,
   initializeRound,
+  claimStake,
 };
+
+export default mutations;

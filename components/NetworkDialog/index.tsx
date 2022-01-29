@@ -58,7 +58,7 @@ const NetworkDialog = () => {
 
   return (
     <Dialog open={!!error || (chainId && chainId !== targetChain)}>
-      <DialogContent css={{ maxWidth: 370, width: "100%", p: 0 }}>
+      <DialogContent css={{ maxWidth: 390, width: "100%", p: 0 }}>
         <DialogTitle asChild>
           <Heading
             size="1"

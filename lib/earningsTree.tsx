@@ -152,7 +152,7 @@ export interface IEarningsTree extends MerkleTree {
 export class EarningsTree extends MerkleTree implements IEarningsTree {
   constructor(delegators) {
     const leaves = delegators.map((d) =>
-      utils.defaultAbiCoder.encode(
+      utils.solidityPack(
         ["address", "uint256", "uint256"],
         [d.delegator, d.pendingStake, d.pendingFees]
       )

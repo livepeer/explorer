@@ -32,7 +32,10 @@ const Index = ({ tx, isOpen, onDismiss }) => {
         }
       }}
     >
-      <DialogContent onPointerDownOutside={onDismiss}>
+      <DialogContent
+        onPointerDownOutside={onDismiss}
+        css={{ maxWidth: 390, width: "100%" }}
+      >
         <DialogTitle asChild>
           <Heading
             size="1"
@@ -54,17 +57,6 @@ const Index = ({ tx, isOpen, onDismiss }) => {
             </Badge>
           </Heading>
         </DialogTitle>
-        {/* <Box
-          css={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: 4,
-            background:
-              "linear-gradient(260.35deg, #F1BC00 0.25%, #E926BE 47.02%, #9326E9 97.86%)",
-          }}
-        /> */}
         {renderSwitch({ tx, onDismiss })}
       </DialogContent>
     </Dialog>
@@ -268,6 +260,28 @@ function renderSwitch({ tx, onDismiss }) {
               Close
             </Button>
           </DialogClose>
+        </Box>
+      );
+    case "claimStake":
+      return (
+        <Box>
+          <Table css={{ mb: "$3" }}>
+            <Header tx={tx} />
+            <Box css={{ px: "$3", py: "$4" }}>
+              <Box>
+                Congrats! You&apos;ve successfully claimed your stake and fees
+                on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+              </Box>
+            </Box>
+          </Table>
+          <Button
+            onClick={onDismiss}
+            size="4"
+            variant="primary"
+            css={{ width: "100%" }}
+          >
+            Close
+          </Button>
         </Box>
       );
     default:

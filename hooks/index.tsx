@@ -31,44 +31,6 @@ export function useWeb3Mutation(mutation, options) {
       context: options?.context,
     });
 
-  const GET_TRANSACTION = gql`
-    query transaction($txHash: String) {
-      transaction(txHash: $txHash)
-    }
-  `;
-
-  const { data: transactionData, loading: transactionLoading } = useQuery(
-    GET_TRANSACTION,
-    {
-      ...options,
-      variables: {
-        txHash: data?.tx?.txHash,
-      },
-      skip: !data?.tx?.txHash,
-      fetchPolicy: "no-cache",
-      notifyOnNetworkStatusChange: true,
-    }
-  );
-
-  const GET_TX_PREDICTION = gql`
-    query txPrediction($gasPrice: String) {
-      txPrediction(gasPrice: $gasPrice)
-    }
-  `;
-
-  const { data: txPredictionData, loading: txPredictionLoading } = useQuery(
-    GET_TX_PREDICTION,
-    {
-      ...options,
-      variables: {
-        gasPrice: transactionData?.transaction?.gasPrice?.toString(),
-      },
-      skip: !transactionData?.transaction?.gasPrice?.toString(),
-      fetchPolicy: "no-cache",
-      notifyOnNetworkStatusChange: true,
-    }
-  );
-
   const { data: transactionsData } = useQuery(transactionsQuery);
 
   useEffect(() => {
@@ -84,29 +46,16 @@ export function useWeb3Mutation(mutation, options) {
             ...transactionsData?.txs.filter((t) => t.txHash !== data.tx.txHash),
             {
               __typename: mutation.definitions[0].name.value,
-              txHash: data.tx.txHash,
-              startTime: new Date().getTime(),
+              txHash: data.tx?.txHash,
               from: context.account,
               inputData: JSON.stringify(data.tx.inputData),
               confirmed: !!transactionStatusData?.getTxReceiptStatus?.status,
-              estimate: txPredictionData?.txPrediction?.result
-                ? txPredictionData?.txPrediction?.result
-                : null,
-              gas: data.tx.gas,
-              gasPrice: transactionData?.transaction?.gasPrice?.toString()
-                ? transactionData?.transaction?.gasPrice?.toString()
-                : null,
             },
           ],
         },
       });
     }
-  }, [
-    dataLoading,
-    transactionLoading,
-    txPredictionLoading,
-    transactionStatusLoading,
-  ]);
+  }, [dataLoading, transactionStatusLoading]);
   return {
     mutate,
   };
@@ -216,35 +165,6 @@ export function useMutations() {
     mutationsObj[key] = mutate;
   }
   return mutationsObj;
-}
-
-export function useTimeEstimate({ startTime, estimate }) {
-  const [timeLeft, setTimeLeft] = useState(null);
-  const [timeElapsed] = useState((new Date().getTime() - startTime) / 1000);
-
-  useEffect(() => {
-    if (estimate) {
-      setTimeLeft(estimate - timeElapsed);
-    }
-  }, [estimate]);
-
-  useEffect(() => {
-    // exit early when we reach 0
-    if (!timeLeft) return;
-
-    // save intervalId to clear the interval when the
-    // component re-renders
-    const intervalId = setInterval(() => {
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
-
-    // clear interval on re-render to avoid memory leaks
-    return () => clearInterval(intervalId);
-    // add timeLeft as a dependency to re-rerun the effect
-    // when we update it
-  }, [timeLeft]);
-
-  return { timeLeft };
 }
 
 export function getBrowserVisibilityProp() {

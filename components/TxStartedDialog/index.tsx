@@ -1,4 +1,3 @@
-import { useTimeEstimate } from "../../hooks";
 import { txMessages } from "@lib/utils";
 import Utils from "web3-utils";
 import Spinner from "../Spinner";
@@ -18,11 +17,6 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
-  const { timeLeft } = useTimeEstimate({
-    startTime: tx?.startTime,
-    estimate: tx?.estimate,
-  });
-
   return (
     <Dialog
       open={isOpen}
@@ -53,24 +47,10 @@ const Index = ({ tx, isOpen, onDismiss }) => {
           </Badge>
         </Heading>
       </DialogTitle>
-      <DialogContent css={{ minWidth: 370 }}>
-        <Box
-          css={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: timeLeft
-              ? `${((tx?.estimate - timeLeft) / tx?.estimate) * 100}%`
-              : "0%",
-            height: 4,
-            background:
-              "linear-gradient(260.35deg, #F1BC00 0.25%, #E926BE 47.02%, #9326E9 97.86%)",
-          }}
-        />
-
+      <DialogContent css={{ maxWidth: 370, width: "100%" }}>
         <Box>
-          <Header tx={tx} timeLeft={timeLeft} />
-          <Box>{Table({ tx, timeLeft })}</Box>
+          <Header tx={tx} />
+          <Box>{Table({ tx })}</Box>
         </Box>
 
         <DialogClose asChild>
@@ -85,7 +65,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
 
 export default Index;
 
-function Table({ tx, timeLeft }) {
+function Table({ tx }) {
   return (
     <Box
       css={{
@@ -183,6 +163,18 @@ function Inputs({ tx }) {
       return null;
     case "initializeRound":
       return null;
+    case "claimStake":
+      return (
+        <>
+          <Row>
+            <Box>Stake</Box> {tx.inputData && Utils.fromWei(inputData.stake)}
+          </Row>
+
+          <Row>
+            <Box>Fees</Box> {tx.inputData && Utils.fromWei(inputData.fees)} LPT
+          </Row>
+        </>
+      );
     default:
       return null;
   }
@@ -208,7 +200,7 @@ function Row({ css = {}, children, ...props }) {
   );
 }
 
-function Header({ css = {}, tx, timeLeft }) {
+function Header({ css = {}, tx }) {
   return (
     <Flex
       css={{

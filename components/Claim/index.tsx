@@ -1,38 +1,22 @@
-import {
-  Box,
-  Text,
-  Flex,
-  Button,
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Link as A,
-} from "@livepeer/design-system";
-import {
-  ChevronDownIcon,
-  Link1Icon,
-  ArrowTopRightIcon,
-} from "@modulz/radix-icons";
+import { Box, Text, Flex, Button, Link as A } from "@livepeer/design-system";
+import { Link1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
-  l1Migrator,
-  l1Provider,
   L1_CHAIN_ID,
   l2Migrator,
 } from "constants/chains";
 import { ethers, constants, utils } from "ethers";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import LivepeerSDK from "@livepeer/sdk";
 import { EarningsTree } from "@lib/earningsTree";
-import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot";
-
-import earningsTree from "../../data/earningsTree";
+import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
+import { useApolloClient } from "@apollo/client";
+import { initTransaction } from "@lib/utils";
+import { MutationsContext } from "contexts";
 
 const getDelegatorOnL1 = async (account) => {
   const sdk = await LivepeerSDK({
@@ -40,7 +24,6 @@ const getDelegatorOnL1 = async (account) => {
     provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
     account: account,
   });
-
   const delegator = await sdk.rpc.getDelegator(account);
   const status = await sdk.rpc.getTranscoderStatus(account);
   const unbondingLocks = await sdk.rpc.getDelegatorUnbondingLocks(account);
@@ -49,60 +32,22 @@ const getDelegatorOnL1 = async (account) => {
 
 const Claim = () => {
   const context = useWeb3React();
+  const client = useApolloClient();
+  const { claimStake }: any = useContext(MutationsContext);
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [isDelegator, setIsDelegator] = useState(false);
+  const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const onClaimStake = async () => {
-    // generate the merkle tree from JSON
-    const tree = EarningsTree.fromJSON(JSON.stringify(delegatorClaimSnapshot));
-
-    // generate the proof
-    const leaf = utils.defaultAbiCoder.encode(
-      ["address", "address", "uint256", "uint256"],
-      [
-        context.account,
-        migrationParams.delegate,
-        migrationParams.stake,
-        migrationParams.fees,
-      ]
-    );
-
-    const proof = tree.getHexProof(leaf);
-
-    const sdk = await LivepeerSDK({
-      controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-      provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-      account: context.account,
-    });
-
-    const validProof = await sdk.rpc.verifySnapshot(
-      utils.keccak256(utils.toUtf8Bytes("LIP-73")),
-      proof,
-      utils.keccak256(leaf)
-    );
-
-    console.log("validProof", validProof);
-
-    const signer = l2Migrator.connect(context.library.getSigner());
-    const tx = await signer.claimStake(
-      migrationParams.delegate,
-      migrationParams.stake,
-      migrationParams.fees,
-      proof,
-      constants.AddressZero
-    );
-    return tx;
-  };
 
   useEffect(() => {
     const init = async () => {
       if (context.account) {
-        setLoading(true);
-
         const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
           context.account
         );
+
+        const isMigrated = await l2Migrator.migratedDelegators(context.account);
+        setIsMigrated(isMigrated);
 
         if (
           status === "NotRegistered" &&
@@ -123,7 +68,7 @@ const Claim = () => {
     init();
   }, [context.account]);
 
-  return loading || !isDelegator ? null : (
+  return loading || !isDelegator || isMigrated ? null : (
     <Box
       css={{
         mt: "$5",
@@ -304,7 +249,42 @@ const Claim = () => {
       <Flex css={{ mt: "$3", alignItems: "center" }}>
         <Button
           onClick={async () => {
-            await onClaimStake();
+            initTransaction(client, async () => {
+              try {
+                // generate the merkle tree from JSON
+                const tree = EarningsTree.fromJSON(
+                  JSON.stringify(delegatorClaimSnapshot)
+                );
+
+                // generate the proof
+                const leaf = utils.solidityPack(
+                  ["address", "address", "uint256", "uint256"],
+                  [
+                    context.account,
+                    migrationParams.delegate,
+                    migrationParams.stake,
+                    migrationParams.fees,
+                  ]
+                );
+
+                const proof = tree.getHexProof(leaf);
+                await claimStake({
+                  variables: {
+                    delegate: migrationParams.delegate,
+                    stake: migrationParams.stake,
+                    fees: migrationParams.fees,
+                    proof,
+                    newDelegate: constants.AddressZero,
+                  },
+                  context: {
+                    signer: context.library.getSigner(),
+                  },
+                });
+              } catch (e) {
+                console.log(e);
+                throw new Error(e);
+              }
+            });
           }}
           size="3"
           variant="transparentWhite"
