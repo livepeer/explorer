@@ -41,6 +41,7 @@ const Index = () => {
     gql`
       {
         protocol(id: "0") {
+          id
           roundLength
         }
       }
