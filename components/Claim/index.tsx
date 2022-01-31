@@ -56,7 +56,7 @@ const Claim = () => {
           status === "NotRegistered" &&
           (delegator.pendingStake !== "0" ||
             delegator.pendingStake !== "0" ||
-            unbondingLocks.length > 0)
+            unbondingLocks.length > 1)
         ) {
           setIsDelegator(true);
           setMigrationParams({
