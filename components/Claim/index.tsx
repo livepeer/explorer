@@ -36,6 +36,7 @@ const Claim = () => {
   const { claimStake }: any = useContext(MutationsContext);
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [isDelegator, setIsDelegator] = useState(false);
+  const [isClaimStakeEnabled, setIsClaimStakeEnabled] = useState(false);
   const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +46,8 @@ const Claim = () => {
         const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
           context.account
         );
+        const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
+        setIsClaimStakeEnabled(claimStakeEnabled);
 
         const isMigrated = await l2Migrator.migratedDelegators(context.account);
         setIsMigrated(isMigrated);
@@ -89,6 +92,7 @@ const Claim = () => {
         >
           Claim stake & fees on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
         </Box>
+
         <Text>
           Your delegated stake of
           <Box
@@ -102,28 +106,9 @@ const Claim = () => {
               letterSpacing: "-.4px",
             }}
           >
-            {ethers.utils.formatEther(migrationParams.stake)} LPT,
+            {ethers.utils.formatEther(migrationParams.stake)} LPT
           </Box>
-          {/* <Box css={{ display: "inline" }}>
-            delegated with
-            <Box
-              css={{
-                display: "inline",
-                fontWeight: 700,
-                borderBottom: "1px dashed $neutral11",
-                fontSize: "$3",
-                color: "$hiContrast",
-                ml: "$1",
-                letterSpacing: "-.4px",
-              }}
-            >
-              {migrationParams.delegate.replace(
-                migrationParams.delegate.slice(6, 38),
-                "…"
-              )}
-            </Box>
-            ,
-          </Box>{" "} */}
+          and
           <Box
             css={{
               display: "inline",
@@ -137,10 +122,58 @@ const Claim = () => {
           >
             {ethers.utils.formatEther(migrationParams.fees)} ETH
           </Box>
-          in earned fees, and undelegated stake will be available to claim on{" "}
-          {CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
-          state snapshot.
+          in earned fees{" "}
+          {isClaimStakeEnabled
+            ? `is availabile to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`
+            : `will be available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
+          state snapshot.`}
         </Text>
+      </Box>
+      <Box
+        css={{
+          mt: "$3",
+          mb: "$5",
+          maxWidth: 300,
+          // cursor: "pointer",
+          // "&:hover": {
+          //   ".delegateAddress": {
+          //     transition: ".2s border-bottom",
+          //     borderBottom: "1px solid rgba(255,255,255, 1)",
+          //   },
+          // },
+        }}
+      >
+        <Text
+          css={{
+            fontSize: "$1",
+            lineHeight: 1.9,
+            color: "rgba(255,255,255, .6)",
+          }}
+        >
+          Delegating with
+        </Text>
+        <Box
+          className="delegateAddress"
+          css={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            pb: "$1",
+            borderBottom: "1px solid rgba(255,255,255, .2)",
+            // transition: ".1s border-bottom",
+            // "&:hover": {
+            //   transition: ".1s border-bottom",
+            //   borderBottom: "1px solid rgba(255,255,255, 1)",
+            // },
+          }}
+        >
+          {migrationParams.delegate.replace(
+            migrationParams.delegate.slice(6, 38),
+            "…"
+          )}
+
+          {/* <Box css={{ mr: "$2" }} as={ChevronDownIcon} /> */}
+        </Box>
       </Box>
       {/* {!delegateMigrated && (
         <Dialog>
@@ -247,51 +280,53 @@ const Claim = () => {
       )} */}
 
       <Flex css={{ mt: "$3", alignItems: "center" }}>
-        <Button
-          onClick={async () => {
-            initTransaction(client, async () => {
-              try {
-                // generate the merkle tree from JSON
-                const tree = EarningsTree.fromJSON(
-                  JSON.stringify(delegatorClaimSnapshot)
-                );
+        {isClaimStakeEnabled && (
+          <Button
+            onClick={async () => {
+              initTransaction(client, async () => {
+                try {
+                  // generate the merkle tree from JSON
+                  const tree = EarningsTree.fromJSON(
+                    JSON.stringify(delegatorClaimSnapshot)
+                  );
 
-                // generate the proof
-                const leaf = utils.solidityPack(
-                  ["address", "address", "uint256", "uint256"],
-                  [
-                    context.account,
-                    migrationParams.delegate,
-                    migrationParams.stake,
-                    migrationParams.fees,
-                  ]
-                );
+                  // generate the proof
+                  const leaf = utils.solidityPack(
+                    ["address", "address", "uint256", "uint256"],
+                    [
+                      context.account,
+                      migrationParams.delegate,
+                      migrationParams.stake,
+                      migrationParams.fees,
+                    ]
+                  );
 
-                const proof = tree.getHexProof(leaf);
-                await claimStake({
-                  variables: {
-                    delegate: migrationParams.delegate,
-                    stake: migrationParams.stake,
-                    fees: migrationParams.fees,
-                    proof,
-                    newDelegate: constants.AddressZero,
-                  },
-                  context: {
-                    signer: context.library.getSigner(),
-                  },
-                });
-              } catch (e) {
-                console.log(e);
-                throw new Error(e);
-              }
-            });
-          }}
-          size="3"
-          variant="transparentWhite"
-          css={{ mr: "$2" }}
-        >
-          Claim Stake & Fees
-        </Button>
+                  const proof = tree.getHexProof(leaf);
+                  await claimStake({
+                    variables: {
+                      delegate: migrationParams.delegate,
+                      stake: migrationParams.stake,
+                      fees: migrationParams.fees,
+                      proof,
+                      newDelegate: constants.AddressZero,
+                    },
+                    context: {
+                      signer: context.library.getSigner(),
+                    },
+                  });
+                } catch (e) {
+                  console.log(e);
+                  throw new Error(e);
+                }
+              });
+            }}
+            size="3"
+            variant="transparentWhite"
+            css={{ mr: "$2" }}
+          >
+            Claim Stake & Fees
+          </Button>
+        )}
         <Button
           as="a"
           href="https://discord.gg/XYJ7aVNqkS"
