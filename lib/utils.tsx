@@ -249,7 +249,7 @@ export const txMessages = {
   },
 };
 
-export const initTransaction = async (client, mutation) => {
+export const initTransaction = async (client, mutation, callback = null) => {
   try {
     client.writeQuery({
       query: gql`
@@ -271,6 +271,10 @@ export const initTransaction = async (client, mutation) => {
     });
 
     await mutation();
+
+    if (callback) {
+      callback();
+    }
 
     client.writeQuery({
       query: gql`

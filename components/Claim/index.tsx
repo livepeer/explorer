@@ -284,7 +284,7 @@ const Claim = () => {
         {isClaimStakeEnabled && (
           <Button
             onClick={async () => {
-              initTransaction(client, async () => {
+              const mutation = async () => {
                 try {
                   // generate the merkle tree from JSON
                   const tree = EarningsTree.fromJSON(
@@ -319,7 +319,8 @@ const Claim = () => {
                   console.log(e);
                   throw new Error(e);
                 }
-              });
+              };
+              initTransaction(client, mutation, () => setIsMigrated(true));
             }}
             size="3"
             variant="transparentWhite"
