@@ -55,11 +55,12 @@ const Claim = () => {
         if (
           status === "NotRegistered" &&
           (delegator.pendingStake !== "0" ||
-            delegator.pendingStake !== "0" ||
+            delegator.pendingFees !== "0" ||
             unbondingLocks.length > 1)
         ) {
           setIsDelegator(true);
           setMigrationParams({
+            // TODO: use 3box name if available
             delegate: delegator.delegateAddress,
             stake: delegator.pendingStake,
             fees: delegator.pendingFees,
