@@ -38,7 +38,7 @@ const InactiveWarning = () => {
 
   // If delegate is inactive and not pending activation show warning
   const showWarning =
-    !data?.delegator?.delegate?.active === false && !isPendingActivation;
+    data?.delegator?.delegate?.active === false && !isPendingActivation;
 
   if (!showWarning || loading || isOrchestrator) {
     return null;
