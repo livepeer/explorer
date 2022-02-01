@@ -23,6 +23,7 @@ import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "@lib/utils";
 import { MutationsContext } from "contexts";
+import ThreeBox from "3box";
 
 const getDelegatorOnL1 = async (account) => {
   const sdk = await LivepeerSDK({
@@ -64,9 +65,11 @@ const Claim = () => {
             delegator.pendingFees !== "0" ||
             unbondingLocks.length > 1)
         ) {
+          const space = await ThreeBox.getSpace(delegator.delegateAddress, "livepeer");
+
           setIsDelegator(true);
           setMigrationParams({
-            // TODO: use 3box name if available
+            delegateName: space?.name,
             delegate: delegator.delegateAddress,
             stake: delegator.pendingStake,
             fees: delegator.pendingFees,
@@ -141,7 +144,7 @@ const Claim = () => {
           css={{
             mt: "$3",
             mb: "$5",
-            maxWidth: 300,
+            maxWidth: 350,
           }}
         >
           <Text
@@ -166,7 +169,7 @@ const Claim = () => {
             {migrationParams.delegate.replace(
               migrationParams.delegate.slice(6, 38),
               "…"
-            )}
+            )} {migrationParams?.delegateName && `(${migrationParams.delegateName})`}
           </Box>
         </Box>
 
