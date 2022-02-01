@@ -210,7 +210,10 @@ const createSchema = async () => {
       Poll: {
         totalVoteStake: {
           async resolve(_poll, _args, _ctx, _info) {
-            return +_poll?.tally?.no + +_poll?.tally?.yes;
+            const totalVoteStake = _poll?.tally
+              ? +_poll.tally.no + +_poll.tally.yes
+              : 0;
+            return totalVoteStake;
           },
         },
         totalNonVoteStake: {
@@ -223,7 +226,9 @@ const createSchema = async () => {
               _ctx,
               isActive ? blockNumber : _poll.endBlock
             );
-            const totalVoteStake = +_poll?.tally?.no + +_poll?.tally?.yes;
+            const totalVoteStake = _poll?.tally
+              ? +_poll.tally.no + +_poll.tally.yes
+              : 0;
             return +Utils.fromWei(totalStake) - totalVoteStake;
           },
         },
