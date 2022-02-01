@@ -40,6 +40,7 @@ import Hamburger from "@components/Hamburger";
 import { isL2ChainId } from "@lib/chains";
 import Image from "next/image";
 import { useWeb3React } from "@web3-react/core";
+import InactiveWarning from "@components/InactiveWarning";
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -230,9 +231,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       px: "$2",
                       width: "100%",
                       alignItems: "center",
-                      color: "black",
+                      color: "$hiContrast",
                       justifyContent: "center",
-                      background: "orange",
+                      bc: "amber11",
                       fontWeight: 500,
                       fontSize: "$3",
                     }}
@@ -417,13 +418,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       }}
                     >
                       <Box css={{ width: "100%" }}>
+                        {account && <InactiveWarning />}
                         {pathname !== "/migrate" &&
                           isL2ChainId(DEFAULT_CHAIN_ID) &&
-                          account && (
-                            <Container size="3" css={{ mb: "$5" }}>
-                              <Claim />
-                            </Container>
-                          )}
+                          account && <Claim />}
                         {children}
                       </Box>
                     </Flex>
