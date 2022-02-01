@@ -1,5 +1,5 @@
 import { Box, Text, Flex, Button, Link as A } from "@livepeer/design-system";
-import { Link1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
@@ -9,7 +9,6 @@ import {
   l2Migrator,
 } from "constants/chains";
 import { ethers, constants, utils } from "ethers";
-import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import LivepeerSDK from "@livepeer/sdk";
 import { EarningsTree } from "@lib/earningsTree";
@@ -135,13 +134,6 @@ const Claim = () => {
           mt: "$3",
           mb: "$5",
           maxWidth: 300,
-          // cursor: "pointer",
-          // "&:hover": {
-          //   ".delegateAddress": {
-          //     transition: ".2s border-bottom",
-          //     borderBottom: "1px solid rgba(255,255,255, 1)",
-          //   },
-          // },
         }}
       >
         <Text
@@ -161,124 +153,14 @@ const Claim = () => {
             justifyContent: "space-between",
             pb: "$1",
             borderBottom: "1px solid rgba(255,255,255, .2)",
-            // transition: ".1s border-bottom",
-            // "&:hover": {
-            //   transition: ".1s border-bottom",
-            //   borderBottom: "1px solid rgba(255,255,255, 1)",
-            // },
           }}
         >
           {migrationParams.delegate.replace(
             migrationParams.delegate.slice(6, 38),
             "…"
           )}
-
-          {/* <Box css={{ mr: "$2" }} as={ChevronDownIcon} /> */}
         </Box>
       </Box>
-      {/* {!delegateMigrated && (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Box
-              css={{
-                mt: "$3",
-                mb: "$5",
-                maxWidth: 300,
-                cursor: "pointer",
-                "&:hover": {
-                  ".delegateAddress": {
-                    transition: ".2s border-bottom",
-                    borderBottom: "1px solid rgba(255,255,255, 1)",
-                  },
-                },
-              }}
-            >
-              <Text
-                css={{
-                  fontSize: "$1",
-                  lineHeight: 1.9,
-                  color: "rgba(255,255,255, .6)",
-                }}
-              >
-                Continue delegating with
-              </Text>
-              <Box
-                className="delegateAddress"
-                css={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  pb: "$1",
-                  borderBottom: "1px solid rgba(255,255,255, .2)",
-                  transition: ".1s border-bottom",
-                  "&:hover": {
-                    transition: ".1s border-bottom",
-                    borderBottom: "1px solid rgba(255,255,255, 1)",
-                  },
-                }}
-              >
-                {migrationParams.delegate.replace(
-                  migrationParams.delegate.slice(6, 38),
-                  "…"
-                )}
-
-                <Box css={{ mr: "$2" }} as={ChevronDownIcon} />
-              </Box>
-            </Box>
-          </DialogTrigger>
-          <DialogContent css={{ p: 0 }}>
-            <Box css={{ minWidth: 375 }}>
-              <Flex
-                css={{
-                  py: "$2",
-                  px: "$4",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  borderBottom: "1px solid $neutral5",
-                }}
-              >
-                <DialogTitle asChild>
-                  <TextField
-                    size="3"
-                    css={{
-                      boxShadow: "none",
-                      border: 0,
-                      fontSize: "$4",
-                      bc: "transparent",
-                      "&:active": {
-                        border: 0,
-                        boxShadow: "none",
-                      },
-                      "&:focus": {
-                        border: 0,
-                        boxShadow: "none",
-                      },
-                    }}
-                    placeholder="Search orchestrators..."
-                  />
-                </DialogTitle>
-              </Flex>
-
-              <Box
-                css={{
-                  overflowY: "scroll",
-                  maxHeight: 300,
-                }}
-              >
-                <Box css={{ px: "$3", pb: "$4" }}>
-                  <OrchestratorCard active />
-                  <OrchestratorCard />
-                  <OrchestratorCard />
-                  <OrchestratorCard />
-                  <OrchestratorCard />
-                  <OrchestratorCard />
-                  <OrchestratorCard />
-                </Box>
-              </Box>
-            </Box>
-          </DialogContent>
-        </Dialog>
-      )} */}
 
       <Flex css={{ mt: "$3", alignItems: "center" }}>
         {isClaimStakeEnabled && (
@@ -341,94 +223,6 @@ const Claim = () => {
           <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
         </Button>
       </Flex>
-    </Box>
-  );
-};
-
-const OrchestratorCard = ({ active = false, css = {} }) => {
-  return (
-    <Box
-      css={{
-        p: "$3",
-        bc: "transparent",
-        border: "1px solid transparent",
-        borderTop: "1px solid $neutral5",
-        cursor: active ? "default" : "pointer",
-        "&:before": {
-          boxShadow: "none",
-        },
-        "&:first-child": {
-          borderTop: "1px solid transparent",
-        },
-        "&:hover": {
-          borderRadius: "$4",
-          border: "1px solid",
-          borderColor: active ? "transparent" : "$neutral5",
-          bc: active ? "transparent" : "$neutral4",
-        },
-        "&:hover:not(:first-child) + div": {
-          borderTop: "1px solid transparent",
-        },
-        ...css,
-      }}
-    >
-      <Box css={{ opacity: active ? 0.3 : "1" }}>
-        <Flex
-          css={{
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontWeight: 600,
-            fontSize: "$3",
-          }}
-        >
-          titannode.eth (Titan Node)
-          <Link
-            href={`/accounts/0xbe8770603daf200b1fa136ad354ba854928e602b/orchestrating`}
-            passHref
-          >
-            <A
-              target="_blank"
-              rel="noopener noreferrer"
-              css={{
-                transition: ".2s background-color",
-                p: "$1",
-                borderRadius: 1000,
-                "&:hover": {
-                  bc: "$neutral6",
-                  transition: ".2s background-color",
-                },
-              }}
-            >
-              <Box as={Link1Icon} />
-            </A>
-          </Link>
-        </Flex>
-        <Flex
-          css={{
-            color: "$neutral10",
-            fontSize: "$2",
-            mt: "$1",
-            gap: "$2",
-            flexWrap: "wrap",
-          }}
-          gap="2"
-        >
-          <Box
-            css={{
-              fontWeight: 700,
-            }}
-          >
-            20% reward cut,
-          </Box>
-          <Box
-            css={{
-              fontWeight: 700,
-            }}
-          >
-            20% fee cut
-          </Box>
-        </Flex>
-      </Box>
     </Box>
   );
 };
