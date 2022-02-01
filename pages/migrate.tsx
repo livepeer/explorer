@@ -639,10 +639,9 @@ const Migrate = () => {
       <Card
         css={{
           pt: "$5",
-
           borderRadius: "$4",
           backgroundColor: "$panel",
-          border: "1px solid $neutral3",
+          border: "1px solid $neutral4",
           mb: "$8",
         }}
       >
