@@ -50,6 +50,11 @@ const Claim = () => {
   useEffect(() => {
     const init = async () => {
       if (context.account) {
+        setLoading(true);
+        
+        // reset on account change
+        setIsDelegator(false);
+
         const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
           context.account
         );
@@ -59,21 +64,21 @@ const Claim = () => {
         const isMigrated = await l2Migrator.migratedDelegators(context.account);
         setIsMigrated(isMigrated);
 
+        const space = await ThreeBox.getSpace(delegator.delegateAddress, "livepeer");
+        setMigrationParams({
+          delegateName: space?.name,
+          delegate: delegator.delegateAddress,
+          stake: delegator.pendingStake,
+          fees: delegator.pendingFees,
+        });
+
         if (
           status === "NotRegistered" &&
           (delegator.pendingStake !== "0" ||
             delegator.pendingFees !== "0" ||
             unbondingLocks.length > 1)
-        ) {
-          const space = await ThreeBox.getSpace(delegator.delegateAddress, "livepeer");
-
+        ) {      
           setIsDelegator(true);
-          setMigrationParams({
-            delegateName: space?.name,
-            delegate: delegator.delegateAddress,
-            stake: delegator.pendingStake,
-            fees: delegator.pendingFees,
-          });
         }
         setLoading(false);
       }
@@ -117,7 +122,7 @@ const Claim = () => {
                 letterSpacing: "-.4px",
               }}
             >
-              {ethers.utils.formatEther(migrationParams.stake)} LPT
+              {ethers.utils.formatEther(migrationParams?.stake)} LPT
             </Box>
             and
             <Box
