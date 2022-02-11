@@ -134,6 +134,7 @@ const Index = ({
             <Box
               css={{
                 mb: "$4",
+                fontSize: 26,
               }}
             >
               {pendingStake}
@@ -196,7 +197,7 @@ const Index = ({
                   </Tooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  +{Math.abs(abbreviateNumber(rewards, 6))} LPT
+                  +{Math.abs(parseFloat(abbreviateNumber(rewards, 6)))} LPT
                 </Text>
               </Flex>
             </Box>
@@ -209,6 +210,7 @@ const Index = ({
             <Box
               css={{
                 mb: "$4",
+                fontSize: 26,
               }}
             >
               <NumberFormat
