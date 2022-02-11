@@ -159,22 +159,28 @@ const Home = () => {
                 <Heading size="2" css={{ fontWeight: 600 }}>
                   Orchestrators
                 </Heading>
-                {/* <Link href="/leaderboard" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{
-                      mr: "$3",
-                      color: "$hiContrast",
-                      fontSize: "$2",
-                      ml: "$5",
-                    }}
-                  >
-                    <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
-                    Performance Leaderboard
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                  </Button>
-                </Link> */}
+                {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+                  process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+                  <Link href="/leaderboard" passHref>
+                    <Button
+                      ghost
+                      as={A}
+                      css={{
+                        mr: "$3",
+                        color: "$hiContrast",
+                        fontSize: "$2",
+                        ml: "$5",
+                        "&:hover": {
+                          textDecoration: "none",
+                        },
+                      }}
+                    >
+                      <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
+                      Performance Leaderboard
+                      <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    </Button>
+                  </Link>
+                )}
               </Flex>
               <Flex align="center">
                 <Link href="/orchestrators" passHref>

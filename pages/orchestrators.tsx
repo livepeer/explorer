@@ -46,22 +46,28 @@ const OrchestratorsPage = () => {
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
             </Heading>
-            {/* <Link href="/leaderboard" passHref>
-              <Button
-                ghost
-                as={A}
-                css={{
-                  mr: "$3",
-                  color: "$hiContrast",
-                  fontSize: "$2",
-                  ml: "$5",
-                }}
-              >
-                <Box css={{ display: "inline", mr: "$2" }}>💪</Box> Performance
-                Leaderboard
-                <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-              </Button>
-            </Link> */}
+            {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+              process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+              <Link href="/leaderboard" passHref>
+                <Button
+                  ghost
+                  as={A}
+                  css={{
+                    mr: "$3",
+                    color: "$hiContrast",
+                    fontSize: "$2",
+                    ml: "$5",
+                    "&:hover": {
+                      textDecoration: "none",
+                    },
+                  }}
+                >
+                  <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
+                  Performance Leaderboard
+                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                </Button>
+              </Link>
+            )}
           </Flex>
           <Box css={{ mb: "$5" }}>
             {loading ? (
