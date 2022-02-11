@@ -270,7 +270,8 @@ function renderSwitch({ tx, onDismiss }) {
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
                 Congrats! You&apos;ve successfully claimed your stake and fees
-                on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}. Your account page will reflect your balance momentarily.
+                on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}. Your account page will
+                reflect your balance momentarily.
               </Box>
             </Box>
           </Table>
