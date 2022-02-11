@@ -224,6 +224,8 @@ const Poll = () => {
               </Text>
               {pollData.isActive && (
                 <Button
+                  size="4"
+                  variant="primary"
                   css={{
                     display: "flex",
                     mt: "$3",
