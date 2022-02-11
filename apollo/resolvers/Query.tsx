@@ -18,7 +18,6 @@ import {
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
   IS_TESTNET,
-  l1Provider,
   L1_CHAIN_ID,
 } from "constants/chains";
 import LivepeerSDK from "@livepeer/sdk";
@@ -284,11 +283,11 @@ export async function getChartData(_obj?, _args?, _ctx?, _info?) {
       livepeerComDayData = await getLivepeerComUsageData();
       livepeerComOneWeekData = await getLivepeerComUsageData({
         fromTime: +new Date(2020, 0),
-        toTime: utcOneWeekBack * 1000, // Livepeer.com api uses milliseconds
+        toTime: utcOneWeekBack * 1000, // api uses milliseconds
       });
       livepeerComTwoWeekData = await getLivepeerComUsageData({
         fromTime: +new Date(2020, 0),
-        toTime: utcTwoWeeksBack * 1000, // Livepeer.com api uses milliseconds
+        toTime: utcTwoWeeksBack * 1000, // api uses milliseconds
       });
     }
 
