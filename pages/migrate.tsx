@@ -641,7 +641,7 @@ const Migrate = () => {
           pt: "$5",
           borderRadius: "$4",
           backgroundColor: "$panel",
-          border: "1px solid $neutral4",
+          border: "1px solid $neutral5",
           mb: "$8",
         }}
       >
