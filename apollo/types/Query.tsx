@@ -38,7 +38,7 @@ type Query {
   ens(id: ID!): ENS
   block: JSON
   l1Block: JSON
-  getChartData: JSON
+  chartData: JSON
   currentRoundInfo: JSON
 }
 `;

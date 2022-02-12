@@ -587,11 +587,24 @@ export const getLivepeerComUsageData = async (
   params?: LivepeerComUsageParams
 ) => {
   try {
-    const endpoint = `/api/minutes${
+    const endpoint = `https://livepeer.com/api/usage${
       params ? `?fromTime=${params.fromTime}&toTime=${params.toTime}` : ""
     }`;
-    const livepeerComUsageDataReponse = await fetch(endpoint);
-    return await livepeerComUsageDataReponse.json();
+    const livepeerComUsageDataReponse = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.LIVEPEER_COM_API_ADMIN_TOKEN}`,
+      },
+    });
+    const livepeerComUsageData = await livepeerComUsageDataReponse.json();
+
+    // convert date format from milliseconds to seconds before merging
+    const arr = livepeerComUsageData.map((day) => ({
+      ...day,
+      date: day.date / 1000,
+    }));
+    console.log("wat", arr);
+    return arr;
   } catch (e) {
     console.log(e);
   }

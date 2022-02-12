@@ -163,7 +163,7 @@ export async function l1Block(_obj, _args, _ctx, _info) {
   };
 }
 
-export async function getChartData(_obj?, _args?, _ctx?, _info?) {
+export async function chartData(_obj?, _args?, _ctx?, _info?) {
   const data = {
     dayData: [],
     weeklyData: [],

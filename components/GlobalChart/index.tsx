@@ -1,19 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { ResponsiveContainer } from "recharts";
 import TradingviewChart, { CHART_TYPES } from "../TradingviewChart";
-import { gql, useQuery } from "@apollo/client";
 import { Skeleton, Box } from "@livepeer/design-system";
 import { IS_TESTNET } from "constants/chains";
 
-const GlobalChart = ({ display, title, field, unit = "" }) => {
-  const { data } = useQuery(
-    gql`
-      {
-        chartData: getChartData
-      }
-    `
-  );
-
+const GlobalChart = ({ data, display, title, field, unit = "" }) => {
   // update the width on a window resize
   const ref = useRef(null);
   const isClient = typeof window === "object";

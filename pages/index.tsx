@@ -10,11 +10,12 @@ import {
   Button,
   Link as A,
 } from "@livepeer/design-system";
-import { getOrchestrators } from "../api";
+import { getChartData, getOrchestrators } from "../api";
 import OrchestratorList from "@components/OrchestratorList";
 import { getApollo } from "../apollo";
 import { gql, useQuery } from "@apollo/client";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
+import { chartDataQuery } from "../queries/chartDataQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { IS_TESTNET } from "constants/chains";
 import Spinner from "@components/Spinner";
@@ -56,6 +57,8 @@ const Home = () => {
   `);
   const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
   const { data, loading } = useQuery(query);
+
+  const { data: chartData } = useQuery(chartDataQuery);
 
   const flickityOptions = {
     wrapAround: true,
@@ -123,6 +126,7 @@ const Home = () => {
               {!IS_TESTNET && (
                 <Panel>
                   <GlobalChart
+                    data={chartData}
                     display="volume"
                     title="Estimated Usage (7d)"
                     field="weeklyUsageMinutes"
@@ -132,6 +136,7 @@ const Home = () => {
               )}
               <Panel>
                 <GlobalChart
+                  data={chartData}
                   display="volume"
                   title="Fee Volume (7d)"
                   field="weeklyVolumeUSD"
@@ -140,6 +145,7 @@ const Home = () => {
               </Panel>
               <Panel>
                 <GlobalChart
+                  data={chartData}
                   display="area"
                   title="Participation"
                   field="participationRate"
@@ -225,6 +231,7 @@ const Home = () => {
 export async function getStaticProps() {
   const client = getApollo();
   await getOrchestrators(client);
+  await getChartData(client);
 
   return {
     props: {

@@ -1,4 +1,4 @@
-import { getChartData } from "../../apollo/resolvers/Query";
+import { chartData } from "../../apollo/resolvers/Query";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const usageData = async (_req: NextApiRequest, res: NextApiResponse) => {
@@ -8,7 +8,7 @@ const usageData = async (_req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401).json({ message: "Invalid Token" });
   }
 
-  const usage = await getChartData();
+  const usage = await chartData();
   res.json(usage);
 };
 
