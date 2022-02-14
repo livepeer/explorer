@@ -437,8 +437,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.oneWeekVolumeUSD = oneWeekVolumeUSD;
     data.oneWeekVolumeETH = oneWeekVolumeETH;
     data.totalUsage = totalFeeDerivedMinutes + totalLivepeerComUsage;
-    data.oneWeekUsage = oneWeekUsage;
-    data.weeklyUsageChange = weeklyUsageChange;
+    data.oneWeekUsage = totalFeeDerivedMinutes ? oneWeekUsage : 0;
+    data.weeklyUsageChange = totalFeeDerivedMinutes ? weeklyUsageChange : 0;
     data.weeklyVolumeChangeUSD = weeklyVolumeChangeUSD;
     data.weeklyVolumeChangeETH = weeklyVolumeChangeETH;
     data.volumeChangeUSD = volumeChangeUSD;
