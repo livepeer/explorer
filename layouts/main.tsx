@@ -6,8 +6,9 @@ import {
   Badge,
   SnackbarProvider,
   DesignSystemProvider,
+  Link as A,
 } from "@livepeer/design-system";
-import { EyeOpenIcon } from "@modulz/radix-icons";
+import { EyeOpenIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { FiArrowRight, FiX } from "react-icons/fi";
 import { isMobile } from "react-device-detect";
 import { MutationsContext } from "../contexts";
@@ -62,7 +63,7 @@ type DrawerItem = {
 };
 
 // increment this value when updating the banner
-const uniqueBannerID = 2;
+const uniqueBannerID = 3;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const client = useApolloClient();
@@ -107,7 +108,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     if (storage && storage.includes(uniqueBannerID)) {
       setBannerActive(false);
     } else {
-      setBannerActive(false);
+      setBannerActive(true);
     }
   }, []);
 
@@ -249,9 +250,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       px: "$2",
                       width: "100%",
                       alignItems: "center",
-                      bg: "black",
+                      bc: "$neutral4",
                       justifyContent: "center",
                       fontSize: "$2",
+                      borderBottom: "1px solid $neutral5",
                       position: "relative",
                       "@bp2": {
                         display: "flex",
@@ -270,25 +272,23 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         borderColor: "$border",
                       }}
                     >
-                      <Box as="span" css={{ fontWeight: 600 }}>
-                        What&apos;s New:
-                      </Box>{" "}
-                      <Box as="span">Showcasing Network Usage</Box>
-                    </Box>
-                    <Link passHref href="/whats-new">
-                      <Box
-                        as="a"
-                        css={{
-                          minWidth: 94,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          color: "$primary",
-                        }}
-                      >
-                        Read more <Box as={FiArrowRight} css={{ ml: "$1" }} />
+                      <Box as="span">
+                        The Livepeer Protocol is now on Arbitrum 🚀
                       </Box>
-                    </Link>
+                    </Box>
+                    <A
+                      href="https://medium.com/livepeer-blog/3b6b342ea71e"
+                      target="_blank"
+                      variant="primary"
+                      css={{
+                        minWidth: 94,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      Read more <Box as={ArrowTopRightIcon} />
+                    </A>
 
                     <Box
                       as={FiX}
