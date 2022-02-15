@@ -186,7 +186,7 @@ const Wallet = () => {
             }}
           >
             {isOrchestrator && (
-              <StyledLink href={`/accounts/${account}/orchesstrating`}>
+              <StyledLink href={`/accounts/${account}/orchestrating`}>
                 Orchestrating
               </StyledLink>
             )}
