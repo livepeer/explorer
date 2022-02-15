@@ -280,13 +280,20 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
     // No need to fetch usage data on testnets
     if (!IS_TESTNET) {
-      livepeerComDayData = await getLivepeerComUsageData();
+      const fromTime =
+        process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_ONE"
+          ? +new Date("February 15, 2022 00:00:00")
+          : +new Date("2020, 0");
+      livepeerComDayData = await getLivepeerComUsageData({
+        fromTime,
+        toTime: +new Date(),
+      });
       livepeerComOneWeekData = await getLivepeerComUsageData({
-        fromTime: +new Date(2020, 0),
+        fromTime,
         toTime: utcOneWeekBack * 1000, // api uses milliseconds
       });
       livepeerComTwoWeekData = await getLivepeerComUsageData({
-        fromTime: +new Date(2020, 0),
+        fromTime,
         toTime: utcTwoWeeksBack * 1000, // api uses milliseconds
       });
     }
