@@ -204,8 +204,7 @@ const TradingViewChart = ({
         }
       });
 
-      chart.timeScale().fitContent();
-
+      chart.timeScale().resetTimeScale();
       setChartCreated(chart);
     }
   }, [

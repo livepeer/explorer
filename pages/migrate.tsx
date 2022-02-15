@@ -656,7 +656,7 @@ const Migrate = () => {
 
             {state.image && (
               <Box css={{ textAlign: "center", mb: "$5" }}>
-                <Box as="img" src="/img/arbitrum.svg" />
+                <Box as="img" src={state.image} />
               </Box>
             )}
 
