@@ -108,7 +108,7 @@ function reducer(state, action) {
         title: "Initiate Migration",
         body: (
           <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
-            Confirm the transaction in your wallet. Note that he gas estimate
+            Confirm the transaction in your wallet. Note that the gas estimate
             shown in your wallet will include both the L1 fee and a small amount
             of ETH to cover L2 execution.
           </Text>
