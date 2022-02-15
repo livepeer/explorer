@@ -391,14 +391,14 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
     const [oneWeekVolumeUSD, weeklyVolumeChangeUSD] = getTwoPeriodPercentChange(
       +data?.totalVolumeUSD,
-      +oneWeekData?.totalVolumeUSD,
-      +twoWeekData?.totalVolumeUSD
+      oneWeekData?.totalVolumeUSD ? +oneWeekData?.totalVolumeUSD : 0,
+      twoWeekData?.totalVolumeUSD ? +twoWeekData?.totalVolumeUSD : 0
     );
 
     const [oneWeekVolumeETH, weeklyVolumeChangeETH] = getTwoPeriodPercentChange(
       +data?.totalVolumeETH,
-      +oneWeekData?.totalVolumeETH,
-      +twoWeekData?.totalVolumeETH
+      oneWeekData?.totalVolumeETH ? +oneWeekData?.totalVolumeETH : 0,
+      twoWeekData?.totalVolumeETH ? +twoWeekData?.totalVolumeETH : 0
     );
 
     const [oneWeekUsage, weeklyUsageChange] = getTwoPeriodPercentChange(
