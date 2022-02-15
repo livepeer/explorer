@@ -280,7 +280,7 @@ const Index = () => {
                     borderColor: "$text",
                   }}
                 >
-                  #{currentRoundInfo.currentRoundInfo.id + 1}
+                  #{+currentRoundInfo.currentRoundInfo.id + 1}
                 </Box>{" "}
                 begins.
               </Box>

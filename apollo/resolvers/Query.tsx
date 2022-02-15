@@ -282,7 +282,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     if (!IS_TESTNET) {
       const fromTime =
         process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_ONE"
-          ? +new Date("February 15, 2022 00:00:00")
+          ? +new Date("February 16, 2022 00:00:00")
           : +new Date("2020, 0");
       livepeerComDayData = await getLivepeerComUsageData({
         fromTime,
