@@ -40,6 +40,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import preLip52Orchestrators from "../data/preLip52Orchestrators.json";
 
 const isRegisteredOrchestrator = async (account) => {
   const sdk = await LivepeerSDK({
@@ -56,6 +57,15 @@ const signingSteps = [
   "Sign message",
   "Approve migration",
 ];
+
+const PreLip52Message = ({ css = null }) => (
+  <Text size="1" css={{ mt: "$1", mb: "$1", ...css }}>
+    This orchestrator has not claimed earnings since before LIP-52. To prevent
+    you from incurring an extremely high gas fee, migration is temporarily
+    disabled. Your funds are not at risk and an update to reduce these costs is
+    in progress (ETA ~3 days).
+  </Text>
+);
 
 const initialState = {
   title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
@@ -478,22 +488,27 @@ const Migrate = () => {
               name="signerAddress"
               placeholder="Ethereum Address"
             />
+            {state.signer &&
+              preLip52Orchestrators.includes(state.signer.toLowerCase()) && (
+                <PreLip52Message />
+              )}
             {state.signer && (
               <MigrationFields
                 migrationParams={state.migrationParams}
                 css={{ mt: "$3", mb: "$5" }}
               />
             )}
-            {state.signer && (
-              <Button
-                onClick={handleNext}
-                size="4"
-                variant="primary"
-                css={{ mt: "$4" }}
-              >
-                Continue
-              </Button>
-            )}
+            {state.signer &&
+              !preLip52Orchestrators.includes(state.signer.toLowerCase()) && (
+                <Button
+                  onClick={handleNext}
+                  size="4"
+                  variant="primary"
+                  css={{ mt: "$4" }}
+                >
+                  Continue
+                </Button>
+              )}
           </Box>
         );
       case 1:
@@ -700,7 +715,6 @@ const Migrate = () => {
               </Box>
             </Box>
           </Box>
-
           {state.loading && (
             <Flex css={{ justifyContent: "center", mb: "$7" }}>
               <Spinner
@@ -734,8 +748,18 @@ const Migrate = () => {
             </Box>
           )}
           {state.cta}
+
+          {state.stage === "initialize" &&
+            state.isOrchestrator &&
+            preLip52Orchestrators.includes(context.account.toLowerCase()) && (
+              <PreLip52Message css={{ textAlign: "center", mb: "$4" }} />
+            )}
+
           {state.stage === "initialize" && state.isOrchestrator && (
             <Button
+              disabled={preLip52Orchestrators.includes(
+                context.account.toLowerCase()
+              )}
               size="4"
               variant="primary"
               css={{ mr: "$2", width: "100%" }}
