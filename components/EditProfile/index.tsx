@@ -29,24 +29,10 @@ interface Props {
 }
 
 const UPDATE_PROFILE = gql`
-  mutation updateProfile(
-    $name: String
-    $website: String
-    $description: String
-    $image: String
-    $proof: JSON
-    $defaultProfile: String
-  ) {
-    updateProfile(
-      name: $name
-      website: $website
-      description: $description
-      image: $image
-      proof: $proof
-      defaultProfile: $defaultProfile
-    ) {
-      __typename
+  mutation UpdateProfile($name: String!, $website: String!, $description: String!, $image: String!, $proof: JSON!, $defaultProfile: String!) {
+    updateProfile(name: $name, website: $website, description: $description, image: $image, proof: $proof, defaultProfile: $defaultProfile) {
       id
+      __typename
       name
       website
       description
