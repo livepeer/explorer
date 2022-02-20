@@ -122,6 +122,15 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
               >
                 Livepeer.org
               </A>
+            >
+              <A
+                css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                href="https://arbiscan.io/address/0x289ba1701c2f088cf0faf8b3705246331cb8a839"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Livepeer Contracts
+              </A>
               {IS_L2 && (
                 <Link href="/migrate" passHref>
                   <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
