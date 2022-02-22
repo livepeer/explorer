@@ -56,7 +56,6 @@ const AccountLayout = ({ children }) => {
   const {
     data,
     loading,
-    refetch,
     startPolling: startPollingAccount,
     stopPolling: stopPollingAccount,
   } = useQuery(q, {
@@ -205,7 +204,6 @@ const AccountLayout = ({ children }) => {
           <Profile
             account={query?.account.toString()}
             isMyAccount={isMyAccount}
-            refetch={refetch}
             role={role}
             threeBoxSpace={threeBoxData?.threeBoxSpace}
           />

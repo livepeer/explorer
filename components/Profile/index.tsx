@@ -11,7 +11,6 @@ import { Heading, Box, Flex, Tooltip } from "@livepeer/design-system";
 interface Props {
   account: string;
   role?: string;
-  refetch?: any;
   isMyAccount: boolean;
   threeBoxSpace?: ThreeBoxSpace;
   css?: object;
@@ -20,7 +19,6 @@ interface Props {
 const Index = ({
   account,
   role,
-  refetch,
   isMyAccount = false,
   threeBoxSpace,
 }: Props) => {
@@ -138,11 +136,7 @@ const Index = ({
         {process.env.NEXT_PUBLIC_THREEBOX_ENABLED &&
           isMyAccount &&
           threeBoxSpace && (
-            <EditProfile
-              account={account}
-              refetch={refetch}
-              threeBoxSpace={threeBoxSpace}
-            />
+            <EditProfile account={account} threeBoxSpace={threeBoxSpace} />
           )}
       </Flex>
       {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.website && (
