@@ -5,6 +5,9 @@ import {
   Button,
   Link as A,
   Container,
+  DialogContent,
+  Dialog,
+  Heading,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
@@ -46,6 +49,7 @@ const Claim = () => {
   const [isClaimStakeEnabled, setIsClaimStakeEnabled] = useState(false);
   const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [generatingProof, setGeneratingProof] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -59,8 +63,8 @@ const Claim = () => {
           context.account
         );
 
-        // const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
-        // setIsClaimStakeEnabled(claimStakeEnabled);
+        const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
+        setIsClaimStakeEnabled(claimStakeEnabled);
 
         const isMigrated = await l2Migrator.migratedDelegators(context.account);
         setIsMigrated(isMigrated);
@@ -183,11 +187,33 @@ const Claim = () => {
               `(${migrationParams.delegateName})`}
           </Box>
         </Box>
-
+        <Dialog open={generatingProof}>
+          <DialogContent css={{ overflow: "scroll", p: 0, width: 370 }}>
+            <Heading
+              size="1"
+              css={{
+                px: "$4",
+                py: "$2",
+                fontSize: "$4",
+                fontWeight: 600,
+                borderBottom: "1px solid $neutral4",
+              }}
+            >
+              Generating proof
+            </Heading>
+            <Box css={{ px: "$4", pt: "$3" }}>
+              <Text variant="neutral" css={{ mb: "$3" }}>
+                This will take ~10 seconds, after which you will be prompted to
+                submit a transaction to claim your staked LPT and earned fees
+              </Text>
+            </Box>
+          </DialogContent>
+        </Dialog>
         <Flex css={{ mt: "$3", alignItems: "center" }}>
           {isClaimStakeEnabled && (
             <Button
               onClick={async () => {
+                setGeneratingProof(true);
                 const mutation = async () => {
                   try {
                     // generate the merkle tree from JSON
@@ -207,6 +233,9 @@ const Claim = () => {
                     );
 
                     const proof = tree.getHexProof(leaf);
+
+                    setGeneratingProof(false);
+
                     await claimStake({
                       variables: {
                         delegate: migrationParams.delegate,
@@ -224,7 +253,10 @@ const Claim = () => {
                     throw new Error(e);
                   }
                 };
-                initTransaction(client, mutation, () => setIsMigrated(true));
+
+                setTimeout(() => {
+                  initTransaction(client, mutation, () => setIsMigrated(true));
+                }, 1000);
               }}
               size="3"
               variant="transparentWhite"
