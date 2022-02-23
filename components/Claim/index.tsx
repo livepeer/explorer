@@ -59,8 +59,8 @@ const Claim = () => {
           context.account
         );
 
-        // const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
-        // setIsClaimStakeEnabled(claimStakeEnabled);
+        const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
+        setIsClaimStakeEnabled(claimStakeEnabled);
 
         const isMigrated = await l2Migrator.migratedDelegators(context.account);
         setIsMigrated(isMigrated);
