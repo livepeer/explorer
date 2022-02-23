@@ -51,20 +51,24 @@ const Claim = () => {
     const init = async () => {
       if (context.account) {
         setLoading(true);
-        
+
         // reset on account change
         setIsDelegator(false);
 
         const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
           context.account
         );
-        const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
-        setIsClaimStakeEnabled(claimStakeEnabled);
+
+        // const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
+        // setIsClaimStakeEnabled(claimStakeEnabled);
 
         const isMigrated = await l2Migrator.migratedDelegators(context.account);
         setIsMigrated(isMigrated);
 
-        const space = await ThreeBox.getSpace(delegator.delegateAddress, "livepeer");
+        const space = await ThreeBox.getSpace(
+          delegator.delegateAddress,
+          "livepeer"
+        );
         setMigrationParams({
           delegateName: space?.name,
           delegate: delegator.delegateAddress,
@@ -77,7 +81,7 @@ const Claim = () => {
           (delegator.pendingStake !== "0" ||
             delegator.pendingFees !== "0" ||
             unbondingLocks.length > 1)
-        ) {      
+        ) {
           setIsDelegator(true);
         }
         setLoading(false);
@@ -174,7 +178,9 @@ const Claim = () => {
             {migrationParams.delegate.replace(
               migrationParams.delegate.slice(6, 38),
               "…"
-            )} {migrationParams?.delegateName && `(${migrationParams.delegateName})`}
+            )}{" "}
+            {migrationParams?.delegateName &&
+              `(${migrationParams.delegateName})`}
           </Box>
         </Box>
 
