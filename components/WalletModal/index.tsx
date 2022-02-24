@@ -56,6 +56,7 @@ const Index = ({ trigger = null }) => {
     // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
     if (
       _connector instanceof WalletConnectConnector &&
+      // @ts-ignore
       _connector.walletConnectProvider?.wc?.uri
     ) {
       _connector.walletConnectProvider = undefined;

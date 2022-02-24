@@ -21,7 +21,7 @@ type Mutation {
   withdrawStake(unbondingLockId: Int!): JSON
 
   "Withdraws pending fees into account wallet"
-  withdrawFees(delegator: String!, lastClaimRound: Int!): JSON
+  withdrawFees(recipient: String!, amount: String!): JSON
   
   "Rebond tokens for an unbonding lock to a delegator's current delegate while a delegator is in the Bonded or Pending states"
   rebond(unbondingLockId: Int!, newPosPrev: String!, newPosNext: String!, delegator: String!, lastClaimRound: Int!): JSON

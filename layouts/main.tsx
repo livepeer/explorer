@@ -9,7 +9,7 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { EyeOpenIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
-import { FiArrowRight, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { isMobile } from "react-device-detect";
 import { MutationsContext } from "../contexts";
 import { ThemeProvider } from "next-themes";
@@ -22,7 +22,6 @@ import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import { transactionsQuery } from "../queries/transactionsQuery";
 import Head from "next/head";
-import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import ReactGA from "react-ga";
 import Router, { useRouter } from "next/router";

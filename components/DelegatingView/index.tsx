@@ -1,5 +1,9 @@
 import Utils from "web3-utils";
-import { abbreviateNumber, checkAddressEquality } from "@lib/utils";
+import {
+  abbreviateNumber,
+  checkAddressEquality,
+  initTransaction,
+} from "@lib/utils";
 import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -16,8 +20,11 @@ import {
 import Masonry from "react-masonry-css";
 import NumberFormat from "react-number-format";
 import { scientificToDecimal } from "../../lib/utils";
-import WithdrawFees from "@components/WithdrawFees";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { useApolloClient } from "@apollo/client";
+import { useContext } from "react";
+import { MutationsContext } from "contexts";
+import { ethers } from "ethers";
 
 const Index = ({
   delegator,
@@ -29,6 +36,8 @@ const Index = ({
   const router = useRouter();
   const query = router.query;
   const context = useWeb3React();
+  const client = useApolloClient();
+  const { withdrawFees }: any = useContext(MutationsContext);
 
   const isMyAccount = checkAddressEquality(
     context?.account,
@@ -271,17 +280,31 @@ const Index = ({
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && (
-                <WithdrawFees
+                <Button
                   variant="primary"
                   size="4"
-                  delegator={delegator}
                   css={{
                     mt: "$3",
                     width: "100%",
                   }}
+                  onClick={() => {
+                    initTransaction(client, async () => {
+                      await withdrawFees({
+                        variables: {
+                          recipient: delegator.id,
+                          amount: ethers.utils
+                            .parseEther(delegator.pendingFees)
+                            .toString(),
+                        },
+                        context: {
+                          signer: context.library.getSigner(),
+                        },
+                      });
+                    });
+                  }}
                 >
                   Withdraw Pending Fees
-                </WithdrawFees>
+                </Button>
               )}
             </Box>
           }
