@@ -1747,7 +1747,7 @@
     react-transition-group "4.4.2"
     tslib "^2.3.1"
 
-"@livepeer/sdk@^1.0.1-alpha.6":
+"@livepeer/sdk@1.0.1-alpha.6":
   version "1.0.1-alpha.6"
   resolved "https://registry.yarnpkg.com/@livepeer/sdk/-/sdk-1.0.1-alpha.6.tgz#67d363edd0b33341c36806e4c1759bb5f59c523d"
   integrity sha512-xWfn17s2UHuXXn2scQbcCuhCAI55vkYcSN6ltK+PHcxn2toq44ky2o68FkPXr4wBYRq+eQcemUXQpWYE5gg1Vg==
