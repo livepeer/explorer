@@ -5,6 +5,7 @@ import { MutationsContext } from "../../contexts";
 import { initTransaction, MAXIUMUM_VALUE_UINT256 } from "@lib/utils";
 import ProgressSteps from "../ProgressSteps";
 import { Box, Button } from "@livepeer/design-system";
+import { useWeb3React } from "@web3-react/core";
 
 const Delegate = ({
   to,
@@ -21,6 +22,7 @@ const Delegate = ({
     currDelegateNewPosNext,
   },
 }) => {
+  const context = useWeb3React();
   const client = useApolloClient();
   const { bond, approve }: any = useContext(MutationsContext);
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
@@ -44,6 +46,9 @@ const Delegate = ({
           variables: {
             type: "bond",
             amount: MAXIUMUM_VALUE_UINT256,
+          },
+          context: {
+            signer: context.library.getSigner(),
           },
         });
       } catch (e) {

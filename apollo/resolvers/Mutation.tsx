@@ -20,43 +20,42 @@ if (process.env.NEXT_PUBLIC_NETWORK === "MAINNET") {
  */
 export async function approve(_obj, _args, _ctx) {
   const { type, amount } = _args;
-  let gas;
-  let txHash;
+  const livepeerToken = new ethers.Contract(
+    _ctx.livepeer.config.contracts.LivepeerToken.address,
+    _ctx.livepeer.config.contracts.LivepeerToken.abi,
+    l2Provider
+  );
+  const livepeerTokenWithSigner = livepeerToken.connect(_ctx.signer);
 
   switch (type) {
     case "bond":
-      gas = await _ctx.livepeer.rpc.estimateGas("LivepeerToken", "approve", [
+      const approvalTx = await livepeerTokenWithSigner.approve(
         _ctx.livepeer.config.contracts.BondingManager.address,
-        amount,
-      ]);
-      txHash = await _ctx.livepeer.rpc.approveTokenBondAmount(amount, {
-        gas,
-        returnTxHash: true,
-      });
-      return {
-        gas,
-        txHash,
-        inputData: {
-          ..._args,
-        },
-      };
-    case "createPoll":
-      gas = await _ctx.livepeer.rpc.estimateGas("LivepeerToken", "approve", [
-        _ctx.livepeer.config.contracts.PollCreator.address,
-        amount,
-      ]);
+        amount
+      );
 
-      txHash = await _ctx.livepeer.rpc.approveTokenPollCreationCost(amount, {
-        gas,
-        returnTxHash: true,
-      });
       return {
-        gas,
-        txHash,
+        txHash: approvalTx.hash,
+        gas: 0,
         inputData: {
           ..._args,
         },
       };
+
+    case "createPoll":
+      const pollCreatorTx = await livepeerTokenWithSigner.approve(
+        _ctx.livepeer.config.contracts.PollCreator.address,
+        amount
+      );
+
+      return {
+        txHash: pollCreatorTx.hash,
+        gas: 0,
+        inputData: {
+          ..._args,
+        },
+      };
+
     default:
       throw new Error(`Approval type "${type}" is not supported.`);
   }
