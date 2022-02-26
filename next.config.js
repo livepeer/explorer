@@ -1,5 +1,4 @@
 require("dotenv").config();
-const withTM = require("next-transpile-modules")(["@modulz/radix"]);
 const withMDX = require("@next/mdx")({
   extension: /\.mdx?$/,
 });

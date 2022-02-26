@@ -1,6 +1,6 @@
 import { EarningsTree } from "@lib/earningsTree";
-import { l2Migrator } from "constants/chains";
-import { utils } from "ethers";
+import { l2Migrator, l2Provider } from "constants/chains";
+import { ethers, utils } from "ethers";
 let earningsSnapshot;
 
 if (process.env.NEXT_PUBLIC_NETWORK === "MAINNET") {
@@ -284,36 +284,19 @@ export async function withdrawStake(_obj, _args, _ctx) {
  * @return {Promise}
  */
 export async function withdrawFees(_obj, _args, _ctx) {
-  let data = _ctx.livepeer.rpc.getCalldata(
-    "BondingManager",
-    "withdrawFees",
-    []
+  const { recipient, amount } = _args;
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
   );
 
-  const claimData = await encodeClaimSnapshotAndStakingAction(
-    _args,
-    data,
-    _ctx
-  );
-  data = claimData ? claimData : data;
-
-  const gas = await _ctx.livepeer.rpc.estimateGasRaw({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-  });
-
-  const txHash = await _ctx.livepeer.rpc.sendTransaction({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-    gas,
-    returnTxHash: true,
-  });
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.withdrawFees(recipient, amount);
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
+    gas: 0,
     inputData: {
       ..._args,
     },
