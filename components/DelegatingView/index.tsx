@@ -138,7 +138,7 @@ const Index = ({
 
         <Stat
           className="masonry-grid_item"
-          label="Delegated Stake"
+          label="Stake"
           value={
             <Box
               css={{

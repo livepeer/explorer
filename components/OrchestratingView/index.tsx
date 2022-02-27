@@ -49,7 +49,7 @@ const Index = ({ currentRound, transcoder }) => {
       >
         <Stat
           className="masonry-grid_item"
-          label="Total Stake"
+          label="Total Delegated Stake"
           value={
             <>
               {abbreviateNumber(transcoder.totalStake, 4)}
