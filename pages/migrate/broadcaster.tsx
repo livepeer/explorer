@@ -24,7 +24,6 @@ import {
   arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
   l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
@@ -32,38 +31,28 @@ import {
   nodeInterface,
 } from "constants/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
-import LivepeerSDK from "@livepeer/sdk";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../utils/stepperStyles";
+import { stepperStyles } from "../../utils/stepperStyles";
 import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-const isRegisteredOrchestrator = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const status = await sdk.rpc.getTranscoderStatus(account);
-  return status === "Registered" ? true : false;
-};
-
 const signingSteps = [
-  "Enter orchestrator Ethereum Address",
+  `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
+  deposit and reserve of another account via the Livepeer CLI enter its address below.`,
   "Sign message",
   "Approve migration",
 ];
 
 const initialState = {
-  title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+  title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
   stage: "connectWallet",
   body: (
     <Text variant="neutral" css={{ mb: "$5" }}>
-      This tool will safely migrate your orchestrator&apos;s stake and fees to{" "}
-      {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+      This tool will safely migrate your broadcaster&apos;s deposit and reserve
+      to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
     </Text>
   ),
   receipts: null,
@@ -82,18 +71,23 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
+    case "accountChanged":
+      return {
+        ...state,
+        ...action.payload,
+      };
     case "initialize":
       return {
         ...state,
         stage: "initialize",
-        title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+        title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
         image: false,
         loading: false,
         receipts: null,
         body: (
           <Text variant="neutral" css={{ mb: "$5" }}>
-            This tool will safely migrate your orchestrator&apos;s stake and
-            fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+            This tool will safely migrate your broadcaster&apos;s deposit and
+            reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
         ),
         cta: false,
@@ -145,7 +139,7 @@ function reducer(state, action) {
         image: "/img/arbitrum.svg",
         body: (
           <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
-            Your stake and fees have been migrated to{" "}
+            Your broadcaster&apos;s deposit and reserve have been migrated to{" "}
             {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
         ),
@@ -167,14 +161,14 @@ function reducer(state, action) {
       return {
         ...state,
         stage: "initialize",
-        title: `Migrate to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
+        title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
         image: false,
         loading: false,
         receipts: null,
         body: (
           <Text variant="neutral" css={{ mb: "$5" }}>
-            This tool will safely migrate your orchestrator&apos;s stake and
-            fees to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
+            This tool will safely migrate your broadcaster&apos;s deposit and
+            reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
         ),
         ...action.payload,
@@ -184,7 +178,7 @@ function reducer(state, action) {
   }
 }
 
-const Migrate = () => {
+const MigrateBroadcaster = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -192,7 +186,7 @@ const Migrate = () => {
   useEffect(() => {
     setTimeout(() => {
       setRender(true);
-    }, 1500);
+    }, 2000);
   }, []);
 
   // Redirect if not on an L2
@@ -206,7 +200,7 @@ const Migrate = () => {
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const { register, watch, reset } = useForm();
+  const { register, watch } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
   const time = new Date();
@@ -288,7 +282,7 @@ const Migrate = () => {
 
       const signer = l1Migrator.connect(context.library.getSigner());
 
-      const tx1 = await signer.migrateDelegator(
+      const tx1 = await signer.migrateSender(
         state.signer ? state.signer : context.account,
         state.signer ? state.signer : context.account,
         signature ? signature : "0x",
@@ -380,9 +374,28 @@ const Migrate = () => {
   useEffect(() => {
     const init = async () => {
       if (context.account) {
-        const isOrchestrator = await isRegisteredOrchestrator(context.account);
+        const { params } = await l1Migrator.getMigrateSenderParams(
+          context.account,
+          context.account
+        );
+        const showSigningSteps =
+          params.deposit.toString() == "0" && params.reserve.toString() == "0";
+        dispatch({
+          type: "accountChanged",
+          payload: {
+            showSigningSteps,
+          },
+        });
+      }
+    };
+    init();
+  }, [context.account]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (context.account) {
         // fetch calldata to be submitted for calling L2 function
-        const { data, params } = await l1Migrator.getMigrateDelegatorParams(
+        const { data, params } = await l1Migrator.getMigrateSenderParams(
           state.signer ? state.signer : context.account,
           state.signer ? state.signer : context.account
         );
@@ -390,15 +403,12 @@ const Migrate = () => {
         dispatch({
           type: "initialize",
           payload: {
-            isOrchestrator,
             migrationCallData: data,
             migrationParams: {
-              delegate: params.delegate,
-              delegatedStake: params.delegatedStake,
-              stake: params.stake,
-              fees: params.fees,
               l1Addr: params.l1Addr,
               l2Addr: params.l2Addr,
+              deposit: params.deposit,
+              reserve: params.reserve,
             },
           },
         });
@@ -410,22 +420,13 @@ const Migrate = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (isValidAddress(signerAddress)) {
-        if (!state.isOrchestrator) {
-          dispatch({
-            type: "updateSigner",
-            payload: {
-              signer: isValidAddress(signerAddress),
-            },
-          });
-        } else {
-          dispatch({
-            type: "updateSigner",
-            payload: {
-              signer: null,
-            },
-          });
-        }
+      if (isValidAddress(signerAddress) && state.showSigningSteps) {
+        dispatch({
+          type: "updateSigner",
+          payload: {
+            signer: isValidAddress(signerAddress),
+          },
+        });
       } else {
         dispatch({
           type: "updateSigner",
@@ -436,7 +437,7 @@ const Migrate = () => {
       }
     };
     init();
-  }, [signerAddress, context.chainId, state.isOrchestrator]);
+  }, [signerAddress, context.chainId, state.showSigningSteps]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -507,7 +508,7 @@ const Migrate = () => {
           verifyingContract: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
         };
         const types = {
-          MigrateDelegator: [
+          MigrateSender: [
             { name: "l1Addr", type: "address" },
             { name: "l2Addr", type: "address" },
           ],
@@ -539,7 +540,7 @@ const Migrate = () => {
 
         const validSignature =
           isValidAddress(signer) ===
-          isValidAddress(state.migrationParams.delegate);
+          isValidAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
@@ -574,7 +575,7 @@ const Migrate = () => {
               <Text size="1" css={{ mt: "$1", mb: "$1" }}>
                 {validSignature
                   ? "Valid"
-                  : `Invalid. Message must be signed by ${state.migrationParams.delegate}`}
+                  : `Invalid. Message must be signed by ${state.migrationParams.l1Addr}`}
               </Text>
             )}
             <Box>
@@ -599,7 +600,7 @@ const Migrate = () => {
         return (
           <Box>
             <Text css={{ mb: "$3" }}>
-              Approve migration on behalf of your orchestrator.
+              Approve migration on behalf of your account.
             </Text>
             {state.migrationParams && (
               <MigrationFields
@@ -626,6 +627,7 @@ const Migrate = () => {
         return "Unknown step";
     }
   };
+
   return (
     <Container
       size="2"
@@ -660,7 +662,7 @@ const Migrate = () => {
               </Box>
             )}
 
-            {state.stage === "initialize" && state.isOrchestrator && (
+            {state.stage === "initialize" && !state.showSigningSteps && (
               <MigrationFields
                 migrationParams={state.migrationParams}
                 css={{ mb: "$5" }}
@@ -670,7 +672,7 @@ const Migrate = () => {
             <Box
               css={{
                 display:
-                  state.stage === "initialize" && !state.isOrchestrator
+                  state.stage === "initialize" && state.showSigningSteps
                     ? "block"
                     : "none",
               }}
@@ -734,7 +736,7 @@ const Migrate = () => {
             </Box>
           )}
           {state.cta}
-          {state.stage === "initialize" && state.isOrchestrator && (
+          {state.stage === "initialize" && !state.showSigningSteps && (
             <Button
               size="4"
               variant="primary"
@@ -769,17 +771,6 @@ const Migrate = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://docs.livepeer.org/video-miners/how-to-guides/l2-migration"
-            target="_blank"
-            size="3"
-            ghost
-          >
-            Migration Guide
-            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
-          </Button>
-          <Button
-            css={{ bottom: 20, right: 20 }}
-            as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
@@ -810,35 +801,27 @@ function MigrationFields({ migrationParams, css = {} }) {
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
         <Box>
-          {migrationParams.delegate.replace(
-            migrationParams.delegate.slice(6, 38),
+          {migrationParams.l1Addr.replace(
+            migrationParams.l1Addr.slice(6, 38),
             "…"
           )}
         </Box>
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
-        <Box css={{ fontWeight: 500, color: "$neutral10" }}>Self stake</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.stake)} LPT</Box>
+        <Box css={{ fontWeight: 500, color: "$neutral10" }}>Deposit</Box>
+        <Box>{ethers.utils.formatEther(migrationParams.deposit)} ETH</Box>
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
-        <Box css={{ fontWeight: 500, color: "$neutral10" }}>
-          Delegated Stake
-        </Box>
-        <Box>
-          {ethers.utils.formatEther(migrationParams.delegatedStake)} LPT
-        </Box>
-      </ReadOnlyCard>
-      <ReadOnlyCard>
-        <Box css={{ fontWeight: 500, color: "$neutral10" }}>Earned fees</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.fees)} ETH</Box>
+        <Box css={{ fontWeight: 500, color: "$neutral10" }}>Reserve</Box>
+        <Box>{ethers.utils.formatEther(migrationParams.reserve)} ETH</Box>
       </ReadOnlyCard>
     </Box>
   );
 }
 
-Migrate.getLayout = getLayout;
+MigrateBroadcaster.getLayout = getLayout;
 
-export default Migrate;
+export default MigrateBroadcaster;
 
 function ReceiptLink({ label, hash, chainId }) {
   return (

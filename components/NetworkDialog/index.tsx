@@ -45,12 +45,12 @@ const NetworkDialog = () => {
       )}
     </Box>
   );
-  if (route === "/migrate") {
+  if (route.includes("/migrate")) {
     title = `You are connected to ${CHAIN_INFO[chainId]?.label}`;
     subtitle = (
       <Box>
         Switch networks to {CHAIN_INFO[L1_CHAIN_ID].label} to proceed with
-        migrating your stake and fees to {CHAIN_INFO[targetChain].label}.
+        migrating to {CHAIN_INFO[targetChain].label}.
       </Box>
     );
     targetChain = L1_CHAIN_ID;
@@ -106,7 +106,7 @@ const NetworkDialog = () => {
             Dismiss
           </Button>
         </Box>
-        {IS_L2 && route !== "/migrate" && (
+        {IS_L2 && !route.includes("/migrate/orchestrator") && (
           <Text
             variant="neutral"
             size="2"
@@ -120,7 +120,7 @@ const NetworkDialog = () => {
           >
             Do you operate an orchestrator? Migrate your stake to{" "}
             {CHAIN_INFO[targetChain].label} using the{" "}
-            <Link href="/migrate" passHref>
+            <Link href="/migrate/orchestrator" passHref>
               <A
                 variant="primary"
                 css={{ display: "inline-flex", ai: "center" }}
