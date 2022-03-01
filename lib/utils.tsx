@@ -63,15 +63,15 @@ export const getDelegatorStatus = (
   } else if (
     delegator.unbondingLocks.filter(
       (lock: UnbondingLock) =>
-        lock.withdrawRound && lock.withdrawRound > parseInt(currentRound.id, 10)
+        lock.withdrawRound && +lock.withdrawRound > +currentRound.id
     ).length > 0
   ) {
     return "Unbonding";
-  } else if (delegator.startRound > parseInt(currentRound.id, 10)) {
+  } else if (+delegator.startRound > +currentRound.id) {
     return "Pending";
   } else if (
-    delegator.startRound > 0 &&
-    delegator.startRound <= parseInt(currentRound.id, 10)
+    +delegator.startRound > 0 &&
+    +delegator.startRound <= +currentRound.id
   ) {
     return "Bonded";
   } else {
