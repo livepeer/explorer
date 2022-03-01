@@ -18,7 +18,6 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { useWeb3React } from "@web3-react/core";
-import { ethers } from "ethers";
 import { MutationsContext } from "../../contexts";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
@@ -26,6 +25,7 @@ const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 const Index = () => {
   const { resolvedTheme } = useTheme();
   const { initializeRound }: any = useContext(MutationsContext);
+  const context = useWeb3React();
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];
@@ -293,7 +293,7 @@ const Index = () => {
           <Button
             size="4"
             variant="primary"
-            css={{ mt: '$4', width: "100%" }}
+            css={{ mt: "$4", width: "100%" }}
             onClick={async () => {
               try {
                 await initializeRound();

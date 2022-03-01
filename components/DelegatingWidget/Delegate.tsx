@@ -47,9 +47,6 @@ const Delegate = ({
             type: "bond",
             amount: MAXIUMUM_VALUE_UINT256,
           },
-          context: {
-            signer: context.library.getSigner(),
-          },
         });
       } catch (e) {
         console.log(e);

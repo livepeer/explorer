@@ -38,8 +38,6 @@ const Undelegate = ({
                   amount: Utils.toWei(amount ? amount.toString() : "0"),
                   newPosPrev,
                   newPosNext,
-                  delegator: delegator?.id,
-                  lastClaimRound: parseInt(delegator?.lastClaimRound.id, 10),
                 },
               });
             } catch (err) {

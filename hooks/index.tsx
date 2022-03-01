@@ -35,6 +35,9 @@ export function useWeb3Mutation(mutation, options) {
 
   useEffect(() => {
     if (data) {
+      const previousTxs = transactionsData?.txs?.filter(
+        (t) => t.txHash !== data.tx.txHash
+      );
       client.writeQuery({
         query: gql`
           query {
@@ -43,7 +46,7 @@ export function useWeb3Mutation(mutation, options) {
         `,
         data: {
           txs: [
-            ...transactionsData?.txs.filter((t) => t.txHash !== data.tx.txHash),
+            ...(transactionsData ? previousTxs : []),
             {
               __typename: mutation.definitions[0].name.value,
               txHash: data.tx?.txHash,
@@ -55,6 +58,7 @@ export function useWeb3Mutation(mutation, options) {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataLoading, transactionStatusLoading]);
   return {
     mutate,
@@ -96,6 +100,7 @@ export function useEagerConnect() {
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally only running on mount (make sure it's only mounted once :))
 
   // if the connection worked, wait until we get confirmation of that to flip the flag
@@ -157,9 +162,8 @@ export function useMutations() {
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     const { mutate } = useWeb3Mutation(mutations[key], {
       context: {
-        library: context.library?.provider,
         account: context?.account?.toLowerCase(),
-        returnTxHash: true,
+        signer: context?.library?.getSigner(),
       },
     });
     mutationsObj[key] = mutate;
@@ -205,6 +209,7 @@ export function usePageVisibility() {
 }
 
 export function useComponentDidMount(func: () => any) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(func, []);
 }
 
@@ -266,6 +271,7 @@ export function useENS() {
       }
     }
     getENS();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account]);
   return ens;
 }

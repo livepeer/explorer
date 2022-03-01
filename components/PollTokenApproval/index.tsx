@@ -19,9 +19,6 @@ const Index = () => {
           initTransaction(client, async () => {
             await approve({
               variables: { type: "createPoll", amount: MAXIUMUM_VALUE_UINT256 },
-              context: {
-                signer: context.library.getSigner(),
-              },
             });
           });
         }}

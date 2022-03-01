@@ -1,15 +1,5 @@
-import { EarningsTree } from "@lib/earningsTree";
 import { l2Migrator, l2Provider } from "constants/chains";
-import { ethers, utils } from "ethers";
-let earningsSnapshot;
-
-if (process.env.NEXT_PUBLIC_NETWORK === "MAINNET") {
-  earningsSnapshot = require("../../data/earningsTree");
-} else if (process.env.NEXT_PUBLIC_NETWORK === "RINKEBY") {
-  earningsSnapshot = require("../../data/earningsTree_rinkeby");
-} else {
-  earningsSnapshot = "";
-}
+import { ethers } from "ethers";
 
 /**
  * Approve an amount for an ERC20 token transfer
@@ -36,7 +26,6 @@ export async function approve(_obj, _args, _ctx) {
 
       return {
         txHash: approvalTx.hash,
-        gas: 0,
         inputData: {
           ..._args,
         },
@@ -50,7 +39,6 @@ export async function approve(_obj, _args, _ctx) {
 
       return {
         txHash: pollCreatorTx.hash,
-        gas: 0,
         inputData: {
           ..._args,
         },
@@ -59,51 +47,6 @@ export async function approve(_obj, _args, _ctx) {
     default:
       throw new Error(`Approval type "${type}" is not supported.`);
   }
-}
-
-async function encodeClaimSnapshotAndStakingAction(_args, stakingAction, _ctx) {
-  const { lastClaimRound, delegator } = _args;
-  if (!lastClaimRound || lastClaimRound === 0) {
-    return null;
-  }
-
-  const LIP52Round = (
-    await _ctx.livepeer.rpc.getLipUpgradeRound(52)
-  ).toNumber();
-  if (lastClaimRound > LIP52Round) {
-    return null;
-  }
-
-  // get pendingStake and pendingFees for delegator
-  const [pendingStake, pendingFees] = await Promise.all([
-    _ctx.livepeer.rpc.getPendingStake(delegator, LIP52Round),
-    _ctx.livepeer.rpc.getPendingFees(delegator, LIP52Round),
-  ]);
-
-  // generate the merkle tree from JSON
-  const tree = EarningsTree.fromJSON(earningsSnapshot);
-  // generate the proof
-  const leaf = utils.defaultAbiCoder.encode(
-    ["address", "uint256", "uint256"],
-    [delegator, pendingStake, pendingFees]
-  );
-
-  const proof = tree.getHexProof(leaf);
-
-  if (
-    !(await _ctx.livepeer.rpc.verifySnapshot(
-      utils.keccak256(utils.toUtf8Bytes("LIP-52")),
-      proof,
-      utils.keccak256(leaf)
-    ))
-  )
-    return null;
-
-  return _ctx.livepeer.rpc.getCalldata(
-    "BondingManager",
-    "claimSnapshotEarnings",
-    [pendingStake, pendingFees, proof, stakingAction]
-  );
 }
 
 /**
@@ -123,39 +66,24 @@ export async function bond(_obj, _args, _ctx) {
     currDelegateNewPosNext,
   } = _args;
 
-  let data = _ctx.livepeer.rpc.getCalldata("BondingManager", "bondWithHint", [
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
+  );
+
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.bondWithHint(
     amount,
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
-    currDelegateNewPosNext,
-  ]);
-
-  const claimData = await encodeClaimSnapshotAndStakingAction(
-    _args,
-    data,
-    _ctx
+    currDelegateNewPosNext
   );
-  data = claimData ? claimData : data;
-
-  const gas = await _ctx.livepeer.rpc.estimateGasRaw({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-  });
-
-  const txHash = await _ctx.livepeer.rpc.sendTransaction({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-    gas,
-    returnTxHash: true,
-  });
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -168,36 +96,22 @@ export async function bond(_obj, _args, _ctx) {
  * @return {Promise}
  */
 export async function unbond(_obj, _args, _ctx) {
-  const { amount } = _args;
-
-  let data = _ctx.livepeer.rpc.getCalldata("BondingManager", "unbond", [
-    amount,
-  ]);
-
-  const claimData = await encodeClaimSnapshotAndStakingAction(
-    _args,
-    data,
-    _ctx
+  const { amount, newPosPrev, newPosNext } = _args;
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
   );
-  data = claimData ? claimData : data;
 
-  const gas = await _ctx.livepeer.rpc.estimateGasRaw({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-  });
-
-  const txHash = await _ctx.livepeer.rpc.sendTransaction({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-    gas,
-    returnTxHash: true,
-  });
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.unbondWithHint(
+    amount,
+    newPosPrev,
+    newPosNext
+  );
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -211,37 +125,21 @@ export async function unbond(_obj, _args, _ctx) {
  */
 export async function rebond(_obj, _args, _ctx) {
   const { unbondingLockId, newPosPrev, newPosNext } = _args;
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
+  );
 
-  let data = _ctx.livepeer.rpc.getCalldata("BondingManager", "rebondWithHint", [
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.rebondWithHint(
     unbondingLockId,
     newPosPrev,
-    newPosNext,
-  ]);
-
-  const claimData = await encodeClaimSnapshotAndStakingAction(
-    _args,
-    data,
-    _ctx
+    newPosNext
   );
-  data = claimData ? claimData : data;
-
-  const gas = await _ctx.livepeer.rpc.estimateGasRaw({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-  });
-
-  const txHash = await _ctx.livepeer.rpc.sendTransaction({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-    gas,
-    returnTxHash: true,
-  });
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -255,22 +153,17 @@ export async function rebond(_obj, _args, _ctx) {
  */
 export async function withdrawStake(_obj, _args, _ctx) {
   const { unbondingLockId } = _args;
-
-  const gas = await _ctx.livepeer.rpc.estimateGas(
-    "BondingManager",
-    "withdrawStake",
-    [unbondingLockId]
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
   );
 
-  const txHash = await _ctx.livepeer.rpc.withdrawStake(unbondingLockId, {
-    ..._ctx.livepeer.config.defaultTx,
-    gas,
-    returnTxHash: true,
-  });
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.withdrawStake(unbondingLockId);
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -295,7 +188,6 @@ export async function withdrawFees(_obj, _args, _ctx) {
 
   return {
     txHash: tx.hash,
-    gas: 0,
     inputData: {
       ..._args,
     },
@@ -309,37 +201,22 @@ export async function withdrawFees(_obj, _args, _ctx) {
  */
 export async function rebondFromUnbonded(_obj, _args, _ctx) {
   const { delegate, unbondingLockId, newPosPrev, newPosNext } = _args;
-
-  let data = _ctx.livepeer.rpc.getCalldata(
-    "BondingManager",
-    "rebondFromUnbondedWithHint",
-    [delegate, unbondingLockId, newPosPrev, newPosNext]
+  const bondingManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.BondingManager.address,
+    _ctx.livepeer.config.contracts.BondingManager.abi,
+    l2Provider
   );
 
-  const claimData = await encodeClaimSnapshotAndStakingAction(
-    _args,
-    data,
-    _ctx
+  const bondingManagerWithSigner = bondingManager.connect(_ctx.signer);
+  const tx = await bondingManagerWithSigner.rebondFromUnbondedWithHint(
+    delegate,
+    unbondingLockId,
+    newPosPrev,
+    newPosNext
   );
-  data = claimData ? claimData : data;
-
-  const gas = await _ctx.livepeer.rpc.estimateGasRaw({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-  });
-
-  const txHash = await _ctx.livepeer.rpc.sendTransaction({
-    ..._ctx.livepeer.config.defaultTx,
-    to: _ctx.livepeer.config.contracts["BondingManager"].address,
-    data,
-    gas,
-    returnTxHash: true,
-  });
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -352,21 +229,17 @@ export async function rebondFromUnbonded(_obj, _args, _ctx) {
  * @return {Promise}
  */
 export async function initializeRound(_obj, _args, _ctx) {
-  const gas = await _ctx.livepeer.rpc.estimateGas(
-    "RoundsManager",
-    "initializeRound",
-    []
+  const roundsManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.RoundsManager.address,
+    _ctx.livepeer.config.contracts.RoundsManager.abi,
+    l2Provider
   );
+  const roundsManagerWithSigner = roundsManager.connect(_ctx.signer);
 
-  const txHash = await _ctx.livepeer.rpc.initializeRound({
-    ..._ctx.livepeer.config.defaultTx,
-    gas,
-    returnTxHash: true,
-  });
+  const tx = await roundsManagerWithSigner.initializeRound();
 
   return {
-    gas,
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -392,7 +265,6 @@ export async function createPoll(_obj, _args, _ctx) {
   });
 
   return {
-    gas,
     txHash,
     inputData: {
       ..._args,
@@ -415,7 +287,6 @@ export async function vote(_obj, _args, _ctx) {
   });
 
   return {
-    gas,
     txHash,
     inputData: {
       ..._args,
@@ -487,7 +358,6 @@ export async function claimStake(_obj, _args, _ctx) {
     );
     return {
       txHash: tx.hash,
-      gas: 0,
       inputData: {
         ..._args,
       },

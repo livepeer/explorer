@@ -80,20 +80,6 @@ function Table({ tx }) {
         <Box>Your account</Box> {tx.from.replace(tx.from.slice(7, 37), "…")}
       </Row>
       <Inputs tx={tx} />
-      {/* <Row>
-        <Box>Max Transaction fee</Box>{" "}
-        {tx.gasPrice && tx.gas
-          ? `${parseFloat(Utils.fromWei(tx.gasPrice)) * tx.gas} ETH`
-          : "Estimating..."}
-      </Row>
-      <Row css={{ mb: 0 }}>
-        <Box>Estimated wait</Box>
-        <Box>
-          {timeLeft
-            ? `~${moment.duration(timeLeft, "seconds").humanize()} remaining`
-            : "Estimating..."}
-        </Box>
-      </Row> */}
     </Box>
   );
 }
