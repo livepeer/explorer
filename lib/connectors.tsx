@@ -22,7 +22,7 @@ export const walletlink = new WalletLinkConnector({
   url: INFURA_NETWORK_URLS[SupportedChainId.MAINNET],
   appName: "Livepeer Explorer",
   appLogoUrl: "https://explorer.livepeer.org/img/logo-icon.svg",
-  supportedChainIds: [SupportedChainId.MAINNET],
+  supportedChainIds: ALL_SUPPORTED_CHAIN_IDS,
 });
 
 export const walletconnect = new WalletConnectConnector({
