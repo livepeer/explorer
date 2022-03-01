@@ -5,8 +5,8 @@ import {
   simulateNewActiveSetOrder,
 } from "../../lib/utils";
 import { UnbondingLock } from "../../@types";
-import Restake from "../Restake";
-import RestakeFromUnstaked from "../RestakeFromUnstaked";
+import Redelegate from "../Redelegate";
+import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
 
@@ -74,19 +74,17 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                   <Flex css={{ alignItems: "center" }}>
                     {isMyAccount &&
                       (isBonded ? (
-                        <Restake
+                        <Redelegate
                           unbondingLockId={lock.unbondingLockId}
                           newPosPrev={newPosPrev}
                           newPosNext={newPosNext}
-                          delegator={delegator}
                         />
                       ) : (
-                        <RestakeFromUnstaked
+                        <RedelegateFromUndelegated
                           unbondingLockId={lock.unbondingLockId}
                           delegate={lock.delegate.id}
                           newPosPrev={newPosPrev}
                           newPosNext={newPosNext}
-                          delegator={delegator}
                         />
                       ))}
                     <Box css={{ ml: "$4" }}>
@@ -147,19 +145,17 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     {isMyAccount && (
                       <>
                         {isBonded ? (
-                          <Restake
+                          <Redelegate
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
-                            delegator={delegator}
                           />
                         ) : (
-                          <RestakeFromUnstaked
+                          <RedelegateFromUndelegated
                             unbondingLockId={lock.unbondingLockId}
                             delegate={lock.delegate.id}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
-                            delegator={delegator}
                           />
                         )}
                         <WithdrawStake unbondingLockId={lock.unbondingLockId} />

@@ -244,9 +244,6 @@ const Claim = () => {
                         proof,
                         newDelegate: constants.AddressZero,
                       },
-                      context: {
-                        signer: context.library.getSigner(),
-                      },
                     });
                   } catch (e) {
                     console.log(e);

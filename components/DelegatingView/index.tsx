@@ -296,9 +296,6 @@ const Index = ({
                             .parseEther(delegator.pendingFees)
                             .toString(),
                         },
-                        context: {
-                          signer: context.library.getSigner(),
-                        },
                       });
                     });
                   }}
