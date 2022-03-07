@@ -35,13 +35,13 @@ import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import LivepeerSDK from "@livepeer/sdk";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
+import { stepperStyles } from "../../../utils/stepperStyles";
 import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-const getUnbondingLocks = async (account) => {
+export const getUnbondingLocks = async (account) => {
   const sdk = await LivepeerSDK({
     controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
     provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
@@ -412,7 +412,7 @@ const MigrateUndelegatedStake = () => {
         const locks = await getUnbondingLocks(
           state.signer ? state.signer : context.account
         );
-        // 0x32485ca22CC6aCdD1faf679d090FFaE6A0c56f5D
+
         // fetch calldata to be submitted for calling L2 function
         const { data, params } =
           await l1Migrator.getMigrateUnbondingLocksParams(
