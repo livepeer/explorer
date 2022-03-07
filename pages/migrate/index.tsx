@@ -47,7 +47,7 @@ const Migrate = () => {
       />
       <CardLink
         href="/migrate/delegator"
-        heading="Delegators"
+        heading="Delegators*"
         text={
           <Box>
             This migration tool is only for delegators that need to migrate{" "}
