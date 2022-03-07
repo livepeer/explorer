@@ -47,10 +47,10 @@ const Migrate = () => {
       />
       <CardLink
         href="/migrate/delegator"
-        heading="Delegators"
+        heading="Delegators*"
         text={
           <Box>
-            This migration tool is only for delegators that need to migrate{" "}
+            *This migration tool is only for delegators that need to migrate{" "}
             <strong>undelegated stake</strong> to{" "}
             {CHAIN_INFO[DEFAULT_CHAIN_ID].label}. If you had stake on L1, it can
             be claimed directly on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
