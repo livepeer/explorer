@@ -27,7 +27,6 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const context = useWeb3React();
-  const client = useApolloClient();
   const isVisible = usePageVisibility();
   const [sufficientAllowance, setSufficientAllowance] = useState(false);
   const [sufficientBalance, setSufficientBalance] = useState(false);

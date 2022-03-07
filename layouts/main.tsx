@@ -417,8 +417,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       }}
                     >
                       <Box css={{ width: "100%" }}>
-                        {account && <InactiveWarning />}
-                        {pathname !== "/migrate" &&
+                        {!pathname.includes("/migrate") &&
+                          isL2ChainId(DEFAULT_CHAIN_ID) &&
+                          account && <InactiveWarning />}
+                        {!pathname.includes("/migrate") &&
                           isL2ChainId(DEFAULT_CHAIN_ID) &&
                           account && <Claim />}
                         {children}
