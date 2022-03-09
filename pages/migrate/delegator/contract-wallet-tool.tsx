@@ -121,6 +121,9 @@ const ContractWalletTool = () => {
           <Label css={{ display: "block", mb: "$2" }}>
             Enter the address that will receive migrated stake on L2
           </Label>
+          <Label css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
+            This address should be different from the L1 address and you MUST verify you have access to it on L2
+          </Label>
           <TextField
             ref={register}
             size="3"
