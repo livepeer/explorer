@@ -276,7 +276,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       </Box>
                     </Box>
                     <A
-                      href="https://medium.com/livepeer-blog/3b6b342ea71e"
+                      href="https://medium.com/livepeer-blog/lower-gas-fees-higher-returns-welcome-to-life-on-l2-with-livepeer-a24bb95b479"
                       target="_blank"
                       variant="primary"
                       css={{
