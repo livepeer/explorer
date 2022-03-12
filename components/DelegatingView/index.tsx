@@ -180,7 +180,7 @@ const Index = ({
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      -{abbreviateNumber(unbonded, 3)} LPT
+                      -{unbonded} LPT
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -206,7 +206,7 @@ const Index = ({
                   </Tooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  +{Math.abs(parseFloat(abbreviateNumber(rewards, 6)))} LPT
+                  +{Math.abs(rewards)} LPT
                 </Text>
               </Flex>
             </Box>
