@@ -23,6 +23,9 @@ import {
   Box,
 } from "@livepeer/design-system";
 import Link from "next/link";
+import DelegatingView from "@components/DelegatingView";
+import OrchestratingView from "@components/OrchestratingView";
+import HistoryView from "@components/HistoryView";
 
 const pollInterval = 5000;
 
@@ -32,12 +35,15 @@ export interface TabType {
   isActive?: boolean;
 }
 
-const AccountLayout = ({ children }) => {
+const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"];
+
+const AccountLayout = () => {
   const context = useWeb3React();
   const { width } = useWindowSize();
   const isVisible = usePageVisibility();
   const router = useRouter();
   const { query, asPath } = router;
+  const view = ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v);
 
   const { data: currentRoundData } = useQuery(gql`
     {
@@ -116,35 +122,6 @@ const AccountLayout = ({ children }) => {
   `;
   const { data: selectedStakingAction } = useQuery(SELECTED_STAKING_ACTION);
 
-  const { data: threeBoxData } = useQuery(
-    gql`
-      {
-        threeBoxSpace(id: "${query?.account}") {
-          __typename
-          id
-          did
-          name
-          website
-          description
-          image
-          addressLinks
-          defaultProfile
-        }
-      }
-    `
-  );
-
-  const { data: delegateProfile } = useQuery(
-    gql`
-      {
-        threeBoxSpace(id: "${data?.delegator?.delegate?.id}") {
-          __typename
-          name
-        }
-      }
-    `
-  );
-
   if (loading || loadingTranscoders) {
     return (
       <Flex
@@ -169,18 +146,11 @@ const AccountLayout = ({ children }) => {
   );
   const isOrchestrator = data?.transcoder;
   const isMyDelegate =
-    query?.account?.toString() === dataMyAccount?.delegator?.delegate?.id;
-
-  let role: string;
-
-  if (isOrchestrator || isMyDelegate) {
-    role = "Orchestrator";
-  } else if (+data?.delegator?.bondedAmount > 0) {
-    role = "Delegator";
-  }
+    query?.account?.toString().toLowerCase() ===
+    dataMyAccount?.delegator?.delegate?.id.toLowerCase();
 
   const tabs: Array<TabType> = getTabs(
-    role,
+    isOrchestrator,
     query?.account?.toString(),
     asPath,
     isMyDelegate
@@ -205,8 +175,7 @@ const AccountLayout = ({ children }) => {
           <Profile
             account={query?.account.toString()}
             isMyAccount={isMyAccount}
-            role={role}
-            threeBoxSpace={threeBoxData?.threeBoxSpace}
+            identity={data?.account?.identity}
           />
           <Flex
             css={{
@@ -217,7 +186,7 @@ const AccountLayout = ({ children }) => {
               },
             }}
           >
-            {(role === "Orchestrator" || isMyDelegate) && (
+            {(isOrchestrator || isMyDelegate) && (
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="primary" css={{ mr: "$3" }} size="4">
@@ -233,7 +202,7 @@ const AccountLayout = ({ children }) => {
                     account={dataMyAccount?.account}
                     transcoder={data.transcoder}
                     protocol={data.protocol}
-                    delegateProfile={delegateProfile?.threeBoxSpace}
+                    delegateProfile={data?.account?.identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -254,7 +223,7 @@ const AccountLayout = ({ children }) => {
                     account={dataMyAccount?.account}
                     transcoder={data.transcoder}
                     protocol={data.protocol}
-                    delegateProfile={delegateProfile?.threeBoxSpace}
+                    delegateProfile={data?.account?.identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -292,9 +261,23 @@ const AccountLayout = ({ children }) => {
               </Link>
             ))}
           </Box>
-          {children}
+          {view === "orchestrating" && (
+            <OrchestratingView
+              currentRound={data.protocol.currentRound}
+              transcoder={data.transcoder}
+            />
+          )}
+          {view === "delegating" && (
+            <DelegatingView
+              transcoders={dataTranscoders.transcoders}
+              delegator={data.delegator}
+              protocol={data.protocol}
+              currentRound={data.protocol.currentRound}
+            />
+          )}
+          {view === "history" && <HistoryView />}
         </Flex>
-        {(role === "Orchestrator" || isMyDelegate) &&
+        {(isOrchestrator || isMyDelegate) &&
           (width > 1020 ? (
             <Flex
               css={{
@@ -316,7 +299,7 @@ const AccountLayout = ({ children }) => {
                 account={dataMyAccount?.account}
                 transcoder={data.transcoder}
                 protocol={data.protocol}
-                delegateProfile={delegateProfile?.threeBoxSpace}
+                delegateProfile={data?.account?.identity}
               />
             </Flex>
           ) : (
@@ -329,7 +312,7 @@ const AccountLayout = ({ children }) => {
                 account={dataMyAccount?.account}
                 transcoder={data.transcoder}
                 protocol={data.protocol}
-                delegateProfile={delegateProfile?.threeBoxSpace}
+                delegateProfile={data?.account?.identity}
               />
             </BottomDrawer>
           ))}
@@ -343,7 +326,7 @@ AccountLayout.getLayout = getLayout;
 export default AccountLayout;
 
 function getTabs(
-  role: string,
+  isOrchestrator: boolean,
   account: string,
   asPath: string,
   isMyDelegate: boolean
@@ -360,7 +343,7 @@ function getTabs(
       isActive: asPath === `/accounts/${account}/history`,
     },
   ];
-  if (role === "Orchestrator" || isMyDelegate) {
+  if (isOrchestrator || isMyDelegate) {
     tabs.unshift({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,

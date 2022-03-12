@@ -5,6 +5,7 @@ import { injected } from "@lib/connectors";
 import { isMobile } from "react-device-detect";
 import { transactionsQuery } from "../queries/transactionsQuery";
 import { ethers } from "ethers";
+import { l1Provider } from "constants/chains";
 
 export function useWeb3Mutation(mutation, options) {
   const client: any = useApolloClient();
@@ -256,18 +257,16 @@ export function useOnClickOutside(ref, handler) {
 }
 
 export function useENS() {
-  const { account, library } = useWeb3React();
+  const { account } = useWeb3React();
   const [ens, setENS] = useState(null);
 
   useEffect(() => {
     async function getENS() {
-      if (library) {
-        try {
-          const name = await library.lookupAddress(account);
-          setENS(name);
-        } catch (e) {
-          console.log(e);
-        }
+      try {
+        const name = await l1Provider.lookupAddress(account);
+        setENS(name);
+      } catch (e) {
+        console.log(e);
       }
     }
     getENS();

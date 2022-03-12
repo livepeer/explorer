@@ -11,22 +11,14 @@ type TransactionStatus {
   status: String
 }
 
-type ThreeBoxSpace {
+type Identity {
   id: ID!
   did: String
   name: String
   website: String
+  twitter: String
   description: String
   image: String
-  addressLinks: [JSON]
-  defaultProfile: String
-}
-
-type ENS {
-  name: String
-  url: String
-  avatar: String
-  description: String
 }
 
 type Query {
@@ -34,8 +26,7 @@ type Query {
   getTxReceiptStatus(txHash: String): TransactionStatus
   txPrediction(gasPrice: String!): JSON
   transaction(txHash: String): JSON
-  threeBoxSpace(id: ID!): ThreeBoxSpace
-  ens(id: ID!): ENS
+  identity(id: ID!): Identity
   block: JSON
   l1Block: JSON
   chartData: JSON

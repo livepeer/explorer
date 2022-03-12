@@ -85,6 +85,7 @@ const WhatsNew = () => {
               width: "100%",
               justifyContent: "center",
               alignItems: "center",
+              height: "calc(100vh - 61px)",
             }}
           >
             <Spinner />

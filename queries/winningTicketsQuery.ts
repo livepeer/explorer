@@ -28,11 +28,10 @@ export const winningTicketsQuery = gql`
         id
         activationRound
         deactivationRound
-        threeBoxSpace {
-          __typename
+        identity {
           id
-          did
           website
+          twitter
           description
           name
           image

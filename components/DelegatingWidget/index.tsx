@@ -10,7 +10,7 @@ import {
   Transcoder,
   Protocol,
   Round,
-  ThreeBoxSpace,
+  Identity,
 } from "../../@types";
 import InputBox from "./InputBox";
 import { Box, Flex } from "@livepeer/design-system";
@@ -23,7 +23,7 @@ interface Props {
   account: Account;
   currentRound: Round;
   selectedAction?: string;
-  delegateProfile?: ThreeBoxSpace;
+  delegateProfile?: Identity;
 }
 
 const Index = ({

@@ -16,7 +16,7 @@ const Header = ({ transcoder, delegateProfile }) => {
       <Flex
         css={{ minWidth: 40, minHeight: 40, position: "relative", mr: "$2" }}
       >
-        {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && delegateProfile?.image ? (
+        {delegateProfile?.image ? (
           <Box
             as="img"
             css={{
@@ -41,7 +41,7 @@ const Header = ({ transcoder, delegateProfile }) => {
       </Flex>
       <Flex css={{ flexDirection: "column" }}>
         <Heading size="1" css={{ fontWeight: 700 }}>
-          {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && delegateProfile?.name
+          {delegateProfile?.name
             ? delegateProfile.name
             : transcoder.id.replace(transcoder.id.slice(7, 37), "…")}
         </Heading>

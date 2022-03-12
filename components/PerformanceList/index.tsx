@@ -45,12 +45,9 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
     hiddenColumns: [
       "activationRound",
       "deactivationRound",
-      "threeBoxSpace",
+      "identity",
       "global",
       "delegator",
-      "ens",
-      "username",
-      "avatar",
     ],
   };
 
@@ -71,7 +68,7 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
               }}
             >
               <Flex css={{ alignItems: "center" }}>
-                {row.values.threeBoxSpace?.image ? (
+                {row.values.identity?.image ? (
                   <Box
                     as="img"
                     css={{
@@ -82,7 +79,7 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
                       maxHeight: 24,
                       borderRadius: 1000,
                     }}
-                    src={`https://ipfs.infura.io/ipfs/${row.values.threeBoxSpace.image}`}
+                    src={`https://ipfs.infura.io/ipfs/${row.values.identity.image}`}
                   />
                 ) : (
                   <Box
@@ -99,7 +96,7 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
                     value={row.values.id}
                   />
                 )}
-                {row.values.threeBoxSpace?.name ? (
+                {row.values.identity?.name ? (
                   <Flex css={{ fontWeight: 600, ai: "center" }}>
                     <Box
                       css={{
@@ -107,37 +104,21 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
                         fontSize: "$3",
                       }}
                     >
-                      {textTruncate(row.values.threeBoxSpace.name, 12, "…")}
+                      {textTruncate(row.values.identity.name, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values?.ens?.name
-                        ? row.values.ens.name
-                        : row.values.id.substring(0, 6)}
+                      {row.values.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
-                    {row.values?.ens?.name
-                      ? row.values.ens.name
-                      : row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
                 )}
               </Flex>
             </A>
           </Link>
         ),
-      },
-      {
-        Header: "ENS",
-        accessor: "ens",
-      },
-      {
-        Header: "Username",
-        accessor: "username",
-      },
-      {
-        Header: "Avatar",
-        accessor: "avatar",
       },
       {
         Header: "Activation Round",
@@ -148,8 +129,8 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
         accessor: "deactivationRound",
       },
       {
-        Header: "ThreeBoxSpace",
-        accessor: "threeBoxSpace",
+        Header: "Identity",
+        accessor: "identity",
       },
       {
         Header: "Delegator",

@@ -12,12 +12,12 @@ import { dayDataQuery } from "../../queries/dayDataQuery";
 import { protocolDataByBlockQuery } from "../..//queries/protocolDataByBlockQuery";
 import { protocolDataQuery } from "../..//queries/protocolDataQuery";
 import { client } from "..";
-import { ethers } from "ethers";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
   IS_TESTNET,
+  l1Provider,
   L1_CHAIN_ID,
 } from "constants/chains";
 import LivepeerSDK from "@livepeer/sdk";
@@ -70,28 +70,26 @@ export async function txPrediction(_obj, _args, _ctx, _info) {
   return await response.json();
 }
 
-export async function ens(_obj, _args, _ctx, _info) {
-  const provider = new ethers.providers.JsonRpcProvider(
-    INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-  );
-  try {
-    const name = await provider.lookupAddress(_args.id);
-    const resolver = await provider.getResolver(_args.id);
-    const ens = {
-      name,
-      url: resolver ? await resolver.getText("url") : null,
-      avatar: resolver ? await resolver.getText("avatar") : null,
-      description: resolver ? await resolver.getText("description") : null,
-    };
-    return ens;
-  } catch (e) {
-    return null;
-  }
-}
+export async function identity(_obj, _args, _ctx, _info) {
+  const name = await l1Provider.lookupAddress(_args.id);
 
-export async function threeBoxSpace(_obj, _args, _ctx, _info) {
-  const Utils = require("web3-utils");
-  const { validateLink } = require("3id-blockchain-utils");
+  if (name) {
+    const resolver = await l1Provider.getResolver(name);
+    const description = await resolver.getText("description");
+    const url = await resolver.getText("url");
+    const twitter = await resolver.getText("com.twitter");
+    const avatar = await resolver.getAvatar();
+
+    return {
+      id: _args.id,
+      name,
+      website: url,
+      twitter,
+      description,
+      image: avatar?.url,
+    };
+  }
+
   const Box = require("3box");
   const id = _args.id.toLowerCase();
 
@@ -103,25 +101,6 @@ export async function threeBoxSpace(_obj, _args, _ctx, _info) {
     useThreeBox = true;
   }
 
-  let addressLinks = [];
-  if (Object.entries(space).length) {
-    try {
-      const conf = await Box.getConfig(id);
-      const links = await Promise.all(
-        conf.links.map((link) => validateLink(link))
-      );
-      addressLinks = links.filter((link: any) => {
-        return (
-          link &&
-          Utils.toChecksumAddress(link.address) !== Utils.toChecksumAddress(id)
-        );
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  const { did } = await Box.getVerifiedAccounts(profile);
   return {
     id,
     name: useThreeBox ? profile?.name : space?.name,
@@ -132,9 +111,6 @@ export async function threeBoxSpace(_obj, _args, _ctx, _info) {
         ? profile?.image[0].contentUrl["/"]
         : ""
       : space?.image,
-    defaultProfile: space?.defaultProfile,
-    addressLinks,
-    did,
   };
 }
 

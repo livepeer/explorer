@@ -57,18 +57,11 @@ export const orchestratorsQuery = (currentRound) => {
           lon
           prg
         }
-        ens {
-          name
-          url
-          avatar
-          description
-        }
-        threeBoxSpace {
-          __typename
+        identity {
           id
-          did
           name
           website
+          twitter
           description
           image
         }

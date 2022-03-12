@@ -41,7 +41,8 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                 >
                   {+row.id + 1}
                 </Box>
-                {row.values.threeBoxSpace?.image ? (
+
+                {row.values.identity?.image ? (
                   <Box
                     as="img"
                     css={{
@@ -52,7 +53,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                       maxHeight: 24,
                       borderRadius: 1000,
                     }}
-                    src={`https://ipfs.infura.io/ipfs/${row.values.threeBoxSpace.image}`}
+                    src={`https://ipfs.infura.io/ipfs/${row.values.identity.image}`}
                   />
                 ) : (
                   <Box
@@ -69,7 +70,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                     value={row.values.id}
                   />
                 )}
-                {row.values.threeBoxSpace?.name ? (
+                {row.values.identity?.name ? (
                   <Flex css={{ fontWeight: 600, ai: "center" }}>
                     <Box
                       css={{
@@ -77,19 +78,15 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                         fontSize: "$3",
                       }}
                     >
-                      {textTruncate(row.values.threeBoxSpace.name, 12, "…")}
+                      {textTruncate(row.values.identity.name, 12, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values?.ens?.name
-                        ? row.values.ens.name
-                        : row.values.id.substring(0, 6)}
+                      {row.values.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
-                    {row.values?.ens?.name
-                      ? row.values.ens.name
-                      : row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
                 )}
               </Flex>
@@ -98,12 +95,8 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
         ),
       },
       {
-        Header: "ENS",
-        accessor: "ens",
-      },
-      {
-        Header: "ThreeBoxSpace",
-        accessor: "threeBoxSpace",
+        Header: "Identity",
+        accessor: "identity",
       },
       {
         Header: "Total Fees",
@@ -168,7 +161,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
       columns={columns}
       initialState={{
         pageSize,
-        hiddenColumns: ["threeBoxSpace", "ens"],
+        hiddenColumns: ["identity"],
       }}
     />
   );
