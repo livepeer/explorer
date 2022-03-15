@@ -20,6 +20,7 @@ const Orchestrating = () => {
   const { data: currentRoundData } = useQuery(gql`
     {
       protocol(id: "0") {
+        id
         currentRound {
           id
         }

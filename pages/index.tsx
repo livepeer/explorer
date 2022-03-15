@@ -48,6 +48,7 @@ const Home = () => {
   const { data: protocolData } = useQuery(gql`
     {
       protocol(id: "0") {
+        id
         currentRound {
           id
         }

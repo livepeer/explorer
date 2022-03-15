@@ -8,6 +8,7 @@ export async function getOrchestrators(client = getApollo()) {
     query: gql`
       {
         protocol(id: "0") {
+          id
           currentRound {
             id
           }

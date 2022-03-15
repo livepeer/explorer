@@ -25,6 +25,7 @@ const LeaderboardPage = () => {
   const { data: protocolData } = useQuery(gql`
     {
       protocol(id: "0") {
+        id
         currentRound {
           id
         }
