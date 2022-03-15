@@ -3,7 +3,6 @@ import {
   Text,
   Flex,
   Button,
-  Link as A,
   Container,
   DialogContent,
   Dialog,
@@ -49,7 +48,6 @@ const Claim = () => {
   const [isClaimStakeEnabled, setIsClaimStakeEnabled] = useState(false);
   const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [generatingProof, setGeneratingProof] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -187,54 +185,25 @@ const Claim = () => {
               `(${migrationParams.delegateName})`}
           </Box>
         </Box>
-        <Dialog open={generatingProof}>
-          <DialogContent css={{ overflow: "scroll", p: 0, width: 370 }}>
-            <Heading
-              size="1"
-              css={{
-                px: "$4",
-                py: "$2",
-                fontSize: "$4",
-                fontWeight: 600,
-                borderBottom: "1px solid $neutral4",
-              }}
-            >
-              Generating proof
-            </Heading>
-            <Box css={{ px: "$4", pt: "$3" }}>
-              <Text variant="neutral" css={{ mb: "$3" }}>
-                This will take ~10 seconds, after which you will be prompted to
-                submit a transaction to claim your staked LPT and earned fees
-              </Text>
-            </Box>
-          </DialogContent>
-        </Dialog>
         <Flex css={{ mt: "$3", alignItems: "center" }}>
           {isClaimStakeEnabled && (
             <Button
               onClick={async () => {
-                setGeneratingProof(true);
                 const mutation = async () => {
                   try {
-                    // generate the merkle tree from JSON
-                    const tree = EarningsTree.fromJSON(
-                      JSON.stringify(delegatorClaimSnapshot)
-                    );
-
-                    // generate the proof
-                    const leaf = utils.solidityPack(
-                      ["address", "address", "uint256", "uint256"],
-                      [
-                        context.account,
-                        migrationParams.delegate,
-                        migrationParams.stake,
-                        migrationParams.fees,
-                      ]
-                    );
-
-                    const proof = tree.getHexProof(leaf);
-
-                    setGeneratingProof(false);
+                    const res = await fetch("/api/generateProof", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        account: context.account,
+                        delegate: migrationParams.delegate,
+                        stake: migrationParams.stake,
+                        fees: migrationParams.fees,
+                      }),
+                    });
+                    const proof = await res.json();
 
                     await claimStake({
                       variables: {
