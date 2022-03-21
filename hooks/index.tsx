@@ -262,11 +262,13 @@ export function useENS() {
 
   useEffect(() => {
     async function getENS() {
-      try {
-        const name = await l1Provider.lookupAddress(account);
-        setENS(name);
-      } catch (e) {
-        console.log(e);
+      if (account) {
+        try {
+          const name = await l1Provider.lookupAddress(account);
+          setENS(name);
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
     getENS();

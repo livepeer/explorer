@@ -79,7 +79,11 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
                       maxHeight: 24,
                       borderRadius: 1000,
                     }}
-                    src={`https://ipfs.infura.io/ipfs/${row.values.identity.image}`}
+                    src={
+                      row.values.identity.name.includes(".eth")
+                        ? `${row.values.identity.image}`
+                        : `https://ipfs.infura.io/ipfs/${row.values.identity.image}`
+                    }
                   />
                 ) : (
                   <Box
