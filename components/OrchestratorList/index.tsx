@@ -82,7 +82,7 @@ const OrchestratorList = ({ data, pageSize = 10 }) => {
                         fontSize: "$3",
                       }}
                     >
-                      {textTruncate(row.values.identity.name, 23, "…")}
+                      {textTruncate(row.values.identity.name, 20, "…")}
                     </Box>
                     <Badge size="2" css={{ fontSize: "$2" }}>
                       {row.values.id.substring(0, 6)}
