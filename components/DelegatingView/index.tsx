@@ -26,13 +26,7 @@ import { useContext } from "react";
 import { MutationsContext } from "contexts";
 import { ethers } from "ethers";
 
-const Index = ({
-  delegator,
-  transcoders,
-  protocol,
-  currentRound,
-  delegateProfile,
-}) => {
+const Index = ({ delegator, transcoders, protocol, currentRound }) => {
   const router = useRouter();
   const query = router.query;
   const context = useWeb3React();
@@ -122,9 +116,8 @@ const Index = ({
                 variant="interactive"
                 value={
                   <Box>
-                    {process.env.NEXT_PUBLIC_THREEBOX_ENABLED &&
-                    delegateProfile?.name
-                      ? delegateProfile.name
+                    {delegator.delegate.identity?.name
+                      ? delegator.delegate.identity?.name
                       : delegator.delegate.id.replace(
                           delegator.delegate.id.slice(7, 37),
                           "…"

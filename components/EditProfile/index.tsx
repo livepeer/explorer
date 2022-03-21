@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ThreeBoxSpace } from "../../@types";
 import {
   Dialog,
   DialogContent,
@@ -9,57 +8,79 @@ import {
   Flex,
   Button,
   Text,
+  Link as A,
+  DialogTrigger,
+  DialogClose,
 } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 
-interface Props {
-  account: string;
-  threeBoxSpace?: ThreeBoxSpace;
-}
-
-const Index = ({ threeBoxSpace }: Props) => {
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
-
-  if (!threeBoxSpace.defaultProfile) {
-    return null;
-  }
-
+const Index = () => {
   return (
     <>
-      <Button
-        onClick={() => setEditProfileOpen(true)}
-        css={{ mt: "3px", ml: "$3" }}
-        variant="primary"
-        size="1"
-      >
-        Edit Profile
-      </Button>
-
-      <Dialog open={editProfileOpen}>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button css={{ mt: "3px", ml: "$3" }} variant="primary" size="1">
+            Edit Profile
+          </Button>
+        </DialogTrigger>
         <DialogContent css={{ overflow: "scroll" }}>
           <DialogTitle asChild>
-            <Heading size="2" css={{ mb: "$4" }}>
+            <Heading
+              size="2"
+              css={{ mb: "$4", display: "flex", alignitems: "center" }}
+            >
               Edit Profile
             </Heading>
           </DialogTitle>
-
           <Text variant="neutral" css={{ mb: "$3" }}>
-            The offchain identity solution, 3box, used by the Livepeer Explorer
-            for custom profile support has been sunsetted by 3box Labs. We are
-            actively working on adding support for ENS and Ceramic as a
-            replacement moving forward. Stay tuned.
+            Profile content is automatically pulled from publicly available
+            information provided through Ethereum Name Service (ENS). Connect to
+            the{" "}
+            <A variant="primary" href="https://ens.domains">
+              ENS Manager
+            </A>{" "}
+            to register a .eth name and profile information such as a
+            description, avatar, website, and more.
+          </Text>{" "}
+          <Text variant="neutral" css={{ mb: "$5" }}>
+            New to ENS? Check out this{" "}
+            <A
+              variant="primary"
+              target="_blank"
+              href="https://medium.com/the-ethereum-name-service/step-by-step-guide-to-registering-a-eth-name-on-the-new-ens-registrar-c07d3ab9d6a6"
+            >
+              step-by-step guide
+            </A>{" "}
+            to registering a .eth name.
           </Text>
-
-          <Box>
-            <Flex css={{ justifyContent: "flex-end" }}>
-              <Button
-                size="4"
-                variant="ghost"
-                onClick={() => setEditProfileOpen(false)}
-              >
+          <Flex align="center" justify="end">
+            <DialogClose asChild>
+              <Button size="4" ghost css={{ mr: "$2" }}>
                 Dismiss
               </Button>
-            </Flex>
-          </Box>
+            </DialogClose>
+            <Button
+              variant="primary"
+              size="4"
+              asChild
+              css={{ alignItems: "center", display: "flex" }}
+            >
+              <A
+                href="https://ens.domains"
+                target="_blank"
+                css={{
+                  color: "inherit",
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+              >
+                ENS Manager
+              </A>
+              <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+            </Button>
+          </Flex>
         </DialogContent>
       </Dialog>
     </>

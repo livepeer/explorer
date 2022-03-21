@@ -23,13 +23,13 @@ const ActiveCircle = ({ css = {}, active }) => {
   );
 };
 
-const Index = ({ threeBoxSpace, active, address }) => {
+const Index = ({ identity, active, address }) => {
   return (
     <Flex css={{ alignItems: "center" }}>
       <Flex
         css={{ minWidth: 30, minHeight: 30, position: "relative", mr: "$3" }}
       >
-        {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.image ? (
+        {identity?.image ? (
           <Box
             as="img"
             css={{
@@ -41,7 +41,7 @@ const Index = ({ threeBoxSpace, active, address }) => {
               border: "1px solid",
               borderColor: "$neutral5",
             }}
-            src={`https://ipfs.infura.io/ipfs/${threeBoxSpace.image}`}
+            src={`https://ipfs.infura.io/ipfs/${identity.image}`}
           />
         ) : (
           <QRCode
@@ -79,8 +79,8 @@ const Index = ({ threeBoxSpace, active, address }) => {
           }}
         >
           <Box css={{ fontWeight: 600 }}>
-            {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.name
-              ? textTruncate(threeBoxSpace.name, 12, "…")
+            {identity?.name
+              ? textTruncate(identity.name, 12, "…")
               : address.replace(address.slice(5, 36), "…")}
           </Box>
         </Flex>

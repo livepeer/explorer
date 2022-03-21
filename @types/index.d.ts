@@ -34,15 +34,14 @@ export interface Delegator {
   unbondingLocks?: [UnbondingLock];
 }
 
-export interface ThreeBoxSpace {
+export interface Identity {
   id: string;
   did: string;
   name: string;
   website: string;
+  twitter: string;
   description: string;
   image: string;
-  addressLinks: Array;
-  defaultProfile: string;
 }
 
 export interface Round {

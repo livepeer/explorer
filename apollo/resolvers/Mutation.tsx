@@ -1,4 +1,4 @@
-import { l2Migrator, l2Provider } from "constants/chains";
+import { l2Provider } from "constants/chains";
 import { ethers } from "ethers";
 
 /**
@@ -292,78 +292,4 @@ export async function vote(_obj, _args, _ctx) {
       ..._args,
     },
   };
-}
-
-/**
- * Update's a user's 3box space
- * @param obj
- * @return {Promise}
- */
-export async function updateProfile(_obj, _args, _ctx) {
-  const address = _ctx.address.toLowerCase();
-  const box = _ctx.box;
-  const space = await box.openSpace("livepeer");
-
-  if (_args.proof) {
-    await box.linkAddress({
-      proof: _args.proof,
-    });
-  }
-
-  const allowed = ["name", "website", "description", "image", "defaultProfile"];
-  const filtered = Object.keys(_args)
-    .filter((key) => allowed.includes(key))
-    .reduce((obj, key) => {
-      obj[key] = _args[key];
-      return obj;
-    }, {});
-
-  await space.public.setMultiple(
-    Object.keys(filtered),
-    Object.values(filtered)
-  );
-
-  return {
-    id: address,
-    ...filtered,
-  };
-}
-
-/**
- * Unlink an external account from a user's 3box
- * @param obj
- * @return {Promise}
- */
-export async function removeAddressLink(_obj, _args, _ctx) {
-  const address = _args.address.toLowerCase();
-  const box = _ctx.box;
-  await box.removeAddressLink(address);
-}
-
-/**
- * Claim L2 stake
- * @param obj
- * @return {Promise}
- */
-export async function claimStake(_obj, _args, _ctx) {
-  try {
-    const { delegate, stake, fees, proof, newDelegate } = _args;
-    const l2MigratorWithSigner = l2Migrator.connect(_ctx.signer);
-    const tx = await l2MigratorWithSigner.claimStake(
-      delegate,
-      stake,
-      fees,
-      proof,
-      newDelegate
-    );
-    return {
-      txHash: tx.hash,
-      inputData: {
-        ..._args,
-      },
-    };
-  } catch (e) {
-    console.log(e);
-    throw new Error(e);
-  }
 }

@@ -29,6 +29,14 @@ export const accountQuery = (currentRound) => {
           active
           status
           totalStake
+          identity {
+            id
+            name
+            website
+            twitter
+            description
+            image
+          }
         }
       }
       transcoder(id: $account) {
@@ -58,6 +66,14 @@ export const accountQuery = (currentRound) => {
         tokenBalance
         ethBalance
         allowance
+        identity {
+          id
+          name
+          website
+          twitter
+          description
+          image
+        }
       }
       protocol(id: "0") {
         id

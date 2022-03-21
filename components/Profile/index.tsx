@@ -1,27 +1,32 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode.react";
-import { ThreeBoxSpace } from "../../@types";
+import { Identity } from "../../@types";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import EditProfile from "../EditProfile";
 import ShowMoreText from "react-show-more-text";
-import Link from "next/link";
 import { nl2br } from "../../lib/utils";
-import { Link1Icon, CheckIcon, CopyIcon } from "@modulz/radix-icons";
-import { Heading, Box, Flex, Tooltip } from "@livepeer/design-system";
+import {
+  CheckIcon,
+  CopyIcon,
+  TwitterLogoIcon,
+  GlobeIcon,
+} from "@modulz/radix-icons";
+import {
+  Text,
+  Heading,
+  Box,
+  Flex,
+  Tooltip,
+  Link as A,
+} from "@livepeer/design-system";
 interface Props {
   account: string;
-  role?: string;
   isMyAccount: boolean;
-  threeBoxSpace?: ThreeBoxSpace;
+  identity?: Identity;
   css?: object;
 }
 
-const Index = ({
-  account,
-  role,
-  isMyAccount = false,
-  threeBoxSpace,
-}: Props) => {
+const Index = ({ account, isMyAccount = false, identity }: Props) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -51,19 +56,22 @@ const Index = ({
           },
         }}
       >
-        {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.image ? (
+        {identity?.image ? (
           <Box
             as="img"
             css={{
               objectFit: "cover",
               border: "1px solid",
-              borderColor: "$muted",
-              padding: "4px",
-              borderRadius: "$round",
+              borderColor: "$hiContrast",
+              borderRadius: 1000,
               width: "100%",
               height: "100%",
             }}
-            src={`https://ipfs.infura.io/ipfs/${threeBoxSpace.image}`}
+            src={
+              identity.name.includes(".eth")
+                ? `https://metadata.ens.domains/mainnet/avatar/${identity.name}`
+                : `https://ipfs.infura.io/ipfs/${identity.image}`
+            }
           />
         ) : (
           <Box
@@ -90,8 +98,8 @@ const Index = ({
               fontWeight: 700,
             }}
           >
-            {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.name
-              ? threeBoxSpace.name
+            {identity?.name
+              ? identity.name
               : account.replace(account.slice(5, 39), "…")}
             <Tooltip
               content={`${copied ? "Copied" : "Copy address to clipboard"}`}
@@ -133,113 +141,64 @@ const Index = ({
             </Tooltip>
           </Heading>
         </CopyToClipboard>
-        {process.env.NEXT_PUBLIC_THREEBOX_ENABLED &&
-          isMyAccount &&
-          threeBoxSpace && (
-            <EditProfile account={account} threeBoxSpace={threeBoxSpace} />
-          )}
+        {isMyAccount && <EditProfile />}
       </Flex>
-      {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.website && (
-        <Flex css={{ mb: "$4", alignItems: "center" }}>
-          <Box as={Link1Icon} css={{ color: "$muted", mr: "$2" }} />
-          <Box
-            as="a"
-            css={{ fontSize: "$2", color: "$primary" }}
-            href={threeBoxSpace.website}
-            target="__blank"
-            rel="noopener noreferrer"
-          >
-            {threeBoxSpace.website.replace(/(^\w+:|^)\/\//, "")}
-          </Box>
-        </Flex>
-      )}
+      <Flex align="center" css={{ mb: "$4" }}>
+        {identity?.website && (
+          <Flex align="center" css={{ mr: "$3" }}>
+            <Box as={GlobeIcon} css={{ mr: "$1" }} />
+            <A
+              variant="contrast"
+              css={{ fontSize: "$2" }}
+              href={identity.website}
+              target="__blank"
+              rel="noopener noreferrer"
+            >
+              {identity.website.replace(/(^\w+:|^)\/\//, "")}
+            </A>
+          </Flex>
+        )}
 
-      {process.env.NEXT_PUBLIC_THREEBOX_ENABLED && threeBoxSpace?.description && (
-        <Box css={{ my: "$3", a: { color: "$primary" } }}>
+        {identity?.twitter && (
+          <Flex align="center">
+            <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
+            <A
+              variant="contrast"
+              css={{ fontSize: "$2" }}
+              href={`https://twitter.com/${identity.twitter}`}
+              target="__blank"
+              rel="noopener noreferrer"
+            >
+              @{identity.twitter}
+            </A>
+          </Flex>
+        )}
+      </Flex>
+
+      {identity?.description && (
+        <Text css={{ my: "$3" }}>
           <ShowMoreText
             lines={3}
             more={
-              <Box as="span" css={{ color: "$primary" }}>
+              <Box as="span" css={{ color: "$primary11" }}>
                 Show more
               </Box>
             }
             less={
-              <Box as="span" css={{ color: "$primary" }}>
+              <Box as="span" css={{ color: "$primary11" }}>
                 Show Less
               </Box>
             }
           >
             <Box
-              css={{ a: { color: "$primary" } }}
+              css={{ a: { color: "$primary11" } }}
               dangerouslySetInnerHTML={{
-                __html: nl2br(threeBoxSpace.description),
+                __html: nl2br(identity.description),
               }}
             />
           </ShowMoreText>
-        </Box>
+        </Text>
       )}
-      {process.env.NEXT_PUBLIC_THREEBOX_ENABLED &&
-        threeBoxSpace?.addressLinks &&
-        threeBoxSpace?.addressLinks.length > 0 &&
-        role !== "Orchestrator" && (
-          <Box css={{ my: "$4" }}>
-            <Box
-              css={{
-                display: "inline-flex",
-                flexDirection: "column",
-                p: "14px",
-                borderRadius: 10,
-                border: "1px dashed",
-                borderColor: "$border",
-              }}
-            >
-              <Box
-                css={{
-                  mb: "6px",
-                  fontWeight: 600,
-                  fontSize: "$1",
-                  color: "$muted",
-                }}
-              >
-                External Account
-              </Box>
-              <Flex>
-                {threeBoxSpace.addressLinks.map((link, i) => (
-                  <Link
-                    href={`/accounts/${link.address}/orchestrating`}
-                    passHref
-                    key={i}
-                  >
-                    <Box
-                      as="a"
-                      css={{
-                        mr:
-                          threeBoxSpace.addressLinks.length - 1 === i
-                            ? 0
-                            : "$2",
-                        borderRadius: 6,
-                        display: "inline-flex",
-                        bc: "$panel",
-                        py: "4px",
-                        px: "12px",
-                        fontSize: "$1",
-                        fontWeight: 600,
-                        color: "$primary10",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {link.address
-                        .replace(link.address.slice(10, 34), "…")
-                        .toLowerCase()}
-                    </Box>
-                  </Link>
-                ))}
-              </Flex>
-            </Box>
-          </Box>
-        )}
     </Box>
   );
 };

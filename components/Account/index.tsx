@@ -6,9 +6,11 @@ import { useRouter } from "next/router";
 import WalletIcon from "../../public/img/wallet.svg";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import WalletModal from "components/WalletModal";
+import { useENS } from "hooks";
 
 const Account = () => {
   const router = useRouter();
+  const ens = useENS();
   const { asPath } = router;
   const context = useWeb3React();
   const ref = useRef();
@@ -51,7 +53,9 @@ const Account = () => {
               <AccountIcon />
             </Flex>
             <Box>
-              {context.account.replace(context.account.slice(5, 39), "…")}
+              {ens
+                ? ens
+                : context.account.replace(context.account.slice(6, 38), "…")}
             </Box>
           </A>
         </Link>

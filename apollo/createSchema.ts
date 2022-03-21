@@ -48,8 +48,7 @@ const createSchema = async () => {
 
   const linkTypeDefs = `
     extend type Transcoder {
-      threeBoxSpace: ThreeBoxSpace
-      ens: ENS
+      identity: Identity
       price: Float
       scores: PerformanceLog
       successRates: PerformanceLog
@@ -65,8 +64,11 @@ const createSchema = async () => {
       lon: Float
       prg: Float
     }
-    extend type ThreeBoxSpace {
+    extend type Identity {
       transcoder: Transcoder
+    }
+    extend type Account {
+      identity: Identity
     }
     extend type Protocol {
       totalStake(block: String): String
@@ -122,35 +124,37 @@ const createSchema = async () => {
       },
     },
     resolvers: {
-      Transcoder: {
-        ens: {
-          async resolve(_transcoder, _args, _ctx, _info) {
-            const ens = await delegateToSchema({
+      Account: {
+        identity: {
+          async resolve(_account, _args, _ctx, _info) {
+            const identity = await delegateToSchema({
               schema: schema,
               operation: "query",
-              fieldName: "ens",
+              fieldName: "identity",
               args: {
-                id: _transcoder.id,
+                id: _account.id,
               },
               context: _ctx,
               info: _info,
             });
-            return ens;
+            return identity;
           },
         },
-        threeBoxSpace: {
+      },
+      Transcoder: {
+        identity: {
           async resolve(_transcoder, _args, _ctx, _info) {
-            const threeBoxSpace = await delegateToSchema({
+            const identity = await delegateToSchema({
               schema: schema,
               operation: "query",
-              fieldName: "threeBoxSpace",
+              fieldName: "identity",
               args: {
                 id: _transcoder.id,
               },
               context: _ctx,
               info: _info,
             });
-            return threeBoxSpace;
+            return identity;
           },
         },
       },
@@ -262,7 +266,6 @@ const createSchema = async () => {
             } else {
               return "Quorum not met";
             }
-            return "passed";
           },
         },
         isActive: {
@@ -271,7 +274,6 @@ const createSchema = async () => {
               "latest"
             );
             return blockNumber <= parseInt(_poll.endBlock);
-            return false;
           },
         },
         estimatedTimeRemaining: {

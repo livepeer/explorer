@@ -38,12 +38,6 @@ type Mutation {
   "Votes on a poll"
   vote(pollAddress: String!, choiceId: Int!): JSON
 
-  "Update an account 3box space"
-  updateProfile(name: String, website: String, description: String, image: String, proof: JSON, defaultProfile: String): ThreeBoxSpace
-
-  "Unlink an external account from a user's 3box"
-  removeAddressLink(address: String): Boolean
-
   "Claim l2 stake"
   claimStake(delegate: String!, stake: String!, fees: String!, proof: [String]!, newDelegate: String!): JSON
 }`;
