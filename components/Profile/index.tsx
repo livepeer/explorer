@@ -69,7 +69,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             }}
             src={
               identity.name.includes(".eth")
-                ? `https://metadata.ens.domains/mainnet/avatar/${identity.name}`
+                ? `${identity.image}`
                 : `https://ipfs.infura.io/ipfs/${identity.image}`
             }
           />
