@@ -25,7 +25,11 @@ const Header = ({ transcoder, delegateProfile }) => {
               width: 40,
               height: 40,
             }}
-            src={`https://ipfs.infura.io/ipfs/${delegateProfile.image}`}
+            src={
+              delegateProfile.name.includes(".eth")
+                ? `${delegateProfile.image}`
+                : `https://ipfs.infura.io/ipfs/${delegateProfile.image}}`
+            }
           />
         ) : (
           <QRCode
