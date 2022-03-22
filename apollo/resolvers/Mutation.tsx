@@ -1,4 +1,4 @@
-import { l2Provider } from "constants/chains";
+import { l2Migrator, l2Provider } from "constants/chains";
 import { ethers } from "ethers";
 
 /**
@@ -292,4 +292,32 @@ export async function vote(_obj, _args, _ctx) {
       ..._args,
     },
   };
+}
+
+/**
+ * Claim L2 stake
+ * @param obj
+ * @return {Promise}
+ */
+export async function claimStake(_obj, _args, _ctx) {
+  try {
+    const { delegate, stake, fees, proof, newDelegate } = _args;
+    const l2MigratorWithSigner = l2Migrator.connect(_ctx.signer);
+    const tx = await l2MigratorWithSigner.claimStake(
+      delegate,
+      stake,
+      fees,
+      proof,
+      newDelegate
+    );
+    return {
+      txHash: tx.hash,
+      inputData: {
+        ..._args,
+      },
+    };
+  } catch (e) {
+    console.log(e);
+    throw new Error(e);
+  }
 }
