@@ -28,7 +28,7 @@ const Header = ({ transcoder, delegateProfile }) => {
             src={
               delegateProfile.name.includes(".eth")
                 ? `${delegateProfile.image}`
-                : `https://ipfs.infura.io/ipfs/${delegateProfile.image}}`
+                : `https://ipfs.infura.io/ipfs/${delegateProfile.image}`
             }
           />
         ) : (

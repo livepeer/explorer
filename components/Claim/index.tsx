@@ -1,13 +1,4 @@
-import {
-  Box,
-  Text,
-  Flex,
-  Button,
-  Container,
-  DialogContent,
-  Dialog,
-  Heading,
-} from "@livepeer/design-system";
+import { Box, Text, Flex, Button, Container } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import {
@@ -17,11 +8,9 @@ import {
   L1_CHAIN_ID,
   l2Migrator,
 } from "constants/chains";
-import { ethers, constants, utils } from "ethers";
+import { ethers, constants } from "ethers";
 import { useContext, useEffect, useState } from "react";
 import LivepeerSDK from "@livepeer/sdk";
-import { EarningsTree } from "@lib/earningsTree";
-import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "@lib/utils";
 import { MutationsContext } from "contexts";
