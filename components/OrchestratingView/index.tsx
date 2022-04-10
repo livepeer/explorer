@@ -117,7 +117,7 @@ const Index = ({ currentRound, transcoder }) => {
           }
         />
 
-        <Stat
+        {/* <Stat
           className="masonry-grid_item"
           label={
             <Flex css={{ ai: "center" }}>
@@ -145,7 +145,7 @@ const Index = ({ currentRound, transcoder }) => {
               )}
             </>
           }
-        />
+        /> */}
         {transcoder?.lastRewardRound?.id && (
           <Stat
             className="masonry-grid_item"

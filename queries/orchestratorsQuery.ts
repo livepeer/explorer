@@ -26,7 +26,7 @@ export const orchestratorsQuery = (currentRound) => {
         deactivationRound
         rewardCut
         totalStake
-        price
+        # price
         scores {
           global
           mdw

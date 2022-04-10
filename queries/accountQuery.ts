@@ -44,7 +44,7 @@ export const accountQuery = (currentRound) => {
         active
         feeShare
         rewardCut
-        price
+        # price
         status
         active
         totalStake

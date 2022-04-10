@@ -317,18 +317,18 @@ const createSchema = async () => {
           return delegator;
         }
 
-        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-        const transcodersWithPrice = await response.json();
-        const transcoderWithPrice = transcodersWithPrice.filter(
-          (t) =>
-            t.Address.toLowerCase() === delegator?.delegate?.id.toLowerCase()
-        )[0];
+        // const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+        // const transcodersWithPrice = await response.json();
+        // const transcoderWithPrice = transcodersWithPrice.filter(
+        //   (t) =>
+        //     t.Address.toLowerCase() === delegator?.delegate?.id.toLowerCase()
+        // )[0];
 
-        if (delegator?.delegate) {
-          delegator.delegate.price = transcoderWithPrice?.PricePerPixel
-            ? transcoderWithPrice?.PricePerPixel
-            : 0;
-        }
+        // if (delegator?.delegate) {
+        //   delegator.delegate.price = transcoderWithPrice?.PricePerPixel
+        //     ? transcoderWithPrice?.PricePerPixel
+        //     : 0;
+        // }
 
         return delegator;
       },
@@ -341,14 +341,14 @@ const createSchema = async () => {
           return transcoder;
         }
 
-        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-        const transcodersWithPrice = await response.json();
-        const transcoderWithPrice = transcodersWithPrice.filter(
-          (t) => t.Address.toLowerCase() === args.id.toLowerCase()
-        )[0];
-        transcoder["price"] = transcoderWithPrice?.PricePerPixel
-          ? transcoderWithPrice?.PricePerPixel
-          : 0;
+        // const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+        // const transcodersWithPrice = await response.json();
+        // const transcoderWithPrice = transcodersWithPrice.filter(
+        //   (t) => t.Address.toLowerCase() === args.id.toLowerCase()
+        // )[0];
+        // transcoder["price"] = transcoderWithPrice?.PricePerPixel
+        //   ? transcoderWithPrice?.PricePerPixel
+        //   : 0;
         return transcoder;
       },
       transcoders: async (resolve, parent, args, ctx, info) => {
@@ -358,20 +358,20 @@ const createSchema = async () => {
         const performanceMetrics = [];
 
         //if selection set includes 'price', return transcoders merge prices and performance metrics
-        if (selectionSet.includes("price")) {
-          // get price data
-          const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-          const transcodersWithPrice = await response.json();
+        // if (selectionSet.includes("price")) {
+        //   // get price data
+        //   const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+        //   const transcodersWithPrice = await response.json();
 
-          for (const t of transcodersWithPrice) {
-            if (transcoders.filter((a) => a.id === t.Address).length > 0) {
-              prices.push({
-                id: t.Address,
-                price: t.PricePerPixel,
-              });
-            }
-          }
-        }
+        //   for (const t of transcodersWithPrice) {
+        //     if (transcoders.filter((a) => a.id === t.Address).length > 0) {
+        //       prices.push({
+        //         id: t.Address,
+        //         price: t.PricePerPixel,
+        //       });
+        //     }
+        //   }
+        // }
 
         function avg(obj, key) {
           const arr = Object.values(obj);
