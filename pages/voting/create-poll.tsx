@@ -9,7 +9,6 @@ import {
   Link as A,
   RadioCard,
   RadioCardGroup,
-  Tooltip,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
@@ -19,20 +18,21 @@ import fm from "front-matter";
 import IPFS from "ipfs-mini";
 import { getLayout } from "layouts/main";
 import Head from "next/head";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { MutationsContext } from "../../contexts";
-import { usePageVisibility } from "../../hooks";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const context = useWeb3React();
-  const isVisible = usePageVisibility();
   const [sufficientStake, setSufficientStake] = useState(false);
-  const ipfs = new IPFS({
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https",
-  });
-  const pollInterval = 10000;
+  const ipfs = useMemo(
+    () =>
+      new IPFS({
+        host: "ipfs.infura.io",
+        port: 5001,
+        protocol: "https",
+      }),
+    []
+  );
 
   const accountQuery = gql`
     query ($account: ID!) {
@@ -43,21 +43,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     }
   `;
 
-  const { data, error, startPolling, stopPolling } = useQuery(accountQuery, {
+  const { data } = useQuery(accountQuery, {
     variables: {
       account: context.account?.toLowerCase(),
     },
-    pollInterval,
     skip: !context.account,
   });
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPolling();
-    } else {
-      startPolling(pollInterval);
-    }
-  }, [isVisible, startPolling, stopPolling]);
 
   useEffect(() => {
     if (data) {
@@ -120,7 +111,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             >
               {lips.map((lip, i) => (
                 <RadioCard
-                  key={i.text}
+                  key={i}
                   value={i.toString()}
                   css={{
                     width: "100%",
