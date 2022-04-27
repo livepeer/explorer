@@ -241,7 +241,9 @@ export async function getStaticProps() {
   const lipsQuery = `
   {
     repository(owner: "${
-      process.env.NEXT_PUBLIC_NETWORK === "MAINNET" ? "livepeer" : "adamsoffer"
+      process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
+        ? process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
+        : "livepeer"
     }", name: "LIPS") {
       owner {
         login
