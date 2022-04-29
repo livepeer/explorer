@@ -31,19 +31,6 @@ export async function approve(_obj, _args, _ctx) {
         },
       };
 
-    case "createPoll":
-      const pollCreatorTx = await livepeerTokenWithSigner.approve(
-        _ctx.livepeer.config.contracts.PollCreator.address,
-        amount
-      );
-
-      return {
-        txHash: pollCreatorTx.hash,
-        inputData: {
-          ..._args,
-        },
-      };
-
     default:
       throw new Error(`Approval type "${type}" is not supported.`);
   }
@@ -252,20 +239,20 @@ export async function initializeRound(_obj, _args, _ctx) {
  * @return {Promise}
  */
 export async function createPoll(_obj, _args, _ctx) {
-  const Utils = require("web3-utils");
   const { proposal } = _args;
-  const gas = await _ctx.livepeer.rpc.estimateGas("PollCreator", "createPoll", [
-    Utils.fromAscii(proposal),
-  ]);
+  const pollCreator = new ethers.Contract(
+    _ctx.livepeer.config.contracts.PollCreator.address,
+    _ctx.livepeer.config.contracts.PollCreator.abi,
+    l2Provider
+  );
+  const pollCreatorWithSigner = pollCreator.connect(_ctx.signer);
 
-  const txHash = await _ctx.livepeer.rpc.createPoll(Utils.fromAscii(proposal), {
-    ..._ctx.livepeer.config.defaultTx,
-    gas,
-    returnTxHash: true,
-  });
+  const tx = await pollCreatorWithSigner.createPoll(
+    ethers.utils.toUtf8Bytes(proposal)
+  );
 
   return {
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
@@ -279,19 +266,22 @@ export async function createPoll(_obj, _args, _ctx) {
  */
 export async function vote(_obj, _args, _ctx) {
   const { pollAddress, choiceId } = _args;
-  const gas = await _ctx.livepeer.rpc.estimateGas("Poll", "vote", [choiceId]);
-  const txHash = await _ctx.livepeer.rpc.vote(pollAddress, choiceId, {
-    ..._ctx.livepeer.config.defaultTx,
-    gas,
-    returnTxHash: true,
-  });
+  const roundsManager = new ethers.Contract(
+    _ctx.livepeer.config.contracts.RoundsManager.address,
+    _ctx.livepeer.config.contracts.RoundsManager.abi,
+    l2Provider
+  );
+  const roundsManagerWithSigner = roundsManager.connect(_ctx.signer);
+
+  const tx = await roundsManagerWithSigner.initializeRound();
 
   return {
-    txHash,
+    txHash: tx.hash,
     inputData: {
       ..._args,
     },
   };
+  // TODO
 }
 
 /**

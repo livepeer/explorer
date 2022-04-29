@@ -8,42 +8,35 @@ import {
   Heading,
   Link as A,
   RadioCard,
-  RadioCardGroup,
+  RadioCardGroup
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
 import { createApolloFetch } from "apollo-fetch";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 import fm from "front-matter";
-import IPFS from "ipfs-mini";
 import { getLayout } from "layouts/main";
 import Head from "next/head";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
+import Utils from "web3-utils";
 import { MutationsContext } from "../../contexts";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const context = useWeb3React();
   const [sufficientStake, setSufficientStake] = useState(false);
-  const ipfs = useMemo(
-    () =>
-      new IPFS({
-        host: "ipfs.infura.io",
-        port: 5001,
-        protocol: "https",
-      }),
-    []
-  );
+  const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
 
   const accountQuery = gql`
     query ($account: ID!) {
       delegator(id: $account) {
         id
-        bondedAmount
+        pendingStake
       }
     }
   `;
 
-  const { data } = useQuery(accountQuery, {
+  const { data, loading } = useQuery(accountQuery, {
     variables: {
       account: context.account?.toLowerCase(),
     },
@@ -51,11 +44,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   });
 
   useEffect(() => {
-    if (data) {
-      if (
-        parseFloat(data.delegator.bondedAmount) >=
-        (process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_RINKEBY" ? 10 : 100)
-      ) {
+    if (data?.delegator?.pendingStake) {
+      const lptPendingStake = parseFloat(
+        Utils.fromWei(data.delegator.pendingStake)
+      );
+
+      if (lptPendingStake >= 100) {
         setSufficientStake(true);
       } else {
         setSufficientStake(false);
@@ -85,114 +79,123 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
         <Box
           as="form"
           onSubmit={async (e) => {
+            setIsCreatePollLoading(true);
             e.preventDefault();
             try {
-              const hash = await ipfs.addJSON({
-                ...selectedProposal,
-              });
+              const hash = await addIpfs(selectedProposal);
+
               await createPoll({
                 variables: { proposal: hash },
               });
             } catch (err) {
+              console.error(err);
               return {
                 error: err.message.replace("GraphQL error: ", ""),
               };
+            } finally {
+              setIsCreatePollLoading(false);
             }
           }}
         >
           {lips && lips.length > 0 ? (
-            <RadioCardGroup
-              onValueChange={(value) => {
-                setSelectedProposal({
-                  gitCommitHash,
-                  text: lips[value].text,
-                });
-              }}
-            >
-              {lips.map((lip, i) => (
-                <RadioCard
-                  key={i}
-                  value={i.toString()}
-                  css={{
-                    width: "100%",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    p: "$4",
-                    mb: "$4",
-                    display: "flex",
-                    borderRadius: "$4",
-                  }}
-                >
-                  <Flex css={{ alignItems: "center", width: "100%" }}>
-                    <Box css={{ ml: "$3", width: "100%" }}>
-                      LIP-{lip.attributes.lip} - {lip.attributes.title}
-                    </Box>
-                  </Flex>
-                  <A
-                    variant="primary"
+            <>
+              <RadioCardGroup
+                onValueChange={(value) => {
+                  setSelectedProposal({
+                    gitCommitHash,
+                    text: lips[value].text,
+                  });
+                }}
+              >
+                {lips.map((lip, i) => (
+                  <RadioCard
+                    key={i}
+                    value={i.toString()}
                     css={{
+                      width: "100%",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      p: "$4",
+                      mb: "$4",
                       display: "flex",
-                      ml: "$2",
-                      minWidth: 108,
+                      borderRadius: "$4",
                     }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`https://github.com/${projectOwner}/${projectName}/blob/master/LIPs/LIP-${lip.attributes.lip}.md`}
                   >
-                    View Proposal
-                    <ArrowTopRightIcon />
-                  </A>
-                </RadioCard>
-              ))}
-            </RadioCardGroup>
+                    <Flex css={{ alignItems: "center", width: "100%" }}>
+                      <Box css={{ ml: "$3", width: "100%" }}>
+                        LIP-{lip.attributes.lip} - {lip.attributes.title}
+                      </Box>
+                    </Flex>
+                    <A
+                      variant="primary"
+                      css={{
+                        display: "flex",
+                        ml: "$2",
+                        minWidth: 108,
+                      }}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://github.com/${projectOwner}/${projectName}/blob/master/LIPs/LIP-${lip.attributes.lip}.md`}
+                    >
+                      View Proposal
+                      <ArrowTopRightIcon />
+                    </A>
+                  </RadioCard>
+                ))}
+              </RadioCardGroup>
+              <Flex
+                css={{
+                  mt: "$5",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
+                    <Spinner />
+                  </>
+                ) : (
+                  <>
+                    {!sufficientStake ? (
+                      <Box css={{ color: "$red11", fontSize: "$1" }}>
+                        Insufficient stake - you need at least 100 staked LPT to
+                        create a poll.
+                      </Box>
+                    ) : !context.account ? (
+                      <Box css={{ color: "$red11", fontSize: "$1" }}>
+                        Connect your wallet to create a poll.
+                      </Box>
+                    ) : (
+                      <></>
+                    )}
+
+                    <Button
+                      size="3"
+                      variant="primary"
+                      disabled={
+                        !sufficientStake ||
+                        !selectedProposal ||
+                        !data ||
+                        !context.account ||
+                        isCreatePollLoading
+                      }
+                      type="submit"
+                      css={{ ml: "$3", alignSelf: "flex-end" }}
+                    >
+                      Create Poll{" "}
+                      {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}
+                    </Button>
+                  </>
+                )}
+              </Flex>
+            </>
           ) : (
             <Box>
               There are currently no LIPs in a proposed state for which there
               hasn&apos;t been a poll created yet.
             </Box>
           )}
-          {context.account &&
-            !!lips.length &&
-            (!data ? (
-              <Flex
-                css={{
-                  alignItems: "center",
-                  mt: "$5",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
-                <Spinner />
-              </Flex>
-            ) : (
-              <Flex
-                css={{
-                  mt: "$5",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                {!sufficientStake && (
-                  <Box css={{ color: "$red11", fontSize: "$1" }}>
-                    Insufficient stake - you need at least{" "}
-                    {process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_RINKEBY"
-                      ? 10
-                      : 100}{" "}
-                    staked LPT to create a poll.
-                  </Box>
-                )}
-
-                <Button
-                  size="3"
-                  variant="primary"
-                  disabled={!sufficientStake || !selectedProposal}
-                  type="submit"
-                  css={{ ml: "$3", alignSelf: "flex-end" }}
-                >
-                  Create Poll
-                </Button>
-              </Flex>
-            ))}
         </Box>
       </Container>
     </>
@@ -204,11 +207,6 @@ CreatePoll.getLayout = getLayout;
 export default CreatePoll;
 
 export async function getStaticProps() {
-  const ipfs = new IPFS({
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https",
-  });
   const lipsQuery = `
   {
     repository(owner: "${
@@ -266,7 +264,8 @@ export async function getStaticProps() {
   if (pollsData) {
     await Promise.all(
       pollsData.polls.map(async (poll) => {
-        const obj = await ipfs.catJSON(poll.proposal);
+        const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
+
         // check if proposal is valid format {text, gitCommitHash}
         if (obj?.text && obj?.gitCommitHash) {
           const transformedProposal = fm(obj.text);

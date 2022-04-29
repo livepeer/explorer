@@ -1,6 +1,5 @@
 import { getLayout } from "@layouts/main";
 import fm from "front-matter";
-import IPFS from "ipfs-mini";
 import VotingWidget from "@components/VotingWidget";
 import ReactMarkdown from "react-markdown";
 import { abbreviateNumber } from "../../lib/utils";
@@ -29,6 +28,7 @@ import {
   Text,
 } from "@livepeer/design-system";
 import Stat from "@components/Stat";
+import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Poll = () => {
   const router = useRouter();
@@ -456,12 +456,8 @@ async function transformData({ poll }) {
   const nonVotersStake = totalStake - totalVoteStake;
   const nonVoters = ((totalStake - totalVoteStake) / totalStake) * 100;
 
-  const ipfs = new IPFS({
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https",
-  });
-  const { gitCommitHash, text } = await ipfs.catJSON(poll.proposal);
+  const { gitCommitHash, text } = await catIpfsJson<IpfsPoll>(poll?.proposal);
+
   const response = fm(text);
   return {
     ...response.attributes,
