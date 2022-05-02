@@ -90,27 +90,14 @@ export async function identity(_obj, _args, _ctx, _info) {
     };
   }
 
-  const Box = require("3box");
   const id = _args.id.toLowerCase();
-
-  let useThreeBox = false;
-  const profile = await Box.getProfile(_args.id);
-  const space = await Box.getSpace(_args.id, "livepeer");
-
-  if (space.defaultProfile === "3box") {
-    useThreeBox = true;
-  }
 
   return {
     id,
-    name: useThreeBox ? profile?.name : space?.name,
-    website: useThreeBox ? profile?.website : space?.website,
-    description: useThreeBox ? profile?.description : space?.description,
-    image: useThreeBox
-      ? profile?.image?.length
-        ? profile?.image[0].contentUrl["/"]
-        : ""
-      : space?.image,
+    name: null,
+    website: null,
+    description: null,
+    image: null,
   };
 }
 
