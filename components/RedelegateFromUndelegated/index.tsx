@@ -1,16 +1,17 @@
 import { useContext } from "react";
-import { useWeb3React } from "@web3-react/core";
+
 import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "@lib/utils";
 import { Button } from "@livepeer/design-system";
+import { useAccountAddress } from "hooks";
 
 const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { rebondFromUnbonded }: any = useContext(MutationsContext);
 
-  if (!context.active) {
+  if (!accountAddress) {
     return null;
   }
 

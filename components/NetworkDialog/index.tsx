@@ -19,9 +19,13 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { useActiveChainId, useDisconnectWallet } from "hooks";
 
 const NetworkDialog = () => {
-  const { chainId, error, library, deactivate } = useWeb3React();
+  const { error, library } = useWeb3React();
+
+  const deactivate = useDisconnectWallet();
+  const chainId = useActiveChainId();
   const { route } = useRouter();
   const isMetamask = library?.connection?.url === "metamask";
 

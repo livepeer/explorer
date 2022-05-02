@@ -13,7 +13,7 @@ import { FiX } from "react-icons/fi";
 import { isMobile } from "react-device-detect";
 import { MutationsContext } from "../contexts";
 import { ThemeProvider } from "next-themes";
-import { useMutations, useOnClickOutside } from "../hooks";
+import { useAccountAddress, useActiveChainId, useMutations, useOnClickOutside } from "../hooks";
 import { useQuery, useApolloClient, gql } from "@apollo/client";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 import useWindowSize from "react-use/lib/useWindowSize";
@@ -39,7 +39,7 @@ import NetworkDialog from "@components/NetworkDialog";
 import Hamburger from "@components/Hamburger";
 import { isL2ChainId } from "@lib/chains";
 import Image from "next/image";
-import { useWeb3React } from "@web3-react/core";
+
 import InactiveWarning from "@components/InactiveWarning";
 
 if (process.env.NODE_ENV === "production") {
@@ -82,7 +82,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     `
   );
   const mutations = useMutations();
-  const { chainId, account } = useWeb3React();
+  const accountAddress = useAccountAddress();
+  const activeChainId = useActiveChainId();
   const { data: transactionsData } = useQuery(transactionsQuery);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
@@ -387,19 +388,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 height={18}
                                 alt={
                                   CHAIN_INFO[
-                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                    activeChainId ? activeChainId : DEFAULT_CHAIN_ID
                                   ].label
                                 }
                                 src={
                                   CHAIN_INFO[
-                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                    activeChainId ? activeChainId : DEFAULT_CHAIN_ID
                                   ].logoUrl
                                 }
                               />
                               <Box css={{ ml: "8px" }}>
                                 {
                                   CHAIN_INFO[
-                                    chainId ? chainId : DEFAULT_CHAIN_ID
+                                    activeChainId ? activeChainId : DEFAULT_CHAIN_ID
                                   ].label
                                 }
                               </Box>
@@ -419,10 +420,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       <Box css={{ width: "100%" }}>
                         {!pathname.includes("/migrate") &&
                           isL2ChainId(DEFAULT_CHAIN_ID) &&
-                          account && <InactiveWarning />}
+                          accountAddress && <InactiveWarning />}
                         {!pathname.includes("/migrate") &&
                           isL2ChainId(DEFAULT_CHAIN_ID) &&
-                          account && <Claim />}
+                          accountAddress && <Claim />}
                         {children}
                       </Box>
                     </Flex>

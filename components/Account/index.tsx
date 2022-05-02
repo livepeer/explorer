@@ -1,30 +1,30 @@
 import Link from "next/link";
 import AccountIcon from "../../public/img/account.svg";
 import { useRef } from "react";
-import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
 import WalletIcon from "../../public/img/wallet.svg";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import WalletModal from "components/WalletModal";
-import { useENS } from "hooks";
+import { useAccountAddress, useAccountEnsData } from "hooks";
 
 const Account = () => {
   const router = useRouter();
-  const ens = useENS();
+  const ens = useAccountEnsData();
   const { asPath } = router;
-  const context = useWeb3React();
   const ref = useRef();
 
-  return context?.active ? (
+  const accountAddress = useAccountAddress();
+
+  return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
-        <Link href={`/accounts/${context.account}/delegating`} passHref>
+        <Link href={`/accounts/${accountAddress}/delegating`} passHref>
           <A
             variant="subtle"
             css={{
               color:
                 asPath.split("?")[0] ===
-                `/accounts/${context.account}/delegating`
+                `/accounts/${accountAddress}/delegating`
                   ? "$hiContrast"
                   : "$neutral11",
               display: "flex",
@@ -53,9 +53,9 @@ const Account = () => {
               <AccountIcon />
             </Flex>
             <Box>
-              {ens
-                ? ens
-                : context.account.replace(context.account.slice(6, 38), "…")}
+              {ens?.name
+                ? ens.name
+                : accountAddress.replace(accountAddress.slice(6, 38), "…")}
             </Box>
           </A>
         </Link>

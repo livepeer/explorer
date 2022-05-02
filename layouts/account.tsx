@@ -4,11 +4,11 @@ import { useQuery } from "@apollo/client";
 import Profile from "@components/Profile";
 import DelegatingWidget from "@components/DelegatingWidget";
 import Spinner from "@components/Spinner";
-import { useWeb3React } from "@web3-react/core";
+
 import { checkAddressEquality } from "@lib/utils";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { usePageVisibility } from "../hooks";
+import { useAccountAddress, usePageVisibility } from "../hooks";
 import { useEffect } from "react";
 import { accountQuery } from "../queries/accountQuery";
 import { gql } from "@apollo/client";
@@ -38,7 +38,7 @@ export interface TabType {
 const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = () => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const isVisible = usePageVisibility();
   const router = useRouter();
@@ -93,9 +93,9 @@ const AccountLayout = () => {
     stopPolling: stopPollingMyAccount,
   } = useQuery(q, {
     variables: {
-      account: context?.account?.toLowerCase(),
+      account: accountAddress?.toLowerCase(),
     },
-    skip: !context?.active,
+    skip: !accountAddress,
     pollInterval,
   });
 
@@ -141,7 +141,7 @@ const AccountLayout = () => {
   }
 
   const isMyAccount = checkAddressEquality(
-    context?.account,
+    accountAddress,
     query?.account?.toString()
   );
   const isOrchestrator = data?.transcoder;

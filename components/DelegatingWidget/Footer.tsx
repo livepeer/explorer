@@ -7,10 +7,10 @@ import {
   getHint,
   simulateNewActiveSetOrder,
 } from "@lib/utils";
-import { useWeb3React } from "@web3-react/core";
 import Footnote from "./Footnote";
 import ConnectWallet from "./connect-wallet";
 import { Box } from "@livepeer/design-system";
+import { useAccountAddress } from "hooks";
 
 type FooterData = {
   transcoders: [Transcoder];
@@ -40,9 +40,9 @@ const Footer = ({
   },
   css = {},
 }: Props) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
 
-  if (!context.account) {
+  if (!accountAddress) {
     return <ConnectWallet />;
   }
 

@@ -1,4 +1,4 @@
-import { useWeb3React } from "@web3-react/core";
+
 import { isMobile } from "react-device-detect";
 import { injected, walletlink } from "../../lib/connectors";
 import { SUPPORTED_WALLETS } from "../../constants/wallet";
@@ -14,21 +14,23 @@ import {
 } from "@livepeer/design-system";
 import { Cross1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { useAccountAddress, useConnectorName } from "hooks";
 
 const AccountDetails = ({ openOptions }) => {
-  const { account, connector } = useWeb3React();
+  const accountAddress = useAccountAddress();
+  const connectorName = useConnectorName();
 
   function formatConnectorName() {
-    const isMetaMask =
-      window["ethereum"] && window["ethereum"].isMetaMask ? true : false;
-    const name = Object.keys(SUPPORTED_WALLETS)
-      .filter(
-        (k) =>
-          SUPPORTED_WALLETS[k].connector === connector &&
-          (connector !== injected || isMetaMask === (k === "METAMASK"))
-      )
-      .map((k) => SUPPORTED_WALLETS[k].name)[0];
-    return <Box>{name}</Box>;
+    // const isMetaMask =
+    //   window["ethereum"] && window["ethereum"].isMetaMask ? true : false;
+    // const name = Object.keys(SUPPORTED_WALLETS)
+    //   .filter(
+    //     (k) =>
+    //       SUPPORTED_WALLETS[k].connector === connector &&
+    //       (connector !== injected || isMetaMask === (k === "METAMASK"))
+    //   )
+    //   .map((k) => SUPPORTED_WALLETS[k].name)[0];
+    return <Box>{connectorName}</Box>;
   }
 
   return (
@@ -70,7 +72,7 @@ const AccountDetails = ({ openOptions }) => {
         >
           <Flex css={{ mb: "$3", justifyContent: "space-between" }}>
             {formatConnectorName()}
-            {connector !== injected && connector !== walletlink && (
+            {/* {connector !== injected && connector !== walletlink && (
               <Button
                 color="primary"
                 outline
@@ -81,7 +83,7 @@ const AccountDetails = ({ openOptions }) => {
               >
                 Disconnect
               </Button>
-            )}
+            )} */}
           </Flex>
 
           <A
@@ -93,10 +95,10 @@ const AccountDetails = ({ openOptions }) => {
               color: "$primary10",
               alignItems: "center",
             }}
-            href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${account}`}
+            href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${accountAddress}`}
             target="__blank"
           >
-            {account}
+            {accountAddress}
             <Box as={ArrowTopRightIcon} />
           </A>
         </Card>

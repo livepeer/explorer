@@ -15,9 +15,8 @@ import {
   ChevronRightIcon,
   PersonIcon,
 } from "@modulz/radix-icons";
-import { useWeb3React } from "@web3-react/core";
 import Link from "next/link";
-import { useENS, useBalance } from "../../hooks";
+import { useAccountEnsData, useAccountBalance, useAccountAddress, useDisconnectWallet } from "../../hooks";
 
 const StyledLink = ({ href, children }) => {
   return (
@@ -58,9 +57,10 @@ const StyledLink = ({ href, children }) => {
 };
 
 const Wallet = () => {
-  const ens = useENS();
-  const balance = useBalance();
-  const { account, active, deactivate } = useWeb3React();
+  const ens = useAccountEnsData();
+  const balance = useAccountBalance();
+  const accountAddress = useAccountAddress();
+  const disconnect = useDisconnectWallet();
   const query = gql`
     query transcoder($id: ID!) {
       transcoder(id: $id) {
@@ -71,13 +71,13 @@ const Wallet = () => {
 
   const { data } = useQuery(query, {
     variables: {
-      id: account?.toLowerCase(),
+      id: accountAddress?.toLowerCase(),
     },
   });
 
   const isOrchestrator = data?.transcoder;
 
-  return active ? (
+  return accountAddress ? (
     <Flex css={{ alignItems: "center" }}>
       <Flex
         align="center"
@@ -99,7 +99,7 @@ const Wallet = () => {
         >
           {balance} ETH
         </Box>
-        <Link href={`/accounts/${account}/delegating`} passHref>
+        <Link href={`/accounts/${accountAddress}/delegating`} passHref>
           <Button
             as={A}
             size="3"
@@ -119,7 +119,7 @@ const Wallet = () => {
               },
             }}
           >
-            {ens ? ens : account.replace(account.slice(6, 38), "…")}
+            {ens?.name ? ens.name : accountAddress.replace(accountAddress.slice(6, 38), "…")}
           </Button>
         </Link>
       </Flex>
@@ -174,7 +174,7 @@ const Wallet = () => {
                 />
               </Flex>
               <Box css={{ fontWeight: 600 }}>
-                {ens ? ens : account.replace(account.slice(6, 38), "…")}
+                {ens?.name ? ens.name : accountAddress.replace(accountAddress.slice(6, 38), "…")}
               </Box>
             </Flex>
           </Box>
@@ -186,14 +186,14 @@ const Wallet = () => {
             }}
           >
             {isOrchestrator && (
-              <StyledLink href={`/accounts/${account}/orchestrating`}>
+              <StyledLink href={`/accounts/${accountAddress}/orchestrating`}>
                 Orchestrating
               </StyledLink>
             )}
-            <StyledLink href={`/accounts/${account}/delegating`}>
+            <StyledLink href={`/accounts/${accountAddress}/delegating`}>
               Delegating
             </StyledLink>
-            <StyledLink href={`/accounts/${account}/history`}>
+            <StyledLink href={`/accounts/${accountAddress}/history`}>
               History
             </StyledLink>
           </Flex>
@@ -226,7 +226,7 @@ const Wallet = () => {
                   bc: "$neutral6",
                 },
               }}
-              onClick={() => deactivate()}
+              onClick={() => disconnect()}
             >
               Disconnect
             </Box>

@@ -14,7 +14,7 @@ import {
 import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
 import Spinner from "@components/Spinner";
-import { useWeb3React } from "@web3-react/core";
+
 import WalletModal from "@components/WalletModal";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
@@ -40,6 +40,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useActiveChainId, useAccountAddress, useAccountSigner } from "hooks";
 
 const isRegisteredOrchestrator = async (account) => {
   const sdk = await LivepeerSDK({
@@ -202,7 +203,10 @@ const MigrateOrchestrator = () => {
     }
   }, [router]);
 
-  const context = useWeb3React();
+  const chainId = useActiveChainId();
+  const accountAddress = useAccountAddress();
+  const accountSigner = useAccountSigner();
+
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -219,10 +223,10 @@ const MigrateOrchestrator = () => {
   });
 
   useEffect(() => {
-    if (!context.active) {
+    if (!accountAddress) {
       dispatch({ type: "inactive" });
     }
-  }, [context.active]);
+  }, [accountAddress]);
 
   // update timer
   useEffect(() => {
@@ -269,8 +273,8 @@ const MigrateOrchestrator = () => {
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
         0,
         maxSubmissionPrice,
-        context.account,
-        context.account,
+        accountAddress,
+        accountAddress,
         0,
         gasPriceBid,
         state.migrationCallData
@@ -286,11 +290,11 @@ const MigrateOrchestrator = () => {
       // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
       const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-      const signer = l1Migrator.connect(context.library.getSigner());
+      const signer = l1Migrator.connect(accountSigner);
 
       const tx1 = await signer.migrateDelegator(
-        state.signer ? state.signer : context.account,
-        state.signer ? state.signer : context.account,
+        state.signer ? state.signer : accountAddress,
+        state.signer ? state.signer : accountAddress,
         signature ? signature : "0x",
         maxGas,
         gasPriceBid,
@@ -345,7 +349,7 @@ const MigrateOrchestrator = () => {
             <Box css={{ textAlign: "center" }}>
               <Link
                 href={`/accounts/${
-                  state.signer ? state.signer : context.account
+                  state.signer ? state.signer : accountAddress
                 }/delegating`}
                 passHref
               >
@@ -379,12 +383,12 @@ const MigrateOrchestrator = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (context.account) {
-        const isOrchestrator = await isRegisteredOrchestrator(context.account);
+      if (accountAddress) {
+        const isOrchestrator = await isRegisteredOrchestrator(accountAddress);
         // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
-          state.signer ? state.signer : context.account,
-          state.signer ? state.signer : context.account
+          state.signer ? state.signer : accountAddress,
+          state.signer ? state.signer : accountAddress
         );
 
         dispatch({
@@ -406,7 +410,7 @@ const MigrateOrchestrator = () => {
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.signer, context.account]);
+  }, [state.signer, accountAddress]);
 
   useEffect(() => {
     const init = async () => {
@@ -436,7 +440,7 @@ const MigrateOrchestrator = () => {
       }
     };
     init();
-  }, [signerAddress, context.chainId, state.isOrchestrator]);
+  }, [signerAddress, chainId, state.isOrchestrator]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

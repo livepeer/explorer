@@ -1,31 +1,28 @@
-import Utils from "web3-utils";
-import { abbreviateNumber } from "../../lib/utils";
-import VoteButton from "../VoteButton";
-import { useWeb3React } from "@web3-react/core";
-import ReactTooltip from "react-tooltip";
-import { gql, useApolloClient } from "@apollo/client";
-import moment from "moment";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import Check from "../../public/img/check.svg";
-import Copy from "../../public/img/copy.svg";
-import { useState, useEffect } from "react";
+import WalletModal from "@components/WalletModal";
 import {
+  Box,
+  Button,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTitle,
-  DialogClose,
-  Heading,
-  Box,
   Flex,
-  Button,
+  Heading,
   useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
-import WalletModal from "@components/WalletModal";
+import { useAccountAddress } from "hooks";
+import moment from "moment";
+import { useEffect, useState } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import Utils from "web3-utils";
+import { abbreviateNumber } from "../../lib/utils";
+import Check from "../../public/img/check.svg";
+import Copy from "../../public/img/copy.svg";
+import VoteButton from "../VoteButton";
 
 const Index = ({ data }) => {
-  const context = useWeb3React();
-  const client = useApolloClient();
+  const accountAddress = useAccountAddress();
   const [copied, setCopied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [openSnackbar] = useSnackbar();
@@ -183,7 +180,7 @@ const Index = ({ data }) => {
             </Box>
           </Box>
 
-          {context.active ? (
+          {accountAddress ? (
             <>
               <Box>
                 <Flex
@@ -212,7 +209,7 @@ const Index = ({ data }) => {
                 >
                   <Box as="span" css={{ color: "$neutral11" }}>
                     My Vote (
-                    {context.account.replace(context.account.slice(5, 39), "…")}
+                    {accountAddress.replace(accountAddress.slice(5, 39), "…")}
                     )
                   </Box>
                   <Box
@@ -466,9 +463,12 @@ function getVotingPower(myAccount, vote) {
     if (vote?.voteStake) {
       return +vote.voteStake - +vote?.nonVoteStake;
     }
-    return +myAccount?.delegator?.delegate?.totalStake - (vote?.nonVoteStake ? +vote?.nonVoteStake : 0);
+    return (
+      +myAccount?.delegator?.delegate?.totalStake -
+      (vote?.nonVoteStake ? +vote?.nonVoteStake : 0)
+    );
   }
- 
+
   return Utils.fromWei(
     myAccount?.delegator?.pendingStake
       ? myAccount?.delegator?.pendingStake

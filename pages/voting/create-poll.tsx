@@ -3,14 +3,14 @@ import IPFS from "ipfs-mini";
 import fm from "front-matter";
 import { createApolloFetch } from "apollo-fetch";
 import { useState, useEffect, useContext } from "react";
-import { useWeb3React } from "@web3-react/core";
+
 import PollTokenApproval from "@components/PollTokenApproval";
 import { useQuery, gql } from "@apollo/client";
 import { useApolloClient } from "@apollo/client";
 import { MutationsContext } from "../../contexts";
 import Utils from "web3-utils";
 import Head from "next/head";
-import { usePageVisibility } from "../../hooks";
+import { useAccountAddress, usePageVisibility } from "../../hooks";
 import Spinner from "@components/Spinner";
 import {
   Box,
@@ -26,7 +26,7 @@ import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const isVisible = usePageVisibility();
   const [sufficientAllowance, setSufficientAllowance] = useState(false);
   const [sufficientBalance, setSufficientBalance] = useState(false);
@@ -48,13 +48,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const { data, startPolling, stopPolling } = useQuery(accountQuery, {
     variables: {
-      account: context.account,
+      account: accountAddress,
     },
     pollInterval,
-    context: {
-      library: context.library,
-    },
-    skip: !context.account,
+    skip: !accountAddress,
   });
 
   useEffect(() => {
@@ -84,7 +81,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
         setSufficientBalance(false);
       }
     }
-  }, [data, context.account]);
+  }, [data, accountAddress]);
 
   const [selectedProposal, setSelectedProposal] = useState(null);
   const { createPoll }: any = useContext(MutationsContext);
@@ -180,7 +177,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
               </RadioCard>
             ))}
           </RadioCardGroup>
-          {context.account &&
+          {accountAddress &&
             !!lips.length &&
             (!data ? (
               <Flex

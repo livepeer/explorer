@@ -1,6 +1,5 @@
 import { Box, Text, Flex, Button, Container } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { useWeb3React } from "@web3-react/core";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
@@ -14,6 +13,7 @@ import LivepeerSDK from "@livepeer/sdk";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "@lib/utils";
 import { MutationsContext } from "contexts";
+import { useAccountAddress } from "hooks";
 
 const getDelegatorOnL1 = async (account) => {
   const sdk = await LivepeerSDK({
@@ -28,7 +28,7 @@ const getDelegatorOnL1 = async (account) => {
 };
 
 const Claim = () => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { claimStake }: any = useContext(MutationsContext);
   const [migrationParams, setMigrationParams] = useState(undefined);
@@ -39,20 +39,20 @@ const Claim = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (context.account) {
+      if (accountAddress) {
         setLoading(true);
 
         // reset on account change
         setIsDelegator(false);
 
         const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
-          context.account
+          accountAddress
         );
 
         const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
         setIsClaimStakeEnabled(claimStakeEnabled);
 
-        const isMigrated = await l2Migrator.migratedDelegators(context.account);
+        const isMigrated = await l2Migrator.migratedDelegators(accountAddress);
         setIsMigrated(isMigrated);
 
         setMigrationParams({
@@ -73,7 +73,7 @@ const Claim = () => {
       }
     };
     init();
-  }, [context.account]);
+  }, [accountAddress]);
 
   return loading || !isDelegator || isMigrated ? null : (
     <Container size="3" css={{ mb: "$5" }}>
@@ -178,7 +178,7 @@ const Claim = () => {
                         "Content-Type": "application/json",
                       },
                       body: JSON.stringify({
-                        account: context.account,
+                        account: accountAddress,
                         delegate: migrationParams.delegate,
                         stake: migrationParams.stake,
                         fees: migrationParams.fees,
