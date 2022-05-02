@@ -110,7 +110,9 @@ export const useActiveChainId = () => {
 };
 
 export function useDisconnectWallet() {
-  const { connector } = useWeb3React();
+  const { deactivate } = useWeb3React();
 
-  return connector?.deactivate;
+  return () => {
+    deactivate?.();
+  };
 }

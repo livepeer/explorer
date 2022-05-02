@@ -1,7 +1,5 @@
-
 import { isMobile } from "react-device-detect";
 import { injected, walletlink } from "../../lib/connectors";
-import { SUPPORTED_WALLETS } from "../../constants/wallet";
 import {
   Link as A,
   Button,
@@ -14,24 +12,16 @@ import {
 } from "@livepeer/design-system";
 import { Cross1Icon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
-import { useAccountAddress, useConnectorName } from "hooks";
+import {
+  useAccountAddress,
+  useConnectorName,
+  useDisconnectWallet,
+} from "hooks";
 
 const AccountDetails = ({ openOptions }) => {
   const accountAddress = useAccountAddress();
   const connectorName = useConnectorName();
-
-  function formatConnectorName() {
-    // const isMetaMask =
-    //   window["ethereum"] && window["ethereum"].isMetaMask ? true : false;
-    // const name = Object.keys(SUPPORTED_WALLETS)
-    //   .filter(
-    //     (k) =>
-    //       SUPPORTED_WALLETS[k].connector === connector &&
-    //       (connector !== injected || isMetaMask === (k === "METAMASK"))
-    //   )
-    //   .map((k) => SUPPORTED_WALLETS[k].name)[0];
-    return <Box>{connectorName}</Box>;
-  }
+  const disconnect = useDisconnectWallet();
 
   return (
     <Box>
@@ -71,19 +61,17 @@ const AccountDetails = ({ openOptions }) => {
           }}
         >
           <Flex css={{ mb: "$3", justifyContent: "space-between" }}>
-            {formatConnectorName()}
-            {/* {connector !== injected && connector !== walletlink && (
-              <Button
-                color="primary"
-                outline
-                size="small"
-                onClick={() => {
-                  (connector as any).close();
-                }}
-              >
-                Disconnect
-              </Button>
-            )} */}
+            <Box>{connectorName}</Box>
+            <Button
+              color="primary"
+              outline
+              size="small"
+              onClick={() => {
+                disconnect();
+              }}
+            >
+              Disconnect {connectorName}
+            </Button>
           </Flex>
 
           <A
