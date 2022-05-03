@@ -8,7 +8,7 @@ import {
   Heading,
   Link as A,
   RadioCard,
-  RadioCardGroup
+  RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useWeb3React } from "@web3-react/core";
@@ -157,14 +157,14 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                   </>
                 ) : (
                   <>
-                    {!sufficientStake ? (
+                    {!context.account ? (
+                      <Box css={{ color: "$red11", fontSize: "$1" }}>
+                        Connect your wallet to create a poll.
+                      </Box>
+                    ) : !sufficientStake ? (
                       <Box css={{ color: "$red11", fontSize: "$1" }}>
                         Insufficient stake - you need at least 100 staked LPT to
                         create a poll.
-                      </Box>
-                    ) : !context.account ? (
-                      <Box css={{ color: "$red11", fontSize: "$1" }}>
-                        Connect your wallet to create a poll.
                       </Box>
                     ) : (
                       <></>
