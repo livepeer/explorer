@@ -86,7 +86,9 @@ export async function identity(_obj, _args, _ctx, _info) {
       website: url,
       twitter,
       description,
-      image: avatar?.url,
+      image: avatar
+        ? `https://metadata.ens.domains/mainnet/avatar/${name}`
+        : null,
     };
   }
 

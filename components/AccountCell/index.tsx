@@ -41,7 +41,7 @@ const Index = ({ identity, active, address }) => {
               border: "1px solid",
               borderColor: "$neutral5",
             }}
-            src={`https://ipfs.infura.io/ipfs/${identity.image}`}
+            src={identity.image}
           />
         ) : (
           <QRCode
