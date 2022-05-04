@@ -1,25 +1,25 @@
-import { getLayout } from "layouts/main";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import IPFS from "ipfs-mini";
-import fm from "front-matter";
-import { useEffect, useState } from "react";
-import moment from "moment";
-import Link from "next/link";
-import Head from "next/head";
-import { usePageVisibility } from "../../hooks";
-import { pollsQuery } from "../../queries/pollsQuery";
 import {
-  Container,
-  Heading,
-  Card,
   Box,
-  Text,
-  Flex,
   Button,
-  styled,
+  Card,
+  Container,
+  Flex,
+  Heading,
   Link as A,
+  styled,
+  Text,
 } from "@livepeer/design-system";
+import fm from "front-matter";
+import { usePageVisibility } from "hooks";
+import { getLayout } from "layouts/main";
+import moment from "moment";
+import Head from "next/head";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { pollsQuery } from "../../queries/pollsQuery";
 
 export const Status = styled("div", {
   variants: {
@@ -56,11 +56,6 @@ const Voting = () => {
 
   useEffect(() => {
     if (data) {
-      const ipfs = new IPFS({
-        host: "ipfs.infura.io",
-        port: 5001,
-        protocol: "https",
-      });
       const pollArr = [];
       const init = async () => {
         if (!data.polls.length) {
@@ -69,7 +64,8 @@ const Voting = () => {
         }
         await Promise.all(
           data.polls.map(async (poll) => {
-            const obj = await ipfs.catJSON(poll.proposal);
+            const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
+
             // only include proposals with valid format
             if (obj?.text && obj?.gitCommitHash) {
               const transformedProposal = fm(obj.text);

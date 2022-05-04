@@ -16,7 +16,7 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "constants/chains";
 import { ethers } from "ethers";
 
 const schema = makeExecutableSchema({
@@ -93,14 +93,10 @@ const createSchema = async () => {
     const contract = new ethers.Contract(
       _ctx.livepeer.config.contracts.LivepeerToken.address,
       _ctx.livepeer.config.contracts.LivepeerToken.abi,
-      l1Provider
+      l2Provider
     );
 
-    // Minter address changed on mainnet at block 10686186
-    let minterAddress =
-      _blockNumber < 10686186 && process.env.NEXT_PUBLIC_NETWORK === "MAINNET"
-        ? "0x8573f2f5a3bd960eee3d998473e50c75cdbe6828"
-        : _ctx.livepeer.config.contracts.Minter.address;
+    let minterAddress = _ctx.livepeer.config.contracts.Minter.address;
 
     let balance = await contract.balanceOf(minterAddress, {
       blockTag: _blockNumber ? +_blockNumber : "latest",

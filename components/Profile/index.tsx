@@ -67,11 +67,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
               width: "100%",
               height: "100%",
             }}
-            src={
-              identity.name.includes(".eth")
-                ? `${identity.image}`
-                : `https://ipfs.infura.io/ipfs/${identity.image}`
-            }
+            src={identity.image}
           />
         ) : (
           <Box
