@@ -22,7 +22,7 @@ import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import { transactionsQuery } from "../queries/transactionsQuery";
 import Head from "next/head";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import ReactGA from "react-ga";
 import Router, { useRouter } from "next/router";
 import AppBar from "@components/AppBar";
@@ -89,7 +89,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const [txDialogState, setTxDialogState]: any = useState([]);
   const { width } = useWindowSize();
   const ref = useRef();
-  const totalActivePolls = data?.polls.filter((p) => p.isActive).length;
+  const totalActivePolls = useMemo(() => data?.polls.filter((p) => p.isActive).length, [data]);
   const GET_TX_SUMMARY_MODAL = gql`
     {
       txSummaryModal @client {
