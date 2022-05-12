@@ -12,7 +12,7 @@ import {
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { createApolloFetch } from "apollo-fetch";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import fm from "front-matter";
 import { useAccountAddress } from "hooks";
 import { getLayout } from "layouts/main";

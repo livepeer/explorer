@@ -1,16 +1,8 @@
-import WalletModal from "@components/WalletModal";
+import ConnectButton from "@components/ConnectButton";
 import { Button } from "@livepeer/design-system";
 
 const ConnectWallet = () => {
-  return (
-    <WalletModal
-      trigger={
-        <Button css={{ width: "100%" }} variant="primary" size="4">
-          Connect Wallet
-        </Button>
-      }
-    />
-  );
+  return <ConnectButton />;
 };
 
 export default ConnectWallet;

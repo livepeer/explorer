@@ -1,7 +1,7 @@
 import { Container, Card, Heading, Text, Box } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
 import { useEffect } from "react";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";

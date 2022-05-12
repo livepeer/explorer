@@ -6,7 +6,7 @@ import {
   INFURA_NETWORK_URLS,
   L1_CHAIN_ID,
   l2Migrator,
-} from "constants/chains";
+} from "lib/chains";
 import { ethers, constants } from "ethers";
 import { useContext, useEffect, useState } from "react";
 import LivepeerSDK from "@livepeer/sdk";

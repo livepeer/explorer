@@ -13,7 +13,7 @@ import {
   styled,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
 const Card = styled(CardBase, {
   border: "1px solid $neutral3",

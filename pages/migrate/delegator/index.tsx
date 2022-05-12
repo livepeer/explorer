@@ -15,7 +15,7 @@ import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
 import Spinner from "@components/Spinner";
 
-import WalletModal from "@components/WalletModal";
+import ConnectButton from "@components/ConnectButton";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
@@ -30,7 +30,7 @@ import {
   L1_CHAIN_ID,
   l2Provider,
   nodeInterface,
-} from "constants/chains";
+} from "lib/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import LivepeerSDK from "@livepeer/sdk";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
@@ -76,15 +76,7 @@ const initialState = {
     </Text>
   ),
   receipts: null,
-  cta: (
-    <WalletModal
-      trigger={
-        <Button variant="primary" size="4" css={{ width: "100%" }}>
-          Connect Wallet
-        </Button>
-      }
-    />
-  ),
+  cta: <ConnectButton />,
   image: "/img/arbitrum.svg",
   loading: false,
 };
@@ -215,7 +207,6 @@ const MigrateUndelegatedStake = () => {
       router.push("/");
     }
   }, [router]);
-
 
   const chainId = useActiveChainId();
   const accountAddress = useAccountAddress();

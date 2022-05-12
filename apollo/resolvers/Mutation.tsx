@@ -1,4 +1,4 @@
-import { l2Migrator, l2Provider } from "constants/chains";
+import { l2Migrator, l2Provider } from "lib/chains";
 import { ethers } from "ethers";
 
 /**

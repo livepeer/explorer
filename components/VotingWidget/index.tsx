@@ -1,4 +1,4 @@
-import WalletModal from "@components/WalletModal";
+import ConnectButton from "@components/ConnectButton";
 import {
   Box,
   Button,
@@ -209,8 +209,7 @@ const Index = ({ data }) => {
                 >
                   <Box as="span" css={{ color: "$neutral11" }}>
                     My Vote (
-                    {accountAddress.replace(accountAddress.slice(5, 39), "…")}
-                    )
+                    {accountAddress.replace(accountAddress.slice(5, 39), "…")})
                   </Box>
                   <Box
                     as="span"
@@ -247,19 +246,7 @@ const Index = ({ data }) => {
               {data.poll.isActive && renderVoteButton(data)}
             </>
           ) : (
-            <WalletModal
-              trigger={
-                <Button
-                  variant="primary"
-                  size="4"
-                  css={{
-                    width: "100%",
-                  }}
-                >
-                  Connect Wallet
-                </Button>
-              }
-            />
+            <ConnectButton />
           )}
         </Box>
       </Box>

@@ -1,21 +1,34 @@
-import { injected } from "@lib/connectors";
-import { useWeb3React } from "@web3-react/core";
-import { l1Provider } from "constants/chains";
-import { SUPPORTED_WALLETS } from "constants/wallet";
-import { ethers } from "ethers";
+import { l1Provider } from "lib/chains";
+import { ethers, Signer } from "ethers";
 import { useEffect, useState } from "react";
+import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 
-// TODO(chase): refactor to use wagmi
 export const useAccountAddress = () => {
-  const context = useWeb3React();
+  const account = useAccount();
 
-  return context?.account ?? null;
+  return account?.data?.address ?? null;
 };
 
 export const useAccountSigner = () => {
-  const context = useWeb3React();
+  const account = useAccount();
 
-  return context?.library?.getSigner() ?? null;
+  const [signer, setSigner] = useState<Signer | null>(null);
+
+  useEffect(() => {
+    async function getSigner() {
+      if (account?.data?.connector?.getSigner) {
+        try {
+          const signer = await account?.data?.connector?.getSigner?.();
+          setSigner(signer ?? null);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+    getSigner();
+  }, [account?.data]);
+
+  return signer;
 };
 
 export const useAccountEnsData = () => {
@@ -46,73 +59,47 @@ export const useAccountEnsData = () => {
 };
 
 export const useAccountBalance = () => {
-  const { account, library, chainId } = useWeb3React();
+  const address = useAccountAddress();
+
+  const { data } = useBalance({
+    addressOrName: address,
+  });
 
   const [balance, setBalance] = useState(null);
   useEffect(() => {
-    if (!!account && !!library) {
-      let stale = false;
-
-      library
-        .getBalance(account)
-        .then((balance) => {
-          if (!stale) {
-            setBalance(
-              +parseFloat(ethers.utils.formatEther(balance)).toFixed(4)
-            );
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setBalance(null);
-          }
-        });
-
-      return () => {
-        stale = true;
-        setBalance(undefined);
-      };
+    if (data?.value) {
+      setBalance(+parseFloat(ethers.utils.formatEther(data.value)).toFixed(4));
     }
-  }, [account, library, chainId]);
+  }, [data?.value]);
 
   return balance;
 };
 
 export const useConnectorName = () => {
-  const { connector } = useWeb3React();
+  const data = useConnect();
 
-  const isMetaMask =
-    window["ethereum"] && window["ethereum"].isMetaMask ? true : false;
-  const name = Object.keys(SUPPORTED_WALLETS)
-    .filter(
-      (k) =>
-        SUPPORTED_WALLETS[k].connector === connector &&
-        (connector !== injected || isMetaMask === (k === "METAMASK"))
-    )
-    .map((k) => SUPPORTED_WALLETS[k].name)[0];
-
-  return name;
+  return data?.activeConnector?.name;
 };
 
 export const useActiveChainId = () => {
   const [chainId, setChainId] = useState<number | null>(null);
-  const { connector } = useWeb3React();
+  const data = useConnect();
 
   useEffect(() => {
     (async () => {
-      if (connector) {
-        setChainId(Number(await connector.getChainId()));
+      if (data?.activeConnector) {
+        setChainId(Number(await data.activeConnector.getChainId()));
       }
     })();
-  }, [connector]);
+  }, [data?.activeConnector]);
 
   return chainId;
 };
 
 export function useDisconnectWallet() {
-  const { deactivate } = useWeb3React();
+  const disconnect = useDisconnect();
 
   return () => {
-    deactivate?.();
+    disconnect?.disconnect?.();
   };
 }

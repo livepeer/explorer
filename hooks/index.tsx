@@ -1,7 +1,4 @@
 import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
-import { useWeb3React } from "@web3-react/core";
-import { injected } from "@lib/connectors";
-import { isMobile } from "react-device-detect";
 import { useEffect, useRef, useState } from "react";
 import { transactionsQuery } from "../queries/transactionsQuery";
 import { useAccountAddress, useAccountSigner } from "./wallet";
@@ -82,79 +79,80 @@ export function usePrevious(value) {
   return ref.current;
 }
 
-export function useEagerConnect() {
-  const { activate, active } = useWeb3React();
-  const [tried, setTried] = useState(false);
+// export function useEagerConnect() {
+//   const { connect, connectors, error, isConnecting, pendingConnector } =
+//     useConnect();
+//   const [tried, setTried] = useState(false);
 
-  useEffect(() => {
-    injected.isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(injected, undefined, true).catch(() => {
-          setTried(true);
-        });
-      } else {
-        if (isMobile && window["ethereum"]) {
-          activate(injected, undefined, true).catch(() => {
-            setTried(true);
-          });
-        } else {
-          setTried(true);
-        }
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally only running on mount (make sure it's only mounted once :))
+//   useEffect(() => {
+//     injected.isAuthorized().then((isAuthorized: boolean) => {
+//       if (isAuthorized) {
+//         activate(injected, undefined, true).catch(() => {
+//           setTried(true);
+//         });
+//       } else {
+//         if (isMobile && window["ethereum"]) {
+//           activate(injected, undefined, true).catch(() => {
+//             setTried(true);
+//           });
+//         } else {
+//           setTried(true);
+//         }
+//       }
+//     });
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, []); // intentionally only running on mount (make sure it's only mounted once :))
 
-  // if the connection worked, wait until we get confirmation of that to flip the flag
-  useEffect(() => {
-    if (!tried && active) {
-      setTried(true);
-    }
-  }, [tried, active]);
+//   // if the connection worked, wait until we get confirmation of that to flip the flag
+//   useEffect(() => {
+//     if (!tried && active) {
+//       setTried(true);
+//     }
+//   }, [tried, active]);
 
-  return tried;
-}
+//   return tried;
+// }
 
-export function useInactiveListener(suppress = false) {
-  const { active, error, activate } = useWeb3React();
+// export function useInactiveListener(suppress = false) {
+//   const { active, error, activate } = useWeb3React();
 
-  useEffect(() => {
-    const ethereum = window["ethereum"];
+//   useEffect(() => {
+//     const ethereum = window["ethereum"];
 
-    if (ethereum && ethereum.on && !active && !error && !suppress) {
-      const handleChainChanged = () => {
-        // eat errors
-        activate(injected, undefined, true).catch(() => {});
-      };
+//     if (ethereum && ethereum.on && !active && !error && !suppress) {
+//       const handleChainChanged = () => {
+//         // eat errors
+//         activate(injected, undefined, true).catch(() => {});
+//       };
 
-      const handleAccountsChanged = (accounts) => {
-        if (accounts.length > 0) {
-          // eat errors
-          activate(injected, undefined, true).catch(() => {});
-        }
-      };
+//       const handleAccountsChanged = (accounts) => {
+//         if (accounts.length > 0) {
+//           // eat errors
+//           activate(injected, undefined, true).catch(() => {});
+//         }
+//       };
 
-      const handleNetworkChanged = () => {
-        // eat errors
-        activate(injected, undefined, true).catch(() => {});
-      };
+//       const handleNetworkChanged = () => {
+//         // eat errors
+//         activate(injected, undefined, true).catch(() => {});
+//       };
 
-      ethereum.on("chainChanged", handleChainChanged);
-      ethereum.on("networkChanged", handleNetworkChanged);
-      ethereum.on("accountsChanged", handleAccountsChanged);
+//       ethereum.on("chainChanged", handleChainChanged);
+//       ethereum.on("networkChanged", handleNetworkChanged);
+//       ethereum.on("accountsChanged", handleAccountsChanged);
 
-      return () => {
-        if (ethereum.removeListener) {
-          ethereum.removeListener("chainChanged", handleChainChanged);
-          ethereum.removeListener("networkChanged", handleNetworkChanged);
-          ethereum.removeListener("accountsChanged", handleAccountsChanged);
-        }
-      };
-    }
+//       return () => {
+//         if (ethereum.removeListener) {
+//           ethereum.removeListener("chainChanged", handleChainChanged);
+//           ethereum.removeListener("networkChanged", handleNetworkChanged);
+//           ethereum.removeListener("accountsChanged", handleAccountsChanged);
+//         }
+//       };
+//     }
 
-    return () => {};
-  }, [active, error, suppress, activate]);
-}
+//     return () => {};
+//   }, [active, error, suppress, activate]);
+// }
 
 export function useMutations() {
   const mutations = require("../mutations").default;
