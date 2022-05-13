@@ -38,7 +38,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccountAddress, useAccountSigner, useActiveChainId } from "hooks";
+import { useAccountAddress, useAccountSigner, useActiveChain } from "hooks";
 
 const signingSteps = [
   `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -189,7 +189,7 @@ const MigrateBroadcaster = () => {
     }
   }, [router]);
 
-  const chainId = useActiveChainId();
+  const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
 
@@ -433,7 +433,7 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-  }, [signerAddress, chainId, state.showSigningSteps]);
+  }, [signerAddress, activeChain, state.showSigningSteps]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

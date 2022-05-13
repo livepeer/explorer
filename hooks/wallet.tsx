@@ -1,16 +1,31 @@
+import { Signer } from "ethers";
 import { l1Provider } from "lib/chains";
-import { ethers, Signer } from "ethers";
-import { useEffect, useState } from "react";
-import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import { useAccount, useDisconnect, useNetwork } from "wagmi";
+
+const useIsChainSupported = () => {
+  const activeChain = useActiveChain();
+
+  return useMemo(
+    () => (activeChain ? !activeChain.unsupported : false),
+    [activeChain]
+  );
+};
 
 export const useAccountAddress = () => {
   const account = useAccount();
 
-  return account?.data?.address ?? null;
+  const isChainSupported = useIsChainSupported();
+
+  return isChainSupported && account?.data?.address
+    ? account.data.address
+    : null;
 };
 
 export const useAccountSigner = () => {
   const account = useAccount();
+
+  const isChainSupported = useIsChainSupported();
 
   const [signer, setSigner] = useState<Signer | null>(null);
 
@@ -28,11 +43,13 @@ export const useAccountSigner = () => {
     getSigner();
   }, [account?.data]);
 
-  return signer;
+  return isChainSupported ? signer : null;
 };
 
 export const useAccountEnsData = () => {
   const address = useAccountAddress();
+
+  const isChainSupported = useIsChainSupported();
 
   const [ens, setENS] = useState<{
     avatar: string | null;
@@ -55,45 +72,13 @@ export const useAccountEnsData = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  return ens;
+  return isChainSupported ? ens : null;
 };
 
-export const useAccountBalance = () => {
-  const address = useAccountAddress();
+export const useActiveChain = () => {
+  const { activeChain } = useNetwork();
 
-  const { data } = useBalance({
-    addressOrName: address,
-  });
-
-  const [balance, setBalance] = useState(null);
-  useEffect(() => {
-    if (data?.value) {
-      setBalance(+parseFloat(ethers.utils.formatEther(data.value)).toFixed(4));
-    }
-  }, [data?.value]);
-
-  return balance;
-};
-
-export const useConnectorName = () => {
-  const data = useConnect();
-
-  return data?.activeConnector?.name;
-};
-
-export const useActiveChainId = () => {
-  const [chainId, setChainId] = useState<number | null>(null);
-  const data = useConnect();
-
-  useEffect(() => {
-    (async () => {
-      if (data?.activeConnector) {
-        setChainId(Number(await data.activeConnector.getChainId()));
-      }
-    })();
-  }, [data?.activeConnector]);
-
-  return chainId;
+  return activeChain;
 };
 
 export function useDisconnectWallet() {

@@ -24,9 +24,11 @@ function App({ Component, pageProps }) {
 
   const { route } = useRouter();
 
-  const { wagmiClient, chains } = useMemo(() => {
+  const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
+
+  const { wagmiClient, chains, layoutKey } = useMemo(() => {
     const { provider, chains } = configureChains(
-      [route.includes("/migrate") ? L1_CHAIN : DEFAULT_CHAIN],
+      [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
       [apiProvider.infura(INFURA_KEY), apiProvider.fallback()]
     );
 
@@ -41,8 +43,12 @@ function App({ Component, pageProps }) {
       provider,
     });
 
-    return { wagmiClient, chains };
-  }, [route]);
+    return {
+      wagmiClient,
+      chains,
+      layoutKey: chains.map((e) => e.id).join(","),
+    };
+  }, [isMigrateRoute]);
 
   const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
   return (
@@ -51,7 +57,10 @@ function App({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Livepeer Explorer</title>
       </Head>
-      <ApolloProvider client={client}>
+      <ApolloProvider
+        key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
+        client={client}
+      >
         <WagmiProvider client={wagmiClient}>
           <RainbowKitProvider
             showRecentTransactions={false}

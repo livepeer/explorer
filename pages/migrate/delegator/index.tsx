@@ -40,7 +40,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useActiveChainId, useAccountAddress, useAccountSigner } from "hooks";
+import { useActiveChain, useAccountAddress, useAccountSigner } from "hooks";
 
 export const getUnbondingLocks = async (account) => {
   const sdk = await LivepeerSDK({
@@ -208,7 +208,7 @@ const MigrateUndelegatedStake = () => {
     }
   }, [router]);
 
-  const chainId = useActiveChainId();
+  const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
 
@@ -453,7 +453,7 @@ const MigrateUndelegatedStake = () => {
       }
     };
     init();
-  }, [signerAddress, chainId, state.showSigningSteps]);
+  }, [signerAddress, activeChain, state.showSigningSteps]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

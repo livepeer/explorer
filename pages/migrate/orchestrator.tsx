@@ -40,7 +40,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useActiveChainId, useAccountAddress, useAccountSigner } from "hooks";
+import { useActiveChain, useAccountAddress, useAccountSigner } from "hooks";
 
 const isRegisteredOrchestrator = async (account) => {
   const sdk = await LivepeerSDK({
@@ -195,7 +195,7 @@ const MigrateOrchestrator = () => {
     }
   }, [router]);
 
-  const chainId = useActiveChainId();
+  const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
 
@@ -432,7 +432,7 @@ const MigrateOrchestrator = () => {
       }
     };
     init();
-  }, [signerAddress, chainId, state.isOrchestrator]);
+  }, [signerAddress, activeChain, state.isOrchestrator]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

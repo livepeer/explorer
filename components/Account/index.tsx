@@ -2,7 +2,6 @@ import Link from "next/link";
 import AccountIcon from "../../public/img/account.svg";
 import { useRef } from "react";
 import { useRouter } from "next/router";
-import WalletIcon from "../../public/img/wallet.svg";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 
 import { useAccountAddress, useAccountEnsData } from "hooks";

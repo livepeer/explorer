@@ -36,7 +36,7 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import { MutationsContext } from "../contexts";
 import {
   useAccountAddress,
-  useActiveChainId,
+  useActiveChain,
   useMutations,
   useOnClickOutside,
 } from "../hooks";
@@ -85,7 +85,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
   const mutations = useMutations();
   const accountAddress = useAccountAddress();
-  const activeChainId = useActiveChainId();
+  const activeChain = useActiveChain();
   const { data: transactionsData } = useQuery(transactionsQuery);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
@@ -389,27 +389,24 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               width={18}
                               height={18}
                               alt={
-                                CHAIN_INFO[
-                                  activeChainId
-                                    ? activeChainId
-                                    : DEFAULT_CHAIN_ID
-                                ].label
+                                (
+                                  CHAIN_INFO[activeChain?.id] ??
+                                  CHAIN_INFO[DEFAULT_CHAIN_ID]
+                                ).label
                               }
                               src={
-                                CHAIN_INFO[
-                                  activeChainId
-                                    ? activeChainId
-                                    : DEFAULT_CHAIN_ID
-                                ].logoUrl
+                                (
+                                  CHAIN_INFO[activeChain?.id] ??
+                                  CHAIN_INFO[DEFAULT_CHAIN_ID]
+                                ).logoUrl
                               }
                             />
                             <Box css={{ ml: "8px" }}>
                               {
-                                CHAIN_INFO[
-                                  activeChainId
-                                    ? activeChainId
-                                    : DEFAULT_CHAIN_ID
-                                ].label
+                                (
+                                  CHAIN_INFO[activeChain?.id] ??
+                                  CHAIN_INFO[DEFAULT_CHAIN_ID]
+                                ).label
                               }
                             </Box>
                             <Box css={{ ml: "16px" }}>
