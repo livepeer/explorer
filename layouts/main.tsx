@@ -10,6 +10,7 @@ import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
+import WalletMenu from "@components/WalletMenu";
 import { isL2ChainId } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import {
@@ -375,7 +376,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               fontWeight: 600,
                               px: "$2",
                               fontSize: "$2",
-                              height: 35,
                               display: "none",
                               ai: "center",
                               mr: "$2",
@@ -409,9 +409,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 ).label
                               }
                             </Box>
-                            <Box css={{ ml: "16px" }}>
-                              <ConnectButton />
-                            </Box>
+                          </Flex>
+                          <Flex css={{ ai: "center", ml: "16px" }}>
+                            <ConnectButton />
+                          </Flex>
+                          <Flex css={{ ai: "center", ml: "8px" }}>
+                            <WalletMenu />
                           </Flex>
                         </Flex>
                       </Flex>
