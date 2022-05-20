@@ -16,8 +16,14 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "lib/chains";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  l1Provider,
+  l2Provider,
+} from "lib/chains";
 import { ethers } from "ethers";
+import { Transcoder } from "@types";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -353,6 +359,12 @@ const createSchema = async () => {
         const prices = [];
         const performanceMetrics = [];
 
+        function avg(obj, key) {
+          const arr = Object.values(obj);
+          const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
+          return arr.reduce(sum)[key] / arr.length;
+        }
+
         //if selection set includes 'price', return transcoders merge prices and performance metrics
         if (selectionSet.includes("price")) {
           // get price data
@@ -367,12 +379,6 @@ const createSchema = async () => {
               });
             }
           }
-        }
-
-        function avg(obj, key) {
-          const arr = Object.values(obj);
-          const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-          return arr.reduce(sum)[key] / arr.length;
         }
 
         const oneDayAgo = Math.floor(

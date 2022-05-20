@@ -5,11 +5,7 @@ import parseDomain from "parse-domain";
 import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -648,4 +644,52 @@ export function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+export function calculateAnnualROI({
+  successRate,
+  ninetyDayVolumeETH,
+  feeShare,
+  lptPriceEth,
+
+  yearlyRewardsToStakeRatio,
+  rewardCallRatio,
+  rewardCut,
+  principle,
+  totalStake,
+}) {
+  let percentLptRewards = 0;
+
+  if (rewardCallRatio > 0) {
+    const combinedTotalStaked = principle + totalStake;
+    const expectedTotalYearlyRewards =
+      yearlyRewardsToStakeRatio * combinedTotalStaked * rewardCallRatio;
+    const expectedDelegatorYearlyRewards =
+      expectedTotalYearlyRewards *
+      (1 - rewardCut / 1000000) *
+      (principle / totalStake);
+
+    percentLptRewards = expectedDelegatorYearlyRewards / principle;
+  }
+
+  let percentExpectedLptFeeCutDelegator = 0;
+
+  if (ninetyDayVolumeETH > 0) {
+    // this is scaled by the successRate, because there are over-reported orchestrators who are performing poorly
+    const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365 * successRate;
+    const expectedYearlyEthCutDelegators =
+      expectedYearlyVolumeEth * (feeShare / 1000000);
+    const expectedYearlyFeeCutDelegator =
+      expectedYearlyEthCutDelegators * (principle / totalStake);
+
+    const expectedLptFeeCutDelegator =
+      expectedYearlyFeeCutDelegator / lptPriceEth;
+
+    percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
+  }
+
+  return {
+    fees: percentExpectedLptFeeCutDelegator,
+    rewards: percentLptRewards,
+  };
 }

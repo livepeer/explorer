@@ -1,10 +1,7 @@
 import { gql, useApolloClient } from "@apollo/client";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { Box } from "@livepeer/design-system";
-
-const hoursPerYear = 8760;
-const averageHoursPerRound = 21;
-const roundsPerYear = hoursPerYear / averageHoursPerRound;
+import { calculateAnnualROI } from "@lib/utils";
 
 const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
   const client = useApolloClient();
@@ -21,12 +18,10 @@ const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
   const principle = +value ? +value : 0;
   const roi = calculateAnnualROI({
     inflation,
-    inflationChange,
     rewardCut,
     principle,
     totalSupply,
     totalStaked,
-    participationRate,
   });
 
   client.writeQuery({
@@ -90,34 +85,3 @@ const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
 };
 
 export default Input;
-
-function calculateAnnualROI({
-  rewardCut,
-  inflation,
-  inflationChange,
-  principle,
-  totalSupply,
-  totalStaked,
-  participationRate,
-}) {
-  const percentOfTotalStaked =
-    principle / totalStaked ? principle / totalStaked : 0;
-  let totalRewardTokens = 0;
-  let roi = 0;
-  let totalRewardTokensMinusFee;
-  let currentMintableTokens;
-
-  for (let i = 0; i < roundsPerYear; i++) {
-    currentMintableTokens = totalSupply * inflation;
-    totalRewardTokens = percentOfTotalStaked * currentMintableTokens;
-    totalRewardTokensMinusFee =
-      totalRewardTokens - totalRewardTokens * rewardCut;
-    roi += totalRewardTokensMinusFee;
-    totalSupply += currentMintableTokens;
-    inflation =
-      participationRate > 0.5
-        ? inflation - inflationChange
-        : inflation + inflationChange;
-  }
-  return roi;
-}

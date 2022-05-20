@@ -76,7 +76,7 @@ const OrchestratorsPage = () => {
                 <Spinner />
               </Flex>
             ) : (
-              <OrchestratorList data={data?.transcoders} pageSize={20} />
+              <OrchestratorList data={data?.transcoders} pageSize={20} protocolData={data?.protocol} />
             )}
           </Box>
         </Flex>

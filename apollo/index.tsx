@@ -11,13 +11,6 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export const blockClient = new ApolloClient({
-  link: new HttpLink({
-    uri: "https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks",
-  }),
-  cache: new InMemoryCache(),
-});
-
 let apolloClient;
 
 export function getApollo(initialState = null) {
