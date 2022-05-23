@@ -8,8 +8,7 @@ import {
   simulateNewActiveSetOrder,
 } from "@lib/utils";
 import Footnote from "./Footnote";
-import ConnectWallet from "./connect-wallet";
-import { Box } from "@livepeer/design-system";
+import { Box, Button, Flex } from "@livepeer/design-system";
 import { useAccountAddress } from "hooks";
 
 type FooterData = {
@@ -43,7 +42,22 @@ const Footer = ({
   const accountAddress = useAccountAddress();
 
   if (!accountAddress) {
-    return <ConnectWallet />;
+    return (
+      <>
+        <Button
+          size="4"
+          disabled={true}
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          {action === "delegate" ? "Delegate" : "Undelegate"}
+        </Button>
+        <Footnote>
+          Connect your wallet to{" "}
+          {action === "delegate" ? "delegate" : "undelegate"}.
+        </Footnote>
+      </>
+    );
   }
 
   const tokenBalance =
