@@ -647,7 +647,6 @@ export function toTitleCase(str) {
 }
 
 export function calculateAnnualROI({
-  successRate,
   thirtyDayVolumeETH,
   feeShare,
   lptPriceEth,
@@ -682,9 +681,7 @@ export function calculateAnnualROI({
   let totalFees = 0;
 
   if (thirtyDayVolumeETH > 0) {
-    // this is scaled by the successRate, because there are over-reported orchestrators who are performing poorly
-    const expectedYearlyVolumeEth =
-      (thirtyDayVolumeETH / 30) * 365 * successRate;
+    const expectedYearlyVolumeEth = (thirtyDayVolumeETH / 30) * 365;
     const expectedYearlyEthCutDelegators =
       expectedYearlyVolumeEth * (feeShare / 1000000);
     const expectedYearlyFeeCutDelegator =

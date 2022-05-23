@@ -16,7 +16,6 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
   const principle = Number(value || 0);
 
   const roi = calculateAnnualROI({
-    successRate: Number(transcoder?.successRates?.global || 0) / 100,
     thirtyDayVolumeETH: Number(transcoder?.thirtyDayVolumeETH || 0),
     feeShare: Number(transcoder?.feeShare || 0),
     lptPriceEth: Number(protocol?.lptPriceEth || 0),

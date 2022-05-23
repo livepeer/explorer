@@ -274,7 +274,6 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               : 0;
 
           const roi = calculateAnnualROI({
-            successRate: Number(row.successRates.global) / 100,
             thirtyDayVolumeETH: Number(row.thirtyDayVolumeETH),
             feeShare: Number(row.feeShare),
             lptPriceEth: Number(protocolData.lptPriceEth),
