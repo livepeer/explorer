@@ -1,6 +1,6 @@
 import { Theme } from "@rainbow-me/rainbowkit";
 
-const darkGrey = "#1A1B1F";
+const darkGrey = "#252a27";
 
 // TODO move this into the design system library and use variables
 const rainbowTheme: Theme = {
@@ -8,15 +8,15 @@ const rainbowTheme: Theme = {
     body: "Inter, -apple-system, system-ui, sans-serif",
   },
   radii: {
-    actionButton: "6px",
-    connectButton: "6px",
-    menuButton: "6px",
+    actionButton: "8px",
+    connectButton: "8px",
+    menuButton: "8px",
     modal: "8px",
     modalMobile: "8px",
   },
   colors: {
-    accentColor: "rgb(76, 195, 138)",
-    accentColorForeground: "rgb(20, 23, 22)",
+    accentColor: "#113123",
+    accentColorForeground: "#4cc38a",
     actionButtonBorder: "rgba(255, 255, 255, 0.04)",
     actionButtonBorderMobile: "rgba(255, 255, 255, 0.08)",
     actionButtonSecondaryBackground: "rgb(20, 23, 22)",
@@ -24,8 +24,7 @@ const rainbowTheme: Theme = {
     closeButtonBackground: "rgba(255, 255, 255, 0.08)",
     connectButtonBackground: darkGrey,
     connectButtonBackgroundError: "#FF494A",
-    connectButtonInnerBackground:
-      "linear-gradient(0deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.15))",
+    connectButtonInnerBackground: "#393f3c",
     connectButtonText: "#FFF",
     connectButtonTextError: "#FFF",
     connectionIndicator: "#30E000",
@@ -41,7 +40,7 @@ const rainbowTheme: Theme = {
     modalTextSecondary: "rgba(255, 255, 255, 0.6)",
     profileAction: "rgba(224, 232, 255, 0.1)",
     profileActionHover: "rgba(224, 232, 255, 0.2)",
-    profileForeground: "rgba(224, 232, 255, 0.05)",
+    profileForeground: "#191d1b",
     selectedOptionBorder: "rgba(224, 232, 255, 0.1)",
     standby: "#FFD641",
   },
