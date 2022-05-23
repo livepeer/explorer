@@ -85,15 +85,37 @@ const WalletMenu = () => {
         <Button
           css={{
             ml: "$2",
-            width: 35,
-            height: 35,
+            width: 40,
+            height: 40,
             ai: "center",
             justifyContent: "center",
             borderRadius: 1000,
             p: 0,
+            color: "white",
+            transition: "0.125s ease",
+            transform: "scale(1)",
+            "&:hover": {
+              bc: "$neutral4",
+              transition: "0.125s ease",
+            },
           }}
         >
-          <Box as={ChevronDownIcon} css={{ width: 20, height: 20 }} />
+          <svg
+            fill="none"
+            height="7"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12.75 1.54001L8.51647 5.0038C7.77974 5.60658 6.72026 5.60658 5.98352 5.0038L1.75 1.54001"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              xmlns="http://www.w3.org/2000/svg"
+            />
+          </svg>
+          {/* <Box as={ChevronDownIcon} css={{ width: 20, height: 20 }} /> */}
         </Button>
       </PopoverTrigger>
       <PopoverContent css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}>

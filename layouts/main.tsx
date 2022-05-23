@@ -410,7 +410,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }
                             </Box>
                           </Flex>
-                          <Flex css={{ ai: "center", ml: "16px" }}>
+                          <Flex css={{ ai: "center", ml: "8px" }}>
                             <ConnectButton />
                           </Flex>
                           <Flex css={{ ai: "center", ml: "8px" }}>
