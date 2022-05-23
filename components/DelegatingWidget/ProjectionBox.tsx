@@ -1,16 +1,26 @@
 import { useQuery, gql } from "@apollo/client";
 import { abbreviateNumber } from "../../lib/utils";
-import { Box, Flex, Card } from "@livepeer/design-system";
+import { Box, Flex, Card, Text, Tooltip } from "@livepeer/design-system";
+import numeral from "numeral";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { useMemo } from "react";
 
 const ProjectionBox = ({ action }) => {
   const GET_ROI = gql`
     {
-      roi @client
+      roiFeesLpt @client
+      roiFees @client
+      roiRewards @client
       principle @client
     }
   `;
 
   const { data } = useQuery(GET_ROI);
+
+  const formattedPrinciple = useMemo(
+    () => numeral(Number(data?.principle) || 0).format("0a"),
+    [data]
+  );
 
   return (
     <Card
@@ -27,29 +37,90 @@ const ProjectionBox = ({ action }) => {
           <Flex
             css={{
               fontSize: "$1",
-              mb: "$3",
+              mb: "$2",
+              ai: "center",
               justifyContent: "space-between",
             }}
           >
             <Box css={{ color: "$neutral11" }}>
-              {action === "delegate"
-                ? "Projected Rewards (1Y)"
-                : "Projected Opportunity Cost (1Y)"}
+              <Flex css={{ ai: "center" }}>
+                <Box>
+                  {action === "delegate"
+                    ? "Projected Rewards (1Y)"
+                    : "Projected Opportunity Cost (1Y)"}
+                </Box>
+                <Tooltip
+                  multiline
+                  content={
+                    <Box>
+                      {action === "delegate"
+                        ? `The expected earnings if you were to delegate
+                    ${formattedPrinciple} LPT to this orchestrator. This is only an
+                    estimate based on recent performance data and is subject to
+                    change.`
+                        : `The expected earnings you would not receive in the next year, if you were to undelegate
+                        ${formattedPrinciple} LPT from this orchestrator.`}
+                    </Box>
+                  }
+                >
+                  <Flex css={{ ml: "$1" }}>
+                    <QuestionMarkCircledIcon />
+                  </Flex>
+                </Tooltip>
+              </Flex>
             </Box>
             {action === "delegate" && (
               <Box css={{ fontFamily: "$monospace", color: "$neutral11" }}>
-                +
-                {data.principle
-                  ? ((data.roi / +data.principle) * 100).toFixed(2) + "%"
-                  : 0 + "%"}
+                {numeral(
+                  data.principle
+                    ? (data.roiFeesLpt + data.roiRewards) / +data.principle
+                    : 0
+                ).format("0.0%")}
               </Box>
             )}
           </Flex>
+
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-            <Box css={{ fontSize: "$5", fontFamily: "$monospace" }}>
-              +{abbreviateNumber(data.roi)}
-            </Box>
-            <Box css={{ fontSize: "$2" }}>LPT</Box>
+            <Flex css={{ ai: "center" }}>
+              <Text css={{ fontSize: "$2" }}>Inflationary Rewards</Text>
+              <Tooltip
+                multiline
+                content={
+                  <Box>
+                    The projected LPT rewards you would receive, based on your
+                    input stake and the total stake for the orchestrator.
+                  </Box>
+                }
+              >
+                <Flex css={{ ml: "$1" }}>
+                  <QuestionMarkCircledIcon />
+                </Flex>
+              </Tooltip>
+            </Flex>
+            <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
+              {numeral(data.roiRewards).format("0.0")} LPT
+            </Text>
+          </Flex>
+          <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
+            <Flex css={{ ai: "center" }}>
+              <Text css={{ fontSize: "$2" }}>Fee Share</Text>
+              <Tooltip
+                multiline
+                content={
+                  <Box>
+                    The projected fee share you would receive for the work that
+                    the orchestrator performs on the network (in Ether).
+                  </Box>
+                }
+              >
+                <Flex css={{ ml: "$1" }}>
+                  <QuestionMarkCircledIcon />
+                </Flex>
+              </Tooltip>
+            </Flex>
+            <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
+              {numeral(data.roiFees).format("0.0")} ETH
+            </Text>
           </Flex>
         </Box>
       </Box>

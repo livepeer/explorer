@@ -648,7 +648,7 @@ export function toTitleCase(str) {
 
 export function calculateAnnualROI({
   successRate,
-  ninetyDayVolumeETH,
+  thirtyDayVolumeETH,
   feeShare,
   lptPriceEth,
 
@@ -658,7 +658,21 @@ export function calculateAnnualROI({
   principle,
   totalStake,
 }) {
+  console.log({
+    successRate,
+    thirtyDayVolumeETH,
+    feeShare,
+    lptPriceEth,
+
+    yearlyRewardsToStakeRatio,
+    rewardCallRatio,
+    rewardCut,
+    principle,
+    totalStake,
+  });
   let percentLptRewards = 0;
+  let delegatorLptRewards = 0;
+  let totalLptRewards = 0;
 
   if (rewardCallRatio > 0) {
     const combinedTotalStaked = principle + totalStake;
@@ -669,14 +683,20 @@ export function calculateAnnualROI({
       (1 - rewardCut / 1000000) *
       (principle / totalStake);
 
+    totalLptRewards = expectedTotalYearlyRewards;
+    delegatorLptRewards = expectedDelegatorYearlyRewards;
     percentLptRewards = expectedDelegatorYearlyRewards / principle;
   }
 
   let percentExpectedLptFeeCutDelegator = 0;
+  let delegatorFees = 0;
+  let delegatorLptFees = 0;
+  let totalFees = 0;
 
-  if (ninetyDayVolumeETH > 0) {
+  if (thirtyDayVolumeETH > 0) {
     // this is scaled by the successRate, because there are over-reported orchestrators who are performing poorly
-    const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365 * successRate;
+    const expectedYearlyVolumeEth =
+      (thirtyDayVolumeETH / 30) * 365 * successRate;
     const expectedYearlyEthCutDelegators =
       expectedYearlyVolumeEth * (feeShare / 1000000);
     const expectedYearlyFeeCutDelegator =
@@ -685,11 +705,25 @@ export function calculateAnnualROI({
     const expectedLptFeeCutDelegator =
       expectedYearlyFeeCutDelegator / lptPriceEth;
 
+    totalFees = expectedYearlyVolumeEth;
+    delegatorFees = expectedYearlyFeeCutDelegator;
+    delegatorLptFees = expectedLptFeeCutDelegator;
     percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
   }
 
   return {
-    fees: percentExpectedLptFeeCutDelegator,
-    rewards: percentLptRewards,
+    delegatorPercent: {
+      fees: percentExpectedLptFeeCutDelegator,
+      rewards: percentLptRewards,
+    },
+    delegator: {
+      fees: delegatorFees,
+      feesLpt: delegatorLptFees,
+      rewards: delegatorLptRewards,
+    },
+    total: {
+      fees: totalFees,
+      rewards: totalLptRewards,
+    },
   };
 }

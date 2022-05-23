@@ -51,6 +51,7 @@ export const accountQuery = (currentRound) => {
         totalVolumeETH
         activationRound
         deactivationRound
+        thirtyDayVolumeETH
         lastRewardRound {
           id
         }
@@ -59,6 +60,9 @@ export const accountQuery = (currentRound) => {
         }
         delegators(first: 1000) {
           id
+        }
+        successRates {
+          global
         }
       }
       account(id: $account) {
@@ -82,6 +86,8 @@ export const accountQuery = (currentRound) => {
         participationRate
         inflation
         inflationChange
+        lptPriceEth
+        yearlyRewardsToStakeRatio
         currentRound {
           id
         }

@@ -1,7 +1,6 @@
 import React from "react";
 import Input from "./Input";
 import Utils from "web3-utils";
-import ReactTooltip from "react-tooltip";
 import { Box, Flex, Card, Tooltip } from "@livepeer/design-system";
 
 const InputBox = ({

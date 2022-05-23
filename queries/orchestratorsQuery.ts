@@ -22,6 +22,7 @@ export const orchestratorsQuery = (currentRound, transcoderDays: number = 30) =>
         id
         totalVolumeETH
         feeShare
+        activationTimestamp
         activationRound
         deactivationRound
         rewardCut

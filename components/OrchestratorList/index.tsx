@@ -1,25 +1,25 @@
-import { useMemo } from "react";
-import {
-  Box,
-  Flex,
-  Badge,
-  Link as A,
-  Avatar,
-  Tooltip,
-  IconButton,
-  Popover,
-  Text,
-  PopoverContent,
-  PopoverTrigger,
-  TextField,
-} from "@livepeer/design-system";
-import { MixerHorizontalIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
 import Table from "@components/Table";
 import { calculateAnnualROI, textTruncate } from "@lib/utils";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Flex,
+  IconButton,
+  Link as A,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  TextField,
+  Tooltip,
+} from "@livepeer/design-system";
+import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
+import moment from "moment";
+import Link from "next/link";
 import numeral from "numeral";
-import useForm from "react-hook-form";
+import { useMemo, useState } from "react";
 
 const avatarColors = [
   "tomato",
@@ -47,8 +47,15 @@ const avatarColors = [
 ] as const;
 
 const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
-  const { register, watch } = useForm();
-  const principle = watch("principle");
+  const [principle, setPrinciple] = useState<number>(100);
+  const maxSupplyTokens = useMemo(
+    () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
+    [protocolData]
+  );
+  const formattedPrinciple = useMemo(
+    () => numeral(Number(principle) || 100).format("0a"),
+    [principle]
+  );
 
   const columns = useMemo(
     () => [
@@ -87,7 +94,19 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         ),
       },
       {
-        Header: "Orchestrator",
+        Header: (
+          <Tooltip
+            multiline
+            content={
+              <Box>
+                The account which is actively coordinating transcoders and
+                receiving fees/rewards.
+              </Box>
+            }
+          >
+            <Box>Orchestrator</Box>
+          </Tooltip>
+        ),
         accessor: "identity",
         Cell: ({ row }) => (
           <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
@@ -162,63 +181,90 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       },
       {
         Header: (
-          <Flex css={{ flexDirection: "row", alignItems: "center" }}>
-            <Box css={{}}>Projected Earnings (1Y)</Box>
-            <Popover>
-              <PopoverTrigger asChild>
-                <IconButton
-                  aria-label="Copy code to clipboard"
-                  css={{
-                    cursor: "pointer",
-                    ml: "$1",
-                    opacity: 1,
-                    transition: "background-color .3s",
-                    "&:hover": {
-                      bc: "$primary5",
-                      transition: "background-color .3s",
-                    },
-                  }}
+          <Tooltip
+            multiline
+            content={
+              <Box>
+                The expected earnings if you were to delegate{" "}
+                {formattedPrinciple} LPT to this orchestrator. This is only an
+                estimate based on recent performance data and is subject to
+                change.
+              </Box>
+            }
+          >
+            <Flex css={{ flexDirection: "row", alignItems: "center" }}>
+              <Box css={{}}>Projected Earnings (1Y)</Box>
+              <Popover>
+                <PopoverTrigger
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
+                  asChild
                 >
-                  <MixerHorizontalIcon />
-                </IconButton>
-              </PopoverTrigger>
-              <PopoverContent
-                css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
-              >
-                <Box
-                  css={{
-                    borderBottom: "1px solid $neutral6",
-                    p: "$3",
-                  }}
-                >
-                  <Text
-                    variant="neutral"
-                    size="1"
+                  <IconButton
+                    aria-label="Change LPT rewards"
                     css={{
-                      mb: "$2",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      ml: "$1",
+                      opacity: 1,
+                      transition: "background-color .3s",
+                      "&:hover": {
+                        bc: "$primary5",
+                        transition: "background-color .3s",
+                      },
                     }}
                   >
-                    Assuming a delegation of:
-                  </Text>
-                  <Flex align="center">
-                    <TextField
-                      ref={register}
-                      name="principle"
-                      placeholder="Amount in LPT"
-                      type="number"
-                      size="2"
-                      defaultValue={100}
-                    />
-                  </Flex>
-                </Box>
-              </PopoverContent>
-            </Popover>
-          </Flex>
+                    <MixerHorizontalIcon />
+                  </IconButton>
+                </PopoverTrigger>
+                <PopoverContent
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                >
+                  <Box
+                    css={{
+                      borderBottom: "1px solid $neutral6",
+                      p: "$3",
+                    }}
+                  >
+                    <Text
+                      variant="neutral"
+                      size="1"
+                      css={{
+                        mb: "$2",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Assuming a delegation of:
+                    </Text>
+                    <Flex align="center">
+                      <TextField
+                        name="principle"
+                        placeholder="Amount in LPT"
+                        type="number"
+                        size="2"
+                        value={principle}
+                        onChange={(e) => {
+                          setPrinciple(
+                            Number(e.target.value) > maxSupplyTokens
+                              ? maxSupplyTokens
+                              : Number(e.target.value)
+                          );
+                        }}
+                        min="1"
+                        max={`${Number(
+                          protocolData?.totalSupply || 1e7
+                        ).toFixed(0)}`}
+                      />
+                    </Flex>
+                  </Box>
+                </PopoverContent>
+              </Popover>
+            </Flex>
+          </Tooltip>
         ),
         accessor: (row) => {
           const pools = row.pools ?? [];
@@ -227,11 +273,9 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               ? pools.filter((r) => r?.rewardTokens).length / pools.length
               : 0;
 
-          // console.log({ row, principle });
-
           const roi = calculateAnnualROI({
             successRate: Number(row.successRates.global) / 100,
-            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
+            thirtyDayVolumeETH: Number(row.thirtyDayVolumeETH),
             feeShare: Number(row.feeShare),
             lptPriceEth: Number(protocolData.lptPriceEth),
 
@@ -247,136 +291,235 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
           return roi;
         },
         id: "projectedEarningsAPY",
-        Cell: ({ row }) => (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Badge
-                size="2"
-                css={{ cursor: "pointer", color: "$white", fontSize: "$2" }}
-              >
-                {numeral(
-                  row.values.projectedEarningsAPY.fees +
-                    row.values.projectedEarningsAPY.rewards
-                ).format("0.0%")}
-              </Badge>
-            </PopoverTrigger>
-            <PopoverContent
-              css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
-            >
-              <Box
-                css={{
-                  padding: "$3",
-                }}
-              >
-                <Box
-                  css={{
-                    borderBottom: "1px solid $neutral6",
-                    mb: "$2",
-                    pb: "$2",
-                  }}
+        Cell: ({ row }) => {
+          const activation = useMemo(
+            () => moment.unix(row.original.activationTimestamp),
+            [row.original.activationTimestamp]
+          );
+          const isNewlyActive = useMemo(
+            () => moment().diff(activation, "days") < 30,
+            [activation]
+          );
+
+          return (
+            <Popover>
+              <PopoverTrigger disabled={isNewlyActive} asChild>
+                <Badge
+                  size="2"
+                  css={{ cursor: "pointer", color: "$white", fontSize: "$2" }}
                 >
-                  <Text
-                    variant="neutral"
-                    size="1"
+                  {isNewlyActive
+                    ? "NEW ✨"
+                    : numeral(
+                        row.values.projectedEarningsAPY.delegatorPercent.fees +
+                          row.values.projectedEarningsAPY.delegatorPercent
+                            .rewards
+                      ).format("0.0%")}
+                </Badge>
+              </PopoverTrigger>
+              {!isNewlyActive && (
+                <PopoverContent
+                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                >
+                  <Box
                     css={{
-                      mb: "$2",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
+                      padding: "$3",
                     }}
                   >
-                    PROJECTED EARNINGS (1Y)*
-                  </Text>
-                  <Box>
-                    <Flex>
+                    <Box
+                      css={{
+                        borderBottom: "1px solid $neutral6",
+                        mb: "$2",
+                        pb: "$2",
+                      }}
+                    >
                       <Text
+                        variant="neutral"
+                        size="1"
                         css={{
+                          mb: "$2",
                           fontWeight: 600,
-                          color: "$white",
-                          mb: "$1",
+                          textTransform: "uppercase",
                         }}
-                        size="2"
                       >
-                        LPT Rewards:
+                        PROJECTED EARNINGS (1Y)*
                       </Text>
-                      <Text
-                        css={{
-                          marginLeft: "auto",
-                          display: "block",
-                          fontWeight: 600,
-                          color: "$white",
-                          mb: "$1",
-                        }}
-                        size="2"
-                      >
-                        {numeral(
-                          row.values.projectedEarningsAPY.rewards
-                        ).format("0.0%")}
-                      </Text>
-                    </Flex>
-                    <Flex>
-                      <Text
-                        css={{
-                          fontWeight: 600,
-                          color: "$white",
-                          mb: "$1",
-                        }}
-                        size="2"
-                      >
-                        ETH Transcoding Fees:
-                      </Text>
-                      <Text
-                        css={{
-                          marginLeft: "auto",
-                          display: "block",
-                          fontWeight: 600,
-                          color: "$white",
-                          mb: "$1",
-                        }}
-                        size="2"
-                      >
-                        {numeral(row.values.projectedEarningsAPY.fees).format(
-                          "0.0%"
-                        )}
-                      </Text>
-                    </Flex>
-                  </Box>
-                </Box>
+                      <Box>
+                        <Flex>
+                          <Text
+                            css={{
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            LPT Rewards (
+                            {numeral(
+                              row.values.projectedEarningsAPY.delegator.rewards
+                            ).format("0.0a")}{" "}
+                            LPT):
+                          </Text>
+                          <Text
+                            css={{
+                              marginLeft: "auto",
+                              display: "block",
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            {numeral(
+                              row.values.projectedEarningsAPY.delegatorPercent
+                                .rewards
+                            ).format("0.0%")}
+                          </Text>
+                        </Flex>
+                        <Flex>
+                          <Text
+                            css={{
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            Transcoder Fees (
+                            {numeral(
+                              row.values.projectedEarningsAPY.delegator.fees
+                            ).format("0.0a")}{" "}
+                            ETH):
+                          </Text>
+                          <Text
+                            css={{
+                              marginLeft: "auto",
+                              display: "block",
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            {numeral(
+                              row.values.projectedEarningsAPY.delegatorPercent
+                                .fees
+                            ).format("0.0%")}
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Box>
 
-                <Text variant="neutral" size="1">
-                  *Assuming a delegation of{" "}
-                  {(Number(principle) || 100).toFixed(0)} LPT
-                </Text>
-              </Box>
-            </PopoverContent>
-          </Popover>
-        ),
+                    <Text variant="neutral" size="1">
+                      *Assuming a delegation of {formattedPrinciple} LPT
+                    </Text>
+                  </Box>
+                </PopoverContent>
+              )}
+            </Popover>
+          );
+        },
         sortType: (rowA, rowB) =>
-          rowA.values.projectedEarningsAPY.fees +
-          rowA.values.projectedEarningsAPY.rewards -
-          (rowB.values.projectedEarningsAPY.fees +
-            rowB.values.projectedEarningsAPY.rewards),
+          rowA.values.projectedEarningsAPY.delegatorPercent.fees +
+          rowA.values.projectedEarningsAPY.delegatorPercent.rewards -
+          (rowB.values.projectedEarningsAPY.delegatorPercent.fees +
+            rowB.values.projectedEarningsAPY.delegatorPercent.rewards),
       },
       {
-        Header: "Delegated Stake",
+        Header: (
+          <Tooltip
+            multiline
+            content={
+              <Box>
+                The total amount of stake currently delegated to this
+                orchestrator.
+              </Box>
+            }
+          >
+            <Box>Delegated Stake</Box>
+          </Tooltip>
+        ),
         accessor: "totalStake",
         Cell: ({ row }) => (
-          <Box>{numeral(row.values.totalStake).format("0.0a")} LPT</Box>
+          <Box>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              {numeral(row.values.totalStake).format("0.0a")} LPT
+            </Text>
+          </Box>
         ),
         sortType: "number",
       },
       {
-        Header: "30D Fees",
+        Header: (
+          <Tooltip
+            multiline
+            content={
+              <Box>
+                The amount of time since this orchestrator became active (on
+                Arbitrum).
+              </Box>
+            }
+          >
+            <Box>Time Active</Box>
+          </Tooltip>
+        ),
+        accessor: "activationTimestamp",
+        Cell: ({ row }) => (
+          <Box>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              {row.values.activationTimestamp
+                ? moment.unix(row.values.activationTimestamp).fromNow(true)
+                : "NEW ✨"}
+            </Text>
+          </Box>
+        ),
+        sortType: "number",
+      },
+      {
+        Header: (
+          <Tooltip
+            multiline
+            content={
+              <Box>
+                The total fees this orchestrator has earned in the past 30
+                calendar days.
+              </Box>
+            }
+          >
+            <Box>30D Fees</Box>
+          </Tooltip>
+        ),
         accessor: "thirtyDayVolumeETH",
         Cell: ({ row }) => (
-          <Box>{numeral(row.values.thirtyDayVolumeETH).format("0.0a")} ETH</Box>
+          <Box>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              {numeral(row.values.thirtyDayVolumeETH).format("0.0a")} ETH
+            </Text>
+          </Box>
         ),
         sortType: "number",
       },
     ],
-    [protocolData, principle, register]
+    [protocolData, principle, setPrinciple, maxSupplyTokens]
   );
-
-  console.log({ principle });
 
   return (
     <Table
