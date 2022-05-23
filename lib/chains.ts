@@ -180,7 +180,7 @@ export const CHAIN_INFO = {
     subgraph:
       process.env.NEXT_PUBLIC_IS_DEVNET === "true"
         ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
-        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+        : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
     contracts:
       process.env.NEXT_PUBLIC_IS_DEVNET === "true"
         ? DEVNET_RINKEBY_CONTRACTS
