@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const orchestratorsQuery = (currentRound, transcoderDays: number = 30) => {
+export const orchestratorsQuery = (currentRound) => {
   return gql`
     query transcoders(
       $where: Transcoder_filter

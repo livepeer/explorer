@@ -658,18 +658,6 @@ export function calculateAnnualROI({
   principle,
   totalStake,
 }) {
-  console.log({
-    successRate,
-    thirtyDayVolumeETH,
-    feeShare,
-    lptPriceEth,
-
-    yearlyRewardsToStakeRatio,
-    rewardCallRatio,
-    rewardCut,
-    principle,
-    totalStake,
-  });
   let percentLptRewards = 0;
   let delegatorLptRewards = 0;
   let totalLptRewards = 0;

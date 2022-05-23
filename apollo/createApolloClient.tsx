@@ -40,6 +40,7 @@ export default function createApolloClient(
         }
         txs
         roiFees
+        roiFeesLpt
         roiRewards
         principle
       }

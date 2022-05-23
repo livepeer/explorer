@@ -56,9 +56,9 @@ const Home = () => {
       }
     }
   `);
-  // query 90 days of fees
+
   const query = useMemo(
-    () => orchestratorsQuery(protocolData.protocol.currentRound.id, 90),
+    () => orchestratorsQuery(protocolData.protocol.currentRound.id),
     [protocolData]
   );
   const { data, loading } = useQuery(query);
