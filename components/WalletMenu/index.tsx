@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import PopoverLink from "@components/PopoverLink";
 import {
   Box,
   Flex,
@@ -20,44 +21,6 @@ import {
   useAccountEnsData,
   useDisconnectWallet,
 } from "../../hooks";
-
-const StyledLink = ({ href, children }) => {
-  return (
-    <Link href={href} passHref>
-      <A
-        css={{
-          display: "flex",
-          ai: "center",
-          jc: "space-between",
-          textDecoration: "none",
-          borderRadius: "$2",
-          cursor: "pointer",
-          mb: "$1",
-          px: "$3",
-          py: "$2",
-          transition: ".2s transform",
-          "&:last-child": {
-            mb: 0,
-          },
-          svg: {
-            transition: ".2s transform",
-            transform: "translateX(0px)",
-          },
-          "&:hover": {
-            bc: "$neutral6",
-            svg: {
-              transition: ".2s transform",
-              transform: "translateX(6px)",
-            },
-          },
-        }}
-      >
-        {children}
-        <Box as={ChevronRightIcon} css={{ width: 16, height: 16 }} />
-      </A>
-    </Link>
-  );
-};
 
 const WalletMenu = () => {
   const ens = useAccountEnsData();
@@ -165,16 +128,16 @@ const WalletMenu = () => {
           }}
         >
           {isOrchestrator && (
-            <StyledLink href={`/accounts/${accountAddress}/orchestrating`}>
+            <PopoverLink href={`/accounts/${accountAddress}/orchestrating`}>
               Orchestrating
-            </StyledLink>
+            </PopoverLink>
           )}
-          <StyledLink href={`/accounts/${accountAddress}/delegating`}>
+          <PopoverLink href={`/accounts/${accountAddress}/delegating`}>
             Delegating
-          </StyledLink>
-          <StyledLink href={`/accounts/${accountAddress}/history`}>
+          </PopoverLink>
+          <PopoverLink href={`/accounts/${accountAddress}/history`}>
             History
-          </StyledLink>
+          </PopoverLink>
         </Flex>
         <Flex css={{ flexDirection: "column", p: "$2" }}>
           <Box

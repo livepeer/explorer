@@ -1,3 +1,4 @@
+import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
 import { calculateAnnualROI, textTruncate } from "@lib/utils";
 import {
@@ -14,7 +15,7 @@ import {
   TextField,
   Tooltip,
 } from "@livepeer/design-system";
-import { MixerHorizontalIcon } from "@radix-ui/react-icons";
+import { MixerHorizontalIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
 import moment from "moment";
 import Link from "next/link";
@@ -484,8 +485,98 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         ),
         sortType: "number",
       },
+      {
+        Header: <></>,
+        id: "actions",
+        Cell: ({ row }) => (
+          <Popover>
+            <PopoverTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              asChild
+            >
+              <Flex css={{ ai: "center" }}>
+                <IconButton
+                  aria-label="Change LPT rewards"
+                  css={{
+                    cursor: "pointer",
+                    ml: "$1",
+                    opacity: 1,
+                    transition: "background-color .3s",
+                    "&:hover": {
+                      bc: "$primary5",
+                      transition: "background-color .3s",
+                    },
+                  }}
+                >
+                  <DotsHorizontalIcon />
+                </IconButton>
+              </Flex>
+            </PopoverTrigger>
+            <PopoverContent
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+            >
+              <Box
+                css={{
+                  borderBottom: "1px solid $neutral6",
+                  p: "$3",
+                }}
+              >
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    mb: "$2",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Actions
+                </Text>
+
+                <PopoverLink href={`/accounts/${row.values.id}/orchestrating`}>
+                  Delegate
+                </PopoverLink>
+              </Box>
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  p: "$3",
+                  borderBottom: "1px solid $neutral6",
+                }}
+              >
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    mb: "$2",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Account Details
+                </Text>
+
+                <PopoverLink href={`/accounts/${row.values.id}/orchestrating`}>
+                  Orchestrating
+                </PopoverLink>
+                <PopoverLink href={`/accounts/${row.values.id}/delegating`}>
+                  Delegating
+                </PopoverLink>
+                <PopoverLink href={`/accounts/${row.values.id}/history`}>
+                  History
+                </PopoverLink>
+              </Flex>
+            </PopoverContent>
+          </Popover>
+        ),
+      },
     ],
-    [protocolData, principle, setPrinciple, maxSupplyTokens]
+    [protocolData, formattedPrinciple, principle, setPrinciple, maxSupplyTokens]
   );
 
   return (

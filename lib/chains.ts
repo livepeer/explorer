@@ -1,12 +1,7 @@
 import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 import { ethers } from "ethers";
-import { Chain, chain, createClient } from "wagmi";
-import {
-  configureChains,
-  apiProvider,
-  getDefaultWallets,
-} from "@rainbow-me/rainbowkit";
+import { chain } from "wagmi";
 
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
@@ -55,28 +50,6 @@ const ARBITRUM_RINKEBY_CONTRACTS = {
   pollCreator: "0x7e3305D48489e43B7fBf318D575D5dF654EE175c",
   l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8",
   l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a",
-  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-  arbRetryableTx: "0x000000000000000000000000000000000000006E",
-  nodeInterface: "0x00000000000000000000000000000000000000C8",
-};
-
-const DEVNET_RINKEBY_CONTRACTS = {
-  controller: "0x1621165617F8D4b6D8c8C03Fce246CfF00450621",
-  pollCreator: "0x799124845E2b06800EFA2A6cea3CCAdd26c8d098",
-  l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
-  l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-  arbRetryableTx: "0x000000000000000000000000000000000000006E",
-  nodeInterface: "0x00000000000000000000000000000000000000C8",
-};
-
-const DEVNET_ARBITRUM_RINKEBY_CONTRACTS = {
-  controller: "0x65ea76efD31c7566c81676f7c3C02fD69dF16C7d",
-  pollCreator: "0x3a9543D4767b2c914Ea22Fd0B07E17b0901AAeBf",
-  l1Migrator: "0x0eD5a700cB50570577350169Ecd57Eb134b49cFc",
-  l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
@@ -178,13 +151,8 @@ export const CHAIN_INFO = {
       rpcUrl: INFURA_NETWORK_URLS[chain.rinkeby.id],
     },
     subgraph:
-      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
-        ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-rinkeby"
-        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
-    contracts:
-      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
-        ? DEVNET_RINKEBY_CONTRACTS
-        : RINKEBY_CONTRACTS,
+      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+    contracts: RINKEBY_CONTRACTS,
     abis,
   },
   [chain.arbitrum.id]: {
@@ -224,13 +192,8 @@ export const CHAIN_INFO = {
       rpcUrl: "https://rinkeby.arbitrum.io/rpc",
     },
     subgraph:
-      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
-        ? "https://api.thegraph.com/subgraphs/name/adamsoffer/devnet-arbitrum-rinkeby"
-        : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
-    contracts:
-      process.env.NEXT_PUBLIC_IS_DEVNET === "true"
-        ? DEVNET_ARBITRUM_RINKEBY_CONTRACTS
-        : ARBITRUM_RINKEBY_CONTRACTS,
+      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
+    contracts: ARBITRUM_RINKEBY_CONTRACTS,
     abis,
   },
 };
