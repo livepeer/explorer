@@ -657,18 +657,19 @@ export function calculateAnnualROI({
   principle,
   totalStake,
 }) {
+  const combinedTotalStaked = principle + totalStake;
+
   let percentLptRewards = 0;
   let delegatorLptRewards = 0;
   let totalLptRewards = 0;
 
   if (rewardCallRatio > 0) {
-    const combinedTotalStaked = principle + totalStake;
     const expectedTotalYearlyRewards =
       yearlyRewardsToStakeRatio * combinedTotalStaked * rewardCallRatio;
     const expectedDelegatorYearlyRewards =
       expectedTotalYearlyRewards *
       (1 - rewardCut / 1000000) *
-      (principle / totalStake);
+      (principle / combinedTotalStaked);
 
     totalLptRewards = expectedTotalYearlyRewards;
     delegatorLptRewards = expectedDelegatorYearlyRewards;
@@ -685,7 +686,7 @@ export function calculateAnnualROI({
     const expectedYearlyEthCutDelegators =
       expectedYearlyVolumeEth * (feeShare / 1000000);
     const expectedYearlyFeeCutDelegator =
-      expectedYearlyEthCutDelegators * (principle / totalStake);
+      expectedYearlyEthCutDelegators * (principle / combinedTotalStaked);
 
     const expectedLptFeeCutDelegator =
       expectedYearlyFeeCutDelegator / lptPriceEth;
