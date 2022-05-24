@@ -21,31 +21,7 @@ import moment from "moment";
 import Link from "next/link";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
-
-const avatarColors = [
-  "tomato",
-  "red",
-  "crimson",
-  "pink",
-  "plum",
-  "purple",
-  "violet",
-  "indigo",
-  "blue",
-  "cyan",
-  "teal",
-  "green",
-  "grass",
-  "brown",
-  "bronze",
-  "gold",
-  "sky",
-  "mint",
-  "lime",
-  "yellow",
-  "amber",
-  "orange",
-] as const;
+import QRCode from "qrcode.react";
 
 const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const [principle, setPrinciple] = useState<number>(100);
@@ -61,40 +37,6 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const columns = useMemo(
     () => [
       {
-        Header: "#",
-        accessor: "id",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-            <A
-              css={{
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Flex css={{ alignItems: "center" }}>
-                <Box
-                  css={{
-                    color: "$white",
-                    fontWeight: 400,
-                    width: 24,
-                    height: 24,
-                    minWidth: 24,
-                    minHeight: 24,
-                    fontSize: 12,
-                    justifyContent: "flex-start",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {+row.id + 1}
-                </Box>
-              </Flex>
-            </A>
-          </Link>
-        ),
-      },
-      {
         Header: (
           <Tooltip
             multiline
@@ -108,11 +50,12 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             <Box>Orchestrator</Box>
           </Tooltip>
         ),
-        accessor: "identity",
+        accessor: "id",
         Cell: ({ row }) => (
           <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
             <A
               css={{
+                width: 325,
                 display: "block",
                 textDecoration: "none",
                 "&:hover": { textDecoration: "none" },
@@ -122,63 +65,80 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                 <Box
                   css={{
                     mr: "$2",
-                    borderRadius: "50%",
-                    borderColor: "$white",
-                    borderWidth: 1,
-                    borderStyle: "solid",
-                    padding: 2,
+                    backgroundColor: "$neutral4",
+                    borderRadius: 1000,
+                    color: "$neutral11",
+                    fontWeight: 700,
+                    width: 24,
+                    height: 24,
+                    minWidth: 24,
+                    minHeight: 24,
+                    fontSize: 11,
+                    justifyContent: "center",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
+                  {+row.id + 1}
+                </Box>
+
+                <Flex css={{ mr: "$2", alignItems: "center" }}>
                   {row.values.identity?.image ? (
                     <Box
                       as="img"
                       css={{
-                        width: 25,
-                        height: 25,
-                        borderRadius: "50%",
-                        display: "block",
+                        mr: "$2",
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                        borderRadius: 1000,
                       }}
                       src={row.values.identity.image}
                     />
                   ) : (
-                    <Avatar
-                      size="2"
-                      variant={
-                        avatarColors[
-                          ethers.BigNumber.from(row.values.id)
-                            .mod(avatarColors.length)
-                            .toNumber()
-                        ]
-                      }
-                      color={row.values.id.substr(2, 6)}
-                      alt={row.values.id}
-                      fallback={row.values.id.slice(2, 3)}
-                    />
-                  )}
-                </Box>
-                {row.values.identity?.name ? (
-                  <Flex css={{ fontWeight: 600, ai: "center" }}>
                     <Box
+                      as={QRCode}
                       css={{
                         mr: "$2",
-                        fontSize: "$3",
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
                       }}
-                    >
-                      {textTruncate(row.values.identity.name, 20, "…")}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      value={row.values.id}
+                    />
+                  )}
+                  {row.values.identity?.name ? (
+                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+                      <Box
+                        css={{
+                          mr: "$2",
+                          fontSize: "$3",
+                        }}
+                      >
+                        {textTruncate(row.values.identity.name, 20, "…")}
+                      </Box>
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                     </Box>
-                    <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values.id.substring(0, 6)}
-                    </Badge>
-                  </Flex>
-                ) : (
-                  <Box css={{ fontWeight: 600 }}>
-                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                  </Box>
-                )}
+                  )}
+                </Flex>
               </Flex>
             </A>
           </Link>
         ),
+      },
+      {
+        Header: "Identity",
+        accessor: "identity",
       },
       {
         Header: (
@@ -274,6 +234,10 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               ? pools.filter((r) => r?.rewardTokens).length / pools.length
               : 0;
 
+          const activation = moment.unix(row.activationTimestamp);
+
+          const isNewlyActive = moment().diff(activation, "days") < 30;
+
           const roi = calculateAnnualROI({
             thirtyDayVolumeETH: Number(row.thirtyDayVolumeETH),
             feeShare: Number(row.feeShare),
@@ -288,17 +252,17 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             totalStake: Number(row.totalStake),
           });
 
-          return roi;
+          return { roi, activation, isNewlyActive };
         },
         id: "projectedEarningsAPY",
         Cell: ({ row }) => {
-          const activation = useMemo(
-            () => moment.unix(row.original.activationTimestamp),
-            [row.original.activationTimestamp]
-          );
           const isNewlyActive = useMemo(
-            () => moment().diff(activation, "days") < 30,
-            [activation]
+            () =>
+              moment().diff(
+                row.values.projectedEarningsAPY.activation,
+                "days"
+              ) < 30,
+            [row.values.projectedEarningsAPY.activation]
           );
 
           return (
@@ -311,8 +275,9 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                   {isNewlyActive
                     ? "NEW ✨"
                     : numeral(
-                        row.values.projectedEarningsAPY.delegatorPercent.fees +
-                          row.values.projectedEarningsAPY.delegatorPercent
+                        row.values.projectedEarningsAPY.roi.delegatorPercent
+                          .fees +
+                          row.values.projectedEarningsAPY.roi.delegatorPercent
                             .rewards
                       ).format("0.0%")}
                 </Badge>
@@ -356,7 +321,8 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           >
                             LPT Rewards (
                             {numeral(
-                              row.values.projectedEarningsAPY.delegator.rewards
+                              row.values.projectedEarningsAPY.roi.delegator
+                                .rewards
                             ).format("0.0a")}{" "}
                             LPT):
                           </Text>
@@ -371,8 +337,8 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             size="2"
                           >
                             {numeral(
-                              row.values.projectedEarningsAPY.delegatorPercent
-                                .rewards
+                              row.values.projectedEarningsAPY.roi
+                                .delegatorPercent.rewards
                             ).format("0.0%")}
                           </Text>
                         </Flex>
@@ -387,7 +353,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           >
                             Transcoder Fees (
                             {numeral(
-                              row.values.projectedEarningsAPY.delegator.fees
+                              row.values.projectedEarningsAPY.roi.delegator.fees
                             ).format("0.0a")}{" "}
                             ETH):
                           </Text>
@@ -402,8 +368,8 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             size="2"
                           >
                             {numeral(
-                              row.values.projectedEarningsAPY.delegatorPercent
-                                .fees
+                              row.values.projectedEarningsAPY.roi
+                                .delegatorPercent.fees
                             ).format("0.0%")}
                           </Text>
                         </Flex>
@@ -420,10 +386,12 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
           );
         },
         sortType: (rowA, rowB) =>
-          rowA.values.projectedEarningsAPY.delegatorPercent.fees +
-          rowA.values.projectedEarningsAPY.delegatorPercent.rewards -
-          (rowB.values.projectedEarningsAPY.delegatorPercent.fees +
-            rowB.values.projectedEarningsAPY.delegatorPercent.rewards),
+          rowA.values.projectedEarningsAPY.isNewlyActive
+            ? -1
+            : rowA.values.projectedEarningsAPY.roi.delegatorPercent.fees +
+              rowA.values.projectedEarningsAPY.roi.delegatorPercent.rewards -
+              (rowB.values.projectedEarningsAPY.roi.delegatorPercent.fees +
+                rowB.values.projectedEarningsAPY.roi.delegatorPercent.rewards),
       },
       {
         Header: (
@@ -617,6 +585,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       columns={columns}
       initialState={{
         pageSize,
+        hiddenColumns: ["identity"],
         sortBy: [
           {
             id: "thirtyDayVolumeETH",
