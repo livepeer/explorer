@@ -1,16 +1,17 @@
-import { useWeb3React } from "@web3-react/core";
+
 import { useContext } from "react";
 import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "../../lib/utils";
 import { Button } from "@livepeer/design-system";
+import { useAccountAddress } from "hooks";
 
 const Index = ({ pollAddress, choiceId, children, ...props }) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { vote }: any = useContext(MutationsContext);
 
-  if (!context.active) {
+  if (!accountAddress) {
     return null;
   }
 

@@ -3,7 +3,6 @@ import Button from "../Button";
 import { MAXIUMUM_VALUE_UINT256, initTransaction } from "../../lib/utils";
 import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
-import { useWeb3React } from "@web3-react/core";
 
 const Index = () => {
   const client = useApolloClient();

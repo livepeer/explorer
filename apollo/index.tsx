@@ -1,5 +1,5 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import merge from "lodash.merge";
 import { useMemo } from "react";
 import createApolloClient from "./createApolloClient";

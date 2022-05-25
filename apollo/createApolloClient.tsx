@@ -10,11 +10,7 @@ import {
 import createSchema from "./createSchema";
 import LivepeerSDK from "@livepeer/sdk";
 import { execute } from "graphql/execution/execute";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-} from "../constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 
 export default function createApolloClient(
   initialState: object,

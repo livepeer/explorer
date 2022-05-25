@@ -16,7 +16,7 @@ import {
   Heading,
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
   if (!isOpen) {

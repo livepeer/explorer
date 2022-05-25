@@ -16,7 +16,7 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "lib/chains";
 import { ethers } from "ethers";
 
 const schema = makeExecutableSchema({

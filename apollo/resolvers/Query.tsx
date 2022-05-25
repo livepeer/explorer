@@ -14,12 +14,12 @@ import { protocolDataQuery } from "../..//queries/protocolDataQuery";
 import { client } from "..";
 import {
   CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
   IS_TESTNET,
   l1Provider,
   L1_CHAIN_ID,
-} from "constants/chains";
+  DEFAULT_CHAIN_ID
+} from "lib/chains";
 import LivepeerSDK from "@livepeer/sdk";
 
 // format dayjs with the libraries that we need

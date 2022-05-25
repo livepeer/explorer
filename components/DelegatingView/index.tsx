@@ -4,7 +4,6 @@ import {
   checkAddressEquality,
   initTransaction,
 } from "@lib/utils";
-import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import StakeTransactions from "../StakeTransactions";
@@ -25,16 +24,17 @@ import { useApolloClient } from "@apollo/client";
 import { useContext } from "react";
 import { MutationsContext } from "contexts";
 import { ethers } from "ethers";
+import { useAccountAddress } from "hooks";
 
 const Index = ({ delegator, transcoders, protocol, currentRound }) => {
   const router = useRouter();
   const query = router.query;
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { withdrawFees }: any = useContext(MutationsContext);
 
   const isMyAccount = checkAddressEquality(
-    context?.account,
+    accountAddress,
     query.account.toString()
   );
 
