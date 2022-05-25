@@ -1,4 +1,3 @@
-import ConnectButton from "@components/ConnectButton";
 import {
   Box,
   Button,
@@ -8,6 +7,7 @@ import {
   DialogTitle,
   Flex,
   Heading,
+  Text,
   useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
@@ -246,7 +246,22 @@ const Index = ({ data }) => {
               {data.poll.isActive && renderVoteButton(data)}
             </>
           ) : (
-            <ConnectButton />
+            <Flex align="center" direction="column">
+              <Button
+                size="4"
+                disabled={true}
+                variant="primary"
+                css={{ width: "100%" }}
+              >
+                Vote
+              </Button>
+              <Text
+                size="2"
+                css={{ mt: "$1", fontWeight: 600, color: "$red11" }}
+              >
+                Connect your wallet to vote.
+              </Text>
+            </Flex>
           )}
         </Box>
       </Box>
