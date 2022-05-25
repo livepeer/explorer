@@ -15,7 +15,6 @@ import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
 import Spinner from "@components/Spinner";
 
-import ConnectButton from "@components/ConnectButton";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
@@ -57,7 +56,21 @@ const initialState = {
     </Text>
   ),
   receipts: null,
-  cta: <ConnectButton />,
+  cta: (
+    <Flex align="center" direction="column">
+      <Button
+        size="4"
+        disabled={true}
+        variant="primary"
+        css={{ width: "100%" }}
+      >
+        Migrate Broadcaster
+      </Button>
+      <Text size="2" css={{ mt: "$2", fontWeight: 600, color: "$red11" }}>
+        Connect your wallet to continue.
+      </Text>
+    </Flex>
+  ),
   image: "/img/arbitrum.svg",
   loading: false,
 };
