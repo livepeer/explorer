@@ -22,6 +22,7 @@ import Link from "next/link";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
 import QRCode from "qrcode.react";
+import { ChevronDownIcon } from "@modulz/radix-icons";
 
 const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const [principle, setPrinciple] = useState<number>(100);
@@ -142,90 +143,90 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       },
       {
         Header: (
-          <Tooltip
-            multiline
-            content={
-              <Box>
-                The expected earnings if you were to delegate{" "}
-                {formattedPrinciple} LPT to this orchestrator. This is only an
-                estimate based on recent performance data and is subject to
-                change.
-              </Box>
-            }
-          >
-            <Flex css={{ flexDirection: "row", alignItems: "center" }}>
-              <Box css={{}}>Projected Earnings (1Y)</Box>
-              <Popover>
-                <PopoverTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <IconButton
-                    aria-label="Change LPT rewards"
-                    css={{
-                      cursor: "pointer",
-                      ml: "$1",
-                      opacity: 1,
+          <Flex css={{ flexDirection: "row", alignItems: "center" }}>
+            <Tooltip
+              multiline
+              content={
+                <Box>
+                  The expected earnings if you were to delegate{" "}
+                  {formattedPrinciple} LPT to this orchestrator. This is only an
+                  estimate based on recent performance data and is subject to
+                  change.
+                </Box>
+              }
+            >
+              <Box>Projected Earnings (1Y)</Box>
+            </Tooltip>
+            <Popover>
+              <PopoverTrigger
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                asChild
+              >
+                <IconButton
+                  aria-label="Change LPT rewards"
+                  css={{
+                    cursor: "pointer",
+                    ml: "$1",
+                    opacity: 1,
+                    transition: "background-color .3s",
+                    "&:hover": {
+                      bc: "$primary5",
                       transition: "background-color .3s",
-                      "&:hover": {
-                        bc: "$primary5",
-                        transition: "background-color .3s",
-                      },
-                    }}
-                  >
-                    <MixerHorizontalIcon />
-                  </IconButton>
-                </PopoverTrigger>
-                <PopoverContent
-                  onClick={(e) => {
-                    e.stopPropagation();
+                    },
                   }}
-                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
                 >
-                  <Box
+                  <MixerHorizontalIcon />
+                </IconButton>
+              </PopoverTrigger>
+              <PopoverContent
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+              >
+                <Box
+                  css={{
+                    borderBottom: "1px solid $neutral6",
+                    p: "$3",
+                  }}
+                >
+                  <Text
+                    variant="neutral"
+                    size="1"
                     css={{
-                      borderBottom: "1px solid $neutral6",
-                      p: "$3",
+                      mb: "$2",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
                     }}
                   >
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        mb: "$2",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
+                    Assuming a delegation of:
+                  </Text>
+                  <Flex align="center">
+                    <TextField
+                      name="principle"
+                      placeholder="Amount in LPT"
+                      type="number"
+                      size="2"
+                      value={principle}
+                      onChange={(e) => {
+                        setPrinciple(
+                          Number(e.target.value) > maxSupplyTokens
+                            ? maxSupplyTokens
+                            : Number(e.target.value)
+                        );
                       }}
-                    >
-                      Assuming a delegation of:
-                    </Text>
-                    <Flex align="center">
-                      <TextField
-                        name="principle"
-                        placeholder="Amount in LPT"
-                        type="number"
-                        size="2"
-                        value={principle}
-                        onChange={(e) => {
-                          setPrinciple(
-                            Number(e.target.value) > maxSupplyTokens
-                              ? maxSupplyTokens
-                              : Number(e.target.value)
-                          );
-                        }}
-                        min="1"
-                        max={`${Number(
-                          protocolData?.totalSupply || 1e7
-                        ).toFixed(0)}`}
-                      />
-                    </Flex>
-                  </Box>
-                </PopoverContent>
-              </Popover>
-            </Flex>
-          </Tooltip>
+                      min="1"
+                      max={`${Number(protocolData?.totalSupply || 1e7).toFixed(
+                        0
+                      )}`}
+                    />
+                  </Flex>
+                </Box>
+              </PopoverContent>
+            </Popover>
+          </Flex>
         ),
         accessor: (row) => {
           const pools = row.pools ?? [];
@@ -270,16 +271,25 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
                   size="2"
-                  css={{ cursor: "pointer", color: "$white", fontSize: "$2" }}
+                  css={{ cursor: !isNewlyActive ? "pointer" : "default", color: "$white", fontSize: "$2" }}
                 >
-                  {isNewlyActive
-                    ? "NEW ✨"
-                    : numeral(
-                        row.values.projectedEarningsAPY.roi.delegatorPercent
-                          .fees +
+                  {isNewlyActive ? (
+                    "NEW ✨"
+                  ) : (
+                    <>
+                      <Box>
+                        {numeral(
                           row.values.projectedEarningsAPY.roi.delegatorPercent
-                            .rewards
-                      ).format("0.0%")}
+                            .fees +
+                            row.values.projectedEarningsAPY.roi.delegatorPercent
+                              .rewards
+                        ).format("0.0%")}
+                      </Box>
+                      <Box css={{ ml: "$1" }}>
+                        <ChevronDownIcon />
+                      </Box>
+                    </>
+                  )}
                 </Badge>
               </PopoverTrigger>
               {!isNewlyActive && (
