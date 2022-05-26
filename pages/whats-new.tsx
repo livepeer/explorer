@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import moment from "moment";
+import dayjs from "dayjs";
 import { getLayout } from "../layouts/main";
 import Markdown from "markdown-to-jsx";
 import { createApolloFetch } from "apollo-fetch";
@@ -150,7 +150,7 @@ const WhatsNew = () => {
                             color: "$neutral11",
                           }}
                         >
-                          {moment(node.publishedAt).format("MMM Do, YYYY")}
+                          {dayjs(node.publishedAt).format("MMM Do, YYYY")}
                         </Box>
                         <Box
                           css={{

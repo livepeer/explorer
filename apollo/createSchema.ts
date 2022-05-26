@@ -18,6 +18,7 @@ import typeDefs from "./types";
 import resolvers from "./resolvers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2Provider } from "lib/chains";
 import { ethers } from "ethers";
+import dayjs from "dayjs";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -411,10 +412,7 @@ const createSchema = async () => {
           }
         }
 
-        const oneDayAgo = Math.floor(
-          new Date(new Date().setDate(new Date().getDate() - 1)).getTime() /
-            1000
-        );
+        const oneDayAgo = Math.floor(dayjs().subtract(1, "day").unix() / 1000);
 
         if (selectionSet.includes("scores")) {
           const metricsResponse = await fetch(

@@ -1,30 +1,26 @@
-import { getLayout } from "@layouts/main";
-import Link from "next/link";
-import GlobalChart from "@components/GlobalChart";
-import Flickity from "react-flickity-component";
-import {
-  Box,
-  Flex,
-  Heading,
-  Container,
-  Button,
-  Link as A,
-} from "@livepeer/design-system";
-import { getChartData, getOrchestrators } from "../api";
-import OrchestratorList from "@components/OrchestratorList";
-import { getApollo } from "../apollo";
 import { gql, useQuery } from "@apollo/client";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
-import { chartDataQuery } from "../queries/chartDataQuery";
-import { ArrowRightIcon } from "@modulz/radix-icons";
+import ExplorerChart from "@components/ExplorerChart";
+import GlobalChart from "@components/GlobalChart";
+import OrchestratorList from "@components/OrchestratorList";
 import Spinner from "@components/Spinner";
+import { getLayout } from "@layouts/main";
+import {
+  Box, Button, Container, Flex,
+  Heading, Link as A
+} from "@livepeer/design-system";
+import { ArrowRightIcon } from "@modulz/radix-icons";
+import Link from "next/link";
 import { useMemo } from "react";
+import { getChartData, getOrchestrators } from "../api";
+import { getApollo } from "../apollo";
+import { chartDataQuery } from "../queries/chartDataQuery";
+import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 
 const Panel = ({ children }) => (
   <Flex
     css={{
-      minHeight: 350,
-      height: 350,
+      minHeight: 220,
+      height: 220,
       position: "relative",
       bc: "$panel",
       p: "24px",
@@ -36,7 +32,7 @@ const Panel = ({ children }) => (
       border: "1px solid $colors$neutral4",
       width: "100%",
       "@bp2": {
-        width: "43%",
+        width: 330,
       },
     }}
   >
@@ -73,6 +69,8 @@ const Home = () => {
     pageDots: true,
   };
 
+  console.log({ chartData });
+
   return (
     <>
       <Container size="3" css={{ width: "100%" }}>
@@ -106,54 +104,74 @@ const Home = () => {
           >
             Overview
           </Heading>
-          <Box
+          <Flex
             css={{
               mb: "$7",
-              boxShadow: "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)",
-              ".dot": {
-                backgroundColor: "$neutral6",
-              },
-              ".dot.is-selected": {
-                backgroundColor: "$primary11",
-              },
+              // boxShadow: "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)",
+              // ".dot": {
+              //   backgroundColor: "$neutral6",
+              // },
+              // ".dot.is-selected": {
+              //   backgroundColor: "$primary11",
+              // },
+              flexWrap: "wrap",
             }}
           >
-            <Flickity
+            {/* <Flickity
               className={"flickity"}
               elementType={"div"}
               options={flickityOptions}
               disableImagesLoaded={true} // default false
               reloadOnUpdate
               static
-            >
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="volume"
-                  title="Estimated Usage (7d)"
-                  field="weeklyUsageMinutes"
-                  unit="minutes"
-                />
-              </Panel>
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="volume"
-                  title="Fee Volume (7d)"
-                  field="weeklyVolumeUSD"
-                  unit="usd"
-                />
-              </Panel>
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="area"
-                  title="Participation"
-                  field="participationRate"
-                />
-              </Panel>
-            </Flickity>
-          </Box>
+            > */}
+            <Panel>
+              <ExplorerChart
+                data={
+                  chartData?.chartData?.weeklyData?.map((week) => ({
+                    x: Number(week.date),
+                    y: Number(week.weeklyVolumeUSD),
+                  })) ?? []
+                }
+                base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
+                basePercentChange={Number(chartData?.chartData?.weeklyVolumeChangeUSD ?? 0)}
+                title="Fees Paid (7d)"
+                unit="usd"
+                type="bar"
+              />
+            </Panel>
+            <Panel>
+              <ExplorerChart
+                data={
+                  chartData?.chartData?.weeklyData?.map((week) => ({
+                    x: Number(week.date),
+                    y: Number(week.weeklyUsageMinutes),
+                  })) ?? []
+                }
+                base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
+                basePercentChange={Number(chartData?.chartData?.weeklyUsageChange ?? 0)}
+                title="Estimated Usage (7d)"
+                unit="minutes"
+                type="line"
+              />
+            </Panel>
+            <Panel>
+            <ExplorerChart
+                data={
+                  (chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+                    x: Number(day.date),
+                    y: Number(day.participationRate),
+                  })) ?? [])
+                }
+                base={Number(chartData?.chartData?.participationRate ?? 0)}
+                basePercentChange={Number(chartData?.chartData?.participationRateChange ?? 0)}
+                title="Participation Rate"
+                unit="percent"
+                type="line"
+              />
+            </Panel>
+            {/* </Flickity> */}
+          </Flex>
           <Box css={{ mb: "$3" }}>
             <Flex
               css={{
@@ -213,20 +231,6 @@ const Home = () => {
               />
             )}
           </Box>
-          {/* <Box>
-            <Flex
-              css={{
-                justifyContent: "space-between",
-                mb: "$2",
-                alignItems: "center",
-              }}
-            >
-              <Box as="h2" css={{ fontWeight: 500, fontSize: 18 }}>
-                Orchestrator Payouts
-              </Box>
-            </Flex>
-            <OrchestratorPayouts />
-          </Box> */}
         </Flex>
       </Container>
     </>

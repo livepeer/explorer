@@ -26,7 +26,7 @@ const GlobalChart = ({ data, display, title, field, unit = "" }) => {
 
   return (
     <>
-      {display === "area" && (
+      {display === "area" ? (
         <ResponsiveContainer aspect={60 / 28} ref={ref}>
           <TradingviewChart
             data={data.chartData.dayData}
@@ -39,8 +39,7 @@ const GlobalChart = ({ data, display, title, field, unit = "" }) => {
             type={CHART_TYPES.AREA}
           />
         </ResponsiveContainer>
-      )}
-      {display === "volume" && (
+      ) : display === "volume" ? (
         <ResponsiveContainer aspect={60 / 28}>
           <TradingviewChart
             data={data.chartData.weeklyData}
@@ -64,6 +63,21 @@ const GlobalChart = ({ data, display, title, field, unit = "" }) => {
             useWeekly={true}
           />
         </ResponsiveContainer>
+      ) : display === "line" ? (
+        <ResponsiveContainer aspect={60 / 28} ref={ref}>
+          <TradingviewChart
+            data={data.chartData.dayData}
+            base={data.chartData.participationRate}
+            baseChange={data.chartData.participationRateChange}
+            title={title}
+            unit={unit}
+            field={field}
+            width={width}
+            type={CHART_TYPES.LINE}
+          />
+        </ResponsiveContainer>
+      ) : (
+        <></>
       )}
     </>
   );

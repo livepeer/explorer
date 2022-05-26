@@ -16,13 +16,15 @@ import {
   Tooltip,
 } from "@livepeer/design-system";
 import { MixerHorizontalIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { ethers } from "ethers";
-import moment from "moment";
+import dayjs from "dayjs";
 import Link from "next/link";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
 import QRCode from "qrcode.react";
 import { ChevronDownIcon } from "@modulz/radix-icons";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const [principle, setPrinciple] = useState<number>(100);
@@ -235,9 +237,9 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               ? pools.filter((r) => r?.rewardTokens).length / pools.length
               : 0;
 
-          const activation = moment.unix(row.activationTimestamp);
+          const activation = dayjs.unix(row.activationTimestamp);
 
-          const isNewlyActive = moment().diff(activation, "days") < 30;
+          const isNewlyActive = dayjs().diff(activation, "days") < 30;
 
           const roi = calculateAnnualROI({
             thirtyDayVolumeETH: Number(row.thirtyDayVolumeETH),
@@ -259,10 +261,8 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         Cell: ({ row }) => {
           const isNewlyActive = useMemo(
             () =>
-              moment().diff(
-                row.values.projectedEarningsAPY.activation,
-                "days"
-              ) < 30,
+              dayjs().diff(row.values.projectedEarningsAPY.activation, "days") <
+              30,
             [row.values.projectedEarningsAPY.activation]
           );
 
@@ -271,7 +271,11 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
                   size="2"
-                  css={{ cursor: !isNewlyActive ? "pointer" : "default", color: "$white", fontSize: "$2" }}
+                  css={{
+                    cursor: !isNewlyActive ? "pointer" : "default",
+                    color: "$white",
+                    fontSize: "$2",
+                  }}
                 >
                   {isNewlyActive ? (
                     "NEW ✨"
@@ -458,7 +462,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               size="2"
             >
               {row.values.activationTimestamp
-                ? moment.unix(row.values.activationTimestamp).fromNow(true)
+                ? dayjs.unix(row.values.activationTimestamp).fromNow(true)
                 : "NEW ✨"}
             </Text>
           </Box>

@@ -8,7 +8,7 @@ import { useQuery, useApolloClient, gql } from "@apollo/client";
 
 import Spinner from "@components/Spinner";
 import { useEffect, useState } from "react";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
 import Head from "next/head";
@@ -29,6 +29,9 @@ import {
 } from "@livepeer/design-system";
 import Stat from "@components/Stat";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const Poll = () => {
   const router = useRouter();
@@ -211,13 +214,13 @@ const Poll = () => {
                 {!pollData.isActive ? (
                   <Box>
                     Voting ended on{" "}
-                    {moment.unix(pollData.endTime).format("MMM Do, YYYY")} at
+                    {dayjs.unix(pollData.endTime).format("MMM Do, YYYY")} at
                     block #{pollData.endBlock}
                   </Box>
                 ) : (
                   <Box>
                     Voting ends in ~
-                    {moment()
+                    {dayjs()
                       .add(pollData.estimatedTimeRemaining, "seconds")
                       .fromNow(true)}
                   </Box>

@@ -7,6 +7,9 @@ export const protocolDataQuery = gql`
       totalVolumeUSD
       totalVolumeETH
       participationRate
+      inflation
+      numActiveTranscoders
+      lockPeriod
     }
   }
 `;

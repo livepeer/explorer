@@ -2,7 +2,7 @@ import { abbreviateNumber } from "@lib/utils";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import moment from "moment";
+import dayjs from "dayjs";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { historyQuery } from "../../queries/historyQuery";
 import {
@@ -157,7 +157,7 @@ function renderSwitch(event: any, i: number) {
                 )}
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -214,7 +214,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Initialized round</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -273,7 +273,7 @@ function renderSwitch(event: any, i: number) {
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -333,7 +333,7 @@ function renderSwitch(event: any, i: number) {
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -392,7 +392,7 @@ function renderSwitch(event: any, i: number) {
                 Claimed inflationary token reward
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -449,7 +449,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Updated orchestrator cut</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -514,7 +514,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew undelegated tokens</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -571,7 +571,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew earned fees</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -628,7 +628,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Redeemed winning ticket</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -685,7 +685,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Deposit funded</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
@@ -747,7 +747,7 @@ function renderSwitch(event: any, i: number) {
             <Box>
               <Box css={{ fontWeight: 500 }}>Reserve funded</Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
-                {moment
+                {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}

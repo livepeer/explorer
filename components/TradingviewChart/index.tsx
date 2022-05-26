@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { formattedNum } from "../../lib/utils";
 import { Box } from "@livepeer/design-system";
+import numeral from "numeral";
 
 dayjs.extend(utc);
 
 export const CHART_TYPES = {
   BAR: "BAR",
   AREA: "AREA",
+  LINE: "LINE",
 };
 
 // constant height for charts
-const HEIGHT = 300;
+const HEIGHT = 190;
 
 const TradingViewChart = ({
   type = CHART_TYPES.BAR,
@@ -37,7 +38,7 @@ const TradingViewChart = ({
     return {
       time: dayjs.unix(entry.date).utc().format("YYYY-MM-DD"),
       value:
-        type === CHART_TYPES.AREA
+        type === CHART_TYPES.AREA || type === CHART_TYPES.LINE
           ? parseFloat(entry[field]) * 100
           : parseFloat(entry[field]),
     };
@@ -51,13 +52,13 @@ const TradingViewChart = ({
     // get the title of the chart
     const setLastBarText = ({ toolTip, formattedPercentChange, color }) => {
       toolTip.innerHTML =
-        `<div style="font-size: 16px; margin: 4px 0px; color: #fff;">${title} ${
+        `<div style="font-size: 12px; margin: 0px 0px 2px; color: #fff;">${title} ${
           type === CHART_TYPES.BAR && !useWeekly ? "(24hr)" : ""
         }</div>` +
-        `<div style="font-size: 22px; margin: 4px 0px; color: #fff">` +
-        (type === CHART_TYPES.AREA
-          ? `${(parseFloat(base) * 100).toFixed(2)}%`
-          : formattedNum(base, unit)) +
+        `<div style="font-size: 15px; margin: 4px 0px; color: #fff">` +
+        numeral(base).format(
+          type === CHART_TYPES.AREA ? "0.0%" : unit === "usd" ? "$0.0a" : "0.0a"
+        ) +
         `<span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>` +
         "</div>";
     };
@@ -108,15 +109,13 @@ const TradingViewChart = ({
         },
         localization: {
           priceFormatter: (val) => {
-            if (type === CHART_TYPES.AREA) {
-              return `${val.toFixed(2)}%`;
-            }
-            if (unit === "minutes") {
-              return Math.round(val)
-                .toLocaleString("en-US")
-                .replace(/\.00$/, "");
-            }
-            return formattedNum(val, unit).toString().replace(/\.00$/, "");
+            return numeral(val).format(
+              type === CHART_TYPES.AREA
+                ? "0.0%"
+                : unit === "usd"
+                ? "$0.0a"
+                : "0,0"
+            );
           },
         },
       });
@@ -124,7 +123,7 @@ const TradingViewChart = ({
       const series =
         type === CHART_TYPES.BAR
           ? chart.addHistogramSeries({
-              color: "#00EB88",
+              color: "rgba(0, 235, 136, 0.8)",
               priceFormat: {
                 type: "volume",
               },
@@ -132,13 +131,19 @@ const TradingViewChart = ({
                 top: 0.32,
                 bottom: 0,
               },
-              lineColor: "#00EB88",
+              lineColor: "rgba(0, 235, 136, 0.8)",
+              lineWidth: 2,
+              base: 40
+            })
+          : type === CHART_TYPES.LINE
+          ? chart.addLineSeries({
+              color: "rgba(0, 235, 136, 0.8)",
               lineWidth: 3,
             })
           : chart.addAreaSeries({
-              topColor: "#00EB88",
+              topColor: "rgba(0, 235, 136, 0.8)",
               bottomColor: "rgba(0, 235, 136, .05)",
-              lineColor: "#00EB88",
+              lineColor: "rgba(0, 235, 136, 0.8)",
               lineWidth: 3,
             });
 
@@ -155,10 +160,8 @@ const TradingViewChart = ({
       toolTip.style.backgroundColor = "transparent";
 
       // format numbers
-      const percentChange = baseChange?.toFixed(2);
-      const formattedPercentChange =
-        (percentChange > 0 ? "+" : "") + percentChange + "%";
-      const color = percentChange >= 0 ? "#00EB88" : "#ff0022";
+      const formattedPercentChange = numeral(baseChange / 100).format("+0.0%");
+      const color = baseChange >= 0 ? "#00EB88" : "#ff0022";
 
       setLastBarText({ toolTip, formattedPercentChange, color });
 
@@ -192,11 +195,15 @@ const TradingViewChart = ({
           const val = param.seriesPrices.get(series);
 
           toolTip.innerHTML =
-            `<div style="font-size: 16px; margin: 4px 0px; color: #fff;">${title}</div>` +
-            `<div style="font-size: 22px; margin: 4px 0px; color: #fff;">` +
-            (type === CHART_TYPES.AREA
-              ? val.toFixed(2) + "%"
-              : formattedNum(val, unit)) +
+            `<div style="font-size: 12px; margin: 4px 0px; color: #fff;">${title}</div>` +
+            `<div style="font-size: 15px; margin: 4px 0px; color: #fff;">` +
+            numeral(base).format(
+              type === CHART_TYPES.AREA
+                ? "0.0%"
+                : unit === "usd"
+                ? "$0.0a"
+                : "0.0a"
+            ) +
             "</div>" +
             "<div>" +
             dateStr +

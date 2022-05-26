@@ -169,7 +169,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+    subgraph: "https://api.thegraph.com/subgraphs/name/0xcadams/livepeer-arbitrum",
     contracts: ARBITRUM_ONE_CONTRACTS,
     abis,
   },

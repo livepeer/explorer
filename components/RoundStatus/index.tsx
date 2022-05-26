@@ -1,7 +1,7 @@
 import { useQuery, gql } from "@apollo/client";
 import CircularProgressbar from "../CircularProgressBar";
 import { buildStyles } from "react-circular-progressbar";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useContext, useEffect } from "react";
 import { usePageVisibility } from "../../hooks";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
@@ -18,7 +18,8 @@ import {
   Button,
 } from "@livepeer/design-system";
 
-import { MutationsContext } from "../../contexts";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
@@ -267,7 +268,7 @@ const Index = () => {
                     borderColor: "$text",
                   }}
                 >
-                  {moment().add(timeRemaining, "seconds").fromNow(true)}
+                  {dayjs().add(timeRemaining, "seconds").fromNow(true)}
                 </Box>{" "}
                 remaining until the current round ends and round{" "}
                 <Box

@@ -14,12 +14,15 @@ import {
 import fm from "front-matter";
 import { usePageVisibility } from "hooks";
 import { getLayout } from "layouts/main";
-import moment from "moment";
+import dayjs from "dayjs";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { pollsQuery } from "../../queries/pollsQuery";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
   variants: {
@@ -205,14 +208,14 @@ const Voting = () => {
                               {!poll.isActive ? (
                                 <Box>
                                   Voting ended on{" "}
-                                  {moment
+                                  {dayjs
                                     .unix(poll.endTime)
                                     .format("MMM Do, YYYY")}
                                 </Box>
                               ) : (
                                 <Box>
                                   Voting ends in ~
-                                  {moment()
+                                  {dayjs()
                                     .add(poll.estimatedTimeRemaining, "seconds")
                                     .fromNow(true)}
                                 </Box>
