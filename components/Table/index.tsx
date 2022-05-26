@@ -97,8 +97,14 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
                             fontWeight: 700,
                           }}
                         >
-                          {column.render("Header")}
-                          <Box css={{ minWidth: 20 }}>
+                          {column?.sortIconAlignment !== "start" &&
+                            column.render("Header")}
+                          <Box
+                            css={{
+                              minWidth:
+                                column?.sortIconAlignment !== "start" ? 20 : 0,
+                            }}
+                          >
                             {column.isSorted ? (
                               column.isSortedDesc ? (
                                 <ChevronDownIcon />
@@ -106,9 +112,19 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
                                 <ChevronUpIcon />
                               )
                             ) : (
-                              ""
+                              <></>
                             )}
                           </Box>
+
+                          {column?.sortIconAlignment === "start" && (
+                            <Box
+                              css={{
+                                ml: "$1",
+                              }}
+                            >
+                              {column.render("Header")}
+                            </Box>
+                          )}
                         </Box>
                       </Th>
                     ))}
