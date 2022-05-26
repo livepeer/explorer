@@ -228,6 +228,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             </Popover>
           </Flex>
         ),
+        sortIconAlignment: "start",
         accessor: (row) => {
           const pools = row.pools ?? [];
           const rewardCallRatio =
