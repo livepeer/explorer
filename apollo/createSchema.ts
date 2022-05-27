@@ -16,7 +16,7 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2Provider } from "lib/chains";
 import { ethers } from "ethers";
 
 const schema = makeExecutableSchema({
@@ -28,6 +28,12 @@ const schema = makeExecutableSchema({
   },
 });
 
+function avg(obj, key) {
+  const arr = Object.values(obj);
+  const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
+  return arr.reduce(sum)[key] / arr.length;
+}
+
 const createSchema = async () => {
   const executor = async ({ document, variables }) => {
     const query = print(document);
@@ -38,6 +44,7 @@ const createSchema = async () => {
       },
       body: JSON.stringify({ query, variables }),
     });
+
     return fetchResult.json();
   };
 
@@ -133,6 +140,7 @@ const createSchema = async () => {
               context: _ctx,
               info: _info,
             });
+
             return identity;
           },
         },
@@ -150,6 +158,7 @@ const createSchema = async () => {
               context: _ctx,
               info: _info,
             });
+
             return identity;
           },
         },
@@ -192,6 +201,7 @@ const createSchema = async () => {
                 }
               }`,
             });
+
             const pendingFees = await _ctx.livepeer.rpc.getPendingFees(
               _delegator.id,
               data.protocol.currentRound.id
@@ -221,6 +231,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             const isActive = blockNumber <= parseInt(_poll.endBlock);
             const totalStake = await getTotalStake(
               _ctx,
@@ -237,6 +248,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             const isActive = blockNumber <= parseInt(_poll.endBlock);
             const totalStake = await getTotalStake(
               _ctx,
@@ -269,6 +281,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             return blockNumber <= parseInt(_poll.endBlock);
           },
         },
@@ -283,6 +296,7 @@ const createSchema = async () => {
             const countdownData = await getEstimatedBlockCountdown(
               _poll.endBlock
             );
+
             return parseInt(countdownData.EstimateTimeInSec);
           },
         },
@@ -294,6 +308,7 @@ const createSchema = async () => {
             if (blockNumber < parseInt(_poll.endBlock)) {
               return null;
             }
+
             const endBlockData = await getBlockByNumber(_poll.endBlock);
             return endBlockData.timeStamp;
           },
@@ -332,19 +347,46 @@ const createSchema = async () => {
         const transcoder = await resolve(parent, args, ctx, info);
         const selectionSet = Object.keys(graphqlFields(info));
 
-        // if selection set does not include 'price', return transcoder as is, otherwise fetch and merge price
-        if (!transcoder || !selectionSet.includes("price")) {
+        if (!transcoder) {
           return transcoder;
         }
 
-        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-        const transcodersWithPrice = await response.json();
-        const transcoderWithPrice = transcodersWithPrice.filter(
-          (t) => t.Address.toLowerCase() === args.id.toLowerCase()
-        )[0];
-        transcoder["price"] = transcoderWithPrice?.PricePerPixel
-          ? transcoderWithPrice?.PricePerPixel
-          : 0;
+        if (selectionSet.includes("successRates")) {
+          const oneDayAgo = Math.floor(
+            new Date(new Date().setDate(new Date().getDate() - 1)).getTime() /
+              1000
+          );
+
+          const metricsResponse = await fetch(
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?orchestrator=${args.id.toLowerCase()}&since=${
+              ctx.since ? ctx.since : oneDayAgo
+            }`
+          );
+          const metrics = await metricsResponse.json();
+
+          transcoder["successRates"] = {
+            global: avg(metrics[args.id.toLowerCase()], "success_rate") * 100,
+            fra: (metrics[args.id.toLowerCase()]?.FRA?.success_rate || 0) * 100,
+            mdw: (metrics[args.id.toLowerCase()]?.MDW?.success_rate || 0) * 100,
+            sin: (metrics[args.id.toLowerCase()]?.SIN?.success_rate || 0) * 100,
+            nyc: (metrics[args.id.toLowerCase()]?.NYC?.success_rate || 0) * 100,
+            lax: (metrics[args.id.toLowerCase()]?.LAX?.success_rate || 0) * 100,
+            lon: (metrics[args.id.toLowerCase()]?.LON?.success_rate || 0) * 100,
+            prg: (metrics[args.id.toLowerCase()]?.PRG?.success_rate || 0) * 100,
+          };
+        }
+
+        if (selectionSet.includes("price")) {
+          const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+          const transcodersWithPrice = await response.json();
+          const transcoderWithPrice = transcodersWithPrice.filter(
+            (t) => t.Address.toLowerCase() === args.id.toLowerCase()
+          )[0];
+          transcoder["price"] = transcoderWithPrice?.PricePerPixel
+            ? transcoderWithPrice?.PricePerPixel
+            : 0;
+        }
+
         return transcoder;
       },
       transcoders: async (resolve, parent, args, ctx, info) => {
@@ -367,12 +409,6 @@ const createSchema = async () => {
               });
             }
           }
-        }
-
-        function avg(obj, key) {
-          const arr = Object.values(obj);
-          const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-          return arr.reduce(sum)[key] / arr.length;
         }
 
         const oneDayAgo = Math.floor(

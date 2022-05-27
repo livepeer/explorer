@@ -16,12 +16,13 @@ export const orchestratorsQuery = (currentRound) => {
         }
         first: $first
         skip: $skip
-        orderBy: totalVolumeETH
+        orderBy: thirtyDayVolumeETH
         orderDirection: desc
       ) {
         id
         totalVolumeETH
         feeShare
+        activationTimestamp
         activationRound
         deactivationRound
         rewardCut
@@ -78,6 +79,9 @@ export const orchestratorsQuery = (currentRound) => {
         pools(first: 30, orderBy: id, orderDirection: desc, where: { round_not: "${currentRound}" }) {
           rewardTokens
         }
+        thirtyDayVolumeETH
+        sixtyDayVolumeETH
+        ninetyDayVolumeETH
       }
       protocol(id: "0") {
         id
@@ -85,6 +89,8 @@ export const orchestratorsQuery = (currentRound) => {
         totalActiveStake
         inflation
         inflationChange
+        yearlyRewardsToStakeRatio
+        lptPriceEth
         currentRound {
           id
         }

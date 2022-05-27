@@ -5,14 +5,14 @@ import ReactMarkdown from "react-markdown";
 import { abbreviateNumber } from "../../lib/utils";
 import { useRouter } from "next/router";
 import { useQuery, useApolloClient, gql } from "@apollo/client";
-import { useWeb3React } from "@web3-react/core";
+
 import Spinner from "@components/Spinner";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
 import Head from "next/head";
-import { usePageVisibility } from "../../hooks";
+import { useAccountAddress, usePageVisibility } from "../../hooks";
 import { pollQuery } from "../../queries/pollQuery";
 import { accountQuery } from "../../queries/accountQuery";
 import { voteQuery } from "../../queries/voteQuery";
@@ -32,7 +32,7 @@ import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Poll = () => {
   const router = useRouter();
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { width } = useWindowSize();
   const isVisible = usePageVisibility();
@@ -72,10 +72,10 @@ const Poll = () => {
     stopPolling: stopPollingMyAccount,
   } = useQuery(q, {
     variables: {
-      account: context?.account?.toLowerCase(),
+      account: accountAddress?.toLowerCase(),
     },
     pollInterval,
-    skip: !context.active,
+    skip: !accountAddress,
   });
 
   const {
@@ -84,10 +84,10 @@ const Poll = () => {
     stopPolling: stopPollingVote,
   } = useQuery(voteQuery, {
     variables: {
-      id: `${context?.account?.toLowerCase()}-${pollId}`,
+      id: `${accountAddress?.toLowerCase()}-${pollId}`,
     },
     pollInterval,
-    skip: !context.active,
+    skip: !accountAddress,
   });
 
   const {

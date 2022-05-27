@@ -7,10 +7,9 @@ import {
   getHint,
   simulateNewActiveSetOrder,
 } from "@lib/utils";
-import { useWeb3React } from "@web3-react/core";
 import Footnote from "./Footnote";
-import ConnectWallet from "./connect-wallet";
-import { Box } from "@livepeer/design-system";
+import { Box, Button, Flex } from "@livepeer/design-system";
+import { useAccountAddress } from "hooks";
 
 type FooterData = {
   transcoders: [Transcoder];
@@ -40,10 +39,25 @@ const Footer = ({
   },
   css = {},
 }: Props) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
 
-  if (!context.account) {
-    return <ConnectWallet />;
+  if (!accountAddress) {
+    return (
+      <>
+        <Button
+          size="4"
+          disabled={true}
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          {action === "delegate" ? "Delegate" : "Undelegate"}
+        </Button>
+        <Footnote>
+          Connect your wallet to{" "}
+          {action === "delegate" ? "delegate" : "undelegate"}.
+        </Footnote>
+      </>
+    );
   }
 
   const tokenBalance =

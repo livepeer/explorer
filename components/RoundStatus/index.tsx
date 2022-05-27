@@ -17,15 +17,13 @@ import {
   themes,
   Button,
 } from "@livepeer/design-system";
-import { useWeb3React } from "@web3-react/core";
+
 import { MutationsContext } from "../../contexts";
 
 const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
-  const { initializeRound }: any = useContext(MutationsContext);
-  const context = useWeb3React();
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];

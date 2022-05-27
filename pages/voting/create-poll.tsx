@@ -11,10 +11,10 @@ import {
   RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { useWeb3React } from "@web3-react/core";
 import { createApolloFetch } from "apollo-fetch";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import fm from "front-matter";
+import { useAccountAddress } from "hooks";
 import { getLayout } from "layouts/main";
 import Head from "next/head";
 import { useContext, useEffect, useState } from "react";
@@ -23,7 +23,7 @@ import Utils from "web3-utils";
 import { MutationsContext } from "../../contexts";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
 
@@ -38,9 +38,9 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const { data, loading } = useQuery(accountQuery, {
     variables: {
-      account: context.account?.toLowerCase(),
+      account: accountAddress?.toLowerCase(),
     },
-    skip: !context.account,
+    skip: !accountAddress,
   });
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
         setSufficientStake(false);
       }
     }
-  }, [data, context.account]);
+  }, [data, accountAddress]);
 
   const [selectedProposal, setSelectedProposal] = useState(null);
   const { createPoll }: any = useContext(MutationsContext);
@@ -157,7 +157,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                   </>
                 ) : (
                   <>
-                    {!context.account ? (
+                    {!accountAddress ? (
                       <Box css={{ color: "$red11", fontSize: "$1" }}>
                         Connect your wallet to create a poll.
                       </Box>
@@ -177,7 +177,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         !sufficientStake ||
                         !selectedProposal ||
                         !data ||
-                        !context.account ||
+                        !accountAddress ||
                         isCreatePollLoading
                       }
                       type="submit"

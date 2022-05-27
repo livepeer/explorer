@@ -5,11 +5,7 @@ import parseDomain from "parse-domain";
 import { ethers } from "ethers";
 import { gql } from "@apollo/client";
 import Numeral from "numeral";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-} from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -648,4 +644,72 @@ export function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+export function calculateAnnualROI({
+  thirtyDayVolumeETH,
+  feeShare,
+  lptPriceEth,
+
+  yearlyRewardsToStakeRatio,
+  rewardCallRatio,
+  rewardCut,
+  principle,
+  totalStake,
+}) {
+  const combinedTotalStaked = principle + totalStake;
+
+  let percentLptRewards = 0;
+  let delegatorLptRewards = 0;
+  let totalLptRewards = 0;
+
+  if (rewardCallRatio > 0) {
+    const expectedTotalYearlyRewards =
+      yearlyRewardsToStakeRatio * combinedTotalStaked * rewardCallRatio;
+    const expectedDelegatorYearlyRewards =
+      expectedTotalYearlyRewards *
+      (1 - rewardCut / 1000000) *
+      (principle / combinedTotalStaked);
+
+    totalLptRewards = expectedTotalYearlyRewards;
+    delegatorLptRewards = expectedDelegatorYearlyRewards;
+    percentLptRewards = expectedDelegatorYearlyRewards / principle;
+  }
+
+  let percentExpectedLptFeeCutDelegator = 0;
+  let delegatorFees = 0;
+  let delegatorLptFees = 0;
+  let totalFees = 0;
+
+  if (thirtyDayVolumeETH > 0) {
+    const expectedYearlyVolumeEth = (thirtyDayVolumeETH / 30) * 365;
+    const expectedYearlyEthCutDelegators =
+      expectedYearlyVolumeEth * (feeShare / 1000000);
+    const expectedYearlyFeeCutDelegator =
+      expectedYearlyEthCutDelegators * (principle / combinedTotalStaked);
+
+    const expectedLptFeeCutDelegator =
+      expectedYearlyFeeCutDelegator / lptPriceEth;
+
+    totalFees = expectedYearlyVolumeEth;
+    delegatorFees = expectedYearlyFeeCutDelegator;
+    delegatorLptFees = expectedLptFeeCutDelegator;
+    percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
+  }
+
+  return {
+    delegatorPercent: {
+      fees: percentExpectedLptFeeCutDelegator,
+      rewards: percentLptRewards,
+    },
+    delegator: {
+      fees: delegatorFees,
+      feesLpt: delegatorLptFees,
+      rewards: delegatorLptRewards,
+    },
+    total: {
+      fees: totalFees,
+      rewards: totalLptRewards,
+    },
+  };
 }

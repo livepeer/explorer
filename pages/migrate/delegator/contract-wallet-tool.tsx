@@ -21,7 +21,7 @@ import {
   L1_CHAIN_ID,
   l2Provider,
   nodeInterface,
-} from "constants/chains";
+} from "lib/chains";
 import { ethers } from "ethers";
 import { getUnbondingLocks } from ".";
 

@@ -1,44 +1,46 @@
 import { gql, useApolloClient } from "@apollo/client";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { Box } from "@livepeer/design-system";
+import { calculateAnnualROI } from "@lib/utils";
 
-const hoursPerYear = 8760;
-const averageHoursPerRound = 21;
-const roundsPerYear = hoursPerYear / averageHoursPerRound;
-
-const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
+const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
   const client = useApolloClient();
   const { width } = useWindowSize();
-  const totalSupply = +protocol.totalSupply;
-  const totalStaked = +protocol.totalActiveStake;
-  const participationRate = +protocol.participationRate;
-  const rewardCut =
-    transcoder?.rewardCut > 0 ? transcoder?.rewardCut / 1000000 : 0;
-  const inflation =
-    protocol.inflation > 0 ? protocol.inflation / 1000000000 : 0;
-  const inflationChange =
-    protocol.inflationChange > 0 ? protocol.inflationChange / 1000000000 : 0;
-  const principle = +value ? +value : 0;
+
+  const pools = transcoder?.pools ?? [];
+  const rewardCallRatio =
+    pools.length > 0
+      ? pools.filter((r) => r?.rewardTokens).length / pools.length
+      : 0;
+
+  const principle = Number(value || 0);
+
   const roi = calculateAnnualROI({
-    inflation,
-    inflationChange,
-    rewardCut,
-    principle,
-    totalSupply,
-    totalStaked,
-    participationRate,
+    thirtyDayVolumeETH: Number(transcoder?.thirtyDayVolumeETH || 0),
+    feeShare: Number(transcoder?.feeShare || 0),
+    lptPriceEth: Number(protocol?.lptPriceEth || 0),
+
+    yearlyRewardsToStakeRatio: Number(protocol?.yearlyRewardsToStakeRatio || 0),
+    rewardCallRatio: rewardCallRatio,
+    rewardCut: Number(transcoder?.rewardCut || 0),
+    principle: principle,
+    totalStake: Number(transcoder?.totalStake || 0),
   });
 
   client.writeQuery({
     query: gql`
       query {
         principle
-        roi
+        roiFees
+        roiFeesLpt
+        roiRewards
       }
     `,
     data: {
       principle,
-      roi,
+      roiFeesLpt: roi.delegator.feesLpt,
+      roiFees: roi.delegator.fees,
+      roiRewards: roi.delegator.rewards,
     },
   });
 
@@ -90,34 +92,3 @@ const Input = ({ transcoder, value = "", onChange, protocol, ...props }) => {
 };
 
 export default Input;
-
-function calculateAnnualROI({
-  rewardCut,
-  inflation,
-  inflationChange,
-  principle,
-  totalSupply,
-  totalStaked,
-  participationRate,
-}) {
-  const percentOfTotalStaked =
-    principle / totalStaked ? principle / totalStaked : 0;
-  let totalRewardTokens = 0;
-  let roi = 0;
-  let totalRewardTokensMinusFee;
-  let currentMintableTokens;
-
-  for (let i = 0; i < roundsPerYear; i++) {
-    currentMintableTokens = totalSupply * inflation;
-    totalRewardTokens = percentOfTotalStaked * currentMintableTokens;
-    totalRewardTokensMinusFee =
-      totalRewardTokens - totalRewardTokens * rewardCut;
-    roi += totalRewardTokensMinusFee;
-    totalSupply += currentMintableTokens;
-    inflation =
-      participationRate > 0.5
-        ? inflation - inflationChange
-        : inflation + inflationChange;
-  }
-  return roi;
-}

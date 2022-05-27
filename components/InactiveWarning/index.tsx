@@ -1,10 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
 import { Box, Button, Container, Text } from "@livepeer/design-system";
-import { useWeb3React } from "@web3-react/core";
+import { useAccountAddress } from "hooks";
+
 import Link from "next/link";
 
 const InactiveWarning = () => {
-  const { account } = useWeb3React();
+  const accountAddress = useAccountAddress();
   const query = gql`
     query delegator($id: ID!) {
       delegator(id: $id) {
@@ -25,7 +26,7 @@ const InactiveWarning = () => {
 
   const { data, loading } = useQuery(query, {
     variables: {
-      id: account?.toLowerCase(),
+      id: accountAddress?.toLowerCase(),
     },
     pollInterval: 60000,
   });

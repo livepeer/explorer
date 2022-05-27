@@ -14,8 +14,7 @@ import {
 import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
 import Spinner from "@components/Spinner";
-import { useWeb3React } from "@web3-react/core";
-import WalletModal from "@components/WalletModal";
+
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
@@ -30,7 +29,7 @@ import {
   L1_CHAIN_ID,
   l2Provider,
   nodeInterface,
-} from "constants/chains";
+} from "lib/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import LivepeerSDK from "@livepeer/sdk";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
@@ -40,6 +39,7 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useActiveChain, useAccountAddress, useAccountSigner } from "hooks";
 
 const isRegisteredOrchestrator = async (account) => {
   const sdk = await LivepeerSDK({
@@ -68,13 +68,19 @@ const initialState = {
   ),
   receipts: null,
   cta: (
-    <WalletModal
-      trigger={
-        <Button variant="primary" size="4" css={{ width: "100%" }}>
-          Connect Wallet
-        </Button>
-      }
-    />
+    <Flex align="center" direction="column">
+      <Button
+        size="4"
+        disabled={true}
+        variant="primary"
+        css={{ width: "100%" }}
+      >
+        Migrate Orchestrator
+      </Button>
+      <Text size="2" css={{ mt: "$2", fontWeight: 600, color: "$red11" }}>
+        Connect your wallet to continue.
+      </Text>
+    </Flex>
   ),
   image: "/img/arbitrum.svg",
   loading: false,
@@ -202,7 +208,10 @@ const MigrateOrchestrator = () => {
     }
   }, [router]);
 
-  const context = useWeb3React();
+  const activeChain = useActiveChain();
+  const accountAddress = useAccountAddress();
+  const accountSigner = useAccountSigner();
+
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -219,10 +228,10 @@ const MigrateOrchestrator = () => {
   });
 
   useEffect(() => {
-    if (!context.active) {
+    if (!accountAddress) {
       dispatch({ type: "inactive" });
     }
-  }, [context.active]);
+  }, [accountAddress]);
 
   // update timer
   useEffect(() => {
@@ -269,8 +278,8 @@ const MigrateOrchestrator = () => {
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
         0,
         maxSubmissionPrice,
-        context.account,
-        context.account,
+        accountAddress,
+        accountAddress,
         0,
         gasPriceBid,
         state.migrationCallData
@@ -286,11 +295,11 @@ const MigrateOrchestrator = () => {
       // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
       const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-      const signer = l1Migrator.connect(context.library.getSigner());
+      const signer = l1Migrator.connect(accountSigner);
 
       const tx1 = await signer.migrateDelegator(
-        state.signer ? state.signer : context.account,
-        state.signer ? state.signer : context.account,
+        state.signer ? state.signer : accountAddress,
+        state.signer ? state.signer : accountAddress,
         signature ? signature : "0x",
         maxGas,
         gasPriceBid,
@@ -345,7 +354,7 @@ const MigrateOrchestrator = () => {
             <Box css={{ textAlign: "center" }}>
               <Link
                 href={`/accounts/${
-                  state.signer ? state.signer : context.account
+                  state.signer ? state.signer : accountAddress
                 }/delegating`}
                 passHref
               >
@@ -379,12 +388,12 @@ const MigrateOrchestrator = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (context.account) {
-        const isOrchestrator = await isRegisteredOrchestrator(context.account);
+      if (accountAddress) {
+        const isOrchestrator = await isRegisteredOrchestrator(accountAddress);
         // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
-          state.signer ? state.signer : context.account,
-          state.signer ? state.signer : context.account
+          state.signer ? state.signer : accountAddress,
+          state.signer ? state.signer : accountAddress
         );
 
         dispatch({
@@ -406,7 +415,7 @@ const MigrateOrchestrator = () => {
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.signer, context.account]);
+  }, [state.signer, accountAddress]);
 
   useEffect(() => {
     const init = async () => {
@@ -436,7 +445,7 @@ const MigrateOrchestrator = () => {
       }
     };
     init();
-  }, [signerAddress, context.chainId, state.isOrchestrator]);
+  }, [signerAddress, activeChain, state.isOrchestrator]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

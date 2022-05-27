@@ -18,6 +18,7 @@ import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { chartDataQuery } from "../queries/chartDataQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Spinner from "@components/Spinner";
+import { useMemo } from "react";
 
 const Panel = ({ children }) => (
   <Flex
@@ -55,7 +56,11 @@ const Home = () => {
       }
     }
   `);
-  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
+
+  const query = useMemo(
+    () => orchestratorsQuery(protocolData.protocol.currentRound.id),
+    [protocolData]
+  );
   const { data, loading } = useQuery(query);
 
   const { data: chartData } = useQuery(chartDataQuery);
@@ -201,7 +206,11 @@ const Home = () => {
                 <Spinner />
               </Flex>
             ) : (
-              <OrchestratorList data={data?.transcoders} pageSize={10} />
+              <OrchestratorList
+                data={data?.transcoders}
+                pageSize={10}
+                protocolData={data?.protocol}
+              />
             )}
           </Box>
           {/* <Box>

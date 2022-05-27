@@ -1,7 +1,7 @@
 import { txMessages } from "../../lib/utils";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import Spinner from "@components/Spinner";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
 const Index = ({ tx }) => {
   const { __typename, txHash } = tx;

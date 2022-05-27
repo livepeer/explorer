@@ -1,4 +1,4 @@
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { ethers } from "ethers";
 
 const params = {

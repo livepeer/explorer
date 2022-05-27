@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import Utils from "web3-utils";
 import { Button } from "@livepeer/design-system";
-import { useWeb3React } from "@web3-react/core";
+
 import { MutationsContext } from "../../contexts";
 import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "../../lib/utils";
+import { useAccountAddress } from "hooks";
 
 const Undelegate = ({
   amount,
@@ -13,11 +14,11 @@ const Undelegate = ({
   delegator,
   disabled,
 }) => {
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { unbond }: any = useContext(MutationsContext);
 
-  if (!context.active) {
+  if (!accountAddress) {
     return null;
   }
 

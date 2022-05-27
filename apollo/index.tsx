@@ -1,5 +1,5 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "constants/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import merge from "lodash.merge";
 import { useMemo } from "react";
 import createApolloClient from "./createApolloClient";
@@ -7,13 +7,6 @@ import createApolloClient from "./createApolloClient";
 export const client = new ApolloClient({
   link: new HttpLink({
     uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  }),
-  cache: new InMemoryCache(),
-});
-
-export const blockClient = new ApolloClient({
-  link: new HttpLink({
-    uri: "https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks",
   }),
   cache: new InMemoryCache(),
 });

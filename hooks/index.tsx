@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
-import { useWeb3React } from "@web3-react/core";
-import { injected } from "@lib/connectors";
-import { isMobile } from "react-device-detect";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { useEffect, useRef, useState } from "react";
 import { transactionsQuery } from "../queries/transactionsQuery";
-import { ethers } from "ethers";
-import { l1Provider } from "constants/chains";
+import { useAccountAddress, useAccountSigner } from "./wallet";
+
+export * from "./wallet";
 
 export function useWeb3Mutation(mutation, options) {
   const client: any = useApolloClient();
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
   const [mutate, { data, loading: dataLoading }] = useMutation(mutation, {
     ...options,
   });
@@ -51,7 +49,7 @@ export function useWeb3Mutation(mutation, options) {
             {
               __typename: mutation.definitions[0].name.value,
               txHash: data.tx?.txHash,
-              from: context.account,
+              from: accountAddress,
               inputData: JSON.stringify(data.tx.inputData),
               confirmed: !!transactionStatusData?.getTxReceiptStatus?.status,
             },
@@ -81,90 +79,17 @@ export function usePrevious(value) {
   return ref.current;
 }
 
-export function useEagerConnect() {
-  const { activate, active } = useWeb3React();
-  const [tried, setTried] = useState(false);
-
-  useEffect(() => {
-    injected.isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(injected, undefined, true).catch(() => {
-          setTried(true);
-        });
-      } else {
-        if (isMobile && window["ethereum"]) {
-          activate(injected, undefined, true).catch(() => {
-            setTried(true);
-          });
-        } else {
-          setTried(true);
-        }
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally only running on mount (make sure it's only mounted once :))
-
-  // if the connection worked, wait until we get confirmation of that to flip the flag
-  useEffect(() => {
-    if (!tried && active) {
-      setTried(true);
-    }
-  }, [tried, active]);
-
-  return tried;
-}
-
-export function useInactiveListener(suppress = false) {
-  const { active, error, activate } = useWeb3React();
-
-  useEffect(() => {
-    const ethereum = window["ethereum"];
-
-    if (ethereum && ethereum.on && !active && !error && !suppress) {
-      const handleChainChanged = () => {
-        // eat errors
-        activate(injected, undefined, true).catch(() => {});
-      };
-
-      const handleAccountsChanged = (accounts) => {
-        if (accounts.length > 0) {
-          // eat errors
-          activate(injected, undefined, true).catch(() => {});
-        }
-      };
-
-      const handleNetworkChanged = () => {
-        // eat errors
-        activate(injected, undefined, true).catch(() => {});
-      };
-
-      ethereum.on("chainChanged", handleChainChanged);
-      ethereum.on("networkChanged", handleNetworkChanged);
-      ethereum.on("accountsChanged", handleAccountsChanged);
-
-      return () => {
-        if (ethereum.removeListener) {
-          ethereum.removeListener("chainChanged", handleChainChanged);
-          ethereum.removeListener("networkChanged", handleNetworkChanged);
-          ethereum.removeListener("accountsChanged", handleAccountsChanged);
-        }
-      };
-    }
-
-    return () => {};
-  }, [active, error, suppress, activate]);
-}
-
 export function useMutations() {
   const mutations = require("../mutations").default;
-  const context = useWeb3React();
+  const accountAddress = useAccountAddress();
+  const accountSigner = useAccountSigner();
   const mutationsObj = {};
   for (const key in mutations) {
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     const { mutate } = useWeb3Mutation(mutations[key], {
       context: {
-        account: context?.account?.toLowerCase(),
-        signer: context?.library?.getSigner(),
+        account: accountAddress,
+        signer: accountSigner,
       },
     });
     mutationsObj[key] = mutate;
@@ -254,58 +179,4 @@ export function useOnClickOutside(ref, handler) {
     // ... passing it into this hook.
     [ref, handler]
   );
-}
-
-export function useENS() {
-  const { account } = useWeb3React();
-  const [ens, setENS] = useState(null);
-
-  useEffect(() => {
-    async function getENS() {
-      if (account) {
-        try {
-          const name = await l1Provider.lookupAddress(account);
-          setENS(name);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    }
-    getENS();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
-  return ens;
-}
-
-export function useBalance() {
-  const { account, library, chainId } = useWeb3React();
-
-  const [balance, setBalance] = useState(null);
-  useEffect(() => {
-    if (!!account && !!library) {
-      let stale = false;
-
-      library
-        .getBalance(account)
-        .then((balance) => {
-          if (!stale) {
-            setBalance(
-              +parseFloat(ethers.utils.formatEther(balance)).toFixed(4)
-            );
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setBalance(null);
-          }
-        });
-
-      return () => {
-        stale = true;
-        setBalance(undefined);
-      };
-    }
-  }, [account, library, chainId]);
-
-  return balance;
 }
