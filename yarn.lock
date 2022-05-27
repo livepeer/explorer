@@ -2862,6 +2862,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/flickity@^2.2.6":
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/@types/flickity/-/flickity-2.2.6.tgz#720673bfae791a862a6798f2564ba77d3deb8621"
+  integrity sha512-jzJ+Lpc41MmjG1SxWS60lTGFXvd45yaO1ZC0qNkfWaZzu1PrykLIHw4KzHA/eGJDG2k/s57IHMgMLdvSAulfkw==
+
 "@types/fs-capacitor@*":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/fs-capacitor/-/fs-capacitor-2.0.0.tgz#17113e25817f584f58100fb7a08eed288b81956e"

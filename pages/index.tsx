@@ -1,12 +1,16 @@
 import { gql, useQuery } from "@apollo/client";
 import ExplorerChart from "@components/ExplorerChart";
-import GlobalChart from "@components/GlobalChart";
 import OrchestratorList from "@components/OrchestratorList";
+import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import {
-  Box, Button, Container, Flex,
-  Heading, Link as A
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
@@ -21,24 +25,120 @@ const Panel = ({ children }) => (
     css={{
       minHeight: 220,
       height: 220,
-      position: "relative",
-      bc: "$panel",
       p: "24px",
-      marginRight: 16,
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 8,
-      border: "1px solid $colors$neutral4",
-      width: "100%",
-      "@bp2": {
-        width: 330,
-      },
+      border: "0.5px solid $colors$neutral4",
+      flex: 1,
+      minWidth: 220,
     }}
   >
-    <Box css={{ borderColor: "$border" }} />
     {children}
   </Flex>
+);
+
+const renderCharts = (chartData) => (
+  <>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.weeklyData?.map((week) => ({
+            x: Number(week.date),
+            y: Number(week.weeklyVolumeUSD),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
+        basePercentChange={Number(
+          chartData?.chartData?.weeklyVolumeChangeUSD ?? 0
+        )}
+        title="Fees Paid (7d)"
+        unit="usd"
+        type="bar"
+      />
+    </Panel>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.participationRate),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.participationRate ?? 0)}
+        basePercentChange={Number(
+          chartData?.chartData?.participationRateChange ?? 0
+        )}
+        title="Participation Rate"
+        unit="percent"
+        type="line"
+      />
+    </Panel>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.inflation),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.inflation ?? 0)}
+        basePercentChange={Number(chartData?.chartData?.inflationChange ?? 0)}
+        title="Inflation Rate"
+        unit="percent"
+        type="line"
+      />
+    </Panel>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.weeklyData?.map((week) => ({
+            x: Number(week.date),
+            y: Number(week.weeklyUsageMinutes),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
+        basePercentChange={Number(chartData?.chartData?.weeklyUsageChange ?? 0)}
+        title="Estimated Usage (7d)"
+        unit="minutes"
+        type="bar"
+      />
+    </Panel>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.totalDelegators),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.totalDelegators ?? 0)}
+        basePercentChange={Number(
+          chartData?.chartData?.totalDelegatorsChange ?? 0
+        )}
+        title="Delegators"
+        unit="none"
+        type="line"
+      />
+    </Panel>
+    <Panel>
+      <ExplorerChart
+        data={
+          chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.numActiveTranscoders),
+          })) ?? []
+        }
+        base={Number(chartData?.chartData?.numActiveTranscoders ?? 0)}
+        basePercentChange={Number(
+          chartData?.chartData?.numActiveTranscodersChange ?? 0
+        )}
+        title="Orchestrators"
+        unit="none"
+        type="line"
+      />
+    </Panel>
+  </>
 );
 
 const Home = () => {
@@ -61,19 +161,9 @@ const Home = () => {
 
   const { data: chartData } = useQuery(chartDataQuery);
 
-  const flickityOptions = {
-    wrapAround: true,
-    cellAlign: "left",
-    prevNextButtons: false,
-    draggable: true,
-    pageDots: true,
-  };
-
-  console.log({ chartData });
-
   return (
     <>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ width: "100%", maxWidth: 1350 }}>
         <Flex
           css={{
             flexDirection: "column",
@@ -107,70 +197,36 @@ const Home = () => {
           <Flex
             css={{
               mb: "$7",
-              // boxShadow: "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)",
-              // ".dot": {
-              //   backgroundColor: "$neutral6",
-              // },
-              // ".dot.is-selected": {
-              //   backgroundColor: "$primary11",
-              // },
-              flexWrap: "wrap",
             }}
           >
-            {/* <Flickity
-              className={"flickity"}
-              elementType={"div"}
-              options={flickityOptions}
-              disableImagesLoaded={true} // default false
-              reloadOnUpdate
-              static
-            > */}
-            <Panel>
-              <ExplorerChart
-                data={
-                  chartData?.chartData?.weeklyData?.map((week) => ({
-                    x: Number(week.date),
-                    y: Number(week.weeklyVolumeUSD),
-                  })) ?? []
-                }
-                base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
-                basePercentChange={Number(chartData?.chartData?.weeklyVolumeChangeUSD ?? 0)}
-                title="Fees Paid (7d)"
-                unit="usd"
-                type="bar"
-              />
-            </Panel>
-            <Panel>
-              <ExplorerChart
-                data={
-                  chartData?.chartData?.weeklyData?.map((week) => ({
-                    x: Number(week.date),
-                    y: Number(week.weeklyUsageMinutes),
-                  })) ?? []
-                }
-                base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
-                basePercentChange={Number(chartData?.chartData?.weeklyUsageChange ?? 0)}
-                title="Estimated Usage (7d)"
-                unit="minutes"
-                type="line"
-              />
-            </Panel>
-            <Panel>
-            <ExplorerChart
-                data={
-                  (chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
-                    x: Number(day.date),
-                    y: Number(day.participationRate),
-                  })) ?? [])
-                }
-                base={Number(chartData?.chartData?.participationRate ?? 0)}
-                basePercentChange={Number(chartData?.chartData?.participationRateChange ?? 0)}
-                title="Participation Rate"
-                unit="percent"
-                type="line"
-              />
-            </Panel>
-            {/* </Flickity> */}
+            <Flex
+              css={{
+                bc: "$panel",
+                borderRadius: "$4",
+                border: "1px solid $colors$neutral4",
+                overflow: "hidden",
+              }}
+            >
+              <Flex css={{}}>
+                <Flex
+                  css={{
+                    flexWrap: "wrap",
+                    flex: 4,
+                  }}
+                >
+                  {renderCharts(chartData)}
+                </Flex>
+                <Flex
+                  css={{
+                    height: "100%",
+                    p: "24px",
+                    flex: 1,
+                  }}
+                >
+                  <RoundStatus />
+                </Flex>
+              </Flex>
+            </Flex>
           </Flex>
           <Box css={{ mb: "$3" }}>
             <Flex

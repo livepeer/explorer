@@ -18,7 +18,7 @@ import {
   IS_TESTNET,
   l1Provider,
   L1_CHAIN_ID,
-  DEFAULT_CHAIN_ID
+  DEFAULT_CHAIN_ID,
 } from "lib/chains";
 import LivepeerSDK from "@livepeer/sdk";
 
@@ -136,6 +136,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeETH: 0,
     totalUsage: 0,
     participationRate: 0,
+    inflation: 0,
+    numActiveTranscoders: 0,
+    totalDelegators: 0,
     oneDayVolumeUSD: 0,
     oneDayVolumeETH: 0,
     oneWeekVolumeUSD: 0,
@@ -147,6 +150,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     volumeChangeUSD: 0,
     volumeChangeETH: 0,
     participationRateChange: 0,
+    inflationChange: 0,
+    numActiveTranscodersChange: 0,
+    totalDelegatorsChange: 0,
   };
 
   let dayData = [];
@@ -155,11 +161,17 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeUSD: 0,
     totalVolumeETH: 0,
     participationRate: 0,
+    inflation: 0,
+    numActiveTranscoders: 0,
+    totalDelegators: 0,
   };
   let twoDayData = {
     totalVolumeUSD: 0,
     totalVolumeETH: 0,
     participationRate: 0,
+    inflation: 0,
+    numActiveTranscoders: 0,
+    totalDelegators: 0,
   };
 
   // Date to price mapping used to calculate estimated usage
@@ -238,6 +250,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
     const dayDataResult = await getDayData();
     dayData = dayDataResult.data.days;
+
+    console.log({ dayDataResult });
 
     let livepeerComDayData = [];
     let livepeerComOneWeekData = [];
@@ -329,6 +343,10 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.totalVolumeETH = +protocolDataResult.data.protocol.totalVolumeETH;
     data.participationRate =
       +protocolDataResult.data.protocol.participationRate;
+    data.inflation = +protocolDataResult.data.protocol.inflation;
+    data.numActiveTranscoders =
+      +protocolDataResult.data.protocol.numActiveTranscoders;
+    data.totalDelegators = +protocolDataResult.data.protocol.totalDelegators;
 
     const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
     oneDayData = oneDayResult.data.protocol;
@@ -377,6 +395,18 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       data?.participationRate,
       oneDayData?.participationRate
     );
+    const inflationChange = getPercentChange(
+      data?.inflation,
+      oneDayData?.inflation
+    );
+    const numActiveTranscodersChange = getPercentChange(
+      data?.numActiveTranscoders,
+      oneDayData?.numActiveTranscoders
+    );
+    const totalDelegatorsChange = getPercentChange(
+      data?.totalDelegators,
+      oneDayData?.totalDelegators
+    );
 
     // format weekly data for weekly sized chunks
     const weeklySizedChunks = [...dayData].sort((a, b) =>
@@ -416,6 +446,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.volumeChangeUSD = volumeChangeUSD;
     data.volumeChangeETH = volumeChangeETH;
     data.participationRateChange = participationRateChange;
+    data.inflationChange = inflationChange;
+    data.totalDelegatorsChange = totalDelegatorsChange;
+    data.numActiveTranscodersChange = numActiveTranscodersChange;
   } catch (e) {
     console.log(e);
   }

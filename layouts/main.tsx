@@ -5,6 +5,7 @@ import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
+import Logo from "@components/Logo";
 import ProgressBar from "@components/ProgressBar";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
@@ -16,6 +17,7 @@ import { globalStyles } from "@lib/globalStyles";
 import {
   Badge,
   Box,
+  Button,
   Container,
   DesignSystemProvider,
   Flex,
@@ -28,6 +30,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -69,7 +72,7 @@ const uniqueBannerID = 3;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const client = useApolloClient();
-  const { pathname } = useRouter();
+  const { pathname, route } = useRouter();
   const { data } = useQuery(
     gql`
       {
@@ -324,16 +327,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                 </Flex>
               )}
 
-              <Box
-                css={{
-                  display: "grid",
-                  gridTemplateColumns: "100%",
-                  "@bp3": {
-                    gridTemplateColumns: "240px 1fr",
-                  },
-                }}
-              >
-                <Box ref={ref}>
+              <Box css={{}}>
+                <Box
+                  css={{
+                    "@bp3": {
+                      display: "none",
+                    },
+                  }}
+                  ref={ref}
+                >
                   <Drawer
                     onDrawerClose={onDrawerClose}
                     onDrawerOpen={onDrawerOpen}
@@ -342,8 +344,16 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   />
                 </Box>
                 <Box>
-                  <AppBar size="2" color="neutral" border sticky>
-                    <Container size="3">
+                  <AppBar
+                    css={{
+                      zIndex: 10,
+                    }}
+                    size="2"
+                    color="neutral"
+                    border
+                    sticky
+                  >
+                    <Container css={{ maxWidth: 1400 }}>
                       <Flex
                         css={{
                           justifyContent: "space-between",
@@ -361,14 +371,106 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         >
                           <Hamburger onClick={onDrawerOpen} />
                         </Box>
-                        <Search
+                        <Flex
                           css={{
                             display: "none",
-                            "@bp2": {
-                              display: "flex",
+                            "@bp3": {
+                              height: "100%",
+                              justifyContent: "center",
+                              display: "inherit",
+                              mr: "$3",
+                              mt: "$2",
                             },
                           }}
-                        />
+                        >
+                          <Logo isDark />
+                          <Box css={{}}>
+                            <Link passHref href="/">
+                              <Button
+                                size="3"
+                                css={{
+                                  ml: "$4",
+                                  bc:
+                                    route === "/"
+                                      ? "hsla(0,100%,100%,.05)"
+                                      : "transparent",
+                                  color: "white",
+                                  "&:hover": {
+                                    bc: "hsla(0,100%,100%,.1)",
+                                  },
+                                  "&:active": {
+                                    bc: "hsla(0,100%,100%,.15)",
+                                  },
+                                  "&:disabled": {
+                                    opacity: 0.5,
+                                  },
+                                }}
+                              >
+                                Overview
+                              </Button>
+                            </Link>
+                            <Link passHref href="/orchestrators">
+                              <Button
+                                size="3"
+                                css={{
+                                  ml: "$2",
+                                  bc:
+                                    route.includes("/accounts") ||
+                                    route.includes("/orchestrators")
+                                      ? "hsla(0,100%,100%,.05)"
+                                      : "transparent",
+                                  color: "white",
+                                  "&:hover": {
+                                    bc: "hsla(0,100%,100%,.1)",
+                                  },
+                                  "&:active": {
+                                    bc: "hsla(0,100%,100%,.15)",
+                                  },
+                                  "&:disabled": {
+                                    opacity: 0.5,
+                                  },
+                                }}
+                              >
+                                Orchestrators
+                              </Button>
+                            </Link>
+                            <Link passHref href="/voting">
+                              <Button
+                                size="3"
+                                css={{
+                                  ml: "$2",
+                                  bc: route.includes("/voting")
+                                    ? "hsla(0,100%,100%,.05)"
+                                    : "transparent",
+                                  color: "white",
+                                  "&:hover": {
+                                    bc: "hsla(0,100%,100%,.1)",
+                                  },
+                                  "&:active": {
+                                    bc: "hsla(0,100%,100%,.15)",
+                                  },
+                                  "&:disabled": {
+                                    opacity: 0.5,
+                                  },
+                                }}
+                              >
+                                Governance{" "}
+                                {totalActivePolls > 0 && (
+                                  <Badge
+                                    size="2"
+                                    variant="green"
+                                    css={{
+                                      ml: "6px",
+                                    }}
+                                  >
+                                    {totalActivePolls}
+                                  </Badge>
+                                )}
+                              </Button>
+                            </Link>
+                          </Box>
+                        </Flex>
+
                         <Flex css={{ ml: "auto" }}>
                           <Flex
                             align="center"
@@ -413,6 +515,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Flex css={{ ai: "center", ml: "8px" }}>
                             <ConnectButton />
                           </Flex>
+                          {/* <Search
+                            css={{
+                              display: "none",
+                              "@bp2": { ml: "8px", display: "flex" },
+                            }}
+                          /> */}
                           <Flex css={{ ai: "center", ml: "8px" }}>
                             <WalletMenu />
                           </Flex>

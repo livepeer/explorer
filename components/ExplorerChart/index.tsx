@@ -69,7 +69,10 @@ const ExplorerChart = ({
     [base, formatSubtitle]
   );
   const defaultPercentChange = useMemo<string>(
-    () => numeral(basePercentChange / 100).format("+0.00%"),
+    () =>
+      basePercentChange !== 0
+        ? numeral(basePercentChange / 100).format("+0.00%")
+        : "",
     [basePercentChange]
   );
   const [barSelected, setBarSelected] = useState<{

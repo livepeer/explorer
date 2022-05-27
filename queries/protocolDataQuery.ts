@@ -9,6 +9,7 @@ export const protocolDataQuery = gql`
       participationRate
       inflation
       numActiveTranscoders
+      totalDelegators
       lockPeriod
     }
   }
