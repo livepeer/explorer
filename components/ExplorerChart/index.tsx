@@ -1,4 +1,5 @@
-import { Box, Flex, Text } from "@livepeer/design-system";
+import { Box, Flex, Text, Tooltip } from "@livepeer/design-system";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
 import React, { useCallback, useMemo, useRef, useState } from "react";
@@ -9,10 +10,11 @@ import {
   Line,
   LineChart as ReLineChart,
   ResponsiveContainer,
-  Tooltip,
+  Tooltip as ReTooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { Margin } from "recharts/types/util/types";
 
 export type ChartDatum = { x: number; y: number };
 
@@ -36,6 +38,7 @@ const CustomizedXAxisTick = ({ x, y, payload }) => {
 
 const ExplorerChart = ({
   title,
+  tooltip,
   data,
   base,
   basePercentChange,
@@ -43,25 +46,34 @@ const ExplorerChart = ({
   type,
 }: {
   title: string;
+  tooltip: string;
   base: number;
   basePercentChange: number;
   data: ChartDatum[];
-  unit: "usd" | "minutes" | "percent" | "none";
+  unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "none";
   type: "bar" | "line";
 }) => {
   const formatDateSubtitle = useCallback(
-    (date: number) =>
-      `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
-        .unix(date)
-        .endOf("week")
-        .format("MMM D")}`,
+    (date: number) => `${dayjs.unix(date).format("MMM D")}`,
+    // `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
+    //   .unix(date)
+    //   .endOf("week")
+    //   .format("MMM D")}`,
     []
   );
   const formatSubtitle = useCallback(
     (value: number) =>
       `${numeral(value).format(
-        unit === "usd" ? "$0,0" : unit === "percent" ? "0.0%" : "0,0"
-      )}${unit === "minutes" ? " minutes" : ""}`,
+        unit === "usd"
+          ? "$0,0"
+          : unit === "eth"
+          ? "0,0.0"
+          : unit === "percent"
+          ? "0.0%"
+          : unit === "small-percent"
+          ? "0.000%"
+          : "0,0"
+      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
     [unit]
   );
   const defaultSubtitle = useMemo<string>(
@@ -101,30 +113,66 @@ const ExplorerChart = ({
           fontSize="13px"
         >
           {numeral(payload.value).format(
-            unit === "usd" ? "$0a" : unit === "percent" ? "0.0%" : "0a"
+            unit === "usd"
+              ? "$0a"
+              : unit === "eth"
+              ? "0.0"
+              : unit === "percent"
+              ? "0%"
+              : unit === "small-percent"
+              ? "0.00%"
+              : "0a"
           )}
+          {unit === "eth" ? " Ξ" : ""}
         </text>
       </g>
     );
   };
 
+  const widthYAxis = useMemo(
+    () =>
+      unit === "small-percent"
+        ? 45
+        : unit === "percent"
+        ? 35
+        : unit === "minutes"
+        ? 35
+        : unit === "eth"
+        ? 35
+        : 30,
+    [unit]
+  );
+
   return (
-    <Box css={{ width: "100%", height: "100%" }}>
+    <Box css={{ position: "relative", width: "100%", height: "100%" }}>
       <Box
         css={{
           position: "absolute",
           zIndex: 3,
         }}
       >
-        <Text
-          css={{
-            fontWeight: 600,
-            fontSize: "$2",
-            color: "white",
-          }}
-        >
-          {title}
-        </Text>
+        <Tooltip multiline content={tooltip ? <Box>{tooltip}</Box> : <></>}>
+          <Flex
+            css={{
+              alignItems: "center",
+            }}
+          >
+            <Text
+              css={{
+                fontWeight: 600,
+                fontSize: "$2",
+                color: "white",
+              }}
+            >
+              {title}
+            </Text>
+            {tooltip && (
+              <Box css={{ ml: "$1" }}>
+                <QuestionMarkCircledIcon />
+              </Box>
+            )}
+          </Flex>
+        </Tooltip>
         <Flex>
           <Text
             css={{
@@ -205,11 +253,11 @@ const ExplorerChart = ({
                 interval="preserveStartEnd"
               />
               <YAxis
-                width={40}
+                width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
               />
-              <Tooltip content={<></>} />
+              <ReTooltip content={<></>} />
 
               <Bar dataKey="y" cursor="pointer" fill="rgba(0, 235, 136, 0.8)" />
             </ReBarChart>
@@ -253,11 +301,11 @@ const ExplorerChart = ({
                 interval="preserveStartEnd"
               />
               <YAxis
-                width={40}
+                width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
               />
-              <Tooltip content={<></>} />
+              <ReTooltip content={<></>} />
 
               <Line
                 dataKey="y"

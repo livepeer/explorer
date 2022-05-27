@@ -377,13 +377,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             "@bp3": {
                               height: "100%",
                               justifyContent: "center",
-                              display: "inherit",
+                              display: "flex",
                               mr: "$3",
                               mt: "$2",
                             },
                           }}
                         >
-                          <Logo isDark />
+                          <Logo isDark id="main" />
+
                           <Box css={{}}>
                             <Link passHref href="/">
                               <Button
