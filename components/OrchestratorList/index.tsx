@@ -438,38 +438,38 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         ),
         sortType: "number",
       },
-      {
-        Header: (
-          <Tooltip
-            multiline
-            content={
-              <Box>
-                The amount of time since this orchestrator became active (on
-                Arbitrum).
-              </Box>
-            }
-          >
-            <Box>Time Active</Box>
-          </Tooltip>
-        ),
-        accessor: "activationTimestamp",
-        Cell: ({ row }) => (
-          <Box>
-            <Text
-              css={{
-                fontWeight: 600,
-                color: "$white",
-              }}
-              size="2"
-            >
-              {row.values.activationTimestamp
-                ? dayjs.unix(row.values.activationTimestamp).fromNow(true)
-                : "NEW ✨"}
-            </Text>
-          </Box>
-        ),
-        sortType: "number",
-      },
+      // {
+      //   Header: (
+      //     <Tooltip
+      //       multiline
+      //       content={
+      //         <Box>
+      //           The amount of time since this orchestrator became active (on
+      //           Arbitrum).
+      //         </Box>
+      //       }
+      //     >
+      //       <Box>Time Active</Box>
+      //     </Tooltip>
+      //   ),
+      //   accessor: "activationTimestamp",
+      //   Cell: ({ row }) => (
+      //     <Box>
+      //       <Text
+      //         css={{
+      //           fontWeight: 600,
+      //           color: "$white",
+      //         }}
+      //         size="2"
+      //       >
+      //         {row.values.activationTimestamp
+      //           ? dayjs.unix(row.values.activationTimestamp).fromNow(true)
+      //           : "NEW ✨"}
+      //       </Text>
+      //     </Box>
+      //   ),
+      //   sortType: "number",
+      // },
       {
         Header: (
           <Tooltip

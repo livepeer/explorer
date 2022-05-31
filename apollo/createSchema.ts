@@ -412,12 +412,10 @@ const createSchema = async () => {
           }
         }
 
-        const oneDayAgo = Math.floor(dayjs().subtract(1, "day").unix() / 1000);
-
         if (selectionSet.includes("scores")) {
           const metricsResponse = await fetch(
-            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?since=${
-              ctx.since ? ctx.since : oneDayAgo
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats${
+              ctx.since ? `?since=${ctx.since}` : ""
             }`
           );
           const metrics = await metricsResponse.json();
