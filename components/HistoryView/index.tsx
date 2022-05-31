@@ -1,4 +1,3 @@
-import { abbreviateNumber } from "@lib/utils";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
@@ -14,6 +13,7 @@ import {
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import numeral from "numeral";
 
 const Card = styled(CardBase, {
   border: "1px solid $neutral3",
@@ -182,7 +182,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.additionalAmount, 3)}
+                +{numeral(event.additionalAmount).format("0.0a")}
               </Box>{" "}
               LPT
             </Box>
@@ -298,7 +298,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.amount, 3)}
+                +{numeral(event.amount).format("0.0a")}
               </Box>{" "}
               LPT
             </Box>
@@ -358,7 +358,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                -{abbreviateNumber(event.amount, 3)}
+                -{numeral(event.amount).format("0.0a")}
               </Box>{" "}
               LPT
             </Box>
@@ -417,7 +417,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.rewardTokens, 3)}
+                +{numeral(event.rewardTokens).format("0.00a")}
               </Box>{" "}
               LPT
             </Box>
@@ -539,7 +539,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {abbreviateNumber(event.amount, 3)}
+                {numeral(event.amount).format("0.00a")}
               </Box>{" "}
               LPT
             </Box>
@@ -596,7 +596,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {abbreviateNumber(event.amount, 3)}
+                {numeral(event.amount).format("0.00a")}
               </Box>{" "}
               ETH
             </Box>
@@ -653,7 +653,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.faceValue, 3)}
+                +{numeral(event.faceValue).format("0.00a")}
               </Box>{" "}
               ETH
             </Box>
@@ -710,7 +710,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.amount, 3)}
+                +{numeral(event.amount).format("0.0a")}
               </Box>{" "}
               ETH
             </Box>
@@ -772,7 +772,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{abbreviateNumber(event.amount, 3)}
+                +{numeral(event.amount).format("0.0a")}
               </Box>{" "}
               ETH
             </Box>

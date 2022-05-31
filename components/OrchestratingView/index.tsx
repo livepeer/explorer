@@ -1,27 +1,26 @@
-import { abbreviateNumber } from "@lib/utils";
-import { Box, Flex, Tooltip } from "@livepeer/design-system";
 import Stat from "@components/Stat";
-import {
-  CheckIcon,
-  Cross1Icon,
-  QuestionMarkCircledIcon,
-} from "@modulz/radix-icons";
+import { Box, Flex } from "@livepeer/design-system";
+import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import dayjs from "dayjs";
+import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
-const Index = ({ currentRound, transcoder }) => {
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
+const breakpointColumnsObj = {
+  default: 2,
+  1100: 2,
+  700: 2,
+  500: 1,
+};
+
+const Index = ({ currentRound, transcoder, isActive }) => {
   const callsMade = transcoder.pools.filter(
     (r) => r.rewardTokens != null
   ).length;
-  const active =
-    transcoder?.activationRound <= currentRound.id &&
-    transcoder?.deactivationRound > currentRound.id;
 
-  const breakpointColumnsObj = {
-    default: 2,
-    1100: 2,
-    700: 2,
-    500: 1,
-  };
+  console.log({ transcoder });
 
   return (
     <Box
@@ -50,128 +49,105 @@ const Index = ({ currentRound, transcoder }) => {
         <Stat
           className="masonry-grid_item"
           label="Total Delegated Stake"
-          value={
-            <>
-              {abbreviateNumber(transcoder.totalStake, 4)}
-              <Box as="span" css={{ ml: "$2" }}>
-                LPT
-              </Box>
-            </>
+          tooltip={
+            "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
+          value={`${numeral(transcoder?.totalStake || 0).format("0a")} LPT`}
         />
         <Stat
           className="masonry-grid_item"
-          label="Status"
-          value={active ? "Active" : "Inactive"}
+          label="Transcoding Score"
+          tooltip={
+            "The average transcoding score from each Livepeer region in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure."
+          }
+          value={`${numeral(transcoder?.scores?.global || 0).format("0.0%")}`}
         />
         <Stat
           className="masonry-grid_item"
-          label="Earned Fees"
-          value={
-            <>
-              {transcoder.totalVolumeETH
-                ? abbreviateNumber(transcoder.totalVolumeETH, 3)
-                : 0}
-              <Box as="span" css={{ ml: "$2" }}>
-                ETH
-              </Box>
-            </>
+          label="Time Active"
+          tooltip={
+            "The amount of time the orchestrator has been active on the network."
           }
+          value={`${dayjs.unix(transcoder.activationTimestamp).fromNow(true)}`}
         />
-        {/* <Stat
-          className="masonry-grid_item"
-          label="Total Delegators"
-          value={transcoder.delegators.length}
-        /> */}
         <Stat
           className="masonry-grid_item"
           label="Reward Calls"
+          tooltip={
+            "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
+          }
           value={`${callsMade}/${transcoder.pools.length}`}
         />
         <Stat
           className="masonry-grid_item"
-          label="Reward Cut"
-          value={
-            <>
-              {!transcoder.rewardCut
-                ? 0
-                : parseInt(transcoder.rewardCut, 10) / 10000}
-              %
-            </>
+          label="Earned Fees"
+          tooltip={
+            "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
+          value={`${numeral(transcoder?.totalVolumeETH || 0).format(
+            "0.00a"
+          )} ETH`}
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="30d Fees"
+          tooltip={
+            "The amount of fees which this orchestrator has earned in the past thirty days."
+          }
+          value={`${numeral(transcoder?.thirtyDayVolumeETH || 0).format(
+            "0.00a"
+          )} ETH`}
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Total Delegators"
+          tooltip={
+            "The number of delegators which have delegated stake to this orchestrator."
+          }
+          value={`${numeral(transcoder?.delegators?.length || 0).format(
+            "0,0"
+          )}`}
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Reward Cut"
+          tooltip={
+            "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
+          }
+          value={numeral(transcoder?.rewardCut || 0)
+            .divide(1000000)
+            .format("0%")}
         />
         <Stat
           className="masonry-grid_item"
           label="Fee Cut"
-          value={
-            <>
-              {
-                +(
-                  !transcoder.feeShare
-                    ? 0
-                    : 100 - parseInt(transcoder.feeShare, 10) / 10000
-                ).toFixed(5)
-              }
-              %
-            </>
+          tooltip={
+            "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
+          value={numeral(1 - (transcoder?.feeShare || 0) / 1000000).format(
+            "0%"
+          )}
         />
 
         <Stat
           className="masonry-grid_item"
-          label={
-            <Flex css={{ ai: "center" }}>
-              <Box>Price / Pixel</Box>
-              <Tooltip
-                multiline
-                content={
-                  <Box>
-                    Price of transcoding per pixel orchestrator is charging
-                  </Box>
-                }
-              >
-                <Flex css={{ ml: "$1" }}>
-                  <QuestionMarkCircledIcon />
-                </Flex>
-              </Tooltip>
-            </Flex>
-          }
-          value={
-            <>
-              {transcoder.price <= 0 ? (
-                "N/A"
-              ) : (
-                <Box>{transcoder.price.toLocaleString()} WEI</Box>
-              )}
-            </>
-          }
+          label="Price / Pixel"
+          tooltip="The price for transcoding which the orchestrator is currently charging to broadcasters."
+          value={`${numeral(
+            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
+          ).format("0,0")} WEI`}
         />
         {transcoder?.lastRewardRound?.id && (
           <Stat
             className="masonry-grid_item"
-            label={
-              <Flex css={{ ai: "center" }}>
-                <Box>Last Reward Round</Box>
-                <Tooltip
-                  multiline
-                  content={
-                    <Box>
-                      The last round that an orchestrator received rewards while
-                      active. A checkmark indicates it called reward for the
-                      current round.
-                    </Box>
-                  }
-                >
-                  <Flex css={{ ml: "$1" }}>
-                    <QuestionMarkCircledIcon />
-                  </Flex>
-                </Tooltip>
-              </Flex>
+            tooltip={
+              "The last round that an orchestrator received rewards while active - a checkmark indicates that reward was called for the current round."
             }
+            label="Last Reward Round"
             value={
               <Flex css={{ alignItems: "center" }}>
                 {transcoder.lastRewardRound.id}{" "}
-                {active && (
+                {isActive && (
                   <Flex>
                     {transcoder.lastRewardRound.id === currentRound.id ? (
                       <Box

@@ -375,6 +375,28 @@ const createSchema = async () => {
             lon: (metrics[args.id.toLowerCase()]?.LON?.success_rate || 0) * 100,
             prg: (metrics[args.id.toLowerCase()]?.PRG?.success_rate || 0) * 100,
           };
+
+          transcoder["scores"] = {
+            global: avg(metrics[args.id.toLowerCase()], "score"),
+            fra: metrics[args.id.toLowerCase()]?.FRA?.score || 0,
+            mdw: metrics[args.id.toLowerCase()]?.MDW?.score || 0,
+            sin: metrics[args.id.toLowerCase()]?.SIN?.score || 0,
+            nyc: metrics[args.id.toLowerCase()]?.NYC?.score || 0,
+            lax: metrics[args.id.toLowerCase()]?.LAX?.score || 0,
+            lon: metrics[args.id.toLowerCase()]?.LON?.score || 0,
+            prg: metrics[args.id.toLowerCase()]?.PRG?.score || 0,
+          };
+
+          transcoder["roundTripScores"] = {
+            global: avg(metrics[args.id.toLowerCase()], "round_trip_score"),
+            fra: metrics[args.id.toLowerCase()]?.FRA?.round_trip_score || 0,
+            mdw: metrics[args.id.toLowerCase()]?.MDW?.round_trip_score || 0,
+            sin: metrics[args.id.toLowerCase()]?.SIN?.round_trip_score || 0,
+            nyc: metrics[args.id.toLowerCase()]?.NYC?.round_trip_score || 0,
+            lax: metrics[args.id.toLowerCase()]?.LAX?.round_trip_score || 0,
+            lon: metrics[args.id.toLowerCase()]?.LON?.round_trip_score || 0,
+            prg: metrics[args.id.toLowerCase()]?.PRG?.round_trip_score || 0,
+          };
         }
 
         if (selectionSet.includes("price")) {

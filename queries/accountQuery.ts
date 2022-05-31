@@ -49,6 +49,7 @@ export const accountQuery = (currentRound) => {
         active
         totalStake
         totalVolumeETH
+        activationTimestamp
         activationRound
         deactivationRound
         thirtyDayVolumeETH
@@ -62,6 +63,12 @@ export const accountQuery = (currentRound) => {
           id
         }
         successRates {
+          global
+        }
+        scores {
+          global
+        }
+        roundTripScores {
           global
         }
       }
