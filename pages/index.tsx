@@ -1,49 +1,174 @@
+import { gql, useQuery } from "@apollo/client";
+import ExplorerChart from "@components/ExplorerChart";
+import OrchestratorList from "@components/OrchestratorList";
+import RoundStatus from "@components/RoundStatus";
+import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
-import Link from "next/link";
-import GlobalChart from "@components/GlobalChart";
-import Flickity from "react-flickity-component";
 import {
   Box,
+  Button,
+  Container,
   Flex,
   Heading,
-  Container,
-  Button,
   Link as A,
 } from "@livepeer/design-system";
-import { getChartData, getOrchestrators } from "../api";
-import OrchestratorList from "@components/OrchestratorList";
-import { getApollo } from "../apollo";
-import { gql, useQuery } from "@apollo/client";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
-import { chartDataQuery } from "../queries/chartDataQuery";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import Spinner from "@components/Spinner";
+import Link from "next/link";
 import { useMemo } from "react";
+import { getChartData, getOrchestrators } from "../api";
+import { getApollo } from "../apollo";
+import { chartDataQuery } from "../queries/chartDataQuery";
+import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 
 const Panel = ({ children }) => (
   <Flex
     css={{
-      minHeight: 350,
-      height: 350,
-      position: "relative",
-      bc: "$panel",
+      minHeight: 220,
+      height: 220,
       p: "24px",
-      marginRight: 16,
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 8,
-      border: "1px solid $colors$neutral4",
-      width: "100%",
-      "@bp2": {
-        width: "43%",
-      },
+      border: "0.5px solid $colors$neutral4",
+      flex: 1,
+      minWidth: 300,
     }}
   >
-    <Box css={{ borderColor: "$border" }} />
     {children}
   </Flex>
 );
+
+const Charts = ({ chartData }) => {
+  const feesPaidData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day.volumeUSD),
+      })) ?? [],
+    [chartData]
+  );
+  const participationRateData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day.participationRate),
+      })) ?? [],
+    [chartData]
+  );
+  const inflationRateData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day?.inflation ?? 0) / 1000000000,
+      })) ?? [],
+    [chartData]
+  );
+  const dailyUsageData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day.minutes),
+      })) ?? [],
+    [chartData]
+  );
+  const totalDelegatorsData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day.totalDelegators),
+      })) ?? [],
+    [chartData]
+  );
+  const numActiveTranscodersData = useMemo(
+    () =>
+      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+        x: Number(day.date),
+        y: Number(day.numActiveTranscoders),
+      })) ?? [],
+    [chartData]
+  );
+
+  return (
+    <>
+      <Panel>
+        <ExplorerChart
+          tooltip="The amount of daily fees in dollars which have been historically paid out using the protocol."
+          data={feesPaidData}
+          base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
+          basePercentChange={Number(
+            chartData?.chartData?.weeklyVolumeChangeUSD ?? 0
+          )}
+          title="Fees Paid (7d)"
+          unit="usd"
+          type="bar"
+        />
+      </Panel>
+      <Panel>
+        <ExplorerChart
+          tooltip="The percent of LPT which has been delegated to an orchestrator."
+          data={participationRateData}
+          base={Number(chartData?.chartData?.participationRate ?? 0)}
+          basePercentChange={Number(
+            chartData?.chartData?.participationRateChange ?? 0
+          )}
+          title="Participation Rate"
+          unit="percent"
+          type="line"
+        />
+      </Panel>
+      <Panel>
+        <ExplorerChart
+          tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
+          data={inflationRateData}
+          base={Number(chartData?.chartData?.inflation ?? 0) / 1000000000}
+          basePercentChange={Number(chartData?.chartData?.inflationChange ?? 0)}
+          title="Inflation Rate"
+          unit="small-percent"
+          type="line"
+        />
+      </Panel>
+      <Panel>
+        <ExplorerChart
+          tooltip="The daily usage of the network in minutes."
+          data={dailyUsageData}
+          base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
+          basePercentChange={Number(
+            chartData?.chartData?.weeklyUsageChange ?? 0
+          )}
+          title="Estimated Usage (7d)"
+          unit="minutes"
+          type="bar"
+        />
+      </Panel>
+      <Panel>
+        <ExplorerChart
+          tooltip="The count of delegators participating in the network."
+          data={totalDelegatorsData}
+          base={Number(chartData?.chartData?.totalDelegators ?? 0)}
+          basePercentChange={Number(
+            chartData?.chartData?.totalDelegatorsChange ?? 0
+          )}
+          title="Delegators"
+          unit="none"
+          type="line"
+        />
+      </Panel>
+      <Panel>
+        <ExplorerChart
+          tooltip="The number of orchestrators providing transcoding services to the network."
+          data={numActiveTranscodersData}
+          base={Number(chartData?.chartData?.numActiveTranscoders ?? 0)}
+          basePercentChange={Number(
+            chartData?.chartData?.numActiveTranscodersChange ?? 0
+          )}
+          title="Orchestrators"
+          unit="none"
+          type="line"
+        />
+      </Panel>
+    </>
+  );
+};
 
 const Home = () => {
   const { data: protocolData } = useQuery(gql`
@@ -65,17 +190,11 @@ const Home = () => {
 
   const { data: chartData } = useQuery(chartDataQuery);
 
-  const flickityOptions = {
-    wrapAround: true,
-    cellAlign: "left",
-    prevNextButtons: false,
-    draggable: true,
-    pageDots: true,
-  };
+  console.log(chartData);
 
   return (
     <>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ width: "100%", maxWidth: 1350 }}>
         <Flex
           css={{
             flexDirection: "column",
@@ -106,63 +225,67 @@ const Home = () => {
           >
             Overview
           </Heading>
-          <Box
+          <Flex
             css={{
               mb: "$7",
-              boxShadow: "inset -20px 0px 20px -20px rgb(0 0 0 / 70%)",
-              ".dot": {
-                backgroundColor: "$neutral6",
-              },
-              ".dot.is-selected": {
-                backgroundColor: "$primary11",
-              },
             }}
           >
-            <Flickity
-              className={"flickity"}
-              elementType={"div"}
-              options={flickityOptions}
-              disableImagesLoaded={true} // default false
-              reloadOnUpdate
-              static
+            <Flex
+              css={{
+                bc: "$panel",
+                borderRadius: "$4",
+                border: "1px solid $colors$neutral4",
+                overflow: "hidden",
+                mx: "auto",
+                overflowX: "auto",
+              }}
             >
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="volume"
-                  title="Estimated Usage (7d)"
-                  field="weeklyUsageMinutes"
-                  unit="minutes"
-                />
-              </Panel>
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="volume"
-                  title="Fee Volume (7d)"
-                  field="weeklyVolumeUSD"
-                  unit="usd"
-                />
-              </Panel>
-              <Panel>
-                <GlobalChart
-                  data={chartData}
-                  display="area"
-                  title="Participation"
-                  field="participationRate"
-                />
-              </Panel>
-            </Flickity>
-          </Box>
+              <Flex>
+                <Box
+                  css={{
+                    width: "100%",
+                    flex: 4,
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                  }}
+                >
+                  <Charts chartData={chartData} />
+                </Box>
+                <Flex
+                  css={{
+                    width: "100%",
+                    minWidth: 300,
+                    height: "100%",
+                    p: "24px",
+                    flex: 1,
+                  }}
+                >
+                  <RoundStatus />
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
           <Box css={{ mb: "$3" }}>
             <Flex
               css={{
+                flexDirection: "column",
                 justifyContent: "space-between",
                 mb: "$4",
                 alignItems: "center",
+                "@bp1": {
+                  flexDirection: "row",
+                },
               }}
             >
-              <Flex align="center">
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  "@bp1": {
+                    flexDirection: "row",
+                  },
+                }}
+                align="center"
+              >
                 <Heading size="2" css={{ fontWeight: 600 }}>
                   Orchestrators
                 </Heading>
@@ -175,14 +298,23 @@ const Home = () => {
                       css={{
                         mr: "$3",
                         color: "$hiContrast",
-                        fontSize: "$2",
+                        fontSize: "$1",
                         ml: "$5",
                         "&:hover": {
                           textDecoration: "none",
                         },
+                        "@bp1": { mt: 0, fontSize: "$2" },
+                        mt: "$1",
                       }}
                     >
-                      <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
+                      <Box
+                        css={{
+                          display: "inline",
+                          mr: "$2",
+                        }}
+                      >
+                        💪
+                      </Box>{" "}
                       Performance Leaderboard
                       <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                     </Button>
@@ -213,20 +345,6 @@ const Home = () => {
               />
             )}
           </Box>
-          {/* <Box>
-            <Flex
-              css={{
-                justifyContent: "space-between",
-                mb: "$2",
-                alignItems: "center",
-              }}
-            >
-              <Box as="h2" css={{ fontWeight: 500, fontSize: 18 }}>
-                Orchestrator Payouts
-              </Box>
-            </Flex>
-            <OrchestratorPayouts />
-          </Box> */}
         </Flex>
       </Container>
     </>

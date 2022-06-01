@@ -9,7 +9,7 @@ import { checkAddressEquality } from "@lib/utils";
 import BottomDrawer from "@components/BottomDrawer";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { useAccountAddress, usePageVisibility } from "../hooks";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { accountQuery } from "../queries/accountQuery";
 import { gql } from "@apollo/client";
 import {
@@ -122,6 +122,11 @@ const AccountLayout = () => {
   `;
   const { data: selectedStakingAction } = useQuery(SELECTED_STAKING_ACTION);
 
+  const isActive = useMemo(
+    () => Boolean(data?.transcoder?.active),
+    [data?.transcoder]
+  );
+
   if (loading || loadingTranscoders) {
     return (
       <Flex
@@ -173,6 +178,7 @@ const AccountLayout = () => {
           }}
         >
           <Profile
+            isActive={isActive}
             account={query?.account.toString()}
             isMyAccount={isMyAccount}
             identity={data?.account?.identity}
@@ -263,6 +269,7 @@ const AccountLayout = () => {
           </Box>
           {view === "orchestrating" && (
             <OrchestratingView
+              isActive={isActive}
               currentRound={data.protocol.currentRound}
               transcoder={data.transcoder}
             />

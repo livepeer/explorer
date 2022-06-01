@@ -1,9 +1,18 @@
-import { Heading, Text, Card } from "@livepeer/design-system";
+import {
+  Heading,
+  Text,
+  Card,
+  Tooltip,
+  Box,
+  Flex,
+} from "@livepeer/design-system";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ReactNode } from "react";
 
 type Props = {
   label: ReactNode;
   meta?: ReactNode;
+  tooltip?: ReactNode;
   value: ReactNode;
   variant?: "ghost" | "interactive" | "active";
   css?: object;
@@ -13,6 +22,7 @@ const Stat = ({
   label,
   value,
   meta,
+  tooltip,
   variant = "active",
   css = null,
   className = null,
@@ -35,7 +45,16 @@ const Stat = ({
         fontWeight: 600,
       }}
     >
-      {label}
+      <Flex css={{ ai: "center" }}>
+        {label}
+        {tooltip && (
+          <Tooltip multiline content={<Box>{tooltip}</Box>}>
+            <Flex css={{ ml: "$1" }}>
+              <QuestionMarkCircledIcon />
+            </Flex>
+          </Tooltip>
+        )}
+      </Flex>
     </Heading>
     <Text size="7" css={{ fontWeight: 600 }}>
       {value}

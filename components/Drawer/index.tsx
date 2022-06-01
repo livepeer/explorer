@@ -62,7 +62,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
             height: "100%",
           }}
         >
-          <Logo isDark />
+          <Logo isDark id="drawer" />
           <Box css={{ mb: "auto" }}>
             {items.map((item, i) => (
               <Link key={i} href={item.href} as={item.as} passHref>
@@ -109,9 +109,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
           <Box css={{ mb: "$4" }}>
             <Box
               css={{
-                mb: "$4",
                 pb: "$4",
-                borderBottom: "1px solid $neutral7",
               }}
             >
               <A
@@ -181,7 +179,6 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
                 </Link>
               </Box>
             </Box>
-            <RoundStatus />
           </Box>
         </Flex>
       </Flex>

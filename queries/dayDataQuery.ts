@@ -11,6 +11,9 @@ export const dayDataQuery = gql`
       volumeUSD
       volumeETH
       participationRate
+      inflation
+      numActiveTranscoders
+      totalDelegators
     }
   }
 `;

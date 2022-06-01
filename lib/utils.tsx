@@ -449,68 +449,6 @@ export const toK = (num) => {
   return Numeral(num).format("0.[00]a");
 };
 
-export const formattedNum = (number, unit = "usd") => {
-  if (isNaN(number) || number === "" || number === undefined) {
-    return unit === "usd" ? "$0" : 0;
-  }
-  const num = parseFloat(number);
-
-  if (num > 500000000) {
-    return `${
-      (unit === "usd" ? "$" : "") + toK(num.toFixed(0)) + unit === "minutes"
-        ? unit
-        : ""
-    }`;
-  }
-
-  if (num === 0) {
-    if (unit === "usd") {
-      return "$0";
-    }
-    if (unit === "minutes") {
-      return "0 minutes";
-    }
-    return 0;
-  }
-
-  if (num < 0.0001 && num > 0) {
-    if (unit === "usd") {
-      return "< $0.0001";
-    }
-    if (unit === "minutes") {
-      return "< 0.0001 minutes";
-    }
-    return "< 0.0001";
-  }
-
-  if (num > 1000) {
-    if (unit === "usd") {
-      return "$" + Number(num.toFixed(0)).toLocaleString();
-    }
-    if (unit === "minutes") {
-      return Number(num.toFixed(0)).toLocaleString() + " minutes";
-    }
-    return Number(num.toFixed(0)).toLocaleString();
-  }
-
-  if (unit === "usd") {
-    if (num < 0.1) {
-      return "$" + Number(num.toFixed(4));
-    } else {
-      const usdString = priceFormatter.format(num);
-      return "$" + usdString.slice(1, usdString.length);
-    }
-  }
-  if (unit === "minutes") {
-    if (num < 0.1) {
-      return Number(num.toFixed(4)) + " minutes";
-    } else {
-      return Number(num.toFixed(0)) + " minutes";
-    }
-  }
-  return Number(num.toFixed(5));
-};
-
 /**
  * gets the amount difference plus the % change in change itself (second order change)
  * @param {*} valueNow
@@ -595,10 +533,10 @@ export const getLivepeerComUsageData = async (
     const livepeerComUsageData = await livepeerComUsageDataReponse.json();
 
     // convert date format from milliseconds to seconds before merging
-    const arr = livepeerComUsageData.map((day) => ({
+    const arr = livepeerComUsageData?.map((day) => ({
       ...day,
       date: day.date / 1000,
-    }));
+    })) ?? [];
     return arr;
   } catch (e) {
     console.log(e);
@@ -680,6 +618,8 @@ export function calculateAnnualROI({
   let delegatorFees = 0;
   let delegatorLptFees = 0;
   let totalFees = 0;
+
+  
 
   if (thirtyDayVolumeETH > 0) {
     const expectedYearlyVolumeEth = (thirtyDayVolumeETH / 30) * 365;
