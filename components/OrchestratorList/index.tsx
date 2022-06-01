@@ -432,7 +432,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {numeral(row.values.totalStake).format("0.0a")} LPT
+              {numeral(row.values.totalStake).format("0.00a")} LPT
             </Text>
           </Box>
         ),

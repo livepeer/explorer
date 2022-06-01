@@ -52,7 +52,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
-          value={`${numeral(transcoder?.totalStake || 0).format("0a")} LPT`}
+          value={`${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`}
         />
         <Stat
           className="masonry-grid_item"

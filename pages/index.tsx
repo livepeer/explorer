@@ -43,7 +43,7 @@ const Charts = ({ chartData }) => {
     () =>
       chartData?.chartData?.dayData?.map((day) => ({
         x: Number(day.date),
-        y: Number(day.volumeETH),
+        y: Number(day.volumeUSD),
       })) ?? [],
     [chartData]
   );
@@ -63,7 +63,7 @@ const Charts = ({ chartData }) => {
       })) ?? [],
     [chartData]
   );
-  const weeklyUsageData = useMemo(
+  const dailyUsageData = useMemo(
     () =>
       chartData?.chartData?.dayData?.map((day) => ({
         x: Number(day.date),
@@ -92,14 +92,14 @@ const Charts = ({ chartData }) => {
     <>
       <Panel>
         <ExplorerChart
-          tooltip="The amount of daily fees in ether which have been historically paid out using the protocol."
+          tooltip="The amount of daily fees in dollars which have been historically paid out using the protocol."
           data={feesPaidData}
           base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
           basePercentChange={Number(
             chartData?.chartData?.weeklyVolumeChangeUSD ?? 0
           )}
-          title="Fees Paid"
-          unit="eth"
+          title="Fees Paid (7d)"
+          unit="usd"
           type="bar"
         />
       </Panel>
@@ -130,12 +130,12 @@ const Charts = ({ chartData }) => {
       <Panel>
         <ExplorerChart
           tooltip="The daily usage of the network in minutes."
-          data={weeklyUsageData}
+          data={dailyUsageData}
           base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
           basePercentChange={Number(
             chartData?.chartData?.weeklyUsageChange ?? 0
           )}
-          title="Estimated Usage"
+          title="Estimated Usage (7d)"
           unit="minutes"
           type="bar"
         />

@@ -44,6 +44,7 @@ const ExplorerChart = ({
   basePercentChange,
   unit = "none",
   type,
+  grouping = "day",
 }: {
   title: string;
   tooltip: string;
@@ -52,14 +53,17 @@ const ExplorerChart = ({
   data: ChartDatum[];
   unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "none";
   type: "bar" | "line";
+  grouping?: "day" | "week";
 }) => {
   const formatDateSubtitle = useCallback(
-    (date: number) => `${dayjs.unix(date).format("MMM D")}`,
-    // `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
-    //   .unix(date)
-    //   .endOf("week")
-    //   .format("MMM D")}`,
-    []
+    (date: number) =>
+      grouping === "day"
+        ? `${dayjs.unix(date).format("MMM D")}`
+        : `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
+            .unix(date)
+            .endOf("week")
+            .format("MMM D")}`,
+    [grouping]
   );
   const formatSubtitle = useCallback(
     (value: number) =>
@@ -71,7 +75,7 @@ const ExplorerChart = ({
           : unit === "percent"
           ? "0.0%"
           : unit === "small-percent"
-          ? "0.000%"
+          ? "0.0000%"
           : "0,0"
       )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
     [unit]
@@ -188,7 +192,10 @@ const ExplorerChart = ({
               css={{
                 ml: "$2",
                 fontSize: "$3",
-                color: "#00EB88",
+                color:
+                  numeral(barSelected.percentChange).value() < 0
+                    ? "#ff0022"
+                    : "#00EB88",
               }}
             >
               {barSelected.percentChange}
@@ -215,7 +222,7 @@ const ExplorerChart = ({
         <ResponsiveContainer width="100%" height="100%">
           {type === "bar" ? (
             <ReBarChart
-              syncId="chartId1"
+              // syncId="chartId1"
               data={data}
               onMouseMove={(e) => {
                 if (e?.activePayload?.[0]) {
@@ -263,7 +270,7 @@ const ExplorerChart = ({
             </ReBarChart>
           ) : (
             <ReLineChart
-              syncId="chartId1"
+              // syncId="chartId1"
               data={data}
               onMouseMove={(e) => {
                 if (e?.activePayload?.[0]) {
