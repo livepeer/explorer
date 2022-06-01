@@ -98,7 +98,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
             "0.00a"
           )} ETH`}
         />
-        <Stat
+        {/* <Stat
           className="masonry-grid_item"
           label="Total Delegators"
           tooltip={
@@ -107,7 +107,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           value={`${numeral(transcoder?.delegators?.length || 0).format(
             "0,0"
           )}`}
-        />
+        /> */}
         <Stat
           className="masonry-grid_item"
           label="Reward Cut"
