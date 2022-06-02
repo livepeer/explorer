@@ -53,6 +53,7 @@ export const accountQuery = (currentRound) => {
         activationRound
         deactivationRound
         thirtyDayVolumeETH
+        ninetyDayVolumeETH
         lastRewardRound {
           id
         }

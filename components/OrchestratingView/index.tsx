@@ -104,11 +104,11 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
-          label="30d Fees"
+          label="90d Fees"
           tooltip={
-            "The amount of fees which this orchestrator has earned in the past thirty days."
+            "The amount of fees which this orchestrator has earned in the past ninety days."
           }
-          value={`${numeral(transcoder?.thirtyDayVolumeETH || 0).format(
+          value={`${numeral(transcoder?.ninetyDayVolumeETH || 0).format(
             "0.00a"
           )} ETH`}
         />
