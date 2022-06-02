@@ -150,14 +150,13 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               multiline
               content={
                 <Box>
-                  The estimate of earnings over one month if you were to
-                  delegate {formattedPrinciple} LPT to this orchestrator. This
-                  is based on recent performance data and may differ from actual
-                  ROI.
+                  The estimate of earnings over one year if you were to delegate{" "}
+                  {formattedPrinciple} LPT to this orchestrator. This is based
+                  on recent performance data and may differ from actual ROI.
                 </Box>
               }
             >
-              <Box>Forecasted ROI (30D)</Box>
+              <Box>Forecasted ROI (1Y)</Box>
             </Tooltip>
             <Popover>
               <PopoverTrigger
@@ -348,7 +347,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           textTransform: "uppercase",
                         }}
                       >
-                        Forecasted ROI (30D)*
+                        Forecasted ROI (1Y)*
                       </Text>
                       <Box>
                         <Flex>
@@ -434,11 +433,22 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                     </Text>
                     <Text
                       variant="neutral"
-                      css={{ mt: "$1", fontStyle: "italic" }}
+                      css={{
+                        mt: "$1",
+                        fontStyle: "italic",
+                        textDecoration: "none",
+                      }}
                       size="1"
                     >
-                      The fee/reward cut are subject to change by the
-                      orchestrator every round.
+                      The fee/reward cut are subject to change every round. See
+                      our{" "}
+                      <Link
+                        passHref
+                        href="https://github.com/livepeer/explorer/blob/main/ROI.md"
+                      >
+                        <A>ROI documentation</A>
+                      </Link>
+                      .
                     </Text>
                   </Box>
                 </PopoverContent>
