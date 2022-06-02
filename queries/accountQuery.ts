@@ -64,12 +64,33 @@ export const accountQuery = (currentRound) => {
         }
         successRates {
           global
+          mdw
+          fra
+          sin
+          nyc
+          lax
+          lon
+          prg
         }
         scores {
           global
+          mdw
+          fra
+          sin
+          nyc
+          lax
+          lon
+          prg
         }
         roundTripScores {
           global
+          mdw
+          fra
+          sin
+          nyc
+          lax
+          lon
+          prg
         }
       }
       account(id: $account) {
