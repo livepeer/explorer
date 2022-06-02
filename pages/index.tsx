@@ -383,7 +383,7 @@ const Home = () => {
                 align="center"
               >
                 <Heading size="2" css={{ fontWeight: 600 }}>
-                  Events
+                  Transactions
                 </Heading>
               </Flex>
               <Flex align="center">
