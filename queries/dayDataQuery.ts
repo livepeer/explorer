@@ -12,7 +12,7 @@ export const dayDataQuery = gql`
       volumeETH
       participationRate
       inflation
-      numActiveTranscoders
+      activeTranscoderCount
       delegatorsCount
     }
   }

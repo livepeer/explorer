@@ -137,7 +137,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalUsage: 0,
     participationRate: 0,
     inflation: 0,
-    numActiveTranscoders: 0,
+    activeTranscoderCount: 0,
     delegatorsCount: 0,
     oneDayVolumeUSD: 0,
     oneDayVolumeETH: 0,
@@ -151,7 +151,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     volumeChangeETH: 0,
     participationRateChange: 0,
     inflationChange: 0,
-    numActiveTranscodersChange: 0,
+    activeTranscoderCountChange: 0,
     delegatorsCountChange: 0,
   };
 
@@ -162,7 +162,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeETH: 0,
     participationRate: 0,
     inflation: 0,
-    numActiveTranscoders: 0,
+    activeTranscoderCount: 0,
     delegatorsCount: 0,
   };
   let twoDayData = {
@@ -170,7 +170,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeETH: 0,
     participationRate: 0,
     inflation: 0,
-    numActiveTranscoders: 0,
+    activeTranscoderCount: 0,
     delegatorsCount: 0,
   };
 
@@ -342,8 +342,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.participationRate =
       +protocolDataResult.data.protocol.participationRate;
     data.inflation = +protocolDataResult.data.protocol.inflation;
-    data.numActiveTranscoders =
-      +protocolDataResult.data.protocol.numActiveTranscoders;
+    data.activeTranscoderCount =
+      +protocolDataResult.data.protocol.activeTranscoderCount;
     data.delegatorsCount = +protocolDataResult.data.protocol.delegatorsCount;
 
     const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
@@ -397,9 +397,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       data?.inflation,
       oneDayData?.inflation
     );
-    const numActiveTranscodersChange = getPercentChange(
-      data?.numActiveTranscoders,
-      oneDayData?.numActiveTranscoders
+    const activeTranscoderCountChange = getPercentChange(
+      data?.activeTranscoderCount,
+      oneDayData?.activeTranscoderCount
     );
     const delegatorsCountChange = getPercentChange(
       data?.delegatorsCount,
@@ -446,7 +446,15 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.participationRateChange = participationRateChange;
     data.inflationChange = inflationChange;
     data.delegatorsCountChange = delegatorsCountChange;
-    data.numActiveTranscodersChange = numActiveTranscodersChange;
+    data.activeTranscoderCountChange = activeTranscoderCountChange;
+
+    if (
+      Number(
+        data?.dayData?.[(data?.dayData?.length ?? 1) - 1]?.activeTranscoderCount
+      ) <= 0
+    ) {
+      data.dayData = data.dayData.slice(0, -1);
+    }
   } catch (e) {
     console.log(e);
   }

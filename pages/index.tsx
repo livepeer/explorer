@@ -81,11 +81,11 @@ const Charts = ({ chartData }) => {
       })) ?? [],
     [chartData]
   );
-  const numActiveTranscodersData = useMemo(
+  const activeTranscoderCountData = useMemo(
     () =>
       chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
-        y: Number(day.numActiveTranscoders),
+        y: Number(day.activeTranscoderCount),
       })) ?? [],
     [chartData]
   );
@@ -158,10 +158,10 @@ const Charts = ({ chartData }) => {
       <Panel>
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
-          data={numActiveTranscodersData}
-          base={Number(chartData?.chartData?.numActiveTranscoders ?? 0)}
+          data={activeTranscoderCountData}
+          base={Number(chartData?.chartData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.numActiveTranscodersChange ?? 0
+            chartData?.chartData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
