@@ -585,7 +585,7 @@ export function toTitleCase(str) {
 }
 
 export function calculateAnnualROI({
-  thirtyDayVolumeETH,
+  ninetyDayVolumeETH,
   feeShare,
   lptPriceEth,
 
@@ -619,10 +619,8 @@ export function calculateAnnualROI({
   let delegatorLptFees = 0;
   let totalFees = 0;
 
-  
-
-  if (thirtyDayVolumeETH > 0) {
-    const expectedYearlyVolumeEth = (thirtyDayVolumeETH / 30) * 365;
+  if (ninetyDayVolumeETH > 0) {
+    const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365;
     const expectedYearlyEthCutDelegators =
       expectedYearlyVolumeEth * (feeShare / 1000000);
     const expectedYearlyFeeCutDelegator =

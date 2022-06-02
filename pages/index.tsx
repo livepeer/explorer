@@ -17,7 +17,11 @@ import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 import { eventsQuery } from "queries/eventsQuery";
 import { useMemo } from "react";
-import { getChartData, getOrchestrators } from "../api";
+import {
+  getChartData,
+  getEvents,
+  getOrchestrators,
+} from "../api";
 import { getApollo } from "../apollo";
 import { chartDataQuery } from "../queries/chartDataQuery";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
@@ -186,13 +190,13 @@ const Home = () => {
 
   const { data: eventsData, loading: eventsDataLoading } = useQuery(
     eventsQuery,
-    { variables: { first: 400 }, pollInterval: 15000 }
+    { variables: { first: 100 }, pollInterval: 30000 }
   );
   const allEvents = useMemo(
     () =>
-      eventsData?.transactions?.flatMap((transaction) => transaction.events) ??
-      // .slice(0, 100)
-      [],
+      eventsData?.transactions
+        ?.flatMap((transaction) => transaction.events)
+        ?.slice(0, 100) ?? [],
     [eventsData]
   );
 
@@ -387,7 +391,7 @@ const Home = () => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Link href="/orchestrators" passHref>
+                <Link href="/transactions" passHref>
                   <Button
                     ghost
                     as={A}
@@ -419,6 +423,7 @@ export async function getStaticProps() {
   const client = getApollo();
   await getOrchestrators(client);
   await getChartData(client);
+  await getEvents(client);
 
   return {
     props: {

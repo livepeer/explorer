@@ -116,7 +116,7 @@ const getVerbiageForRow = (event) => {
           {` updated their reward/fee cut to `}
           {getPercentAmount(Number(event?.rewardCut ?? 0) / 1000000)}
           {` and `}
-          {getPercentAmount(1 - Number(event?.rewardCut ?? 0) / 1000000)}
+          {getPercentAmount(1 - Number(event?.feeShare ?? 0) / 1000000)}
         </Box>
       );
     case "RewardEvent":
@@ -350,7 +350,7 @@ const TransactionsList = ({ events, pageSize = 10 }) => {
               overflow: "hidden",
               "&:hover": { textDecoration: "none" },
               "@bp3": {
-                width: 950,
+                width: 850,
               },
             }}
           >
