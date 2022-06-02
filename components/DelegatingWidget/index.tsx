@@ -15,7 +15,7 @@ import {
 import InputBox from "./InputBox";
 import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
 import numeral from "numeral";
-import { useEnsName } from "wagmi";
+import { useEnsName } from "hooks";
 
 interface Props {
   transcoders: [Transcoder];
@@ -46,10 +46,7 @@ const Index = ({
     [delegator, transcoder]
   );
 
-  const { data: delegateEns } = useEnsName({
-    address: delegator?.delegate?.id ?? "",
-    cacheTime: 30000,
-  });
+  const delegateEns = useEnsName(delegator?.delegate?.id);
 
   const isDelegated =
     delegator?.bondedAmount && delegator?.bondedAmount !== "0";
@@ -94,7 +91,7 @@ const Index = ({
                 boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
                 width: "100%",
                 borderRadius: "$4",
-                mb: "$3"
+                mb: "$3",
               }}
             >
               <Box css={{ px: "$3", py: "$3" }}>

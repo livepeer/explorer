@@ -1,14 +1,11 @@
 import Table from "@components/Table";
-import { l1Provider } from "@lib/chains";
-import { Badge, Box, Flex, Text, Tooltip } from "@livepeer/design-system";
-import { ChevronDownIcon } from "@modulz/radix-icons";
+import { Badge, Box, Flex, Text } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { ValuesOfCorrectTypeRule } from "graphql";
+import { useEnsName } from "hooks";
 import Link from "next/link";
 import numeral from "numeral";
-import { useEffect, useMemo, useState } from "react";
-import { useEnsAddress, useEnsName } from "wagmi";
+import { useMemo } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -37,13 +34,13 @@ const getPercentAmount = (number: number | string | undefined) => {
 };
 
 const EthAddress = (props: { value: string | undefined }) => {
-  const { data } = useEnsName({ address: props.value, cacheTime: 30000 });
+  const ensName = useEnsName(props.value);
 
   return (
     <Link passHref href={`/accounts/${props.value}/delegating`}>
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {data
-          ? data
+        {ensName
+          ? ensName
           : props.value
           ? props.value.replace(props.value.slice(5, 39), "…")
           : "A user"}
