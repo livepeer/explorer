@@ -95,10 +95,14 @@ function Inputs({ tx }) {
             {inputData && inputData.to.replace(inputData.to.slice(7, 37), "…")}
           </Row>
 
-          <Row>
-            <Box>Amount</Box> {tx.inputData && Utils.fromWei(inputData.amount)}{" "}
-            LPT
-          </Row>
+          {Number(inputData.amount) > 0 ? (
+            <Row>
+              <Box>Amount</Box>{" "}
+              {tx.inputData && Utils.fromWei(inputData.amount)} LPT
+            </Row>
+          ) : (
+            <></>
+          )}
         </>
       );
     case "unbond":

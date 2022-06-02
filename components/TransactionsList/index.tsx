@@ -8,6 +8,7 @@ import { ValuesOfCorrectTypeRule } from "graphql";
 import Link from "next/link";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
+import { useEnsAddress, useEnsName } from "wagmi";
 
 dayjs.extend(relativeTime);
 
@@ -35,33 +36,14 @@ const getPercentAmount = (number: number | string | undefined) => {
   );
 };
 
-const ensAddressCache: { [key: string]: string | undefined | null } = {};
-
 const EthAddress = (props: { value: string | undefined }) => {
-  const [ens, setENS] = useState<string | null>(ensAddressCache[props.value]);
-
-  useEffect(() => {
-    async function getENS() {
-      if (props.value) {
-        try {
-          const name = await l1Provider.lookupAddress(props.value);
-          ensAddressCache[props.value] = name;
-          setENS(name);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    }
-    if (!ens) {
-      getENS();
-    }
-  }, [props.value, ens]);
+  const { data } = useEnsName({ address: props.value, cacheTime: 30000 });
 
   return (
     <Link passHref href={`/accounts/${props.value}/delegating`}>
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ens
-          ? ens
+        {data
+          ? data
           : props.value
           ? props.value.replace(props.value.slice(5, 39), "…")
           : "A user"}
@@ -380,7 +362,9 @@ const TransactionsList = ({ events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {dayjs.unix(row.original.transaction.timestamp).format("M/D/YY, H:mm:ss A")}
+              {dayjs
+                .unix(row.original.transaction.timestamp)
+                .format("M/D/YY, H:mm:ss A")}
             </Text>
           </Box>
         ),

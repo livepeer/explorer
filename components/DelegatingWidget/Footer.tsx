@@ -12,6 +12,9 @@ import { Box, Button, Flex } from "@livepeer/design-system";
 import { useAccountAddress } from "hooks";
 
 type FooterData = {
+  isTransferStake: boolean;
+  isMyTranscoder: boolean;
+  isDelegated: boolean;
   transcoders: [Transcoder];
   action: string;
   amount: string;
@@ -29,6 +32,9 @@ interface Props {
 const Footer = ({
   reset,
   data: {
+    isTransferStake,
+    isDelegated,
+    isMyTranscoder,
     transcoders,
     delegator,
     transcoder,
@@ -65,12 +71,9 @@ const Footer = ({
   const transferAllowance =
     account && parseFloat(Utils.fromWei(account.allowance));
   const delegatorStatus = getDelegatorStatus(delegator, currentRound);
-  const isDelegated =
-    delegator?.bondedAmount && delegator?.bondedAmount !== "0";
   const stake = delegator?.pendingStake
     ? parseFloat(Utils.fromWei(delegator.pendingStake))
     : 0;
-  const isMyTranscoder = delegator?.delegate?.id === transcoder?.id;
   const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
   const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
   const newActiveSetOrder = simulateNewActiveSetOrder({
@@ -103,7 +106,7 @@ const Footer = ({
           delegator={delegator}
           to={transcoder.id}
           amount={amount}
-          switching={!isMyTranscoder && isDelegated}
+          isTransferStake={isTransferStake}
           tokenBalance={tokenBalance}
           transferAllowance={transferAllowance}
           reset={reset}
@@ -114,12 +117,6 @@ const Footer = ({
             currDelegateNewPosNext: currDelegateNewPosNext,
           }}
         />
-        {+amount >= 0 && !isMyTranscoder && isDelegated && (
-          <Footnote>
-            Enter &quot;0&quot; to move your delegated stake to this
-            orchestrator.
-          </Footnote>
-        )}
       </Box>
     );
   }
@@ -171,9 +168,7 @@ function renderUnstakeWarnings(
   }
   return (
     <Footnote>
-      Looking to move your delegated stake? No need to undelegate. Simply
-      navigate to the orchestrator you wish to switch to, enter &quot;0&quot;,
-      and hit &quot;Delegate&quot;.
+      {`Looking to move your delegated stake? No need to undelegate. Navigate to the orchestrator you wish to switch to and use the \"Move Delegated Stake\" feature.`}
     </Footnote>
   );
 }
