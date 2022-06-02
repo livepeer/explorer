@@ -408,51 +408,21 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               (rowB.values.projectedEarningsAPY.roi.delegatorPercent.fees +
                 rowB.values.projectedEarningsAPY.roi.delegatorPercent.rewards),
       },
-      {
-        Header: (
-          <Tooltip
-            multiline
-            content={
-              <Box>
-                The total amount of stake currently delegated to this
-                orchestrator.
-              </Box>
-            }
-          >
-            <Box>Delegated Stake</Box>
-          </Tooltip>
-        ),
-        accessor: "totalStake",
-        Cell: ({ row }) => (
-          <Box>
-            <Text
-              css={{
-                fontWeight: 600,
-                color: "$white",
-              }}
-              size="2"
-            >
-              {numeral(row.values.totalStake).format("0.00a")} LPT
-            </Text>
-          </Box>
-        ),
-        sortType: "number",
-      },
       // {
       //   Header: (
       //     <Tooltip
       //       multiline
       //       content={
       //         <Box>
-      //           The amount of time since this orchestrator became active (on
-      //           Arbitrum).
+      //           The total amount of stake currently delegated to this
+      //           orchestrator.
       //         </Box>
       //       }
       //     >
-      //       <Box>Time Active</Box>
+      //       <Box>Delegated Stake</Box>
       //     </Tooltip>
       //   ),
-      //   accessor: "activationTimestamp",
+      //   accessor: "totalStake",
       //   Cell: ({ row }) => (
       //     <Box>
       //       <Text
@@ -462,14 +432,13 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       //         }}
       //         size="2"
       //       >
-      //         {row.values.activationTimestamp
-      //           ? dayjs.unix(row.values.activationTimestamp).fromNow(true)
-      //           : "NEW ✨"}
+      //         {numeral(row.values.totalStake).format("0.00a")} LPT
       //       </Text>
       //     </Box>
       //   ),
       //   sortType: "number",
       // },
+
       {
         Header: (
           <Tooltip

@@ -13,7 +13,7 @@ export const dayDataQuery = gql`
       participationRate
       inflation
       numActiveTranscoders
-      totalDelegators
+      delegatorsCount
     }
   }
 `;

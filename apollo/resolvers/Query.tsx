@@ -138,7 +138,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     participationRate: 0,
     inflation: 0,
     numActiveTranscoders: 0,
-    totalDelegators: 0,
+    delegatorsCount: 0,
     oneDayVolumeUSD: 0,
     oneDayVolumeETH: 0,
     oneWeekVolumeUSD: 0,
@@ -152,7 +152,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     participationRateChange: 0,
     inflationChange: 0,
     numActiveTranscodersChange: 0,
-    totalDelegatorsChange: 0,
+    delegatorsCountChange: 0,
   };
 
   let dayData = [];
@@ -163,7 +163,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     participationRate: 0,
     inflation: 0,
     numActiveTranscoders: 0,
-    totalDelegators: 0,
+    delegatorsCount: 0,
   };
   let twoDayData = {
     totalVolumeUSD: 0,
@@ -171,7 +171,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     participationRate: 0,
     inflation: 0,
     numActiveTranscoders: 0,
-    totalDelegators: 0,
+    delegatorsCount: 0,
   };
 
   // Date to price mapping used to calculate estimated usage
@@ -250,8 +250,6 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
     const dayDataResult = await getDayData();
     dayData = dayDataResult.data.days;
-
-    console.log({ dayDataResult });
 
     let livepeerComDayData = [];
     let livepeerComOneWeekData = [];
@@ -346,7 +344,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.inflation = +protocolDataResult.data.protocol.inflation;
     data.numActiveTranscoders =
       +protocolDataResult.data.protocol.numActiveTranscoders;
-    data.totalDelegators = +protocolDataResult.data.protocol.totalDelegators;
+    data.delegatorsCount = +protocolDataResult.data.protocol.delegatorsCount;
 
     const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
     oneDayData = oneDayResult.data.protocol;
@@ -403,9 +401,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       data?.numActiveTranscoders,
       oneDayData?.numActiveTranscoders
     );
-    const totalDelegatorsChange = getPercentChange(
-      data?.totalDelegators,
-      oneDayData?.totalDelegators
+    const delegatorsCountChange = getPercentChange(
+      data?.delegatorsCount,
+      oneDayData?.delegatorsCount
     );
 
     // format weekly data for weekly sized chunks
@@ -447,7 +445,7 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.volumeChangeETH = volumeChangeETH;
     data.participationRateChange = participationRateChange;
     data.inflationChange = inflationChange;
-    data.totalDelegatorsChange = totalDelegatorsChange;
+    data.delegatorsCountChange = delegatorsCountChange;
     data.numActiveTranscodersChange = numActiveTranscodersChange;
   } catch (e) {
     console.log(e);
