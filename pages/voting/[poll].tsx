@@ -400,7 +400,7 @@ const Poll = () => {
                   },
                 }}
               >
-                <ReactMarkdown source={pollData.text} />
+                <ReactMarkdown>{pollData.text}</ReactMarkdown>
               </Card>
             </Box>
           </Flex>
