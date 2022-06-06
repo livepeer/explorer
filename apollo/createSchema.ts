@@ -353,49 +353,50 @@ const createSchema = async () => {
         }
 
         if (selectionSet.includes("successRates")) {
-          const oneDayAgo = Math.floor(
-            new Date(new Date().setDate(new Date().getDate() - 1)).getTime() /
-              1000
-          );
+          // use fake perf on rinkeby since performance doesn't exist
+          const transcoderId =
+            process.env.NEXT_PUBLIC_NETWORK == "MAINNET"
+              ? args.id.toLowerCase()
+              : "0x525419ff5707190389bfb5c87c375d710f5fcb0e";
 
           const metricsResponse = await fetch(
-            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?orchestrator=${args.id.toLowerCase()}&since=${
-              ctx.since ? ctx.since : oneDayAgo
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?orchestrator=${transcoderId}${
+              ctx.since ? `?since=${ctx.since}` : ""
             }`
           );
           const metrics = await metricsResponse.json();
 
           transcoder["successRates"] = {
-            global: avg(metrics[args.id.toLowerCase()], "success_rate") * 100,
-            fra: (metrics[args.id.toLowerCase()]?.FRA?.success_rate || 0) * 100,
-            mdw: (metrics[args.id.toLowerCase()]?.MDW?.success_rate || 0) * 100,
-            sin: (metrics[args.id.toLowerCase()]?.SIN?.success_rate || 0) * 100,
-            nyc: (metrics[args.id.toLowerCase()]?.NYC?.success_rate || 0) * 100,
-            lax: (metrics[args.id.toLowerCase()]?.LAX?.success_rate || 0) * 100,
-            lon: (metrics[args.id.toLowerCase()]?.LON?.success_rate || 0) * 100,
-            prg: (metrics[args.id.toLowerCase()]?.PRG?.success_rate || 0) * 100,
+            global: avg(metrics[transcoderId], "success_rate") * 100,
+            fra: (metrics[transcoderId]?.FRA?.success_rate || 0) * 100,
+            mdw: (metrics[transcoderId]?.MDW?.success_rate || 0) * 100,
+            sin: (metrics[transcoderId]?.SIN?.success_rate || 0) * 100,
+            nyc: (metrics[transcoderId]?.NYC?.success_rate || 0) * 100,
+            lax: (metrics[transcoderId]?.LAX?.success_rate || 0) * 100,
+            lon: (metrics[transcoderId]?.LON?.success_rate || 0) * 100,
+            prg: (metrics[transcoderId]?.PRG?.success_rate || 0) * 100,
           };
 
           transcoder["scores"] = {
-            global: avg(metrics[args.id.toLowerCase()], "score"),
-            fra: metrics[args.id.toLowerCase()]?.FRA?.score || 0,
-            mdw: metrics[args.id.toLowerCase()]?.MDW?.score || 0,
-            sin: metrics[args.id.toLowerCase()]?.SIN?.score || 0,
-            nyc: metrics[args.id.toLowerCase()]?.NYC?.score || 0,
-            lax: metrics[args.id.toLowerCase()]?.LAX?.score || 0,
-            lon: metrics[args.id.toLowerCase()]?.LON?.score || 0,
-            prg: metrics[args.id.toLowerCase()]?.PRG?.score || 0,
+            global: avg(metrics[transcoderId], "score") || 0,
+            fra: metrics[transcoderId]?.FRA?.score || 0,
+            mdw: metrics[transcoderId]?.MDW?.score || 0,
+            sin: metrics[transcoderId]?.SIN?.score || 0,
+            nyc: metrics[transcoderId]?.NYC?.score || 0,
+            lax: metrics[transcoderId]?.LAX?.score || 0,
+            lon: metrics[transcoderId]?.LON?.score || 0,
+            prg: metrics[transcoderId]?.PRG?.score || 0,
           };
 
           transcoder["roundTripScores"] = {
-            global: avg(metrics[args.id.toLowerCase()], "round_trip_score"),
-            fra: metrics[args.id.toLowerCase()]?.FRA?.round_trip_score || 0,
-            mdw: metrics[args.id.toLowerCase()]?.MDW?.round_trip_score || 0,
-            sin: metrics[args.id.toLowerCase()]?.SIN?.round_trip_score || 0,
-            nyc: metrics[args.id.toLowerCase()]?.NYC?.round_trip_score || 0,
-            lax: metrics[args.id.toLowerCase()]?.LAX?.round_trip_score || 0,
-            lon: metrics[args.id.toLowerCase()]?.LON?.round_trip_score || 0,
-            prg: metrics[args.id.toLowerCase()]?.PRG?.round_trip_score || 0,
+            global: avg(metrics[transcoderId], "round_trip_score"),
+            fra: metrics[transcoderId]?.FRA?.round_trip_score || 0,
+            mdw: metrics[transcoderId]?.MDW?.round_trip_score || 0,
+            sin: metrics[transcoderId]?.SIN?.round_trip_score || 0,
+            nyc: metrics[transcoderId]?.NYC?.round_trip_score || 0,
+            lax: metrics[transcoderId]?.LAX?.round_trip_score || 0,
+            lon: metrics[transcoderId]?.LON?.round_trip_score || 0,
+            prg: metrics[transcoderId]?.PRG?.round_trip_score || 0,
           };
         }
 

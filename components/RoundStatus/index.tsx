@@ -160,7 +160,7 @@ const Index = () => {
 
   return (
     <Box css={{ width: "100%" }}>
-      <Flex css={{ justifyContent: "space-between" }}>
+      <Flex css={{ width: "100%", justifyContent: "space-between" }}>
         <Box>
           <Text
             css={{

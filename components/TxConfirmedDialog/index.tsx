@@ -17,6 +17,7 @@ import {
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { ConsoleView } from "react-device-detect";
 
 const Index = ({ tx, isOpen, onDismiss }) => {
   if (!isOpen) {
@@ -76,8 +77,10 @@ function renderSwitch({ tx, onDismiss }) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
-                Congrats! You&apos;ve successfully delegated{" "}
-                {Utils.fromWei(inputData.amount)} LPT.
+                {Number(inputData.amount) <= 0
+                  ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
+                  : `Congrats! You've successfully delegated
+                ${Utils.fromWei(inputData.amount)} LPT.`}
               </Box>
             </Box>
           </Table>

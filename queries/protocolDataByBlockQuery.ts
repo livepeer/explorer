@@ -8,8 +8,8 @@ export const protocolDataByBlockQuery = gql`
       totalVolumeETH
       participationRate
       inflation
-      numActiveTranscoders
-      totalDelegators
+      activeTranscoderCount
+      delegatorsCount
       lockPeriod
     }
   }

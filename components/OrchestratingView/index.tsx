@@ -6,6 +6,7 @@ import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useMemo } from "react";
 dayjs.extend(relativeTime);
 
 const breakpointColumnsObj = {
@@ -16,11 +17,26 @@ const breakpointColumnsObj = {
 };
 
 const Index = ({ currentRound, transcoder, isActive }) => {
-  const callsMade = transcoder.pools.filter(
-    (r) => r.rewardTokens != null
-  ).length;
-
-  console.log({ transcoder });
+  const callsMade = useMemo(
+    () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? [],
+    [transcoder?.pools]
+  );
+  const maxScore = useMemo(
+    () =>
+      Object.keys(transcoder?.scores ?? {}).reduce(
+        (prev, curr) => {
+          if (transcoder.scores[curr] > prev.score) {
+            return {
+              region: curr.toUpperCase(),
+              score: transcoder.scores[curr],
+            };
+          }
+          return prev;
+        },
+        { region: "N/A", score: 0 }
+      ),
+    [transcoder?.scores]
+  );
 
   return (
     <Box
@@ -56,11 +72,9 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
-          label="Transcoding Score"
-          tooltip={
-            "The average transcoding score from each Livepeer region in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure."
-          }
-          value={`${numeral(transcoder?.scores?.global || 0).format("0.0%")}`}
+          label="Max Transcoding Score"
+          tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
+          value={`${numeral(maxScore.score).format("0.0%")}`}
         />
         <Stat
           className="masonry-grid_item"
@@ -68,7 +82,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The amount of time the orchestrator has been active on the network."
           }
-          value={`${dayjs.unix(transcoder.activationTimestamp).fromNow(true)}`}
+          value={`${dayjs.unix(transcoder?.activationTimestamp).fromNow(true)}`}
         />
         <Stat
           className="masonry-grid_item"
@@ -76,7 +90,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
-          value={`${callsMade}/${transcoder.pools.length}`}
+          value={`${callsMade}/${transcoder?.pools?.length}`}
         />
         <Stat
           className="masonry-grid_item"
@@ -90,11 +104,11 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
-          label="30d Fees"
+          label="90d Fees"
           tooltip={
-            "The amount of fees which this orchestrator has earned in the past thirty days."
+            "The amount of fees which this orchestrator has earned in the past ninety days."
           }
-          value={`${numeral(transcoder?.thirtyDayVolumeETH || 0).format(
+          value={`${numeral(transcoder?.ninetyDayVolumeETH || 0).format(
             "0.00a"
           )} ETH`}
         />

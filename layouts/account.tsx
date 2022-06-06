@@ -270,8 +270,8 @@ const AccountLayout = () => {
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
-              currentRound={data.protocol.currentRound}
-              transcoder={data.transcoder}
+              currentRound={data?.protocol?.currentRound}
+              transcoder={data?.transcoder}
             />
           )}
           {view === "delegating" && (

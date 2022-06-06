@@ -76,7 +76,7 @@ export const orchestratorsQuery = (currentRound) => {
         delegators(first: 1000) {
           id
         }
-        pools(first: 30, orderBy: id, orderDirection: desc, where: { round_not: "${currentRound}" }) {
+        pools(first: 90, orderBy: id, orderDirection: desc, where: { round_not: "${currentRound}" }) {
           rewardTokens
         }
         thirtyDayVolumeETH

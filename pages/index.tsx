@@ -3,6 +3,7 @@ import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
+import TransactionsList from "@components/TransactionsList";
 import { getLayout } from "@layouts/main";
 import {
   Box,
@@ -14,8 +15,13 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
+import { eventsQuery } from "queries/eventsQuery";
 import { useMemo } from "react";
-import { getChartData, getOrchestrators } from "../api";
+import {
+  getChartData,
+  getEvents,
+  getOrchestrators,
+} from "../api";
 import { getApollo } from "../apollo";
 import { chartDataQuery } from "../queries/chartDataQuery";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
@@ -71,19 +77,19 @@ const Charts = ({ chartData }) => {
       })) ?? [],
     [chartData]
   );
-  const totalDelegatorsData = useMemo(
+  const delegatorsCountData = useMemo(
     () =>
       chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
-        y: Number(day.totalDelegators),
+        y: Number(day.delegatorsCount),
       })) ?? [],
     [chartData]
   );
-  const numActiveTranscodersData = useMemo(
+  const activeTranscoderCountData = useMemo(
     () =>
       chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
-        y: Number(day.numActiveTranscoders),
+        y: Number(day.activeTranscoderCount),
       })) ?? [],
     [chartData]
   );
@@ -143,10 +149,10 @@ const Charts = ({ chartData }) => {
       <Panel>
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
-          data={totalDelegatorsData}
-          base={Number(chartData?.chartData?.totalDelegators ?? 0)}
+          data={delegatorsCountData}
+          base={Number(chartData?.chartData?.delegatorsCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.totalDelegatorsChange ?? 0
+            chartData?.chartData?.delegatorsCountChange ?? 0
           )}
           title="Delegators"
           unit="none"
@@ -156,10 +162,10 @@ const Charts = ({ chartData }) => {
       <Panel>
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
-          data={numActiveTranscodersData}
-          base={Number(chartData?.chartData?.numActiveTranscoders ?? 0)}
+          data={activeTranscoderCountData}
+          base={Number(chartData?.chartData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.numActiveTranscodersChange ?? 0
+            chartData?.chartData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
@@ -182,6 +188,18 @@ const Home = () => {
     }
   `);
 
+  const { data: eventsData, loading: eventsDataLoading } = useQuery(
+    eventsQuery,
+    { variables: { first: 100 }, pollInterval: 30000 }
+  );
+  const allEvents = useMemo(
+    () =>
+      eventsData?.transactions
+        ?.flatMap((transaction) => transaction.events)
+        ?.slice(0, 100) ?? [],
+    [eventsData]
+  );
+
   const query = useMemo(
     () => orchestratorsQuery(protocolData.protocol.currentRound.id),
     [protocolData]
@@ -189,8 +207,6 @@ const Home = () => {
   const { data, loading } = useQuery(query);
 
   const { data: chartData } = useQuery(chartDataQuery);
-
-  console.log(chartData);
 
   return (
     <>
@@ -238,6 +254,7 @@ const Home = () => {
                 overflow: "hidden",
                 mx: "auto",
                 overflowX: "auto",
+                minWidth: "100%",
               }}
             >
               <Flex>
@@ -333,16 +350,67 @@ const Home = () => {
                 </Link>
               </Flex>
             </Flex>
+
             {loading ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
             ) : (
-              <OrchestratorList
-                data={data?.transcoders}
-                pageSize={10}
-                protocolData={data?.protocol}
-              />
+              <Box>
+                <OrchestratorList
+                  data={data?.transcoders}
+                  pageSize={10}
+                  protocolData={data?.protocol}
+                />
+              </Box>
+            )}
+
+            <Flex
+              css={{
+                flexDirection: "column",
+                justifyContent: "space-between",
+                mb: "$4",
+                mt: "$7",
+                alignItems: "center",
+                "@bp1": {
+                  flexDirection: "row",
+                },
+              }}
+            >
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  "@bp1": {
+                    flexDirection: "row",
+                  },
+                }}
+                align="center"
+              >
+                <Heading size="2" css={{ fontWeight: 600 }}>
+                  Transactions
+                </Heading>
+              </Flex>
+              <Flex align="center">
+                <Link href="/transactions" passHref>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2" }}
+                  >
+                    View All
+                  </Button>
+                </Link>
+              </Flex>
+            </Flex>
+
+            {eventsDataLoading ? (
+              <Flex align="center" justify="center">
+                <Spinner />
+              </Flex>
+            ) : (
+              <Box>
+                <TransactionsList events={allEvents} pageSize={10} />
+              </Box>
             )}
           </Box>
         </Flex>
@@ -355,6 +423,7 @@ export async function getStaticProps() {
   const client = getApollo();
   await getOrchestrators(client);
   await getChartData(client);
+  await getEvents(client);
 
   return {
     props: {

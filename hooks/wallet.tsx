@@ -46,6 +46,31 @@ export const useAccountSigner = () => {
   return isChainSupported ? signer : null;
 };
 
+const ensAddressCache: { [key: string]: string | undefined | null } = {};
+
+export const useEnsName = (address: string | null | undefined) => {
+  const [ens, setENS] = useState<string | null>(ensAddressCache[address]);
+
+  useEffect(() => {
+    async function getENS() {
+      if (address) {
+        try {
+          const name = await l1Provider.lookupAddress(address);
+          setENS(name);
+          ensAddressCache[address] = name;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+    if (!ens) {
+      getENS();
+    }
+  }, [address, ens]);
+
+  return ens;
+};
+
 export const useAccountEnsData = () => {
   const address = useAccountAddress();
 

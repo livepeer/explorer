@@ -150,14 +150,13 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               multiline
               content={
                 <Box>
-                  The expected earnings if you were to delegate{" "}
-                  {formattedPrinciple} LPT to this orchestrator. This is only an
-                  estimate based on recent performance data and is subject to
-                  change.
+                  The estimate of earnings over one year if you were to delegate{" "}
+                  {formattedPrinciple} LPT to this orchestrator. This is based
+                  on recent performance data and may differ from actual ROI.
                 </Box>
               }
             >
-              <Box>Projected Earnings (1Y)</Box>
+              <Box>Forecasted ROI (1Y)</Box>
             </Tooltip>
             <Popover>
               <PopoverTrigger
@@ -233,38 +232,72 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         sortIconAlignment: "start",
         accessor: (row) => {
           const pools = row.pools ?? [];
-          const rewardCallRatio =
-            pools.length > 0
-              ? pools.filter((r) => r?.rewardTokens).length / pools.length
-              : 0;
+          const rewardCalls =
+            pools.length > 0 ? pools.filter((r) => r?.rewardTokens).length : 0;
+          const rewardCallRatio = rewardCalls / pools.length;
 
           const activation = dayjs.unix(row.activationTimestamp);
 
-          const isNewlyActive = dayjs().diff(activation, "days") < 30;
+          const isNewlyActive = dayjs().diff(activation, "days") < 45;
 
           const roi = calculateAnnualROI({
-            thirtyDayVolumeETH: Number(row.thirtyDayVolumeETH),
+            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
             feeShare: Number(row.feeShare),
             lptPriceEth: Number(protocolData.lptPriceEth),
 
             yearlyRewardsToStakeRatio: Number(
               protocolData.yearlyRewardsToStakeRatio
             ),
-            rewardCallRatio: rewardCallRatio,
+            rewardCallRatio,
             rewardCut: Number(row.rewardCut),
             principle: Number(principle || 100),
             totalStake: Number(row.totalStake),
           });
 
-          return { roi, activation, isNewlyActive };
+          return {
+            roi,
+            activation,
+            isNewlyActive,
+            rewardCalls,
+            rewardCallLength: pools.length,
+            rewardCallRatio,
+            feeShare: row.feeShare,
+            rewardCut: row.rewardCut,
+          };
         },
-        id: "projectedEarningsAPY",
+        id: "earnings",
         Cell: ({ row }) => {
           const isNewlyActive = useMemo(
+            () => row.values.earnings.isNewlyActive,
+            [row.values.earnings]
+          );
+          const feeCut = useMemo(
             () =>
-              dayjs().diff(row.values.projectedEarningsAPY.activation, "days") <
-              30,
-            [row.values.projectedEarningsAPY.activation]
+              numeral(
+                1 - Number(row.values.earnings.feeShare) / 1000000
+              ).format("0%"),
+            [row.values.earnings.feeShare]
+          );
+          const rewardCut = useMemo(
+            () =>
+              numeral(Number(row.values.earnings.rewardCut) / 1000000).format(
+                "0%"
+              ),
+            [row.values.earnings.rewardCut]
+          );
+          const rewardCalls = useMemo(
+            () =>
+              `${numeral(row.values.earnings.rewardCalls).format(
+                "0"
+              )}/${numeral(row.values.earnings.rewardCallLength).format("0")}`,
+            [
+              row.values.earnings.rewardCalls,
+              row.values.earnings.rewardCallLength,
+            ]
+          );
+          const isLowRewardCallRatio = useMemo(
+            () => row.values.earnings.rewardCallRatio < 0.9,
+            [row.values.earnings.rewardCallRatio]
           );
 
           return (
@@ -284,10 +317,8 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                     <>
                       <Box>
                         {numeral(
-                          row.values.projectedEarningsAPY.roi.delegatorPercent
-                            .fees +
-                            row.values.projectedEarningsAPY.roi.delegatorPercent
-                              .rewards
+                          row.values.earnings.roi.delegatorPercent.fees +
+                            row.values.earnings.roi.delegatorPercent.rewards
                         ).format("0.0%")}
                       </Box>
                       <Box css={{ ml: "$1" }}>
@@ -306,13 +337,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                       padding: "$3",
                     }}
                   >
-                    <Box
-                      css={{
-                        borderBottom: "1px solid $neutral6",
-                        mb: "$2",
-                        pb: "$2",
-                      }}
-                    >
+                    <Box css={{}}>
                       <Text
                         variant="neutral"
                         size="1"
@@ -322,7 +347,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           textTransform: "uppercase",
                         }}
                       >
-                        PROJECTED EARNINGS (1Y)*
+                        Forecasted ROI (1Y)*
                       </Text>
                       <Box>
                         <Flex>
@@ -334,27 +359,22 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             }}
                             size="2"
                           >
-                            LPT Rewards (
-                            {numeral(
-                              row.values.projectedEarningsAPY.roi.delegator
-                                .rewards
-                            ).format("0.0a")}{" "}
-                            LPT):
+                            LPT Rewards ({rewardCalls}):
                           </Text>
                           <Text
                             css={{
                               marginLeft: "auto",
                               display: "block",
                               fontWeight: 600,
-                              color: "$white",
+                              color: isLowRewardCallRatio ? "$red11" : "$white",
                               mb: "$1",
                             }}
                             size="2"
                           >
                             {numeral(
-                              row.values.projectedEarningsAPY.roi
-                                .delegatorPercent.rewards
+                              row.values.earnings.roi.delegatorPercent.rewards
                             ).format("0.0%")}
+                            {isLowRewardCallRatio ? "**" : ""}
                           </Text>
                         </Flex>
                         <Flex>
@@ -366,11 +386,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             }}
                             size="2"
                           >
-                            Transcoder Fees (
-                            {numeral(
-                              row.values.projectedEarningsAPY.roi.delegator.fees
-                            ).format("0.0a")}{" "}
-                            ETH):
+                            Transcoder Fees:
                           </Text>
                           <Text
                             css={{
@@ -383,16 +399,56 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             size="2"
                           >
                             {numeral(
-                              row.values.projectedEarningsAPY.roi
-                                .delegatorPercent.fees
+                              row.values.earnings.roi.delegatorPercent.fees
                             ).format("0.0%")}
                           </Text>
                         </Flex>
                       </Box>
                     </Box>
+                    {isLowRewardCallRatio && (
+                      <Text
+                        css={{
+                          mt: "$1",
+                          color: "$red11",
+                        }}
+                        size="1"
+                      >
+                        **This orchestrator has poor performance in redeeming
+                        inflationary rewards.
+                      </Text>
+                    )}
 
-                    <Text variant="neutral" size="1">
-                      *Assuming a delegation of {formattedPrinciple} LPT
+                    <Text
+                      css={{
+                        mt: "$2",
+                        pt: "$2",
+                        borderTop: "1px solid $neutral6",
+                      }}
+                      variant="neutral"
+                      size="1"
+                    >
+                      *Assuming a delegation of {formattedPrinciple} LPT, as
+                      well as a constant fee cut of {feeCut} and reward cut of{" "}
+                      {rewardCut}.
+                    </Text>
+                    <Text
+                      variant="neutral"
+                      css={{
+                        mt: "$1",
+                        fontStyle: "italic",
+                        textDecoration: "none",
+                      }}
+                      size="1"
+                    >
+                      The fee/reward cut are subject to change every round. See
+                      our{" "}
+                      <Link
+                        passHref
+                        href="https://github.com/livepeer/explorer/blob/main/ROI.md"
+                      >
+                        <A>ROI documentation</A>
+                      </Link>
+                      .
                     </Text>
                   </Box>
                 </PopoverContent>
@@ -401,12 +457,12 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
           );
         },
         sortType: (rowA, rowB) =>
-          rowA.values.projectedEarningsAPY.isNewlyActive
+          rowA.values.earnings.isNewlyActive
             ? -1
-            : rowA.values.projectedEarningsAPY.roi.delegatorPercent.fees +
-              rowA.values.projectedEarningsAPY.roi.delegatorPercent.rewards -
-              (rowB.values.projectedEarningsAPY.roi.delegatorPercent.fees +
-                rowB.values.projectedEarningsAPY.roi.delegatorPercent.rewards),
+            : rowA.values.earnings.roi.delegatorPercent.fees +
+              rowA.values.earnings.roi.delegatorPercent.rewards -
+              (rowB.values.earnings.roi.delegatorPercent.fees +
+                rowB.values.earnings.roi.delegatorPercent.rewards),
       },
       {
         Header: (
@@ -438,53 +494,21 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         ),
         sortType: "number",
       },
-      // {
-      //   Header: (
-      //     <Tooltip
-      //       multiline
-      //       content={
-      //         <Box>
-      //           The amount of time since this orchestrator became active (on
-      //           Arbitrum).
-      //         </Box>
-      //       }
-      //     >
-      //       <Box>Time Active</Box>
-      //     </Tooltip>
-      //   ),
-      //   accessor: "activationTimestamp",
-      //   Cell: ({ row }) => (
-      //     <Box>
-      //       <Text
-      //         css={{
-      //           fontWeight: 600,
-      //           color: "$white",
-      //         }}
-      //         size="2"
-      //       >
-      //         {row.values.activationTimestamp
-      //           ? dayjs.unix(row.values.activationTimestamp).fromNow(true)
-      //           : "NEW ✨"}
-      //       </Text>
-      //     </Box>
-      //   ),
-      //   sortType: "number",
-      // },
       {
         Header: (
           <Tooltip
             multiline
             content={
               <Box>
-                The total fees this orchestrator has earned in the past 30
+                The total fees this orchestrator has earned in the past 90
                 calendar days.
               </Box>
             }
           >
-            <Box>30D Fees</Box>
+            <Box>Trailing 90D Fees</Box>
           </Tooltip>
         ),
-        accessor: "thirtyDayVolumeETH",
+        accessor: "ninetyDayVolumeETH",
         Cell: ({ row }) => (
           <Box>
             <Text
@@ -494,7 +518,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {numeral(row.values.thirtyDayVolumeETH).format("0.0a")} ETH
+              {numeral(row.values.ninetyDayVolumeETH).format("0.0a")} ETH
             </Text>
           </Box>
         ),
@@ -533,7 +557,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+              css={{ borderRadius: "$4", bc: "$neutral4" }}
             >
               <Box
                 css={{
@@ -603,7 +627,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         hiddenColumns: ["identity"],
         sortBy: [
           {
-            id: "thirtyDayVolumeETH",
+            id: "ninetyDayVolumeETH",
             desc: true,
           },
         ],
