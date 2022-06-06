@@ -1,6 +1,6 @@
 # Explorer ROI
 
-The Livepeer protocol is built around workers who perform video transcoding. An orchestrator is the name for the protocol participant who performs the transcoding on the network - see our [visual introduction](https://livepeer.org/primer)). If another user is looking to participate in the Livepeer network, they can contribute by staking (bonding) LPT with an orchestrator and earning passive rewards for improving the economic security of the network.
+The Livepeer protocol is built around workers who perform video transcoding. An orchestrator is the name for the protocol participant who performs the transcoding on the network - see our [visual introduction](https://livepeer.org/primer). If another user is looking to participate in the Livepeer network, they can contribute by staking (bonding) LPT with an orchestrator and earning passive rewards for improving the economic security of the network.
 
 The explorer includes a calculation of return on investment for LPT stake to an orchestrator. This document explains how that calculation is performed and how it can be inaccurate/manipulated by orchestrators.
 
@@ -20,9 +20,9 @@ $$ r_{rewards} = rewardCalls / n $$
 
 Where $n$ is the number of rounds (up to 90 rounds depending on the time the orchestrator has been active) and $rewardCalls$ is the count of successful reward calls.
 
-They also have $l_{orch}$ which is the active stake they currently have on the network.
+An orchestrator also has $l_{orch}$ which is the active stake they currently have on the network.
 
-Orchestrators earn fees for work performed, and the average is taken over the course of 90 days as $v_{daily}$, which is denominated in ETH.
+Lastly, orchestrators earn fees for work performed, and the average is taken over the course of 90 days as $v_{daily}$, which is denominated in ETH.
 
 ### Protocol Parameters
 
@@ -60,9 +60,9 @@ The last part calculates the ratio that the delegator will receive, based on the
 
 #### Combined Equation
 
-The ROI can then be calculated as:
+The ROI can then be calculated as (with $price_{LPT/ETH}$ pulled from Uniswap):
 
-$$ ROI_{total} = ROI_{LPT} + ROI_{ETH} $$
+$$ ROI_{total} = ROI_{LPT} + ROI_{ETH} * (price_{LPT/ETH}) $$
 
 A simplified version of the code used in the frontend is shown below:
 
