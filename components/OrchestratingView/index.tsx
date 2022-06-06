@@ -25,7 +25,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
     () =>
       Object.keys(transcoder?.scores ?? {}).reduce(
         (prev, curr) => {
-          if (transcoder.scores[curr] > prev.score) {
+          if (transcoder.scores[curr] >= prev.score) {
             return {
               region: curr.toUpperCase(),
               score: transcoder.scores[curr],
@@ -37,6 +37,9 @@ const Index = ({ currentRound, transcoder, isActive }) => {
       ),
     [transcoder?.scores]
   );
+
+
+  console.log({transcoder})
 
   return (
     <Box
@@ -72,9 +75,9 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
-          label="Max Transcoding Score"
+          label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
-          value={`${numeral(maxScore.score).format("0.0%")}`}
+          value={`${numeral(maxScore.score).format("0.0%")} (${maxScore.region})`}
         />
         <Stat
           className="masonry-grid_item"
