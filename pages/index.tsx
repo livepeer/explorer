@@ -16,7 +16,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 import { eventsQuery } from "queries/eventsQuery";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getChartData, getEvents, getOrchestrators } from "../api";
 import { getApollo } from "../apollo";
 import { chartDataQuery } from "../queries/chartDataQuery";
@@ -41,14 +41,38 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }) => {
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
+    "day"
+  );
   const feesPaidData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.map((day) => ({
-        x: Number(day.date),
-        y: Number(day.volumeUSD),
-      })) ?? [],
-    [chartData]
+      (feesPaidGrouping === "day"
+        ? chartData?.chartData?.dayData?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.volumeUSD),
+          }))
+        : chartData?.chartData?.weeklyData?.map((week) => ({
+            x: Number(week.date),
+            y: Number(week.weeklyVolumeUSD),
+          }))) ?? [],
+    [feesPaidGrouping, chartData]
   );
+
+  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("day");
+  const usageData = useMemo(
+    () =>
+      (usageGrouping === "day"
+        ? chartData?.chartData?.dayData?.map((day) => ({
+            x: Number(day.date),
+            y: Number(day.minutes),
+          }))
+        : chartData?.chartData?.weeklyData?.map((week) => ({
+            x: Number(week.date),
+            y: Number(week.weeklyUsageMinutes),
+          }))) ?? [],
+    [usageGrouping, chartData]
+  );
+
   const participationRateData = useMemo(
     () =>
       chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
@@ -62,14 +86,6 @@ const Charts = ({ chartData }) => {
       chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day?.inflation ?? 0) / 1000000000,
-      })) ?? [],
-    [chartData]
-  );
-  const dailyUsageData = useMemo(
-    () =>
-      chartData?.chartData?.dayData?.map((day) => ({
-        x: Number(day.date),
-        y: Number(day.minutes),
       })) ?? [],
     [chartData]
   );
@@ -94,7 +110,9 @@ const Charts = ({ chartData }) => {
     <>
       <Panel>
         <ExplorerChart
-          tooltip="The amount of daily fees in dollars which have been historically paid out using the protocol."
+          tooltip={`The amount of ${
+            feesPaidGrouping === "day" ? "daily" : "weekly"
+          } fees in dollars which have been historically paid out using the protocol.`}
           data={feesPaidData}
           base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
           basePercentChange={Number(
@@ -103,6 +121,8 @@ const Charts = ({ chartData }) => {
           title="Fees Paid (7d)"
           unit="usd"
           type="bar"
+          grouping={feesPaidGrouping}
+          onToggleGrouping={setFeesPaidGrouping}
         />
       </Panel>
       <Panel>
@@ -131,8 +151,10 @@ const Charts = ({ chartData }) => {
       </Panel>
       <Panel>
         <ExplorerChart
-          tooltip="The daily usage of the network in minutes."
-          data={dailyUsageData}
+          tooltip={`The ${
+            usageGrouping === "day" ? "daily" : "weekly"
+          } usage of the network in minutes.`}
+          data={usageData}
           base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
           basePercentChange={Number(
             chartData?.chartData?.weeklyUsageChange ?? 0
@@ -140,6 +162,8 @@ const Charts = ({ chartData }) => {
           title="Estimated Usage (7d)"
           unit="minutes"
           type="bar"
+          grouping={usageGrouping}
+          onToggleGrouping={setUsageGrouping}
         />
       </Panel>
       <Panel>
