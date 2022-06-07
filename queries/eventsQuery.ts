@@ -193,5 +193,13 @@ export const eventsQuery = gql`
         }
       }
     }
+    transcoders(where: { active: true }) {
+      id
+      identity {
+        id
+        name
+        image
+      }
+    }
   }
 `;

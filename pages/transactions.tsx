@@ -12,7 +12,7 @@ import { getApollo } from "../apollo";
 const NUMBER_OF_PAGES = 20;
 const TRANSACTIONS_PER_PAGE = 20;
 
-const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE ;
+const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE;
 
 const TransactionsPage = () => {
   const { data: eventsData, loading: eventsDataLoading } = useQuery(
@@ -23,7 +23,11 @@ const TransactionsPage = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
-        ?.slice(0, numberTransactions ) ?? [],
+        ?.slice(0, numberTransactions) ?? [],
+    [eventsData]
+  );
+  const allIdentities = useMemo(
+    () => eventsData?.transcoders.map((t) => t.identity) ?? [],
     [eventsData]
   );
 
@@ -51,7 +55,11 @@ const TransactionsPage = () => {
                 <Spinner />
               </Flex>
             ) : (
-              <TransactionsList events={allEvents} pageSize={TRANSACTIONS_PER_PAGE} />
+              <TransactionsList
+                identities={allIdentities}
+                events={allEvents}
+                pageSize={TRANSACTIONS_PER_PAGE}
+              />
             )}
           </Box>
         </Flex>

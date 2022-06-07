@@ -18,7 +18,8 @@ const breakpointColumnsObj = {
 
 const Index = ({ currentRound, transcoder, isActive }) => {
   const callsMade = useMemo(
-    () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? [],
+    () =>
+      transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? [],
     [transcoder?.pools]
   );
   const maxScore = useMemo(
@@ -37,9 +38,6 @@ const Index = ({ currentRound, transcoder, isActive }) => {
       ),
     [transcoder?.scores]
   );
-
-
-  console.log({transcoder})
 
   return (
     <Box
@@ -77,7 +75,9 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           className="masonry-grid_item"
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
-          value={`${numeral(maxScore.score).format("0.0%")} (${maxScore.region})`}
+          value={`${numeral(maxScore.score).format("0.0%")} (${
+            maxScore.region
+          })`}
         />
         <Stat
           className="masonry-grid_item"

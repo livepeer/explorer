@@ -17,11 +17,7 @@ import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 import { eventsQuery } from "queries/eventsQuery";
 import { useMemo } from "react";
-import {
-  getChartData,
-  getEvents,
-  getOrchestrators,
-} from "../api";
+import { getChartData, getEvents, getOrchestrators } from "../api";
 import { getApollo } from "../apollo";
 import { chartDataQuery } from "../queries/chartDataQuery";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
@@ -197,6 +193,10 @@ const Home = () => {
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.slice(0, 100) ?? [],
+    [eventsData]
+  );
+  const allIdentities = useMemo(
+    () => eventsData?.transcoders.map((t) => t.identity) ?? [],
     [eventsData]
   );
 
@@ -409,7 +409,11 @@ const Home = () => {
               </Flex>
             ) : (
               <Box>
-                <TransactionsList events={allEvents} pageSize={10} />
+                <TransactionsList
+                  identities={allIdentities}
+                  events={allEvents}
+                  pageSize={10}
+                />
               </Box>
             )}
           </Box>
