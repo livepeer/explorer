@@ -1,5 +1,6 @@
 import Table from "@components/Table";
-import { Badge, Box, Flex, Text } from "@livepeer/design-system";
+import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import { sentenceCase } from "change-case";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsName } from "hooks";
@@ -62,6 +63,21 @@ const EthAddress = (props: {
   );
 };
 
+const Transaction = (props: { id: string | undefined }) => {
+  return (
+    <A
+      variant="primary"
+      href={
+        props.id ? `https://arbiscan.io/tx/${props.id}` : "https://arbiscan.io"
+      }
+    >
+      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+        {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
+      </Badge>
+    </A>
+  );
+};
+
 const renderEmoji = (emoji: string) => (
   <Box as="span" css={{ ml: 6 }}>
     {emoji}
@@ -69,300 +85,493 @@ const renderEmoji = (emoji: string) => (
 );
 
 const TransactionsList = ({ identities, events, pageSize = 10 }) => {
-  const getVerbiageForRow = useCallback((event) => {
-    switch (event.__typename) {
-      case "BondEvent":
-        return (
-          <Box>
+  const getAccountForRow = useCallback(
+    (event) => {
+      switch (event.__typename) {
+        case "BondEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegator?.id} />
-            {` delegated `}
-            {getLptAmount(event?.additionalAmount)}
-            {` to `}
-            <EthAddress
-              identities={identities}
-              value={event?.newDelegate?.id}
-            />
-          </Box>
-        );
-      case "UnbondEvent":
-        return (
-          <Box>
+          );
+
+        case "UnbondEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegator?.id} />
-            {` undelegated `}
-            {getLptAmount(event.amount)}
-            {` from `}
+          );
+
+        case "RebondEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegator?.id} />
+          );
+
+        case "TranscoderUpdateEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegate?.id} />
-          </Box>
-        );
-      case "RebondEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-            {` rebonded `}
-            {getLptAmount(event.amount)}
-            {` to `}
+          );
+
+        case "RewardEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegate?.id} />
-          </Box>
-        );
-      case "TranscoderUpdateEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` updated their reward/fee cut to `}
-            {getPercentAmount(Number(event?.rewardCut ?? 0) / 1000000)}
-            {` and `}
-            {getPercentAmount(1 - Number(event?.feeShare ?? 0) / 1000000)}
-          </Box>
-        );
-      case "RewardEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` received `}
-            {getLptAmount(Number(event?.rewardTokens))}
-            {` rewards`}
-          </Box>
-        );
-      case "WithdrawStakeEvent":
-        return (
-          <Box>
+          );
+
+        case "WithdrawStakeEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegator?.id} />
-            {` withdrew `}
-            {getLptAmount(event?.amount)}
-            {` of their stake`}
-          </Box>
-        );
-      case "WithdrawFeesEvent":
-        return (
-          <Box>
+          );
+
+        case "WithdrawFeesEvent":
+          return (
             <EthAddress identities={identities} value={event?.delegator?.id} />
-            {` withdrew `}
-            {getEthAmount(event?.amount)}
-            {` in fees`}
-          </Box>
-        );
-      case "WinningTicketRedeemedEvent":
-        return (
-          <Box>
+          );
+
+        case "WinningTicketRedeemedEvent":
+          return (
             <EthAddress identities={identities} value={event?.recipient?.id} />
-            {` received a winning ticket for `}
-            {getEthAmount(event?.faceValue)}
-            {renderEmoji("🎉")}
-          </Box>
-        );
-      case "DepositFundedEvent":
-        return (
-          <Box>
+          );
+
+        case "DepositFundedEvent":
+          return (
             <EthAddress identities={identities} value={event?.sender?.id} />
-            {` funded their deposit for `}
-            {getEthAmount(event?.amount)}
-          </Box>
-        );
-      case "ReserveFundedEvent":
-        return (
-          <Box>
+          );
+
+        case "ReserveFundedEvent":
+          return (
             <EthAddress
               identities={identities}
               value={event?.reserveHolder?.id}
             />
-            {` funded their reserve for `}
-            {getEthAmount(event?.amount)}
-          </Box>
-        );
-      case "TransferBondEvent":
-        return (
-          <Box>
-            {getLptAmount(Number(event?.amount))}
-            {` was transferred between `}
+          );
+
+        case "TransferBondEvent":
+          return (
             <EthAddress
               identities={identities}
               value={event?.newDelegator?.id}
             />
-            {` and `}
-            <EthAddress
-              identities={identities}
-              value={event?.oldDelegator?.id}
-            />
-            {` for transfer of bond`}
-          </Box>
-        );
-      case "TranscoderActivatedEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` will start orchestrating in round `}
-            {getRound(event?.activationRound)}
-          </Box>
-        );
-      case "TranscoderDeactivatedEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` will stop orchestrating in round `}
-            {getRound(event?.deactivationRound)}
-          </Box>
-        );
-      case "EarningsClaimedEvent":
-        return event?.rewardTokens ? (
-          <>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` claimed `}
-            {getLptAmount(event?.rewardTokens)}
-            {` and `}
-            {getEthAmount(event?.fees)}
-            {` in earnings`}
-          </>
-        ) : (
-          <Box>N/A</Box>
-        );
-      case "TranscoderResignedEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` has resigned from the active set`}
-          </Box>
-        );
-      case "TranscoderEvictedEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-            {` has been evicted from the active set`}
-          </Box>
-        );
-      case "NewRoundEvent":
-        return (
-          <Box>
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-            {` has started a new round`}
-          </Box>
-        );
-      case "WithdrawalEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.sender?.id} />
-            {` has withdrawn `}
-            {getEthAmount(event?.deposit)}
-            {` and `}
-            {getEthAmount(event?.reserve)}
-            {` in deposit and reserve`}
-          </Box>
-        );
-      case "SetCurrentRewardTokensEvent":
-        return (
-          <Box>
-            {`The inflation has been set to `}
-            <Badge size="1">
-              {numeral(event?.currentInflation || 0)
-                .divide(1000000000)
-                .format("0.0000%")}
-            </Badge>
-          </Box>
-        );
-      case "PauseEvent":
-        return <Box>{`The protocol has been paused`}</Box>;
-      case "UnpauseEvent":
-        return <Box>{`The protocol has been unpaused`}</Box>;
-      case "ParameterUpdateEvent":
-        return (
-          <Box>{`The parameter, ${
-            event?.param ?? "unknown"
-          }, has been updated`}</Box>
-        );
-      case "VoteEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.voter} />
-            {` has voted `}
-            <Badge variant={event?.choiceID === 0 ? "primary" : "red"} size="1">
-              {event?.choiceID === 0 ? '"Yes"' : '"No"'}
-            </Badge>
-            {` on a proposal`}
-            {renderEmoji("👩‍⚖️")}
-          </Box>
-        );
-      case "PollCreatedEvent":
-        return (
-          <Box>
-            {`Poll `}
-            <EthAddress identities={identities} value={event?.poll?.id} />
-            {` has been created and will end on block ${getRound(
-              event?.endBlock
-            )}`}
-          </Box>
-        );
-      case "ServiceURIUpdateEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.addr} />
-            {` has updated their service URI to `}
-            <Badge size="1">{event?.serviceURI ?? "unknown"}</Badge>
-          </Box>
-        );
-      case "MintEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.to} />
-            {` has received `}
-            {getLptAmount(event?.amount)}
-            {` in newly minted tokens`}
-            {renderEmoji("🌿")}
-          </Box>
-        );
-      case "BurnEvent":
-        return (
-          <Box>
-            {getLptAmount(event?.value)}
-            {` has been burned`}
-            {renderEmoji("🔥")}
-          </Box>
-        );
-      case "MigrateDelegatorFinalizedEvent":
-        return (
-          <Box>
-            <EthAddress identities={identities} value={event?.l2Addr} />
-            {` has been migrated to Arbitrum One.`}
-          </Box>
-        );
-      case "StakeClaimedEvent":
-        return (
-          <Box>
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-            {` has claimed `}
-            {getEthAmount(event?.stake)}
-            {` stake from L1 Ethereum`}
-          </Box>
-        );
+          );
 
-      default:
-        return <Box>{`Error fetching event information.`}</Box>;
-    }
-  }, []);
+        case "TranscoderActivatedEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegate?.id} />
+          );
+
+        case "TranscoderDeactivatedEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegate?.id} />
+          );
+
+        case "EarningsClaimedEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegate?.id} />
+          );
+
+        case "TranscoderResignedEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegate?.id} />
+          );
+
+        case "TranscoderEvictedEvent":
+          return (
+            <EthAddress identities={identities} value={event?.delegate?.id} />
+          );
+
+        case "NewRoundEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+
+        case "WithdrawalEvent":
+          return (
+            <EthAddress identities={identities} value={event?.sender?.id} />
+          );
+
+        case "SetCurrentRewardTokensEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+        case "PauseEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+        case "UnpauseEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+        case "ParameterUpdateEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+        case "VoteEvent":
+          return <EthAddress identities={identities} value={event?.voter} />;
+
+        case "PollCreatedEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+
+        case "ServiceURIUpdateEvent":
+          return <EthAddress identities={identities} value={event?.addr} />;
+
+        case "MintEvent":
+          return <EthAddress identities={identities} value={event?.to} />;
+
+        case "BurnEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+        case "MigrateDelegatorFinalizedEvent":
+          return <EthAddress identities={identities} value={event?.l2Addr} />;
+
+        case "StakeClaimedEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
+
+        default:
+          return <Box>{`Error fetching event information.`}</Box>;
+      }
+    },
+    [identities]
+  );
+
+  const getDescriptionForRow = useCallback(
+    (event) => {
+      switch (event.__typename) {
+        case "BondEvent":
+          return (
+            <Box>
+              {`Delegated `}
+              {getLptAmount(event?.additionalAmount)}
+              {` to `}
+              <EthAddress
+                identities={identities}
+                value={event?.newDelegate?.id}
+              />
+            </Box>
+          );
+        case "UnbondEvent":
+          return (
+            <Box>
+              {`Undelegated `}
+              {getLptAmount(event.amount)}
+              {` from `}
+              <EthAddress identities={identities} value={event?.delegate?.id} />
+            </Box>
+          );
+        case "RebondEvent":
+          return (
+            <Box>
+              {`Rebonded `}
+              {getLptAmount(event.amount)}
+              {` to `}
+              <EthAddress identities={identities} value={event?.delegate?.id} />
+            </Box>
+          );
+        case "TranscoderUpdateEvent":
+          return (
+            <Box>
+              {`Updated their reward/fee cut to `}
+              {getPercentAmount(Number(event?.rewardCut ?? 0) / 1000000)}
+              {` and `}
+              {getPercentAmount(1 - Number(event?.feeShare ?? 0) / 1000000)}
+            </Box>
+          );
+        case "RewardEvent":
+          return (
+            <Box>
+              {`Received `}
+              {getLptAmount(Number(event?.rewardTokens))}
+              {` rewards`}
+            </Box>
+          );
+        case "WithdrawStakeEvent":
+          return (
+            <Box>
+              {`Withdrew `}
+              {getLptAmount(event?.amount)}
+              {` of their stake`}
+            </Box>
+          );
+        case "WithdrawFeesEvent":
+          return (
+            <Box>
+              {`Withdrew `}
+              {getEthAmount(event?.amount)}
+              {` in fees`}
+            </Box>
+          );
+        case "WinningTicketRedeemedEvent":
+          return (
+            <Box>
+              {`Received a winning ticket for `}
+              {getEthAmount(event?.faceValue)}
+              {renderEmoji("🎉")}
+            </Box>
+          );
+        case "DepositFundedEvent":
+          return (
+            <Box>
+              {`Funded their deposit for `}
+              {getEthAmount(event?.amount)}
+            </Box>
+          );
+        case "ReserveFundedEvent":
+          return (
+            <Box>
+              {`Funded their reserve for `}
+              {getEthAmount(event?.amount)}
+            </Box>
+          );
+        case "TransferBondEvent":
+          return (
+            <Box>
+              {getLptAmount(Number(event?.amount))}
+              {` was transferred between `}
+              <EthAddress
+                identities={identities}
+                value={event?.newDelegator?.id}
+              />
+              {` and `}
+              <EthAddress
+                identities={identities}
+                value={event?.oldDelegator?.id}
+              />
+            </Box>
+          );
+        case "TranscoderActivatedEvent":
+          return (
+            <Box>
+              {`Starts orchestrating in round `}
+              {getRound(event?.activationRound)}
+            </Box>
+          );
+        case "TranscoderDeactivatedEvent":
+          return (
+            <Box>
+              {`Stops orchestrating in round `}
+              {getRound(event?.deactivationRound)}
+            </Box>
+          );
+        case "EarningsClaimedEvent":
+          return event?.rewardTokens ? (
+            <>
+              {`Claimed `}
+              {getLptAmount(event?.rewardTokens)}
+              {` and `}
+              {getEthAmount(event?.fees)}
+              {` in earnings`}
+            </>
+          ) : (
+            <Box>N/A</Box>
+          );
+        case "TranscoderResignedEvent":
+          return <Box>{`Resigned from the active set`}</Box>;
+        case "TranscoderEvictedEvent":
+          return <Box>{`Evicted from the active set`}</Box>;
+        case "NewRoundEvent":
+          return <Box>{` has started a new round`}</Box>;
+        case "WithdrawalEvent":
+          return (
+            <Box>
+              {`Withdrew `}
+              {getEthAmount(event?.deposit)}
+              {` and `}
+              {getEthAmount(event?.reserve)}
+              {` in deposit and reserve`}
+            </Box>
+          );
+        case "SetCurrentRewardTokensEvent":
+          return (
+            <Box>
+              {`The inflation has been set to `}
+              <Badge size="1">
+                {numeral(event?.currentInflation || 0)
+                  .divide(1000000000)
+                  .format("0.0000%")}
+              </Badge>
+            </Box>
+          );
+        case "PauseEvent":
+          return <Box>{`The protocol has been paused`}</Box>;
+        case "UnpauseEvent":
+          return <Box>{`The protocol has been unpaused`}</Box>;
+        case "ParameterUpdateEvent":
+          return (
+            <Box>{`The parameter, ${
+              event?.param ?? "unknown"
+            }, has been updated`}</Box>
+          );
+        case "VoteEvent":
+          return (
+            <Box>
+              {`Voted `}
+              <Badge
+                variant={event?.choiceID === 0 ? "primary" : "red"}
+                size="1"
+              >
+                {event?.choiceID === 0 ? '"Yes"' : '"No"'}
+              </Badge>
+              {` on a proposal`}
+              {renderEmoji("👩‍⚖️")}
+            </Box>
+          );
+        case "PollCreatedEvent":
+          return (
+            <Box>
+              {`Poll `}
+              <EthAddress identities={identities} value={event?.poll?.id} />
+              {` has been created and will end on block ${getRound(
+                event?.endBlock
+              )}`}
+            </Box>
+          );
+        case "ServiceURIUpdateEvent":
+          return (
+            <Box>
+              {`Updated service URI to `}
+              <Badge size="1">{event?.serviceURI ?? "unknown"}</Badge>
+            </Box>
+          );
+        case "MintEvent":
+          return (
+            <Box>
+              {`Received `}
+              {getLptAmount(event?.amount)}
+              {` in newly minted tokens`}
+              {renderEmoji("🌿")}
+            </Box>
+          );
+        case "BurnEvent":
+          return (
+            <Box>
+              {getLptAmount(event?.value)}
+              {` has been burned`}
+              {renderEmoji("🔥")}
+            </Box>
+          );
+        case "MigrateDelegatorFinalizedEvent":
+          return <Box>{`Migrated to Arbitrum One`}</Box>;
+        case "StakeClaimedEvent":
+          return (
+            <Box>
+              {`Claimed `}
+              {getEthAmount(event?.stake)}
+              {` stake from L1 Ethereum`}
+            </Box>
+          );
+
+        default:
+          return <Box>{`Error fetching event information.`}</Box>;
+      }
+    },
+    [identities]
+  );
 
   const columns = useMemo(
     () => [
       {
-        Header: <Flex css={{ flex: 1 }}>Event</Flex>,
-        accessor: (row) => getVerbiageForRow(row),
+        Header: <Flex css={{ flex: 1 }}>Description</Flex>,
+        accessor: (row) => getDescriptionForRow(row),
+        id: "description",
+        Cell: ({ row }) => (
+          <Box
+            css={{
+              minWidth: 400,
+            }}
+          >
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+                whiteSpace: "nowrap",
+              }}
+              size="2"
+            >
+              {row.values.description}
+            </Text>
+          </Box>
+        ),
+      },
+      {
+        Header: "Event",
+        accessor: (row) => row?.__typename,
         id: "event",
         Cell: ({ row }) => (
           <Box
             css={{
-              width: 700,
-              display: "block",
-              textDecoration: "none",
-              overflow: "hidden",
-              "&:hover": { textDecoration: "none" },
-              "@bp3": {
-                width: 850,
-              },
+              minWidth: 200,
             }}
           >
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+                whiteSpace: "nowrap",
+              }}
+              size="2"
+            >
+              {sentenceCase(
+                String(row?.values?.event ?? "Not applicable").replace(
+                  "Event",
+                  ""
+                )
+              )}
+            </Text>
+          </Box>
+        ),
+      },
+      {
+        Header: "Account",
+        accessor: (row) => getAccountForRow(row),
+        id: "account",
+        Cell: ({ row }) => (
+          <Box
+            css={{
+              minWidth: 150,
+            }}
+          >
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+                whiteSpace: "nowrap",
+              }}
+              size="2"
+            >
+              {row.values.account}
+            </Text>
+          </Box>
+        ),
+      },
+      {
+        Header: "Transaction",
+        accessor: (row) => row.transaction.id,
+        id: "transaction",
+        Cell: ({ row }) => (
+          <Box css={{ minWidth: 130 }}>
             <Text
               css={{
                 fontWeight: 600,
@@ -370,7 +579,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {row.values.event}
+              <Transaction id={row.values.transaction} />
             </Text>
           </Box>
         ),
@@ -380,7 +589,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
         id: "timestamp",
         accessor: (row) => row.transaction.timestamp,
         Cell: ({ row }) => (
-          <Box>
+          <Box css={{ minWidth: 100 }}>
             <Text
               css={{
                 fontWeight: 600,
@@ -389,16 +598,14 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {dayjs
-                .unix(row.original.transaction.timestamp)
-                .format("M/D/YY, H:mm:ss A")}
+              {dayjs.unix(row.original.transaction.timestamp).fromNow()}
             </Text>
           </Box>
         ),
         sortType: "number",
       },
     ],
-    []
+    [getDescriptionForRow, getAccountForRow]
   );
 
   return (
