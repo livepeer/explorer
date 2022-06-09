@@ -533,12 +533,14 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {sentenceCase(
-                String(row?.values?.event ?? "Not applicable").replace(
-                  "Event",
-                  ""
-                )
-              )}
+              {row?.values?.event === "ServiceURIUpdateEvent"
+                ? "Service URI update"
+                : sentenceCase(
+                    String(row?.values?.event ?? "Not applicable").replace(
+                      "Event",
+                      ""
+                    )
+                  )}
             </Text>
           </Box>
         ),
