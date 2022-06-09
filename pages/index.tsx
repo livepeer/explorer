@@ -234,7 +234,7 @@ const Home = () => {
 
   return (
     <>
-      <Container css={{ width: "100%", maxWidth: 1350 }}>
+      <Container size="3" css={{ width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",

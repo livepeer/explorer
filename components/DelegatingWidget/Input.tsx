@@ -1,7 +1,7 @@
 import { gql, useApolloClient } from "@apollo/client";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { Box } from "@livepeer/design-system";
-import { calculateAnnualROI } from "@lib/utils";
+import { calculateROI } from "@lib/roi";
 
 const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
   const client = useApolloClient();
@@ -15,16 +15,28 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
 
   const principle = Number(value || 0);
 
-  const roi = calculateAnnualROI({
-    ninetyDayVolumeETH: Number(transcoder?.ninetyDayVolumeETH || 0),
-    feeShare: Number(transcoder?.feeShare || 0),
-    lptPriceEth: Number(protocol?.lptPriceEth || 0),
+  const roi = calculateROI({
+    inputs: {
+      principle: Number(principle || 150)
+    },
+    orchestratorParams: {
+      totalStake: Number(transcoder.totalStake),
+    },
+    feeParams: {
+      ninetyDayVolumeETH: Number(transcoder.ninetyDayVolumeETH),
+      feeShare: Number(transcoder.feeShare) / 1000000,
+      lptPriceEth: Number(protocol.lptPriceEth),
+    },
+    rewardParams: {
+      inflation: Number(protocol.inflation) / 1000000000,
+      inflationChangePerRound: Number(protocol.inflationChange) / 1000000000,
+      totalSupply: Number(protocol.totalSupply),
+      totalActiveStake: Number(protocol.totalActiveStake),
+      roundLength: Number(protocol.roundLength),
 
-    yearlyRewardsToStakeRatio: Number(protocol?.yearlyRewardsToStakeRatio || 0),
-    rewardCallRatio: rewardCallRatio,
-    rewardCut: Number(transcoder?.rewardCut || 0),
-    principle: principle,
-    totalStake: Number(transcoder?.totalStake || 0),
+      rewardCallRatio,
+      rewardCut: Number(transcoder.rewardCut) / 1000000,
+    },
   });
 
   client.writeQuery({
