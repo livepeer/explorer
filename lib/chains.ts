@@ -12,6 +12,8 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   );
 }
 
+export const AVERAGE_L1_BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
+
 const MAINNET_CONTRACTS = {
   controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
   pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",

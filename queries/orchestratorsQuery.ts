@@ -89,7 +89,7 @@ export const orchestratorsQuery = (currentRound) => {
         totalActiveStake
         inflation
         inflationChange
-        yearlyRewardsToStakeRatio
+        roundLength
         lptPriceEth
         currentRound {
           id

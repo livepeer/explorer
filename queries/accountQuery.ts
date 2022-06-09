@@ -116,7 +116,7 @@ export const accountQuery = (currentRound) => {
         inflation
         inflationChange
         lptPriceEth
-        yearlyRewardsToStakeRatio
+        roundLength
         currentRound {
           id
         }

@@ -1,5 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import { Box, Flex, Text, themes, Tooltip } from "@livepeer/design-system";
 import {
   CheckIcon,
@@ -17,8 +18,6 @@ import { usePageVisibility } from "../../hooks";
 import CircularProgressbar from "../CircularProgressBar";
 
 dayjs.extend(relativeTime);
-
-const BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
 const Index = () => {
   const { resolvedTheme } = useTheme();
@@ -120,7 +119,7 @@ const Index = () => {
     [protocolData, blockData, currentRoundInfo]
   );
   const timeRemaining = useMemo(
-    () => BLOCK_TIME * blocksRemaining,
+    () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
     [blocksRemaining]
   );
   const blocksSinceCurrentRoundStart = useMemo(

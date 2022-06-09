@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Tooltip } from "@livepeer/design-system";
+import { Box, Button, Flex, Text, Tooltip } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -45,6 +45,7 @@ const ExplorerChart = ({
   unit = "none",
   type,
   grouping = "day",
+  onToggleGrouping,
 }: {
   title: string;
   tooltip: string;
@@ -54,6 +55,7 @@ const ExplorerChart = ({
   unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "none";
   type: "bar" | "line";
   grouping?: "day" | "week";
+  onToggleGrouping?: (grouping: "day" | "week") => void;
 }) => {
   const formatDateSubtitle = useCallback(
     (date: number) =>
@@ -212,6 +214,31 @@ const ExplorerChart = ({
           {barSelected.date}
         </Text>
       </Box>
+      {type === "bar" && (
+        <Flex
+          css={{
+            position: "absolute",
+            right: 0,
+            zIndex: 3,
+          }}
+        >
+          <Button
+            onClick={() => onToggleGrouping("day")}
+            size="1"
+            variant={grouping === "day" ? "primary" : "neutral"}
+          >
+            D
+          </Button>
+          <Button
+            onClick={() => onToggleGrouping("week")}
+            size="1"
+            variant={grouping === "week" ? "primary" : "neutral"}
+            css={{ ml: "$1" }}
+          >
+            W
+          </Button>
+        </Flex>
+      )}
       <Box
         css={{
           pt: "$6",

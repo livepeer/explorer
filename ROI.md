@@ -60,54 +60,11 @@ The last part calculates the ratio that the delegator will receive, based on the
 
 #### Combined Equation
 
-The ROI can then be calculated as (with $price_{LPT/ETH}$ pulled from Uniswap):
+The total ROI can then be calculated as (with $price_{LPT/ETH}$ pulled from Uniswap):
 
 $$ ROI_{total} = ROI_{LPT} + ROI_{ETH} * (price_{LPT/ETH}) $$
 
-A simplified version of the code used in the frontend is shown below:
-
-```javascript
-export function calculateAnnualROI({ ... }) {
-  const combinedTotalStaked = principle + totalStake;
-
-  // inflationary rewards revenue
-
-  const expectedTotalYearlyRewards =
-    yearlyRewardsToStakeRatio * combinedTotalStaked * rewardCallRatio;
-  const expectedDelegatorYearlyRewards =
-    expectedTotalYearlyRewards *
-    (1 - rewardCut / 1000000) *
-    (principle / combinedTotalStaked);
-
-  const totalLptRewards = expectedTotalYearlyRewards;
-  const delegatorLptRewards = expectedDelegatorYearlyRewards;
-  const percentLptRewards = expectedDelegatorYearlyRewards / principle;
-
-  // transcoding fee revenue
-
-  const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365;
-  const expectedYearlyEthCutDelegators =
-      expectedYearlyVolumeEth * (feeShare / 1000000);
-  const expectedYearlyFeeCutDelegator =
-      expectedYearlyEthCutDelegators * (principle / combinedTotalStaked);
-
-  const expectedLptFeeCutDelegator =
-      expectedYearlyFeeCutDelegator / lptPriceEth;
-
-  const totalFees = expectedYearlyVolumeEth;
-  const delegatorFees = expectedYearlyFeeCutDelegator;
-  const delegatorLptFees = expectedLptFeeCutDelegator;
-  const percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
-
-  return {
-    ...
-    total: {
-      fees: totalFees,
-      rewards: totalLptRewards
-    }
-  };
-}
-```
+The implementation of this equation can be found at [lib/roi.ts](lib/roi.ts).
 
 ## Inaccuracies/Pitfalls
 

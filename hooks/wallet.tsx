@@ -48,8 +48,8 @@ export const useAccountSigner = () => {
 
 const ensAddressCache: { [key: string]: string | undefined | null } = {};
 
-export const useEnsName = (address: string | null | undefined) => {
-  const [ens, setENS] = useState<string | null>(ensAddressCache[address]);
+export const useEnsName = (address: string | null | undefined, defaultValue?: string | null | undefined) => {
+  const [ens, setENS] = useState<string | null>(defaultValue || ensAddressCache[address]);
 
   useEffect(() => {
     async function getENS() {

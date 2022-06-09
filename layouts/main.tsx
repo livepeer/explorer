@@ -353,7 +353,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     border
                     sticky
                   >
-                    <Container css={{ maxWidth: 1400 }}>
+                    <Container size="3">
                       <Flex
                         css={{
                           justifyContent: "space-between",

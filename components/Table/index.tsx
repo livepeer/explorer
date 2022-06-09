@@ -17,7 +17,13 @@ import {
 } from "@radix-ui/react-icons";
 import Spinner from "@components/Spinner";
 
-function DataTable({ heading = null, data, columns, initialState = {} }) {
+function DataTable({
+  heading = <></>,
+  input = <></>,
+  data,
+  columns,
+  initialState = {},
+}) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -60,6 +66,16 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
               overflowY: "scroll",
             }}
           >
+            {input && (
+              <Box
+                css={{
+                  mt: "$4",
+                  ml: "$5",
+                }}
+              >
+                {input}
+              </Box>
+            )}
             <Table
               {...getTableProps()}
               css={{

@@ -14,6 +14,7 @@ import {
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import numeral from "numeral";
+import { useMemo } from "react";
 
 const Card = styled(CardBase, {
   border: "1px solid $neutral3",
@@ -38,6 +39,35 @@ const Index = () => {
     }
   );
 
+  const events = useMemo(
+    () =>
+      data?.transactions?.reduce((res, { events: e }) => res.concat(e), []) ??
+      [],
+    [data]
+  );
+
+  const lastEventTimestamp = useMemo(
+    () =>
+      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
+    [events]
+  );
+
+  // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
+  // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
+  const mergedEvents = useMemo(
+    () =>
+      [
+        ...events.filter((e) => e.__typename !== "WinningTicketRedeemedEvent"),
+        ...(data?.winningTicketRedeemedEvents?.filter(
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+        ) ?? []),
+      ].sort(
+        (a, b) =>
+          (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
+      ),
+    [events, data, lastEventTimestamp]
+  );
+
   if (error) {
     console.error(error);
   }
@@ -60,11 +90,6 @@ const Index = () => {
   if (!data?.transactions?.length) {
     return <Box css={{ pt: "$3" }}>No history</Box>;
   }
-
-  const events = data.transactions.reduce(
-    (res, { events: e }) => res.concat(e),
-    []
-  );
 
   return (
     <InfiniteScroll
@@ -101,7 +126,7 @@ const Index = () => {
     >
       <Box css={{ mt: "$3", mb: "$5", pb: "$4", position: "relative" }}>
         <Box css={{ pb: "$3" }}>
-          {events.map((event: any, i: number) => renderSwitch(event, i))}
+          {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
         </Box>
         {loading && data.transactions.length >= 10 && (
           <Flex

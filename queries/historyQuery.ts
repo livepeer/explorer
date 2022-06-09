@@ -72,5 +72,21 @@ export const historyQuery = gql`
         }
       }
     }
+    winningTicketRedeemedEvents(
+      orderBy: timestamp
+      orderDirection: desc
+      where: { recipient: $account }
+    ) {
+      __typename
+      id
+      round {
+        id
+      }
+      transaction {
+        id
+        timestamp
+      }
+      faceValue
+    }
   }
 `;

@@ -355,7 +355,7 @@ const createSchema = async () => {
         if (selectionSet.includes("successRates")) {
           // use fake perf on rinkeby since performance doesn't exist
           const transcoderId =
-            process.env.NEXT_PUBLIC_NETWORK == "MAINNET"
+            process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_ONE"
               ? args.id.toLowerCase()
               : "0x525419ff5707190389bfb5c87c375d710f5fcb0e";
 
