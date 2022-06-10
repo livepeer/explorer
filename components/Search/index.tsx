@@ -96,7 +96,13 @@ const Index = ({ css = {}, ...props }) => {
   );
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          setSearch("");
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <IconButton
           size="3"

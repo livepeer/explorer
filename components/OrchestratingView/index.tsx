@@ -73,19 +73,17 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
+          label="Status"
+          tooltip={`The status of the orchestrator on the network.`}
+          value={isActive ? "Active" : "Inactive"}
+        />
+        <Stat
+          className="masonry-grid_item"
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
           value={`${numeral(maxScore.score).format("0.0%")} (${
             maxScore.region
           })`}
-        />
-        <Stat
-          className="masonry-grid_item"
-          label="Time Active"
-          tooltip={
-            "The amount of time the orchestrator has been active on the network."
-          }
-          value={`${dayjs.unix(transcoder?.activationTimestamp).fromNow(true)}`}
         />
         <Stat
           className="masonry-grid_item"
@@ -97,21 +95,19 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
+          label="Price / Pixel"
+          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
+          value={`${numeral(
+            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
+          ).format("0,0")} WEI`}
+        />
+        <Stat
+          className="masonry-grid_item"
           label="Earned Fees"
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
           value={`${numeral(transcoder?.totalVolumeETH || 0).format(
-            "0.00a"
-          )} ETH`}
-        />
-        <Stat
-          className="masonry-grid_item"
-          label="90d Fees"
-          tooltip={
-            "The amount of fees which this orchestrator has earned in the past ninety days."
-          }
-          value={`${numeral(transcoder?.ninetyDayVolumeETH || 0).format(
             "0.00a"
           )} ETH`}
         />
@@ -145,14 +141,13 @@ const Index = ({ currentRound, transcoder, isActive }) => {
             "0%"
           )}
         />
-
         <Stat
           className="masonry-grid_item"
-          label="Price / Pixel"
-          tooltip="The price for transcoding which the orchestrator is currently charging to broadcasters."
-          value={`${numeral(
-            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
-          ).format("0,0")} WEI`}
+          label="Time Active"
+          tooltip={
+            "The amount of time the orchestrator has been active on the network."
+          }
+          value={`${dayjs.unix(transcoder?.activationTimestamp).fromNow(true)}`}
         />
         {transcoder?.lastRewardRound?.id && (
           <Stat

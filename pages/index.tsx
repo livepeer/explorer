@@ -42,7 +42,7 @@ const Panel = ({ children }) => (
 
 const Charts = ({ chartData }) => {
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "day"
+    "week"
   );
   const feesPaidData = useMemo(
     () =>
@@ -58,7 +58,7 @@ const Charts = ({ chartData }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("day");
+  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
@@ -114,11 +114,17 @@ const Charts = ({ chartData }) => {
             feesPaidGrouping === "day" ? "daily" : "weekly"
           } fees in dollars which have been historically paid out using the protocol.`}
           data={feesPaidData}
-          base={Number(chartData?.chartData?.oneWeekVolumeUSD ?? 0)}
-          basePercentChange={Number(
-            chartData?.chartData?.weeklyVolumeChangeUSD ?? 0
+          base={Number(
+            (feesPaidGrouping === "day"
+              ? chartData?.chartData?.oneDayVolumeUSD
+              : chartData?.chartData?.oneWeekVolumeUSD) ?? 0
           )}
-          title="Fees Paid (7d)"
+          basePercentChange={Number(
+            (feesPaidGrouping === "day"
+              ? chartData?.chartData?.volumeChangeUSD
+              : chartData?.chartData?.weeklyVolumeChangeUSD) ?? 0
+          )}
+          title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
           type="bar"
           grouping={feesPaidGrouping}
@@ -155,11 +161,18 @@ const Charts = ({ chartData }) => {
             usageGrouping === "day" ? "daily" : "weekly"
           } usage of the network in minutes.`}
           data={usageData}
-          base={Number(chartData?.chartData?.oneWeekUsage ?? 0)}
-          basePercentChange={Number(
-            chartData?.chartData?.weeklyUsageChange ?? 0
+          base={Number(
+            (usageGrouping === "day"
+              ? chartData?.chartData?.oneDayUsage
+              : chartData?.chartData?.oneWeekUsage) ?? 0
           )}
-          title="Estimated Usage (7d)"
+          basePercentChange={Number(
+            (usageGrouping === "day"
+              ? chartData?.chartData?.dailyUsageChange
+              : chartData?.chartData?.weeklyUsageChange) ??
+              0
+          )}
+          title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="minutes"
           type="bar"
           grouping={usageGrouping}
@@ -294,6 +307,7 @@ const Home = () => {
                 </Box>
                 <Flex
                   css={{
+                    mx: "auto",
                     width: "100%",
                     minWidth: 300,
                     height: "100%",
