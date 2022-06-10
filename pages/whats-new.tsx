@@ -1,6 +1,6 @@
 import Spinner from "@components/Spinner";
 import dayjs from "dayjs";
-import { getLayout } from "../layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
 import Markdown from "markdown-to-jsx";
 import { createApolloFetch } from "apollo-fetch";
 import { useEffect, useState } from "react";
@@ -78,7 +78,7 @@ const WhatsNew = () => {
       <Head>
         <title>Livepeer Explorer - What&apos;s New</title>
       </Head>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         {!changeFeedData ? (
           <Flex
             css={{

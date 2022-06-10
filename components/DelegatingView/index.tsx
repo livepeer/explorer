@@ -49,7 +49,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
   );
 
   const rewards = useMemo(
-    () => pendingStake + unbonded - Math.abs(delegator.principal),
+    () => pendingStake + unbonded - Math.abs(delegator?.principal ?? 0),
     [unbonded, pendingStake, delegator]
   );
   const totalActiveStake = useMemo(
@@ -57,11 +57,11 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
     [protocol]
   );
   const lifetimeEarnings = useMemo(
-    () => Math.abs(delegator.pendingFees) + Math.abs(delegator.withdrawnFees),
+    () => Math.abs(delegator?.pendingFees ?? 0) + Math.abs(delegator?.withdrawnFees ?? 0),
     [delegator]
   );
   const withdrawButtonDisabled = useMemo(
-    () => delegator.pendingFees === "0",
+    () => Number(delegator?.pendingFees ?? 0) === 0,
     [delegator]
   );
 

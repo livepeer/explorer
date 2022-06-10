@@ -6,13 +6,13 @@ import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
+import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import WalletMenu from "@components/WalletMenu";
-import { isL2ChainId } from "@lib/chains";
+import { isL2ChainId, IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import {
   Badge,
@@ -22,10 +22,17 @@ import {
   DesignSystemProvider,
   Flex,
   Link as A,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   SnackbarProvider,
   themes,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon, EyeOpenIcon } from "@modulz/radix-icons";
+import {
+  ArrowTopRightIcon,
+  ChevronDownIcon,
+  EyeOpenIcon,
+} from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -70,9 +77,11 @@ type DrawerItem = {
 // increment this value when updating the banner
 const uniqueBannerID = 3;
 
+export const LAYOUT_MAX_WIDTH = 1400;
+
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const client = useApolloClient();
-  const { pathname, route } = useRouter();
+  const { pathname, asPath } = useRouter();
   const { data } = useQuery(
     gql`
       {
@@ -353,7 +362,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     border
                     sticky
                   >
-                    <Container size="3">
+                    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH }}>
                       <Flex
                         css={{
                           justifyContent: "space-between",
@@ -392,7 +401,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 css={{
                                   ml: "$4",
                                   bc:
-                                    route === "/"
+                                    asPath === "/"
                                       ? "hsla(0,100%,100%,.05)"
                                       : "transparent",
                                   color: "white",
@@ -416,8 +425,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 css={{
                                   ml: "$2",
                                   bc:
-                                    route.includes("/accounts") ||
-                                    route.includes("/orchestrators")
+                                    !asPath.includes(accountAddress) &&
+                                    (asPath.includes("/accounts") ||
+                                      asPath.includes("/orchestrators"))
                                       ? "hsla(0,100%,100%,.05)"
                                       : "transparent",
                                   color: "white",
@@ -440,7 +450,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 size="3"
                                 css={{
                                   ml: "$2",
-                                  bc: route.includes("/voting")
+                                  bc: asPath.includes("/voting")
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
@@ -469,6 +479,115 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 )}
                               </Button>
                             </Link>
+                            <Link passHref href={`/accounts/${accountAddress}`}>
+                              <Button
+                                size="3"
+                                css={{
+                                  ml: "$2",
+                                  bc: asPath.includes(accountAddress)
+                                    ? "hsla(0,100%,100%,.05)"
+                                    : "transparent",
+                                  color: "white",
+                                  "&:hover": {
+                                    bc: "hsla(0,100%,100%,.1)",
+                                  },
+                                  "&:active": {
+                                    bc: "hsla(0,100%,100%,.15)",
+                                  },
+                                  "&:disabled": {
+                                    opacity: 0.5,
+                                  },
+                                }}
+                              >
+                                My Account
+                              </Button>
+                            </Link>
+                            <Popover>
+                              <PopoverTrigger
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                                asChild
+                              >
+                                <Button
+                                  size="3"
+                                  css={{
+                                    ml: "$2",
+                                    bc: "transparent",
+                                    color: "white",
+                                    "&:hover": {
+                                      bc: "hsla(0,100%,100%,.1)",
+                                    },
+                                    "&:active": {
+                                      bc: "hsla(0,100%,100%,.15)",
+                                    },
+                                    "&:disabled": {
+                                      opacity: 0.5,
+                                    },
+                                  }}
+                                >
+                                  More
+                                  <Box
+                                    css={{ ml: "$1" }}
+                                    as={ChevronDownIcon}
+                                  />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                                css={{ borderRadius: "$4", bc: "$neutral4" }}
+                              >
+                                <Flex
+                                  css={{
+                                    flexDirection: "column",
+                                    py: "$3",
+                                    px: "$2",
+                                    borderBottom: "1px solid $neutral6",
+                                  }}
+                                >
+                                  {IS_L2 && (
+                                    <PopoverLink
+                                      newWindow={true}
+                                      href={`/migrate`}
+                                    >
+                                      Arbitrum Migration Tool
+                                    </PopoverLink>
+                                  )}
+                                  <PopoverLink
+                                    newWindow={true}
+                                    href={`/whats-new`}
+                                  >
+                                    What&apos;s New
+                                  </PopoverLink>
+                                  <PopoverLink
+                                    newWindow={true}
+                                    href={`https://livepeer.org`}
+                                  >
+                                    Livepeer.org
+                                  </PopoverLink>
+                                  <PopoverLink
+                                    newWindow={true}
+                                    href={`https://livepeer.org/docs`}
+                                  >
+                                    Docs
+                                  </PopoverLink>
+                                  <PopoverLink
+                                    newWindow={true}
+                                    href={`https://uniswap.exchange/swap/0x58b6a8a3302369daec383334672404ee733ab239&chain=mainnet`}
+                                  >
+                                    Get LPT
+                                  </PopoverLink>
+                                  <PopoverLink
+                                    newWindow={true}
+                                    href={`https://discord.gg/uaPhtyrWsF`}
+                                  >
+                                    Discord
+                                  </PopoverLink>
+                                </Flex>
+                              </PopoverContent>
+                            </Popover>
                           </Box>
                         </Flex>
 
@@ -514,17 +633,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Box>
                           </Flex>
                           <Flex css={{ ai: "center", ml: "8px" }}>
-                            <ConnectButton />
+                            <ConnectButton showBalance={false} />
                           </Flex>
                           {/* <Search
                             css={{
-                              display: "none",
+                              // display: "none",
                               "@bp2": { ml: "8px", display: "flex" },
                             }}
                           /> */}
-                          <Flex css={{ ai: "center", ml: "8px" }}>
-                            <WalletMenu />
-                          </Flex>
                         </Flex>
                       </Flex>
                     </Container>

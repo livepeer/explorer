@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import TransactionsList from "@components/TransactionsList";
-import { getLayout } from "@layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { getEvents } from "api";
 import Head from "next/head";
@@ -36,7 +36,7 @@ const TransactionsPage = () => {
       <Head>
         <title>Livepeer Explorer - Transactions</title>
       </Head>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",

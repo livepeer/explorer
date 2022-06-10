@@ -13,7 +13,7 @@ import {
 } from "@livepeer/design-system";
 import fm from "front-matter";
 import { usePageVisibility } from "hooks";
-import { getLayout } from "layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import dayjs from "dayjs";
 import Head from "next/head";
 import Link from "next/link";
@@ -97,7 +97,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ width: "100%", mt: "$6" }} size="3">
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
         {loading ? (
           <Flex
             css={{
