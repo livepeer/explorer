@@ -91,7 +91,7 @@ const Index = ({ css = {}, ...props }) => {
   );
 
   const searchMapping = useMemo(
-    () => (search ? fuse.search(search, { limit: 10 }) : []),
+    () => (search ? fuse.search(search, { limit: 15 }) : []),
     [fuse, search]
   );
 
