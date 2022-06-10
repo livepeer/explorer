@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { getLayout } from "@layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useQuery } from "@apollo/client";
 import Profile from "@components/Profile";
 import DelegatingWidget from "@components/DelegatingWidget";
@@ -162,7 +162,7 @@ const AccountLayout = () => {
   );
 
   return (
-    <Container size="3" css={{ width: "100%" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
       <Flex>
         <Flex
           css={{

@@ -1,8 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
 import {
-  configureChains,
-  apiProvider,
   getDefaultWallets,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
@@ -15,7 +13,9 @@ import { useRouter } from "next/router";
 import { useMemo } from "react";
 import "react-circular-progressbar/dist/styles.css";
 import { CookiesProvider } from "react-cookie";
-import { createClient, WagmiProvider } from "wagmi";
+import { WagmiConfig, createClient, configureChains } from "wagmi";
+import { infuraProvider } from "wagmi/providers/infura";
+import { publicProvider } from 'wagmi/providers/public';
 import { useApollo } from "../apollo";
 import "../css/flickity.css";
 
@@ -29,7 +29,7 @@ function App({ Component, pageProps }) {
   const { wagmiClient, chains, layoutKey } = useMemo(() => {
     const { provider, chains } = configureChains(
       [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [apiProvider.infura(INFURA_KEY), apiProvider.fallback()]
+      [infuraProvider({ infuraId: INFURA_KEY}), publicProvider()]
     );
 
     const { connectors } = getDefaultWallets({
@@ -61,7 +61,7 @@ function App({ Component, pageProps }) {
         key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
         client={client}
       >
-        <WagmiProvider client={wagmiClient}>
+        <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider
             showRecentTransactions={false}
             appInfo={{
@@ -75,7 +75,7 @@ function App({ Component, pageProps }) {
               <IdProvider>{getLayout(<Component {...pageProps} />)}</IdProvider>
             </CookiesProvider>{" "}
           </RainbowKitProvider>
-        </WagmiProvider>
+        </WagmiConfig>
       </ApolloProvider>
     </>
   );

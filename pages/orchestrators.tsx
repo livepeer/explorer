@@ -1,4 +1,4 @@
-import { getLayout } from "@layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import Head from "next/head";
 import {
   Flex,
@@ -35,7 +35,7 @@ const OrchestratorsPage = () => {
       <Head>
         <title>Livepeer Explorer - Orchestrators</title>
       </Head>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",
@@ -43,7 +43,10 @@ const OrchestratorsPage = () => {
             width: "100%",
           }}
         >
-          <Flex align="center" css={{ mb: "$3" }}>
+          <Flex
+            align="center"
+            css={{ mb: "$3", justifyContent: "space-between" }}
+          >
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
             </Heading>
@@ -53,17 +56,8 @@ const OrchestratorsPage = () => {
                 <Button
                   ghost
                   as={A}
-                  css={{
-                    mr: "$3",
-                    color: "$hiContrast",
-                    fontSize: "$2",
-                    ml: "$5",
-                    "&:hover": {
-                      textDecoration: "none",
-                    },
-                  }}
+                  css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
                 >
-                  <Box css={{ display: "inline", mr: "$2" }}>💪</Box>{" "}
                   Performance Leaderboard
                   <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                 </Button>

@@ -2,10 +2,16 @@ import { Box, Link as A } from "@livepeer/design-system";
 import { ChevronRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 
-const PopoverLink = ({ href, children }) => {
+const PopoverLink = ({ href, children, newWindow = false }) => {
   return (
     <Link href={href} passHref>
       <A
+        {...(newWindow
+          ? {
+              target: "_blank",
+              rel: "noopener noreferrer",
+            }
+          : {})}
         css={{
           display: "flex",
           ai: "center",
@@ -34,7 +40,7 @@ const PopoverLink = ({ href, children }) => {
         }}
       >
         {children}
-        <Box as={ChevronRightIcon} css={{ width: 16, height: 16 }} />
+        <Box as={ChevronRightIcon} css={{ ml: "$2", width: 16, height: 16 }} />
       </A>
     </Link>
   );

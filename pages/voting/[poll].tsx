@@ -1,4 +1,4 @@
-import { getLayout } from "@layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import fm from "front-matter";
 import VotingWidget from "@components/VotingWidget";
 import ReactMarkdown from "react-markdown";
@@ -172,7 +172,7 @@ const Poll = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container size="3" css={{ mt: "$4", width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mt: "$4", width: "100%" }}>
         <Flex>
           <Flex
             css={{

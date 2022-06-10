@@ -15,11 +15,10 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
-import Spinner from "@components/Spinner";
 
 function DataTable({
-  heading = <></>,
-  input = <></>,
+  heading = null,
+  input = null,
   data,
   columns,
   initialState = {},
