@@ -111,14 +111,15 @@ const ExplorerChart = ({
     activeIndex: null,
   });
 
-  console.log({ basePercentChange, base });
-
   useEffect(() => {
     setBarSelected((prev) => ({ ...prev, amount: defaultSubtitle }));
   }, [defaultSubtitle]);
 
   useEffect(() => {
-    setBarSelected((prev) => ({ ...prev, percentChange: defaultPercentChange }));
+    setBarSelected((prev) => ({
+      ...prev,
+      percentChange: defaultPercentChange,
+    }));
   }, [defaultPercentChange]);
 
   const CustomizedYAxisTick = ({ x, y, payload }) => {
