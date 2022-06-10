@@ -39,9 +39,6 @@ const Index = ({ currentRound, transcoder, isActive }) => {
     [transcoder?.scores]
   );
 
-
-  console.log({transcoder})
-
   return (
     <Box
       css={{
