@@ -635,12 +635,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Flex css={{ ai: "center", ml: "8px" }}>
                             <ConnectButton showBalance={false} />
                           </Flex>
-                          {/* <Search
-                            css={{
-                              // display: "none",
-                              "@bp2": { ml: "8px", display: "flex" },
-                            }}
-                          /> */}
+                          <Search />
                         </Flex>
                       </Flex>
                     </Container>
