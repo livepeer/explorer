@@ -30,7 +30,6 @@ interface Props {
 
 const Index = ({
   account,
-  isActive = false,
   isMyAccount = false,
   identity,
 }: Props) => {
@@ -95,7 +94,7 @@ const Index = ({
           direction="column"
           css={{ height: "100%", ml: "$3" }}
         >
-          <Flex css={{ alignItems: "center", mb: "$1" }}>
+          <Flex css={{ alignItems: "center", mb: "$2" }}>
             <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
               <Heading
                 size="2"
@@ -180,16 +179,6 @@ const Index = ({
                 </A>
               </Flex>
             )}
-
-            <Flex align="center">
-              <Badge
-                variant={isActive ? "primary" : "red"}
-                size="2"
-                css={{ fontSize: "$2" }}
-              >
-                {isActive ? "Active" : "Inactive"}
-              </Badge>
-            </Flex>
           </Flex>
         </Flex>
       </Flex>

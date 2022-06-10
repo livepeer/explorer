@@ -2,7 +2,13 @@ import { Box, Button, Flex, Text, Tooltip } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Bar,
   BarChart as ReBarChart,
@@ -104,6 +110,17 @@ const ExplorerChart = ({
     date: null,
     activeIndex: null,
   });
+
+  useEffect(() => {
+    setBarSelected((prev) => ({ ...prev, amount: defaultSubtitle }));
+  }, [defaultSubtitle]);
+
+  useEffect(() => {
+    setBarSelected((prev) => ({
+      ...prev,
+      percentChange: defaultPercentChange,
+    }));
+  }, [defaultPercentChange]);
 
   const CustomizedYAxisTick = ({ x, y, payload }) => {
     return (

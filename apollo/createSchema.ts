@@ -78,6 +78,9 @@ const createSchema = async () => {
     extend type Account {
       identity: Identity
     }
+    extend type LivepeerAccount {
+      identity: Identity
+    }
     extend type Protocol {
       totalStake(block: String): String
     }
@@ -137,6 +140,24 @@ const createSchema = async () => {
               fieldName: "identity",
               args: {
                 id: _account.id,
+              },
+              context: _ctx,
+              info: _info,
+            });
+
+            return identity;
+          },
+        },
+      },
+      LivepeerAccount: {
+        identity: {
+          async resolve(_livepeerAccount, _args, _ctx, _info) {
+            const identity = await delegateToSchema({
+              schema: schema,
+              operation: "query",
+              fieldName: "identity",
+              args: {
+                id: _livepeerAccount.id,
               },
               context: _ctx,
               info: _info,

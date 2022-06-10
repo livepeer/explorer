@@ -144,6 +144,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     oneWeekVolumeUSD: 0,
     oneWeekVolumeETH: 0,
     oneWeekUsage: 0,
+    oneDayUsage: 0,
+    dailyUsageChange: 0,
     weeklyVolumeChangeUSD: 0,
     weeklyVolumeChangeETH: 0,
     weeklyUsageChange: 0,
@@ -252,6 +254,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     dayData = dayDataResult.data.days;
 
     let livepeerComDayData = [];
+    let livepeerComOneDayData = [];
+    let livepeerComTwoDaysData = [];
     let livepeerComOneWeekData = [];
     let livepeerComTwoWeekData = [];
 
@@ -273,9 +277,19 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
         fromTime,
         toTime: utcTwoWeeksBack * 1000, // api uses milliseconds
       });
+      livepeerComOneDayData = await getLivepeerComUsageData({
+        fromTime,
+        toTime: utcOneDayBack * 1000, // api uses milliseconds
+      });
+      livepeerComTwoDaysData = await getLivepeerComUsageData({
+        fromTime,
+        toTime: utcTwoDaysBack * 1000, // api uses milliseconds
+      });
     }
 
     let totalFeeDerivedMinutes = 0;
+    let totalFeeDerivedMinutesOneDayAgo = 0;
+    let totalFeeDerivedMinutesTwoDaysAgo = 0;
     let totalFeeDerivedMinutesOneWeekAgo = 0;
     let totalFeeDerivedMinutesTwoWeeksAgo = 0;
     let pricePerPixelIndex = pricePerPixel.length - 1;
@@ -303,6 +317,13 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
       totalFeeDerivedMinutes += feeDerivedMinutes;
 
+      if (item.date < utcOneDayBack) {
+        totalFeeDerivedMinutesOneDayAgo += feeDerivedMinutes;
+      }
+      if (item.date < utcTwoDaysBack) {
+        totalFeeDerivedMinutesTwoDaysAgo += feeDerivedMinutes;
+      }
+
       if (item.date < utcOneWeekBack) {
         totalFeeDerivedMinutesOneWeekAgo += feeDerivedMinutes;
       }
@@ -329,6 +350,20 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     );
 
     const totalLivepeerComUsageTwoWeeksAgo = livepeerComTwoWeekData.reduce(
+      (x, y) => {
+        return x + y.sourceSegmentsDuration / 60;
+      },
+      0
+    );
+
+    const totalLivepeerComUsageOneDayAgo = livepeerComOneDayData.reduce(
+      (x, y) => {
+        return x + y.sourceSegmentsDuration / 60;
+      },
+      0
+    );
+
+    const totalLivepeerComUsageTwoDaysAgo = livepeerComTwoDaysData.reduce(
       (x, y) => {
         return x + y.sourceSegmentsDuration / 60;
       },
@@ -388,6 +423,12 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       totalLivepeerComUsageTwoWeeksAgo + totalFeeDerivedMinutesTwoWeeksAgo
     );
 
+    const [oneDayUsage, dailyUsageChange] = getTwoPeriodPercentChange(
+      totalLivepeerComUsage + totalFeeDerivedMinutes,
+      totalLivepeerComUsageOneDayAgo + totalFeeDerivedMinutesOneDayAgo,
+      totalLivepeerComUsageTwoDaysAgo + totalFeeDerivedMinutesTwoDaysAgo
+    );
+
     // format the total participation change
     const participationRateChange = getPercentChange(
       data?.participationRate,
@@ -437,7 +478,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.oneWeekVolumeUSD = oneWeekVolumeUSD;
     data.oneWeekVolumeETH = oneWeekVolumeETH;
     data.totalUsage = totalFeeDerivedMinutes + totalLivepeerComUsage;
+    data.oneDayUsage = totalFeeDerivedMinutes ? oneDayUsage : 0;
     data.oneWeekUsage = totalFeeDerivedMinutes ? oneWeekUsage : 0;
+    data.dailyUsageChange = totalFeeDerivedMinutes ? dailyUsageChange : 0;
     data.weeklyUsageChange = totalFeeDerivedMinutes ? weeklyUsageChange : 0;
     data.weeklyVolumeChangeUSD = weeklyVolumeChangeUSD;
     data.weeklyVolumeChangeETH = weeklyVolumeChangeETH;

@@ -62,6 +62,7 @@
     "ethers": "^5.6.5",
     "flickity": "^2.2.2",
     "front-matter": "^3.1.0",
+    "fuse.js": "^6.6.2",
     "graphql": "^15.5.0",
     "graphql-fields": "^2.0.3",
     "graphql-middleware": "^4.0.2",
