@@ -170,10 +170,10 @@ export const eventsQuery = gql`
           addr
           serviceURI
         }
-        ... on MintEvent {
-          amount
-          to
-        }
+        # ... on MintEvent {
+        #   amount
+        #   to
+        # }
         ... on BurnEvent {
           value
         }

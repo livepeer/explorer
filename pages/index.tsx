@@ -169,8 +169,7 @@ const Charts = ({ chartData }) => {
           basePercentChange={Number(
             (usageGrouping === "day"
               ? chartData?.chartData?.dailyUsageChange
-              : chartData?.chartData?.weeklyUsageChange) ??
-              0
+              : chartData?.chartData?.weeklyUsageChange) ?? 0
           )}
           title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="minutes"
@@ -229,6 +228,7 @@ const Home = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
+        ?.filter((e) => e.__typename !== "MintEvent")
         ?.slice(0, 100) ?? [],
     [eventsData]
   );
@@ -291,7 +291,6 @@ const Home = () => {
                 overflow: "hidden",
                 mx: "auto",
                 overflowX: "auto",
-                minWidth: "100%",
               }}
             >
               <Flex>
@@ -307,9 +306,8 @@ const Home = () => {
                 </Box>
                 <Flex
                   css={{
-                    mx: "auto",
+                    justifyContent: "center",
                     width: "100%",
-                    minWidth: 300,
                     height: "100%",
                     p: "24px",
                     flex: 1,

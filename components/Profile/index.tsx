@@ -16,10 +16,10 @@ import {
   Heading,
   Box,
   Flex,
-  Tooltip,
   Link as A,
   Badge,
 } from "@livepeer/design-system";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 interface Props {
   account: string;
   isActive: boolean;
@@ -107,7 +107,7 @@ const Index = ({
                 {identity?.name
                   ? identity.name
                   : account.replace(account.slice(5, 39), "…")}
-                <Tooltip
+                <ExplorerTooltip
                   content={`${copied ? "Copied" : "Copy address to clipboard"}`}
                 >
                   <Flex
@@ -144,7 +144,7 @@ const Index = ({
                       />
                     )}
                   </Flex>
-                </Tooltip>
+                </ExplorerTooltip>
               </Heading>
             </CopyToClipboard>
             {isMyAccount && <EditProfile />}

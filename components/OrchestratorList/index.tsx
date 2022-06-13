@@ -18,7 +18,6 @@ import {
   PopoverTrigger,
   Text,
   TextField,
-  Tooltip,
 } from "@livepeer/design-system";
 import {
   DotsHorizontalIcon,
@@ -37,6 +36,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { calculateROI, ROIInflationChange, ROITimeHorizon } from "@lib/roi";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 
 dayjs.extend(relativeTime);
 
@@ -87,7 +87,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
     () => [
       {
         Header: (
-          <Tooltip
+          <ExplorerTooltip
             multiline
             content={
               <Box>
@@ -97,14 +97,14 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             }
           >
             <Box>Orchestrator</Box>
-          </Tooltip>
+          </ExplorerTooltip>
         ),
         accessor: "id",
         Cell: ({ row }) => (
           <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
             <A
               css={{
-                width: 325,
+                width: 350,
                 display: "block",
                 textDecoration: "none",
                 "&:hover": { textDecoration: "none" },
@@ -192,7 +192,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       {
         Header: (
           <Flex css={{ flexDirection: "row", alignItems: "center" }}>
-            <Tooltip
+            <ExplorerTooltip
               multiline
               content={
                 <Box>
@@ -204,7 +204,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
               }
             >
               <Box>Forecasted Yield</Box>
-            </Tooltip>
+            </ExplorerTooltip>
           </Flex>
         ),
         accessor: (row) => {
@@ -400,7 +400,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                       </Flex>
                       <Link
                         passHref
-                        href="https://github.com/livepeer/explorer/blob/main/ROI.md"
+                        href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
                         <A>
                           <Flex
@@ -661,31 +661,6 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           {" LPT"}
                         </Text>
                       </Flex>
-                      <Flex>
-                        <Text
-                          variant="neutral"
-                          css={{
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          Total inflation
-                        </Text>
-                        <Text
-                          css={{
-                            marginLeft: "auto",
-                            display: "block",
-                            fontWeight: 600,
-                            color: "$white",
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          {numeral(
-                            row.values.earnings.roi.params.totalInflationPercent
-                          ).format("0.0%")}
-                        </Text>
-                      </Flex>
                     </Box>
                   </Box>
                 </PopoverContent>
@@ -708,7 +683,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       },
       {
         Header: (
-          <Tooltip
+          <ExplorerTooltip
             multiline
             content={
               <Box>
@@ -718,7 +693,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             }
           >
             <Box>Delegated Stake</Box>
-          </Tooltip>
+          </ExplorerTooltip>
         ),
         accessor: "totalStake",
         Cell: ({ row }) => (
@@ -738,7 +713,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
       },
       {
         Header: (
-          <Tooltip
+          <ExplorerTooltip
             multiline
             content={
               <Box>
@@ -748,7 +723,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             }
           >
             <Box>Trailing 90D Fees</Box>
-          </Tooltip>
+          </ExplorerTooltip>
         ),
         accessor: "ninetyDayVolumeETH",
         Cell: ({ row }) => (
@@ -873,7 +848,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         hiddenColumns: ["identity"],
         sortBy: [
           {
-            id: "ninetyDayVolumeETH",
+            id: "earnings",
             desc: true,
           },
         ],

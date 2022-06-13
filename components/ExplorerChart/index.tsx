@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Text, Tooltip } from "@livepeer/design-system";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { Box, Button, Flex, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -20,7 +21,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Margin } from "recharts/types/util/types";
 
 export type ChartDatum = { x: number; y: number };
 
@@ -174,7 +174,7 @@ const ExplorerChart = ({
           zIndex: 3,
         }}
       >
-        <Tooltip multiline content={tooltip ? <Box>{tooltip}</Box> : <></>}>
+        <ExplorerTooltip multiline content={tooltip ? tooltip : <></>}>
           <Flex
             css={{
               alignItems: "center",
@@ -195,7 +195,7 @@ const ExplorerChart = ({
               </Box>
             )}
           </Flex>
-        </Tooltip>
+        </ExplorerTooltip>
         <Flex>
           <Text
             css={{

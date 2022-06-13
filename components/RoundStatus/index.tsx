@@ -1,13 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { Box, Flex, Text, themes, Tooltip } from "@livepeer/design-system";
+import { Box, Flex, Text, themes } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
-import { block } from "apollo/resolvers/Query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useTheme } from "next-themes";
@@ -158,7 +158,12 @@ const Index = () => {
   );
 
   return (
-    <Box css={{ width: "100%" }}>
+    <Box
+      css={{
+        minWidth: 250,
+        width: "100%",
+      }}
+    >
       <Flex css={{ width: "100%", justifyContent: "space-between" }}>
         <Box>
           <Text
@@ -178,10 +183,12 @@ const Index = () => {
               color: "white",
             }}
           >
-            #{currentRoundInfo?.currentRoundInfo?.id ?? ""}
+            {currentRoundInfo?.currentRoundInfo?.id
+              ? `#${currentRoundInfo.currentRoundInfo.id}`
+              : ""}
           </Text>
         </Box>
-        <Tooltip
+        <ExplorerTooltip
           multiline
           content={
             <Box>
@@ -214,11 +221,12 @@ const Index = () => {
               />
             )}
           </Flex>
-        </Tooltip>
+        </ExplorerTooltip>
       </Flex>
 
       <Box
         css={{
+          width: "100%",
           mt: "$2",
         }}
       >
@@ -303,7 +311,7 @@ const Index = () => {
                 begins.
               </Text>
             </Box>
-            <Tooltip
+            <ExplorerTooltip
               multiline
               content={
                 <Box>
@@ -353,8 +361,8 @@ const Index = () => {
                   ETH
                 </Text>
               </Flex>
-            </Tooltip>
-            <Tooltip
+            </ExplorerTooltip>
+            <ExplorerTooltip
               multiline
               content={
                 <Box>
@@ -401,7 +409,7 @@ const Index = () => {
                   LPT
                 </Text>
               </Flex>
-            </Tooltip>
+            </ExplorerTooltip>
           </Flex>
         ) : (
           <Text
