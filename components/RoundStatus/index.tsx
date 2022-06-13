@@ -158,7 +158,12 @@ const Index = () => {
   );
 
   return (
-    <Box css={{ width: "100%" }}>
+    <Box
+      css={{
+        minWidth: 250,
+        width: "100%",
+      }}
+    >
       <Flex css={{ width: "100%", justifyContent: "space-between" }}>
         <Box>
           <Text
@@ -178,7 +183,9 @@ const Index = () => {
               color: "white",
             }}
           >
-            #{currentRoundInfo?.currentRoundInfo?.id ?? ""}
+            {currentRoundInfo?.currentRoundInfo?.id
+              ? `#${currentRoundInfo.currentRoundInfo.id}`
+              : ""}
           </Text>
         </Box>
         <Tooltip
@@ -219,6 +226,7 @@ const Index = () => {
 
       <Box
         css={{
+          width: "100%",
           mt: "$2",
         }}
       >

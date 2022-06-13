@@ -181,68 +181,74 @@ const Index = ({ css = {}, ...props }) => {
         </Box>
         <Box
           css={{
-            maxHeight: searchMapping.length > 0 ? 400 : 0,
+            maxHeight: searchMapping.length > 0 ? 400 : 30,
             transition: "max-height 0.2s",
             overflow: "scroll",
             mt: "$1",
           }}
         >
-          {searchMapping
-            .filter((e) => e.item.id)
-            .map((result) => (
-              <A key={result.item.id} href={`/accounts/${result.item.id}`}>
-                <Flex
-                  css={{
-                    cursor: "pointer",
-                    borderRadius: "$2",
-                    fontSize: "$5",
-                    py: "$2",
-                    px: "$3",
-                    my: "$1",
-                    bc: "$neutral3",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    "&:-webkit-autofill::first-line": {
-                      fontSize: "$3",
-                    },
-                    "&:hover": {
-                      bc: "$neutral4",
-                    },
-                  }}
-                >
-                  <Flex>
-                    <Text>
-                      {result.item.identity.name
-                        ? `${
-                            result.item.identity.name
-                          } (${result.item.id.replace(
-                            result.item.id.slice(5, 39),
-                            "…"
-                          )})`
-                        : result.item.id.replace(
-                            result.item.id.slice(7, 37),
-                            "…"
-                          )}
-                    </Text>
-                    {result.item.id === result.item.delegate.id &&
-                      result.item.delegate.active && (
-                        <Badge
-                          size="2"
-                          variant="primary"
-                          css={{
-                            ml: "$2",
-                            color: "$white",
-                            fontSize: "$2",
-                          }}
-                        >
-                          Orchestrator
-                        </Badge>
-                      )}
+          {search.length > 1 && searchMapping.length <= 0 ? (
+            <Flex css={{ mt: "$1" }}>
+              <Text>No results found.</Text>
+            </Flex>
+          ) : (
+            searchMapping
+              .filter((e) => e.item.id)
+              .map((result) => (
+                <A key={result.item.id} href={`/accounts/${result.item.id}`}>
+                  <Flex
+                    css={{
+                      cursor: "pointer",
+                      borderRadius: "$2",
+                      fontSize: "$5",
+                      py: "$2",
+                      px: "$3",
+                      my: "$1",
+                      bc: "$neutral3",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      "&:-webkit-autofill::first-line": {
+                        fontSize: "$3",
+                      },
+                      "&:hover": {
+                        bc: "$neutral4",
+                      },
+                    }}
+                  >
+                    <Flex>
+                      <Text>
+                        {result.item.identity.name
+                          ? `${
+                              result.item.identity.name
+                            } (${result.item.id.replace(
+                              result.item.id.slice(5, 39),
+                              "…"
+                            )})`
+                          : result.item.id.replace(
+                              result.item.id.slice(7, 37),
+                              "…"
+                            )}
+                      </Text>
+                      {result.item.id === result.item.delegate.id &&
+                        result.item.delegate.active && (
+                          <Badge
+                            size="2"
+                            variant="primary"
+                            css={{
+                              ml: "$2",
+                              color: "$white",
+                              fontSize: "$2",
+                            }}
+                          >
+                            Orchestrator
+                          </Badge>
+                        )}
+                    </Flex>
+                    <Box as={ArrowRightIcon} />
                   </Flex>
-                  <Box as={ArrowRightIcon} />
-                </Flex>
-              </A>
-            ))}
+                </A>
+              ))
+          )}
         </Box>
       </DialogContent>
     </Dialog>
