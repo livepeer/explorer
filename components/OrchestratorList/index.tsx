@@ -661,31 +661,6 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           {" LPT"}
                         </Text>
                       </Flex>
-                      <Flex>
-                        <Text
-                          variant="neutral"
-                          css={{
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          Total inflation
-                        </Text>
-                        <Text
-                          css={{
-                            marginLeft: "auto",
-                            display: "block",
-                            fontWeight: 600,
-                            color: "$white",
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          {numeral(
-                            row.values.earnings.roi.params.totalInflationPercent
-                          ).format("0.0%")}
-                        </Text>
-                      </Flex>
                     </Box>
                   </Box>
                 </PopoverContent>
