@@ -1,9 +1,9 @@
 import { useQuery, gql } from "@apollo/client";
-import { abbreviateNumber } from "../../lib/utils";
-import { Box, Flex, Card, Text, Tooltip } from "@livepeer/design-system";
+import { Box, Flex, Card, Text } from "@livepeer/design-system";
 import numeral from "numeral";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useMemo } from "react";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 
 const ProjectionBox = ({ action }) => {
   const GET_ROI = gql`
@@ -49,7 +49,7 @@ const ProjectionBox = ({ action }) => {
                     ? "Projected Rewards (1Y)"
                     : "Projected Opportunity Cost (1Y)"}
                 </Box>
-                <Tooltip
+                <ExplorerTooltip
                   multiline
                   content={
                     <Box>
@@ -66,7 +66,7 @@ const ProjectionBox = ({ action }) => {
                   <Flex css={{ ml: "$1" }}>
                     <QuestionMarkCircledIcon />
                   </Flex>
-                </Tooltip>
+                </ExplorerTooltip>
               </Flex>
             </Box>
             {action === "delegate" && (
@@ -83,7 +83,7 @@ const ProjectionBox = ({ action }) => {
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
             <Flex css={{ ai: "center" }}>
               <Text css={{ fontSize: "$2" }}>Inflationary Rewards</Text>
-              <Tooltip
+              <ExplorerTooltip
                 multiline
                 content={
                   <Box>
@@ -95,7 +95,7 @@ const ProjectionBox = ({ action }) => {
                 <Flex css={{ ml: "$1" }}>
                   <QuestionMarkCircledIcon />
                 </Flex>
-              </Tooltip>
+              </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
               {numeral(data.roiRewards).format("0.0")} LPT
@@ -104,7 +104,7 @@ const ProjectionBox = ({ action }) => {
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
             <Flex css={{ ai: "center" }}>
               <Text css={{ fontSize: "$2" }}>Fee Share</Text>
-              <Tooltip
+              <ExplorerTooltip
                 multiline
                 content={
                   <Box>
@@ -116,7 +116,7 @@ const ProjectionBox = ({ action }) => {
                 <Flex css={{ ml: "$1" }}>
                   <QuestionMarkCircledIcon />
                 </Flex>
-              </Tooltip>
+              </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
               {numeral(data.roiFees).format("0.0")} ETH

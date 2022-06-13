@@ -1,8 +1,8 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import {
   Heading,
   Text,
   Card,
-  Tooltip,
   Box,
   Flex,
 } from "@livepeer/design-system";
@@ -48,11 +48,11 @@ const Stat = ({
       <Flex css={{ ai: "center" }}>
         {label}
         {tooltip && (
-          <Tooltip multiline content={<Box>{tooltip}</Box>}>
+          <ExplorerTooltip multiline content={<Box>{tooltip}</Box>}>
             <Flex css={{ ml: "$1" }}>
               <QuestionMarkCircledIcon />
             </Flex>
-          </Tooltip>
+          </ExplorerTooltip>
         )}
       </Flex>
     </Heading>

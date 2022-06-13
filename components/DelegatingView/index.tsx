@@ -1,4 +1,5 @@
 import { useApolloClient } from "@apollo/client";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { checkAddressEquality, initTransaction } from "@lib/utils";
 import {
@@ -7,7 +8,6 @@ import {
   Flex,
   Link as A,
   Text,
-  Tooltip,
 } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { MutationsContext } from "contexts";
@@ -166,7 +166,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Lifetime Undelegated</Box>
-                  <Tooltip
+                  <ExplorerTooltip
                     multiline
                     content={
                       <Box>
@@ -178,7 +178,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     <Flex css={{ ml: "$1" }}>
                       <QuestionMarkCircledIcon />
                     </Flex>
-                  </Tooltip>
+                  </ExplorerTooltip>
                 </Flex>
                 <Box>
                   {unbonded > 0 ? (
@@ -195,7 +195,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
               <Flex css={{ fontSize: "$2", justifyContent: "space-between" }}>
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Lifetime Rewards</Box>
-                  <Tooltip
+                  <ExplorerTooltip
                     multiline
                     content={
                       <Box>
@@ -206,7 +206,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     <Flex css={{ ml: "$1" }}>
                       <QuestionMarkCircledIcon />
                     </Flex>
-                  </Tooltip>
+                  </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
                   {numeral(Math.abs(rewards)).format("+0.0a")} LPT
@@ -239,7 +239,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Lifetime earnings</Box>
-                  <Tooltip
+                  <ExplorerTooltip
                     multiline
                     content={
                       <Box>
@@ -251,7 +251,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     <Flex css={{ ml: "$1" }}>
                       <QuestionMarkCircledIcon />
                     </Flex>
-                  </Tooltip>
+                  </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
                   {numeral(lifetimeEarnings || 0).format("0.00a")} ETH
@@ -265,7 +265,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box>Withdrawn</Box>
-                  <Tooltip
+                  <ExplorerTooltip
                     multiline
                     content={
                       <Box>
@@ -277,7 +277,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     <Flex css={{ ml: "$1" }}>
                       <QuestionMarkCircledIcon />
                     </Flex>
-                  </Tooltip>
+                  </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
                   {numeral(delegator?.withdrawnFees || 0).format("0.00a")} ETH
@@ -316,7 +316,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
             label={
               <Flex css={{ alignItems: "center" }}>
                 <Box>Network Equity</Box>
-                <Tooltip
+                <ExplorerTooltip
                   multiline
                   content={
                     <Box>
@@ -327,7 +327,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   <Flex css={{ ml: "$1" }}>
                     <QuestionMarkCircledIcon />
                   </Flex>
-                </Tooltip>
+                </ExplorerTooltip>
               </Flex>
             }
             value={

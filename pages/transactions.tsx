@@ -23,6 +23,7 @@ const TransactionsPage = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
+        ?.filter((e) => e.__typename !== "MintEvent")
         ?.slice(0, numberTransactions) ?? [],
     [eventsData]
   );

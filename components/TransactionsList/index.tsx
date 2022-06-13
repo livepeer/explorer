@@ -304,7 +304,8 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
             <Box>
               {`Received `}
               {getLptAmount(Number(event?.rewardTokens))}
-              {` rewards`}
+              {` in newly minted tokens`}
+              {renderEmoji("🌿")}
             </Box>
           );
         case "WithdrawStakeEvent":
@@ -392,7 +393,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
         case "TranscoderEvictedEvent":
           return <Box>{`Evicted from the active set`}</Box>;
         case "NewRoundEvent":
-          return <Box>{` has started a new round`}</Box>;
+          return <Box>{`Initialized a new round`}</Box>;
         case "WithdrawalEvent":
           return (
             <Box>
@@ -455,15 +456,8 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               <Badge size="1">{event?.serviceURI ?? "unknown"}</Badge>
             </Box>
           );
-        case "MintEvent":
-          return (
-            <Box>
-              {`Received `}
-              {getLptAmount(event?.amount)}
-              {` in newly minted tokens`}
-              {renderEmoji("🌿")}
-            </Box>
-          );
+        // case "MintEvent":
+        //   We do not handle this case for now, since it is duplicated with RewardEvent
         case "BurnEvent":
           return (
             <Box>

@@ -95,14 +95,6 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         />
         <Stat
           className="masonry-grid_item"
-          label="Price / Pixel"
-          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
-          value={`${numeral(
-            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
-          ).format("0,0")} WEI`}
-        />
-        <Stat
-          className="masonry-grid_item"
           label="Earned Fees"
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
@@ -110,6 +102,14 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           value={`${numeral(transcoder?.totalVolumeETH || 0).format(
             "0.00a"
           )} ETH`}
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Price / Pixel"
+          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
+          value={`${numeral(
+            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
+          ).format("0,0")} WEI`}
         />
         {/* <Stat
           className="masonry-grid_item"
@@ -123,16 +123,6 @@ const Index = ({ currentRound, transcoder, isActive }) => {
         /> */}
         <Stat
           className="masonry-grid_item"
-          label="Reward Cut"
-          tooltip={
-            "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
-          }
-          value={numeral(transcoder?.rewardCut || 0)
-            .divide(1000000)
-            .format("0%")}
-        />
-        <Stat
-          className="masonry-grid_item"
           label="Fee Cut"
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
@@ -140,6 +130,16 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           value={numeral(1 - (transcoder?.feeShare || 0) / 1000000).format(
             "0%"
           )}
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Reward Cut"
+          tooltip={
+            "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
+          }
+          value={numeral(transcoder?.rewardCut || 0)
+            .divide(1000000)
+            .format("0%")}
         />
         <Stat
           className="masonry-grid_item"

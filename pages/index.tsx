@@ -228,6 +228,7 @@ const Home = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
+        ?.filter((e) => e.__typename !== "MintEvent")
         ?.slice(0, 100) ?? [],
     [eventsData]
   );
