@@ -400,7 +400,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                       </Flex>
                       <Link
                         passHref
-                        href="https://github.com/livepeer/explorer/blob/main/ROI.md"
+                        href="https://docs.livepeer.org/delegators/how-to-guides/yield-calculation"
                       >
                         <A>
                           <Flex
