@@ -10,6 +10,8 @@ import { useCallback, useMemo } from "react";
 
 dayjs.extend(relativeTime);
 
+export const FILTERED_EVENT_TYPENAMES =  ["MintEvent", "BurnEvent", "EarningsClaimedEvent"];
+
 const getLptAmount = (number: number | string | undefined) => {
   return (
     <Badge size="1">{`${numeral(number || 0).format("0.00a")} LPT`}</Badge>

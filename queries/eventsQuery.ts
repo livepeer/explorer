@@ -107,13 +107,13 @@ export const eventsQuery = gql`
             id
           }
         }
-        ... on EarningsClaimedEvent {
-          rewardTokens
-          fees
-          delegate {
-            id
-          }
-        }
+        # ... on EarningsClaimedEvent {
+        #   rewardTokens
+        #   fees
+        #   delegate {
+        #     id
+        #   }
+        # }
         # ... on TranscoderSlashedEvent {
         # TODO: implement when Slashed is used
         # }
@@ -174,9 +174,9 @@ export const eventsQuery = gql`
         #   amount
         #   to
         # }
-        ... on BurnEvent {
-          value
-        }
+        # ... on BurnEvent {
+        #   value
+        # }
         ... on MigrateDelegatorFinalizedEvent {
           l1Addr
           l2Addr

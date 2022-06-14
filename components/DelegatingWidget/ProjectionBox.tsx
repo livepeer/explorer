@@ -46,8 +46,8 @@ const ProjectionBox = ({ action }) => {
               <Flex css={{ ai: "center" }}>
                 <Box>
                   {action === "delegate"
-                    ? "Projected Rewards (1Y)"
-                    : "Projected Opportunity Cost (1Y)"}
+                    ? "Forecasted Yield (1Y)"
+                    : "Forecasted Opportunity Cost (1Y)"}
                 </Box>
                 <ExplorerTooltip
                   multiline
@@ -87,7 +87,7 @@ const ProjectionBox = ({ action }) => {
                 multiline
                 content={
                   <Box>
-                    The projected LPT rewards you would receive, based on your
+                    The forecasted LPT rewards you would receive, based on your
                     input stake and the total stake for the orchestrator.
                   </Box>
                 }
