@@ -3,7 +3,9 @@ import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
-import TransactionsList from "@components/TransactionsList";
+import TransactionsList, {
+  FILTERED_EVENT_TYPENAMES,
+} from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
   Box,
@@ -228,7 +230,7 @@ const Home = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
-        ?.filter((e) => e.__typename !== "MintEvent")
+        ?.filter((e) => !FILTERED_EVENT_TYPENAMES.includes(e.__typename))
         ?.slice(0, 100) ?? [],
     [eventsData]
   );

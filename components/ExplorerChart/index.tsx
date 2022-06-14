@@ -83,7 +83,7 @@ const ExplorerChart = ({
           : unit === "percent"
           ? "0.0%"
           : unit === "small-percent"
-          ? "0.0000%"
+          ? "0.00000%"
           : "0,0"
       )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
     [unit]
@@ -162,6 +162,8 @@ const ExplorerChart = ({
         ? 35
         : unit === "eth"
         ? 35
+        : unit === "usd"
+        ? 36
         : 30,
     [unit]
   );

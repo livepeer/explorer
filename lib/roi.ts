@@ -76,7 +76,8 @@ export function calculateROI({
   if (rewardCallRatio > 0) {
     averageSecondsPerRound = roundLength * AVERAGE_L1_BLOCK_TIME;
     roundsCount = Math.round(
-      (getMonthsForTimeHorizon(timeHorizon) * SECONDS_IN_A_MONTH) / averageSecondsPerRound
+      (getMonthsForTimeHorizon(timeHorizon) * SECONDS_IN_A_MONTH) /
+        averageSecondsPerRound
     );
 
     totalInflationPercent =
@@ -91,6 +92,10 @@ export function calculateROI({
             return prev * (1 + roundInflationRate);
           }, 1)
         : Math.pow(1 + inflation, roundsCount)) - 1;
+
+    // cap the lowest inflation at 0%
+    totalInflationPercent =
+      totalInflationPercent < 0 ? 0 : totalInflationPercent;
 
     const totalProtocolRewards = totalSupply * totalInflationPercent;
     const totalProtocolRewardRatio = totalProtocolRewards / totalActiveStake;

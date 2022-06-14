@@ -174,9 +174,9 @@ export const eventsQuery = gql`
         #   amount
         #   to
         # }
-        ... on BurnEvent {
-          value
-        }
+        # ... on BurnEvent {
+        #   value
+        # }
         ... on MigrateDelegatorFinalizedEvent {
           l1Addr
           l2Addr
