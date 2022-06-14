@@ -3,9 +3,7 @@ import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
-import TransactionsList, {
-  FILTERED_EVENT_TYPENAMES,
-} from "@components/TransactionsList";
+import TransactionsList, { FILTERED_EVENT_TYPENAMES } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
   Box,
@@ -209,6 +207,8 @@ const Charts = ({ chartData }) => {
     </>
   );
 };
+
+
 
 const Home = () => {
   const { data: protocolData } = useQuery(gql`

@@ -107,13 +107,13 @@ export const eventsQuery = gql`
             id
           }
         }
-        ... on EarningsClaimedEvent {
-          rewardTokens
-          fees
-          delegate {
-            id
-          }
-        }
+        # ... on EarningsClaimedEvent {
+        #   rewardTokens
+        #   fees
+        #   delegate {
+        #     id
+        #   }
+        # }
         # ... on TranscoderSlashedEvent {
         # TODO: implement when Slashed is used
         # }

@@ -231,16 +231,16 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
         case "ServiceURIUpdateEvent":
           return <EthAddress identities={identities} value={event?.addr} />;
 
-        // case "MintEvent":
-        //   return <EthAddress identities={identities} value={event?.to} />;
+        case "MintEvent":
+          return <EthAddress identities={identities} value={event?.to} />;
 
-        // case "BurnEvent":
-        //   return (
-        //     <EthAddress
-        //       identities={identities}
-        //       value={event?.transaction?.from}
-        //     />
-        //   );
+        case "BurnEvent":
+          return (
+            <EthAddress
+              identities={identities}
+              value={event?.transaction?.from}
+            />
+          );
         case "MigrateDelegatorFinalizedEvent":
           return <EthAddress identities={identities} value={event?.l2Addr} />;
 
@@ -460,14 +460,14 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           );
         // case "MintEvent":
         //   We do not handle this case for now, since it is duplicated with RewardEvent
-        // case "BurnEvent":
-        //   return (
-        //     <Box>
-        //       {getLptAmount(event?.value)}
-        //       {` has been burned`}
-        //       {renderEmoji("🔥")}
-        //     </Box>
-        //   );
+        case "BurnEvent":
+          return (
+            <Box>
+              {getLptAmount(event?.value)}
+              {` has been burned`}
+              {renderEmoji("🔥")}
+            </Box>
+          );
         case "MigrateDelegatorFinalizedEvent":
           return <Box>{`Migrated to Arbitrum One`}</Box>;
         case "StakeClaimedEvent":
