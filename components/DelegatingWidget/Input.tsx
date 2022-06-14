@@ -17,7 +17,7 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
 
   const roi = calculateROI({
     inputs: {
-      principle: Number(principle || 150)
+      principle
     },
     orchestratorParams: {
       totalStake: Number(transcoder.totalStake),
