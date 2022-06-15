@@ -4,6 +4,8 @@ const SECONDS_IN_A_MONTH = 2628000;
 
 export type ROIInflationChange = "none" | "positive" | "negative";
 
+export type ROIFactors = "lpt+eth" | "lpt" | "eth";
+
 export type ROITimeHorizon =
   | "half-year"
   | "one-year"
@@ -16,6 +18,7 @@ export type ROIParams = {
     principle: number;
     timeHorizon?: ROITimeHorizon;
     inflationChange?: ROIInflationChange;
+    factors?: ROIFactors;
   };
   orchestratorParams: { totalStake: number };
   feeParams: {
@@ -49,7 +52,12 @@ export const getMonthsForTimeHorizon = (timeHorizon: ROITimeHorizon) =>
     : 12;
 
 export function calculateROI({
-  inputs: { principle, timeHorizon = "one-year", inflationChange = "none" },
+  inputs: {
+    principle,
+    timeHorizon = "one-year",
+    inflationChange = "none",
+    factors = "lpt+eth",
+  },
   orchestratorParams: { totalStake },
   feeParams: { ninetyDayVolumeETH, feeShare, lptPriceEth },
   rewardParams: {
@@ -73,7 +81,7 @@ export function calculateROI({
   let averageSecondsPerRound = 0;
   let totalInflationPercent = 0;
 
-  if (rewardCallRatio > 0) {
+  if (rewardCallRatio > 0 && factors !== "eth") {
     averageSecondsPerRound = roundLength * AVERAGE_L1_BLOCK_TIME;
     roundsCount = Math.round(
       (getMonthsForTimeHorizon(timeHorizon) * SECONDS_IN_A_MONTH) /
@@ -117,7 +125,7 @@ export function calculateROI({
   let delegatorLptFees = 0;
   let totalFees = 0;
 
-  if (ninetyDayVolumeETH > 0) {
+  if (ninetyDayVolumeETH > 0 && factors !== "lpt") {
     const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365;
     const expectedYearlyEthCutDelegators = expectedYearlyVolumeEth * feeShare;
     const expectedYearlyFeeCutDelegator =

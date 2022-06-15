@@ -33,7 +33,12 @@ import QRCode from "qrcode.react";
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
 import relativeTime from "dayjs/plugin/relativeTime";
-import { calculateROI, ROIInflationChange, ROITimeHorizon } from "@lib/roi";
+import {
+  calculateROI,
+  ROIFactors,
+  ROIInflationChange,
+  ROITimeHorizon,
+} from "@lib/roi";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
@@ -52,6 +57,13 @@ const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
     : timeHorizon === "four-years"
     ? `4Y`
     : "N/A";
+
+const formatFactors = (factors: ROIFactors) =>
+  factors === "lpt+eth"
+    ? `LPT + ETH`
+    : factors === "lpt"
+    ? `LPT Only`
+    : `ETH Only`;
 
 const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const formatPercentChange = useCallback(
@@ -73,6 +85,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
   const [principle, setPrinciple] = useState<number>(150);
   const [inflationChange, setInflationChange] =
     useState<ROIInflationChange>("none");
+  const [factors, setFactors] = useState<ROIFactors>("lpt+eth");
   const [timeHorizon, setTimeHorizon] = useState<ROITimeHorizon>("one-year");
   const maxSupplyTokens = useMemo(
     () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
@@ -82,6 +95,77 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
+
+  const mappedData = useMemo(() => {
+    return data
+      .map((row) => {
+        const pools = row.pools ?? [];
+        const rewardCalls =
+          pools.length > 0 ? pools.filter((r) => r?.rewardTokens).length : 0;
+        const rewardCallRatio = rewardCalls / pools.length;
+
+        const activation = dayjs.unix(row.activationTimestamp);
+
+        const isNewlyActive = dayjs().diff(activation, "days") < 45;
+
+        const roi = calculateROI({
+          inputs: {
+            principle: Number(principle),
+            timeHorizon,
+            inflationChange,
+            factors,
+          },
+          orchestratorParams: {
+            totalStake: Number(row.totalStake),
+          },
+          feeParams: {
+            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
+            feeShare: Number(row.feeShare) / 1000000,
+            lptPriceEth: Number(protocolData.lptPriceEth),
+          },
+          rewardParams: {
+            inflation: Number(protocolData.inflation) / 1000000000,
+            inflationChangePerRound:
+              Number(protocolData.inflationChange) / 1000000000,
+            totalSupply: Number(protocolData.totalSupply),
+            totalActiveStake: Number(protocolData.totalActiveStake),
+            roundLength: Number(protocolData.roundLength),
+
+            rewardCallRatio,
+            rewardCut: Number(row.rewardCut) / 1000000,
+          },
+        });
+
+        return {
+          ...row,
+          earningsComputed: {
+            roi,
+            activation,
+            isNewlyActive,
+            rewardCalls,
+            rewardCallLength: pools.length,
+            rewardCallRatio,
+            feeShare: row.feeShare,
+            rewardCut: row.rewardCut,
+            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
+            totalActiveStake: Number(protocolData.totalActiveStake),
+            totalStake: Number(row.totalStake),
+          },
+        };
+      })
+      .sort((a, b) =>
+        a.earningsComputed.isNewlyActive
+          ? 1
+          : b.earningsComputed.isNewlyActive
+          ? -1
+          : a.earningsComputed.roi.delegatorPercent.fees +
+              a.earningsComputed.roi.delegatorPercent.rewards >
+            b.earningsComputed.roi.delegatorPercent.fees +
+              b.earningsComputed.roi.delegatorPercent.rewards
+          ? -1
+          : 1
+      );
+  }, [data, inflationChange, protocolData, principle, timeHorizon, factors]);
 
   const columns = useMemo(
     () => [
@@ -207,57 +291,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
             </ExplorerTooltip>
           </Flex>
         ),
-        accessor: (row) => {
-          const pools = row.pools ?? [];
-          const rewardCalls =
-            pools.length > 0 ? pools.filter((r) => r?.rewardTokens).length : 0;
-          const rewardCallRatio = rewardCalls / pools.length;
-
-          const activation = dayjs.unix(row.activationTimestamp);
-
-          const isNewlyActive = dayjs().diff(activation, "days") < 45;
-
-          const roi = calculateROI({
-            inputs: {
-              principle: Number(principle),
-              timeHorizon,
-              inflationChange,
-            },
-            orchestratorParams: {
-              totalStake: Number(row.totalStake),
-            },
-            feeParams: {
-              ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-              feeShare: Number(row.feeShare) / 1000000,
-              lptPriceEth: Number(protocolData.lptPriceEth),
-            },
-            rewardParams: {
-              inflation: Number(protocolData.inflation) / 1000000000,
-              inflationChangePerRound:
-                Number(protocolData.inflationChange) / 1000000000,
-              totalSupply: Number(protocolData.totalSupply),
-              totalActiveStake: Number(protocolData.totalActiveStake),
-              roundLength: Number(protocolData.roundLength),
-
-              rewardCallRatio,
-              rewardCut: Number(row.rewardCut) / 1000000,
-            },
-          });
-
-          return {
-            roi,
-            activation,
-            isNewlyActive,
-            rewardCalls,
-            rewardCallLength: pools.length,
-            rewardCallRatio,
-            feeShare: row.feeShare,
-            rewardCut: row.rewardCut,
-            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-            totalActiveStake: Number(protocolData.totalActiveStake),
-            totalStake: Number(row.totalStake),
-          };
-        },
+        accessor: (row) => row.earningsComputed,
         id: "earnings",
         Cell: ({ row }) => {
           const isNewlyActive = useMemo(
@@ -338,66 +372,70 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                         Yield (1Y)
                       </Text>
 
-                      <Flex>
-                        <Text
-                          variant="neutral"
-                          css={{
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          Rewards (
-                          {numeral(
-                            row.values.earnings.roi.delegatorPercent.rewards
-                          ).format("0.0%")}
-                          ):
-                        </Text>
-                        <Text
-                          css={{
-                            marginLeft: "auto",
-                            display: "block",
-                            fontWeight: 600,
-                            color: "$white",
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          {numeral(
-                            row.values.earnings.roi.delegator.rewards
-                          ).format("0.0")}
-                          {" LPT"}
-                        </Text>
-                      </Flex>
-                      <Flex>
-                        <Text
-                          variant="neutral"
-                          css={{
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          Fees (
-                          {numeral(
-                            row.values.earnings.roi.delegatorPercent.fees
-                          ).format("0.0%")}
-                          ):
-                        </Text>
-                        <Text
-                          css={{
-                            marginLeft: "auto",
-                            display: "block",
-                            fontWeight: 600,
-                            color: "$white",
-                            mb: "$1",
-                          }}
-                          size="2"
-                        >
-                          {numeral(
-                            row.values.earnings.roi.delegator.fees
-                          ).format("0.0")}
-                          {" ETH"}
-                        </Text>
-                      </Flex>
+                      {factors !== "eth" && (
+                        <Flex>
+                          <Text
+                            variant="neutral"
+                            css={{
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            Rewards (
+                            {numeral(
+                              row.values.earnings.roi.delegatorPercent.rewards
+                            ).format("0.0%")}
+                            ):
+                          </Text>
+                          <Text
+                            css={{
+                              marginLeft: "auto",
+                              display: "block",
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            {numeral(
+                              row.values.earnings.roi.delegator.rewards
+                            ).format("0.0")}
+                            {" LPT"}
+                          </Text>
+                        </Flex>
+                      )}
+                      {factors !== "lpt" && (
+                        <Flex>
+                          <Text
+                            variant="neutral"
+                            css={{
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            Fees (
+                            {numeral(
+                              row.values.earnings.roi.delegatorPercent.fees
+                            ).format("0.0%")}
+                            ):
+                          </Text>
+                          <Text
+                            css={{
+                              marginLeft: "auto",
+                              display: "block",
+                              fontWeight: 600,
+                              color: "$white",
+                              mb: "$1",
+                            }}
+                            size="2"
+                          >
+                            {numeral(
+                              row.values.earnings.roi.delegator.fees
+                            ).format("0.000")}
+                            {" ETH"}
+                          </Text>
+                        </Flex>
+                      )}
                       <Link
                         passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
@@ -836,12 +874,12 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
         ),
       },
     ],
-    [protocolData, formattedPrinciple, principle, inflationChange, timeHorizon]
+    [formattedPrinciple, timeHorizon, factors]
   );
 
   return (
     <Table
-      data={data}
+      data={mappedData}
       columns={columns}
       initialState={{
         pageSize,
@@ -1048,6 +1086,85 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                   </Box>
                 </PopoverContent>
               </Popover>
+            </Box>
+            <Box css={{ ml: "$1" }}>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  asChild
+                >
+                  <Badge
+                    size="2"
+                    css={{
+                      cursor: "pointer",
+                      color: "$white",
+                      fontSize: "$2",
+                    }}
+                  >
+                    <Box css={{ mr: "$1" }}>
+                      <Pencil1Icon />
+                    </Box>
+
+                    <Text
+                      variant="neutral"
+                      size="1"
+                      css={{
+                        mr: 3,
+                      }}
+                    >
+                      {"Factors:"}
+                    </Text>
+                    <Text
+                      size="1"
+                      css={{
+                        color: "white",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {formatFactors(factors)}
+                    </Text>
+                  </Badge>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  css={{
+                    width: "200px",
+                    mt: "$1",
+                    boxShadow:
+                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                    bc: "$neutral4",
+                  }}
+                  align="center"
+                >
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setFactors("lpt+eth")}
+                    >
+                      {formatFactors("lpt+eth")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setFactors("lpt")}
+                    >
+                      {formatFactors("lpt")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setFactors("eth")}
+                    >
+                      {formatFactors("eth")}
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </Box>
             <Box css={{ ml: "$1" }}>
               <DropdownMenu>
