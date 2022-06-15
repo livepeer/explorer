@@ -3,7 +3,9 @@ import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
-import TransactionsList, { FILTERED_EVENT_TYPENAMES } from "@components/TransactionsList";
+import TransactionsList, {
+  FILTERED_EVENT_TYPENAMES,
+} from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
   Box,
@@ -208,8 +210,6 @@ const Charts = ({ chartData }) => {
   );
 };
 
-
-
 const Home = () => {
   const { data: protocolData } = useQuery(gql`
     {
@@ -230,7 +230,11 @@ const Home = () => {
     () =>
       eventsData?.transactions
         ?.flatMap((transaction) => transaction.events)
-        ?.filter((e) => !FILTERED_EVENT_TYPENAMES.includes(e.__typename))
+        ?.filter((e) =>
+          e.__typename === "BondEvent"
+            ? e?.additionalAmount !== "0.000000000000000001"
+            : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
+        )
         ?.slice(0, 100) ?? [],
     [eventsData]
   );

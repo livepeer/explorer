@@ -1,5 +1,6 @@
 import Table from "@components/Table";
 import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { sentenceCase } from "change-case";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -10,7 +11,11 @@ import { useCallback, useMemo } from "react";
 
 dayjs.extend(relativeTime);
 
-export const FILTERED_EVENT_TYPENAMES =  ["MintEvent", "BurnEvent", "EarningsClaimedEvent"];
+export const FILTERED_EVENT_TYPENAMES = [
+  "MintEvent",
+  "BurnEvent",
+  "EarningsClaimedEvent",
+];
 
 const getLptAmount = (number: number | string | undefined) => {
   return (
@@ -68,6 +73,8 @@ const EthAddress = (props: {
 const Transaction = (props: { id: string | undefined }) => {
   return (
     <A
+      target="_blank"
+      rel="noopener noreferrer"
       variant="primary"
       href={
         props.id ? `https://arbiscan.io/tx/${props.id}` : "https://arbiscan.io"
@@ -75,6 +82,7 @@ const Transaction = (props: { id: string | undefined }) => {
     >
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
+        <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
       </Badge>
     </A>
   );
@@ -489,13 +497,13 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
   const columns = useMemo(
     () => [
       {
-        Header: <Flex css={{ flex: 1 }}>Description</Flex>,
-        accessor: (row) => getDescriptionForRow(row),
-        id: "description",
+        Header: "Account",
+        accessor: (row) => getAccountForRow(row),
+        id: "account",
         Cell: ({ row }) => (
           <Box
             css={{
-              minWidth: 400,
+              minWidth: 150,
             }}
           >
             <Text
@@ -506,7 +514,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {row.values.description}
+              {row.values.account}
             </Text>
           </Box>
         ),
@@ -542,13 +550,13 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
         ),
       },
       {
-        Header: "Account",
-        accessor: (row) => getAccountForRow(row),
-        id: "account",
+        Header: <Flex css={{ flex: 1 }}>Description</Flex>,
+        accessor: (row) => getDescriptionForRow(row),
+        id: "description",
         Cell: ({ row }) => (
           <Box
             css={{
-              minWidth: 150,
+              minWidth: 400,
             }}
           >
             <Text
@@ -559,25 +567,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               }}
               size="2"
             >
-              {row.values.account}
-            </Text>
-          </Box>
-        ),
-      },
-      {
-        Header: "Transaction",
-        accessor: (row) => row.transaction.id,
-        id: "transaction",
-        Cell: ({ row }) => (
-          <Box css={{ minWidth: 130 }}>
-            <Text
-              css={{
-                fontWeight: 600,
-                color: "$white",
-              }}
-              size="2"
-            >
-              <Transaction id={row.values.transaction} />
+              {row.values.description}
             </Text>
           </Box>
         ),
@@ -601,6 +591,24 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           </Box>
         ),
         sortType: "number",
+      },
+      {
+        Header: "Transaction",
+        accessor: (row) => row.transaction.id,
+        id: "transaction",
+        Cell: ({ row }) => (
+          <Box css={{ minWidth: 130 }}>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              <Transaction id={row.values.transaction} />
+            </Text>
+          </Box>
+        ),
       },
     ],
     [getDescriptionForRow, getAccountForRow]
