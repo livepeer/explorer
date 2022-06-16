@@ -77,34 +77,30 @@ export function calculateROI({
   let delegatorLptRewards = 0;
   let totalLptRewards = 0;
 
-  let roundsCount = 0;
-  let averageSecondsPerRound = 0;
-  let totalInflationPercent = 0;
+  const monthsForTimeHorizon = getMonthsForTimeHorizon(timeHorizon);
+
+  const averageSecondsPerRound = roundLength * AVERAGE_L1_BLOCK_TIME;
+  const roundsCount = Math.round(
+    (monthsForTimeHorizon * SECONDS_IN_A_MONTH) / averageSecondsPerRound
+  );
+
+  let totalInflationPercent =
+    (inflationChange !== "none"
+      ? // 1 * (1 + rate1)(1 + rate1 +- inflationChange)(1 + rate1 +- 2*inflationChange)...
+        [...Array(roundsCount)].reduce((prev, _curr, index) => {
+          const roundInflationRate =
+            inflation +
+            inflationChangePerRound *
+              index *
+              (inflationChange === "negative" ? -1 : 1);
+          return prev * (1 + roundInflationRate);
+        }, 1)
+      : Math.pow(1 + inflation, roundsCount)) - 1;
+
+  // cap the lowest inflation at 0%
+  totalInflationPercent = totalInflationPercent < 0 ? 0 : totalInflationPercent;
 
   if (rewardCallRatio > 0 && factors !== "eth") {
-    averageSecondsPerRound = roundLength * AVERAGE_L1_BLOCK_TIME;
-    roundsCount = Math.round(
-      (getMonthsForTimeHorizon(timeHorizon) * SECONDS_IN_A_MONTH) /
-        averageSecondsPerRound
-    );
-
-    totalInflationPercent =
-      (inflationChange !== "none"
-        ? // 1 * (1 + rate1)(1 + rate1 +- inflationChange)(1 + rate1 +- 2*inflationChange)...
-          [...Array(roundsCount)].reduce((prev, _curr, index) => {
-            const roundInflationRate =
-              inflation +
-              inflationChangePerRound *
-                index *
-                (inflationChange === "negative" ? -1 : 1);
-            return prev * (1 + roundInflationRate);
-          }, 1)
-        : Math.pow(1 + inflation, roundsCount)) - 1;
-
-    // cap the lowest inflation at 0%
-    totalInflationPercent =
-      totalInflationPercent < 0 ? 0 : totalInflationPercent;
-
     const totalProtocolRewards = totalSupply * totalInflationPercent;
     const totalProtocolRewardRatio = totalProtocolRewards / totalActiveStake;
 
@@ -126,16 +122,17 @@ export function calculateROI({
   let totalFees = 0;
 
   if (ninetyDayVolumeETH > 0 && factors !== "lpt") {
-    const expectedYearlyVolumeEth = (ninetyDayVolumeETH / 90) * 365;
-    const expectedYearlyEthCutDelegators = expectedYearlyVolumeEth * feeShare;
-    const expectedYearlyFeeCutDelegator =
-      expectedYearlyEthCutDelegators * (principle / combinedTotalStaked);
+    const expectedPeriodVolumeEth =
+      (ninetyDayVolumeETH / 90) * 365 * (monthsForTimeHorizon / 12);
+    const expectedPeriodEthCutDelegators = expectedPeriodVolumeEth * feeShare;
+    const expectedPeriodFeeCutDelegator =
+      expectedPeriodEthCutDelegators * (principle / combinedTotalStaked);
 
     const expectedLptFeeCutDelegator =
-      expectedYearlyFeeCutDelegator / lptPriceEth;
+      expectedPeriodFeeCutDelegator / lptPriceEth;
 
-    totalFees = expectedYearlyVolumeEth;
-    delegatorFees = expectedYearlyFeeCutDelegator;
+    totalFees = expectedPeriodVolumeEth;
+    delegatorFees = expectedPeriodFeeCutDelegator;
     delegatorLptFees = expectedLptFeeCutDelegator;
     percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
   }
