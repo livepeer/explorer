@@ -369,7 +369,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                           textTransform: "uppercase",
                         }}
                       >
-                        Yield (1Y)
+                        {`Yield (${formatTimeHorizon(timeHorizon)})`}
                       </Text>
 
                       {factors !== "eth" && (
