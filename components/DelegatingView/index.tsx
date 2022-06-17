@@ -225,7 +225,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 fontSize: 26,
               }}
             >
-              {numeral(delegator.pendingFees).format("0.00")} ETH
+              {numeral(delegator.pendingFees).format("0.000")} ETH
             </Box>
           }
           meta={
@@ -254,7 +254,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(lifetimeEarnings || 0).format("0.00a")} ETH
+                  {numeral(lifetimeEarnings || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
               <Flex
@@ -280,7 +280,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(delegator?.withdrawnFees || 0).format("0.00a")} ETH
+                  {numeral(delegator?.withdrawnFees || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && (

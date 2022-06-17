@@ -357,7 +357,7 @@ const Index = () => {
                 >
                   {numeral(
                     protocolData?.protocol?.currentRound?.volumeETH || 0
-                  ).format("0.0")}{" "}
+                  ).format("0.00a")}{" "}
                   ETH
                 </Text>
               </Flex>

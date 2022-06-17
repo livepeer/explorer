@@ -621,7 +621,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numeral(event.amount).format("0.00a")}
+                {numeral(event.amount).format("0.000a")}
               </Box>{" "}
               ETH
             </Box>
@@ -678,7 +678,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.faceValue).format("0.00a")}
+                +{numeral(event.faceValue).format("0.000a")}
               </Box>{" "}
               ETH
             </Box>
@@ -735,7 +735,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.amount).format("0.0a")}
+                +{numeral(event.amount).format("0.00a")}
               </Box>{" "}
               ETH
             </Box>
@@ -797,7 +797,7 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", ml: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.amount).format("0.0a")}
+                +{numeral(event.amount).format("0.00a")}
               </Box>{" "}
               ETH
             </Box>

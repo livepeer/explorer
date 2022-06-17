@@ -25,7 +25,7 @@ const getLptAmount = (number: number | string | undefined) => {
 
 const getEthAmount = (number: number | string | undefined) => {
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.00a")} ETH`}</Badge>
+    <Badge size="1">{`${numeral(number || 0).format("0.000a")} ETH`}</Badge>
   );
 };
 
