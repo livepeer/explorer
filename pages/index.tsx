@@ -35,7 +35,7 @@ const Panel = ({ children }) => (
       justifyContent: "center",
       border: "0.5px solid $colors$neutral4",
       flex: 1,
-      minWidth: 300,
+      width: "100%",
     }}
   >
     {children}
@@ -297,9 +297,14 @@ const Home = () => {
                 overflow: "hidden",
                 mx: "auto",
                 overflowX: "auto",
+                width: "100%",
               }}
             >
-              <Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                }}
+              >
                 <Box
                   css={{
                     width: "100%",
