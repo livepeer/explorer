@@ -573,7 +573,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                         >
                           {numeral(
                             row.values.earnings.ninetyDayVolumeETH
-                          ).format("0.00")}
+                          ).format("0.000a")}
                           {" ETH"}
                         </Text>
                       </Flex>
