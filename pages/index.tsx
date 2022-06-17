@@ -36,6 +36,7 @@ const Panel = ({ children }) => (
       border: "0.5px solid $colors$neutral4",
       flex: 1,
       width: "100%",
+      minWidth: 350,
     }}
   >
     {children}
@@ -297,35 +298,29 @@ const Home = () => {
                 overflow: "hidden",
                 mx: "auto",
                 overflowX: "auto",
-                width: "100%",
               }}
             >
-              <Flex
-                css={{
-                  width: "100%",
-                }}
-              >
+              <Flex >
                 <Box
                   css={{
                     width: "100%",
-                    flex: 4,
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
                   }}
                 >
                   <Charts chartData={chartData} />
                 </Box>
-                <Flex
-                  css={{
-                    justifyContent: "center",
-                    width: "100%",
-                    height: "100%",
-                    p: "24px",
-                    flex: 1,
-                  }}
-                >
-                  <RoundStatus />
-                </Flex>
+              </Flex>
+              <Flex
+                css={{
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
+                  p: "24px",
+                  flex: 1
+                }}
+              >
+                <RoundStatus />
               </Flex>
             </Flex>
           </Flex>
