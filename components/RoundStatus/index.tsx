@@ -345,7 +345,7 @@ const Index = () => {
                     Fees
                   </Text>
                   <Box css={{ ml: "$1" }}>
-                    <QuestionMarkCircledIcon />
+                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                   </Box>
                 </Flex>
 
@@ -392,7 +392,7 @@ const Index = () => {
                     Rewards
                   </Text>
                   <Box css={{ ml: "$1" }}>
-                    <QuestionMarkCircledIcon />
+                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                   </Box>
                 </Flex>
 

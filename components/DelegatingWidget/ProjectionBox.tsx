@@ -64,7 +64,7 @@ const ProjectionBox = ({ action }) => {
                   }
                 >
                   <Flex css={{ ml: "$1" }}>
-                    <QuestionMarkCircledIcon />
+                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                   </Flex>
                 </ExplorerTooltip>
               </Flex>
@@ -93,7 +93,7 @@ const ProjectionBox = ({ action }) => {
                 }
               >
                 <Flex css={{ ml: "$1" }}>
-                  <QuestionMarkCircledIcon />
+                  <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                 </Flex>
               </ExplorerTooltip>
             </Flex>
@@ -114,7 +114,7 @@ const ProjectionBox = ({ action }) => {
                 }
               >
                 <Flex css={{ ml: "$1" }}>
-                  <QuestionMarkCircledIcon />
+                  <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                 </Flex>
               </ExplorerTooltip>
             </Flex>

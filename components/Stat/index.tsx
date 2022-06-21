@@ -50,7 +50,7 @@ const Stat = ({
         {tooltip && (
           <ExplorerTooltip multiline content={<Box>{tooltip}</Box>}>
             <Flex css={{ ml: "$1" }}>
-              <QuestionMarkCircledIcon />
+              <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
             </Flex>
           </ExplorerTooltip>
         )}

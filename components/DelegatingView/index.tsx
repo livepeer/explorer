@@ -176,7 +176,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <QuestionMarkCircledIcon />
+                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -204,7 +204,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <QuestionMarkCircledIcon />
+                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -249,7 +249,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <QuestionMarkCircledIcon />
+                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -275,7 +275,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <QuestionMarkCircledIcon />
+                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -325,7 +325,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   }
                 >
                   <Flex css={{ ml: "$1" }}>
-                    <QuestionMarkCircledIcon />
+                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
                   </Flex>
                 </ExplorerTooltip>
               </Flex>

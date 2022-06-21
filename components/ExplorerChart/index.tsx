@@ -193,7 +193,7 @@ const ExplorerChart = ({
             </Text>
             {tooltip && (
               <Box css={{ ml: "$1" }}>
-                <QuestionMarkCircledIcon />
+                <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
               </Box>
             )}
           </Flex>
