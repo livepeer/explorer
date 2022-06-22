@@ -260,7 +260,7 @@ const ExplorerChart = ({
       )}
       <Box
         css={{
-          pt: "$6",
+          pt: 57,
           width: "100%",
           height: "100%",
         }}
