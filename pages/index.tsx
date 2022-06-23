@@ -27,8 +27,8 @@ import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 const Panel = ({ children }) => (
   <Flex
     css={{
-      minHeight: 220,
-      height: 220,
+      minHeight: 240,
+      height: 240,
       p: "24px",
       flexDirection: "column",
       alignItems: "center",

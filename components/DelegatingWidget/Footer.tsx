@@ -126,8 +126,7 @@ const Footer = ({
         amount={amount}
         newPosPrev={newPosPrev}
         newPosNext={newPosNext}
-        delegator={delegator}
-        disabled={!canUndelegate}
+        disabled={!canUndelegate || delegatorStatus === "Pending"}
       />
       {renderUnstakeWarnings(
         amount,
