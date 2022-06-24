@@ -482,8 +482,8 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           return (
             <Box>
               {`Claimed `}
-              {getEthAmount(event?.stake)}
-              {` stake from L1 Ethereum`}
+              {getLptAmount(event?.stake)}
+              {` from L1 Ethereum`}
             </Box>
           );
 

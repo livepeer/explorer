@@ -283,7 +283,7 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
                   if you were to delegate {formattedPrinciple} LPT to this
                   orchestrator. This is based on recent performance data and may
-                  differ from actual ROI.
+                  differ from actual yield.
                 </Box>
               }
             >
