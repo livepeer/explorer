@@ -11,10 +11,9 @@ import {
   styled,
   Text,
 } from "@livepeer/design-system";
-import fm from "front-matter";
-import { usePageVisibility } from "hooks";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import dayjs from "dayjs";
+import fm from "front-matter";
+import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -41,21 +40,12 @@ export const Status = styled("div", {
 });
 
 const Voting = () => {
-  const isVisible = usePageVisibility();
   const pollInterval = 20000;
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { data, startPolling, stopPolling } = useQuery(pollsQuery, {
+  const { data } = useQuery(pollsQuery, {
     pollInterval,
   });
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPolling();
-    } else {
-      startPolling(pollInterval);
-    }
-  }, [isVisible, startPolling, stopPolling]);
 
   useEffect(() => {
     if (data) {

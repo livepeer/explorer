@@ -471,7 +471,9 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     }
 
     // add relevant fields with the calculated amounts
-    data.dayData = [...dayData].reverse();
+    data.dayData = [...dayData]
+      .filter((day) => Number(day.inflation))
+      .reverse();
     data.weeklyData = weeklyData;
     data.oneDayVolumeUSD = oneDayVolumeUSD;
     data.oneDayVolumeETH = oneDayVolumeETH;

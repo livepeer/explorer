@@ -1,31 +1,31 @@
-import { useRouter } from "next/router";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useQuery } from "@apollo/client";
-import Profile from "@components/Profile";
 import DelegatingWidget from "@components/DelegatingWidget";
+import Profile from "@components/Profile";
 import Spinner from "@components/Spinner";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { useRouter } from "next/router";
 
-import { checkAddressEquality } from "@lib/utils";
-import BottomDrawer from "@components/BottomDrawer";
-import useWindowSize from "react-use/lib/useWindowSize";
-import { useAccountAddress, usePageVisibility } from "../hooks";
-import { useEffect, useMemo } from "react";
-import { accountQuery } from "../queries/accountQuery";
 import { gql } from "@apollo/client";
+import BottomDrawer from "@components/BottomDrawer";
+import DelegatingView from "@components/DelegatingView";
+import HistoryView from "@components/HistoryView";
+import OrchestratingView from "@components/OrchestratingView";
+import { checkAddressEquality } from "@lib/utils";
 import {
-  Link as A,
-  Flex,
-  Container,
-  Sheet,
-  SheetTrigger,
-  Button,
-  SheetContent,
   Box,
+  Button,
+  Container,
+  Flex,
+  Link as A,
+  Sheet,
+  SheetContent,
+  SheetTrigger,
 } from "@livepeer/design-system";
 import Link from "next/link";
-import DelegatingView from "@components/DelegatingView";
-import OrchestratingView from "@components/OrchestratingView";
-import HistoryView from "@components/HistoryView";
+import { useMemo } from "react";
+import useWindowSize from "react-use/lib/useWindowSize";
+import { useAccountAddress } from "../hooks";
+import { accountQuery } from "../queries/accountQuery";
 
 const pollInterval = 5000;
 
@@ -40,7 +40,6 @@ const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"];
 const AccountLayout = () => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
-  const isVisible = usePageVisibility();
   const router = useRouter();
   const { query, asPath } = router;
   const view = ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v);
@@ -60,12 +59,7 @@ const AccountLayout = () => {
 
   const account = query?.account?.toString().toLowerCase();
 
-  const {
-    data,
-    loading,
-    startPolling: startPollingAccount,
-    stopPolling: stopPollingAccount,
-  } = useQuery(q, {
+  const { data, loading } = useQuery(q, {
     variables: {
       account,
     },
@@ -87,33 +81,13 @@ const AccountLayout = () => {
     `
   );
 
-  const {
-    data: dataMyAccount,
-    startPolling: startPollingMyAccount,
-    stopPolling: stopPollingMyAccount,
-  } = useQuery(q, {
+  const { data: dataMyAccount } = useQuery(q, {
     variables: {
       account: accountAddress?.toLowerCase(),
     },
     skip: !accountAddress,
     pollInterval,
   });
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPollingMyAccount();
-      stopPollingAccount();
-    } else {
-      startPollingMyAccount(pollInterval);
-      startPollingAccount(pollInterval);
-    }
-  }, [
-    isVisible,
-    stopPollingMyAccount,
-    stopPollingAccount,
-    startPollingMyAccount,
-    startPollingAccount,
-  ]);
 
   const SELECTED_STAKING_ACTION = gql`
     {

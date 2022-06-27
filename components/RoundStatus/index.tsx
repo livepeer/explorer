@@ -6,15 +6,14 @@ import { Box, Flex, Text, themes } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
-  QuestionMarkCircledIcon,
+  QuestionMarkCircledIcon
 } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useTheme } from "next-themes";
 import numeral from "numeral";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
-import { usePageVisibility } from "../../hooks";
 import CircularProgressbar from "../CircularProgressBar";
 
 dayjs.extend(relativeTime);
@@ -24,15 +23,9 @@ const Index = () => {
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];
-  const isVisible = usePageVisibility();
   const pollInterval = 30000;
 
-  const {
-    data: protocolData,
-    loading: protocolDataloading,
-    startPolling: startPollingProtocol,
-    stopPolling: stopPollingProtocol,
-  } = useQuery(
+  const { data: protocolData } = useQuery(
     gql`
       {
         protocol(id: "0") {
@@ -55,12 +48,7 @@ const Index = () => {
       pollInterval,
     }
   );
-  const {
-    data: blockData,
-    loading: blockDataLoading,
-    startPolling: startPollingBlock,
-    stopPolling: stopPollingBlock,
-  } = useQuery(
+  const { data: blockData } = useQuery(
     gql`
       {
         l1Block
@@ -71,12 +59,7 @@ const Index = () => {
     }
   );
 
-  const {
-    data: currentRoundInfo,
-    loading: currentRoundInfoLoading,
-    startPolling: startPollingCurrentRoundInfo,
-    stopPolling: stopPollingCurrentRoundInfo,
-  } = useQuery(
+  const { data: currentRoundInfo } = useQuery(
     gql`
       {
         currentRoundInfo
@@ -86,26 +69,6 @@ const Index = () => {
       pollInterval,
     }
   );
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPollingProtocol();
-      stopPollingBlock();
-      stopPollingCurrentRoundInfo();
-    } else {
-      startPollingProtocol(pollInterval);
-      startPollingBlock(pollInterval);
-      startPollingCurrentRoundInfo(pollInterval);
-    }
-  }, [
-    isVisible,
-    stopPollingProtocol,
-    stopPollingBlock,
-    stopPollingCurrentRoundInfo,
-    startPollingProtocol,
-    startPollingBlock,
-    startPollingCurrentRoundInfo,
-  ]);
 
   const blocksRemaining = useMemo(
     () =>
@@ -345,7 +308,10 @@ const Index = () => {
                     Fees
                   </Text>
                   <Box css={{ ml: "$1" }}>
-                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
                   </Box>
                 </Flex>
 
@@ -392,7 +358,10 @@ const Index = () => {
                     Rewards
                   </Text>
                   <Box css={{ ml: "$1" }}>
-                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
                   </Box>
                 </Flex>
 
