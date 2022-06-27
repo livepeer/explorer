@@ -1,34 +1,34 @@
+import { gql, useApolloClient, useQuery } from "@apollo/client";
+import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import fm from "front-matter";
-import VotingWidget from "@components/VotingWidget";
+import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
 import { abbreviateNumber } from "../../lib/utils";
-import { useRouter } from "next/router";
-import { useQuery, useApolloClient, gql } from "@apollo/client";
 
-import Spinner from "@components/Spinner";
-import { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import { useWindowSize } from "react-use";
 import BottomDrawer from "@components/BottomDrawer";
-import Head from "next/head";
-import { useAccountAddress, usePageVisibility } from "../../hooks";
-import { pollQuery } from "../../queries/pollQuery";
-import { accountQuery } from "../../queries/accountQuery";
-import { voteQuery } from "../../queries/voteQuery";
-import FourZeroFour from "../404";
+import Spinner from "@components/Spinner";
+import Stat from "@components/Stat";
 import {
-  Container,
-  Box,
-  Flex,
-  Card,
   Badge,
+  Box,
   Button,
+  Card,
+  Container,
+  Flex,
   Heading,
   Text,
 } from "@livepeer/design-system";
-import Stat from "@components/Stat";
+import dayjs from "dayjs";
+import Head from "next/head";
+import { useEffect, useState } from "react";
+import { useWindowSize } from "react-use";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { useAccountAddress } from "../../hooks";
+import { accountQuery } from "../../queries/accountQuery";
+import { pollQuery } from "../../queries/pollQuery";
+import { voteQuery } from "../../queries/voteQuery";
+import FourZeroFour from "../404";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
@@ -38,18 +38,14 @@ const Poll = () => {
   const accountAddress = useAccountAddress();
   const client = useApolloClient();
   const { width } = useWindowSize();
-  const isVisible = usePageVisibility();
+
   const [pollData, setPollData] = useState(null);
   const { query } = router;
 
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 20000;
 
-  const {
-    data,
-    startPolling: startPollingPoll,
-    stopPolling: stopPollingPoll,
-  } = useQuery(pollQuery, {
+  const { data } = useQuery(pollQuery, {
     variables: {
       id: pollId,
     },
@@ -69,11 +65,7 @@ const Poll = () => {
 
   const q = accountQuery(currentRoundData?.protocol.currentRound.id);
 
-  const {
-    data: myAccountData,
-    startPolling: startPollingMyAccount,
-    stopPolling: stopPollingMyAccount,
-  } = useQuery(q, {
+  const { data: myAccountData } = useQuery(q, {
     variables: {
       account: accountAddress?.toLowerCase(),
     },
@@ -81,11 +73,7 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const {
-    data: voteData,
-    startPolling: startPollingVote,
-    stopPolling: stopPollingVote,
-  } = useQuery(voteQuery, {
+  const { data: voteData } = useQuery(voteQuery, {
     variables: {
       id: `${accountAddress?.toLowerCase()}-${pollId}`,
     },
@@ -93,41 +81,13 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const {
-    data: delegateVoteData,
-    startPolling: startPollingDelegate,
-    stopPolling: stopPollingDelegate,
-  } = useQuery(voteQuery, {
+  const { data: delegateVoteData } = useQuery(voteQuery, {
     variables: {
       id: `${myAccountData?.delegator?.delegate?.id.toLowerCase()}-${pollId}`,
     },
     pollInterval,
     skip: !myAccountData?.delegator?.delegate,
   });
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPollingPoll();
-      stopPollingMyAccount();
-      stopPollingVote();
-      stopPollingDelegate();
-    } else {
-      startPollingPoll(pollInterval);
-      startPollingMyAccount(pollInterval);
-      startPollingVote(pollInterval);
-      startPollingDelegate(pollInterval);
-    }
-  }, [
-    isVisible,
-    stopPollingPoll,
-    stopPollingMyAccount,
-    stopPollingVote,
-    stopPollingDelegate,
-    startPollingPoll,
-    startPollingMyAccount,
-    startPollingVote,
-    startPollingDelegate,
-  ]);
 
   useEffect(() => {
     const init = async () => {
