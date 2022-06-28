@@ -1,11 +1,9 @@
-import { useRouter } from "next/router";
-import { useQuery, gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import Tokenholders from "@components/Tokenholders";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useEffect } from "react";
-import { usePageVisibility } from "../../hooks";
 import { Box, Flex } from "@livepeer/design-system";
+import { useRouter } from "next/router";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const GET_DATA = gql`
   query ($account: ID!, $first: Int!, $skip: Int!) {
@@ -38,32 +36,21 @@ const GET_DATA = gql`
 
 const Index = () => {
   const router = useRouter();
-  const isVisible = usePageVisibility();
+
   const query = router.query;
   const account = query.account as string;
   const pollInterval = 20000;
-  const { data, loading, fetchMore, startPolling, stopPolling } = useQuery(
-    GET_DATA,
-    {
-      variables: {
-        account: account.toLowerCase(),
-        address: account.toLowerCase(),
-        first: 10,
-        skip: 0,
-      },
-      ssr: false,
-      pollInterval,
-      notifyOnNetworkStatusChange: true,
-    }
-  );
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPolling();
-    } else {
-      startPolling(pollInterval);
-    }
-  }, [isVisible, stopPolling, startPolling]);
+  const { data, loading, fetchMore, stopPolling } = useQuery(GET_DATA, {
+    variables: {
+      account: account.toLowerCase(),
+      address: account.toLowerCase(),
+      first: 10,
+      skip: 0,
+    },
+    ssr: false,
+    pollInterval,
+    notifyOnNetworkStatusChange: true,
+  });
 
   if (loading && !data) {
     return (

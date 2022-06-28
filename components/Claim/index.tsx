@@ -14,6 +14,7 @@ import { useApolloClient } from "@apollo/client";
 import { initTransaction } from "@lib/utils";
 import { MutationsContext } from "contexts";
 import { useAccountAddress } from "hooks";
+import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 
 const getDelegatorOnL1 = async (account) => {
   const sdk = await LivepeerSDK({
@@ -76,7 +77,7 @@ const Claim = () => {
   }, [accountAddress]);
 
   return loading || !isDelegator || isMigrated ? null : (
-    <Container size="3" css={{ mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
       <Box
         css={{
           mt: "$5",

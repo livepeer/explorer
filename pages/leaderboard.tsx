@@ -1,4 +1,4 @@
-import { getLayout } from "@layouts/main";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import Head from "next/head";
 import { Flex, Container, Heading, Box } from "@livepeer/design-system";
 import PerformanceList from "@components/PerformanceList";
@@ -40,7 +40,7 @@ const LeaderboardPage = () => {
       <Head>
         <title>Livepeer Explorer - Performance Leaderboard</title>
       </Head>
-      <Container size="3" css={{ width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",

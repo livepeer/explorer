@@ -8,7 +8,7 @@ const Footnote = ({ children }) => {
         color: "gray",
         textAlign: "center",
         fontSize: "$1",
-        lineHeight: 1.7,
+        lineHeight: 1.3,
       }}
     >
       {children}

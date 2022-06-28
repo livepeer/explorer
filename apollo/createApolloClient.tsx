@@ -39,7 +39,9 @@ export default function createApolloClient(
           error
         }
         txs
-        roi
+        roiFees
+        roiFeesLpt
+        roiRewards
         principle
       }
     `,
@@ -60,7 +62,10 @@ export default function createApolloClient(
         error: false,
       },
       txs: [],
-      roi: 0.0,
+
+      roiFees: 0.0,
+      roiFeesLpt: 0.0,
+      roiRewards: 0.0,
       principle: 0.0,
     },
   });

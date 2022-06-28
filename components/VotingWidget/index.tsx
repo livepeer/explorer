@@ -12,7 +12,7 @@ import {
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { useAccountAddress } from "hooks";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Utils from "web3-utils";
@@ -20,6 +20,9 @@ import { abbreviateNumber } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 const Index = ({ data }) => {
   const accountAddress = useAccountAddress();
@@ -174,7 +177,7 @@ const Index = ({ data }) => {
               · {abbreviateNumber(totalVoteStake, 4)} LPT ·{" "}
               {!data.poll.isActive
                 ? "Final Results"
-                : moment
+                : dayjs
                     .duration(data.poll.estimatedTimeRemaining, "seconds")
                     .humanize() + " left"}
             </Box>

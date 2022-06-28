@@ -18,7 +18,7 @@ import {
   IS_TESTNET,
   l1Provider,
   L1_CHAIN_ID,
-  DEFAULT_CHAIN_ID
+  DEFAULT_CHAIN_ID,
 } from "lib/chains";
 import LivepeerSDK from "@livepeer/sdk";
 
@@ -136,17 +136,25 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeETH: 0,
     totalUsage: 0,
     participationRate: 0,
+    inflation: 0,
+    activeTranscoderCount: 0,
+    delegatorsCount: 0,
     oneDayVolumeUSD: 0,
     oneDayVolumeETH: 0,
     oneWeekVolumeUSD: 0,
     oneWeekVolumeETH: 0,
     oneWeekUsage: 0,
+    oneDayUsage: 0,
+    dailyUsageChange: 0,
     weeklyVolumeChangeUSD: 0,
     weeklyVolumeChangeETH: 0,
     weeklyUsageChange: 0,
     volumeChangeUSD: 0,
     volumeChangeETH: 0,
     participationRateChange: 0,
+    inflationChange: 0,
+    activeTranscoderCountChange: 0,
+    delegatorsCountChange: 0,
   };
 
   let dayData = [];
@@ -155,11 +163,17 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     totalVolumeUSD: 0,
     totalVolumeETH: 0,
     participationRate: 0,
+    inflation: 0,
+    activeTranscoderCount: 0,
+    delegatorsCount: 0,
   };
   let twoDayData = {
     totalVolumeUSD: 0,
     totalVolumeETH: 0,
     participationRate: 0,
+    inflation: 0,
+    activeTranscoderCount: 0,
+    delegatorsCount: 0,
   };
 
   // Date to price mapping used to calculate estimated usage
@@ -240,6 +254,8 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     dayData = dayDataResult.data.days;
 
     let livepeerComDayData = [];
+    let livepeerComOneDayData = [];
+    let livepeerComTwoDaysData = [];
     let livepeerComOneWeekData = [];
     let livepeerComTwoWeekData = [];
 
@@ -261,9 +277,19 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
         fromTime,
         toTime: utcTwoWeeksBack * 1000, // api uses milliseconds
       });
+      livepeerComOneDayData = await getLivepeerComUsageData({
+        fromTime,
+        toTime: utcOneDayBack * 1000, // api uses milliseconds
+      });
+      livepeerComTwoDaysData = await getLivepeerComUsageData({
+        fromTime,
+        toTime: utcTwoDaysBack * 1000, // api uses milliseconds
+      });
     }
 
     let totalFeeDerivedMinutes = 0;
+    let totalFeeDerivedMinutesOneDayAgo = 0;
+    let totalFeeDerivedMinutesTwoDaysAgo = 0;
     let totalFeeDerivedMinutesOneWeekAgo = 0;
     let totalFeeDerivedMinutesTwoWeeksAgo = 0;
     let pricePerPixelIndex = pricePerPixel.length - 1;
@@ -290,6 +316,13 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       });
 
       totalFeeDerivedMinutes += feeDerivedMinutes;
+
+      if (item.date < utcOneDayBack) {
+        totalFeeDerivedMinutesOneDayAgo += feeDerivedMinutes;
+      }
+      if (item.date < utcTwoDaysBack) {
+        totalFeeDerivedMinutesTwoDaysAgo += feeDerivedMinutes;
+      }
 
       if (item.date < utcOneWeekBack) {
         totalFeeDerivedMinutesOneWeekAgo += feeDerivedMinutes;
@@ -323,12 +356,30 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       0
     );
 
+    const totalLivepeerComUsageOneDayAgo = livepeerComOneDayData.reduce(
+      (x, y) => {
+        return x + y.sourceSegmentsDuration / 60;
+      },
+      0
+    );
+
+    const totalLivepeerComUsageTwoDaysAgo = livepeerComTwoDaysData.reduce(
+      (x, y) => {
+        return x + y.sourceSegmentsDuration / 60;
+      },
+      0
+    );
+
     // fetch the historical data
     const protocolDataResult = await getProtocolData();
     data.totalVolumeUSD = +protocolDataResult.data.protocol.totalVolumeUSD;
     data.totalVolumeETH = +protocolDataResult.data.protocol.totalVolumeETH;
     data.participationRate =
       +protocolDataResult.data.protocol.participationRate;
+    data.inflation = +protocolDataResult.data.protocol.inflation;
+    data.activeTranscoderCount =
+      +protocolDataResult.data.protocol.activeTranscoderCount;
+    data.delegatorsCount = +protocolDataResult.data.protocol.delegatorsCount;
 
     const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
     oneDayData = oneDayResult.data.protocol;
@@ -372,10 +423,28 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       totalLivepeerComUsageTwoWeeksAgo + totalFeeDerivedMinutesTwoWeeksAgo
     );
 
+    const [oneDayUsage, dailyUsageChange] = getTwoPeriodPercentChange(
+      totalLivepeerComUsage + totalFeeDerivedMinutes,
+      totalLivepeerComUsageOneDayAgo + totalFeeDerivedMinutesOneDayAgo,
+      totalLivepeerComUsageTwoDaysAgo + totalFeeDerivedMinutesTwoDaysAgo
+    );
+
     // format the total participation change
     const participationRateChange = getPercentChange(
       data?.participationRate,
       oneDayData?.participationRate
+    );
+    const inflationChange = getPercentChange(
+      data?.inflation,
+      oneDayData?.inflation
+    );
+    const activeTranscoderCountChange = getPercentChange(
+      data?.activeTranscoderCount,
+      oneDayData?.activeTranscoderCount
+    );
+    const delegatorsCountChange = getPercentChange(
+      data?.delegatorsCount,
+      oneDayData?.delegatorsCount
     );
 
     // format weekly data for weekly sized chunks
@@ -402,20 +471,35 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     }
 
     // add relevant fields with the calculated amounts
-    data.dayData = [...dayData].reverse();
+    data.dayData = [...dayData]
+      .filter((day) => Number(day.inflation))
+      .reverse();
     data.weeklyData = weeklyData;
     data.oneDayVolumeUSD = oneDayVolumeUSD;
     data.oneDayVolumeETH = oneDayVolumeETH;
     data.oneWeekVolumeUSD = oneWeekVolumeUSD;
     data.oneWeekVolumeETH = oneWeekVolumeETH;
     data.totalUsage = totalFeeDerivedMinutes + totalLivepeerComUsage;
+    data.oneDayUsage = totalFeeDerivedMinutes ? oneDayUsage : 0;
     data.oneWeekUsage = totalFeeDerivedMinutes ? oneWeekUsage : 0;
+    data.dailyUsageChange = totalFeeDerivedMinutes ? dailyUsageChange : 0;
     data.weeklyUsageChange = totalFeeDerivedMinutes ? weeklyUsageChange : 0;
     data.weeklyVolumeChangeUSD = weeklyVolumeChangeUSD;
     data.weeklyVolumeChangeETH = weeklyVolumeChangeETH;
     data.volumeChangeUSD = volumeChangeUSD;
     data.volumeChangeETH = volumeChangeETH;
     data.participationRateChange = participationRateChange;
+    data.inflationChange = inflationChange;
+    data.delegatorsCountChange = delegatorsCountChange;
+    data.activeTranscoderCountChange = activeTranscoderCountChange;
+
+    if (
+      Number(
+        data?.dayData?.[(data?.dayData?.length ?? 1) - 1]?.activeTranscoderCount
+      ) <= 0
+    ) {
+      data.dayData = data.dayData.slice(0, -1);
+    }
   } catch (e) {
     console.log(e);
   }

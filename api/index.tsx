@@ -2,6 +2,8 @@ import { getApollo } from "../apollo";
 import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { gql } from "@apollo/client";
 import { chartDataQuery } from "../queries/chartDataQuery";
+import { transactionsQuery } from "queries/transactionsQuery";
+import { eventsQuery } from "queries/eventsQuery";
 
 export async function getOrchestrators(client = getApollo()) {
   const { data: protocolData } = await client.query({
@@ -26,6 +28,20 @@ export async function getOrchestrators(client = getApollo()) {
   });
   return await client.cache.readQuery({
     query,
+  });
+}
+
+export async function getEvents(client = getApollo(), first = 100) {
+  const { data } = await client.query({
+    query: eventsQuery,
+    variables: { first },
+  });
+  await client.cache.writeQuery({
+    query: eventsQuery,
+    data,
+  });
+  return await client.cache.readQuery({
+    query: eventsQuery,
   });
 }
 

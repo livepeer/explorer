@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import Utils from "web3-utils";
 import { MutationsContext } from "../../contexts";
@@ -9,7 +9,7 @@ import { Box, Button } from "@livepeer/design-system";
 const Delegate = ({
   to,
   amount,
-  switching,
+  isTransferStake,
   tokenBalance,
   transferAllowance,
   delegator,
@@ -25,16 +25,24 @@ const Delegate = ({
   const { bond, approve }: any = useContext(MutationsContext);
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
-  const amountEntered = amount !== "";
-  const sufficientBalance =
-    amountEntered && +amount >= 0 && +amount <= tokenBalance;
-  const sufficientTransferAllowance =
-    amountEntered && transferAllowance > 0 && +amount <= transferAllowance;
+  const amountIsNonEmpty = amount !== "";
+  const sufficientBalance = useMemo(
+    () => amountIsNonEmpty && +amount >= 0 && +amount <= tokenBalance,
+    [amount, amountIsNonEmpty, tokenBalance]
+  );
+  const sufficientTransferAllowance = useMemo(
+    () =>
+      amountIsNonEmpty && transferAllowance > 0 && +amount <= transferAllowance,
+    [amount, amountIsNonEmpty, transferAllowance]
+  );
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
-  const showApproveFlow =
-    (amountEntered && +amount >= 0 && !sufficientTransferAllowance) ||
-    (approvalSubmitted && sufficientTransferAllowance);
+  const showApproveFlow = useMemo(
+    () =>
+      (amountIsNonEmpty && +amount >= 0 && !sufficientTransferAllowance) ||
+      (approvalSubmitted && sufficientTransferAllowance),
+    [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted]
+  );
 
   const onApprove = () => {
     const tx = async () => {
@@ -78,7 +86,7 @@ const Delegate = ({
     reset();
   };
 
-  if (!amountEntered) {
+  if (!amountIsNonEmpty && !isTransferStake) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Enter an Amount
@@ -86,7 +94,7 @@ const Delegate = ({
     );
   }
 
-  if (amountEntered && +amount >= 0 && !sufficientBalance) {
+  if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Insufficient Balance
@@ -116,7 +124,7 @@ const Delegate = ({
             onClick={onDelegate}
             css={{ width: "100%" }}
           >
-            {+amount >= 0 && switching ? "Switch" : "Delegate"}
+            {+amount >= 0 && isTransferStake ? "Switch" : "Delegate"}
           </Button>
         </Box>
         <ProgressSteps
@@ -134,7 +142,7 @@ const Delegate = ({
       variant="primary"
       css={{ width: "100%" }}
     >
-      {+amount >= 0 && switching ? "Move Delegated Stake" : "Delegate"}
+      {+amount >= 0 && isTransferStake ? "Move Delegated Stake" : "Delegate"}
     </Button>
   );
 };

@@ -15,9 +15,14 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
-import Spinner from "@components/Spinner";
 
-function DataTable({ heading = null, data, columns, initialState = {} }) {
+function DataTable({
+  heading = null,
+  input = null,
+  data,
+  columns,
+  initialState = {},
+}) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -60,6 +65,16 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
               overflowY: "scroll",
             }}
           >
+            {input && (
+              <Box
+                css={{
+                  mt: "$4",
+                  ml: "$5",
+                }}
+              >
+                {input}
+              </Box>
+            )}
             <Table
               {...getTableProps()}
               css={{
@@ -97,8 +112,14 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
                             fontWeight: 700,
                           }}
                         >
-                          {column.render("Header")}
-                          <Box css={{ minWidth: 20 }}>
+                          {column?.sortIconAlignment !== "start" &&
+                            column.render("Header")}
+                          <Box
+                            css={{
+                              minWidth:
+                                column?.sortIconAlignment !== "start" ? 20 : 0,
+                            }}
+                          >
                             {column.isSorted ? (
                               column.isSortedDesc ? (
                                 <ChevronDownIcon />
@@ -106,9 +127,19 @@ function DataTable({ heading = null, data, columns, initialState = {} }) {
                                 <ChevronUpIcon />
                               )
                             ) : (
-                              ""
+                              <></>
                             )}
                           </Box>
+
+                          {column?.sortIconAlignment === "start" && (
+                            <Box
+                              css={{
+                                ml: "$1",
+                              }}
+                            >
+                              {column.render("Header")}
+                            </Box>
+                          )}
                         </Box>
                       </Th>
                     ))}

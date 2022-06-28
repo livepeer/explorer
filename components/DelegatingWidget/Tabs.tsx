@@ -29,7 +29,7 @@ export const Tab = (props) => (
     css={{
       flex: 1,
       outline: "none",
-      cursor: "pointer",
+      cursor: props?.disabled ? "not-allowed" : "pointer",
       textAlign: "center",
       color: props.isSelected
         ? props.children === "Delegate"

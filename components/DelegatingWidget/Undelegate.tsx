@@ -11,7 +11,6 @@ const Undelegate = ({
   amount,
   newPosPrev,
   newPosNext,
-  delegator,
   disabled,
 }) => {
   const accountAddress = useAccountAddress();

@@ -5,8 +5,11 @@ import Table from "@components/Table";
 import { useMemo } from "react";
 import Link from "next/link";
 import { Flex, Box, Link as A } from "@livepeer/design-system";
-import moment from "moment";
+import dayjs from "dayjs";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const Index = ({ title = "" }) => {
   const variables = {
@@ -86,7 +89,7 @@ const Index = ({ title = "" }) => {
             target="_blank"
             href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${row.values.transaction.id}`}
           >
-            {moment(row.values.timestamp * 1000).fromNow()}
+            {dayjs(row.values.timestamp * 1000).fromNow()}
           </A>
         ),
         sortType: "number",

@@ -1,8 +1,8 @@
 import React from "react";
 import Input from "./Input";
 import Utils from "web3-utils";
-import ReactTooltip from "react-tooltip";
-import { Box, Flex, Card, Tooltip } from "@livepeer/design-system";
+import { Box, Flex, Card } from "@livepeer/design-system";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 
 const InputBox = ({
   account,
@@ -37,7 +37,7 @@ const InputBox = ({
 
             {account &&
               (action === "delegate" ? (
-                <Tooltip content="Enter Max">
+                <ExplorerTooltip content="Enter Max">
                   <Box
                     onClick={() => setAmount(tokenBalance)}
                     css={{ cursor: "pointer", color: "$muted" }}
@@ -47,11 +47,11 @@ const InputBox = ({
                       {parseFloat(tokenBalance)}
                     </Box>
                   </Box>
-                </Tooltip>
+                </ExplorerTooltip>
               ) : (
                 <>
                   {+stake > 0 && (
-                    <Tooltip content="Enter Max">
+                    <ExplorerTooltip content="Enter Max">
                       <Box
                         onClick={() => setAmount(stake)}
                         css={{ cursor: "pointer", color: "$muted" }}
@@ -61,7 +61,7 @@ const InputBox = ({
                           {+stake}
                         </Box>
                       </Box>
-                    </Tooltip>
+                    </ExplorerTooltip>
                   )}
                 </>
               ))}

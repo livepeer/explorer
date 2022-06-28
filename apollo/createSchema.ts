@@ -16,8 +16,9 @@ import { print } from "graphql";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import typeDefs from "./types";
 import resolvers from "./resolvers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l1Provider, l2Provider } from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2Provider } from "lib/chains";
 import { ethers } from "ethers";
+import dayjs from "dayjs";
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -27,6 +28,12 @@ const schema = makeExecutableSchema({
     JSONObject: GraphQLJSONObject,
   },
 });
+
+function avg(obj, key) {
+  const arr = Object.values(obj);
+  const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
+  return arr.reduce(sum)[key] / arr.length;
+}
 
 const createSchema = async () => {
   const executor = async ({ document, variables }) => {
@@ -38,6 +45,7 @@ const createSchema = async () => {
       },
       body: JSON.stringify({ query, variables }),
     });
+
     return fetchResult.json();
   };
 
@@ -68,6 +76,9 @@ const createSchema = async () => {
       transcoder: Transcoder
     }
     extend type Account {
+      identity: Identity
+    }
+    extend type LivepeerAccount {
       identity: Identity
     }
     extend type Protocol {
@@ -133,6 +144,25 @@ const createSchema = async () => {
               context: _ctx,
               info: _info,
             });
+
+            return identity;
+          },
+        },
+      },
+      LivepeerAccount: {
+        identity: {
+          async resolve(_livepeerAccount, _args, _ctx, _info) {
+            const identity = await delegateToSchema({
+              schema: schema,
+              operation: "query",
+              fieldName: "identity",
+              args: {
+                id: _livepeerAccount.id,
+              },
+              context: _ctx,
+              info: _info,
+            });
+
             return identity;
           },
         },
@@ -150,6 +180,7 @@ const createSchema = async () => {
               context: _ctx,
               info: _info,
             });
+
             return identity;
           },
         },
@@ -192,6 +223,7 @@ const createSchema = async () => {
                 }
               }`,
             });
+
             const pendingFees = await _ctx.livepeer.rpc.getPendingFees(
               _delegator.id,
               data.protocol.currentRound.id
@@ -221,6 +253,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             const isActive = blockNumber <= parseInt(_poll.endBlock);
             const totalStake = await getTotalStake(
               _ctx,
@@ -237,6 +270,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             const isActive = blockNumber <= parseInt(_poll.endBlock);
             const totalStake = await getTotalStake(
               _ctx,
@@ -269,6 +303,7 @@ const createSchema = async () => {
             const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock(
               "latest"
             );
+
             return blockNumber <= parseInt(_poll.endBlock);
           },
         },
@@ -283,6 +318,7 @@ const createSchema = async () => {
             const countdownData = await getEstimatedBlockCountdown(
               _poll.endBlock
             );
+
             return parseInt(countdownData.EstimateTimeInSec);
           },
         },
@@ -294,6 +330,7 @@ const createSchema = async () => {
             if (blockNumber < parseInt(_poll.endBlock)) {
               return null;
             }
+
             const endBlockData = await getBlockByNumber(_poll.endBlock);
             return endBlockData.timeStamp;
           },
@@ -332,19 +369,69 @@ const createSchema = async () => {
         const transcoder = await resolve(parent, args, ctx, info);
         const selectionSet = Object.keys(graphqlFields(info));
 
-        // if selection set does not include 'price', return transcoder as is, otherwise fetch and merge price
-        if (!transcoder || !selectionSet.includes("price")) {
+        if (!transcoder) {
           return transcoder;
         }
 
-        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-        const transcodersWithPrice = await response.json();
-        const transcoderWithPrice = transcodersWithPrice.filter(
-          (t) => t.Address.toLowerCase() === args.id.toLowerCase()
-        )[0];
-        transcoder["price"] = transcoderWithPrice?.PricePerPixel
-          ? transcoderWithPrice?.PricePerPixel
-          : 0;
+        if (selectionSet.includes("successRates")) {
+          // use fake perf on rinkeby since performance doesn't exist
+          const transcoderId =
+            process.env.NEXT_PUBLIC_NETWORK === "ARBITRUM_ONE"
+              ? args.id.toLowerCase()
+              : "0x525419ff5707190389bfb5c87c375d710f5fcb0e";
+
+          const metricsResponse = await fetch(
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?orchestrator=${transcoderId}${
+              ctx.since ? `?since=${ctx.since}` : ""
+            }`
+          );
+          const metrics = await metricsResponse.json();
+
+          transcoder["successRates"] = {
+            global: avg(metrics[transcoderId], "success_rate") * 100,
+            fra: (metrics[transcoderId]?.FRA?.success_rate || 0) * 100,
+            mdw: (metrics[transcoderId]?.MDW?.success_rate || 0) * 100,
+            sin: (metrics[transcoderId]?.SIN?.success_rate || 0) * 100,
+            nyc: (metrics[transcoderId]?.NYC?.success_rate || 0) * 100,
+            lax: (metrics[transcoderId]?.LAX?.success_rate || 0) * 100,
+            lon: (metrics[transcoderId]?.LON?.success_rate || 0) * 100,
+            prg: (metrics[transcoderId]?.PRG?.success_rate || 0) * 100,
+          };
+
+          transcoder["scores"] = {
+            global: avg(metrics[transcoderId], "score") || 0,
+            fra: metrics[transcoderId]?.FRA?.score || 0,
+            mdw: metrics[transcoderId]?.MDW?.score || 0,
+            sin: metrics[transcoderId]?.SIN?.score || 0,
+            nyc: metrics[transcoderId]?.NYC?.score || 0,
+            lax: metrics[transcoderId]?.LAX?.score || 0,
+            lon: metrics[transcoderId]?.LON?.score || 0,
+            prg: metrics[transcoderId]?.PRG?.score || 0,
+          };
+
+          transcoder["roundTripScores"] = {
+            global: avg(metrics[transcoderId], "round_trip_score"),
+            fra: metrics[transcoderId]?.FRA?.round_trip_score || 0,
+            mdw: metrics[transcoderId]?.MDW?.round_trip_score || 0,
+            sin: metrics[transcoderId]?.SIN?.round_trip_score || 0,
+            nyc: metrics[transcoderId]?.NYC?.round_trip_score || 0,
+            lax: metrics[transcoderId]?.LAX?.round_trip_score || 0,
+            lon: metrics[transcoderId]?.LON?.round_trip_score || 0,
+            prg: metrics[transcoderId]?.PRG?.round_trip_score || 0,
+          };
+        }
+
+        if (selectionSet.includes("price")) {
+          const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+          const transcodersWithPrice = await response.json();
+          const transcoderWithPrice = transcodersWithPrice.filter(
+            (t) => t.Address.toLowerCase() === args.id.toLowerCase()
+          )[0];
+          transcoder["price"] = transcoderWithPrice?.PricePerPixel
+            ? transcoderWithPrice?.PricePerPixel
+            : 0;
+        }
+
         return transcoder;
       },
       transcoders: async (resolve, parent, args, ctx, info) => {
@@ -369,21 +456,10 @@ const createSchema = async () => {
           }
         }
 
-        function avg(obj, key) {
-          const arr = Object.values(obj);
-          const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-          return arr.reduce(sum)[key] / arr.length;
-        }
-
-        const oneDayAgo = Math.floor(
-          new Date(new Date().setDate(new Date().getDate() - 1)).getTime() /
-            1000
-        );
-
         if (selectionSet.includes("scores")) {
           const metricsResponse = await fetch(
-            `https://leaderboard-serverless.vercel.app/api/aggregated_stats?since=${
-              ctx.since ? ctx.since : oneDayAgo
+            `https://leaderboard-serverless.vercel.app/api/aggregated_stats${
+              ctx.since ? `?since=${ctx.since}` : ""
             }`
           );
           const metrics = await metricsResponse.json();

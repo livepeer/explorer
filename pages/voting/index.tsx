@@ -11,15 +11,17 @@ import {
   styled,
   Text,
 } from "@livepeer/design-system";
+import dayjs from "dayjs";
 import fm from "front-matter";
-import { usePageVisibility } from "hooks";
-import { getLayout } from "layouts/main";
-import moment from "moment";
+import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { pollsQuery } from "../../queries/pollsQuery";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
   variants: {
@@ -38,21 +40,12 @@ export const Status = styled("div", {
 });
 
 const Voting = () => {
-  const isVisible = usePageVisibility();
   const pollInterval = 20000;
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { data, startPolling, stopPolling } = useQuery(pollsQuery, {
+  const { data } = useQuery(pollsQuery, {
     pollInterval,
   });
-
-  useEffect(() => {
-    if (!isVisible) {
-      stopPolling();
-    } else {
-      startPolling(pollInterval);
-    }
-  }, [isVisible, startPolling, stopPolling]);
 
   useEffect(() => {
     if (data) {
@@ -94,7 +87,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ width: "100%", mt: "$6" }} size="3">
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
         {loading ? (
           <Flex
             css={{
@@ -205,14 +198,14 @@ const Voting = () => {
                               {!poll.isActive ? (
                                 <Box>
                                   Voting ended on{" "}
-                                  {moment
+                                  {dayjs
                                     .unix(poll.endTime)
                                     .format("MMM Do, YYYY")}
                                 </Box>
                               ) : (
                                 <Box>
                                   Voting ends in ~
-                                  {moment()
+                                  {dayjs()
                                     .add(poll.estimatedTimeRemaining, "seconds")
                                     .fromNow(true)}
                                 </Box>
