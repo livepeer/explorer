@@ -23,6 +23,7 @@ import {
   arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
+  inbox,
   l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
@@ -254,28 +255,19 @@ const MigrateBroadcaster = () => {
 
       const gasPriceBid = await l2Provider.getGasPrice();
 
-      // fetching submission price
-      // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-      const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-        state.migrationCallData.length
+      const maxSubmissionPrice = await inbox.calculateRetryableSubmissionFee(
+        state.migrationCallData.length,
+        gasPriceBid
       );
 
-      // overpaying submission price to account for increase
-      // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
-      // the excess will be sent back to the refund address
-      const maxSubmissionPrice = submissionPrice.mul(4);
-
       // calculating estimated gas for the tx
-      const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
+      const estimatedGas = await nodeInterface.estimateGas.estimateRetryableTicket(
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
         ethers.utils.parseEther("0.01"),
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
         0,
-        maxSubmissionPrice,
         accountAddress,
         accountAddress,
-        0,
-        gasPriceBid,
         state.migrationCallData
       );
 

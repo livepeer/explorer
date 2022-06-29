@@ -1,7 +1,7 @@
 import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 import { ethers } from "ethers";
-import { chain } from "wagmi";
+import { Chain, chain } from "wagmi";
 
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
@@ -58,10 +58,50 @@ const ARBITRUM_RINKEBY_CONTRACTS = {
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
 
+const ARBITRUM_GOERLI_CONTRACTS = {
+  controller: "0x3Cfa0Be6195dbCA98A2849d1162561FD878589Dd",
+  pollCreator: "0x1a62cAaA643372A0066724c82dbd21B273d2220f",
+  l1Migrator: "0x6874846a62FA286991720D8fbfAee4e69E966D99",
+  l2Migrator: "0x1dB7B667120e76C60210F3D3E632B0F4dE3C223B",
+  inbox: "0x1FdBBcC914e84aF593884bf8e8Dd6877c29035A2",
+  outbox: "0xFDF2B11347dA17326BAF30bbcd3F4b09c4719584",
+  arbRetryableTx: "0x000000000000000000000000000000000000006E",
+  nodeInterface: "0x00000000000000000000000000000000000000C8",
+};
+
+export const arbitrumGoerli: Chain = {
+  id: 421612,
+  name: 'Arbitrum Goerli',
+  network: 'arbitrum-goerli',
+  nativeCurrency: {
+    name: 'Arbitrum Goerli Ether',
+    symbol: 'AGETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    // alchemy: alchemyRpcUrls.arbitrumRinkeby,
+    default: "https://nitro-devnet.arbitrum.io/rpc",
+    // infura: infuraRpcUrls.arbitrumRinkeby,
+    public: "https://nitro-devnet.arbitrum.io/rpc",
+  },
+  blockExplorers: {
+    arbitrum: {
+      name: 'Arbitrum Nitro Explorer',
+      url: 'https://nitro-devnet-explorer.arbitrum.io',
+    },
+    // etherscan: etherscanBlockExplorers.arbitrumRinkeby,
+    default: {
+      name: 'Arbitrum Nitro Explorer',
+      url: 'https://nitro-devnet-explorer.arbitrum.io',
+    },
+  },
+  testnet: true,
+}
+
 /**
  * List of all the networks supported by the Livepeer Explorer
  */
-export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumRinkeby] as const;
+export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumRinkeby, arbitrumGoerli] as const;
 
 export const L1_CHAIN_IDS = [chain.mainnet, chain.rinkeby] as const;
 
@@ -72,7 +112,7 @@ export const TESTNET_CHAIN_IDS = [
   chain.arbitrumRinkeby,
 ] as const;
 
-export const DEFAULT_CHAIN =
+export const DEFAULT_CHAIN: Chain =
   NETWORK === "ARBITRUM_ONE"
     ? chain.arbitrum
     : NETWORK === "ARBITRUM_RINKEBY"
@@ -81,6 +121,8 @@ export const DEFAULT_CHAIN =
     ? chain.mainnet
     : NETWORK === "RINKEBY"
     ? chain.rinkeby
+    : NETWORK === "ARBITRUM_GOERLI"
+    ? arbitrumGoerli
     : chain.arbitrum;
 
 export const DEFAULT_CHAIN_ID = DEFAULT_CHAIN.id;
@@ -198,6 +240,25 @@ export const CHAIN_INFO = {
     contracts: ARBITRUM_RINKEBY_CONTRACTS,
     abis,
   },
+  [arbitrumGoerli.id]: {
+    networkType: NetworkType.L2,
+    l1: chain.rinkeby,
+    bridge: "https://bridge.arbitrum.io/",
+    docs: "https://offchainlabs.com/",
+    explorer: "https://testnet.arbiscan.io/",
+    explorerAPI: "https://api-testnet.arbiscan.io/api",
+    pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
+    label: "Arbitrum Goerli",
+    logoUrl: arbitrumLogoUrl,
+    addNetworkInfo: {
+      nativeCurrency: arbitrumGoerli.nativeCurrency,
+      rpcUrl: arbitrumGoerli.rpcUrls.default,
+    },
+    subgraph:
+      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
+    contracts: ARBITRUM_GOERLI_CONTRACTS,
+    abis,
+  },
 };
 
 export const L1_CHAIN = CHAIN_INFO[DEFAULT_CHAIN_ID].l1;
@@ -234,6 +295,12 @@ export const nodeInterface = new ethers.Contract(
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
   abis.nodeInterface,
   l2Provider
+);
+
+export const inbox = new ethers.Contract(
+  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
+  abis.inbox,
+  l1Provider
 );
 
 export function isL2ChainId(chainId: number | undefined): boolean {
