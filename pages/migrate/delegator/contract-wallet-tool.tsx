@@ -17,6 +17,7 @@ import {
   arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
+  inbox,
   l1Migrator,
   L1_CHAIN_ID,
   l2Provider,
@@ -214,32 +215,28 @@ async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
       _l2Addr
     );
 
-    const _gasPriceBid = await l2Provider.getGasPrice();
+    const gasPriceBid = await l2Provider.getGasPrice();
 
-    // fetching submission price
-    // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-    const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-      data.length
+    const maxSubmissionPrice = await inbox.calculateRetryableSubmissionFee(
+      data.length,
+      gasPriceBid
+    );
+
+    // calculating estimated gas for the tx
+    const estimatedGas = await nodeInterface.estimateRetryableTicket(
+      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+      ethers.utils.parseEther("0.01"),
+      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+      0,
+      _l1Addr,
+      _l1Addr,
+      data
     );
 
     // overpaying submission price to account for increase
     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
     // the excess will be sent back to the refund address
-    const _maxSubmissionPrice = submissionPrice.mul(4);
-
-    // calculating estimated gas for the tx
-    const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-      ethers.utils.parseEther("0.01"),
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-      0,
-      _maxSubmissionPrice,
-      _l1Addr,
-      _l1Addr,
-      0,
-      _gasPriceBid,
-      data
-    );
+    const _maxSubmissionPrice = maxSubmissionPrice.mul(4);
 
     // overpaying gas just in case
     // the excess will be sent back to the refund address
@@ -249,14 +246,14 @@ async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
     // this entire amount will be used for successfully completing
     // the L2 side of the transaction
     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-    const ethValue = await _maxSubmissionPrice.add(_gasPriceBid.mul(_maxGas));
+    const ethValue = await _maxSubmissionPrice.add(gasPriceBid.mul(_maxGas));
 
     return {
       _l1Addr,
       _l2Addr,
       _sig: "Can be ignored and left blank",
       _maxGas: _maxGas.toString(),
-      _gasPriceBid: _gasPriceBid.toString(),
+      _gasPriceBid: gasPriceBid.toString(),
       _maxSubmissionPrice: _maxSubmissionPrice.toString(),
       ethValue: ethValue.toString(),
     };

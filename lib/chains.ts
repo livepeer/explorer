@@ -79,9 +79,9 @@ export const arbitrumGoerli: Chain = {
     decimals: 18,
   },
   rpcUrls: {
-    // alchemy: alchemyRpcUrls.arbitrumRinkeby,
+    alchemy: "https://nitro-devnet.arbitrum.io/rpc",
     default: "https://nitro-devnet.arbitrum.io/rpc",
-    // infura: infuraRpcUrls.arbitrumRinkeby,
+    infura: "https://nitro-devnet.arbitrum.io/rpc",
     public: "https://nitro-devnet.arbitrum.io/rpc",
   },
   blockExplorers: {
@@ -89,7 +89,10 @@ export const arbitrumGoerli: Chain = {
       name: 'Arbitrum Nitro Explorer',
       url: 'https://nitro-devnet-explorer.arbitrum.io',
     },
-    // etherscan: etherscanBlockExplorers.arbitrumRinkeby,
+    etherscan: {
+      name: 'Arbitrum Nitro Explorer',
+      url: 'https://nitro-devnet-explorer.arbitrum.io',
+    },
     default: {
       name: 'Arbitrum Nitro Explorer',
       url: 'https://nitro-devnet-explorer.arbitrum.io',
@@ -103,7 +106,7 @@ export const arbitrumGoerli: Chain = {
  */
 export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumRinkeby, arbitrumGoerli] as const;
 
-export const L1_CHAIN_IDS = [chain.mainnet, chain.rinkeby] as const;
+export const L1_CHAIN_IDS = [chain.mainnet, chain.rinkeby, chain.goerli] as const;
 
 export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
 
@@ -242,7 +245,7 @@ export const CHAIN_INFO = {
   },
   [arbitrumGoerli.id]: {
     networkType: NetworkType.L2,
-    l1: chain.rinkeby,
+    l1: chain.goerli,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",
@@ -254,6 +257,7 @@ export const CHAIN_INFO = {
       nativeCurrency: arbitrumGoerli.nativeCurrency,
       rpcUrl: arbitrumGoerli.rpcUrls.default,
     },
+    // this needs to change to index the new goerli-based devnet
     subgraph:
       "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
     contracts: ARBITRUM_GOERLI_CONTRACTS,

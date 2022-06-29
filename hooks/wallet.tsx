@@ -17,8 +17,8 @@ export const useAccountAddress = () => {
 
   const isChainSupported = useIsChainSupported();
 
-  return isChainSupported && account?.data?.address
-    ? account.data.address
+  return isChainSupported && account?.address
+    ? account.address
     : null;
 };
 
@@ -31,9 +31,9 @@ export const useAccountSigner = () => {
 
   useEffect(() => {
     async function getSigner() {
-      if (account?.data?.connector?.getSigner) {
+      if (account?.connector?.getSigner) {
         try {
-          const signer = await account?.data?.connector?.getSigner?.();
+          const signer = await account?.connector?.getSigner?.();
           setSigner(signer ?? null);
         } catch (e) {
           console.log(e);
@@ -41,7 +41,7 @@ export const useAccountSigner = () => {
       }
     }
     getSigner();
-  }, [account?.data]);
+  }, [account]);
 
   return isChainSupported ? signer : null;
 };
@@ -101,9 +101,9 @@ export const useAccountEnsData = () => {
 };
 
 export const useActiveChain = () => {
-  const { activeChain } = useNetwork();
+  const { chain } = useNetwork();
 
-  return activeChain;
+  return chain;
 };
 
 export function useDisconnectWallet() {

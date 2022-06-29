@@ -261,7 +261,7 @@ const MigrateBroadcaster = () => {
       );
 
       // calculating estimated gas for the tx
-      const estimatedGas = await nodeInterface.estimateGas.estimateRetryableTicket(
+      const estimatedGas = await nodeInterface.estimateRetryableTicket(
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
         ethers.utils.parseEther("0.01"),
         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
