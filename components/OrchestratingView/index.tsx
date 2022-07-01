@@ -18,8 +18,7 @@ const breakpointColumnsObj = {
 
 const Index = ({ currentRound, transcoder, isActive }) => {
   const callsMade = useMemo(
-    () =>
-      transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? [],
+    () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
     [transcoder?.pools]
   );
   const maxScore = useMemo(
@@ -91,7 +90,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
-          value={`${callsMade}/${transcoder?.pools?.length}`}
+          value={`${callsMade}/${transcoder?.pools?.length ?? 0}`}
         />
         <Stat
           className="masonry-grid_item"
@@ -147,7 +146,11 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The amount of time the orchestrator has been active on the network."
           }
-          value={`${dayjs.unix(transcoder?.activationTimestamp).fromNow(true)}`}
+          value={`${
+            transcoder?.activationTimestamp
+              ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true)
+              : "N/A"
+          }`}
         />
         {transcoder?.lastRewardRound?.id && (
           <Stat
