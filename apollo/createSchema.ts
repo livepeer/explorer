@@ -30,6 +30,9 @@ const schema = makeExecutableSchema({
 });
 
 function avg(obj, key) {
+  if (!obj || !key) {
+    return 0;
+  }
   const arr = Object.values(obj);
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
   return arr.reduce(sum)[key] / arr.length;
@@ -424,9 +427,9 @@ const createSchema = async () => {
         if (selectionSet.includes("price")) {
           const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
           const transcodersWithPrice = await response.json();
-          const transcoderWithPrice = transcodersWithPrice.filter(
+          const transcoderWithPrice = transcodersWithPrice?.filter(
             (t) => t.Address.toLowerCase() === args.id.toLowerCase()
-          )[0];
+          )?.[0];
           transcoder["price"] = transcoderWithPrice?.PricePerPixel
             ? transcoderWithPrice?.PricePerPixel
             : 0;
