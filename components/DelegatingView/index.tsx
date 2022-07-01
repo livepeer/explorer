@@ -152,7 +152,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 fontSize: 26,
               }}
             >
-              {`${numeral(pendingStake).format("0.0a")} LPT`}
+              {`${numeral(pendingStake).format("0.00a")} LPT`}
             </Box>
           }
           meta={
@@ -183,7 +183,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      {numeral(-unbonded).format("+0.0a")} LPT
+                      {numeral(-unbonded).format("+0.00a")} LPT
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -209,7 +209,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  {numeral(Math.abs(rewards)).format("+0.0a")} LPT
+                  {numeral(Math.abs(rewards)).format("+0.00a")} LPT
                 </Text>
               </Flex>
             </Box>
