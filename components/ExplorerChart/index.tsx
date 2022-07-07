@@ -58,7 +58,7 @@ const ExplorerChart = ({
   base: number;
   basePercentChange: number;
   data: ChartDatum[];
-  unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "none";
+  unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "small-unitless" | "none";
   type: "bar" | "line";
   grouping?: "day" | "week";
   onToggleGrouping?: (grouping: "day" | "week") => void;
@@ -144,7 +144,9 @@ const ExplorerChart = ({
               ? "0%"
               : unit === "small-percent"
               ? "0.00%"
-              : "0.0a"
+              : unit === "small-unitless"
+              ? "0.0a"
+              : "0a"
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>
