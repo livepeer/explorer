@@ -192,7 +192,7 @@ const Charts = ({ chartData }) => {
             chartData?.chartData?.delegatorsCountChange ?? 0
           )}
           title="Delegators"
-          unit="none"
+          unit="small-unitless"
           type="line"
         />
       </Panel>
