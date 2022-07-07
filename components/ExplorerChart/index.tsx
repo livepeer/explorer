@@ -357,6 +357,7 @@ const ExplorerChart = ({
                 width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
+                domain={['auto', 'auto']}
               />
               <ReTooltip content={<></>} />
 
