@@ -144,7 +144,7 @@ const ExplorerChart = ({
               ? "0%"
               : unit === "small-percent"
               ? "0.00%"
-              : "0a"
+              : "0.0a"
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>
