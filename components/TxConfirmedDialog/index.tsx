@@ -17,24 +17,26 @@ import {
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { ConsoleView } from "react-device-detect";
+import { TransactionStatus, useExplorerStore } from "hooks";
 
-const Index = ({ tx, isOpen, onDismiss }) => {
-  if (!isOpen) {
+const Index = () => {
+  const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+
+  if (!latestTransaction || latestTransaction.step !== "confirmed") {
     return null;
   }
 
   return (
     <Dialog
-      open={isOpen}
+      open={true}
       onOpenChange={(open) => {
         if (!open) {
-          onDismiss();
+          clearLatestTransaction();
         }
       }}
     >
       <DialogContent
-        onPointerDownOutside={onDismiss}
+        onPointerDownOutside={clearLatestTransaction}
         css={{ maxWidth: 390, width: "100%" }}
       >
         <DialogTitle asChild>
@@ -58,7 +60,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
             </Badge>
           </Heading>
         </DialogTitle>
-        {renderSwitch({ tx, onDismiss })}
+        {renderSwitch(latestTransaction, clearLatestTransaction)}
       </DialogContent>
     </Dialog>
   );
@@ -66,10 +68,8 @@ const Index = ({ tx, isOpen, onDismiss }) => {
 
 export default Index;
 
-function renderSwitch({ tx, onDismiss }) {
-  const inputData = JSON.parse(tx.inputData);
-
-  switch (tx.__typename) {
+function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
+  switch (tx.name) {
     case "bond":
       return (
         <Box>
@@ -77,10 +77,10 @@ function renderSwitch({ tx, onDismiss }) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
-                {Number(inputData.amount) <= 0
+                {Number(tx.inputData.amount) <= 0
                   ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
                   : `Congrats! You've successfully delegated
-                ${Utils.fromWei(inputData.amount)} LPT.`}
+                ${Utils.fromWei(tx.inputData.amount)} LPT.`}
               </Box>
             </Box>
           </Table>
@@ -102,8 +102,8 @@ function renderSwitch({ tx, onDismiss }) {
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
                 You&apos;ve successfully undelegated{" "}
-                {Utils.fromWei(inputData.amount)} LPT. The unbonding period is
-                ~7 days after which you may withdraw the undelegated LPT into
+                {Utils.fromWei(tx.inputData.amount)} LPT. The unbonding period
+                is ~7 days after which you may withdraw the undelegated LPT into
                 your wallet.
               </Box>
             </Box>
@@ -121,7 +121,7 @@ function renderSwitch({ tx, onDismiss }) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              {inputData.type === "createPoll" ? (
+              {tx.inputData.type === "createPoll" ? (
                 <Box>Nice one! You may now proceed with creating a poll.</Box>
               ) : (
                 <Box>
@@ -160,8 +160,8 @@ function renderSwitch({ tx, onDismiss }) {
             <Box css={{ px: "$3", py: "$4" }}>
               You&apos;ve successfully redelegated to orchestrator{" "}
               {tx.inputData &&
-                inputData.delegate.replace(
-                  inputData.delegate.slice(7, 37),
+                tx.inputData.delegate.replace(
+                  tx.inputData.delegate.slice(7, 37),
                   "…"
                 )}
             </Box>
@@ -180,7 +180,7 @@ function renderSwitch({ tx, onDismiss }) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               You&apos;ve successfully casted a vote{" "}
-              {tx.inputData && inputData.choiceId === 0 ? '"Yes"' : '"No"'}
+              {tx.inputData && tx.inputData.choiceId === 0 ? '"Yes"' : '"No"'}
             </Box>
           </Table>
           <DialogClose asChild>
@@ -196,7 +196,7 @@ function renderSwitch({ tx, onDismiss }) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              Successfully claimed {tx.inputData && inputData.totalRounds}{" "}
+              Successfully claimed {tx.inputData && tx.inputData.totalRounds}{" "}
               rounds
             </Box>
           </Table>

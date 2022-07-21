@@ -1,6 +1,7 @@
 import QRCode from "qrcode.react";
 import { textTruncate } from "@lib/utils";
 import { Box, Flex } from "@livepeer/design-system";
+import { useEnsData } from "hooks";
 
 const ActiveCircle = ({ css = {}, active }) => {
   return (
@@ -23,13 +24,14 @@ const ActiveCircle = ({ css = {}, active }) => {
   );
 };
 
-const Index = ({ identity, active, address }) => {
+const Index = ({ active, address }) => {
+  const identity = useEnsData(address);
   return (
     <Flex css={{ alignItems: "center" }}>
       <Flex
         css={{ minWidth: 30, minHeight: 30, position: "relative", mr: "$3" }}
       >
-        {identity?.image ? (
+        {identity?.avatar ? (
           <Box
             as="img"
             css={{
@@ -41,7 +43,7 @@ const Index = ({ identity, active, address }) => {
               border: "1px solid",
               borderColor: "$neutral5",
             }}
-            src={identity.image}
+            src={identity.avatar}
           />
         ) : (
           <QRCode

@@ -1,16 +1,8 @@
-import { Delegator, Round, UnbondingLock } from "../@types";
-import Utils from "web3-utils";
-import url from "url";
-import parseDomain from "parse-domain";
+import { Delegator, Round, UnbondingLock } from "apollo";
 import { ethers } from "ethers";
-import { gql } from "@apollo/client";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
-import {
-  AVERAGE_L1_BLOCK_TIME,
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-} from "lib/chains";
+import Utils from "web3-utils";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -80,28 +72,8 @@ export const getDelegatorStatus = (
   }
 };
 
-export const MAXIUMUM_VALUE_UINT256 =
+export const MAXIMUM_VALUE_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-
-export const removeURLParameter = (_url, _parameter) => {
-  //prefer to use l.search if you have a location/link object
-  var urlparts = _url.split("?");
-  if (urlparts.length >= 2) {
-    var prefix = encodeURIComponent(_parameter) + "=";
-    var pars = urlparts[1].split(/[&;]/g);
-
-    //reverse iteration as may be destructive
-    for (var i = pars.length; i-- > 0; ) {
-      //idiom for string.startsWith
-      if (pars[i].lastIndexOf(prefix, 0) !== -1) {
-        pars.splice(i, 1);
-      }
-    }
-
-    return urlparts[0] + (pars.length > 0 ? "?" + pars.join("&") : "");
-  }
-  return _url;
-};
 
 export const nl2br = (str, is_xhtml = true) => {
   if (typeof str === "undefined" || str === null) {
@@ -127,71 +99,6 @@ export const textTruncate = (str, length, ending) => {
   } else {
     return str;
   }
-};
-
-export const networksTypes = {
-  1: "mainnet",
-  4: "rinkeby",
-  42161: "arbitrum",
-  421611: "arbitrum-rinkeby",
-};
-
-const networksIds = {
-  main: 1,
-  mainnet: 1,
-  morden: 2,
-  ropsten: 3,
-  kovan: 42,
-  rinkeby: 4,
-  arbitrum: 42161,
-  "arbitrum-rinkeby": 421611,
-};
-
-export const detectNetwork = async (provider) => {
-  let netId = null;
-
-  if (provider instanceof Object) {
-    // MetamaskInpageProvider
-    if (
-      provider.publicConfigStore &&
-      provider.publicConfigStore._state &&
-      provider.publicConfigStore._state.networkVersion
-    ) {
-      netId = provider.publicConfigStore._state.networkVersion;
-
-      // Web3.providers.HttpProvider
-    } else if (provider.host) {
-      const parsed = url.parse(provider.host);
-      const { subdomain, domain, tld } = parseDomain(parsed.host);
-
-      if (domain === "infura" && tld === "io") {
-        netId = networksIds[subdomain];
-      }
-    }
-  } else if (typeof window !== "undefined" && window["web3"]) {
-    if (window["web3"].version && window["web3"].version.getNetwork) {
-      netId = await window["web3"].version.getNetwork();
-
-      // web3.js v1.0+
-    } else if (
-      window["web3"].eth &&
-      window["web3"].eth.net &&
-      window["web3"].eth.net.getId
-    ) {
-      netId = await window["web3"].eth.net.getId();
-    }
-  }
-
-  if (netId === undefined) {
-    netId = null;
-  }
-
-  const type = networksTypes[netId] || "unknown";
-
-  return {
-    id: netId,
-    type: type,
-  };
 };
 
 export const checkAddressEquality = (address1, address2) => {
@@ -248,78 +155,7 @@ export const txMessages = {
     pending: "Claiming",
     confirmed: "Claimed",
   },
-};
-
-export const initTransaction = async (client, mutation, callback = null) => {
-  try {
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: true,
-          error: false,
-        },
-      },
-    });
-
-    await mutation();
-
-    if (callback) {
-      callback();
-    }
-
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: false,
-          error: false,
-        },
-      },
-    });
-  } catch (e) {
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: true,
-          error: true,
-        },
-      },
-    });
-
-    return {
-      error: e.message.replace("GraphQL error: ", ""),
-    };
-  }
-};
+} as const;
 
 export const getBlock = async () => {
   const blockDataResponse = await fetch(

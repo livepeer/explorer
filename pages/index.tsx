@@ -17,12 +17,21 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
-import { eventsQuery } from "queries/eventsQuery";
+
 import { useMemo, useState } from "react";
-import { getChartData, getEvents, getOrchestrators } from "../api";
-import { getApollo } from "../apollo";
-import { chartDataQuery } from "../queries/chartDataQuery";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
+import { getEvents, getOrchestrators, getProtocol } from "../api";
+import {
+  EventsQueryResult,
+  getApollo,
+  OrchestratorsQueryResult,
+  ProtocolQueryResult,
+  useEventsQuery,
+  useOrchestratorsQuery,
+  useProtocolQuery,
+} from "../apollo";
+
+import "react-circular-progressbar/dist/styles.css";
+import { GetStaticProps } from "next";
 
 const Panel = ({ children }) => (
   <Flex
@@ -108,8 +117,6 @@ const Charts = ({ chartData }) => {
       })) ?? [],
     [chartData]
   );
-
-  console.log({chartData})
 
   return (
     <>
@@ -213,25 +220,16 @@ const Charts = ({ chartData }) => {
   );
 };
 
-const Home = () => {
-  const { data: protocolData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
+type PageProps = {
+  orchestrators: OrchestratorsQueryResult["data"];
+  events: EventsQueryResult["data"];
+  protocol: ProtocolQueryResult["data"];
+};
 
-  const { data: eventsData, loading: eventsDataLoading } = useQuery(
-    eventsQuery,
-    { variables: { first: 100 }, pollInterval: 30000 }
-  );
+const Home = ({ orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
-      eventsData?.transactions
+      events?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.filter((e) =>
           e.__typename === "BondEvent"
@@ -239,20 +237,10 @@ const Home = () => {
             : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
         )
         ?.slice(0, 100) ?? [],
-    [eventsData]
-  );
-  const allIdentities = useMemo(
-    () => eventsData?.transcoders.map((t) => t.identity) ?? [],
-    [eventsData]
+    [events]
   );
 
-  const query = useMemo(
-    () => orchestratorsQuery(protocolData.protocol.currentRound.id),
-    [protocolData]
-  );
-  const { data, loading } = useQuery(query);
-
-  const { data: chartData } = useQuery(chartDataQuery);
+  const chartData = null;
 
   return (
     <>
@@ -302,7 +290,7 @@ const Home = () => {
                 overflowX: "auto",
               }}
             >
-              <Flex >
+              <Flex>
                 <Box
                   css={{
                     width: "100%",
@@ -319,7 +307,7 @@ const Home = () => {
                   width: "100%",
                   height: "100%",
                   p: "24px",
-                  flex: 1
+                  flex: 1,
                 }}
               >
                 <RoundStatus />
@@ -377,16 +365,16 @@ const Home = () => {
               </Flex>
             </Flex>
 
-            {loading ? (
+            {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
             ) : (
               <Box>
                 <OrchestratorList
-                  data={data?.transcoders}
+                  data={orchestrators?.transcoders}
                   pageSize={10}
-                  protocolData={data?.protocol}
+                  protocolData={protocol?.protocol}
                 />
               </Box>
             )}
@@ -430,19 +418,9 @@ const Home = () => {
               </Flex>
             </Flex>
 
-            {eventsDataLoading ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Box>
-                <TransactionsList
-                  identities={allIdentities}
-                  events={allEvents}
-                  pageSize={10}
-                />
-              </Box>
-            )}
+            <Box>
+              <TransactionsList events={allEvents} pageSize={10} />
+            </Box>
           </Box>
         </Flex>
       </Container>
@@ -450,19 +428,33 @@ const Home = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getOrchestrators(client);
-  await getChartData(client);
-  await getEvents(client);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const orchestrators = await getOrchestrators(client);
+    const events = await getEvents(client);
+    const protocol = await getProtocol(client);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    if (!orchestrators.data || !events.data || !protocol.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      orchestrators: orchestrators.data,
+      events: events.data,
+      protocol: protocol.data,
+    };
+
+    return {
+      props,
+      revalidate: 60,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 Home.getLayout = getLayout;
 

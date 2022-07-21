@@ -9,27 +9,16 @@ import {
   Button,
 } from "@livepeer/design-system";
 import OrchestratorList from "@components/OrchestratorList";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
 import { gql, useQuery } from "@apollo/client";
-import { getApollo } from "../apollo";
+import { getApollo, useOrchestratorsQuery, useProtocolQuery } from "../apollo";
 import { getOrchestrators } from "api";
 import Link from "next/link";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Spinner from "@components/Spinner";
 
 const OrchestratorsPage = () => {
-  const { data: protocolData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
-  const { data, loading } = useQuery(query);
+  const { data, loading } = useOrchestratorsQuery();
+  const { data: protocolData } = useProtocolQuery();
   return (
     <>
       <Head>
@@ -65,7 +54,7 @@ const OrchestratorsPage = () => {
             )}
           </Flex>
           <Box css={{ mb: "$5" }}>
-            {loading ? (
+            {!protocolData.protocol || !data.transcoders ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
@@ -73,7 +62,7 @@ const OrchestratorsPage = () => {
               <OrchestratorList
                 data={data?.transcoders}
                 pageSize={20}
-                protocolData={data?.protocol}
+                protocolData={protocolData?.protocol}
               />
             )}
           </Box>

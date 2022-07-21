@@ -1,0 +1,26 @@
+query protocol {
+  protocol(id: "0") {
+    id
+    totalVolumeUSD
+    totalVolumeETH
+    participationRate
+    inflation
+    activeTranscoderCount
+    delegatorsCount
+    lockPeriod
+    totalSupply
+    totalActiveStake
+    inflationChange
+    roundLength
+    lptPriceEth
+    currentRound {
+      id
+      mintableTokens
+      volumeETH
+      volumeUSD
+      pools {
+        rewardTokens
+      }
+    }
+  }
+}

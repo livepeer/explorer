@@ -4,18 +4,11 @@ import ProjectionBox from "./ProjectionBox";
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
 import { Tabs, TabList, Tab } from "./Tabs";
-import {
-  Account,
-  Delegator,
-  Transcoder,
-  Protocol,
-  Round,
-  Identity,
-} from "../../@types";
 import InputBox from "./InputBox";
 import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
 import numeral from "numeral";
-import { useEnsName } from "hooks";
+import { useEnsData } from "hooks";
+import { EnsIdentity } from "@api/types/get-ens";
 
 interface Props {
   transcoders: [Transcoder];
@@ -25,7 +18,7 @@ interface Props {
   account: Account;
   currentRound: Round;
   selectedAction?: string;
-  delegateProfile?: Identity;
+  delegateProfile?: EnsIdentity;
 }
 
 const Index = ({
@@ -46,7 +39,7 @@ const Index = ({
     [delegator, transcoder]
   );
 
-  const delegateEns = useEnsName(delegator?.delegate?.id);
+  const delegateEns = useEnsData(delegator?.delegate?.id);
 
   const isDelegated =
     delegator?.bondedAmount && delegator?.bondedAmount !== "0";
@@ -109,17 +102,13 @@ const Index = ({
                     </Box>
                     {` from `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {delegateEns
-                        ? delegateEns
-                        : delegator?.delegate?.id?.replace(
-                            delegator?.delegate?.id?.slice(7, 37),
-                            "…"
-                          ) ?? ""}
+                      {delegateEns.name
+                        ? delegateEns.name
+                        : delegateEns.idShort ?? ""}
                     </Box>
                     {" to "}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {delegateProfile?.name ??
-                        transcoder.id.replace(transcoder.id.slice(7, 37), "…")}
+                      {delegateProfile?.name ?? delegateProfile?.idShort ?? ""}
                     </Box>
                     {"."}
                   </Text>

@@ -1,10 +1,10 @@
-import { gql, useApolloClient } from "@apollo/client";
-import useWindowSize from "react-use/lib/useWindowSize";
-import { Box } from "@livepeer/design-system";
 import { calculateROI } from "@lib/roi";
+import { Box } from "@livepeer/design-system";
+import { useExplorerStore } from "hooks";
+import { useEffect } from "react";
+import useWindowSize from "react-use/lib/useWindowSize";
 
 const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
-  const client = useApolloClient();
   const { width } = useWindowSize();
 
   const pools = transcoder?.pools ?? [];
@@ -17,7 +17,7 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
 
   const roi = calculateROI({
     inputs: {
-      principle
+      principle,
     },
     orchestratorParams: {
       totalStake: Number(transcoder.totalStake),
@@ -39,22 +39,16 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
     },
   });
 
-  client.writeQuery({
-    query: gql`
-      query {
-        principle
-        roiFees
-        roiFeesLpt
-        roiRewards
-      }
-    `,
-    data: {
+  const { setYieldResults } = useExplorerStore();
+
+  useEffect(() => {
+    setYieldResults({
       principle,
       roiFeesLpt: roi.delegator.feesLpt,
       roiFees: roi.delegator.fees,
       roiRewards: roi.delegator.rewards,
-    },
-  });
+    });
+  }, [principle, roi.delegator, setYieldResults]);
 
   return (
     <Box

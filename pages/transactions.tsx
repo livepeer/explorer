@@ -7,9 +7,8 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { getEvents } from "api";
 import Head from "next/head";
-import { eventsQuery } from "queries/eventsQuery";
 import { useMemo } from "react";
-import { getApollo } from "../apollo";
+import { getApollo, useEventsQuery } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;
 const TRANSACTIONS_PER_PAGE = 20;
@@ -17,10 +16,10 @@ const TRANSACTIONS_PER_PAGE = 20;
 const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE;
 
 const TransactionsPage = () => {
-  const { data: eventsData, loading: eventsDataLoading } = useQuery(
-    eventsQuery,
-    { variables: { first: numberTransactions }, pollInterval: 30000 }
-  );
+  const { data: eventsData, loading: eventsDataLoading } = useEventsQuery({
+    variables: { first: numberTransactions },
+    pollInterval: 30000,
+  });
   const allEvents = useMemo(
     () =>
       eventsData?.transactions
@@ -31,10 +30,6 @@ const TransactionsPage = () => {
             : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
         )
         ?.slice(0, numberTransactions) ?? [],
-    [eventsData]
-  );
-  const allIdentities = useMemo(
-    () => eventsData?.transcoders.map((t) => t.identity) ?? [],
     [eventsData]
   );
 
@@ -63,7 +58,6 @@ const TransactionsPage = () => {
               </Flex>
             ) : (
               <TransactionsList
-                identities={allIdentities}
                 events={allEvents}
                 pageSize={TRANSACTIONS_PER_PAGE}
               />

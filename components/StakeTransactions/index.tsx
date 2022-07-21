@@ -4,11 +4,11 @@ import {
   getHint,
   simulateNewActiveSetOrder,
 } from "../../lib/utils";
-import { UnbondingLock } from "../../@types";
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
+import { parseEther } from "ethers/lib/utils";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
@@ -35,7 +35,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
               action: "stake",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: Utils.toWei(lock.amount),
+              amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(
@@ -110,7 +110,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
               action: "stake",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: Utils.toWei(lock.amount),
+              amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(

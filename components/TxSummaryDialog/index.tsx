@@ -8,32 +8,27 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { keyframes } from "@livepeer/design-system";
+import { useExplorerStore } from "hooks";
+import { useCallback } from "react";
 import CloseIcon from "../../public/img/close.svg";
 
 const rotate = keyframes({
   "100%": { transform: "rotate(360deg)" },
 });
 
-const Index = ({ isOpen, onDismiss }) => {
-  const GET_TX_SUMMARY_MODAL = gql`
-    {
-      txSummaryModal @client {
-        __typename
-        open
-        error
-      }
-    }
-  `;
+const Index = () => {
+  const { latestTransaction, clearLatestTransaction } = useExplorerStore();
 
-  const { data } = useQuery(GET_TX_SUMMARY_MODAL);
-
-  if (!isOpen) {
+  if (!latestTransaction || latestTransaction.step !== "summary") {
     return null;
   }
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent css={{ minWidth: 370 }} onPointerDownOutside={onDismiss}>
+    <Dialog open={true}>
+      <DialogContent
+        css={{ minWidth: 370 }}
+        onPointerDownOutside={clearLatestTransaction}
+      >
         <Flex
           css={{
             justifyContent: "flex-end",
@@ -48,11 +43,11 @@ const Index = ({ isOpen, onDismiss }) => {
               top: 20,
               color: "$white",
             }}
-            onClick={onDismiss}
+            onClick={clearLatestTransaction}
           />
         </Flex>
 
-        {data?.txSummaryModal?.error ? (
+        {latestTransaction?.error ? (
           <Box />
         ) : (
           <Flex
@@ -86,18 +81,18 @@ const Index = ({ isOpen, onDismiss }) => {
             justifyItems: "center",
           }}
         >
-          {!data?.txSummaryModal?.error && (
+          {!latestTransaction?.error && (
             <Box css={{ fontSize: "$4", fontWeight: 600 }}>
               Waiting For Confirmation
             </Box>
           )}
         </Box>
         <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
-          {data?.txSummaryModal?.error ? (
+          {latestTransaction?.error ? (
             <>
               <Text css={{ mb: "$3" }}>Transaction Error</Text>
               <Button
-                onClick={onDismiss}
+                onClick={clearLatestTransaction}
                 variant="primary"
                 size="4"
                 css={{ width: "100%" }}

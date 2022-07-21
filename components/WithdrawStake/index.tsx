@@ -1,15 +1,15 @@
-import { useContext } from "react";
-
-import { MutationsContext } from "../../contexts";
-import { useApolloClient } from "@apollo/client";
-import { initTransaction } from "@lib/utils";
 import { Button } from "@livepeer/design-system";
-import { useAccountAddress } from "hooks";
+import {
+  useAccountAddress,
+  useHandleTransaction,
+  useLivepeerContracts,
+} from "hooks";
 
 const Index = ({ unbondingLockId }) => {
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
-  const { withdrawStake }: any = useContext(MutationsContext);
+
+  const { bondingManager } = useLivepeerContracts();
+  const handleTransaction = useHandleTransaction("withdrawStake");
 
   if (!accountAddress) {
     return null;
@@ -20,14 +20,11 @@ const Index = ({ unbondingLockId }) => {
       <Button
         variant="primary"
         size="3"
-        onClick={() => {
-          initTransaction(client, async () => {
-            await withdrawStake({
-              variables: {
-                unbondingLockId,
-              },
-            });
-          });
+        onClick={async () => {
+          await handleTransaction(
+            () => bondingManager.withdrawStake(unbondingLockId),
+            { unbondingLockId }
+          );
         }}
         css={{ py: "$2", mr: "$3" }}
       >

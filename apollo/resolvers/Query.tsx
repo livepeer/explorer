@@ -1,26 +1,17 @@
-import dayjs from "dayjs";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import utc from "dayjs/plugin/utc";
 import {
-  getTwoPeriodPercentChange,
   getBlocksFromTimestamps,
   getLivepeerComUsageData,
   getPercentChange,
-  getTotalFeeDerivedMinutes,
+  getTotalFeeDerivedMinutes, getTwoPeriodPercentChange
 } from "@lib/utils";
-import { dayDataQuery } from "../../queries/dayDataQuery";
-import { protocolDataByBlockQuery } from "../..//queries/protocolDataByBlockQuery";
-import { protocolDataQuery } from "../..//queries/protocolDataQuery";
-import { client } from "..";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import weekOfYear from "dayjs/plugin/weekOfYear";
 import {
-  CHAIN_INFO,
-  INFURA_NETWORK_URLS,
-  IS_TESTNET,
-  l1Provider,
-  L1_CHAIN_ID,
-  DEFAULT_CHAIN_ID,
+  CHAIN_INFO, DEFAULT_CHAIN_ID, IS_TESTNET,
+  l1Provider, l2Provider
 } from "lib/chains";
-import LivepeerSDK from "@livepeer/sdk";
+import { client, DaysDocument, DaysQuery, DaysQueryVariables, Day_OrderBy, OrderDirection, ProtocolByBlockDocument, ProtocolByBlockQuery, ProtocolByBlockQueryVariables, ProtocolDocument, ProtocolQuery, ProtocolQueryVariables } from "..";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -73,6 +64,8 @@ export async function txPrediction(_obj, _args, _ctx, _info) {
 export async function identity(_obj, _args, _ctx, _info) {
   const name = await l1Provider.lookupAddress(_args.id);
 
+  console.log("looking up: " + _args.id);
+
   if (name) {
     const resolver = await l1Provider.getResolver(name);
     const description = await resolver.getText("description");
@@ -104,9 +97,9 @@ export async function identity(_obj, _args, _ctx, _info) {
 }
 
 export async function block(_obj, _args, _ctx, _info) {
-  const { number: blockNumber } = await _ctx.livepeer.rpc.getBlock("latest");
+  const latestBlockNumber = await l2Provider.getBlockNumber();
   return {
-    number: blockNumber,
+    number: latestBlockNumber,
   };
 }
 
@@ -118,13 +111,10 @@ export async function currentRoundInfo(_obj, _args, _ctx, _info) {
 }
 
 export async function l1Block(_obj, _args, _ctx, _info) {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-  });
-  const { number: blockNumber } = await sdk.rpc.getBlock("latest");
+  const latestBlockNumber = await l1Provider.getBlockNumber();
+
   return {
-    number: blockNumber,
+    number: latestBlockNumber,
   };
 }
 
@@ -159,22 +149,6 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
 
   let dayData = [];
   const weeklyData = [];
-  let oneDayData = {
-    totalVolumeUSD: 0,
-    totalVolumeETH: 0,
-    participationRate: 0,
-    inflation: 0,
-    activeTranscoderCount: 0,
-    delegatorsCount: 0,
-  };
-  let twoDayData = {
-    totalVolumeUSD: 0,
-    totalVolumeETH: 0,
-    participationRate: 0,
-    inflation: 0,
-    activeTranscoderCount: 0,
-    delegatorsCount: 0,
-  };
 
   // Date to price mapping used to calculate estimated usage
   // based on the Livepeer.com broadcaster's max price
@@ -219,29 +193,29 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
       ]);
 
     const getDayData = async () => {
-      const result = await client.query({
-        query: dayDataQuery,
+      const result = await client.query<DaysQuery, DaysQueryVariables>({
+        query: DaysDocument,
         fetchPolicy: "network-only",
         variables: {
           first: 1000,
-          orderBy: "date",
-          orderDirection: "desc",
+          orderBy: Day_OrderBy.Date,
+          orderDirection: OrderDirection.Desc,
         },
       });
       return result;
     };
 
     const getProtocolData = async () => {
-      const result = await client.query({
-        query: protocolDataQuery,
+      const result = await client.query<ProtocolQuery, ProtocolQueryVariables>({
+        query: ProtocolDocument,
         fetchPolicy: "network-only",
       });
       return result;
     };
 
     const getProtocolDataByBlock = async (_block) => {
-      const result = await client.query({
-        query: protocolDataByBlockQuery,
+      const result = await client.query<ProtocolByBlockQuery, ProtocolByBlockQueryVariables>({
+        query: ProtocolByBlockDocument,
         fetchPolicy: "network-only",
         variables: {
           block: { number: _block },
@@ -382,10 +356,10 @@ export async function chartData(_obj?, _args?, _ctx?, _info?) {
     data.delegatorsCount = +protocolDataResult.data.protocol.delegatorsCount;
 
     const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
-    oneDayData = oneDayResult.data.protocol;
+    const oneDayData = oneDayResult.data.protocol;
 
     const twoDayResult = await getProtocolDataByBlock(twoDayBlock);
-    twoDayData = twoDayResult.data.protocol;
+    const twoDayData = twoDayResult.data.protocol;
 
     const oneWeekResult = await getProtocolDataByBlock(oneWeekBlock);
     const oneWeekData = oneWeekResult.data.protocol;

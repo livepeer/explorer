@@ -19,15 +19,13 @@ import {
   Link as A,
   Sheet,
   SheetContent,
-  SheetTrigger,
+  SheetTrigger
 } from "@livepeer/design-system";
+import { useAccountQuery } from "apollo";
 import Link from "next/link";
 import { useMemo } from "react";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { useAccountAddress } from "../hooks";
-import { accountQuery } from "../queries/accountQuery";
-
-const pollInterval = 5000;
+import { useAccountAddress, useEnsData } from "../hooks";
 
 export interface TabType {
   name: string;
@@ -35,38 +33,32 @@ export interface TabType {
   isActive?: boolean;
 }
 
-const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"] as const;
 
 const AccountLayout = () => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const router = useRouter();
   const { query, asPath } = router;
-  const view = ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v);
+  const view = useMemo(
+    () => ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v),
+    [asPath]
+  );
 
-  const { data: currentRoundData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
+  const account = useMemo(
+    () => query?.account?.toString().toLowerCase(),
+    [query]
+  );
 
-  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
-
-  const account = query?.account?.toString().toLowerCase();
-
-  const { data, loading } = useQuery(q, {
+  const { data } = useAccountQuery({
     variables: {
       account,
     },
-    pollInterval,
   });
 
-  const { data: dataTranscoders, loading: loadingTranscoders } = useQuery(
+  const identity = useEnsData(data?.account?.id);
+
+  const { data: dataTranscoders } = useQuery(
     gql`
       {
         transcoders(
@@ -81,12 +73,11 @@ const AccountLayout = () => {
     `
   );
 
-  const { data: dataMyAccount } = useQuery(q, {
+  const { data: dataMyAccount } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
     skip: !accountAddress,
-    pollInterval,
   });
 
   const SELECTED_STAKING_ACTION = gql`
@@ -101,7 +92,25 @@ const AccountLayout = () => {
     [data?.transcoder]
   );
 
-  if (loading || loadingTranscoders) {
+  const isMyAccount = useMemo(
+    () => checkAddressEquality(accountAddress, query?.account?.toString()),
+    [accountAddress, query?.account]
+  );
+  const isOrchestrator = useMemo(() => Boolean(data?.transcoder), [data]);
+  const isMyDelegate = useMemo(
+    () =>
+      query?.account?.toString().toLowerCase() ===
+      dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
+    [query, dataMyAccount]
+  );
+
+  const tabs: Array<TabType> = useMemo(
+    () =>
+      getTabs(isOrchestrator, query?.account?.toString(), asPath, isMyDelegate),
+    [isOrchestrator, query, asPath, isMyDelegate]
+  );
+
+  if (!data?.protocol || !dataTranscoders) {
     return (
       <Flex
         css={{
@@ -118,22 +127,6 @@ const AccountLayout = () => {
       </Flex>
     );
   }
-
-  const isMyAccount = checkAddressEquality(
-    accountAddress,
-    query?.account?.toString()
-  );
-  const isOrchestrator = data?.transcoder;
-  const isMyDelegate =
-    query?.account?.toString().toLowerCase() ===
-    dataMyAccount?.delegator?.delegate?.id.toLowerCase();
-
-  const tabs: Array<TabType> = getTabs(
-    isOrchestrator,
-    query?.account?.toString(),
-    asPath,
-    isMyDelegate
-  );
 
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
@@ -155,7 +148,7 @@ const AccountLayout = () => {
             isActive={isActive}
             account={query?.account.toString()}
             isMyAccount={isMyAccount}
-            identity={data?.account?.identity}
+            identity={identity}
           />
           <Flex
             css={{

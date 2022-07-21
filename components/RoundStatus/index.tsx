@@ -1,4 +1,3 @@
-import { gql, useQuery } from "@apollo/client";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
@@ -8,8 +7,10 @@ import {
   Cross1Icon,
   QuestionMarkCircledIcon
 } from "@modulz/radix-icons";
+import { useProtocolQuery } from "apollo";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useCurrentRoundInfo, useL1RoundNumber } from "hooks";
 import { useTheme } from "next-themes";
 import numeral from "numeral";
 import { useMemo } from "react";
@@ -25,61 +26,18 @@ const Index = () => {
     : themes[`${resolvedTheme}-theme-green`];
   const pollInterval = 30000;
 
-  const { data: protocolData } = useQuery(
-    gql`
-      {
-        protocol(id: "0") {
-          id
-          roundLength
-          lockPeriod
-          currentRound {
-            id
-            mintableTokens
-            volumeETH
-            volumeUSD
-            pools {
-              rewardTokens
-            }
-          }
-        }
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
-  const { data: blockData } = useQuery(
-    gql`
-      {
-        l1Block
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
+  const { data: protocolData } = useProtocolQuery({ pollInterval });
+  const roundNumber = useL1RoundNumber(pollInterval);
 
-  const { data: currentRoundInfo } = useQuery(
-    gql`
-      {
-        currentRoundInfo
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
+  const currentRoundInfo = useCurrentRoundInfo(pollInterval);
 
   const blocksRemaining = useMemo(
     () =>
-      currentRoundInfo?.currentRoundInfo?.initialized &&
-      blockData &&
-      protocolData
+      currentRoundInfo?.initialized && roundNumber && protocolData
         ? +protocolData.protocol.roundLength -
-          (+blockData.l1Block.number -
-            +currentRoundInfo.currentRoundInfo.startBlock)
+          (+roundNumber - +currentRoundInfo.startBlock)
         : 0,
-    [protocolData, blockData, currentRoundInfo]
+    [protocolData, roundNumber, currentRoundInfo]
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
@@ -87,11 +45,10 @@ const Index = () => {
   );
   const blocksSinceCurrentRoundStart = useMemo(
     () =>
-      currentRoundInfo?.currentRoundInfo?.initialized && blockData
-        ? +blockData.l1Block.number -
-          +currentRoundInfo.currentRoundInfo.startBlock
+      currentRoundInfo?.initialized && roundNumber
+        ? +roundNumber - +currentRoundInfo.startBlock
         : 0,
-    [currentRoundInfo, blockData]
+    [currentRoundInfo, roundNumber]
   );
 
   const percentage = useMemo(
@@ -146,9 +103,7 @@ const Index = () => {
               color: "white",
             }}
           >
-            {currentRoundInfo?.currentRoundInfo?.id
-              ? `#${currentRoundInfo.currentRoundInfo.id}`
-              : ""}
+            {currentRoundInfo?.id ? `#${currentRoundInfo.id}` : ""}
           </Text>
         </Box>
         <ExplorerTooltip
@@ -203,7 +158,7 @@ const Index = () => {
           >
             <Spinner />
           </Flex>
-        ) : currentRoundInfo?.currentRoundInfo?.initialized ? (
+        ) : currentRoundInfo?.initialized ? (
           <Flex
             css={{
               pb: "$2",
@@ -269,7 +224,7 @@ const Index = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  #{+currentRoundInfo.currentRoundInfo.id + 1}
+                  #{+currentRoundInfo.id + 1}
                 </Box>{" "}
                 begins.
               </Text>

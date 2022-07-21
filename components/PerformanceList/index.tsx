@@ -4,10 +4,21 @@ import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
 import Link from "next/link";
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
+import { useEnsData,  } from "hooks";
+import { OrchestratorsQueryResult } from "apollo";
+import { ALL_REGIONS } from "utils/allRegions";
 
-const PerformanceList = ({ data, pageSize = 10, region }) => {
+const PerformanceList = ({
+  data,
+  pageSize = 20,
+  region,
+}: {
+  pageSize: number;
+  region: keyof typeof ALL_REGIONS;
+  data: OrchestratorsQueryResult["data"]["transcoders"];
+}) => {
   const initialState = {
-    pageSize: 20,
+    pageSize: pageSize,
     sortBy: [
       {
         id: "scores.global",
@@ -57,68 +68,71 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
         Header: "Orchestrator",
         accessor: "id",
         defaultCanSort: false,
-        Cell: ({ row }, i) => (
-          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-            <A
-              css={{
-                width: 300,
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Flex css={{ alignItems: "center" }}>
-                {row.values.identity?.image ? (
-                  <Box
-                    as="img"
-                    css={{
-                      mr: "$2",
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      borderRadius: 1000,
-                    }}
-                    src={row.values.identity.image}
-                  />
-                ) : (
-                  <Box
-                    as={QRCode}
-                    css={{
-                      mr: "$2",
-                      borderRadius: 1000,
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                    }}
-                    fgColor={`#${row.values.id.substr(2, 6)}`}
-                    value={row.values.id}
-                  />
-                )}
-                {row.values.identity?.name ? (
-                  <Flex css={{ fontWeight: 600, ai: "center" }}>
+        Cell: ({ row }, i) => {
+          const identity = useEnsData(row.values.id);
+          return (
+            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+              <A
+                css={{
+                  width: 300,
+                  display: "block",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "none" },
+                }}
+              >
+                <Flex css={{ alignItems: "center" }}>
+                  {identity?.avatar ? (
                     <Box
+                      as="img"
                       css={{
                         mr: "$2",
-                        fontSize: "$3",
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                        borderRadius: 1000,
                       }}
-                    >
-                      {textTruncate(row.values.identity.name, 20, "…")}
+                      src={identity.avatar}
+                    />
+                  ) : (
+                    <Box
+                      as={QRCode}
+                      css={{
+                        mr: "$2",
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                      }}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      value={row.values.id}
+                    />
+                  )}
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+                      <Box
+                        css={{
+                          mr: "$2",
+                          fontSize: "$3",
+                        }}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
+                      </Box>
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                     </Box>
-                    <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values.id.substring(0, 6)}
-                    </Badge>
-                  </Flex>
-                ) : (
-                  <Box css={{ fontWeight: 600 }}>
-                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                  </Box>
-                )}
-              </Flex>
-            </A>
-          </Link>
-        ),
+                  )}
+                </Flex>
+              </A>
+            </Link>
+          );
+        },
       },
       {
         Header: "Activation Round",

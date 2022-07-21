@@ -18,9 +18,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { pollsQuery } from "../../queries/pollsQuery";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { usePollQuery, usePollsQuery } from "apollo";
 dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
@@ -43,7 +43,7 @@ const Voting = () => {
   const pollInterval = 20000;
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { data } = useQuery(pollsQuery, {
+  const { data } = usePollsQuery({
     pollInterval,
   });
 

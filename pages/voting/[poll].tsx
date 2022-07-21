@@ -25,12 +25,10 @@ import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { useAccountAddress } from "../../hooks";
-import { accountQuery } from "../../queries/accountQuery";
-import { pollQuery } from "../../queries/pollQuery";
-import { voteQuery } from "../../queries/voteQuery";
 import FourZeroFour from "../404";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 dayjs.extend(relativeTime);
 
 const Poll = () => {
@@ -45,27 +43,14 @@ const Poll = () => {
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 20000;
 
-  const { data } = useQuery(pollQuery, {
+  const { data } = usePollQuery({
     variables: {
       id: pollId,
     },
     pollInterval,
   });
 
-  const { data: currentRoundData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-
-  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
-
-  const { data: myAccountData } = useQuery(q, {
+  const { data: myAccountData } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
@@ -73,7 +58,7 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const { data: voteData } = useQuery(voteQuery, {
+  const { data: voteData } = useVoteQuery({
     variables: {
       id: `${accountAddress?.toLowerCase()}-${pollId}`,
     },
@@ -81,7 +66,7 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const { data: delegateVoteData } = useQuery(voteQuery, {
+  const { data: delegateVoteData } = useVoteQuery({
     variables: {
       id: `${myAccountData?.delegator?.delegate?.id.toLowerCase()}-${pollId}`,
     },

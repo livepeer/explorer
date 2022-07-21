@@ -18,6 +18,7 @@ import { useMemo, useState } from "react";
 
 const Index = ({ css = {}, ...props }) => {
   const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const { data: accountsData } = useQuery<{
     livepeerAccounts?: {
       id: string;
@@ -36,31 +37,36 @@ const Index = ({ css = {}, ...props }) => {
         active: boolean;
       };
     }[];
-  }>(gql`
-    {
-      livepeerAccounts(
-        first: 500
-        orderBy: lastUpdatedTimestamp
-        orderDirection: desc
-      ) {
-        id
-        identity {
+  }>(
+    gql`
+      {
+        livepeerAccounts(
+          first: 1
+          orderBy: lastUpdatedTimestamp
+          orderDirection: desc
+        ) {
           id
-          name
-          website
-          twitter
-          description
-        }
-        delegator {
-          id
-        }
-        delegate {
-          id
-          active
+          identity {
+            id
+            name
+            website
+            twitter
+            description
+          }
+          delegator {
+            id
+          }
+          delegate {
+            id
+            active
+          }
         }
       }
+    `,
+    {
+      skip: !isOpen,
     }
-  `);
+  );
 
   const accounts = useMemo(
     () => accountsData?.livepeerAccounts ?? [],
@@ -98,6 +104,7 @@ const Index = ({ css = {}, ...props }) => {
   return (
     <Dialog
       onOpenChange={(open) => {
+        setIsOpen(open);
         if (!open) {
           setSearch("");
         }

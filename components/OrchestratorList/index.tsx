@@ -42,6 +42,8 @@ import {
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { useEnsData } from "hooks";
+import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 
 dayjs.extend(relativeTime);
 
@@ -65,7 +67,15 @@ const formatFactors = (factors: ROIFactors) =>
     ? `LPT Only`
     : `ETH Only`;
 
-const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
+const OrchestratorList = ({
+  data,
+  protocolData,
+  pageSize = 10,
+}: {
+  pageSize: number;
+  protocolData: ProtocolQueryResult["data"]["protocol"];
+  data: OrchestratorsQueryResult["data"]["transcoders"];
+}) => {
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
@@ -184,90 +194,94 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
           </ExplorerTooltip>
         ),
         accessor: "id",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-            <A
-              css={{
-                width: 350,
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Flex css={{ alignItems: "center" }}>
-                <Box
-                  css={{
-                    mr: "$2",
-                    backgroundColor: "$neutral4",
-                    borderRadius: 1000,
-                    color: "$neutral11",
-                    fontWeight: 700,
-                    width: 24,
-                    height: 24,
-                    minWidth: 24,
-                    minHeight: 24,
-                    fontSize: 11,
-                    justifyContent: "center",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {+row.id + 1}
-                </Box>
+        Cell: ({ row }) => {
+          const identity = useEnsData(row.values.id);
 
-                <Flex css={{ mr: "$2", alignItems: "center" }}>
-                  {row.values.identity?.image ? (
-                    <Box
-                      as="img"
-                      css={{
-                        mr: "$2",
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                        borderRadius: 1000,
-                      }}
-                      src={row.values.identity.image}
-                    />
-                  ) : (
-                    <Box
-                      as={QRCode}
-                      css={{
-                        mr: "$2",
-                        borderRadius: 1000,
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                      }}
-                      fgColor={`#${row.values.id.substr(2, 6)}`}
-                      value={row.values.id}
-                    />
-                  )}
-                  {row.values.identity?.name ? (
-                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+          return (
+            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+              <A
+                css={{
+                  width: 350,
+                  display: "block",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "none" },
+                }}
+              >
+                <Flex css={{ alignItems: "center" }}>
+                  <Box
+                    css={{
+                      mr: "$2",
+                      backgroundColor: "$neutral4",
+                      borderRadius: 1000,
+                      color: "$neutral11",
+                      fontWeight: 700,
+                      width: 24,
+                      height: 24,
+                      minWidth: 24,
+                      minHeight: 24,
+                      fontSize: 11,
+                      justifyContent: "center",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {+row.id + 1}
+                  </Box>
+
+                  <Flex css={{ mr: "$2", alignItems: "center" }}>
+                    {identity?.avatar ? (
                       <Box
+                        as="img"
                         css={{
                           mr: "$2",
-                          fontSize: "$3",
+                          width: 24,
+                          height: 24,
+                          maxWidth: 24,
+                          maxHeight: 24,
+                          borderRadius: 1000,
                         }}
-                      >
-                        {textTruncate(row.values.identity.name, 20, "…")}
+                        src={identity.avatar}
+                      />
+                    ) : (
+                      <Box
+                        as={QRCode}
+                        css={{
+                          mr: "$2",
+                          borderRadius: 1000,
+                          width: 24,
+                          height: 24,
+                          maxWidth: 24,
+                          maxHeight: 24,
+                        }}
+                        fgColor={`#${row.values.id.substr(2, 6)}`}
+                        value={row.values.id}
+                      />
+                    )}
+                    {identity?.name ? (
+                      <Flex css={{ fontWeight: 600, ai: "center" }}>
+                        <Box
+                          css={{
+                            mr: "$2",
+                            fontSize: "$3",
+                          }}
+                        >
+                          {textTruncate(identity.name, 20, "…")}
+                        </Box>
+                        <Badge size="2" css={{ fontSize: "$2" }}>
+                          {row.values.id.substring(0, 6)}
+                        </Badge>
+                      </Flex>
+                    ) : (
+                      <Box css={{ fontWeight: 600 }}>
+                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
-                      <Badge size="2" css={{ fontSize: "$2" }}>
-                        {row.values.id.substring(0, 6)}
-                      </Badge>
-                    </Flex>
-                  ) : (
-                    <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                    </Box>
-                  )}
+                    )}
+                  </Flex>
                 </Flex>
-              </Flex>
-            </A>
-          </Link>
-        ),
+              </A>
+            </Link>
+          );
+        },
       },
       {
         Header: "Identity",

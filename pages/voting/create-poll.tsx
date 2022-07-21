@@ -8,19 +8,22 @@ import {
   Heading,
   Link as A,
   RadioCard,
-  RadioCardGroup,
+  RadioCardGroup
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { createApolloFetch } from "apollo-fetch";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import fm from "front-matter";
-import { useAccountAddress } from "hooks";
+import {
+  useAccountAddress,
+  useHandleTransaction,
+  useLivepeerContracts
+} from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
 import Utils from "web3-utils";
-import { MutationsContext } from "../../contexts";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const accountAddress = useAccountAddress();
@@ -58,7 +61,9 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   }, [data, accountAddress]);
 
   const [selectedProposal, setSelectedProposal] = useState(null);
-  const { createPoll }: any = useContext(MutationsContext);
+
+  const { pollCreator } = useLivepeerContracts();
+  const handleTransaction = useHandleTransaction("createPoll");
 
   return (
     <>
@@ -84,8 +89,8 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             try {
               const hash = await addIpfs(selectedProposal);
 
-              await createPoll({
-                variables: { proposal: hash },
+              await handleTransaction(() => pollCreator.createPoll(hash), {
+                proposal: hash,
               });
             } catch (err) {
               console.error(err);

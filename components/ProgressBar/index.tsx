@@ -1,12 +1,11 @@
-import { txMessages } from "../../lib/utils";
-import { Box, Flex, Link as A } from "@livepeer/design-system";
 import Spinner from "@components/Spinner";
+import { Box, Flex, Link as A } from "@livepeer/design-system";
+import { TransactionStatus } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { txMessages } from "../../lib/utils";
 
-const Index = ({ tx }) => {
-  const { __typename, txHash } = tx;
-
-  if (!tx) {
+const Index = ({ tx }: { tx?: TransactionStatus }) => {
+  if (!tx?.name || !tx?.hash) {
     return null;
   }
 
@@ -23,7 +22,7 @@ const Index = ({ tx }) => {
               fontWeight: "bold",
             }}
           >
-            {txMessages[__typename]?.pending}
+            {txMessages[tx.name]?.pending}
           </Box>
         </Box>
         <A
@@ -31,7 +30,7 @@ const Index = ({ tx }) => {
           css={{ fontSize: "$1", justifySelf: "flex-end" }}
           target="_blank"
           rel="noopener noreferrer"
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${txHash}`}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx.hash}`}
         >
           Details
         </A>

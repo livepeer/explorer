@@ -1,15 +1,16 @@
-import Delegate from "./Delegate";
-import Undelegate from "./Undelegate";
-import { Account, Delegator, Transcoder, Round } from "../../@types";
-import Utils from "web3-utils";
+import { EnsIdentity } from "@api/types/get-ens";
 import {
   getDelegatorStatus,
   getHint,
-  simulateNewActiveSetOrder,
+  simulateNewActiveSetOrder
 } from "@lib/utils";
-import Footnote from "./Footnote";
-import { Box, Button, Flex } from "@livepeer/design-system";
+import { Box, Button } from "@livepeer/design-system";
+import { Delegator, Round, Transcoder } from "apollo";
+import { parseUnits } from "ethers/lib/utils";
 import { useAccountAddress } from "hooks";
+import Delegate from "./Delegate";
+import Footnote from "./Footnote";
+import Undelegate from "./Undelegate";
 
 type FooterData = {
   isTransferStake: boolean;
@@ -21,7 +22,7 @@ type FooterData = {
   transcoder: Transcoder;
   delegator?: Delegator;
   currentRound: Round;
-  account: Account;
+  account: EnsIdentity;
 };
 interface Props {
   reset: Function;
@@ -67,19 +68,19 @@ const Footer = ({
   }
 
   const tokenBalance =
-    account && parseFloat(Utils.fromWei(account.tokenBalance));
+    account && parseUnits(account.tokenBalance, "wei").toNumber();
   const transferAllowance =
-    account && parseFloat(Utils.fromWei(account.allowance));
+    account && parseUnits(account.allowance, "wei").toNumber();
   const delegatorStatus = getDelegatorStatus(delegator, currentRound);
   const stake = delegator?.pendingStake
-    ? parseFloat(Utils.fromWei(delegator.pendingStake))
+    ? parseUnits(delegator.pendingStake, "wei").toNumber()
     : 0;
   const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
   const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
   const newActiveSetOrder = simulateNewActiveSetOrder({
     action,
     transcoders: JSON.parse(JSON.stringify(transcoders)),
-    amount: Utils.toWei(amount ? amount.toString() : "0"),
+    amount: parseUnits(amount ? amount.toString() : "0", "wei").toNumber(),
     newDelegate: transcoder.id,
     oldDelegate: delegator?.delegate?.id,
   });

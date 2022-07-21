@@ -1,22 +1,19 @@
-import { useApolloClient } from "@apollo/client";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
-import { checkAddressEquality, initTransaction } from "@lib/utils";
-import {
-  Box,
-  Button,
-  Flex,
-  Link as A,
-  Text,
-} from "@livepeer/design-system";
+import { checkAddressEquality } from "@lib/utils";
+import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { MutationsContext } from "contexts";
 import { ethers } from "ethers";
-import { useAccountAddress } from "hooks";
+import {
+  useAccountAddress,
+  useEnsData,
+  useHandleTransaction,
+  useLivepeerContracts
+} from "hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import numeral from "numeral";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import StakeTransactions from "../StakeTransactions";
 
@@ -31,8 +28,11 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
   const router = useRouter();
   const query = router.query;
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
-  const { withdrawFees }: any = useContext(MutationsContext);
+
+  const delegateIdentity = useEnsData(delegator.delegate.id);
+
+  const { bondingManager } = useLivepeerContracts();
+  const handleTransaction = useHandleTransaction("withdrawFees");
 
   const isMyAccount = checkAddressEquality(
     accountAddress,
@@ -129,8 +129,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 variant="interactive"
                 value={
                   <Box>
-                    {delegator.delegate.identity?.name
-                      ? delegator.delegate.identity?.name
+                    {delegateIdentity?.name
+                      ? delegateIdentity?.name
                       : delegator.delegate.id.replace(
                           delegator.delegate.id.slice(7, 37),
                           "…"
@@ -176,7 +176,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -204,7 +207,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -249,7 +255,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -275,7 +284,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -291,17 +303,16 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     mt: "$3",
                     width: "100%",
                   }}
-                  onClick={() => {
-                    initTransaction(client, async () => {
-                      await withdrawFees({
-                        variables: {
-                          recipient: delegator.id,
-                          amount: ethers.utils
-                            .parseEther(delegator.pendingFees)
-                            .toString(),
-                        },
-                      });
-                    });
+                  onClick={async () => {
+                    const recipient: string = delegator.id;
+                    const amount = ethers.utils
+                      .parseEther(delegator.pendingFees)
+                      .toString();
+
+                    await handleTransaction(
+                      () => bondingManager.withdrawFees(recipient, amount),
+                      { recipient, amount }
+                    );
                   }}
                 >
                   Withdraw Pending Fees
@@ -325,7 +336,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   }
                 >
                   <Flex css={{ ml: "$1" }}>
-                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
                   </Flex>
                 </ExplorerTooltip>
               </Flex>
