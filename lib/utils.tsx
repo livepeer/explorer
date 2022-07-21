@@ -1,4 +1,4 @@
-import { Delegator, Round, UnbondingLock } from "apollo";
+import { AccountQueryResult, Delegator, Round, UnbondingLock } from "apollo";
 import { ethers } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
@@ -48,8 +48,8 @@ export const getDelegationStatusColor = (status) => {
 };
 
 export const getDelegatorStatus = (
-  delegator: Delegator,
-  currentRound: Round
+  delegator: AccountQueryResult["data"]["delegator"],
+  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"]
 ): string => {
   if (!+delegator?.bondedAmount) {
     return "Unbonded";

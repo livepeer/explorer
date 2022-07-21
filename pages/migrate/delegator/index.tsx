@@ -1,45 +1,47 @@
+import Spinner from "@components/Spinner";
+import { getLayout } from "@layouts/main";
 import {
   Box,
+  Button,
+  Card,
+  Container,
   Flex,
   Heading,
-  Text,
-  Container,
-  Card,
-  styled,
-  Button,
-  TextField,
   Link as A,
+  styled,
+  Text,
+  TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
-import Spinner from "@components/Spinner";
 
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
+import { isL2ChainId } from "@lib/chains";
+import LivepeerSDK from "@livepeer/sdk";
+import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import useForm from "react-hook-form";
 import {
-  arbRetryableTx,
+  useAccountAddress,
+  useAccountSigner,
+  useActiveChain,
+  useLivepeerContracts,
+} from "hooks";
+import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   INFURA_NETWORK_URLS,
-  l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
-import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
-import LivepeerSDK from "@livepeer/sdk";
-import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
-import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../../utils/stepperStyles";
-import { isValidAddress } from "utils/validAddress";
-import { isL2ChainId } from "@lib/chains";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { useActiveChain, useAccountAddress, useAccountSigner } from "hooks";
+import { useRouter } from "next/router";
+import useForm from "react-hook-form";
+import { useTimer } from "react-timer-hook";
+import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
+import { isValidAddress } from "utils/validAddress";
+import { stepperStyles } from "../../../utils/stepperStyles";
 
 export const getUnbondingLocks = async (account) => {
   const sdk = await LivepeerSDK({
@@ -224,6 +226,8 @@ const MigrateUndelegatedStake = () => {
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
+
+  const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
 
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
@@ -586,7 +590,6 @@ const MigrateUndelegatedStake = () => {
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
-              variant="primary"
               isHighlightingLines={false}
             >
               {JSON.stringify(payload)}
@@ -818,6 +821,7 @@ const MigrateUndelegatedStake = () => {
 
 function MigrationFields({ migrationParams, css = {} }) {
   const ReadOnlyCard = styled(Box, {
+    length: {},
     display: "flex",
     backgroundColor: "$neutral3",
     border: "1px solid $neutral6",

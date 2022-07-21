@@ -1,6 +1,7 @@
 import { styled, Flex } from "@livepeer/design-system";
 
 const Circle = styled("div", {
+  length: {},
   minWidth: "20px",
   minHeight: "20px",
   backgroundColor: "$blue9",
@@ -27,12 +28,14 @@ const Circle = styled("div", {
 });
 
 const CircleRow = styled("div", {
+  length: {},
   width: "calc(100% - 20px)",
   display: "flex",
   alignItems: "center",
 });
 
 const Connector = styled("div", {
+  length: {},
   width: "100%",
   height: "2px",
   background:
@@ -62,12 +65,14 @@ const ProgressSteps = ({ steps, css = {}, ...props }: ProgressCirclesProps) => {
       {steps.map((step, i) => {
         return (
           <CircleRow key={i}>
-            <Circle confirmed={step}>{step ? "✓" : i + 1}</Circle>
+            <Circle {...{ confirmed: step }}>{step ? "✓" : i + 1}</Circle>
             <Connector />
           </CircleRow>
         );
       })}
-      <Circle inactive={!steps[steps.length - 1]}>{steps.length + 1}</Circle>
+      <Circle {...{ inactive: !steps[steps.length - 1] }}>
+        {steps.length + 1}
+      </Circle>
     </Flex>
   );
 };

@@ -24,6 +24,7 @@ import { usePollQuery, usePollsQuery } from "apollo";
 dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
+  length: {},
   variants: {
     color: {
       passed: {

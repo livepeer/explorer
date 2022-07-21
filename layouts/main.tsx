@@ -77,6 +77,10 @@ const uniqueBannerID = 3;
 
 export const LAYOUT_MAX_WIDTH = 1400;
 
+const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
+  children?: React.ReactNode;
+}>;
+
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { pathname, asPath } = useRouter();
   const { data } = useQuery(
@@ -204,7 +208,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   globalStyles();
 
   return (
-    <DesignSystemProvider>
+    <DesignSystemProviderTyped>
       <ThemeProvider
         disableTransitionOnChange
         attribute="class"
@@ -341,10 +345,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   css={{
                     zIndex: 10,
                   }}
-                  size="2"
+                  {...{ size: "2", border: true, sticky: true }}
                   color="neutral"
-                  border
-                  sticky
                 >
                   <Container css={{ maxWidth: LAYOUT_MAX_WIDTH }}>
                     <Flex
@@ -670,7 +672,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
           </Box>
         </SnackbarProvider>
       </ThemeProvider>
-    </DesignSystemProvider>
+    </DesignSystemProviderTyped>
   );
 };
 

@@ -9,18 +9,19 @@ import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
 import { parseEther } from "ethers/lib/utils";
+import { UnbondingLock } from "apollo";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
-        item.withdrawRound && item.withdrawRound > parseInt(currentRound.id, 10)
+        item.withdrawRound && +item.withdrawRound > parseInt(currentRound.id, 10)
     );
   const completedStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
         item.withdrawRound &&
-        item.withdrawRound <= parseInt(currentRound.id, 10)
+        +item.withdrawRound <= parseInt(currentRound.id, 10)
     );
   const isBonded = !!delegator.delegate;
 
@@ -68,7 +69,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     </Box>
                     <Text variant="neutral" size="1">
                       Tokens will be available for withdrawal in approximately{" "}
-                      {lock.withdrawRound - parseInt(currentRound.id, 10)} days.
+                      {+lock.withdrawRound - parseInt(currentRound.id, 10)} days.
                     </Text>
                   </Box>
                   <Flex css={{ alignItems: "center" }}>

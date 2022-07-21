@@ -9,15 +9,15 @@ import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
 import numeral from "numeral";
 import { useEnsData } from "hooks";
 import { EnsIdentity } from "@api/types/get-ens";
+import {  OrchestratorsSortedQueryResult, AccountQueryResult } from "apollo";
 
 interface Props {
-  transcoders: [Transcoder];
-  transcoder: Transcoder;
-  delegator?: Delegator;
-  protocol: Protocol;
-  account: Account;
-  currentRound: Round;
-  selectedAction?: string;
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  transcoder: AccountQueryResult["data"]["transcoder"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  protocol: AccountQueryResult["data"]["protocol"];
+  account: EnsIdentity;
+  selectedAction?: "delegate" | "undelegate";
   delegateProfile?: EnsIdentity;
 }
 
@@ -27,7 +27,6 @@ const Index = ({
   account,
   transcoder,
   protocol,
-  currentRound,
   selectedAction = "delegate",
   delegateProfile,
 }: Props) => {
@@ -150,7 +149,7 @@ const Index = ({
             isMyTranscoder,
             isDelegated,
             transcoders,
-            currentRound,
+            currentRound: protocol.currentRound,
             account,
             delegator,
             transcoder,

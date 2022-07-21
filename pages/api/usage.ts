@@ -1,32 +1,37 @@
 import { HomeChartData, WeeklyData } from "@api/types/get-chart-data";
-import { EnsIdentity } from "@api/types/get-ens";
-import { IS_TESTNET, l1Provider } from "@lib/chains";
+import { IS_TESTNET } from "@lib/chains";
 import {
   getBlocksFromTimestamps,
   getLivepeerComUsageData,
+  getPercentChange,
   getTotalFeeDerivedMinutes,
   getTwoPeriodPercentChange,
-  getPercentChange,
 } from "@lib/utils";
 import {
   client,
+  DaysDocument,
   DaysQuery,
   DaysQueryVariables,
-  DaysDocument,
   Day_OrderBy,
   OrderDirection,
-  ProtocolQuery,
-  ProtocolQueryVariables,
-  ProtocolDocument,
+  ProtocolByBlockDocument,
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
-  ProtocolByBlockDocument,
+  ProtocolDocument,
+  ProtocolQuery,
+  ProtocolQueryVariables,
 } from "apollo";
 import dayjs from "dayjs";
-import { id } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const handler = async (
+import utc from "dayjs/plugin/utc";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+
+// format dayjs with the libraries that we need
+dayjs.extend(utc);
+dayjs.extend(weekOfYear);
+
+const chartDataHandler = async (
   req: NextApiRequest,
   res: NextApiResponse<HomeChartData | null>
 ) => {
@@ -143,7 +148,7 @@ const handler = async (
         };
 
         const dayDataResult = await getDayData();
-        let dayData = dayDataResult.data.days;
+        const dayData = dayDataResult.data.days;
 
         let livepeerComDayData = [];
         let livepeerComOneDayData = [];
@@ -359,18 +364,19 @@ const handler = async (
           weeklyData[startIndexWeekly] = {
             date: weeklySizedChunk.date,
             weeklyVolumeUSD:
-              (weeklyData[startIndexWeekly].weeklyVolumeUSD ?? 0) +
+              (weeklyData?.[startIndexWeekly]?.weeklyVolumeUSD ?? 0) +
               +weeklySizedChunk.volumeUSD,
             weeklyUsageMinutes:
-              (weeklyData[startIndexWeekly].weeklyUsageMinutes ?? 0) +
+              (weeklyData?.[startIndexWeekly]?.weeklyUsageMinutes ?? 0) +
               weeklySizedChunk.minutes,
           };
         }
 
         // add relevant fields with the calculated amounts
-        data.dayData = [...dayData]
+        data.dayData = mergedDayData
           .filter((day) => Number(day.inflation))
-          .reverse();
+          .sort((a, b) => (a.date > b.date ? 1 : -1));
+
         data.weeklyData = weeklyData;
         data.oneDayVolumeUSD = oneDayVolumeUSD;
         data.oneDayVolumeETH = oneDayVolumeETH;
@@ -418,4 +424,4 @@ const handler = async (
   }
 };
 
-export default handler;
+export default chartDataHandler;

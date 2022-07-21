@@ -14,18 +14,18 @@ import useForm from "react-hook-form";
 import { isValidAddress } from "utils/validAddress";
 import Spinner from "@components/Spinner";
 import {
-  arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  l1Migrator,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
 import { ethers } from "ethers";
 import { getUnbondingLocks } from ".";
+import { useLivepeerContracts } from "hooks";
+import { ArbRetryableTx, L1Migrator, NodeInterface } from "typechain-types";
 
 const ReadOnlyCard = styled(Box, {
+  length: {},
   display: "flex",
   backgroundColor: "$neutral3",
   border: "1px solid $neutral6",
@@ -44,12 +44,20 @@ const ContractWalletTool = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
+
   useEffect(() => {
     async function init() {
       if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
         setLoading(true);
         setParams(null);
-        const params = await getParams(l1Addr, l2Addr);
+        const params = await getParams(
+          l1Addr,
+          l2Addr,
+          arbRetryableTx,
+          l1Migrator,
+          nodeInterface
+        );
         if (
           params?.migrateDelegatorParams ||
           params?.migrateUnbondingLockParams
@@ -66,7 +74,7 @@ const ContractWalletTool = () => {
       }
     }
     init();
-  }, [l1Addr, l2Addr]);
+  }, [l1Addr, l2Addr, arbRetryableTx, l1Migrator, nodeInterface]);
 
   return (
     <Container
@@ -122,7 +130,8 @@ const ContractWalletTool = () => {
             Enter the address that will receive migrated stake on L2
           </Label>
           <Label css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
-            This address should be different from the L1 address and you MUST verify you have access to it on L2
+            This address should be different from the L1 address and you MUST
+            verify you have access to it on L2
           </Label>
           <TextField
             ref={register}
@@ -207,7 +216,13 @@ const ContractWalletTool = () => {
   );
 };
 
-async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
+async function getMigrateDelegatorParams(
+  _l1Addr,
+  _l2Addr,
+  arbRetryableTx: ArbRetryableTx,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface
+) {
   try {
     const { data } = await l1Migrator.getMigrateDelegatorParams(
       _l1Addr,
@@ -265,14 +280,26 @@ async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
   }
 }
 
-async function getParams(_l1Addr, _l2Addr) {
+async function getParams(
+  _l1Addr,
+  _l2Addr,
+  arbRetryableTx: ArbRetryableTx,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface
+) {
   const migrateDelegatorParams = await getMigrateDelegatorParams(
     _l1Addr,
-    _l2Addr
+    _l2Addr,
+    arbRetryableTx,
+    l1Migrator,
+    nodeInterface
   );
   const migrateUnbondingLockParams = await getMigrateUnbondingLockParams(
     _l1Addr,
-    _l2Addr
+    _l2Addr,
+    arbRetryableTx,
+    l1Migrator,
+    nodeInterface
   );
 
   return {
@@ -280,7 +307,13 @@ async function getParams(_l1Addr, _l2Addr) {
     migrateUnbondingLockParams,
   };
 }
-async function getMigrateUnbondingLockParams(_l1Addr, _l2Addr) {
+async function getMigrateUnbondingLockParams(
+  _l1Addr,
+  _l2Addr,
+  arbRetryableTx: ArbRetryableTx,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface
+) {
   try {
     const locks = await getUnbondingLocks(_l1Addr);
 

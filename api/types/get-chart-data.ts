@@ -1,6 +1,6 @@
 import { DaysQuery } from "apollo";
 
-export type DayData = DaysQuery["days"][number];
+export type DayData = DaysQuery["days"][number] & { minutes: number };
 export type WeeklyData = {
   date: number;
   weeklyVolumeUSD: number;

@@ -6,23 +6,24 @@ import TransactionsList, {
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { getEvents } from "api";
+import { GetStaticProps } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
-import { getApollo, useEventsQuery } from "../apollo";
+import { EventsQueryResult, getApollo, useEventsQuery } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;
 const TRANSACTIONS_PER_PAGE = 20;
 
 const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE;
 
-const TransactionsPage = () => {
-  const { data: eventsData, loading: eventsDataLoading } = useEventsQuery({
-    variables: { first: numberTransactions },
-    pollInterval: 30000,
-  });
+type PageProps = {
+  events: EventsQueryResult["data"];
+};
+
+const TransactionsPage = ({ events }: PageProps) => {
   const allEvents = useMemo(
     () =>
-      eventsData?.transactions
+      events?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.filter((e) =>
           e.__typename === "BondEvent"
@@ -30,7 +31,7 @@ const TransactionsPage = () => {
             : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
         )
         ?.slice(0, numberTransactions) ?? [],
-    [eventsData]
+    [events]
   );
 
   return (
@@ -52,7 +53,7 @@ const TransactionsPage = () => {
             </Heading>
           </Flex>
           <Box css={{ mb: "$5" }}>
-            {eventsDataLoading ? (
+            {!events ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
@@ -69,17 +70,29 @@ const TransactionsPage = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getEvents(client, numberTransactions);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const events = await getEvents(client, numberTransactions);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    if (!events.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      events: events.data,
+    };
+
+    return {
+      props,
+      revalidate: 60,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 TransactionsPage.getLayout = getLayout;
 

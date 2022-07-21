@@ -19,6 +19,12 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
       }),
     }
   );
+
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=3600, stale-while-revalidate=5000"
+  );
+  
   const {
     data: { protocol },
   } = await response.json();

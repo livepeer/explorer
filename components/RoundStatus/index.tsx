@@ -27,9 +27,9 @@ const Index = () => {
   const pollInterval = 30000;
 
   const { data: protocolData } = useProtocolQuery({ pollInterval });
-  const roundNumber = useL1RoundNumber(pollInterval);
+  const roundNumber = useL1RoundNumber();
 
-  const currentRoundInfo = useCurrentRoundInfo(pollInterval);
+  const currentRoundInfo = useCurrentRoundInfo();
 
   const blocksRemaining = useMemo(
     () =>

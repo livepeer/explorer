@@ -40,7 +40,7 @@ const handler = async (
             twitter,
             avatar: avatar?.url
               ? avatar.url
-              : `https://metadata.ens.domains/mainnet/avatar/${name}`, // avatar.url,
+              : null // `https://metadata.ens.domains/mainnet/avatar/${name}`,
           };
 
           return res.status(200).json(ens);

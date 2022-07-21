@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const Card = styled(CardBase, {
+  length: {},
   border: "1px solid $neutral3",
   mb: "$2",
   p: "$4",

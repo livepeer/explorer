@@ -8330,6 +8330,11 @@ export type OrchestratorsQueryVariables = Exact<{
 
 export type OrchestratorsQuery = { __typename: 'Query', transcoders: Array<{ __typename: 'Transcoder', id: string, totalVolumeETH: string, feeShare: string, activationTimestamp: number, activationRound: string, deactivationRound: string, rewardCut: string, totalStake: string, thirtyDayVolumeETH: string, sixtyDayVolumeETH: string, ninetyDayVolumeETH: string, delegator?: { __typename: 'Delegator', startRound: string, bondedAmount: string, unbondingLocks?: Array<{ __typename: 'UnbondingLock', withdrawRound: string }> | null } | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null }> };
 
+export type OrchestratorsSortedQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OrchestratorsSortedQuery = { __typename: 'Query', transcoders: Array<{ __typename: 'Transcoder', id: string, totalStake: string }> };
+
 export type PollQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -8820,6 +8825,41 @@ export function useOrchestratorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type OrchestratorsQueryHookResult = ReturnType<typeof useOrchestratorsQuery>;
 export type OrchestratorsLazyQueryHookResult = ReturnType<typeof useOrchestratorsLazyQuery>;
 export type OrchestratorsQueryResult = Apollo.QueryResult<OrchestratorsQuery, OrchestratorsQueryVariables>;
+export const OrchestratorsSortedDocument = gql`
+    query orchestratorsSorted {
+  transcoders(orderDirection: desc, orderBy: totalStake, where: {active: true}) {
+    id
+    totalStake
+  }
+}
+    `;
+
+/**
+ * __useOrchestratorsSortedQuery__
+ *
+ * To run a query within a React component, call `useOrchestratorsSortedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrchestratorsSortedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrchestratorsSortedQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOrchestratorsSortedQuery(baseOptions?: Apollo.QueryHookOptions<OrchestratorsSortedQuery, OrchestratorsSortedQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<OrchestratorsSortedQuery, OrchestratorsSortedQueryVariables>(OrchestratorsSortedDocument, options);
+      }
+export function useOrchestratorsSortedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<OrchestratorsSortedQuery, OrchestratorsSortedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<OrchestratorsSortedQuery, OrchestratorsSortedQueryVariables>(OrchestratorsSortedDocument, options);
+        }
+export type OrchestratorsSortedQueryHookResult = ReturnType<typeof useOrchestratorsSortedQuery>;
+export type OrchestratorsSortedLazyQueryHookResult = ReturnType<typeof useOrchestratorsSortedLazyQuery>;
+export type OrchestratorsSortedQueryResult = Apollo.QueryResult<OrchestratorsSortedQuery, OrchestratorsSortedQueryVariables>;
 export const PollDocument = gql`
     query poll($id: ID!) {
   poll(id: $id) {

@@ -2,10 +2,10 @@ import { EnsIdentity } from "@api/types/get-ens";
 import {
   getDelegatorStatus,
   getHint,
-  simulateNewActiveSetOrder
+  simulateNewActiveSetOrder,
 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { Delegator, Round, Transcoder } from "apollo";
+import { AccountQueryResult, Delegator, OrchestratorsSortedQueryResult, Round, Transcoder } from "apollo";
 import { parseUnits } from "ethers/lib/utils";
 import { useAccountAddress } from "hooks";
 import Delegate from "./Delegate";
@@ -16,12 +16,15 @@ type FooterData = {
   isTransferStake: boolean;
   isMyTranscoder: boolean;
   isDelegated: boolean;
-  transcoders: [Transcoder];
+
   action: string;
   amount: string;
-  transcoder: Transcoder;
-  delegator?: Delegator;
-  currentRound: Round;
+
+  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"];
+
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  transcoder: AccountQueryResult["data"]["transcoder"];
+  delegator?: AccountQueryResult["data"]["delegator"];
   account: EnsIdentity;
 };
 interface Props {
@@ -67,14 +70,15 @@ const Footer = ({
     );
   }
 
-  const tokenBalance =
-    account && parseUnits(account.tokenBalance, "wei").toNumber();
-  const transferAllowance =
-    account && parseUnits(account.allowance, "wei").toNumber();
+  const tokenBalance = 0;
+  // TODO account && parseUnits(account.tokenBalance, "wei").toNumber();
+  const transferAllowance = 0;
+  //account && parseUnits(account.allowance, "wei").toNumber();
   const delegatorStatus = getDelegatorStatus(delegator, currentRound);
-  const stake = delegator?.pendingStake
-    ? parseUnits(delegator.pendingStake, "wei").toNumber()
-    : 0;
+  const stake = 0;
+  // delegator?.pendingStake
+  //   ? parseUnits(delegator.pendingStake, "wei").toNumber()
+  //   : 0;
   const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
   const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
   const newActiveSetOrder = simulateNewActiveSetOrder({
@@ -98,7 +102,7 @@ const Footer = ({
       delegator = {
         id: account?.id,
         lastClaimRound: { id: "0" },
-      };
+      } as any as Delegator;
     }
 
     return (

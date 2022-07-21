@@ -13,28 +13,7 @@ import {
   Badge,
   Heading,
 } from "@livepeer/design-system";
-
-const query = `
-  {
-    projectBySlugs(organizationSlug: "livepeer", projectSlug: "explorer") {
-      name
-      releases {
-        edges {
-          node {
-            title
-            description
-            isPublished
-            publishedAt
-            changes {
-              type
-              content
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import { useChangefeedData } from "hooks";
 
 function getBadgeColor(changeType) {
   if (changeType === "NEW") {
@@ -60,18 +39,7 @@ const groupBy = (key) => (array) =>
 const groupByType = groupBy("type");
 
 const WhatsNew = () => {
-  const [changeFeedData, setChangeFeedData] = useState(null);
-
-  useEffect(() => {
-    const apolloFetch = createApolloFetch({
-      uri: `${window.location.origin}/api/graphql`,
-    });
-    async function getChangefeed() {
-      const { data } = await apolloFetch({ query });
-      setChangeFeedData(data);
-    }
-    getChangefeed();
-  }, []);
+  const changeFeedData = useChangefeedData();
 
   return (
     <>
@@ -127,7 +95,7 @@ const WhatsNew = () => {
                 What&apos;s New
               </Heading>
               <Box css={{ img: { maxWidth: "100%" } }}>
-                {changeFeedData.projectBySlugs.releases.edges.map(
+                {changeFeedData.releases.edges.map(
                   ({ node }, index1) =>
                     node.isPublished && (
                       <Card

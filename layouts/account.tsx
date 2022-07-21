@@ -21,7 +21,7 @@ import {
   SheetContent,
   SheetTrigger
 } from "@livepeer/design-system";
-import { useAccountQuery } from "apollo";
+import { useAccountQuery, useOrchestratorsLazyQuery, useOrchestratorsSortedQuery } from "apollo";
 import Link from "next/link";
 import { useMemo } from "react";
 import useWindowSize from "react-use/lib/useWindowSize";
@@ -56,23 +56,10 @@ const AccountLayout = () => {
     },
   });
 
-  const identity = useEnsData(data?.account?.id);
+  const identity = useEnsData(account);
+  const myIdentity = useEnsData(accountAddress);
 
-  const { data: dataTranscoders } = useQuery(
-    gql`
-      {
-        transcoders(
-          orderDirection: desc
-          orderBy: totalStake
-          where: { active: true }
-        ) {
-          id
-          totalStake
-        }
-      }
-    `
-  );
-
+  const { data: dataTranscoders } = useOrchestratorsSortedQuery();
   const { data: dataMyAccount } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
@@ -170,12 +157,11 @@ const AccountLayout = () => {
                   <DelegatingWidget
                     transcoders={dataTranscoders.transcoders}
                     selectedAction="delegate"
-                    currentRound={data.protocol.currentRound}
                     delegator={dataMyAccount?.delegator}
-                    account={dataMyAccount?.account}
+                    account={myIdentity}
                     transcoder={data.transcoder}
                     protocol={data.protocol}
-                    delegateProfile={data?.account?.identity}
+                    delegateProfile={identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -191,12 +177,11 @@ const AccountLayout = () => {
                   <DelegatingWidget
                     transcoders={dataTranscoders.transcoders}
                     selectedAction="undelegate"
-                    currentRound={data.protocol.currentRound}
                     delegator={dataMyAccount?.delegator}
-                    account={dataMyAccount?.account}
+                    account={myIdentity}
                     transcoder={data.transcoder}
                     protocol={data.protocol}
-                    delegateProfile={data?.account?.identity}
+                    delegateProfile={identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -267,13 +252,12 @@ const AccountLayout = () => {
               }}
             >
               <DelegatingWidget
-                currentRound={data.protocol.currentRound}
                 transcoders={dataTranscoders.transcoders}
                 delegator={dataMyAccount?.delegator}
-                account={dataMyAccount?.account}
+                account={myIdentity}
                 transcoder={data.transcoder}
                 protocol={data.protocol}
-                delegateProfile={data?.account?.identity}
+                delegateProfile={identity}
               />
             </Flex>
           ) : (
@@ -281,12 +265,11 @@ const AccountLayout = () => {
               <DelegatingWidget
                 transcoders={dataTranscoders.transcoders}
                 selectedAction={selectedStakingAction?.selectedStakingAction}
-                currentRound={data.protocol.currentRound}
                 delegator={dataMyAccount?.delegator}
-                account={dataMyAccount?.account}
+                account={myIdentity}
                 transcoder={data.transcoder}
                 protocol={data.protocol}
-                delegateProfile={data?.account?.identity}
+                delegateProfile={identity}
               />
             </BottomDrawer>
           ))}

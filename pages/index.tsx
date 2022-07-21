@@ -32,6 +32,8 @@ import {
 
 import "react-circular-progressbar/dist/styles.css";
 import { GetStaticProps } from "next";
+import { useChartData } from "hooks";
+import { HomeChartData } from "@api/types/get-chart-data";
 
 const Panel = ({ children }) => (
   <Flex
@@ -52,33 +54,35 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Charts = ({ chartData }) => {
+const Charts = ({ chartData }: { chartData: HomeChartData }) => {
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
     "week"
   );
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
-        ? chartData?.chartData?.dayData?.map((day) => ({
+        ? chartData?.dayData?.map((day) => ({
             x: Number(day.date),
             y: Number(day.volumeUSD),
           }))
-        : chartData?.chartData?.weeklyData?.map((week) => ({
+        : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyVolumeUSD),
           }))) ?? [],
     [feesPaidGrouping, chartData]
   );
 
+
+
   const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
-        ? chartData?.chartData?.dayData?.map((day) => ({
+        ? chartData?.dayData?.map((day) => ({
             x: Number(day.date),
             y: Number(day.minutes),
           }))
-        : chartData?.chartData?.weeklyData?.map((week) => ({
+        : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyUsageMinutes),
           }))) ?? [],
@@ -87,7 +91,7 @@ const Charts = ({ chartData }) => {
 
   const participationRateData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.participationRate),
       })) ?? [],
@@ -95,7 +99,7 @@ const Charts = ({ chartData }) => {
   );
   const inflationRateData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day?.inflation ?? 0) / 1000000000,
       })) ?? [],
@@ -103,7 +107,7 @@ const Charts = ({ chartData }) => {
   );
   const delegatorsCountData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.delegatorsCount),
       })) ?? [],
@@ -111,7 +115,7 @@ const Charts = ({ chartData }) => {
   );
   const activeTranscoderCountData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.activeTranscoderCount),
       })) ?? [],
@@ -128,13 +132,13 @@ const Charts = ({ chartData }) => {
           data={feesPaidData}
           base={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.chartData?.oneDayVolumeUSD
-              : chartData?.chartData?.oneWeekVolumeUSD) ?? 0
+              ? chartData?.oneDayVolumeUSD
+              : chartData?.oneWeekVolumeUSD) ?? 0
           )}
           basePercentChange={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.chartData?.volumeChangeUSD
-              : chartData?.chartData?.weeklyVolumeChangeUSD) ?? 0
+              ? chartData?.volumeChangeUSD
+              : chartData?.weeklyVolumeChangeUSD) ?? 0
           )}
           title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
@@ -147,9 +151,9 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The percent of LPT which has been delegated to an orchestrator."
           data={participationRateData}
-          base={Number(chartData?.chartData?.participationRate ?? 0)}
+          base={Number(chartData?.participationRate ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.participationRateChange ?? 0
+            chartData?.participationRateChange ?? 0
           )}
           title="Participation Rate"
           unit="percent"
@@ -160,8 +164,8 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
           data={inflationRateData}
-          base={Number(chartData?.chartData?.inflation ?? 0) / 1000000000}
-          basePercentChange={Number(chartData?.chartData?.inflationChange ?? 0)}
+          base={Number(chartData?.inflation ?? 0) / 1000000000}
+          basePercentChange={Number(chartData?.inflationChange ?? 0)}
           title="Inflation Rate"
           unit="small-percent"
           type="line"
@@ -175,13 +179,13 @@ const Charts = ({ chartData }) => {
           data={usageData}
           base={Number(
             (usageGrouping === "day"
-              ? chartData?.chartData?.oneDayUsage
-              : chartData?.chartData?.oneWeekUsage) ?? 0
+              ? chartData?.oneDayUsage
+              : chartData?.oneWeekUsage) ?? 0
           )}
           basePercentChange={Number(
             (usageGrouping === "day"
-              ? chartData?.chartData?.dailyUsageChange
-              : chartData?.chartData?.weeklyUsageChange) ?? 0
+              ? chartData?.dailyUsageChange
+              : chartData?.weeklyUsageChange) ?? 0
           )}
           title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="minutes"
@@ -194,9 +198,9 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
           data={delegatorsCountData}
-          base={Number(chartData?.chartData?.delegatorsCount ?? 0)}
+          base={Number(chartData?.delegatorsCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.delegatorsCountChange ?? 0
+            chartData?.delegatorsCountChange ?? 0
           )}
           title="Delegators"
           unit="small-unitless"
@@ -207,9 +211,9 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
           data={activeTranscoderCountData}
-          base={Number(chartData?.chartData?.activeTranscoderCount ?? 0)}
+          base={Number(chartData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.activeTranscoderCountChange ?? 0
+            chartData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
@@ -240,7 +244,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
     [events]
   );
 
-  const chartData = null;
+  const chartData = useChartData();
 
   return (
     <>

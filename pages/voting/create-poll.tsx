@@ -302,6 +302,6 @@ export async function getStaticProps() {
       gitCommitHash: data ? data.repository.defaultBranchRef.target.oid : null,
       lips: lips.sort((a, b) => (a.attributes.lip < b.attributes.lip ? 1 : -1)),
     },
-    revalidate: 1,
+    revalidate: 60,
   };
 }

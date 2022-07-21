@@ -1,22 +1,33 @@
+import OrchestratorList from "@components/OrchestratorList";
+import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import Head from "next/head";
 import {
-  Flex,
-  Container,
-  Link as A,
-  Heading,
   Box,
   Button,
+  Container,
+  Flex,
+  Heading,
+  Link as A,
 } from "@livepeer/design-system";
-import OrchestratorList from "@components/OrchestratorList";
-import { gql, useQuery } from "@apollo/client";
-import { getApollo, useOrchestratorsQuery, useProtocolQuery } from "../apollo";
-import { getOrchestrators } from "api";
-import Link from "next/link";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import Spinner from "@components/Spinner";
+import { getOrchestrators, getProtocol } from "api";
+import { GetStaticProps } from "next";
+import Head from "next/head";
+import Link from "next/link";
+import {
+  getApollo,
+  OrchestratorsQueryResult,
+  ProtocolQueryResult,
+  useOrchestratorsQuery,
+  useProtocolQuery,
+} from "../apollo";
 
-const OrchestratorsPage = () => {
+type PageProps = {
+  orchestrators: OrchestratorsQueryResult["data"];
+  protocol: ProtocolQueryResult["data"];
+};
+
+const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
   const { data, loading } = useOrchestratorsQuery();
   const { data: protocolData } = useProtocolQuery();
   return (
@@ -72,17 +83,32 @@ const OrchestratorsPage = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getOrchestrators(client);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const orchestrators = await getOrchestrators(client);
+    const protocol = await getProtocol(client);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    if (!orchestrators.data || !protocol.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      orchestrators: orchestrators.data,
+
+      protocol: protocol.data,
+    };
+
+    return {
+      props,
+      revalidate: 60,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 OrchestratorsPage.getLayout = getLayout;
 

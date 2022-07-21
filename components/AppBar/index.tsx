@@ -3,6 +3,7 @@ import { styled } from "@livepeer/design-system";
 const AppBar = styled("div", {
   boxSizing: "border-box",
   zIndex: "1",
+  length: {},
 
   variants: {
     size: {

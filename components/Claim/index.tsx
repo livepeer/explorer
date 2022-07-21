@@ -78,7 +78,7 @@ const Claim = () => {
       }
     };
     init();
-  }, [accountAddress]);
+  }, [accountAddress, l2Migrator]);
 
   return loading || !isDelegator || isMigrated ? null : (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
