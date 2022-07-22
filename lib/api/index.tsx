@@ -16,7 +16,7 @@ import {
   ProtocolDocument,
   ProtocolQuery,
   ProtocolQueryVariables,
-} from "../apollo";
+} from "../../apollo";
 import { EnsIdentity } from "./types/get-ens";
 
 export async function getProtocol(client = getApollo()) {

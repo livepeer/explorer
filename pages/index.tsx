@@ -18,7 +18,7 @@ import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 
 import { useMemo, useState } from "react";
-import { getEvents, getOrchestrators, getProtocol } from "../api";
+import { getEvents, getOrchestrators, getProtocol } from "../lib/api";
 import {
   EventsQueryResult,
   getApollo,
@@ -26,8 +26,8 @@ import {
   ProtocolQueryResult
 } from "../apollo";
 
-import { HomeChartData } from "@api/types/get-chart-data";
-import { EnsIdentity } from "@api/types/get-ens";
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useChartData } from "hooks";
 import { GetStaticProps } from "next";
 import "react-circular-progressbar/dist/styles.css";
