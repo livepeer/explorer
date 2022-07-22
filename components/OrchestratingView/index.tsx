@@ -96,7 +96,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
           value={
-            maxScore
+            scores
               ? `${numeral(maxScore.score).divide(100).format("0.0%")} (${
                   maxScore.region
                 })`
