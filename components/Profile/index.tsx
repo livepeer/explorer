@@ -7,7 +7,6 @@ import {
   GlobeIcon,
   TwitterLogoIcon,
 } from "@modulz/radix-icons";
-import { useAccountAddress } from "hooks";
 import QRCode from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";

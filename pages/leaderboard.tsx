@@ -1,3 +1,4 @@
+import { EnsIdentity } from "@api/types/get-ens";
 import PerformanceList from "@components/PerformanceList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
@@ -11,6 +12,7 @@ import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
 };
 
 const LeaderboardPage = ({ orchestrators }: PageProps) => {
@@ -100,7 +102,7 @@ const LeaderboardPage = ({ orchestrators }: PageProps) => {
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const client = getApollo();
-    const orchestrators = await getOrchestrators(client);
+    const { orchestrators, fallback } = await getOrchestrators(client);
 
     if (!orchestrators.data) {
       return { notFound: true };
@@ -109,6 +111,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const props: PageProps = {
       // initialApolloState: client.cache.extract(),
       orchestrators: orchestrators.data,
+      fallback,
     };
 
     return {

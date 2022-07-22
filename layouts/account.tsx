@@ -1,11 +1,9 @@
-import { useQuery } from "@apollo/client";
 import DelegatingWidget from "@components/DelegatingWidget";
 import Profile from "@components/Profile";
 import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 
-import { gql } from "@apollo/client";
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
 import HistoryView from "@components/HistoryView";
@@ -19,13 +17,17 @@ import {
   Link as A,
   Sheet,
   SheetContent,
-  SheetTrigger
+  SheetTrigger,
 } from "@livepeer/design-system";
-import { useAccountQuery, useOrchestratorsLazyQuery, useOrchestratorsSortedQuery } from "apollo";
+import {
+  AccountQueryResult,
+  useAccountQuery,
+  useOrchestratorsSortedQuery,
+} from "apollo";
 import Link from "next/link";
 import { useMemo } from "react";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { useAccountAddress, useEnsData } from "../hooks";
+import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
   name: string;
@@ -35,7 +37,11 @@ export interface TabType {
 
 const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"] as const;
 
-const AccountLayout = () => {
+const AccountLayout = ({
+  orchestrator,
+}: {
+  orchestrator: AccountQueryResult["data"];
+}) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const router = useRouter();
@@ -50,12 +56,6 @@ const AccountLayout = () => {
     [query]
   );
 
-  const { data } = useAccountQuery({
-    variables: {
-      account,
-    },
-  });
-
   const identity = useEnsData(account);
   const myIdentity = useEnsData(accountAddress);
 
@@ -67,23 +67,21 @@ const AccountLayout = () => {
     skip: !accountAddress,
   });
 
-  const SELECTED_STAKING_ACTION = gql`
-    {
-      selectedStakingAction @client
-    }
-  `;
-  const { data: selectedStakingAction } = useQuery(SELECTED_STAKING_ACTION);
+  const { selectedStakingAction } = useExplorerStore();
 
   const isActive = useMemo(
-    () => Boolean(data?.transcoder?.active),
-    [data?.transcoder]
+    () => Boolean(orchestrator?.transcoder?.active),
+    [orchestrator?.transcoder]
   );
 
   const isMyAccount = useMemo(
-    () => checkAddressEquality(accountAddress, query?.account?.toString()),
-    [accountAddress, query?.account]
+    () => checkAddressEquality(accountAddress, account),
+    [accountAddress, account]
   );
-  const isOrchestrator = useMemo(() => Boolean(data?.transcoder), [data]);
+  const isOrchestrator = useMemo(
+    () => Boolean(orchestrator?.transcoder),
+    [orchestrator]
+  );
   const isMyDelegate = useMemo(
     () =>
       query?.account?.toString().toLowerCase() ===
@@ -97,7 +95,7 @@ const AccountLayout = () => {
     [isOrchestrator, query, asPath, isMyDelegate]
   );
 
-  if (!data?.protocol || !dataTranscoders) {
+  if (!dataTranscoders) {
     return (
       <Flex
         css={{
@@ -159,8 +157,8 @@ const AccountLayout = () => {
                     selectedAction="delegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={data.transcoder}
-                    protocol={data.protocol}
+                    transcoder={orchestrator.transcoder}
+                    protocol={orchestrator.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -179,8 +177,8 @@ const AccountLayout = () => {
                     selectedAction="undelegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={data.transcoder}
-                    protocol={data.protocol}
+                    transcoder={orchestrator.transcoder}
+                    protocol={orchestrator.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -222,16 +220,16 @@ const AccountLayout = () => {
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
-              currentRound={data?.protocol?.currentRound}
-              transcoder={data?.transcoder}
+              currentRound={orchestrator?.protocol?.currentRound}
+              transcoder={orchestrator?.transcoder}
             />
           )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={dataTranscoders.transcoders}
-              delegator={data.delegator}
-              protocol={data.protocol}
-              currentRound={data.protocol.currentRound}
+              delegator={orchestrator.delegator}
+              protocol={orchestrator.protocol}
+              currentRound={orchestrator.protocol.currentRound}
             />
           )}
           {view === "history" && <HistoryView />}
@@ -255,8 +253,8 @@ const AccountLayout = () => {
                 transcoders={dataTranscoders.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={data.transcoder}
-                protocol={data.protocol}
+                transcoder={orchestrator.transcoder}
+                protocol={orchestrator.protocol}
                 delegateProfile={identity}
               />
             </Flex>
@@ -264,11 +262,11 @@ const AccountLayout = () => {
             <BottomDrawer>
               <DelegatingWidget
                 transcoders={dataTranscoders.transcoders}
-                selectedAction={selectedStakingAction?.selectedStakingAction}
+                selectedAction={selectedStakingAction}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={data.transcoder}
-                protocol={data.protocol}
+                transcoder={orchestrator.transcoder}
+                protocol={orchestrator.protocol}
                 delegateProfile={identity}
               />
             </BottomDrawer>

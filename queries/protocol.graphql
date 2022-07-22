@@ -13,6 +13,7 @@ query protocol {
     inflationChange
     roundLength
     lptPriceEth
+    paused
     currentRound {
       id
       mintableTokens

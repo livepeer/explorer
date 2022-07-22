@@ -33,6 +33,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
+import { usePollQuery, usePollsQuery, useProtocolQuery } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -44,6 +45,7 @@ import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import useWindowSize from "react-use/lib/useWindowSize";
+import { useBlockNumber } from "wagmi";
 import {
   useAccountAddress,
   useActiveChain,
@@ -83,29 +85,21 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { pathname, asPath } = useRouter();
-  const { data } = useQuery(
-    gql`
-      {
-        polls {
-          isActive
-          endBlock
-        }
-        protocol(id: "0") {
-          id
-          paused
-        }
-      }
-    `
-  );
+  const { data: protocolData } = useProtocolQuery();
+  const { data: pollData } = usePollsQuery();
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
   const { width } = useWindowSize();
   const ref = useRef();
+  const blockNumber = useBlockNumber();
   const totalActivePolls = useMemo(
-    () => data?.polls.filter((p) => p.isActive).length,
-    [data]
+    () =>
+      pollData?.polls.filter(
+        (p) => (blockNumber.data ?? 0) <= parseInt(p.endBlock)
+      ).length,
+    [blockNumber, pollData]
   );
 
   useEffect(() => {
@@ -192,15 +186,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   const { latestTransaction } = useExplorerStore();
 
-  // const txStartedDialogOpen =
-  // latestTransaction &&
-  //   !txDialogState.find((t) => t.txHash === lastTx.txHash)?.pendingDialog
-  //     ?.dismissed;
-  // const txConfirmedDialogOpen =
-  //   lastTx?.confirmed &&
-  //   !txDialogState.find((t) => t.txHash === lastTx.txHash)?.confirmedDialog
-  //     ?.dismissed;
-
   useOnClickOutside(ref, () => {
     onDrawerClose();
   });
@@ -229,7 +214,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         </Head>
         <SnackbarProvider>
           <Box css={{ height: "calc(100vh - 82px)" }}>
-            {data?.protocol.paused && (
+            {protocolData?.protocol.paused && (
               <Flex
                 css={{
                   py: "$2",

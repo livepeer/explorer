@@ -1,9 +1,18 @@
 import { getLayout } from "@layouts/main";
 import AccountLayout from "@layouts/account";
-import { getApollo } from "apollo";
+import { AccountQueryResult, getApollo } from "apollo";
 import { getOrchestrator } from "@api/index";
+import { GetStaticProps } from "next";
+import { EnsIdentity } from "@api/types/get-ens";
 
-const Orchestrating = () => <AccountLayout />;
+type PageProps = {
+  orchestrator: AccountQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
+};
+
+const Orchestrating = ({ orchestrator }: PageProps) => (
+  <AccountLayout orchestrator={orchestrator} />
+);
 
 Orchestrating.getLayout = getLayout;
 
@@ -14,20 +23,33 @@ export const getStaticPaths = async () => {
   };
 };
 
-export async function getStaticProps(context) {
-  const client = getApollo();
+export const getStaticProps: GetStaticProps = async (context) => {
+  try {
+    const client = getApollo();
+    const { orchestrator, fallback } = await getOrchestrator(
+      client,
+      context.params?.account?.toString().toLowerCase()
+    );
 
-  await getOrchestrator(
-    client,
-    context.params?.account?.toString().toLowerCase()
-  );
+    if (!orchestrator.data) {
+      return { notFound: true };
+    }
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    const props: PageProps = {
+      // initialApolloState: client.cache.extract(),
+      orchestrator: orchestrator.data,
+      fallback,
+    };
+
+    return {
+      props,
+      revalidate: 60,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 export default Orchestrating;

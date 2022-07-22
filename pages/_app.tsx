@@ -16,7 +16,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { useApollo } from "../apollo";
 
-function App({ Component, pageProps }) {
+function App({ Component, pageProps, fallback = null }) {
   const client = useApollo(pageProps.initialApolloState);
 
   const { route } = useRouter();
@@ -71,6 +71,7 @@ function App({ Component, pageProps }) {
             <SWRConfig
               value={{
                 fetcher: fetcher,
+                fallback: fallback ?? {}
               }}
             >
               <CookiesProvider>

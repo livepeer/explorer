@@ -8350,7 +8350,7 @@ export type PollsQuery = { __typename: 'Query', polls: Array<{ __typename: 'Poll
 export type ProtocolQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProtocolQuery = { __typename: 'Query', protocol?: { __typename: 'Protocol', id: string, totalVolumeUSD: string, totalVolumeETH: string, participationRate: string, inflation: string, activeTranscoderCount: string, delegatorsCount: string, lockPeriod: string, totalSupply: string, totalActiveStake: string, inflationChange: string, roundLength: string, lptPriceEth: string, currentRound: { __typename: 'Round', id: string, mintableTokens: string, volumeETH: string, volumeUSD: string, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null } } | null };
+export type ProtocolQuery = { __typename: 'Query', protocol?: { __typename: 'Protocol', id: string, totalVolumeUSD: string, totalVolumeETH: string, participationRate: string, inflation: string, activeTranscoderCount: string, delegatorsCount: string, lockPeriod: string, totalSupply: string, totalActiveStake: string, inflationChange: string, roundLength: string, lptPriceEth: string, paused: boolean, currentRound: { __typename: 'Round', id: string, mintableTokens: string, volumeETH: string, volumeUSD: string, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null } } | null };
 
 export type ProtocolByBlockQueryVariables = Exact<{
   block?: InputMaybe<Block_Height>;
@@ -8967,6 +8967,7 @@ export const ProtocolDocument = gql`
     inflationChange
     roundLength
     lptPriceEth
+    paused
     currentRound {
       id
       mintableTokens

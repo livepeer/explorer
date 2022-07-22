@@ -1,10 +1,9 @@
-import { gql, useQuery } from "@apollo/client";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
-  FILTERED_EVENT_TYPENAMES,
+  FILTERED_EVENT_TYPENAMES
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
@@ -13,7 +12,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as A
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
@@ -24,16 +23,14 @@ import {
   EventsQueryResult,
   getApollo,
   OrchestratorsQueryResult,
-  ProtocolQueryResult,
-  useEventsQuery,
-  useOrchestratorsQuery,
-  useProtocolQuery,
+  ProtocolQueryResult
 } from "../apollo";
 
-import "react-circular-progressbar/dist/styles.css";
-import { GetStaticProps } from "next";
-import { useChartData } from "hooks";
 import { HomeChartData } from "@api/types/get-chart-data";
+import { EnsIdentity } from "@api/types/get-ens";
+import { useChartData } from "hooks";
+import { GetStaticProps } from "next";
+import "react-circular-progressbar/dist/styles.css";
 
 const Panel = ({ children }) => (
   <Flex
@@ -71,8 +68,6 @@ const Charts = ({ chartData }: { chartData: HomeChartData }) => {
           }))) ?? [],
     [feesPaidGrouping, chartData]
   );
-
-
 
   const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
   const usageData = useMemo(
@@ -152,9 +147,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData }) => {
           tooltip="The percent of LPT which has been delegated to an orchestrator."
           data={participationRateData}
           base={Number(chartData?.participationRate ?? 0)}
-          basePercentChange={Number(
-            chartData?.participationRateChange ?? 0
-          )}
+          basePercentChange={Number(chartData?.participationRateChange ?? 0)}
           title="Participation Rate"
           unit="percent"
           type="line"
@@ -199,9 +192,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData }) => {
           tooltip="The count of delegators participating in the network."
           data={delegatorsCountData}
           base={Number(chartData?.delegatorsCount ?? 0)}
-          basePercentChange={Number(
-            chartData?.delegatorsCountChange ?? 0
-          )}
+          basePercentChange={Number(chartData?.delegatorsCountChange ?? 0)}
           title="Delegators"
           unit="small-unitless"
           type="line"
@@ -228,6 +219,7 @@ type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
   events: EventsQueryResult["data"];
   protocol: ProtocolQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
 };
 
 const Home = ({ orchestrators, events, protocol }: PageProps) => {
@@ -435,8 +427,8 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const client = getApollo();
-    const orchestrators = await getOrchestrators(client);
-    const events = await getEvents(client);
+    const { orchestrators, fallback } = await getOrchestrators(client);
+    const { events, fallback: eventsFallback } = await getEvents(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {
@@ -447,6 +439,7 @@ export const getStaticProps: GetStaticProps = async () => {
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
+      fallback: { ...fallback, ...eventsFallback },
     };
 
     return {

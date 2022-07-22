@@ -1,3 +1,4 @@
+import { EnsIdentity } from "@api/types/get-ens";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
@@ -18,6 +19,7 @@ const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE;
 
 type PageProps = {
   events: EventsQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
 };
 
 const TransactionsPage = ({ events }: PageProps) => {
@@ -73,7 +75,7 @@ const TransactionsPage = ({ events }: PageProps) => {
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const client = getApollo();
-    const events = await getEvents(client, numberTransactions);
+    const { events, fallback } = await getEvents(client, numberTransactions);
 
     if (!events.data) {
       return { notFound: true };
@@ -81,6 +83,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
     const props: PageProps = {
       events: events.data,
+      fallback,
     };
 
     return {

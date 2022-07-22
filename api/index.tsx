@@ -1,3 +1,4 @@
+import { identity } from "apollo/resolvers/Query";
 import {
   AccountDocument,
   AccountQuery,
@@ -16,6 +17,7 @@ import {
   ProtocolQuery,
   ProtocolQueryVariables,
 } from "../apollo";
+import { EnsIdentity } from "./types/get-ens";
 
 export async function getProtocol(client = getApollo()) {
   return client.query<ProtocolQuery, ProtocolQueryVariables>({
@@ -31,35 +33,104 @@ export async function getOrchestrators(client = getApollo()) {
     query: CurrentRoundDocument,
   });
 
-  return client.query<OrchestratorsQuery, OrchestratorsQueryVariables>({
+  const orchestrators = await client.query<
+    OrchestratorsQuery,
+    OrchestratorsQueryVariables
+  >({
     query: OrchestratorsDocument,
     variables: {
       currentRound: protocolResponse?.data?.protocol?.currentRound?.id,
       currentRoundString: protocolResponse?.data?.protocol?.currentRound?.id,
     },
   });
+
+  const ensIdentities = await Promise.all(
+    orchestrators.data.transcoders.map((e) => getEnsIdentity(e.id))
+  );
+
+  return {
+    fallback: ensIdentities.reduce(
+      (prev, curr) => ({ ...prev, [curr.id]: curr }),
+      {}
+    ),
+    orchestrators,
+  };
 }
 
 export async function getOrchestrator(client = getApollo(), id: string) {
   const query = AccountDocument;
 
-  return client.query<AccountQuery, AccountQueryVariables>({
+  const orchestrator = await client.query<AccountQuery, AccountQueryVariables>({
     query,
     variables: {
       account: id,
     },
   });
+
+  const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
+
+  return {
+    fallback: ensIdentities.reduce(
+      (prev, curr) => ({ ...prev, [curr.id]: curr }),
+      {}
+    ),
+    orchestrator,
+  };
 }
 
 export async function getEvents(client = getApollo(), first = 100) {
-  const query = EventsDocument;
-
-  return client.query<EventsQuery, EventsQueryVariables>({
-    query,
+  const events = await client.query<EventsQuery, EventsQueryVariables>({
+    query: EventsDocument,
     variables: {
       first,
     },
   });
+
+  const ensIdentitiesTranscoders = await Promise.all(
+    events.data.transcoders.map((e) => getEnsIdentity(e.id))
+  );
+
+  const ensIdentities = await Promise.all(
+    events.data.transactions.flatMap((t) =>
+      t.events.map((e) => getEnsIdentity(e.transaction.from))
+    )
+  );
+
+  return {
+    fallback: [...ensIdentitiesTranscoders, ...ensIdentities].reduce(
+      (prev, curr) => ({ ...prev, [curr.id]: curr }),
+      {}
+    ),
+    events,
+  };
+}
+
+export const server =
+  process.env.NODE_ENV !== "production"
+    ? "http://localhost:3000"
+    : "https://explorer.livepeer.org";
+
+async function getEnsIdentity(address: string) {
+  try {
+    const response = await fetch(
+      `https://explorer.livepeer.org/api/ens/${address.toLowerCase()}`
+    );
+
+    const identity: EnsIdentity = await response.json();
+
+    return identity;
+  } catch (e) {
+    console.error(e);
+  }
+
+  const idShort = address.replace(address.slice(6, 38), "…");
+  const ens: EnsIdentity = {
+    id: address,
+    idShort,
+    name: null,
+  };
+
+  return ens;
 }
 
 // export async function getChartData(client = getApollo()) {

@@ -1,5 +1,5 @@
+import { EnsIdentity } from "@api/types/get-ens";
 import OrchestratorList from "@components/OrchestratorList";
-import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
   Box,
@@ -7,7 +7,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as A
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { getOrchestrators, getProtocol } from "api";
@@ -17,19 +17,16 @@ import Link from "next/link";
 import {
   getApollo,
   OrchestratorsQueryResult,
-  ProtocolQueryResult,
-  useOrchestratorsQuery,
-  useProtocolQuery,
+  ProtocolQueryResult
 } from "../apollo";
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
   protocol: ProtocolQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
 };
 
 const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
-  const { data, loading } = useOrchestratorsQuery();
-  const { data: protocolData } = useProtocolQuery();
   return (
     <>
       <Head>
@@ -65,17 +62,11 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
             )}
           </Flex>
           <Box css={{ mb: "$5" }}>
-            {!protocolData.protocol || !data.transcoders ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <OrchestratorList
-                data={data?.transcoders}
-                pageSize={20}
-                protocolData={protocolData?.protocol}
-              />
-            )}
+            <OrchestratorList
+              data={orchestrators.transcoders}
+              pageSize={20}
+              protocolData={protocol?.protocol}
+            />
           </Box>
         </Flex>
       </Container>
@@ -86,7 +77,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const client = getApollo();
-    const orchestrators = await getOrchestrators(client);
+    const { orchestrators, fallback } = await getOrchestrators(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !protocol.data) {
@@ -95,8 +86,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
     const props: PageProps = {
       orchestrators: orchestrators.data,
-
       protocol: protocol.data,
+      fallback,
     };
 
     return {

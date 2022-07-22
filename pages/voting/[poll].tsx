@@ -1,4 +1,3 @@
-import { gql, useApolloClient, useQuery } from "@apollo/client";
 import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import fm from "front-matter";
@@ -24,17 +23,17 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { useAccountAddress } from "../../hooks";
+import { useAccountAddress, useExplorerStore } from "../../hooks";
 import FourZeroFour from "../404";
 
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
+import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 const Poll = () => {
   const router = useRouter();
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
+
   const { width } = useWindowSize();
 
   const [pollData, setPollData] = useState(null);
@@ -42,6 +41,8 @@ const Poll = () => {
 
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 20000;
+
+  const { setBottomDrawerOpen } = useExplorerStore();
 
   const { data } = usePollQuery({
     variables: {
@@ -183,18 +184,7 @@ const Poll = () => {
                       display: "none",
                     },
                   }}
-                  onClick={() =>
-                    client.writeQuery({
-                      query: gql`
-                        query {
-                          bottomDrawerOpen
-                        }
-                      `,
-                      data: {
-                        bottomDrawerOpen: true,
-                      },
-                    })
-                  }
+                  onClick={() => setBottomDrawerOpen(true)}
                 >
                   Vote
                 </Button>

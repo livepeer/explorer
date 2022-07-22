@@ -7,7 +7,7 @@ import { Tabs, TabList, Tab } from "./Tabs";
 import InputBox from "./InputBox";
 import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
 import numeral from "numeral";
-import { useEnsData } from "hooks";
+import { StakingAction, useEnsData } from "hooks";
 import { EnsIdentity } from "@api/types/get-ens";
 import {  OrchestratorsSortedQueryResult, AccountQueryResult } from "apollo";
 
@@ -17,7 +17,7 @@ interface Props {
   delegator?: AccountQueryResult["data"]["delegator"];
   protocol: AccountQueryResult["data"]["protocol"];
   account: EnsIdentity;
-  selectedAction?: "delegate" | "undelegate";
+  selectedAction?: StakingAction;
   delegateProfile?: EnsIdentity;
 }
 

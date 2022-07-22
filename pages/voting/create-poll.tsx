@@ -8,7 +8,7 @@ import {
   Heading,
   Link as A,
   RadioCard,
-  RadioCardGroup
+  RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { createApolloFetch } from "apollo-fetch";
@@ -16,7 +16,7 @@ import fm from "front-matter";
 import {
   useAccountAddress,
   useHandleTransaction,
-  useLivepeerContracts
+  useLivepeerContracts,
 } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";

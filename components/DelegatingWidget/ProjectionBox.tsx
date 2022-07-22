@@ -1,10 +1,9 @@
-import { useQuery, gql } from "@apollo/client";
-import { Box, Flex, Card, Text } from "@livepeer/design-system";
-import numeral from "numeral";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { useMemo } from "react";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useExplorerStore } from "hooks";
+import numeral from "numeral";
+import { useMemo } from "react";
 
 const ProjectionBox = ({ action }) => {
   const { yieldResults } = useExplorerStore();
