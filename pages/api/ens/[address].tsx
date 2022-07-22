@@ -10,17 +10,17 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { id } = req.query;
+      const { address } = req.query;
 
       res.setHeader(
         "Cache-Control",
         "public, s-maxage=3600, stale-while-revalidate=5000"
       );
 
-      if (typeof id === "string" && id.length === 42) {
-        const idShort = id.replace(id.slice(6, 38), "…");
+      if (typeof address === "string" && address.length === 42) {
+        const idShort = address.replace(address.slice(6, 38), "…");
 
-        const name = await l1Provider.lookupAddress(id);
+        const name = await l1Provider.lookupAddress(address);
 
         if (name) {
           const resolver = await l1Provider.getResolver(name);
@@ -32,7 +32,7 @@ const handler = async (
           ]);
 
           const ens: EnsIdentity = {
-            id,
+            id: address,
             idShort,
             name: name ?? null,
             description,
@@ -47,7 +47,7 @@ const handler = async (
         }
 
         const ens: EnsIdentity = {
-          id,
+          id: address,
           idShort,
           name: null,
         };
