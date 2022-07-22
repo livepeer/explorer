@@ -44,15 +44,16 @@ export async function getOrchestrators(client = getApollo()) {
     },
   });
 
-  const ensIdentities = await Promise.all(
-    orchestrators.data.transcoders.map((e) => getEnsIdentity(e.id))
-  );
+  // const ensIdentities = await Promise.all(
+  //   orchestrators.data.transcoders.map((e) => getEnsIdentity(e.id))
+  // );
 
   return {
-    fallback: ensIdentities.reduce(
-      (prev, curr) => ({ ...prev, [curr.id]: curr }),
-      {}
-    ),
+    fallback: {},
+    // ensIdentities.reduce(
+    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
+    //   {}
+    // ),
     orchestrators,
   };
 }
@@ -67,13 +68,14 @@ export async function getOrchestrator(client = getApollo(), id: string) {
     },
   });
 
-  const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
+  // const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
 
   return {
-    fallback: ensIdentities.reduce(
-      (prev, curr) => ({ ...prev, [curr.id]: curr }),
-      {}
-    ),
+    fallback: {},
+    // ensIdentities.reduce(
+    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
+    //   {}
+    // ),
     orchestrator,
   };
 }
@@ -86,21 +88,22 @@ export async function getEvents(client = getApollo(), first = 100) {
     },
   });
 
-  const ensIdentitiesTranscoders = await Promise.all(
-    events.data.transcoders.map((e) => getEnsIdentity(e.id))
-  );
+  // const ensIdentitiesTranscoders = await Promise.all(
+  //   events.data.transcoders.map((e) => getEnsIdentity(e.id))
+  // );
 
-  const ensIdentities = await Promise.all(
-    events.data.transactions.flatMap((t) =>
-      t.events.map((e) => getEnsIdentity(e.transaction.from))
-    )
-  );
+  // const ensIdentities = await Promise.all(
+  //   events.data.transactions.flatMap((t) =>
+  //     t.events.map((e) => getEnsIdentity(e.transaction.from))
+  //   )
+  // );
 
   return {
-    fallback: [...ensIdentitiesTranscoders, ...ensIdentities].reduce(
-      (prev, curr) => ({ ...prev, [curr.id]: curr }),
-      {}
-    ),
+    fallback: {},
+    // [...ensIdentitiesTranscoders, ...ensIdentities].reduce(
+    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
+    //   {}
+    // ),
     events,
   };
 }
@@ -113,7 +116,7 @@ export const server =
 async function getEnsIdentity(address: string) {
   try {
     const response = await fetch(
-      `https://explorer.livepeer.org/api/ens/${address.toLowerCase()}`
+      `https://explorer.livepeer.org/api/ens-data/${address.toLowerCase()}`
     );
 
     const identity: EnsIdentity = await response.json();

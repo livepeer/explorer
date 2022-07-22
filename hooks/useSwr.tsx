@@ -4,7 +4,7 @@ import { EnsIdentity } from "@api/types/get-ens";
 import useSWR from "swr";
 
 export const useEnsData = (address: string | undefined | null) => {
-  const { data } = useSWR<EnsIdentity>(address ? `/ens/${address.toLowerCase()}` : null);
+  const { data } = useSWR<EnsIdentity>(address ? `/ens-data/${address.toLowerCase()}` : null);
 
   return data ?? null;
 };
