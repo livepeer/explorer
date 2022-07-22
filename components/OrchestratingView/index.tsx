@@ -34,12 +34,12 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const maxScore = useMemo(
     () =>
-      Object.keys(scores.scores ?? {}).reduce(
+      Object.keys(scores?.scores ?? {}).reduce(
         (prev, curr) => {
-          if (scores.scores[curr] >= prev.score) {
+          if (scores?.scores[curr] >= prev.score) {
             return {
               region: curr.toUpperCase(),
-              score: scores.scores[curr],
+              score: scores?.scores[curr],
             };
           }
           return prev;
