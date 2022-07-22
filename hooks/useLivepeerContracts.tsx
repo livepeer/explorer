@@ -1,4 +1,20 @@
 import {
+  getArbRetryableTx,
+  getBondingManager,
+  getInbox,
+  getL1Migrator,
+  getL2Migrator,
+  getLivepeerToken,
+  getLivepeerTokenFaucet,
+  getMerkleSnapshot,
+  getMinter,
+  getNodeInterface,
+  getPollCreator,
+  getRoundsManager,
+  getServiceRegistry,
+  getTicketBroker,
+} from "@lib/api/contracts";
+import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
   l1Provider,
@@ -42,22 +58,7 @@ import { LivepeerTokenFaucet__factory } from "typechain-types/factories/main/Liv
 import { L2Migrator, Poll, PollCreator } from "typechain-types/main";
 import { useAccountSigner } from "./wallet";
 
-const controller = Controller__factory.connect(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.controller,
-  l2Provider
-);
-
-// Get contract address from Controller
-const getContractAddress = async (name: string) => {
-  const hash = keccak256(toUtf8Bytes(name));
-  const address = await controller.getContract(hash);
-
-  return address;
-};
-
 export type LivepeerContracts = {
-  controller: Controller;
-
   l1Migrator: L1Migrator | null;
   l2Migrator: L2Migrator | null;
   inbox: Inbox | null;
@@ -80,8 +81,6 @@ export const useLivepeerContracts = () => {
 
   const [livepeerContracts, setLivepeerContracts] = useState<LivepeerContracts>(
     {
-      controller,
-
       l1Migrator: null,
       l2Migrator: null,
       inbox: null,
@@ -103,78 +102,18 @@ export const useLivepeerContracts = () => {
   useEffect(() => {
     const fn = async () => {
       try {
-        const l2ProviderOrSigner = signer ?? l2Provider;
-
-        const l1Migrator = L1Migrator__factory.connect(
-          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-          signer ?? l1Provider
-        );
-
-        const l2Migrator = L2Migrator__factory.connect(
-          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-          l2ProviderOrSigner
-        );
-
-        const inbox = Inbox__factory.connect(
-          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
-          l2ProviderOrSigner
-        );
-
-        const arbRetryableTx = ArbRetryableTx__factory.connect(
-          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.arbRetryableTx,
-          l2ProviderOrSigner
-        );
-
-        const nodeInterface = NodeInterface__factory.connect(
-          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
-          l2ProviderOrSigner
-        );
-
-        const livepeerToken = LivepeerToken__factory.connect(
-          await getContractAddress("LivepeerToken"),
-          l2ProviderOrSigner
-        );
-        const livepeerTokenFaucet = LivepeerTokenFaucet__factory.connect(
-          await getContractAddress("LivepeerTokenFaucet"),
-          l2ProviderOrSigner
-        );
-        const bondingManager = BondingManager__factory.connect(
-          await getContractAddress("BondingManager"),
-          l2ProviderOrSigner
-        );
-        const roundsManager = RoundsManager__factory.connect(
-          await getContractAddress("RoundsManager"),
-          l2ProviderOrSigner
-        );
-        const minter = Minter__factory.connect(
-          await getContractAddress("Minter"),
-          l2ProviderOrSigner
-        );
-        const merkleSnapshot = MerkleSnapshot__factory.connect(
-          await getContractAddress("MerkleSnapshot"),
-          l2ProviderOrSigner
-        );
-        const serviceRegistry = ServiceRegistry__factory.connect(
-          await getContractAddress("ServiceRegistry"),
-          l2ProviderOrSigner
-        );
-        const ticketBroker = TicketBroker__factory.connect(
-          await getContractAddress("TicketBroker"),
-          l2ProviderOrSigner
-        );
-        const pollCreator = PollCreator__factory.connect(
-          await getContractAddress("PollCreator"),
-          l2ProviderOrSigner
-        );
+        const livepeerToken = await getLivepeerToken(signer);
+        const livepeerTokenFaucet = await getLivepeerTokenFaucet(signer);
+        const bondingManager = await getBondingManager(signer);
+        const roundsManager = await getRoundsManager(signer);
+        const minter = await getMinter(signer);
+        const merkleSnapshot = await getMerkleSnapshot(signer);
+        const serviceRegistry = await getServiceRegistry(signer);
+        const ticketBroker = await getTicketBroker(signer);
+        const pollCreator = await getPollCreator(signer);
 
         setLivepeerContracts((prev) => ({
           ...prev,
-
-          l1Migrator,
-          l2Migrator,
-          inbox,
-          arbRetryableTx,
-          nodeInterface,
 
           livepeerToken,
           livepeerTokenFaucet,
@@ -194,6 +133,18 @@ export const useLivepeerContracts = () => {
     if (!livepeerContracts.livepeerToken) {
       fn();
     }
+  }, [signer, livepeerContracts.livepeerToken]);
+
+  useEffect(() => {
+    setLivepeerContracts((prev) => ({
+      ...prev,
+
+      l1Migrator: getL1Migrator(signer),
+      l2Migrator: getL2Migrator(signer),
+      inbox: getInbox(signer),
+      arbRetryableTx: getArbRetryableTx(signer),
+      nodeInterface: getNodeInterface(signer),
+    }));
   }, [signer]);
 
   return livepeerContracts;
@@ -219,32 +170,6 @@ export const useLivepeerPoll = (address: string | null): Poll | null => {
   }, [address, signer]);
 
   return livepeerPoll;
-};
-
-export const useCurrentRoundInfo = () => {
-  const { roundsManager } = useLivepeerContracts();
-  const [currentRoundInfo, setRoundInfo] = useState<{
-    id: BigNumber;
-    startBlock: BigNumber;
-    initialized: boolean;
-  } | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        if (roundsManager) {
-          const id = await roundsManager.currentRound();
-          const startBlock = await roundsManager.currentRoundStartBlock();
-          const initialized = await roundsManager.currentRoundInitialized();
-          setRoundInfo({ id, startBlock, initialized });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, [roundsManager]);
-
-  return currentRoundInfo;
 };
 
 export const useL1RoundNumber = (): number | null => {

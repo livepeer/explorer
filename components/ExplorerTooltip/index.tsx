@@ -47,7 +47,7 @@ export function ExplorerTooltip({
         align="center"
         sideOffset={5}
         {...props}
-        // {...{ multiline }}
+        {...{ multiline }}
       >
         <Text
           size="1"

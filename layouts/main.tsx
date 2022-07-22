@@ -1,10 +1,7 @@
-import { gql, useQuery } from "@apollo/client";
 import AppBar from "@components/AppBar";
-import Claim from "@components/Claim";
 import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
-import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
@@ -12,7 +9,7 @@ import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import { isL2ChainId, IS_L2 } from "@lib/chains";
+import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import {
   Badge,
@@ -33,7 +30,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollQuery, usePollsQuery, useProtocolQuery } from "apollo";
+import { usePollsQuery, useProtocolQuery } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -44,7 +41,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
-import useWindowSize from "react-use/lib/useWindowSize";
+import { useWindowSize } from "react-use";
 import { useBlockNumber } from "wagmi";
 import {
   useAccountAddress,
@@ -618,12 +615,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   }}
                 >
                   <Box css={{ width: "100%" }}>
-                    {!pathname.includes("/migrate") &&
+                    {/* {!pathname.includes("/migrate") &&
                       isL2ChainId(DEFAULT_CHAIN_ID) &&
-                      accountAddress && <InactiveWarning />}
-                    {!pathname.includes("/migrate") &&
+                      accountAddress && <InactiveWarning />} */}
+                    {/* {!pathname.includes("/migrate") &&
                       isL2ChainId(DEFAULT_CHAIN_ID) &&
-                      accountAddress && <Claim />}
+                      accountAddress && <Claim />} */}
                     {children}
                   </Box>
                 </Flex>

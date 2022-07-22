@@ -5,7 +5,9 @@ import dayjs from "dayjs";
 import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
+import { AccountQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useScoreData } from "hooks";
 import { useMemo } from "react";
 dayjs.extend(relativeTime);
 
@@ -16,26 +18,35 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const Index = ({ currentRound, transcoder, isActive }) => {
+interface Props {
+  transcoder?: AccountQueryResult["data"]["transcoder"];
+  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+  isActive: boolean;
+}
+
+const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
     [transcoder?.pools]
   );
+
+  const scores = useScoreData(transcoder?.id);
+
   const maxScore = useMemo(
     () =>
-      Object.keys(transcoder?.scores ?? {}).reduce(
+      Object.keys(scores.scores ?? {}).reduce(
         (prev, curr) => {
-          if (transcoder.scores[curr] >= prev.score) {
+          if (scores.scores[curr] >= prev.score) {
             return {
               region: curr.toUpperCase(),
-              score: transcoder.scores[curr],
+              score: scores.scores[curr],
             };
           }
           return prev;
         },
         { region: "N/A", score: 0 }
       ),
-    [transcoder?.scores]
+    [scores]
   );
 
   return (
@@ -80,7 +91,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           className="masonry-grid_item"
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
-          value={`${numeral(maxScore.score).format("0.0%")} (${
+          value={`${numeral(maxScore.score).divide(100).format("0.0%")} (${
             maxScore.region
           })`}
         />
@@ -107,7 +118,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
           value={`${numeral(
-            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
+            (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
           ).format("0,0")} WEI`}
         />
         {/* <Stat
@@ -126,7 +137,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={numeral(1 - (transcoder?.feeShare || 0) / 1000000).format(
+          value={numeral(1 - (+transcoder?.feeShare || 0) / 1000000).format(
             "0%"
           )}
         />

@@ -1,5 +1,6 @@
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
+import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { useHandleTransaction, useLivepeerContracts } from "hooks";
 import { useMemo, useState } from "react";
@@ -26,14 +27,19 @@ const Delegate = ({
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
-  const amountIsNonEmpty = amount !== "";
+  const amountIsNonEmpty = useMemo(() => amount !== "", [amount]);
   const sufficientBalance = useMemo(
-    () => amountIsNonEmpty && +amount >= 0 && +amount <= tokenBalance,
+    () =>
+      amountIsNonEmpty &&
+      BigNumber.from(amount).gt(0) &&
+      BigNumber.from(tokenBalance).gte(amount),
     [amount, amountIsNonEmpty, tokenBalance]
   );
   const sufficientTransferAllowance = useMemo(
     () =>
-      amountIsNonEmpty && transferAllowance > 0 && +amount <= transferAllowance,
+      amountIsNonEmpty &&
+      BigNumber.from(transferAllowance).gt(0) &&
+      BigNumber.from(transferAllowance).gte(amount),
     [amount, amountIsNonEmpty, transferAllowance]
   );
 

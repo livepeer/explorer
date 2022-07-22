@@ -3,12 +3,14 @@ import Stat from "@components/Stat";
 import { checkAddressEquality } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import {
   useAccountAddress,
   useEnsData,
   useHandleTransaction,
-  useLivepeerContracts
+  useLivepeerContracts,
+  usePendingFeesAndStakeData,
 } from "hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,7 +26,14 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const Index = ({ delegator, transcoders, protocol, currentRound }) => {
+interface Props {
+  transcoders?: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  protocol?: AccountQueryResult["data"]["protocol"];
+  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+}
+
+const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   const router = useRouter();
   const query = router.query;
   const accountAddress = useAccountAddress();
@@ -39,32 +48,36 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
     query.account.toString()
   );
 
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator.id);
+
   const pendingStake = useMemo(
-    () => Number(delegator?.pendingStake || 0) / 10 ** 18,
-    [delegator?.pendingStake]
+    () => Number(pendingFeesAndStake?.pendingStake || 0) / 10 ** 18,
+    [pendingFeesAndStake?.pendingStake]
+  );
+  const pendingFees = useMemo(
+    () => Number(pendingFeesAndStake?.pendingFees || 0) / 10 ** 18,
+    [pendingFeesAndStake?.pendingFees]
   );
   const unbonded = useMemo(
-    () => Math.abs(delegator?.unbonded || 0),
+    () => Math.abs(+delegator?.unbonded || 0),
     [delegator]
   );
 
   const rewards = useMemo(
-    () => pendingStake + unbonded - Math.abs(delegator?.principal ?? 0),
+    () => pendingStake + unbonded - Math.abs(+delegator?.principal ?? 0),
     [unbonded, pendingStake, delegator]
   );
   const totalActiveStake = useMemo(
-    () => Math.abs(protocol.totalActiveStake),
+    () => Math.abs(+protocol.totalActiveStake),
     [protocol]
   );
   const lifetimeEarnings = useMemo(
-    () =>
-      Math.abs(delegator?.pendingFees ?? 0) +
-      Math.abs(delegator?.withdrawnFees ?? 0),
-    [delegator]
+    () => Math.abs(pendingFees) + Math.abs(+delegator?.withdrawnFees ?? 0),
+    [delegator, pendingFees]
   );
   const withdrawButtonDisabled = useMemo(
-    () => Number(delegator?.pendingFees ?? 0) === 0,
-    [delegator]
+    () => pendingFees === 0,
+    [pendingFees]
   );
 
   if (!delegator?.bondedAmount) {
@@ -231,7 +244,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 fontSize: 26,
               }}
             >
-              {numeral(delegator.pendingFees).format("0.000")} ETH
+              {numeral(pendingFees).format("0.000")} ETH
             </Box>
           }
           meta={
@@ -305,9 +318,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   }}
                   onClick={async () => {
                     const recipient: string = delegator.id;
-                    const amount = ethers.utils
-                      .parseEther(delegator.pendingFees)
-                      .toString();
+                    const amount = pendingFeesAndStake?.pendingFees ?? "0";
 
                     await handleTransaction(
                       () => bondingManager.withdrawFees(recipient, amount),
@@ -350,7 +361,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   totalActiveStake === 0
                     ? 0
                     : delegator.delegate.id === delegator.id
-                    ? (Math.abs(delegator.delegate.totalStake) + pendingStake) /
+                    ? (Math.abs(+delegator.delegate.totalStake) +
+                        pendingStake) /
                       totalActiveStake
                     : pendingStake / totalActiveStake
                 ).format("0.000%")}
@@ -390,13 +402,13 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     {numeral(
                       totalActiveStake === 0
                         ? 0
-                        : Math.abs(delegator.delegate.totalStake) /
+                        : Math.abs(+delegator.delegate.totalStake) /
                             totalActiveStake
                     ).format("0.00%")}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(Math.abs(delegator.delegate.totalStake)).format(
+                    {numeral(Math.abs(+delegator.delegate.totalStake)).format(
                       "0.00a"
                     )}{" "}
                     LPT

@@ -264,18 +264,18 @@ const createSchema = async () => {
   //         return delegator;
   //       }
 
-  //       const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
-  //       const transcodersWithPrice = await response.json();
-  //       const transcoderWithPrice = transcodersWithPrice.filter(
-  //         (t) =>
-  //           t.Address.toLowerCase() === delegator?.delegate?.id.toLowerCase()
-  //       )[0];
+        // const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+        // const transcodersWithPrice = await response.json();
+        // const transcoderWithPrice = transcodersWithPrice.filter(
+        //   (t) =>
+        //     t.Address.toLowerCase() === delegator?.delegate?.id.toLowerCase()
+        // )[0];
 
-  //       if (delegator?.delegate) {
-  //         delegator.delegate.price = transcoderWithPrice?.PricePerPixel
-  //           ? transcoderWithPrice?.PricePerPixel
-  //           : 0;
-  //       }
+        // if (delegator?.delegate) {
+        //   delegator.delegate.price = transcoderWithPrice?.PricePerPixel
+        //     ? transcoderWithPrice?.PricePerPixel
+        //     : 0;
+        // }
 
   //       return delegator;
   //     },

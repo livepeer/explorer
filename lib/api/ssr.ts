@@ -1,4 +1,3 @@
-import { identity } from "apollo/resolvers/Query";
 import {
   AccountDocument,
   AccountQuery,
@@ -13,6 +12,9 @@ import {
   OrchestratorsDocument,
   OrchestratorsQuery,
   OrchestratorsQueryVariables,
+  OrchestratorsSortedDocument,
+  OrchestratorsSortedQuery,
+  OrchestratorsSortedQueryVariables,
   ProtocolDocument,
   ProtocolQuery,
   ProtocolQueryVariables,
@@ -79,6 +81,27 @@ export async function getOrchestrator(client = getApollo(), id: string) {
     orchestrator,
   };
 }
+export async function getSortedOrchestrators(client = getApollo()) {
+  const query = OrchestratorsSortedDocument;
+
+  const sortedOrchestrators = await client.query<
+    OrchestratorsSortedQuery,
+    OrchestratorsSortedQueryVariables
+  >({
+    query,
+  });
+
+  // const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
+
+  return {
+    fallback: {},
+    // ensIdentities.reduce(
+    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
+    //   {}
+    // ),
+    sortedOrchestrators,
+  };
+}
 
 export async function getEvents(client = getApollo(), first = 100) {
   const events = await client.query<EventsQuery, EventsQueryVariables>({
@@ -116,7 +139,7 @@ export const server =
 async function getEnsIdentity(address: string) {
   try {
     const response = await fetch(
-      `https://explorer.livepeer.org/api/ens-data/${address.toLowerCase()}`
+      `${server}/api/ens-data/${address.toLowerCase()}`
     );
 
     const identity: EnsIdentity = await response.json();
@@ -135,16 +158,3 @@ async function getEnsIdentity(address: string) {
 
   return ens;
 }
-
-// export async function getChartData(client = getApollo()) {
-//   const { data } = await client.query({
-//     query: chartDataQuery,
-//   });
-//   await client.cache.writeQuery({
-//     query: chartDataQuery,
-//     data,
-//   });
-//   return await client.cache.readQuery({
-//     query: chartDataQuery,
-//   });
-// }

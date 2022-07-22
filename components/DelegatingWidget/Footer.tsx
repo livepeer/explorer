@@ -5,9 +5,20 @@ import {
   simulateNewActiveSetOrder,
 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { AccountQueryResult, Delegator, OrchestratorsSortedQueryResult, Round, Transcoder } from "apollo";
-import { parseUnits } from "ethers/lib/utils";
-import { useAccountAddress } from "hooks";
+import {
+  AccountQueryResult,
+  Delegator,
+  OrchestratorsSortedQueryResult,
+  Round,
+  Transcoder,
+} from "apollo";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import {
+  StakingAction,
+  useAccountAddress,
+  useAccountBalanceData,
+  usePendingFeesAndStakeData,
+} from "hooks";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
@@ -17,7 +28,7 @@ type FooterData = {
   isMyTranscoder: boolean;
   isDelegated: boolean;
 
-  action: string;
+  action: StakingAction;
   amount: string;
 
   currentRound: AccountQueryResult["data"]["protocol"]["currentRound"];
@@ -51,6 +62,11 @@ const Footer = ({
 }: Props) => {
   const accountAddress = useAccountAddress();
 
+  const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
+    delegator?.id
+  );
+  const accountBalance = useAccountBalanceData(accountAddress);
+
   if (!accountAddress) {
     return (
       <>
@@ -70,15 +86,14 @@ const Footer = ({
     );
   }
 
-  const tokenBalance = 0;
-  // TODO account && parseUnits(account.tokenBalance, "wei").toNumber();
-  const transferAllowance = 0;
-  //account && parseUnits(account.allowance, "wei").toNumber();
+  console.log(accountBalance?.allowance);
+
+  const tokenBalance = accountBalance?.balance;
+  const transferAllowance = accountBalance?.allowance;
   const delegatorStatus = getDelegatorStatus(delegator, currentRound);
-  const stake = 0;
-  // delegator?.pendingStake
-  //   ? parseUnits(delegator.pendingStake, "wei").toNumber()
-  //   : 0;
+  const stake = delegatorPendingStakeAndFees?.pendingStake
+    ? +delegatorPendingStakeAndFees?.pendingStake
+    : 0;
   const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
   const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
   const newActiveSetOrder = simulateNewActiveSetOrder({

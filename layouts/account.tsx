@@ -1,6 +1,5 @@
 import DelegatingWidget from "@components/DelegatingWidget";
 import Profile from "@components/Profile";
-import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 
@@ -17,16 +16,16 @@ import {
   Link as A,
   Sheet,
   SheetContent,
-  SheetTrigger,
+  SheetTrigger
 } from "@livepeer/design-system";
 import {
   AccountQueryResult,
-  useAccountQuery,
-  useOrchestratorsSortedQuery,
+  OrchestratorsSortedQueryResult,
+  useAccountQuery
 } from "apollo";
 import Link from "next/link";
 import { useMemo } from "react";
-import useWindowSize from "react-use/lib/useWindowSize";
+import { useWindowSize } from "react-use";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
@@ -39,8 +38,10 @@ const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"] as const;
 
 const AccountLayout = ({
   orchestrator,
+  sortedOrchestrators,
 }: {
   orchestrator: AccountQueryResult["data"];
+  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
@@ -59,7 +60,6 @@ const AccountLayout = ({
   const identity = useEnsData(account);
   const myIdentity = useEnsData(accountAddress);
 
-  const { data: dataTranscoders } = useOrchestratorsSortedQuery();
   const { data: dataMyAccount } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
@@ -94,24 +94,6 @@ const AccountLayout = ({
       getTabs(isOrchestrator, query?.account?.toString(), asPath, isMyDelegate),
     [isOrchestrator, query, asPath, isMyDelegate]
   );
-
-  if (!dataTranscoders) {
-    return (
-      <Flex
-        css={{
-          height: "calc(100vh - 100px)",
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          "@bp3": {
-            height: "100vh",
-          },
-        }}
-      >
-        <Spinner />
-      </Flex>
-    );
-  }
 
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
@@ -153,7 +135,7 @@ const AccountLayout = ({
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={dataTranscoders.transcoders}
+                    transcoders={sortedOrchestrators.transcoders}
                     selectedAction="delegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
@@ -173,7 +155,7 @@ const AccountLayout = ({
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={dataTranscoders.transcoders}
+                    transcoders={sortedOrchestrators.transcoders}
                     selectedAction="undelegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
@@ -226,7 +208,7 @@ const AccountLayout = ({
           )}
           {view === "delegating" && (
             <DelegatingView
-              transcoders={dataTranscoders.transcoders}
+              transcoders={sortedOrchestrators.transcoders}
               delegator={orchestrator.delegator}
               protocol={orchestrator.protocol}
               currentRound={orchestrator.protocol.currentRound}
@@ -250,7 +232,7 @@ const AccountLayout = ({
               }}
             >
               <DelegatingWidget
-                transcoders={dataTranscoders.transcoders}
+                transcoders={sortedOrchestrators.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
                 transcoder={orchestrator.transcoder}
@@ -261,7 +243,7 @@ const AccountLayout = ({
           ) : (
             <BottomDrawer>
               <DelegatingWidget
-                transcoders={dataTranscoders.transcoders}
+                transcoders={sortedOrchestrators.transcoders}
                 selectedAction={selectedStakingAction}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}

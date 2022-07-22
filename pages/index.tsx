@@ -3,7 +3,7 @@ import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
-  FILTERED_EVENT_TYPENAMES
+  FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
@@ -12,18 +12,18 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A
+  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 
 import { useMemo, useState } from "react";
-import { getEvents, getOrchestrators, getProtocol } from "../lib/api";
+import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
 import {
   EventsQueryResult,
   getApollo,
   OrchestratorsQueryResult,
-  ProtocolQueryResult
+  ProtocolQueryResult,
 } from "../apollo";
 
 import { HomeChartData } from "@lib/api/types/get-chart-data";
@@ -306,7 +306,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   flex: 1,
                 }}
               >
-                <RoundStatus />
+                <RoundStatus protocol={protocol?.protocol} />
               </Flex>
             </Flex>
           </Flex>
@@ -439,7 +439,7 @@ export const getStaticProps: GetStaticProps = async () => {
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
-      fallback: {}
+      fallback: {},
       // fallback: { ...fallback, ...eventsFallback },
     };
 

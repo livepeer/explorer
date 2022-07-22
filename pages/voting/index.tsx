@@ -62,7 +62,7 @@ const Voting = () => {
 
             // only include proposals with valid format
             if (obj?.text && obj?.gitCommitHash) {
-              const transformedProposal = fm(obj.text);
+              const transformedProposal = fm(obj.text) as any;
               if (
                 !pollArr.filter(
                   (p) => p.attributes.lip === transformedProposal.attributes.lip

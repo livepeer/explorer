@@ -1,3 +1,4 @@
+import { getCacheControlHeader } from "@lib/api";
 import fetch from "isomorphic-unfetch";
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -36,11 +37,8 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
     }),
   });
 
-  res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=3600, stale-while-revalidate=5000"
-  );
-  
+  res.setHeader("Cache-Control", getCacheControlHeader("hour"));
+
   const {
     data: { projectBySlugs },
   } = await response.json();

@@ -26,6 +26,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import utc from "dayjs/plugin/utc";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { getCacheControlHeader } from "@lib/api";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -408,10 +409,7 @@ const chartDataHandler = async (
         console.log(e);
       }
 
-      res.setHeader(
-        "Cache-Control",
-        "public, s-maxage=3600, stale-while-revalidate=5000"
-      );
+      res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
       return res.status(200).json(data);
     }

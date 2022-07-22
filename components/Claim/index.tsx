@@ -1,35 +1,20 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
-import LivepeerSDK from "@livepeer/sdk";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
 import {
   useAccountAddress,
   useHandleTransaction,
+  useL1DelegatorData,
   useLivepeerContracts,
 } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-  L1_CHAIN_ID,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
-
-const getDelegatorOnL1 = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const delegator = await sdk.rpc.getDelegator(account);
-  const status = await sdk.rpc.getTranscoderStatus(account);
-  const unbondingLocks = await sdk.rpc.getDelegatorUnbondingLocks(account);
-  return { delegator, status, unbondingLocks };
-};
 
 const Claim = () => {
   const accountAddress = useAccountAddress();
+
+  const l1Delegator = useL1DelegatorData(accountAddress);
 
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [isDelegator, setIsDelegator] = useState(false);
@@ -44,15 +29,11 @@ const Claim = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (accountAddress && l2Migrator) {
+      if (accountAddress && l2Migrator && l1Delegator) {
         setLoading(true);
 
         // reset on account change
         setIsDelegator(false);
-
-        const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
-          accountAddress
-        );
 
         const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
         setIsClaimStakeEnabled(claimStakeEnabled);
@@ -61,16 +42,16 @@ const Claim = () => {
         setIsMigrated(isMigrated);
 
         setMigrationParams({
-          delegate: delegator.delegateAddress,
-          stake: delegator.pendingStake,
-          fees: delegator.pendingFees,
+          delegate: l1Delegator.delegateAddress,
+          stake: l1Delegator.pendingStake,
+          fees: l1Delegator.pendingFees,
         });
 
         if (
-          status === "NotRegistered" &&
-          (delegator.pendingStake !== "0" ||
-            delegator.pendingFees !== "0" ||
-            unbondingLocks.length > 1)
+          l1Delegator.transcoderStatus === "not-registered" &&
+          (l1Delegator.pendingStake !== "0" ||
+            l1Delegator.pendingFees !== "0" ||
+            l1Delegator.unbondingLocks > 1)
         ) {
           setIsDelegator(true);
         }
@@ -78,7 +59,7 @@ const Claim = () => {
       }
     };
     init();
-  }, [accountAddress, l2Migrator]);
+  }, [accountAddress, l2Migrator, l1Delegator]);
 
   return loading || !isDelegator || isMigrated ? null : (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>

@@ -3,7 +3,7 @@ import PerformanceList from "@components/PerformanceList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
-import { getOrchestrators } from "@lib/api";
+import { getOrchestrators } from "@lib/api/ssr";
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import { useState } from "react";

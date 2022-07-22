@@ -3,6 +3,25 @@ import Input from "./Input";
 import Utils from "web3-utils";
 import { Box, Flex, Card } from "@livepeer/design-system";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { AccountQueryResult } from "apollo";
+import {
+  StakingAction,
+  useAccountBalanceData,
+  usePendingFeesAndStakeData,
+} from "hooks";
+
+interface Props {
+  transcoder: AccountQueryResult["data"]["transcoder"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  protocol: AccountQueryResult["data"]["protocol"];
+  account: EnsIdentity;
+  action?: StakingAction;
+  delegateProfile?: EnsIdentity;
+
+  amount: string;
+  setAmount: (a: string) => void;
+}
 
 const InputBox = ({
   account,
@@ -12,11 +31,16 @@ const InputBox = ({
   amount,
   setAmount,
   protocol,
-}) => {
+}: Props) => {
+  const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
+    delegator?.id
+  );
+  const accountBalance = useAccountBalanceData(account?.id);
+
   const tokenBalance =
-    account && Utils.fromWei(account.tokenBalance.toString());
-  const stake = delegator?.pendingStake
-    ? Utils.fromWei(delegator.pendingStake)
+    accountBalance && Utils.fromWei(accountBalance.balance.toString());
+  const stake = delegatorPendingStakeAndFees?.pendingStake
+    ? Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
     : "0";
 
   return (
@@ -51,7 +75,7 @@ const InputBox = ({
               ) : (
                 <>
                   {+stake > 0 && (
-                    <ExplorerTooltip content="Enter Max">
+                    <ExplorerTooltip content="Enter Max Amount">
                       <Box
                         onClick={() => setAmount(stake)}
                         css={{ cursor: "pointer", color: "$muted" }}

@@ -1,7 +1,7 @@
 import { Box, keyframes } from "@livepeer/design-system";
 import { Dialog } from "@reach/dialog";
 import { useExplorerStore } from "hooks";
-import useWindowSize from "react-use/lib/useWindowSize";
+import { useWindowSize } from "react-use";
 
 const slideUp = keyframes({
   "0%": { transform: "translate3d(0, 100%, 0)" },

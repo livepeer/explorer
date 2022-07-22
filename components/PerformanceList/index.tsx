@@ -4,9 +4,10 @@ import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
 import Link from "next/link";
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
-import { useEnsData,  } from "hooks";
+import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import { ALL_REGIONS } from "utils/allRegions";
+import numeral from "numeral";
 
 const PerformanceList = ({
   data,
@@ -17,6 +18,7 @@ const PerformanceList = ({
   region: keyof typeof ALL_REGIONS;
   data: OrchestratorsQueryResult["data"]["transcoders"];
 }) => {
+  const allScores = useAllScoreData();
   const initialState = {
     pageSize: pageSize,
     sortBy: [
@@ -61,6 +63,11 @@ const PerformanceList = ({
       "delegator",
     ],
   };
+
+  const mergedData = useMemo(
+    () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
+    [allScores, data]
+  );
 
   const columns: any = useMemo(
     () => [
@@ -163,7 +170,11 @@ const PerformanceList = ({
             return null;
           }
           return (
-            <Box>{(row.values[`scores.${region}`] / 1000).toFixed(2)}</Box>
+            <Box>
+              {numeral(row.values[`scores.${region}`])
+                .divide(10)
+                .format("0.00")}
+            </Box>
           );
         },
       },
@@ -178,7 +189,13 @@ const PerformanceList = ({
             return null;
           }
 
-          return <Box>{row.values[`successRates.${region}`].toFixed(2)}%</Box>;
+          return (
+            <Box>
+              {numeral(row.values[`successRates.${region}`])
+                .divide(100)
+                .format("0%")}
+            </Box>
+          );
         },
       },
       {
@@ -193,7 +210,9 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {(row.values[`roundTripScores.${region}`] / 1000).toFixed(2)}
+              {numeral(row.values[`roundTripScores.${region}`])
+                .divide(10)
+                .format("0.00")}
             </Box>
           );
         },
@@ -201,7 +220,9 @@ const PerformanceList = ({
     ],
     [region]
   );
-  return <Table data={data} columns={columns} initialState={initialState} />;
+  return (
+    <Table data={mergedData} columns={columns} initialState={initialState} />
+  );
 };
 
 export default PerformanceList;

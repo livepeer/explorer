@@ -1,4 +1,3 @@
-import { gql, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import {
   Box,
@@ -11,12 +10,14 @@ import {
   RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import fm from "front-matter";
 import {
   useAccountAddress,
   useHandleTransaction,
   useLivepeerContracts,
+  usePendingFeesAndStakeData,
 } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
@@ -30,26 +31,21 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
 
-  const accountQuery = gql`
-    query ($account: ID!) {
-      delegator(id: $account) {
-        id
-        pendingStake
-      }
-    }
-  `;
-
-  const { data, loading } = useQuery(accountQuery, {
+  const { data, loading } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
     skip: !accountAddress,
   });
 
+  const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
+    data?.delegator?.id
+  );
+
   useEffect(() => {
-    if (data?.delegator?.pendingStake) {
+    if (delegatorPendingStakeAndFees?.pendingStake) {
       const lptPendingStake = parseFloat(
-        Utils.fromWei(data.delegator.pendingStake)
+        Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
       );
 
       if (lptPendingStake >= 100) {
@@ -58,7 +54,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
         setSufficientStake(false);
       }
     }
-  }, [data, accountAddress]);
+  }, [delegatorPendingStakeAndFees]);
 
   const [selectedProposal, setSelectedProposal] = useState(null);
 
@@ -273,7 +269,7 @@ export async function getStaticProps() {
 
         // check if proposal is valid format {text, gitCommitHash}
         if (obj?.text && obj?.gitCommitHash) {
-          const transformedProposal = fm(obj.text);
+          const transformedProposal = fm(obj.text) as any;
           createdPolls.push(transformedProposal.attributes.lip);
         }
       })
@@ -283,7 +279,7 @@ export async function getStaticProps() {
   const lips = [];
   if (data) {
     for (const lip of data.repository.content.entries) {
-      const transformedLip = fm(lip.content.text);
+      const transformedLip = fm(lip.content.text) as any;
       transformedLip.attributes.created =
         transformedLip.attributes.created.toString();
       if (

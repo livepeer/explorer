@@ -10,6 +10,8 @@ export type { ArbRetryableTx } from "./bridge/ArbRetryableTx";
 export { ArbRetryableTx__factory } from "./factories/bridge/ArbRetryableTx__factory";
 export type { Inbox } from "./bridge/Inbox";
 export { Inbox__factory } from "./factories/bridge/Inbox__factory";
+export type { L1BondingManager } from "./bridge/L1BondingManager";
+export { L1BondingManager__factory } from "./factories/bridge/L1BondingManager__factory";
 export type { L1Migrator } from "./bridge/L1Migrator";
 export { L1Migrator__factory } from "./factories/bridge/L1Migrator__factory";
 export type { L2LPTGateway } from "./bridge/L2LPTGateway";

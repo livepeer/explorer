@@ -1,4 +1,3 @@
-import { useApolloClient, useQuery, gql } from "@apollo/client";
 import { Cross1Icon } from "@modulz/radix-icons";
 import {
   Box,

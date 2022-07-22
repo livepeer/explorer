@@ -1,11 +1,9 @@
 query account($account: ID!) {
   delegator(id: $account) {
     id
-    # pendingStake
     bondedAmount
     principal
     unbonded
-    # pendingFees
     withdrawnFees
     startRound
     lastClaimRound {
@@ -57,12 +55,6 @@ query account($account: ID!) {
       id
     }
   }
-  # account(id: $account) {
-  #   id
-  #   tokenBalance
-  #   ethBalance
-  #   allowance
-  # }
   protocol(id: "0") {
     id
     totalSupply

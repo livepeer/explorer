@@ -1,4 +1,3 @@
-import { useQuery, gql } from "@apollo/client";
 import {
   Box,
   Flex,

@@ -396,7 +396,7 @@ async function transformData({ poll }) {
 
   const { gitCommitHash, text } = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
-  const response = fm(text);
+  const response = fm(text) as any;
   return {
     ...response.attributes,
     created: response.attributes.created.toString(),
