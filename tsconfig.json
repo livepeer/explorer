@@ -4,7 +4,7 @@
       "@components/*": ["components/*"],
       "@layouts/*": ["layouts/*"],
       "@lib/*": ["lib/*"],
-      "@api/*": ["api/*"]
+      "@api/*": ["lib/api/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

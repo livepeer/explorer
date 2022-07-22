@@ -1,4 +1,4 @@
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
   getDelegatorStatus,
   getHint,

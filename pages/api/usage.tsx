@@ -1,4 +1,4 @@
-import { HomeChartData, WeeklyData } from "@api/types/get-chart-data";
+import { HomeChartData, WeeklyData } from "@lib/api/types/get-chart-data";
 import { IS_TESTNET } from "@lib/chains";
 import {
   getBlocksFromTimestamps,

@@ -1,6 +1,6 @@
-import { GetChangefeed } from "@api/types/get-changefeed";
-import { HomeChartData } from "@api/types/get-chart-data";
-import { EnsIdentity } from "@api/types/get-ens";
+import { GetChangefeed } from "@lib/api/types/get-changefeed";
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import useSWR from "swr";
 
 export const useEnsData = (address: string | undefined | null) => {

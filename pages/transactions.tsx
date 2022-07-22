@@ -1,4 +1,4 @@
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
@@ -6,7 +6,7 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
-import { getEvents } from "api";
+import { getEvents } from "@lib/api";
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import { useMemo } from "react";

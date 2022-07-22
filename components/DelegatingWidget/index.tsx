@@ -8,7 +8,7 @@ import InputBox from "./InputBox";
 import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
 import numeral from "numeral";
 import { StakingAction, useEnsData } from "hooks";
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {  OrchestratorsSortedQueryResult, AccountQueryResult } from "apollo";
 
 interface Props {

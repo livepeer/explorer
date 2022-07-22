@@ -1,4 +1,4 @@
-import { fetcher } from "@api/axios";
+import { fetcher } from "@lib/api/axios";
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";

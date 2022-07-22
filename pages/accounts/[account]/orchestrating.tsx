@@ -1,9 +1,9 @@
 import { getLayout } from "@layouts/main";
 import AccountLayout from "@layouts/account";
 import { AccountQueryResult, getApollo } from "apollo";
-import { getOrchestrator } from "@api/index";
+import { getOrchestrator } from "@lib/api/index";
 import { GetStaticProps } from "next";
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 
 type PageProps = {
   orchestrator: AccountQueryResult["data"];

@@ -1,4 +1,4 @@
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import OrchestratorList from "@components/OrchestratorList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
@@ -10,7 +10,7 @@ import {
   Link as A
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import { getOrchestrators, getProtocol } from "api";
+import { getOrchestrators, getProtocol } from "@lib/api";
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";

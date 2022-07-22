@@ -1,4 +1,4 @@
-import { EnsIdentity } from "@api/types/get-ens";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
