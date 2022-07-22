@@ -12,6 +12,11 @@ const handler = async (
     if (method === "GET") {
       const { address } = req.query;
 
+      res.setHeader(
+        "Cache-Control",
+        "public, s-maxage=3600, stale-while-revalidate=5000"
+      );
+
       if (typeof address === "string" && address.length === 42) {
         const idShort = address.replace(address.slice(6, 38), "…");
 
@@ -35,11 +40,6 @@ const handler = async (
             twitter,
             avatar: avatar?.url ? avatar.url : null, // `https://metadata.ens.domains/mainnet/avatar/${name}`,
           };
-
-          res.setHeader(
-            "Cache-Control",
-            "public, s-maxage=3600, stale-while-revalidate=5000"
-          );
 
           return res.status(200).json(ens);
         }
