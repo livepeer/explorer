@@ -79,7 +79,11 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
-          value={`${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`}
+          value={
+            transcoder
+              ? `${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`
+              : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -91,9 +95,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
-          value={`${numeral(maxScore.score).divide(100).format("0.0%")} (${
-            maxScore.region
-          })`}
+          value={
+            maxScore
+              ? `${numeral(maxScore.score).divide(100).format("0.0%")} (${
+                  maxScore.region
+                })`
+              : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -101,7 +109,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
-          value={`${callsMade}/${transcoder?.pools?.length ?? 0}`}
+          value={
+            transcoder ? `${callsMade}/${transcoder?.pools?.length ?? 0}` : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -117,9 +127,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
-          value={`${numeral(
-            (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
-          ).format("0,0")} WEI`}
+          value={
+            scores
+              ? `${numeral(
+                  (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
+                ).format("0,0")} WEI`
+              : null
+          }
         />
         {/* <Stat
           className="masonry-grid_item"
