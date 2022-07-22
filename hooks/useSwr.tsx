@@ -15,7 +15,7 @@ import useSWR from "swr";
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
   const { data: allEnsData } = useSWR<EnsIdentity[]>(`/ens-data`);
   const foundEns = useMemo(
-    () => allEnsData?.find((e) => e.id.toLowerCase() === address.toLowerCase()),
+    () => allEnsData?.find((e) => e?.id?.toLowerCase() === address?.toLowerCase()),
     [address, allEnsData]
   );
 
