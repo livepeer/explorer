@@ -439,7 +439,8 @@ export const getStaticProps: GetStaticProps = async () => {
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
-      fallback: { ...fallback, ...eventsFallback },
+      fallback: {}
+      // fallback: { ...fallback, ...eventsFallback },
     };
 
     return {
