@@ -23,11 +23,7 @@ export const useEnsData = (address: string | undefined | null): EnsIdentity => {
   );
 
   const { data } = useSWR<EnsIdentity>(
-    foundEns || !allEnsData
-      ? null
-      : address
-      ? `/ens-data/${address.toLowerCase()}`
-      : null
+    foundEns ? null : address ? `/ens-data/${address.toLowerCase()}` : null
   );
 
   return (

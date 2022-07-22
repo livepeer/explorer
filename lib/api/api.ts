@@ -9,7 +9,7 @@ const cacheControlValues = {
   },
   day: {
     maxAge: 86400,
-    swr: 86400 * 2,
+    swr: 86400 * 7,
   },
 } as const;
 
