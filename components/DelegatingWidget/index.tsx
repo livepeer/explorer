@@ -39,8 +39,10 @@ const Index = ({
 
   const delegateEns = useEnsData(delegator?.delegate?.id);
 
-  const isDelegated =
-    delegator?.bondedAmount && delegator?.bondedAmount !== "0";
+  const isDelegated = useMemo(
+    () => delegator?.bondedAmount && delegator?.bondedAmount !== "0",
+    [delegator]
+  );
   const isTransferStake = useMemo(
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
@@ -63,14 +65,21 @@ const Index = ({
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
       <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
         <Tabs
-          defaultIndex={selectedStakingAction === "delegate" ? 0 : 1}
-          onChange={(index: number) =>
-            setSelectedStakingAction(index ? "undelegate" : "delegate")
-          }
+          index={selectedStakingAction === "delegate" ? 0 : 1}
+          onChange={(index: number) => {
+            setSelectedStakingAction(index ? "undelegate" : "delegate");
+          }}
         >
           <TabList>
-            <Tab isSelected={selectedStakingAction === "delegate"}>Delegate</Tab>
-            <Tab isSelected={selectedStakingAction === "undelegate"}>Undelegate</Tab>
+            <Tab isSelected={selectedStakingAction === "delegate"}>
+              Delegate
+            </Tab>
+            <Tab
+              disabled={isTransferStake}
+              isSelected={selectedStakingAction === "undelegate"}
+            >
+              Undelegate
+            </Tab>
           </TabList>
         </Tabs>
 

@@ -76,7 +76,7 @@ const Delegate = ({
   const onDelegate = async () => {
     try {
       const args = {
-        amount: parseEther(amount ? amount.toString() : "0"),
+        amount: amount?.toString() ? parseEther(amount) : "0",
         to,
         oldDelegateNewPosPrev,
         oldDelegateNewPosNext,

@@ -7,6 +7,7 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { keyframes } from "@livepeer/design-system";
+import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
 import { useCallback } from "react";
 import CloseIcon from "../../public/img/close.svg";
@@ -51,12 +52,12 @@ const Index = () => {
         ) : (
           <Flex
             css={{
-              py: "$5",
+              pt: "$2",
+              pb: "$5",
               flexDirection: "column",
               justifyContent: "flex-start",
               width: "100%",
               alignItems: "center",
-              padding: "60px 0px",
             }}
           >
             <Box
@@ -80,16 +81,18 @@ const Index = () => {
             justifyItems: "center",
           }}
         >
-          {!latestTransaction?.error && (
-            <Box css={{ fontSize: "$4", fontWeight: 600 }}>
-              Waiting For Confirmation
-            </Box>
-          )}
+          <Box css={{ fontSize: "$4", fontWeight: 600 }}>
+            {!latestTransaction?.error ? "Waiting for confirmation" : "Error"}
+          </Box>
         </Box>
         <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
           {latestTransaction?.error ? (
             <>
-              <Text css={{ mb: "$3" }}>Transaction Error</Text>
+              <Text css={{ mb: "$3" }}>
+                {latestTransaction?.error
+                  ? `${sentenceCase(latestTransaction?.error)}.`
+                  : "Error with transaction, please check your inputs and try again."}
+              </Text>
               <Button
                 onClick={clearLatestTransaction}
                 variant="primary"

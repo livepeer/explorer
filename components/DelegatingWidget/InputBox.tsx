@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Input from "./Input";
 import Utils from "web3-utils";
 import { Box, Flex, Card } from "@livepeer/design-system";
@@ -39,11 +39,17 @@ const InputBox = ({
   );
   const accountBalance = useAccountBalanceData(account?.id);
 
-  const tokenBalance =
-    accountBalance && Utils.fromWei(accountBalance.balance.toString());
-  const stake = delegatorPendingStakeAndFees?.pendingStake
-    ? Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
-    : "0";
+  const tokenBalance = useMemo(
+    () => accountBalance && Utils.fromWei(accountBalance.balance.toString()),
+    [accountBalance]
+  );
+  const stake = useMemo(
+    () =>
+      delegatorPendingStakeAndFees?.pendingStake
+        ? Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
+        : "0",
+    [delegatorPendingStakeAndFees]
+  );
 
   return (
     <Card
@@ -63,7 +69,7 @@ const InputBox = ({
 
             {walletAddress &&
               (action === "delegate" ? (
-                <ExplorerTooltip content="Enter Max">
+                <ExplorerTooltip content="Enter Max Amount">
                   <Box
                     onClick={() => setAmount(tokenBalance)}
                     css={{ cursor: "pointer", color: "$muted" }}

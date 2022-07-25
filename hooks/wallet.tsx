@@ -41,7 +41,7 @@ export const useAccountSigner = () => {
       }
     }
     getSigner();
-  }, [account]);
+  }, [account.status]);
 
   return isChainSupported ? signer : null;
 };

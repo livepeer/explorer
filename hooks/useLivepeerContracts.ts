@@ -56,6 +56,7 @@ import {
 } from "typechain-types";
 import { LivepeerTokenFaucet__factory } from "typechain-types/factories/main/LivepeerTokenFaucet__factory";
 import { L2Migrator, Poll, PollCreator } from "typechain-types/main";
+import { useAccount } from "wagmi";
 import { useAccountSigner } from "./wallet";
 
 export type LivepeerContracts = {
