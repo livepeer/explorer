@@ -1,5 +1,12 @@
-import { AccountQueryResult, Delegator, Round, UnbondingLock } from "apollo";
-import { ethers } from "ethers";
+import {
+  AccountQueryResult,
+  Delegator,
+  OrchestratorsSortedQueryResult,
+  Round,
+  UnbondingLock,
+} from "apollo";
+import { BigNumber, ethers } from "ethers";
+import { StakingAction } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
 import Utils from "web3-utils";
@@ -237,6 +244,12 @@ export const simulateNewActiveSetOrder = ({
   amount,
   newDelegate,
   oldDelegate = EMPTY_ADDRESS,
+}: {
+  action: StakingAction;
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  amount: BigNumber;
+  newDelegate: string;
+  oldDelegate: string;
 }) => {
   const index = transcoders.findIndex(
     (t) => t.id.toLowerCase() === newDelegate.toLowerCase()
@@ -246,8 +259,10 @@ export const simulateNewActiveSetOrder = ({
     return transcoders;
   }
 
-  if (action === "stake") {
-    transcoders[index].totalStake = +transcoders[index].totalStake + +amount;
+  if (action === "delegate") {
+    transcoders[index].totalStake = (
+      +transcoders[index].totalStake + +amount
+    ).toString();
 
     // if delegator is moving stake, subtract amount from old delegate
     if (
@@ -259,12 +274,15 @@ export const simulateNewActiveSetOrder = ({
         (t) => t.id.toLowerCase() === oldDelegate.toLowerCase()
       );
       if (oldDelegateIndex !== -1) {
-        transcoders[oldDelegateIndex].totalStake =
-          +transcoders[oldDelegateIndex].totalStake - +amount;
+        transcoders[oldDelegateIndex].totalStake = (
+          +transcoders[oldDelegateIndex].totalStake - +amount
+        ).toString();
       }
     }
   } else {
-    transcoders[index].totalStake = +transcoders[index].totalStake - +amount;
+    transcoders[index].totalStake = (
+      +transcoders[index].totalStake - +amount
+    ).toString();
   }
 
   // reorder transcoders array

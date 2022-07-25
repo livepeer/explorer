@@ -37,7 +37,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   const query = router.query;
   const accountAddress = useAccountAddress();
 
-  const delegateIdentity = useEnsData(delegator.delegate.id);
+  const delegateIdentity = useEnsData(delegator?.delegate?.id);
 
   const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("withdrawFees");
@@ -47,7 +47,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     query.account.toString()
   );
 
-  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator.id);
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
   const pendingStake = useMemo(
     () => Number(pendingFeesAndStake?.pendingStake || 0) / 10 ** 18,
@@ -123,7 +123,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         className="masonry-grid"
         columnClassName="masonry-grid_column"
       >
-        {delegator.delegate && (
+        {delegator?.delegate && (
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
@@ -143,8 +143,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   <Box>
                     {delegateIdentity?.name
                       ? delegateIdentity?.name
-                      : delegator.delegate.id.replace(
-                          delegator.delegate.id.slice(7, 37),
+                      : delegator?.delegate?.id.replace(
+                          delegator?.delegate?.id.slice(7, 37),
                           "…"
                         )}
                   </Box>
@@ -311,7 +311,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   {numeral(delegator?.withdrawnFees || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
-              {isMyAccount && !withdrawButtonDisabled && (
+              {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
                   variant="primary"
                   size="4"
@@ -335,7 +335,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             </Box>
           }
         />
-        {delegator.delegate && (
+        {delegator?.delegate && (
           <Stat
             className="masonry-grid_item"
             label={

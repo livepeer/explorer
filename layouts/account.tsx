@@ -37,10 +37,10 @@ export interface TabType {
 const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"] as const;
 
 const AccountLayout = ({
-  orchestrator,
+  account,
   sortedOrchestrators,
 }: {
-  orchestrator: AccountQueryResult["data"];
+  account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
   const accountAddress = useAccountAddress();
@@ -52,12 +52,12 @@ const AccountLayout = ({
     [asPath]
   );
 
-  const account = useMemo(
+  const accountId = useMemo(
     () => query?.account?.toString().toLowerCase(),
     [query]
   );
 
-  const identity = useEnsData(account);
+  const identity = useEnsData(accountId);
   const myIdentity = useEnsData(accountAddress);
 
   const { data: dataMyAccount } = useAccountQuery({
@@ -68,29 +68,23 @@ const AccountLayout = ({
   });
 
   const isActive = useMemo(
-    () => Boolean(orchestrator?.transcoder?.active),
-    [orchestrator?.transcoder]
+    () => Boolean(account?.transcoder?.active),
+    [account?.transcoder]
   );
 
   const isMyAccount = useMemo(
-    () => checkAddressEquality(accountAddress, account),
-    [accountAddress, account]
+    () => checkAddressEquality(accountAddress, accountId),
+    [accountAddress, accountId]
   );
-  const isOrchestrator = useMemo(
-    () => Boolean(orchestrator?.transcoder),
-    [orchestrator]
-  );
+  const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
   const isMyDelegate = useMemo(
-    () =>
-      query?.account?.toString().toLowerCase() ===
-      dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
-    [query, dataMyAccount]
+    () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
+    [accountId, dataMyAccount]
   );
 
   const tabs: Array<TabType> = useMemo(
-    () =>
-      getTabs(isOrchestrator, query?.account?.toString(), asPath, isMyDelegate),
-    [isOrchestrator, query, asPath, isMyDelegate]
+    () => getTabs(isOrchestrator, accountId, asPath, isMyDelegate),
+    [isOrchestrator, accountId, asPath, isMyDelegate]
   );
 
   return (
@@ -136,8 +130,8 @@ const AccountLayout = ({
                     transcoders={sortedOrchestrators.transcoders}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={orchestrator.transcoder}
-                    protocol={orchestrator.protocol}
+                    transcoder={account?.transcoder}
+                    protocol={account?.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -155,8 +149,8 @@ const AccountLayout = ({
                     transcoders={sortedOrchestrators.transcoders}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={orchestrator.transcoder}
-                    protocol={orchestrator.protocol}
+                    transcoder={account.transcoder}
+                    protocol={account.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -198,16 +192,16 @@ const AccountLayout = ({
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
-              currentRound={orchestrator?.protocol?.currentRound}
-              transcoder={orchestrator?.transcoder}
+              currentRound={account?.protocol?.currentRound}
+              transcoder={account?.transcoder}
             />
           )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators.transcoders}
-              delegator={orchestrator.delegator}
-              protocol={orchestrator.protocol}
-              currentRound={orchestrator.protocol.currentRound}
+              delegator={account?.delegator}
+              protocol={account?.protocol}
+              currentRound={account.protocol.currentRound}
             />
           )}
           {view === "history" && <HistoryView />}
@@ -231,8 +225,8 @@ const AccountLayout = ({
                 transcoders={sortedOrchestrators.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={orchestrator.transcoder}
-                protocol={orchestrator.protocol}
+                transcoder={account?.transcoder}
+                protocol={account?.protocol}
                 delegateProfile={identity}
               />
             </Flex>
@@ -242,8 +236,8 @@ const AccountLayout = ({
                 transcoders={sortedOrchestrators.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={orchestrator.transcoder}
-                protocol={orchestrator.protocol}
+                transcoder={account?.transcoder}
+                protocol={account?.protocol}
                 delegateProfile={identity}
               />
             </BottomDrawer>

@@ -88,8 +88,8 @@ const Index = () => {
         <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
           {latestTransaction?.error ? (
             <>
-              <Text css={{ mb: "$3" }}>
-                {latestTransaction?.error
+              <Text css={{ mb: "$3", maxWidth: 350 }}>
+                {latestTransaction?.error.length < 50
                   ? `${sentenceCase(latestTransaction?.error)}.`
                   : "Error with transaction, please check your inputs and try again."}
               </Text>

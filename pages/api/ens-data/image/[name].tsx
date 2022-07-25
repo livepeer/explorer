@@ -17,6 +17,10 @@ const handler = async (
         const imageUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
 
         const response = await fetch(imageUrl);
+        if (response.headers.get("content-type").includes("application/json")) {
+          return null;
+        }
+
         const imageBlob = await response.blob();
 
         const buffer = await imageBlob.stream();

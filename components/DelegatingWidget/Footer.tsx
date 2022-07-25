@@ -5,12 +5,8 @@ import {
   simulateNewActiveSetOrder,
 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import {
-  AccountQueryResult,
-  Delegator,
-  OrchestratorsSortedQueryResult,
-} from "apollo";
-import { parseUnits } from "ethers/lib/utils";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
+import { parseEther } from "ethers/lib/utils";
 import {
   StakingAction,
   useAccountAddress,
@@ -90,12 +86,13 @@ const Footer = ({
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
     [isMyTranscoder, isDelegated, amount]
   );
+  console.log({ amount });
   const newActiveSetOrder = useMemo(
     () =>
       simulateNewActiveSetOrder({
         action,
         transcoders: JSON.parse(JSON.stringify(transcoders)),
-        amount: parseUnits(amount ? amount.toString() : "0", "wei").toNumber(),
+        amount: parseEther(amount ? amount.toString() : "0"),
         newDelegate: transcoder.id,
         oldDelegate: delegator?.delegate?.id,
       }),

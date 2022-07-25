@@ -60,10 +60,10 @@ export async function getOrchestrators(client = getApollo()) {
   };
 }
 
-export async function getOrchestrator(client = getApollo(), id: string) {
+export async function getAccount(client = getApollo(), id: string) {
   const query = AccountDocument;
 
-  const orchestrator = await client.query<AccountQuery, AccountQueryVariables>({
+  const account = await client.query<AccountQuery, AccountQueryVariables>({
     query,
     variables: {
       account: id,
@@ -78,9 +78,10 @@ export async function getOrchestrator(client = getApollo(), id: string) {
     //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
     //   {}
     // ),
-    orchestrator,
+    account,
   };
 }
+
 export async function getSortedOrchestrators(client = getApollo()) {
   const query = OrchestratorsSortedDocument;
 
