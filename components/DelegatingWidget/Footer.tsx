@@ -9,10 +9,8 @@ import {
   AccountQueryResult,
   Delegator,
   OrchestratorsSortedQueryResult,
-  Round,
-  Transcoder,
 } from "apollo";
-import { parseEther, parseUnits } from "ethers/lib/utils";
+import { parseUnits } from "ethers/lib/utils";
 import {
   StakingAction,
   useAccountAddress,
@@ -85,8 +83,6 @@ const Footer = ({
       </>
     );
   }
-
-  console.log(accountBalance?.allowance);
 
   const tokenBalance = accountBalance?.balance;
   const transferAllowance = accountBalance?.allowance;

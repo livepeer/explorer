@@ -16,15 +16,15 @@ import {
   Link as A,
   Sheet,
   SheetContent,
-  SheetTrigger
+  SheetTrigger,
 } from "@livepeer/design-system";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
-  useAccountQuery
+  useAccountQuery,
 } from "apollo";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
@@ -67,8 +67,6 @@ const AccountLayout = ({
     skip: !accountAddress,
   });
 
-  const { selectedStakingAction } = useExplorerStore();
-
   const isActive = useMemo(
     () => Boolean(orchestrator?.transcoder?.active),
     [orchestrator?.transcoder]
@@ -94,6 +92,14 @@ const AccountLayout = ({
       getTabs(isOrchestrator, query?.account?.toString(), asPath, isMyDelegate),
     [isOrchestrator, query, asPath, isMyDelegate]
   );
+
+  const { setSelectedStakingAction } = useExplorerStore();
+
+  useEffect(() => {
+    if (isMyDelegate) {
+      setSelectedStakingAction("undelegate");
+    }
+  }, [isMyDelegate, setSelectedStakingAction]);
 
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
@@ -136,7 +142,6 @@ const AccountLayout = ({
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
                     transcoders={sortedOrchestrators.transcoders}
-                    selectedAction="delegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
                     transcoder={orchestrator.transcoder}
@@ -156,7 +161,6 @@ const AccountLayout = ({
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
                     transcoders={sortedOrchestrators.transcoders}
-                    selectedAction="undelegate"
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
                     transcoder={orchestrator.transcoder}
@@ -244,7 +248,6 @@ const AccountLayout = ({
             <BottomDrawer>
               <DelegatingWidget
                 transcoders={sortedOrchestrators.transcoders}
-                selectedAction={selectedStakingAction}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
                 transcoder={orchestrator.transcoder}

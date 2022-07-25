@@ -1,15 +1,15 @@
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
+import { useEnsData, useExplorerStore } from "hooks";
+import numeral from "numeral";
 import { useMemo, useState } from "react";
-import Header from "./Header";
-import ProjectionBox from "./ProjectionBox";
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
-import { Tabs, TabList, Tab } from "./Tabs";
+import Header from "./Header";
 import InputBox from "./InputBox";
-import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
-import numeral from "numeral";
-import { StakingAction, useEnsData } from "hooks";
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import {  OrchestratorsSortedQueryResult, AccountQueryResult } from "apollo";
+import ProjectionBox from "./ProjectionBox";
+import { Tab, TabList, Tabs } from "./Tabs";
 
 interface Props {
   transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
@@ -17,7 +17,6 @@ interface Props {
   delegator?: AccountQueryResult["data"]["delegator"];
   protocol: AccountQueryResult["data"]["protocol"];
   account: EnsIdentity;
-  selectedAction?: StakingAction;
   delegateProfile?: EnsIdentity;
 }
 
@@ -27,11 +26,11 @@ const Index = ({
   account,
   transcoder,
   protocol,
-  selectedAction = "delegate",
   delegateProfile,
 }: Props) => {
   const [amount, setAmount] = useState("");
-  const [action, setAction] = useState(selectedAction);
+  const { selectedStakingAction, setSelectedStakingAction } =
+    useExplorerStore();
 
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
@@ -64,14 +63,14 @@ const Index = ({
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
       <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
         <Tabs
-          defaultIndex={selectedAction === "delegate" ? 0 : 1}
+          defaultIndex={selectedStakingAction === "delegate" ? 0 : 1}
           onChange={(index: number) =>
-            setAction(index ? "undelegate" : "delegate")
+            setSelectedStakingAction(index ? "undelegate" : "delegate")
           }
         >
           <TabList>
-            <Tab>Delegate</Tab>
-            <Tab disabled={isTransferStake}>Undelegate</Tab>
+            <Tab isSelected={selectedStakingAction === "delegate"}>Delegate</Tab>
+            <Tab isSelected={selectedStakingAction === "undelegate"}>Undelegate</Tab>
           </TabList>
         </Tabs>
 
@@ -119,7 +118,7 @@ const Index = ({
           <>
             <InputBox
               account={account}
-              action={action}
+              action={selectedStakingAction}
               delegator={delegator}
               transcoder={transcoder}
               amount={amount}
@@ -139,7 +138,7 @@ const Index = ({
                 css={{ width: 16, color: "rgba(255, 255, 255, .8)" }}
               />
             </Flex>
-            <ProjectionBox action={action} />
+            <ProjectionBox action={selectedStakingAction} />
           </>
         )}
         <Footer
@@ -153,7 +152,7 @@ const Index = ({
             account,
             delegator,
             transcoder,
-            action,
+            action: selectedStakingAction,
             amount,
           }}
         />

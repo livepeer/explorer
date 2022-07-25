@@ -16,7 +16,6 @@ const Delegate = ({
   isTransferStake,
   tokenBalance,
   transferAllowance,
-  delegator,
   reset,
   hint: {
     oldDelegateNewPosPrev,
@@ -33,7 +32,7 @@ const Delegate = ({
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
-  const amountIsNonEmpty = useMemo(() => amount !== "", [amount]);
+  const amountIsNonEmpty = useMemo(() => amount, [amount]);
   const sufficientBalance = useMemo(
     () =>
       amountIsNonEmpty &&

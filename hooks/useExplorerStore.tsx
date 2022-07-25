@@ -47,7 +47,7 @@ export type ExplorerState = {
 export const useExplorerStore = create<ExplorerState>()((set) => ({
   walletModalOpen: false,
   bottomDrawerOpen: false,
-  selectedStakingAction: null,
+  selectedStakingAction: "delegate",
   yieldResults: {
     roiFees: 0.0,
     roiFeesLpt: 0.0,

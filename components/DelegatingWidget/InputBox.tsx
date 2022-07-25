@@ -7,6 +7,7 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AccountQueryResult } from "apollo";
 import {
   StakingAction,
+  useAccountAddress,
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
@@ -32,6 +33,7 @@ const InputBox = ({
   setAmount,
   protocol,
 }: Props) => {
+  const walletAddress = useAccountAddress();
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
     delegator?.id
   );
@@ -59,7 +61,7 @@ const InputBox = ({
           >
             <Box css={{ color: "$muted" }}>Input</Box>
 
-            {account &&
+            {walletAddress &&
               (action === "delegate" ? (
                 <ExplorerTooltip content="Enter Max">
                   <Box

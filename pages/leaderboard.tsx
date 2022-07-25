@@ -11,11 +11,14 @@ import { ALL_REGIONS } from "utils/allRegions";
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
 type PageProps = {
-  orchestrators: OrchestratorsQueryResult["data"];
+  orchestratorIds: Pick<
+    OrchestratorsQueryResult["data"]["transcoders"][number],
+    "id"
+  >[];
   fallback: { [key: string]: EnsIdentity };
 };
 
-const LeaderboardPage = ({ orchestrators }: PageProps) => {
+const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
   const [region, setRegion] = useState<keyof typeof ALL_REGIONS>("global");
 
   return (
@@ -88,7 +91,7 @@ const LeaderboardPage = ({ orchestrators }: PageProps) => {
           </Flex>
           <Box css={{ mb: "$5" }}>
             <PerformanceList
-              data={orchestrators.transcoders}
+              data={orchestratorIds}
               pageSize={20}
               region={region}
             />
@@ -110,7 +113,9 @@ export const getStaticProps: GetStaticProps = async () => {
 
     const props: PageProps = {
       // initialApolloState: client.cache.extract(),
-      orchestrators: orchestrators.data,
+      orchestratorIds: orchestrators.data.transcoders.map((t) => ({
+        id: t.id,
+      })),
       fallback,
     };
 
