@@ -1,5 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Button, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -58,7 +58,14 @@ const ExplorerChart = ({
   base: number;
   basePercentChange: number;
   data: ChartDatum[];
-  unit: "usd" | "eth" | "minutes" | "percent" | "small-percent" | "small-unitless" | "none";
+  unit:
+    | "usd"
+    | "eth"
+    | "minutes"
+    | "percent"
+    | "small-percent"
+    | "small-unitless"
+    | "none";
   type: "bar" | "line";
   grouping?: "day" | "week";
   onToggleGrouping?: (grouping: "day" | "week") => void;
@@ -195,34 +202,43 @@ const ExplorerChart = ({
             </Text>
             {tooltip && (
               <Box css={{ ml: "$1" }}>
-                <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
               </Box>
             )}
           </Flex>
         </ExplorerTooltip>
         <Flex>
-          <Text
-            css={{
-              fontWeight: 600,
-              fontSize: "$3",
-              color: "white",
-            }}
-          >
-            {barSelected.amount}
-          </Text>
-          {barSelected.percentChange && (
-            <Text
-              css={{
-                ml: "$2",
-                fontSize: "$3",
-                color:
-                  numeral(barSelected.percentChange).value() < 0
-                    ? "#ff0022"
-                    : "#00EB88",
-              }}
-            >
-              {barSelected.percentChange}
-            </Text>
+          {(data?.length || 0) <= 0 ? (
+            <Skeleton css={{ mt: "$1", width: "100%", height: 20 }} />
+          ) : (
+            <>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  fontSize: "$3",
+                  color: "white",
+                }}
+              >
+                {barSelected.amount}
+              </Text>
+              {barSelected.percentChange && (
+                <Text
+                  css={{
+                    ml: "$2",
+                    fontSize: "$3",
+                    color:
+                      numeral(barSelected.percentChange).value() < 0
+                        ? "#ff0022"
+                        : "#00EB88",
+                  }}
+                >
+                  {barSelected.percentChange}
+                </Text>
+              )}
+            </>
           )}
         </Flex>
         <Text
@@ -268,7 +284,9 @@ const ExplorerChart = ({
         }}
       >
         <ResponsiveContainer width="100%" height="100%">
-          {type === "bar" ? (
+          {(data?.length || 0) <= 0 ? (
+            <Skeleton css={{ width: "100%", height: "100%" }} />
+          ) : type === "bar" ? (
             <ReBarChart
               // syncId="chartId1"
               data={data}
@@ -359,7 +377,7 @@ const ExplorerChart = ({
                 width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
-                domain={['auto', 'auto']}
+                domain={["auto", "auto"]}
               />
               <ReTooltip content={<></>} />
 

@@ -17,7 +17,6 @@ import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { isL2ChainId } from "@lib/chains";
-import LivepeerSDK from "@livepeer/sdk";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
@@ -25,6 +24,7 @@ import {
   useAccountAddress,
   useAccountSigner,
   useActiveChain,
+  useL1DelegatorData,
   useLivepeerContracts,
 } from "hooks";
 import {
@@ -42,16 +42,6 @@ import { useTimer } from "react-timer-hook";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../utils/stepperStyles";
-
-const isRegisteredOrchestrator = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const status = await sdk.rpc.getTranscoderStatus(account);
-  return status === "Registered" ? true : false;
-};
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -225,6 +215,8 @@ const MigrateOrchestrator = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
+  const l1Delegator = useL1DelegatorData(accountAddress);
+
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
@@ -393,7 +385,6 @@ const MigrateOrchestrator = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const isOrchestrator = await isRegisteredOrchestrator(accountAddress);
         // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
           state.signer ? state.signer : accountAddress,
@@ -403,7 +394,7 @@ const MigrateOrchestrator = () => {
         dispatch({
           type: "initialize",
           payload: {
-            isOrchestrator,
+            isOrchestrator: l1Delegator.transcoderStatus === "registered",
             migrationCallData: data,
             migrationParams: {
               delegate: params.delegate,

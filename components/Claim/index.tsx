@@ -51,7 +51,7 @@ const Claim = () => {
           l1Delegator.transcoderStatus === "not-registered" &&
           (l1Delegator.pendingStake !== "0" ||
             l1Delegator.pendingFees !== "0" ||
-            l1Delegator.unbondingLocks > 1)
+            l1Delegator.unbondingLocks.length > 1)
         ) {
           setIsDelegator(true);
         }

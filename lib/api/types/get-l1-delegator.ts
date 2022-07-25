@@ -1,3 +1,9 @@
+export type UnbondingLock = {
+  id: number;
+  amount: string;
+  withdrawRound: string;
+};
+
 export type L1Delegator = {
   delegateAddress: string;
   pendingStake: string;
@@ -5,5 +11,6 @@ export type L1Delegator = {
 
   transcoderStatus: "not-registered" | "registered";
 
-  unbondingLocks: number;
+  unbondingLocks: UnbondingLock[];
+  activeLocks: UnbondingLock[];
 };

@@ -1,5 +1,5 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { L1Delegator } from "@lib/api/types/get-l1-delegator";
+import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
 import { CHAIN_INFO, l1Provider, L1_CHAIN_ID } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
@@ -76,6 +76,21 @@ const handler = async (
           unbondingLockId -= 1;
         }
 
+        const unbondingLocks: UnbondingLock[] = [];
+
+        while (unbondingLockId >= 0) {
+          const lock = await l1BondingManager.getDelegatorUnbondingLock(
+            address,
+            unbondingLockId
+          );
+          unbondingLocks.push({
+            id: unbondingLockId,
+            amount: lock.amount.toString(),
+            withdrawRound: lock.withdrawRound.toString(),
+          });
+          unbondingLockId -= 1;
+        }
+
         const delegateAddress =
           delegator.delegateAddress === EMPTY_ADDRESS
             ? ""
@@ -91,7 +106,10 @@ const handler = async (
           delegateAddress,
           pendingStake: pendingStake.toString(),
           pendingFees: pendingFees.toString(),
-          unbondingLocks: unbondingLockId,
+          unbondingLocks,
+          activeLocks: unbondingLocks.filter(
+            (lock) => lock.withdrawRound != "0"
+          ),
         };
 
         return res.status(200).json(l1Delegator);

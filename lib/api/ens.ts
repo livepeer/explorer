@@ -22,7 +22,7 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       description,
       url,
       twitter,
-      avatar: avatar?.url ? avatar.url : null, // `https://metadata.ens.domains/mainnet/avatar/${name}`,
+      avatar: avatar?.url ? `/api/ens-data/image/${name}` : null,
     };
 
     return ens;

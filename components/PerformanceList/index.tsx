@@ -1,6 +1,6 @@
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
-import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
+import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import Link from "next/link";
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
@@ -8,6 +8,8 @@ import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import { ALL_REGIONS } from "utils/allRegions";
 import numeral from "numeral";
+
+const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
 const PerformanceList = ({
   data,
@@ -167,7 +169,7 @@ const PerformanceList = ({
             typeof row.values[`scores.${region}`] === "undefined" ||
             row.values[`scores.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
           return (
             <Box>
@@ -186,7 +188,7 @@ const PerformanceList = ({
             typeof row.values[`successRates.${region}`] === "undefined" ||
             row.values[`successRates.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
 
           return (
@@ -206,7 +208,7 @@ const PerformanceList = ({
             typeof row.values[`roundTripScores.${region}`] === "undefined" ||
             row.values[`roundTripScores.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
           return (
             <Box>

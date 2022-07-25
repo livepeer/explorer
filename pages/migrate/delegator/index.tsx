@@ -17,7 +17,6 @@ import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { isL2ChainId } from "@lib/chains";
-import LivepeerSDK from "@livepeer/sdk";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
@@ -25,6 +24,7 @@ import {
   useAccountAddress,
   useAccountSigner,
   useActiveChain,
+  useL1DelegatorData,
   useLivepeerContracts,
 } from "hooks";
 import {
@@ -42,23 +42,6 @@ import { useTimer } from "react-timer-hook";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../../utils/stepperStyles";
-
-export const getUnbondingLocks = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const locks = await sdk.rpc.getDelegatorUnbondingLocks(account);
-  const activeLocks = locks.reduce(function (result, lock) {
-    if (lock.withdrawRound != "0") {
-      result.push(+lock.id);
-    }
-    return result;
-  }, []);
-
-  return activeLocks;
-};
 
 const signingSteps = [
   `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -238,6 +221,11 @@ const MigrateUndelegatedStake = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
+  const l1Delegator = useL1DelegatorData(accountAddress);
+  const l1SignerOrAddress = useL1DelegatorData(
+    state.signer ? state.signer : accountAddress
+  );
+
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
@@ -406,8 +394,8 @@ const MigrateUndelegatedStake = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (accountAddress) {
-        const locks = await getUnbondingLocks(accountAddress);
+      if (accountAddress && l1Delegator) {
+        const locks = l1Delegator.activeLocks.map((e) => e.id);
         dispatch({
           type: "accountChanged",
           payload: {
@@ -417,14 +405,12 @@ const MigrateUndelegatedStake = () => {
       }
     };
     init();
-  }, [accountAddress]);
+  }, [accountAddress, l1Delegator]);
 
   useEffect(() => {
     const init = async () => {
-      if (accountAddress) {
-        const locks = await getUnbondingLocks(
-          state.signer ? state.signer : accountAddress
-        );
+      if (accountAddress && l1SignerOrAddress) {
+        const locks = l1SignerOrAddress.activeLocks.map((e) => e.id);
 
         // fetch calldata to be submitted for calling L2 function
         const { data, params } =
@@ -449,7 +435,7 @@ const MigrateUndelegatedStake = () => {
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.signer, accountAddress]);
+  }, [state.signer, accountAddress, l1SignerOrAddress]);
 
   useEffect(() => {
     const init = async () => {

@@ -14,6 +14,9 @@ import {
   Heading,
 } from "@livepeer/design-system";
 import { useChangefeedData } from "hooks";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(localizedFormat);
 
 function getBadgeColor(changeType) {
   if (changeType === "NEW") {
@@ -118,7 +121,7 @@ const WhatsNew = () => {
                             color: "$neutral11",
                           }}
                         >
-                          {dayjs(node.publishedAt).format("MMM Do, YYYY")}
+                          {dayjs(node.publishedAt).format("LL")}
                         </Box>
                         <Box
                           css={{

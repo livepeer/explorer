@@ -84,7 +84,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           direction="column"
           css={{ height: "100%", ml: "$3" }}
         >
-          <Flex css={{ alignItems: "center", mb: "$2" }}>
+          <Flex css={{ alignItems: "center",  }}>
             <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
               <Heading
                 size="2"
@@ -141,7 +141,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </Flex>
           <Flex align="center">
             {identity?.url && (
-              <Flex align="center" css={{ mr: "$3" }}>
+              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
                 <Box as={GlobeIcon} css={{ mr: "$1" }} />
                 <A
                   variant="contrast"
@@ -156,7 +156,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             )}
 
             {identity?.twitter && (
-              <Flex align="center" css={{ mr: "$3" }}>
+              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
                 <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
                 <A
                   variant="contrast"

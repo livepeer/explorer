@@ -20,9 +20,9 @@ import {
   l2Provider,
 } from "lib/chains";
 import { ethers } from "ethers";
-import { getUnbondingLocks } from ".";
-import { useLivepeerContracts } from "hooks";
+import { useL1DelegatorData, useLivepeerContracts } from "hooks";
 import { ArbRetryableTx, L1Migrator, NodeInterface } from "typechain-types";
+import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 
 const ReadOnlyCard = styled(Box, {
   length: {},
@@ -46,6 +46,8 @@ const ContractWalletTool = () => {
 
   const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
 
+  const l1Delegator = useL1DelegatorData(l1Addr);
+
   useEffect(() => {
     async function init() {
       if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
@@ -56,7 +58,8 @@ const ContractWalletTool = () => {
           l2Addr,
           arbRetryableTx,
           l1Migrator,
-          nodeInterface
+          nodeInterface,
+          l1Delegator
         );
         if (
           params?.migrateDelegatorParams ||
@@ -74,7 +77,7 @@ const ContractWalletTool = () => {
       }
     }
     init();
-  }, [l1Addr, l2Addr, arbRetryableTx, l1Migrator, nodeInterface]);
+  }, [l1Addr, l2Addr, arbRetryableTx, l1Migrator, nodeInterface, l1Delegator]);
 
   return (
     <Container
@@ -285,7 +288,8 @@ async function getParams(
   _l2Addr,
   arbRetryableTx: ArbRetryableTx,
   l1Migrator: L1Migrator,
-  nodeInterface: NodeInterface
+  nodeInterface: NodeInterface,
+  l1Delegator: L1Delegator
 ) {
   const migrateDelegatorParams = await getMigrateDelegatorParams(
     _l1Addr,
@@ -299,7 +303,8 @@ async function getParams(
     _l2Addr,
     arbRetryableTx,
     l1Migrator,
-    nodeInterface
+    nodeInterface,
+    l1Delegator
   );
 
   return {
@@ -312,10 +317,11 @@ async function getMigrateUnbondingLockParams(
   _l2Addr,
   arbRetryableTx: ArbRetryableTx,
   l1Migrator: L1Migrator,
-  nodeInterface: NodeInterface
+  nodeInterface: NodeInterface,
+  l1Delegator: L1Delegator
 ) {
   try {
-    const locks = await getUnbondingLocks(_l1Addr);
+    const locks = l1Delegator.activeLocks.map((e) => e.id);
 
     // fetch calldata to be submitted for calling L2 function
     const { data, params } = await l1Migrator.getMigrateUnbondingLocksParams(

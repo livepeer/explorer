@@ -9,6 +9,7 @@ import { AccountQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useScoreData } from "hooks";
 import { useMemo } from "react";
+import { ALL_REGIONS } from "utils/allRegions";
 dayjs.extend(relativeTime);
 
 const breakpointColumnsObj = {
@@ -38,7 +39,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         (prev, curr) => {
           if (scores?.scores[curr] >= prev.score) {
             return {
-              region: curr.toUpperCase(),
+              region: ALL_REGIONS[curr],
               score: scores?.scores[curr],
             };
           }
