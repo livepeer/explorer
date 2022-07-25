@@ -86,7 +86,6 @@ const Footer = ({
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
     [isMyTranscoder, isDelegated, amount]
   );
-  console.log({ amount });
   const newActiveSetOrder = useMemo(
     () =>
       simulateNewActiveSetOrder({

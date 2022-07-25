@@ -92,7 +92,7 @@ function Table({ tx }: { tx: TransactionStatus }) {
 }
 
 function Inputs({ tx }: { tx: TransactionStatus }) {
-  const inputData = JSON.parse(tx.inputData);
+  const inputData = tx.inputData;
   switch (tx.name) {
     case "bond":
       return (

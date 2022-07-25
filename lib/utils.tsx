@@ -249,7 +249,7 @@ export const simulateNewActiveSetOrder = ({
   transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
   amount: BigNumber;
   newDelegate: string;
-  oldDelegate: string;
+  oldDelegate?: string;
 }) => {
   const index = transcoders.findIndex(
     (t) => t.id.toLowerCase() === newDelegate.toLowerCase()

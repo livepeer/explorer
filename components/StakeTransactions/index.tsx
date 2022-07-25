@@ -35,7 +35,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
           </Heading>
           {pendingStakeTransactions.map((lock) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
-              action: "stake",
+              action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
               amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
@@ -111,7 +111,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
           </Heading>
           {completedStakeTransactions.map((lock) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
-              action: "stake",
+              action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
               amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,

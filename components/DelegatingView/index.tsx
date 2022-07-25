@@ -158,16 +158,16 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           className="masonry-grid_item"
           label="Stake"
           value={
-            <Box
-              css={{
-                mb: "$4",
-                fontSize: 26,
-              }}
-            >
-              {pendingFeesAndStake
-                ? `${numeral(pendingStake).format("0.00a")} LPT`
-                : null}
-            </Box>
+            pendingFeesAndStake?.pendingStake ? (
+              <Box
+                css={{
+                  mb: "$2",
+                  fontSize: 26,
+                }}
+              >
+                {`${numeral(pendingStake).format("0.00a")} LPT`}
+              </Box>
+            ) : null
           }
           meta={
             <Box>
@@ -242,7 +242,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             pendingFeesAndStake ? (
               <Box
                 css={{
-                  mb: "$4",
+                  mb: "$2",
                   fontSize: 26,
                 }}
               >

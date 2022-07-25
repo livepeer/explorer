@@ -60,7 +60,7 @@ const Stat = ({
     <Text size="7" css={{ fontWeight: 600 }}>
       {value ? value : <Skeleton css={{ mt: "$1", height: 35, width: 100 }} />}
     </Text>
-    {meta && meta}
+    {meta && <Box css={{ mt: "$1" }}>{meta}</Box>}
   </Card>
 );
 
