@@ -6,7 +6,7 @@ import {
   useAccountAddress,
   useHandleTransaction,
   useL1DelegatorData,
-  useLivepeerContracts,
+  useL2Migrator,
 } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ const Claim = () => {
   const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { l2Migrator } = useLivepeerContracts();
+  const l2Migrator = useL2Migrator();
   const handleTransaction = useHandleTransaction("claimStake", () =>
     setIsMigrated(true)
   );

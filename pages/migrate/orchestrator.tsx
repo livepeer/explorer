@@ -24,13 +24,14 @@ import {
   useAccountAddress,
   useAccountSigner,
   useActiveChain,
+  useArbRetryableTx,
   useL1DelegatorData,
-  useLivepeerContracts,
+  useL1Migrator,
+  useNodeInterface,
 } from "hooks";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
@@ -204,7 +205,9 @@ const MigrateOrchestrator = () => {
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
 
-  const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
+  const arbRetryableTx = useArbRetryableTx();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
 
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);

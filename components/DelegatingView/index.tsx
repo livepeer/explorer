@@ -4,12 +4,11 @@ import { checkAddressEquality } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { ethers } from "ethers";
 import {
   useAccountAddress,
+  useBondingManager,
   useEnsData,
   useHandleTransaction,
-  useLivepeerContracts,
   usePendingFeesAndStakeData,
 } from "hooks";
 import Link from "next/link";
@@ -40,7 +39,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const delegateIdentity = useEnsData(delegator.delegate.id);
 
-  const { bondingManager } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("withdrawFees");
 
   const isMyAccount = checkAddressEquality(

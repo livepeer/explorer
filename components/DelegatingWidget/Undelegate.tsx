@@ -3,14 +3,14 @@ import { Button } from "@livepeer/design-system";
 import { parseEther } from "ethers/lib/utils";
 import {
   useAccountAddress,
+  useBondingManager,
   useHandleTransaction,
-  useLivepeerContracts,
 } from "hooks";
 
 const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
   const accountAddress = useAccountAddress();
 
-  const { bondingManager } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("bond");
 
   if (!accountAddress) {

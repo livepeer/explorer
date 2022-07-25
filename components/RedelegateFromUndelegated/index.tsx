@@ -1,15 +1,14 @@
-
 import { Button } from "@livepeer/design-system";
 import {
   useAccountAddress,
   useHandleTransaction,
-  useLivepeerContracts
+  useBondingManager,
 } from "hooks";
 
 const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
   const accountAddress = useAccountAddress();
 
-  const { bondingManager } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("rebondFromUnbonded");
 
   if (!accountAddress) {

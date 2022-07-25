@@ -20,7 +20,7 @@ import {
   l1Provider,
   l2Provider,
 } from "@lib/chains";
-import { BigNumber } from "ethers";
+import { BigNumber, Signer } from "ethers";
 
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
@@ -76,79 +76,73 @@ export type LivepeerContracts = {
   pollCreator: PollCreator | null;
 };
 
-export const useLivepeerContracts = () => {
+const useLivepeerContract = <T>(
+  getContract: (signer: Signer) => Promise<T>
+) => {
   const signer = useAccountSigner();
 
-  const [livepeerContracts, setLivepeerContracts] = useState<LivepeerContracts>(
-    {
-      l1Migrator: null,
-      l2Migrator: null,
-      inbox: null,
-      arbRetryableTx: null,
-      nodeInterface: null,
-
-      livepeerToken: null,
-      livepeerTokenFaucet: null,
-      bondingManager: null,
-      roundsManager: null,
-      minter: null,
-      merkleSnapshot: null,
-      serviceRegistry: null,
-      ticketBroker: null,
-      pollCreator: null,
-    }
-  );
+  const [livepeerContract, setLivepeerContract] = useState<T | null>(null);
 
   useEffect(() => {
     const fn = async () => {
       try {
-        const livepeerToken = await getLivepeerToken(signer);
-        const livepeerTokenFaucet = await getLivepeerTokenFaucet(signer);
-        const bondingManager = await getBondingManager(signer);
-        const roundsManager = await getRoundsManager(signer);
-        const minter = await getMinter(signer);
-        const merkleSnapshot = await getMerkleSnapshot(signer);
-        const serviceRegistry = await getServiceRegistry(signer);
-        const ticketBroker = await getTicketBroker(signer);
-        const pollCreator = await getPollCreator(signer);
+        const contract = await getContract(signer);
 
-        setLivepeerContracts((prev) => ({
-          ...prev,
-
-          livepeerToken,
-          livepeerTokenFaucet,
-          bondingManager,
-          roundsManager,
-          minter,
-          merkleSnapshot,
-          serviceRegistry,
-          ticketBroker,
-          pollCreator,
-        }));
+        setLivepeerContract(contract);
       } catch (e) {
         console.error(e);
       }
     };
 
-    if (!livepeerContracts.livepeerToken) {
+    if (!livepeerContract) {
       fn();
     }
-  }, [signer, livepeerContracts.livepeerToken]);
+  }, [signer, getContract, livepeerContract]);
 
-  useEffect(() => {
-    setLivepeerContracts((prev) => ({
-      ...prev,
-
-      l1Migrator: getL1Migrator(signer),
-      l2Migrator: getL2Migrator(signer),
-      inbox: getInbox(signer),
-      arbRetryableTx: getArbRetryableTx(signer),
-      nodeInterface: getNodeInterface(signer),
-    }));
-  }, [signer]);
-
-  return livepeerContracts;
+  return livepeerContract;
 };
+
+export const useL1Migrator = () =>
+  useLivepeerContract(async (signer) => getL1Migrator(signer));
+
+export const useL2Migrator = () =>
+  useLivepeerContract(async (signer) => getL2Migrator(signer));
+
+export const useInbox = () =>
+  useLivepeerContract(async (signer) => getInbox(signer));
+
+export const useArbRetryableTx = () =>
+  useLivepeerContract(async (signer) => getArbRetryableTx(signer));
+
+export const useNodeInterface = () =>
+  useLivepeerContract(async (signer) => getNodeInterface(signer));
+
+export const useLivepeerToken = () =>
+  useLivepeerContract(async (signer) => getLivepeerToken(signer));
+
+export const useLivepeerTokenFaucet = () =>
+  useLivepeerContract(async (signer) => getLivepeerTokenFaucet(signer));
+
+export const useBondingManager = () =>
+  useLivepeerContract(async (signer) => getBondingManager(signer));
+
+export const useRoundsManager = () =>
+  useLivepeerContract(async (signer) => getRoundsManager(signer));
+
+export const useMinter = () =>
+  useLivepeerContract(async (signer) => getMinter(signer));
+
+export const useMerkleSnapshot = () =>
+  useLivepeerContract(async (signer) => getMerkleSnapshot(signer));
+
+export const useServiceRegistry = () =>
+  useLivepeerContract(async (signer) => getServiceRegistry(signer));
+
+export const useTicketBroker = () =>
+  useLivepeerContract(async (signer) => getTicketBroker(signer));
+
+export const usePollCreator = () =>
+  useLivepeerContract(async (signer) => getPollCreator(signer));
 
 export const useLivepeerPoll = (address: string | null): Poll | null => {
   const signer = useAccountSigner();

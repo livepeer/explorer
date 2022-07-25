@@ -38,7 +38,9 @@ import {
   useAccountAddress,
   useAccountSigner,
   useActiveChain,
-  useLivepeerContracts,
+  useArbRetryableTx,
+  useL1Migrator,
+  useNodeInterface,
 } from "hooks";
 
 const signingSteps = [
@@ -217,7 +219,9 @@ const MigrateBroadcaster = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
+  const arbRetryableTx = useArbRetryableTx();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
 
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,

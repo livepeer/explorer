@@ -1,8 +1,8 @@
 import { Button } from "@livepeer/design-system";
-import { useHandleTransaction, useLivepeerContracts } from "hooks";
+import { useBondingManager, useHandleTransaction } from "hooks";
 
 const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
-  const { bondingManager } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("rebond");
 
   return (

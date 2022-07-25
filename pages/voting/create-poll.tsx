@@ -16,8 +16,8 @@ import fm from "front-matter";
 import {
   useAccountAddress,
   useHandleTransaction,
-  useLivepeerContracts,
   usePendingFeesAndStakeData,
+  usePollCreator,
 } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
@@ -58,7 +58,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const [selectedProposal, setSelectedProposal] = useState(null);
 
-  const { pollCreator } = useLivepeerContracts();
+  const pollCreator = usePollCreator();
   const handleTransaction = useHandleTransaction("createPoll");
 
   return (

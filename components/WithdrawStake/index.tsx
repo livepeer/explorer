@@ -2,13 +2,13 @@ import { Button } from "@livepeer/design-system";
 import {
   useAccountAddress,
   useHandleTransaction,
-  useLivepeerContracts,
+  useBondingManager,
 } from "hooks";
 
 const Index = ({ unbondingLockId }) => {
   const accountAddress = useAccountAddress();
 
-  const { bondingManager } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("withdrawStake");
 
   if (!accountAddress) {

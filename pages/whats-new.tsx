@@ -1,20 +1,18 @@
 import Spinner from "@components/Spinner";
-import dayjs from "dayjs";
-import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
-import Markdown from "markdown-to-jsx";
-import { createApolloFetch } from "apollo-fetch";
-import { useEffect, useState } from "react";
-import Head from "next/head";
 import {
+  Badge,
   Box,
-  Flex,
   Card,
   Container,
-  Badge,
+  Flex,
   Heading,
 } from "@livepeer/design-system";
-import { useChangefeedData } from "hooks";
+import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { useChangefeedData } from "hooks";
+import Markdown from "markdown-to-jsx";
+import Head from "next/head";
+import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
 
 dayjs.extend(localizedFormat);
 

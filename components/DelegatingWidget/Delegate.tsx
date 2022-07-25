@@ -2,7 +2,11 @@ import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useHandleTransaction, useLivepeerContracts } from "hooks";
+import {
+  useBondingManager,
+  useHandleTransaction,
+  useLivepeerToken,
+} from "hooks";
 import { useMemo, useState } from "react";
 import ProgressSteps from "../ProgressSteps";
 
@@ -21,7 +25,9 @@ const Delegate = ({
     currDelegateNewPosNext,
   },
 }) => {
-  const { bondingManager, livepeerToken } = useLivepeerContracts();
+  const bondingManager = useBondingManager();
+  const livepeerToken = useLivepeerToken();
+
   const handleBondTransaction = useHandleTransaction("bond");
   const handleApproveTransaction = useHandleTransaction("approve");
 

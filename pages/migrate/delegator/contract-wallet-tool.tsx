@@ -20,7 +20,12 @@ import {
   l2Provider,
 } from "lib/chains";
 import { ethers } from "ethers";
-import { useL1DelegatorData, useLivepeerContracts } from "hooks";
+import {
+  useArbRetryableTx,
+  useL1DelegatorData,
+  useL1Migrator,
+  useNodeInterface,
+} from "hooks";
 import { ArbRetryableTx, L1Migrator, NodeInterface } from "typechain-types";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 
@@ -44,7 +49,9 @@ const ContractWalletTool = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { arbRetryableTx, l1Migrator, nodeInterface } = useLivepeerContracts();
+  const arbRetryableTx = useArbRetryableTx();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
 
   const l1Delegator = useL1DelegatorData(l1Addr);
 

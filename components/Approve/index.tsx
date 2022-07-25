@@ -1,9 +1,14 @@
-import { useHandleTransaction, useLivepeerContracts } from "hooks";
+import {
+  useBondingManager,
+  useHandleTransaction,
+  useLivepeerToken,
+} from "hooks";
 import { MAXIMUM_VALUE_UINT256 } from "../../lib/utils";
 import Button from "../Button";
 
 const Index = () => {
-  const { livepeerToken, bondingManager } = useLivepeerContracts();
+  const livepeerToken = useLivepeerToken();
+  const bondingManager = useBondingManager();
   const handleTransaction = useHandleTransaction("approve");
 
   const onClick = async () => {
