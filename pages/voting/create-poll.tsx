@@ -1,4 +1,5 @@
 import Spinner from "@components/Spinner";
+import { fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -12,6 +13,7 @@ import {
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
+import { utils } from "ethers";
 import fm from "front-matter";
 import {
   useAccountAddress,
@@ -24,7 +26,6 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import Utils from "web3-utils";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const accountAddress = useAccountAddress();
@@ -45,7 +46,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   useEffect(() => {
     if (delegatorPendingStakeAndFees?.pendingStake) {
       const lptPendingStake = parseFloat(
-        Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
+        fromWei(delegatorPendingStakeAndFees.pendingStake)
       );
 
       if (lptPendingStake >= 100) {
@@ -85,9 +86,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             try {
               const hash = await addIpfs(selectedProposal);
 
-              await handleTransaction(() => pollCreator.createPoll(hash), {
-                proposal: hash,
-              });
+              await handleTransaction(
+                () => pollCreator.createPoll(utils.toUtf8Bytes(hash)),
+                {
+                  proposal: hash,
+                }
+              );
             } catch (err) {
               console.error(err);
               return {
@@ -289,6 +293,11 @@ export async function getStaticProps() {
       )
         lips.push({ ...transformedLip, text: lip.content.text });
     }
+  } else {
+    // return 404 so it is clear that it is misconfigured
+    return {
+      notFound: true,
+    };
   }
 
   return {

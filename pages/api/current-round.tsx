@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getRoundsManager } from "@lib/api/contracts";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { l1Provider } from "@lib/chains";
+import { l1Provider, l2Provider } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -21,12 +21,14 @@ const handler = async (
       const initialized = await roundsManager.currentRoundInitialized();
 
       const currentL1Block = await l1Provider.getBlockNumber();
+      const currentL2Block = await l2Provider.getBlockNumber();
 
       const roundInfo: CurrentRoundInfo = {
         id: id.toNumber(),
         startBlock: startBlock.toNumber(),
         initialized,
         currentL1Block,
+        currentL2Block
       };
 
       return res.status(200).json(roundInfo);

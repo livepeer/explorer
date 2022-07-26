@@ -17,9 +17,7 @@ export const useAccountAddress = () => {
 
   const isChainSupported = useIsChainSupported();
 
-  return isChainSupported && account?.address
-    ? account.address
-    : null;
+  return isChainSupported && account?.address ? account.address : null;
 };
 
 export const useAccountSigner = () => {
@@ -45,7 +43,6 @@ export const useAccountSigner = () => {
 
   return isChainSupported ? signer : null;
 };
-
 
 export const useActiveChain = () => {
   const { chain } = useNetwork();

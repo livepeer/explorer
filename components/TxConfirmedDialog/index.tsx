@@ -1,7 +1,6 @@
 import React from "react";
-import { txMessages } from "../../lib/utils";
+import { fromWei, txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
-import Utils from "web3-utils";
 import Router from "next/router";
 import {
   Box,
@@ -80,7 +79,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
                 {Number(tx.inputData.amount) <= 0
                   ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
                   : `Congrats! You've successfully delegated
-                ${Utils.fromWei(tx.inputData.amount)} LPT.`}
+                ${fromWei(tx.inputData.amount)} LPT.`}
               </Box>
             </Box>
           </Table>
@@ -102,9 +101,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
             <Box css={{ px: "$3", py: "$4" }}>
               <Box>
                 You&apos;ve successfully undelegated{" "}
-                {Utils.fromWei(tx.inputData.amount)} LPT. The unbonding period
-                is ~7 days after which you may withdraw the undelegated LPT into
-                your wallet.
+                {fromWei(tx.inputData.amount)} LPT. The unbonding period is ~7
+                days after which you may withdraw the undelegated LPT into your
+                wallet.
               </Box>
             </Box>
           </Table>
@@ -214,18 +213,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
               Nice one! You&apos;ve successfully created a poll. Head on over to
-              the{" "}
-              <Box
-                as="a"
-                css={{ cursor: "pointer" }}
-                onClick={() => {
-                  onDismiss();
-                  Router.push("/voting");
-                }}
-              >
-                voting dashboard
-              </Box>{" "}
-              to view your newly created poll.
+              the Governance page to view your newly created poll.
             </Box>
           </Table>
           <DialogClose asChild>
@@ -309,7 +297,7 @@ function Table({ css = {}, children, ...props }) {
   );
 }
 
-function Header({ tx }) {
+function Header({ tx }: { tx: TransactionStatus }) {
   return (
     <Flex
       css={{
@@ -321,14 +309,14 @@ function Header({ tx }) {
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
         <Box css={{ mr: "10px" }}>🎉</Box>
-        {txMessages[tx?.__typename]?.confirmed}
+        {txMessages[tx?.name]?.confirmed}
       </Flex>
       <A
         variant="primary"
         css={{ display: "flex", alignItems: "center" }}
         target="_blank"
         rel="noopener noreferrer"
-        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.txHash}`}
+        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Transfer Receipt{" "}
         <Box css={{ ml: "6px", color: "$primary10" }}>

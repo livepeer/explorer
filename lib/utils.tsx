@@ -5,11 +5,11 @@ import {
   Round,
   UnbondingLock,
 } from "apollo";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
+import { formatEther } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
-import Utils from "web3-utils";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -108,13 +108,11 @@ export const textTruncate = (str, length, ending) => {
   }
 };
 
-export const checkAddressEquality = (address1, address2) => {
+export const checkAddressEquality = (address1: string, address2: string) => {
   if (!isAddress(address1) || !isAddress(address2)) {
     return false;
   }
-  return (
-    Utils.toChecksumAddress(address1) === Utils.toChecksumAddress(address2)
-  );
+  return address1.toLowerCase() === address2.toLowerCase();
 };
 
 export const txMessages = {
@@ -164,48 +162,12 @@ export const txMessages = {
   },
 } as const;
 
-export const getBlock = async () => {
-  const blockDataResponse = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=proxy&action=eth_blockNumber&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await blockDataResponse.json();
-  return Utils.hexToNumber(result);
-};
-
 export const getBlockByNumber = async (number) => {
   const blockDataResponse = await fetch(
     `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   const { result } = await blockDataResponse.json();
   return result;
-};
-
-export const getEstimatedBlockCountdown = async (number) => {
-  const countdownRaw = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockcountdown&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await countdownRaw.json();
-  return result;
-};
-
-export const expandedPriceLabels = {
-  pixel: "pixel",
-  "1m pixels": "1 million pixels",
-  "1b pixels": "1 billion pixels",
-  "1t pixels": "1 trillion pixels",
-};
-
-export const mergeObjectsInUnique = (array, property) => {
-  const newArray = new Map();
-
-  array.forEach((item) => {
-    const propertyValue = item[property];
-    newArray.has(propertyValue)
-      ? newArray.set(propertyValue, { ...item, ...newArray.get(propertyValue) })
-      : newArray.set(propertyValue, item);
-  });
-
-  return Array.from(newArray.values());
 };
 
 export const getHint = (id, transcoders) => {
@@ -289,7 +251,7 @@ export const simulateNewActiveSetOrder = ({
   return transcoders.sort((a, b) => +a.totalStake - +b.totalStake);
 };
 
-export const isAddress = (address) => {
+export const isAddress = (address: string) => {
   try {
     ethers.utils.getAddress(address);
   } catch (e) {
@@ -443,3 +405,5 @@ export function toTitleCase(str) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 }
+
+export const fromWei = (wei: BigNumberish) => formatEther(wei);

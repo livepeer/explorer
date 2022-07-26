@@ -1,6 +1,7 @@
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { GetChangefeed } from "@lib/api/types/get-changefeed";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
@@ -100,4 +101,29 @@ export const useL1DelegatorData = (address: string | undefined | null) => {
   );
 
   return data ?? null;
+};
+
+export const useContractInfoData = (
+  shouldFetch: boolean = true
+): ContractInfo | null => {
+  const { data } = useSWR<ContractInfo>(shouldFetch ? `/contracts` : null);
+
+  return (
+    data ?? {
+      Controller: null,
+
+      L1Migrator: null,
+      L2Migrator: null,
+      PollCreator: null,
+
+      BondingManager: null,
+      LivepeerToken: null,
+      LivepeerTokenFaucet: null,
+      MerkleSnapshot: null,
+      Minter: null,
+      RoundsManager: null,
+      ServiceRegistry: null,
+      TicketBroker: null,
+    }
+  );
 };

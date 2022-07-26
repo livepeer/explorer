@@ -24,18 +24,12 @@ import {
   TicketBroker__factory,
 } from "typechain-types";
 
+// STATIC ADDRESSES
+
 const controller = Controller__factory.connect(
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.controller,
   l2Provider
 );
-
-// Get contract address from Controller
-const getContractAddress = async (name: string) => {
-  const hash = keccak256(toUtf8Bytes(name));
-  const address = await controller.getContract(hash);
-
-  return address;
-};
 
 export const getL1Migrator = (signer?: Signer) => {
   return L1Migrator__factory.connect(
@@ -70,6 +64,23 @@ export const getNodeInterface = (signer?: Signer) => {
     CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
     signer ?? l2Provider
   );
+};
+
+export const getPollCreator = (signer?: Signer) => {
+  return PollCreator__factory.connect(
+    CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.pollCreator,
+    signer ?? l2Provider
+  );
+};
+
+// DYNAMIC ADDRESSES FROM CONTROLLER
+
+// Get contract address from Controller
+export const getContractAddress = async (name: string) => {
+  const hash = keccak256(toUtf8Bytes(name));
+  const address = await controller.getContract(hash);
+
+  return address;
 };
 
 export const getLivepeerToken = async (signer?: Signer) => {
@@ -124,13 +135,6 @@ export const getServiceRegistry = async (signer?: Signer) => {
 export const getTicketBroker = async (signer?: Signer) => {
   return TicketBroker__factory.connect(
     await getContractAddress("TicketBroker"),
-    signer ?? l2Provider
-  );
-};
-
-export const getPollCreator = async (signer?: Signer) => {
-  return PollCreator__factory.connect(
-    await getContractAddress("PollCreator"),
     signer ?? l2Provider
   );
 };

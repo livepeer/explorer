@@ -11,6 +11,7 @@ import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
+import { EMPTY_ADDRESS } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -22,7 +23,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Skeleton,
   SnackbarProvider,
+  Text,
   themes,
 } from "@livepeer/design-system";
 import {
@@ -42,10 +45,11 @@ import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
-import { useBlockNumber } from "wagmi";
+import { Chain, useBlockNumber } from "wagmi";
 import {
   useAccountAddress,
   useActiveChain,
+  useContractInfoData,
   useExplorerStore,
   useOnClickOutside,
 } from "../hooks";
@@ -559,46 +563,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       </Flex>
 
                       <Flex css={{ ml: "auto" }}>
-                        <Flex
-                          align="center"
-                          css={{
-                            fontWeight: 600,
-                            px: "$2",
-                            fontSize: "$2",
-                            display: "none",
-                            ai: "center",
-                            mr: "$2",
-                            "@bp1": {
-                              display: "flex",
-                            },
-                          }}
-                        >
-                          <Image
-                            objectFit="contain"
-                            width={18}
-                            height={18}
-                            alt={
-                              (
-                                CHAIN_INFO[activeChain?.id] ??
-                                CHAIN_INFO[DEFAULT_CHAIN_ID]
-                              ).label
-                            }
-                            src={
-                              (
-                                CHAIN_INFO[activeChain?.id] ??
-                                CHAIN_INFO[DEFAULT_CHAIN_ID]
-                              ).logoUrl
-                            }
-                          />
-                          <Box css={{ ml: "8px" }}>
-                            {
-                              (
-                                CHAIN_INFO[activeChain?.id] ??
-                                CHAIN_INFO[DEFAULT_CHAIN_ID]
-                              ).label
-                            }
-                          </Box>
-                        </Flex>
+                        <ContractAddressesPopover activeChain={activeChain} />
                         <Flex css={{ ai: "center", ml: "8px" }}>
                           <ConnectButton showBalance={false} />
                         </Flex>
@@ -655,6 +620,176 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         </SnackbarProvider>
       </ThemeProvider>
     </DesignSystemProviderTyped>
+  );
+};
+
+const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const contractAddresses = useContractInfoData(isOpen);
+
+  return (
+    <Popover onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Flex
+          align="center"
+          css={{
+            cursor: "pointer",
+            fontWeight: 600,
+            px: "$2",
+            fontSize: "$2",
+            display: "none",
+            ai: "center",
+            mr: "$2",
+            "@bp1": {
+              display: "flex",
+            },
+          }}
+        >
+          <Image
+            objectFit="contain"
+            width={18}
+            height={18}
+            alt={
+              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
+                .label
+            }
+            src={
+              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
+                .logoUrl
+            }
+          />
+          <Box css={{ ml: "8px" }}>
+            {
+              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
+                .label
+            }
+          </Box>
+
+          <Box as={ChevronDownIcon} css={{ color: "$neutral11", ml: "$1" }} />
+        </Flex>
+      </PopoverTrigger>
+      <PopoverContent
+        css={{
+          minWidth: 350,
+          borderRadius: "$4",
+          bc: "$neutral4",
+        }}
+      >
+        <Box
+          css={{
+            padding: "$4",
+          }}
+        >
+          <Box css={{}}>
+            <Text
+              size="1"
+              css={{
+                mb: "$2",
+                fontWeight: 600,
+                textTransform: "uppercase",
+              }}
+            >
+              {`Contract Addresses`}
+            </Text>
+
+            {Object.keys(contractAddresses ?? {})
+              .filter((key) => contractAddresses?.[key] !== EMPTY_ADDRESS)
+              .map((key) => (
+                <Flex key={key}>
+                  {contractAddresses?.[key] ? (
+                    <>
+                      <Text
+                        variant="neutral"
+                        css={{
+                          mb: "$1",
+                        }}
+                        size="2"
+                      >
+                        {contractAddresses?.[
+                          key as keyof typeof contractAddresses
+                        ]?.name ?? ""}
+                      </Text>
+                      <A
+                        css={{
+                          marginLeft: "auto",
+
+                          mb: "$1",
+                        }}
+                        href={
+                          contractAddresses?.[
+                            key as keyof typeof contractAddresses
+                          ]?.link
+                        }
+                      >
+                        <Text
+                          css={{
+                            display: "block",
+                            fontWeight: 600,
+                            color: "$white",
+                          }}
+                          size="2"
+                        >
+                          {contractAddresses?.[
+                            key as keyof typeof contractAddresses
+                          ]?.address?.replace(
+                            contractAddresses?.[
+                              key as keyof typeof contractAddresses
+                            ]?.address?.slice(7, 37),
+                            "…"
+                          )}
+                        </Text>
+                      </A>
+                    </>
+                  ) : (
+                    <Skeleton
+                      css={{
+                        mb: "$1",
+
+                        marginLeft: "auto",
+                        maxWidth: "100%",
+                        width: "100%",
+                        height: 15,
+                      }}
+                    />
+                  )}
+                </Flex>
+              ))}
+
+            <Link
+              passHref
+              href="https://docs.livepeer.org/protocol/reference/deployed"
+            >
+              <A>
+                <Flex
+                  css={{
+                    mt: "$2",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    css={{ whiteSpace: "nowrap" }}
+                    variant="neutral"
+                    size="1"
+                  >
+                    Learn more about these contracts
+                  </Text>
+                  <Box
+                    css={{
+                      ml: "$1",
+                      width: 15,
+                      height: 15,
+                    }}
+                    as={ArrowTopRightIcon}
+                  />
+                </Flex>
+              </A>
+            </Link>
+          </Box>
+        </Box>
+      </PopoverContent>
+    </Popover>
   );
 };
 

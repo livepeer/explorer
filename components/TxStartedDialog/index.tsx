@@ -1,5 +1,4 @@
-import { txMessages } from "@lib/utils";
-import Utils from "web3-utils";
+import { fromWei, txMessages } from "@lib/utils";
 import Spinner from "../Spinner";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
@@ -105,7 +104,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
           {Number(inputData.amount) > 0 ? (
             <Row>
               <Box>Amount</Box>{" "}
-              {tx.inputData && Utils.fromWei(inputData.amount)} LPT
+              {tx.inputData && fromWei(inputData.amount)} LPT
             </Row>
           ) : (
             <></>
@@ -116,7 +115,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Amount</Box> {tx.inputData && Utils.fromWei(inputData.amount)}{" "}
+            <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)}{" "}
             LPT
           </Row>
         </>
@@ -164,11 +163,11 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Stake</Box> {tx.inputData && Utils.fromWei(inputData.stake)}
+            <Box>Stake</Box> {tx.inputData && fromWei(inputData.stake)}
           </Row>
 
           <Row>
-            <Box>Fees</Box> {tx.inputData && Utils.fromWei(inputData.fees)} LPT
+            <Box>Fees</Box> {tx.inputData && fromWei(inputData.fees)} LPT
           </Row>
         </>
       );
@@ -207,22 +206,6 @@ function Header({ tx }: { tx: TransactionStatus }) {
       }}
     >
       <Spinner />
-      {/* <Flex
-        css={{
-          mr: "$3",
-          color: "$hiContrast",
-          fontSize: "$1",
-          fontWeight: "bold",
-        }}
-      >
-        {timeLeft
-          ? `${
-              Math.floor(((tx?.estimate - timeLeft) / tx?.estimate) * 100) < 100
-                ? Math.floor(((tx?.estimate - timeLeft) / tx?.estimate) * 100)
-                : "100"
-            }%`
-          : "0%"}
-      </Flex> */}
       <Box css={{ fontWeight: 700, fontSize: "$5" }}>
         {txMessages[tx?.name]?.pending}
       </Box>

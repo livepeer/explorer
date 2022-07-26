@@ -1,3 +1,4 @@
+import { txMessages } from "@lib/utils";
 import {
   Box,
   Flex,
@@ -103,7 +104,7 @@ const Index = () => {
               </Button>
             </>
           ) : (
-            <Text>Confirm this transaction in your wallet</Text>
+            <Text>Confirm latest transaction in your wallet.</Text>
           )}
         </Box>
       </DialogContent>

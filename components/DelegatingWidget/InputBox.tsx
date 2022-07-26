@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import Input from "./Input";
-import Utils from "web3-utils";
 import { Box, Flex, Card } from "@livepeer/design-system";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -11,6 +10,7 @@ import {
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
+import { fromWei } from "@lib/utils";
 
 interface Props {
   transcoder: AccountQueryResult["data"]["transcoder"];
@@ -40,13 +40,13 @@ const InputBox = ({
   const accountBalance = useAccountBalanceData(account?.id);
 
   const tokenBalance = useMemo(
-    () => accountBalance && Utils.fromWei(accountBalance.balance.toString()),
+    () => accountBalance && fromWei(accountBalance.balance.toString()),
     [accountBalance]
   );
   const stake = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
-        ? Utils.fromWei(delegatorPendingStakeAndFees.pendingStake)
+        ? fromWei(delegatorPendingStakeAndFees.pendingStake)
         : "0",
     [delegatorPendingStakeAndFees]
   );

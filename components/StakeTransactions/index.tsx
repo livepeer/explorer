@@ -1,4 +1,3 @@
-import Utils from "web3-utils";
 import {
   abbreviateNumber,
   getHint,

@@ -5,12 +5,6 @@ query poll($id: ID!) {
     endBlock
     quorum
     quota
-    # status
-    # isActive
-    # totalVoteStake
-    # totalNonVoteStake
-    # estimatedTimeRemaining
-    # endTime
     tally {
       yes
       no

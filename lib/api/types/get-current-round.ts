@@ -3,4 +3,5 @@ export type CurrentRoundInfo = {
   startBlock: number;
   initialized: boolean;
   currentL1Block: number;
+  currentL2Block: number;
 };

@@ -13,92 +13,42 @@ import {
   getRoundsManager,
   getServiceRegistry,
   getTicketBroker,
+  getContractAddress,
 } from "@lib/api/contracts";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  l1Provider,
-  l2Provider,
-} from "@lib/chains";
-import { BigNumber, Signer } from "ethers";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2Provider } from "@lib/chains";
+import { Signer } from "ethers";
 
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { useEffect, useState } from "react";
-import {
-  ArbRetryableTx,
-  ArbRetryableTx__factory,
-  BondingManager,
-  BondingManager__factory,
-  Controller,
-  Controller__factory,
-  Inbox,
-  Inbox__factory,
-  L1Migrator,
-  L1Migrator__factory,
-  L2Migrator__factory,
-  LivepeerToken,
-  LivepeerTokenFaucet,
-  LivepeerToken__factory,
-  MerkleSnapshot,
-  MerkleSnapshot__factory,
-  Minter,
-  Minter__factory,
-  NodeInterface,
-  NodeInterface__factory,
-  PollCreator__factory,
-  Poll__factory,
-  RoundsManager,
-  RoundsManager__factory,
-  ServiceRegistry,
-  ServiceRegistry__factory,
-  TicketBroker,
-  TicketBroker__factory,
-} from "typechain-types";
-import { LivepeerTokenFaucet__factory } from "typechain-types/factories/main/LivepeerTokenFaucet__factory";
-import { L2Migrator, Poll, PollCreator } from "typechain-types/main";
+import { useCallback, useEffect, useState } from "react";
+import { Poll__factory } from "typechain-types";
+import { Poll } from "typechain-types/main";
 import { useAccount } from "wagmi";
 import { useAccountSigner } from "./wallet";
-
-export type LivepeerContracts = {
-  l1Migrator: L1Migrator | null;
-  l2Migrator: L2Migrator | null;
-  inbox: Inbox | null;
-  arbRetryableTx: ArbRetryableTx | null;
-  nodeInterface: NodeInterface | null;
-
-  livepeerToken: LivepeerToken | null;
-  livepeerTokenFaucet: LivepeerTokenFaucet | null;
-  bondingManager: BondingManager | null;
-  roundsManager: RoundsManager | null;
-  minter: Minter | null;
-  merkleSnapshot: MerkleSnapshot | null;
-  serviceRegistry: ServiceRegistry | null;
-  ticketBroker: TicketBroker | null;
-  pollCreator: PollCreator | null;
-};
 
 const useLivepeerContract = <T>(
   getContract: (signer: Signer) => Promise<T>
 ) => {
-  const signer = useAccountSigner();
+  const getContractMemoized = useCallback(getContract, []);
+  const account = useAccount();
 
   const [livepeerContract, setLivepeerContract] = useState<T | null>(null);
 
   useEffect(() => {
     const fn = async () => {
       try {
-        const contract = await getContract(signer);
+        if (account.connector) {
+          const contract = await getContractMemoized(
+            await account.connector.getSigner()
+          );
 
-        setLivepeerContract(contract);
+          setLivepeerContract(contract);
+        }
       } catch (e) {
         console.error(e);
       }
     };
 
-    if (!livepeerContract) {
-      fn();
-    }
-  }, [signer, getContract, livepeerContract]);
+    fn();
+  }, [account.status, getContractMemoized]);
 
   return livepeerContract;
 };
@@ -165,20 +115,4 @@ export const useLivepeerPoll = (address: string | null): Poll | null => {
   }, [address, signer]);
 
   return livepeerPoll;
-};
-
-export const useL1RoundNumber = (): number | null => {
-  const [l1RoundNumber, setL1RoundNumber] = useState<number | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setL1RoundNumber(await l1Provider.getBlockNumber());
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, []);
-
-  return l1RoundNumber;
 };

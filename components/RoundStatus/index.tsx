@@ -7,10 +7,10 @@ import {
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
-import { ProtocolQueryResult, useProtocolQuery } from "apollo";
+import { ProtocolQueryResult } from "apollo";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useCurrentRoundData, useL1RoundNumber } from "hooks";
+import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
 import numeral from "numeral";
 import { useMemo } from "react";

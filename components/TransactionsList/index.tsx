@@ -85,7 +85,7 @@ const TransactionsList = ({
   pageSize: number;
   events: EventsQueryResult["data"]["transactions"][number]["events"];
 }) => {
-  const getAccountForRow = useCallback((event) => {
+  const getAccountForRow = useCallback((event: EventsQueryResult["data"]["transactions"][number]["events"][number]) => {
     switch (event.__typename) {
       case "BondEvent":
         return <EthAddress value={event?.delegator?.id} />;
@@ -126,8 +126,8 @@ const TransactionsList = ({
       case "TranscoderDeactivatedEvent":
         return <EthAddress value={event?.delegate?.id} />;
 
-      case "EarningsClaimedEvent":
-        return <EthAddress value={event?.delegate?.id} />;
+      // case "EarningsClaimedEvent":
+      //   return <EthAddress value={event?.transaction?.from} />;
 
       case "TranscoderResignedEvent":
         return <EthAddress value={event?.delegate?.id} />;
@@ -158,8 +158,8 @@ const TransactionsList = ({
       case "ServiceURIUpdateEvent":
         return <EthAddress value={event?.addr} />;
 
-      case "MintEvent":
-        return <EthAddress value={event?.to} />;
+      // case "MintEvent":
+      //   return <EthAddress value={event?.to} />;
 
       case "BurnEvent":
         return <EthAddress value={event?.transaction?.from} />;
@@ -174,7 +174,7 @@ const TransactionsList = ({
     }
   }, []);
 
-  const getDescriptionForRow = useCallback((event) => {
+  const getDescriptionForRow = useCallback((event:  EventsQueryResult["data"]["transactions"][number]["events"][number]) => {
     switch (event.__typename) {
       case "BondEvent":
         return (
@@ -283,18 +283,18 @@ const TransactionsList = ({
             {getRound(event?.deactivationRound)}
           </Box>
         );
-      case "EarningsClaimedEvent":
-        return event?.rewardTokens ? (
-          <>
-            {`Claimed `}
-            {getLptAmount(event?.rewardTokens)}
-            {` and `}
-            {getEthAmount(event?.fees)}
-            {` in earnings`}
-          </>
-        ) : (
-          <Box>N/A</Box>
-        );
+      // case "EarningsClaimedEvent":
+      //   return event?.rewardTokens ? (
+      //     <>
+      //       {`Claimed `}
+      //       {getLptAmount(event?.rewardTokens)}
+      //       {` and `}
+      //       {getEthAmount(event?.fees)}
+      //       {` in earnings`}
+      //     </>
+      //   ) : (
+      //     <Box>N/A</Box>
+      //   );
       case "TranscoderResignedEvent":
         return <Box>{`Resigned from the active set`}</Box>;
       case "TranscoderEvictedEvent":
@@ -336,8 +336,8 @@ const TransactionsList = ({
         return (
           <Box>
             {`Voted `}
-            <Badge variant={event?.choiceID === 0 ? "primary" : "red"} size="1">
-              {event?.choiceID === 0 ? '"Yes"' : '"No"'}
+            <Badge variant={+event?.choiceID === 0 ? "primary" : "red"} size="1">
+              {+event?.choiceID === 0 ? '"Yes"' : '"No"'}
             </Badge>
             {` on a proposal`}
             {renderEmoji("👩‍⚖️")}
@@ -362,14 +362,14 @@ const TransactionsList = ({
         );
       // case "MintEvent":
       //   We do not handle this case for now, since it is duplicated with RewardEvent
-      case "BurnEvent":
-        return (
-          <Box>
-            {getLptAmount(event?.value)}
-            {` has been burned`}
-            {renderEmoji("🔥")}
-          </Box>
-        );
+      // case "BurnEvent":
+      //   return (
+      //     <Box>
+      //       {getLptAmount(event?.value)}
+      //       {` has been burned`}
+      //       {renderEmoji("🔥")}
+      //     </Box>
+      //   );
       case "MigrateDelegatorFinalizedEvent":
         return <Box>{`Migrated to Arbitrum One`}</Box>;
       case "StakeClaimedEvent":

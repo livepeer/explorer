@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -12,15 +12,17 @@ import {
   Text,
 } from "@livepeer/design-system";
 import dayjs from "dayjs";
-import fm from "front-matter";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
+import { getPollExtended, PollExtended } from "@lib/api/polls";
+import { usePollsQuery } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { usePollQuery, usePollsQuery } from "apollo";
+import { useBlockNumber } from "wagmi";
+import { useCurrentRoundData } from "hooks";
+import { capitalCase, sentenceCase } from "change-case";
 dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
@@ -42,46 +44,30 @@ export const Status = styled("div", {
 
 const Voting = () => {
   const pollInterval = 20000;
-  const [polls, setPolls] = useState([]);
+  const [polls, setPolls] = useState<PollExtended[]>([]);
   const [loading, setLoading] = useState(true);
   const { data } = usePollsQuery({
     pollInterval,
   });
 
-  useEffect(() => {
-    if (data) {
-      const pollArr = [];
-      const init = async () => {
-        if (!data.polls.length) {
-          setLoading(false);
-          return;
-        }
-        await Promise.all(
-          data.polls.map(async (poll) => {
-            const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
+  const currentRound = useCurrentRoundData();
 
-            // only include proposals with valid format
-            if (obj?.text && obj?.gitCommitHash) {
-              const transformedProposal = fm(obj.text) as any;
-              if (
-                !pollArr.filter(
-                  (p) => p.attributes.lip === transformedProposal.attributes.lip
-                ).length
-              ) {
-                pollArr.push({
-                  ...poll,
-                  ...transformedProposal,
-                });
-              }
-            }
-          })
+  useEffect(() => {
+    if (data && currentRound?.currentL2Block) {
+      const init = async () => {
+        setPolls(
+          await Promise.all(
+            (data?.polls ?? [])
+              .filter((p) => +p.endBlock < 13810621)
+              .map((p) => getPollExtended(p, currentRound.currentL2Block))
+          )
         );
-        setPolls(pollArr);
+
         setLoading(false);
       };
       init();
     }
-  }, [data]);
+  }, [data, currentRound?.currentL2Block]);
 
   return (
     <>
@@ -196,35 +182,41 @@ const Voting = () => {
                               )
                             </Heading>
                             <Box css={{ fontSize: "$1", color: "$neutral10" }}>
-                              {!poll.isActive ? (
+                              {poll.status !== "active" ? (
                                 <Box>
                                   Voting ended on{" "}
                                   {dayjs
-                                    .unix(poll.endTime)
-                                    .format("MMM Do, YYYY")}
+                                    .unix(poll.estimatedEndTime)
+                                    .format("MMM D, YYYY")}
                                 </Box>
                               ) : (
                                 <Box>
                                   Voting ends in ~
-                                  {dayjs()
-                                    .add(poll.estimatedTimeRemaining, "seconds")
+                                  {dayjs
+                                    .unix(poll.estimatedEndTime)
                                     .fromNow(true)}
                                 </Box>
                               )}
                             </Box>
                           </Box>
-                          <Status
-                            color={poll.status}
+                          <Badge
+                            size="2"
+                            variant={
+                              poll.status === "rejected"
+                                ? "red"
+                                : poll.status === "active"
+                                ? "blue"
+                                : poll.status === "passed"
+                                ? "primary"
+                                : "neutral"
+                            }
                             css={{
-                              fontWeight: 700,
                               textTransform: "capitalize",
-                              "@bp2": {
-                                mb: 0,
-                              },
+                              fontWeight: 700,
                             }}
                           >
-                            {poll.status}
-                          </Status>
+                            {sentenceCase(poll.status)}
+                          </Badge>
                         </Flex>
                       </Card>
                     </A>

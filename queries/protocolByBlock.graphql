@@ -8,5 +8,6 @@ query protocolByBlock($block: Block_height) {
     activeTranscoderCount
     delegatorsCount
     lockPeriod
+    totalActiveStake
   }
 }
