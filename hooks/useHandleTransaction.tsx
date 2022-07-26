@@ -39,6 +39,7 @@ export const useHandleTransaction = (
 
         const _awaitedResult = await result.wait();
 
+        setLatestTransactionDetails(result.hash, result.from, id, args);
         setLatestTransactionConfirmed();
       } catch (e) {
         console.error(e);

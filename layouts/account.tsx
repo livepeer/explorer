@@ -34,7 +34,9 @@ export interface TabType {
   isActive?: boolean;
 }
 
-const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"] as const;
+type TabTypeEnum = "delegating" | "orchestrating" | "history";
+
+const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = ({
   account,
@@ -83,8 +85,8 @@ const AccountLayout = ({
   );
 
   const tabs: Array<TabType> = useMemo(
-    () => getTabs(isOrchestrator, accountId, asPath, isMyDelegate),
-    [isOrchestrator, accountId, asPath, isMyDelegate]
+    () => getTabs(isOrchestrator, accountId, view, isMyDelegate),
+    [isOrchestrator, accountId, view, isMyDelegate]
   );
 
   const { setSelectedStakingAction } = useExplorerStore();
@@ -260,26 +262,26 @@ export default AccountLayout;
 function getTabs(
   isOrchestrator: boolean,
   account: string,
-  asPath: string,
+  view: TabTypeEnum,
   isMyDelegate: boolean
 ): Array<TabType> {
   const tabs: Array<TabType> = [
     {
       name: "Delegating",
       href: `/accounts/${account}/delegating`,
-      isActive: asPath === `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
     },
     {
       name: "History",
       href: `/accounts/${account}/history`,
-      isActive: asPath === `/accounts/${account}/history`,
+      isActive: view === "history",
     },
   ];
   if (isOrchestrator || isMyDelegate) {
     tabs.unshift({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
-      isActive: asPath === `/accounts/${account}/orchestrating`,
+      isActive: view === "orchestrating",
     });
   }
 

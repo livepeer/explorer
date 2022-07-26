@@ -34,6 +34,7 @@ import {
   EyeOpenIcon,
 } from "@modulz/radix-icons";
 import { usePollsQuery, useProtocolQuery } from "apollo";
+import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -50,8 +51,10 @@ import {
   useAccountAddress,
   useActiveChain,
   useContractInfoData,
+  useCurrentRoundData,
   useExplorerStore,
   useOnClickOutside,
+  usePendingFeesAndStakeData,
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
@@ -85,7 +88,7 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 }>;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
-  const { pathname, asPath } = useRouter();
+  const { asPath } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
   const accountAddress = useAccountAddress();
@@ -94,13 +97,22 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const [bannerActive, setBannerActive] = useState(false);
   const { width } = useWindowSize();
   const ref = useRef();
-  const blockNumber = useBlockNumber();
+  const currentRound = useCurrentRoundData();
+  const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
+
   const totalActivePolls = useMemo(
     () =>
       pollData?.polls.filter(
-        (p) => (blockNumber.data ?? 0) <= parseInt(p.endBlock)
+        (p) =>
+          (currentRound?.currentL1Block ?? Number.MAX_VALUE) <=
+          parseInt(p.endBlock)
       ).length,
-    [blockNumber, pollData]
+    [currentRound?.currentL1Block, pollData]
+  );
+
+  const hasPendingFees = useMemo(
+    () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
+    [pendingFeesAndStake?.pendingFees]
   );
 
   useEffect(() => {
@@ -215,7 +227,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         </Head>
         <SnackbarProvider>
           <Box css={{ height: "calc(100vh - 82px)" }}>
-            {protocolData?.protocol.paused && (
+            {protocolData?.protocol?.paused && (
               <Flex
                 css={{
                   py: "$2",
@@ -472,7 +484,18 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   },
                                 }}
                               >
-                                My Account
+                                My Account{" "}
+                                {hasPendingFees && (
+                                  <Badge
+                                    size="2"
+                                    variant="green"
+                                    css={{
+                                      ml: "6px",
+                                    }}
+                                  >
+                                    1
+                                  </Badge>
+                                )}
                               </Button>
                             </Link>
                           )}

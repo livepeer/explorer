@@ -1,6 +1,7 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { PerformanceMetrics } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 
 type Metric = {
@@ -67,10 +68,12 @@ const handler = async (
         );
         const metrics: MetricsResponse = await metricsResponse.json();
 
-        const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+        const response = await fetch(
+          `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`
+        );
         const transcodersWithPrice: PriceResponse = await response.json();
-        const transcoderWithPrice = transcodersWithPrice.find(
-          (t) => t.Address.toLowerCase() === transcoderId
+        const transcoderWithPrice = transcodersWithPrice.find((t) =>
+          checkAddressEquality(t.Address, transcoderId)
         );
 
         const combined: PerformanceMetrics = {
