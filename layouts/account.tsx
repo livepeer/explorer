@@ -87,6 +87,12 @@ const AccountLayout = ({
     [isOrchestrator, accountId, asPath, isMyDelegate]
   );
 
+  const { setSelectedStakingAction } = useExplorerStore();
+
+  useEffect(() => {
+    setSelectedStakingAction("delegate");
+  }, [setSelectedStakingAction]);
+
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
       <Flex>

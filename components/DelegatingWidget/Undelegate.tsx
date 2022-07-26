@@ -11,7 +11,7 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
   const accountAddress = useAccountAddress();
 
   const bondingManager = useBondingManager();
-  const handleTransaction = useHandleTransaction("bond");
+  const handleTransaction = useHandleTransaction("unbond");
 
   if (!accountAddress) {
     return null;
