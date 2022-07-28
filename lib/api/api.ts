@@ -19,5 +19,6 @@ export const getCacheControlHeader = (
   return `public, s-maxage=${cacheControlValues[type].maxAge}, stale-while-revalidate=${cacheControlValues[type].swr}`;
 };
 
-export const isValidAddress = (address: string | string[] | null | undefined): address is string =>
-  typeof address === "string" && address.length === 42;
+export const isValidAddress = (
+  address: string | string[] | null | undefined
+): address is string => typeof address === "string" && address.length === 42;

@@ -4,8 +4,6 @@ import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { BigNumber } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 
-
-
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<PendingFeesAndStake | null>

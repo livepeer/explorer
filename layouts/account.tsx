@@ -24,7 +24,7 @@ import {
   useAccountQuery,
 } from "apollo";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
@@ -54,6 +54,8 @@ const AccountLayout = ({
     [asPath]
   );
 
+  const { setSelectedStakingAction, latestTransaction } = useExplorerStore();
+
   const accountId = useMemo(
     () => query?.account?.toString().toLowerCase(),
     [query]
@@ -62,12 +64,24 @@ const AccountLayout = ({
   const identity = useEnsData(accountId);
   const myIdentity = useEnsData(accountAddress);
 
+  const [pollInterval, setPollInterval] = useState<number | undefined>(
+    undefined
+  );
+
   const { data: dataMyAccount } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
     skip: !accountAddress,
+    pollInterval,
   });
+
+  // start polling when when transactions finish
+  useEffect(() => {
+    if (latestTransaction?.step === "confirmed") {
+      setPollInterval(5000);
+    }
+  }, [latestTransaction?.step]);
 
   const isActive = useMemo(
     () => Boolean(account?.transcoder?.active),
@@ -88,8 +102,6 @@ const AccountLayout = ({
     () => getTabs(isOrchestrator, accountId, view, isMyDelegate),
     [isOrchestrator, accountId, view, isMyDelegate]
   );
-
-  const { setSelectedStakingAction } = useExplorerStore();
 
   useEffect(() => {
     setSelectedStakingAction("delegate");

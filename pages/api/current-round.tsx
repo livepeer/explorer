@@ -28,7 +28,7 @@ const handler = async (
         startBlock: startBlock.toNumber(),
         initialized,
         currentL1Block,
-        currentL2Block
+        currentL2Block,
       };
 
       return res.status(200).json(roundInfo);

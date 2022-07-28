@@ -42,12 +42,7 @@ query account($account: ID!) {
     lastRewardRound {
       id
     }
-    pools(
-      first: 30
-      skip: 1
-      orderBy: id
-      orderDirection: desc
-    ) {
+    pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
       rewardTokens
     }
     delegators(first: 1000) {

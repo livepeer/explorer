@@ -1,7 +1,8 @@
 import { Button } from "@livepeer/design-system";
 import {
   useAccountAddress,
-  useHandleTransaction, useLivepeerPoll
+  useHandleTransaction,
+  useLivepeerPoll,
 } from "hooks";
 
 const Index = ({ pollAddress, choiceId, children, ...props }) => {

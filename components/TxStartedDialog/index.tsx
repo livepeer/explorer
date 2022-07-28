@@ -103,8 +103,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
 
           {Number(inputData.amount) > 0 ? (
             <Row>
-              <Box>Amount</Box>{" "}
-              {tx.inputData && fromWei(inputData.amount)} LPT
+              <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)} LPT
             </Row>
           ) : (
             <></>
@@ -115,8 +114,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)}{" "}
-            LPT
+            <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)} LPT
           </Row>
         </>
       );

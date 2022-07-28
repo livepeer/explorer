@@ -36,7 +36,7 @@ import { sentenceCase } from "change-case";
 import numeral from "numeral";
 dayjs.extend(relativeTime);
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%")
+const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 const Poll = () => {
   const router = useRouter();
@@ -229,9 +229,7 @@ const Poll = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
-                            Yes ({formatPercent(pollData.percent.yes)})
-                          </Box>
+                          <Box>Yes ({formatPercent(pollData.percent.yes)})</Box>
                         </Flex>
                         <Box as="span">
                           {abbreviateNumber(pollData.stake.yes, 4)} LPT
@@ -245,9 +243,7 @@ const Poll = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
-                            No ({formatPercent(pollData.percent.no)})
-                          </Box>
+                          <Box>No ({formatPercent(pollData.percent.no)})</Box>
                         </Flex>
                         <Box as="span">
                           {abbreviateNumber(pollData.stake.no, 4)} LPT
@@ -292,7 +288,8 @@ const Poll = () => {
                         }}
                       >
                         <Box as="span" css={{ color: "$muted" }}>
-                          Nonvoters ({formatPercent(pollData.percent.nonVoters)})
+                          Nonvoters ({formatPercent(pollData.percent.nonVoters)}
+                          )
                         </Box>
                         <Box as="span">
                           <Box as="span">

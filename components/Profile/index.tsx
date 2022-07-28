@@ -84,7 +84,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           direction="column"
           css={{ height: "100%", ml: "$3" }}
         >
-          <Flex css={{ alignItems: "center",  }}>
+          <Flex css={{ alignItems: "center" }}>
             <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
               <Heading
                 size="2"
