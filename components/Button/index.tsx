@@ -1,6 +1,7 @@
 import { styled } from "@livepeer/design-system";
 
 export const Button = styled("button", {
+  length: {},
   // Reset
   boxSizing: "border-box",
   border: 0,

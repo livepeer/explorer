@@ -1,0 +1,9 @@
+query currentRound {
+  protocol(id: 0) {
+    id
+
+    currentRound {
+      id
+    }
+  }
+}

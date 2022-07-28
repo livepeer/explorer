@@ -1,4 +1,3 @@
-import { gql, useQuery } from "@apollo/client";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
@@ -6,10 +5,12 @@ import { Box, Flex, Text, themes } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
-  QuestionMarkCircledIcon
+  QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
+import { ProtocolQueryResult } from "apollo";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
 import numeral from "numeral";
 import { useMemo } from "react";
@@ -18,68 +19,25 @@ import CircularProgressbar from "../CircularProgressBar";
 
 dayjs.extend(relativeTime);
 
-const Index = () => {
+const Index = ({
+  protocol,
+}: {
+  protocol: ProtocolQueryResult["data"]["protocol"];
+}) => {
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme?.includes("-")
     ? themes[resolvedTheme]
     : themes[`${resolvedTheme}-theme-green`];
-  const pollInterval = 30000;
 
-  const { data: protocolData } = useQuery(
-    gql`
-      {
-        protocol(id: "0") {
-          id
-          roundLength
-          lockPeriod
-          currentRound {
-            id
-            mintableTokens
-            volumeETH
-            volumeUSD
-            pools {
-              rewardTokens
-            }
-          }
-        }
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
-  const { data: blockData } = useQuery(
-    gql`
-      {
-        l1Block
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
-
-  const { data: currentRoundInfo } = useQuery(
-    gql`
-      {
-        currentRoundInfo
-      }
-    `,
-    {
-      pollInterval,
-    }
-  );
+  const currentRoundInfo = useCurrentRoundData();
 
   const blocksRemaining = useMemo(
     () =>
-      currentRoundInfo?.currentRoundInfo?.initialized &&
-      blockData &&
-      protocolData
-        ? +protocolData.protocol.roundLength -
-          (+blockData.l1Block.number -
-            +currentRoundInfo.currentRoundInfo.startBlock)
+      currentRoundInfo?.initialized && protocol
+        ? +protocol.roundLength -
+          (+currentRoundInfo.currentL1Block - +currentRoundInfo.startBlock)
         : 0,
-    [protocolData, blockData, currentRoundInfo]
+    [protocol, currentRoundInfo]
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
@@ -87,37 +45,35 @@ const Index = () => {
   );
   const blocksSinceCurrentRoundStart = useMemo(
     () =>
-      currentRoundInfo?.currentRoundInfo?.initialized && blockData
-        ? +blockData.l1Block.number -
-          +currentRoundInfo.currentRoundInfo.startBlock
+      currentRoundInfo?.initialized
+        ? +currentRoundInfo.currentL1Block - +currentRoundInfo.startBlock
         : 0,
-    [currentRoundInfo, blockData]
+    [currentRoundInfo]
   );
 
   const percentage = useMemo(
     () =>
-      protocolData
-        ? (blocksSinceCurrentRoundStart / +protocolData.protocol.roundLength) *
-          100
+      protocol
+        ? (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100
         : 0,
-    [blocksSinceCurrentRoundStart, protocolData]
+    [blocksSinceCurrentRoundStart, protocol]
   );
 
   const isRoundLocked = useMemo(
     () =>
-      protocolData && currentRoundInfo
-        ? blocksRemaining <= Number(protocolData?.protocol?.lockPeriod)
+      protocol && currentRoundInfo
+        ? blocksRemaining <= Number(protocol?.lockPeriod)
         : false,
-    [protocolData, blocksRemaining, currentRoundInfo]
+    [protocol, blocksRemaining, currentRoundInfo]
   );
 
   const rewardTokensClaimed = useMemo(
     () =>
-      protocolData?.protocol?.currentRound?.pools?.reduce(
+      protocol?.currentRound?.pools?.reduce(
         (prev, pool) => prev + Number(pool?.rewardTokens || 0),
         0
       ) || 0,
-    [protocolData]
+    [protocol]
   );
 
   return (
@@ -146,9 +102,7 @@ const Index = () => {
               color: "white",
             }}
           >
-            {currentRoundInfo?.currentRoundInfo?.id
-              ? `#${currentRoundInfo.currentRoundInfo.id}`
-              : ""}
+            {currentRoundInfo?.id ? `#${currentRoundInfo.id}` : ""}
           </Text>
         </Box>
         <ExplorerTooltip
@@ -193,7 +147,7 @@ const Index = () => {
           mt: "$2",
         }}
       >
-        {!currentRoundInfo || !protocolData ? (
+        {!currentRoundInfo || !protocol ? (
           <Flex
             css={{
               width: "100%",
@@ -203,7 +157,7 @@ const Index = () => {
           >
             <Spinner />
           </Flex>
-        ) : currentRoundInfo?.currentRoundInfo?.initialized ? (
+        ) : currentRoundInfo?.initialized ? (
           <Flex
             css={{
               pb: "$2",
@@ -237,7 +191,7 @@ const Index = () => {
                     {blocksSinceCurrentRoundStart}
                   </Box>
                   <Box css={{ fontSize: "$1" }}>
-                    of {protocolData.protocol.roundLength} blocks
+                    of {protocol.roundLength} blocks
                   </Box>
                 </Box>
               </Box>
@@ -269,7 +223,7 @@ const Index = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  #{+currentRoundInfo.currentRoundInfo.id + 1}
+                  #{+currentRoundInfo.id + 1}
                 </Box>{" "}
                 begins.
               </Text>
@@ -280,9 +234,9 @@ const Index = () => {
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numeral(
-                    protocolData?.protocol?.currentRound?.volumeUSD || 0
-                  ).format("$0,0k")}{" "}
+                  {numeral(protocol?.currentRound?.volumeUSD || 0).format(
+                    "$0,0k"
+                  )}{" "}
                   at recent prices of ETH.
                 </Box>
               }
@@ -321,9 +275,9 @@ const Index = () => {
                     color: "white",
                   }}
                 >
-                  {numeral(
-                    protocolData?.protocol?.currentRound?.volumeETH || 0
-                  ).format("0.00a")}{" "}
+                  {numeral(protocol?.currentRound?.volumeETH || 0).format(
+                    "0.00a"
+                  )}{" "}
                   ETH
                 </Text>
               </Flex>
@@ -372,9 +326,9 @@ const Index = () => {
                   }}
                 >
                   {numeral(rewardTokensClaimed).format("0")}/
-                  {numeral(
-                    protocolData?.protocol?.currentRound?.mintableTokens || 0
-                  ).format("0")}{" "}
+                  {numeral(protocol?.currentRound?.mintableTokens || 0).format(
+                    "0"
+                  )}{" "}
                   LPT
                 </Text>
               </Flex>

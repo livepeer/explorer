@@ -20,14 +20,11 @@ import { CodeBlock } from "@components/CodeBlock";
 import { ethers } from "ethers";
 import useForm from "react-hook-form";
 import {
-  arbRetryableTx,
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
 import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
 import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
@@ -37,7 +34,14 @@ import { isValidAddress } from "utils/validAddress";
 import { isL2ChainId } from "@lib/chains";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccountAddress, useAccountSigner, useActiveChain } from "hooks";
+import {
+  useAccountAddress,
+  useAccountSigner,
+  useActiveChain,
+  useArbRetryableTx,
+  useL1Migrator,
+  useNodeInterface,
+} from "hooks";
 
 const signingSteps = [
   `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -214,6 +218,10 @@ const MigrateBroadcaster = () => {
   const signerAddress = watch("signerAddress");
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+
+  const arbRetryableTx = useArbRetryableTx();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
 
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
@@ -398,7 +406,7 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-  }, [accountAddress]);
+  }, [accountAddress, l1Migrator]);
 
   useEffect(() => {
     const init = async () => {
@@ -564,7 +572,6 @@ const MigrateBroadcaster = () => {
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
-              variant="primary"
               isHighlightingLines={false}
             >
               {JSON.stringify(payload)}
@@ -796,6 +803,7 @@ const MigrateBroadcaster = () => {
 
 function MigrationFields({ migrationParams, css = {} }) {
   const ReadOnlyCard = styled(Box, {
+    length: {},
     display: "flex",
     backgroundColor: "$neutral3",
     border: "1px solid $neutral6",

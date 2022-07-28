@@ -1,4 +1,3 @@
-import { gql, useQuery } from "@apollo/client";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
@@ -17,12 +16,21 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
-import { eventsQuery } from "queries/eventsQuery";
+
 import { useMemo, useState } from "react";
-import { getChartData, getEvents, getOrchestrators } from "../api";
-import { getApollo } from "../apollo";
-import { chartDataQuery } from "../queries/chartDataQuery";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
+import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
+import {
+  EventsQueryResult,
+  getApollo,
+  OrchestratorsQueryResult,
+  ProtocolQueryResult,
+} from "../apollo";
+
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { useChartData } from "hooks";
+import { GetStaticProps } from "next";
+import "react-circular-progressbar/dist/styles.css";
 
 const Panel = ({ children }) => (
   <Flex
@@ -43,18 +51,18 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Charts = ({ chartData }) => {
+const Charts = ({ chartData }: { chartData: HomeChartData }) => {
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
     "week"
   );
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
-        ? chartData?.chartData?.dayData?.map((day) => ({
+        ? chartData?.dayData?.map((day) => ({
             x: Number(day.date),
             y: Number(day.volumeUSD),
           }))
-        : chartData?.chartData?.weeklyData?.map((week) => ({
+        : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyVolumeUSD),
           }))) ?? [],
@@ -65,11 +73,11 @@ const Charts = ({ chartData }) => {
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
-        ? chartData?.chartData?.dayData?.map((day) => ({
+        ? chartData?.dayData?.map((day) => ({
             x: Number(day.date),
             y: Number(day.minutes),
           }))
-        : chartData?.chartData?.weeklyData?.map((week) => ({
+        : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyUsageMinutes),
           }))) ?? [],
@@ -78,7 +86,7 @@ const Charts = ({ chartData }) => {
 
   const participationRateData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.participationRate),
       })) ?? [],
@@ -86,7 +94,7 @@ const Charts = ({ chartData }) => {
   );
   const inflationRateData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day?.inflation ?? 0) / 1000000000,
       })) ?? [],
@@ -94,7 +102,7 @@ const Charts = ({ chartData }) => {
   );
   const delegatorsCountData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.delegatorsCount),
       })) ?? [],
@@ -102,14 +110,12 @@ const Charts = ({ chartData }) => {
   );
   const activeTranscoderCountData = useMemo(
     () =>
-      chartData?.chartData?.dayData?.slice(1)?.map((day) => ({
+      chartData?.dayData?.slice(1)?.map((day) => ({
         x: Number(day.date),
         y: Number(day.activeTranscoderCount),
       })) ?? [],
     [chartData]
   );
-
-  console.log({chartData})
 
   return (
     <>
@@ -121,13 +127,13 @@ const Charts = ({ chartData }) => {
           data={feesPaidData}
           base={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.chartData?.oneDayVolumeUSD
-              : chartData?.chartData?.oneWeekVolumeUSD) ?? 0
+              ? chartData?.oneDayVolumeUSD
+              : chartData?.oneWeekVolumeUSD) ?? 0
           )}
           basePercentChange={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.chartData?.volumeChangeUSD
-              : chartData?.chartData?.weeklyVolumeChangeUSD) ?? 0
+              ? chartData?.volumeChangeUSD
+              : chartData?.weeklyVolumeChangeUSD) ?? 0
           )}
           title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
@@ -140,10 +146,8 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The percent of LPT which has been delegated to an orchestrator."
           data={participationRateData}
-          base={Number(chartData?.chartData?.participationRate ?? 0)}
-          basePercentChange={Number(
-            chartData?.chartData?.participationRateChange ?? 0
-          )}
+          base={Number(chartData?.participationRate ?? 0)}
+          basePercentChange={Number(chartData?.participationRateChange ?? 0)}
           title="Participation Rate"
           unit="percent"
           type="line"
@@ -153,8 +157,8 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
           data={inflationRateData}
-          base={Number(chartData?.chartData?.inflation ?? 0) / 1000000000}
-          basePercentChange={Number(chartData?.chartData?.inflationChange ?? 0)}
+          base={Number(chartData?.inflation ?? 0) / 1000000000}
+          basePercentChange={Number(chartData?.inflationChange ?? 0)}
           title="Inflation Rate"
           unit="small-percent"
           type="line"
@@ -168,13 +172,13 @@ const Charts = ({ chartData }) => {
           data={usageData}
           base={Number(
             (usageGrouping === "day"
-              ? chartData?.chartData?.oneDayUsage
-              : chartData?.chartData?.oneWeekUsage) ?? 0
+              ? chartData?.oneDayUsage
+              : chartData?.oneWeekUsage) ?? 0
           )}
           basePercentChange={Number(
             (usageGrouping === "day"
-              ? chartData?.chartData?.dailyUsageChange
-              : chartData?.chartData?.weeklyUsageChange) ?? 0
+              ? chartData?.dailyUsageChange
+              : chartData?.weeklyUsageChange) ?? 0
           )}
           title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="minutes"
@@ -187,10 +191,8 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
           data={delegatorsCountData}
-          base={Number(chartData?.chartData?.delegatorsCount ?? 0)}
-          basePercentChange={Number(
-            chartData?.chartData?.delegatorsCountChange ?? 0
-          )}
+          base={Number(chartData?.delegatorsCount ?? 0)}
+          basePercentChange={Number(chartData?.delegatorsCountChange ?? 0)}
           title="Delegators"
           unit="small-unitless"
           type="line"
@@ -200,9 +202,9 @@ const Charts = ({ chartData }) => {
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
           data={activeTranscoderCountData}
-          base={Number(chartData?.chartData?.activeTranscoderCount ?? 0)}
+          base={Number(chartData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.chartData?.activeTranscoderCountChange ?? 0
+            chartData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
@@ -213,25 +215,17 @@ const Charts = ({ chartData }) => {
   );
 };
 
-const Home = () => {
-  const { data: protocolData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
+type PageProps = {
+  orchestrators: OrchestratorsQueryResult["data"];
+  events: EventsQueryResult["data"];
+  protocol: ProtocolQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
+};
 
-  const { data: eventsData, loading: eventsDataLoading } = useQuery(
-    eventsQuery,
-    { variables: { first: 100 }, pollInterval: 30000 }
-  );
+const Home = ({ orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
-      eventsData?.transactions
+      events?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.filter((e) =>
           e.__typename === "BondEvent"
@@ -239,20 +233,10 @@ const Home = () => {
             : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
         )
         ?.slice(0, 100) ?? [],
-    [eventsData]
-  );
-  const allIdentities = useMemo(
-    () => eventsData?.transcoders.map((t) => t.identity) ?? [],
-    [eventsData]
+    [events]
   );
 
-  const query = useMemo(
-    () => orchestratorsQuery(protocolData.protocol.currentRound.id),
-    [protocolData]
-  );
-  const { data, loading } = useQuery(query);
-
-  const { data: chartData } = useQuery(chartDataQuery);
+  const chartData = useChartData();
 
   return (
     <>
@@ -302,7 +286,7 @@ const Home = () => {
                 overflowX: "auto",
               }}
             >
-              <Flex >
+              <Flex>
                 <Box
                   css={{
                     width: "100%",
@@ -319,10 +303,10 @@ const Home = () => {
                   width: "100%",
                   height: "100%",
                   p: "24px",
-                  flex: 1
+                  flex: 1,
                 }}
               >
-                <RoundStatus />
+                <RoundStatus protocol={protocol?.protocol} />
               </Flex>
             </Flex>
           </Flex>
@@ -377,16 +361,16 @@ const Home = () => {
               </Flex>
             </Flex>
 
-            {loading ? (
+            {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
             ) : (
               <Box>
                 <OrchestratorList
-                  data={data?.transcoders}
+                  data={orchestrators?.transcoders}
                   pageSize={10}
-                  protocolData={data?.protocol}
+                  protocolData={protocol?.protocol}
                 />
               </Box>
             )}
@@ -430,19 +414,9 @@ const Home = () => {
               </Flex>
             </Flex>
 
-            {eventsDataLoading ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Box>
-                <TransactionsList
-                  identities={allIdentities}
-                  events={allEvents}
-                  pageSize={10}
-                />
-              </Box>
-            )}
+            <Box>
+              <TransactionsList events={allEvents} pageSize={10} />
+            </Box>
           </Box>
         </Flex>
       </Container>
@@ -450,19 +424,35 @@ const Home = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getOrchestrators(client);
-  await getChartData(client);
-  await getEvents(client);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const { orchestrators, fallback } = await getOrchestrators(client);
+    const { events, fallback: eventsFallback } = await getEvents(client);
+    const protocol = await getProtocol(client);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    if (!orchestrators.data || !events.data || !protocol.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      orchestrators: orchestrators.data,
+      events: events.data,
+      protocol: protocol.data,
+      fallback: {},
+      // fallback: { ...fallback, ...eventsFallback },
+    };
+
+    return {
+      props,
+      revalidate: 1200,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 Home.getLayout = getLayout;
 

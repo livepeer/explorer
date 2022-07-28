@@ -1,7 +1,14 @@
 import QRCode from "qrcode.react";
 import { Heading, Box, Flex } from "@livepeer/design-system";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 
-const Header = ({ transcoder, delegateProfile }) => {
+const Header = ({
+  transcoder,
+  delegateProfile,
+}: {
+  transcoder: any;
+  delegateProfile: EnsIdentity;
+}) => {
   return (
     <Box
       css={{
@@ -16,7 +23,7 @@ const Header = ({ transcoder, delegateProfile }) => {
       <Flex
         css={{ minWidth: 40, minHeight: 40, position: "relative", mr: "$2" }}
       >
-        {delegateProfile?.image ? (
+        {delegateProfile?.avatar ? (
           <Box
             as="img"
             css={{
@@ -25,7 +32,7 @@ const Header = ({ transcoder, delegateProfile }) => {
               width: 40,
               height: 40,
             }}
-            src={delegateProfile.image}
+            src={delegateProfile.avatar}
           />
         ) : (
           <QRCode

@@ -9,7 +9,6 @@ export function CodeBlock({
   children,
   id,
   showLineNumbers = false,
-  variant,
   isHighlightingLines = true,
   css = {},
 }) {
@@ -59,7 +58,6 @@ export function CodeBlock({
           ref={preRef}
           data-invert-line-highlight={isHighlightingLines}
           data-line-numbers={showLineNumbers}
-          variant={variant}
           className={className}
           id={id}
         >

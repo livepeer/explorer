@@ -15,16 +15,36 @@ import { useAccountAddress } from "hooks";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import Utils from "web3-utils";
-import { abbreviateNumber } from "../../lib/utils";
+import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";
 import duration from "dayjs/plugin/duration";
+import { PollExtended } from "@lib/api/polls";
+import { PollChoice, AccountQuery } from "apollo";
 
 dayjs.extend(duration);
 
-const Index = ({ data }) => {
+const Index = ({
+  data,
+}: {
+  data: {
+    poll: PollExtended;
+    delegateVote: {
+      __typename: "Vote";
+      choiceID?: PollChoice;
+      voteStake: string;
+      nonVoteStake: string;
+    };
+    vote: {
+      __typename: "Vote";
+      choiceID?: PollChoice;
+      voteStake: string;
+      nonVoteStake: string;
+    };
+    myAccount: AccountQuery;
+  };
+}) => {
   const accountAddress = useAccountAddress();
   const [copied, setCopied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,11 +58,11 @@ const Index = ({ data }) => {
     }
   }, [copied]);
 
-  const noVoteStake = parseFloat(data.poll?.tally?.no || "0");
-  const yesVoteStake = parseFloat(data.poll?.tally?.yes || "0");
-  const totalVoteStake = noVoteStake + yesVoteStake;
-  const totalNonVoteStake = +data?.poll?.totalNonVoteStake;
-  const votingPower = getVotingPower(data?.myAccount, data?.vote);
+  const votingPower = getVotingPower(
+    accountAddress,
+    data?.myAccount,
+    data?.vote
+  );
 
   let delegate = null;
   if (data?.myAccount?.delegator?.delegate) {
@@ -63,7 +83,7 @@ const Index = ({ data }) => {
           }}
         >
           <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
-            Do you support LIP-{data.poll.lip}?
+            Do you support LIP-{data.poll.attributes.lip}?
           </Heading>
           <Box
             css={{
@@ -87,21 +107,20 @@ const Index = ({ data }) => {
                   css={{
                     borderTopLeftRadius: 6,
                     borderBottomLeftRadius: 6,
-                    borderTopRightRadius:
-                      yesVoteStake / totalVoteStake === 1 ? 6 : 0,
+                    borderTopRightRadius: data.poll.percent.yes === 1 ? 6 : 0,
                     borderBottomRightRadius:
-                      yesVoteStake / totalVoteStake === 1 ? 6 : 0,
+                      data.poll.percent.yes === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
                     backgroundColor: "rgba(255, 255, 255, .1)",
-                    width: `${(yesVoteStake / totalVoteStake) * 100}%`,
+                    width: `${data.poll.percent.yes * 100}%`,
                   }}
                 />
                 <Box
                   css={{
                     lineHeight: 1,
                     fontWeight: 500,
-                    pl: "$2",
+                    pl: data.poll.percent.yes ? "$2" : 0,
                     fontSize: "$2",
                   }}
                 >
@@ -114,10 +133,7 @@ const Index = ({ data }) => {
                     fontSize: "$2",
                   }}
                 >
-                  {isNaN(yesVoteStake / totalVoteStake)
-                    ? 0
-                    : ((yesVoteStake / totalVoteStake) * 100).toPrecision(5)}
-                  %
+                  {data.poll.percent.yes.toPrecision(5)}%
                 </Box>
               </Flex>
               <Flex
@@ -133,20 +149,18 @@ const Index = ({ data }) => {
                   css={{
                     borderTopLeftRadius: 6,
                     borderBottomLeftRadius: 6,
-                    borderTopRightRadius:
-                      noVoteStake / totalVoteStake === 1 ? 6 : 0,
-                    borderBottomRightRadius:
-                      noVoteStake / totalVoteStake === 1 ? 6 : 0,
+                    borderTopRightRadius: data.poll.percent.no === 1 ? 6 : 0,
+                    borderBottomRightRadius: data.poll.percent.no === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
                     backgroundColor: "rgba(255, 255, 255, .2)",
-                    width: `${(noVoteStake / totalVoteStake) * 100}%`,
+                    width: `${data.poll.percent.no * 100}%`,
                   }}
                 />
                 <Box
                   css={{
                     lineHeight: 1,
-                    pl: "$2",
+                    pl: data.poll.percent.no ? "$2" : 0,
                     fontWeight: 500,
                     fontSize: "$2",
                   }}
@@ -160,10 +174,7 @@ const Index = ({ data }) => {
                     fontSize: "$2",
                   }}
                 >
-                  {isNaN(noVoteStake / totalVoteStake)
-                    ? 0
-                    : ((noVoteStake / totalVoteStake) * 100).toPrecision(5)}
-                  %
+                  {data.poll.percent.no.toPrecision(5)}%
                 </Box>
               </Flex>
             </Box>
@@ -174,11 +185,14 @@ const Index = ({ data }) => {
                   ? "votes"
                   : "vote"
               }`}{" "}
-              · {abbreviateNumber(totalVoteStake, 4)} LPT ·{" "}
-              {!data.poll.isActive
+              · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
+              {data.poll.status !== "active"
                 ? "Final Results"
                 : dayjs
-                    .duration(data.poll.estimatedTimeRemaining, "seconds")
+                    .duration(
+                      dayjs().unix() - data.poll.estimatedEndTime,
+                      "seconds"
+                    )
                     .humanize() + " left"}
             </Box>
           </Box>
@@ -221,7 +235,7 @@ const Index = ({ data }) => {
                     {data?.vote?.choiceID ? data?.vote?.choiceID : "N/A"}
                   </Box>
                 </Flex>
-                {((!data?.vote?.choiceID && data.poll.isActive) ||
+                {((!data?.vote?.choiceID && data.poll.status === "active") ||
                   data?.vote?.choiceID) && (
                   <Flex
                     css={{ fontSize: "$2", justifyContent: "space-between" }}
@@ -237,7 +251,8 @@ const Index = ({ data }) => {
                         {abbreviateNumber(votingPower, 4)} LPT (
                         {(
                           (+votingPower /
-                            (totalVoteStake + totalNonVoteStake)) *
+                            (data.poll.stake.nonVoters +
+                              data.poll.stake.voters)) *
                           100
                         ).toPrecision(2)}
                         %)
@@ -246,7 +261,7 @@ const Index = ({ data }) => {
                   </Flex>
                 )}
               </Box>
-              {data.poll.isActive && renderVoteButton(data)}
+              {data.poll.status === "active" && renderVoteButton(data)}
             </>
           ) : (
             <Flex align="center" direction="column">
@@ -268,7 +283,7 @@ const Index = ({ data }) => {
           )}
         </Box>
       </Box>
-      {data.poll.isActive && (
+      {data.poll.status === "active" && (
         <Box
           css={{
             display: "none",
@@ -462,9 +477,9 @@ function renderVoteButton(data) {
   }
 }
 
-function getVotingPower(myAccount, vote) {
+function getVotingPower(accountAddress, myAccount, vote) {
   // if account is a delegate its voting power is its total stake minus its delegators' vote stake (nonVoteStake)
-  if (myAccount?.account.id === myAccount?.delegator?.delegate.id) {
+  if (accountAddress === myAccount?.delegator?.delegate?.id) {
     if (vote?.voteStake) {
       return +vote.voteStake - +vote?.nonVoteStake;
     }
@@ -474,7 +489,7 @@ function getVotingPower(myAccount, vote) {
     );
   }
 
-  return Utils.fromWei(
+  return fromWei(
     myAccount?.delegator?.pendingStake
       ? myAccount?.delegator?.pendingStake
       : "0"

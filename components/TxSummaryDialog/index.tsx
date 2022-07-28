@@ -1,4 +1,4 @@
-import { useQuery, gql } from "@apollo/client";
+import { txMessages } from "@lib/utils";
 import {
   Box,
   Flex,
@@ -8,32 +8,28 @@ import {
   Button,
 } from "@livepeer/design-system";
 import { keyframes } from "@livepeer/design-system";
+import { sentenceCase } from "change-case";
+import { useExplorerStore } from "hooks";
+import { useCallback } from "react";
 import CloseIcon from "../../public/img/close.svg";
 
 const rotate = keyframes({
   "100%": { transform: "rotate(360deg)" },
 });
 
-const Index = ({ isOpen, onDismiss }) => {
-  const GET_TX_SUMMARY_MODAL = gql`
-    {
-      txSummaryModal @client {
-        __typename
-        open
-        error
-      }
-    }
-  `;
+const Index = () => {
+  const { latestTransaction, clearLatestTransaction } = useExplorerStore();
 
-  const { data } = useQuery(GET_TX_SUMMARY_MODAL);
-
-  if (!isOpen) {
+  if (!latestTransaction || latestTransaction.step !== "summary") {
     return null;
   }
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent css={{ minWidth: 370 }} onPointerDownOutside={onDismiss}>
+    <Dialog open={true}>
+      <DialogContent
+        css={{ minWidth: 370 }}
+        onPointerDownOutside={clearLatestTransaction}
+      >
         <Flex
           css={{
             justifyContent: "flex-end",
@@ -48,21 +44,21 @@ const Index = ({ isOpen, onDismiss }) => {
               top: 20,
               color: "$white",
             }}
-            onClick={onDismiss}
+            onClick={clearLatestTransaction}
           />
         </Flex>
 
-        {data?.txSummaryModal?.error ? (
+        {latestTransaction?.error ? (
           <Box />
         ) : (
           <Flex
             css={{
-              py: "$5",
+              pt: "$2",
+              pb: "$5",
               flexDirection: "column",
               justifyContent: "flex-start",
               width: "100%",
               alignItems: "center",
-              padding: "60px 0px",
             }}
           >
             <Box
@@ -86,18 +82,20 @@ const Index = ({ isOpen, onDismiss }) => {
             justifyItems: "center",
           }}
         >
-          {!data?.txSummaryModal?.error && (
-            <Box css={{ fontSize: "$4", fontWeight: 600 }}>
-              Waiting For Confirmation
-            </Box>
-          )}
+          <Box css={{ fontSize: "$4", fontWeight: 600 }}>
+            {!latestTransaction?.error ? "Waiting for confirmation" : "Error"}
+          </Box>
         </Box>
         <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
-          {data?.txSummaryModal?.error ? (
+          {latestTransaction?.error ? (
             <>
-              <Text css={{ mb: "$3" }}>Transaction Error</Text>
+              <Text css={{ mb: "$3", maxWidth: 350 }}>
+                {latestTransaction?.error.length < 50
+                  ? `${sentenceCase(latestTransaction?.error)}.`
+                  : "Error with transaction, please check your inputs and try again."}
+              </Text>
               <Button
-                onClick={onDismiss}
+                onClick={clearLatestTransaction}
                 variant="primary"
                 size="4"
                 css={{ width: "100%" }}
@@ -106,7 +104,7 @@ const Index = ({ isOpen, onDismiss }) => {
               </Button>
             </>
           ) : (
-            <Text>Confirm this transaction in your wallet</Text>
+            <Text>Confirm latest transaction in your wallet.</Text>
           )}
         </Box>
       </DialogContent>

@@ -1,22 +1,22 @@
-import { useRouter } from "next/router";
-import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import dayjs from "dayjs";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { historyQuery } from "../../queries/historyQuery";
 import {
-  Flex,
   Box,
   Card as CardBase,
+  Flex,
   Link as A,
   styled,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { useTransactionsQuery } from "apollo";
+import dayjs from "dayjs";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { useRouter } from "next/router";
 import numeral from "numeral";
 import { useMemo } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Card = styled(CardBase, {
+  length: {},
   border: "1px solid $neutral3",
   mb: "$2",
   p: "$4",
@@ -27,8 +27,7 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
-  const { data, loading, error, fetchMore, stopPolling } = useQuery(
-    historyQuery,
+  const { data, loading, error, fetchMore, stopPolling } = useTransactionsQuery(
     {
       variables: {
         account: account.toLowerCase(),

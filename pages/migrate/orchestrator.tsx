@@ -1,55 +1,48 @@
+import Spinner from "@components/Spinner";
+import { getLayout } from "@layouts/main";
 import {
   Box,
+  Button,
+  Card,
+  Container,
   Flex,
   Heading,
-  Text,
-  Container,
-  Card,
-  styled,
-  Button,
-  TextField,
   Link as A,
+  styled,
+  Text,
+  TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
-import Spinner from "@components/Spinner";
 
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
+import { isL2ChainId } from "@lib/chains";
+import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import useForm from "react-hook-form";
 import {
-  arbRetryableTx,
+  useAccountAddress,
+  useAccountSigner,
+  useActiveChain,
+  useArbRetryableTx,
+  useL1DelegatorData,
+  useL1Migrator,
+  useNodeInterface,
+} from "hooks";
+import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-  l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
-import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
-import LivepeerSDK from "@livepeer/sdk";
-import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
-import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
-import { isValidAddress } from "utils/validAddress";
-import { isL2ChainId } from "@lib/chains";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { useActiveChain, useAccountAddress, useAccountSigner } from "hooks";
-
-const isRegisteredOrchestrator = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const status = await sdk.rpc.getTranscoderStatus(account);
-  return status === "Registered" ? true : false;
-};
+import { useRouter } from "next/router";
+import useForm from "react-hook-form";
+import { useTimer } from "react-timer-hook";
+import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
+import { isValidAddress } from "utils/validAddress";
+import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -212,6 +205,10 @@ const MigrateOrchestrator = () => {
   const accountAddress = useAccountAddress();
   const accountSigner = useAccountSigner();
 
+  const arbRetryableTx = useArbRetryableTx();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
+
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -220,6 +217,8 @@ const MigrateOrchestrator = () => {
   const signerAddress = watch("signerAddress");
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+
+  const l1Delegator = useL1DelegatorData(accountAddress);
 
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
@@ -389,7 +388,6 @@ const MigrateOrchestrator = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const isOrchestrator = await isRegisteredOrchestrator(accountAddress);
         // fetch calldata to be submitted for calling L2 function
         const { data, params } = await l1Migrator.getMigrateDelegatorParams(
           state.signer ? state.signer : accountAddress,
@@ -399,7 +397,7 @@ const MigrateOrchestrator = () => {
         dispatch({
           type: "initialize",
           payload: {
-            isOrchestrator,
+            isOrchestrator: l1Delegator.transcoderStatus === "registered",
             migrationCallData: data,
             migrationParams: {
               delegate: params.delegate,
@@ -565,7 +563,6 @@ const MigrateOrchestrator = () => {
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
-              variant="primary"
               isHighlightingLines={false}
             >
               {JSON.stringify(payload)}
@@ -807,6 +804,7 @@ const MigrateOrchestrator = () => {
 
 function MigrationFields({ migrationParams, css = {} }) {
   const ReadOnlyCard = styled(Box, {
+    length: {},
     display: "flex",
     backgroundColor: "$neutral3",
     border: "1px solid $neutral6",

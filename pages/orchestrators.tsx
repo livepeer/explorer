@@ -1,35 +1,32 @@
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import OrchestratorList from "@components/OrchestratorList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import Head from "next/head";
 import {
-  Flex,
-  Container,
-  Link as A,
-  Heading,
   Box,
   Button,
+  Container,
+  Flex,
+  Heading,
+  Link as A
 } from "@livepeer/design-system";
-import OrchestratorList from "@components/OrchestratorList";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
-import { gql, useQuery } from "@apollo/client";
-import { getApollo } from "../apollo";
-import { getOrchestrators } from "api";
-import Link from "next/link";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import Spinner from "@components/Spinner";
+import { getOrchestrators, getProtocol } from "@lib/api/ssr";
+import { GetStaticProps } from "next";
+import Head from "next/head";
+import Link from "next/link";
+import {
+  getApollo,
+  OrchestratorsQueryResult,
+  ProtocolQueryResult
+} from "../apollo";
 
-const OrchestratorsPage = () => {
-  const { data: protocolData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
-  const { data, loading } = useQuery(query);
+type PageProps = {
+  orchestrators: OrchestratorsQueryResult["data"];
+  protocol: ProtocolQueryResult["data"];
+  fallback: { [key: string]: EnsIdentity };
+};
+
+const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
   return (
     <>
       <Head>
@@ -65,17 +62,11 @@ const OrchestratorsPage = () => {
             )}
           </Flex>
           <Box css={{ mb: "$5" }}>
-            {loading ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <OrchestratorList
-                data={data?.transcoders}
-                pageSize={20}
-                protocolData={data?.protocol}
-              />
-            )}
+            <OrchestratorList
+              data={orchestrators.transcoders}
+              pageSize={20}
+              protocolData={protocol?.protocol}
+            />
           </Box>
         </Flex>
       </Container>
@@ -83,17 +74,32 @@ const OrchestratorsPage = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getOrchestrators(client);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const { orchestrators, fallback } = await getOrchestrators(client);
+    const protocol = await getProtocol(client);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 60,
-  };
-}
+    if (!orchestrators.data || !protocol.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      orchestrators: orchestrators.data,
+      protocol: protocol.data,
+      fallback,
+    };
+
+    return {
+      props,
+      revalidate: 1200,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 OrchestratorsPage.getLayout = getLayout;
 

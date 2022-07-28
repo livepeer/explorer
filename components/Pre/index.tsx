@@ -1,6 +1,7 @@
 import { styled } from "@livepeer/design-system";
 
 export const Pre = styled("pre", {
+  length: {},
   $$background: "$loContrast",
   $$text: "$colors$hiContrast",
   $$outline: "inset 0 0 0 1px $colors$neutral6",

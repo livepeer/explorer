@@ -1,26 +1,23 @@
+import { fetcher } from "@lib/axios";
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
-import {
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { L1_CHAIN, DEFAULT_CHAIN, INFURA_KEY } from "lib/chains";
 import rainbowTheme from "constants/rainbowTheme";
 import Layout from "layouts/main";
+import { DEFAULT_CHAIN, INFURA_KEY, L1_CHAIN } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import "react-circular-progressbar/dist/styles.css";
 import { CookiesProvider } from "react-cookie";
-import { WagmiConfig, createClient, configureChains } from "wagmi";
+import { SWRConfig } from "swr";
+import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
-import { publicProvider } from 'wagmi/providers/public';
+import { publicProvider } from "wagmi/providers/public";
 import { useApollo } from "../apollo";
-import "../css/flickity.css";
 
-function App({ Component, pageProps }) {
-  const client = useApollo(pageProps.initialApolloState);
+function App({ Component, pageProps, fallback = null }) {
+  const client = useApollo();
 
   const { route } = useRouter();
 
@@ -29,7 +26,7 @@ function App({ Component, pageProps }) {
   const { wagmiClient, chains, layoutKey } = useMemo(() => {
     const { provider, chains } = configureChains(
       [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ infuraId: INFURA_KEY}), publicProvider()]
+      [infuraProvider({ infuraId: INFURA_KEY }), publicProvider()]
     );
 
     const { connectors } = getDefaultWallets({
@@ -63,7 +60,7 @@ function App({ Component, pageProps }) {
       >
         <WagmiConfig client={wagmiClient}>
           <RainbowKitProvider
-            showRecentTransactions={false}
+            showRecentTransactions={true}
             appInfo={{
               appName: "Livepeer",
               learnMoreUrl: "https://livepeer.org/primer",
@@ -71,9 +68,18 @@ function App({ Component, pageProps }) {
             theme={rainbowTheme}
             chains={chains}
           >
-            <CookiesProvider>
-              <IdProvider>{getLayout(<Component {...pageProps} />)}</IdProvider>
-            </CookiesProvider>{" "}
+            <SWRConfig
+              value={{
+                fetcher: fetcher,
+                fallback: fallback ?? {},
+              }}
+            >
+              <CookiesProvider>
+                <IdProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </IdProvider>
+              </CookiesProvider>
+            </SWRConfig>
           </RainbowKitProvider>
         </WagmiConfig>
       </ApolloProvider>

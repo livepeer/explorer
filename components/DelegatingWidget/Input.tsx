@@ -1,60 +1,62 @@
-import { gql, useApolloClient } from "@apollo/client";
-import useWindowSize from "react-use/lib/useWindowSize";
-import { Box } from "@livepeer/design-system";
 import { calculateROI } from "@lib/roi";
+import { Box } from "@livepeer/design-system";
+import { useExplorerStore } from "hooks";
+import { useEffect, useMemo } from "react";
+import { useWindowSize } from "react-use";
 
 const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
-  const client = useApolloClient();
   const { width } = useWindowSize();
 
-  const pools = transcoder?.pools ?? [];
-  const rewardCallRatio =
-    pools.length > 0
-      ? pools.filter((r) => r?.rewardTokens).length / pools.length
-      : 0;
+  const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);
+  const rewardCallRatio = useMemo(
+    () =>
+      pools.length > 0
+        ? pools.filter((r) => r?.rewardTokens).length / pools.length
+        : 0,
+    [pools]
+  );
 
-  const principle = Number(value || 0);
+  const principle = useMemo(() => Number(value || 0), [value]);
 
-  const roi = calculateROI({
-    inputs: {
-      principle
-    },
-    orchestratorParams: {
-      totalStake: Number(transcoder.totalStake),
-    },
-    feeParams: {
-      ninetyDayVolumeETH: Number(transcoder.ninetyDayVolumeETH),
-      feeShare: Number(transcoder.feeShare) / 1000000,
-      lptPriceEth: Number(protocol.lptPriceEth),
-    },
-    rewardParams: {
-      inflation: Number(protocol.inflation) / 1000000000,
-      inflationChangePerRound: Number(protocol.inflationChange) / 1000000000,
-      totalSupply: Number(protocol.totalSupply),
-      totalActiveStake: Number(protocol.totalActiveStake),
-      roundLength: Number(protocol.roundLength),
+  const roi = useMemo(
+    () =>
+      calculateROI({
+        inputs: {
+          principle,
+        },
+        orchestratorParams: {
+          totalStake: Number(transcoder.totalStake),
+        },
+        feeParams: {
+          ninetyDayVolumeETH: Number(transcoder.ninetyDayVolumeETH),
+          feeShare: Number(transcoder.feeShare) / 1000000,
+          lptPriceEth: Number(protocol.lptPriceEth),
+        },
+        rewardParams: {
+          inflation: Number(protocol.inflation) / 1000000000,
+          inflationChangePerRound:
+            Number(protocol.inflationChange) / 1000000000,
+          totalSupply: Number(protocol.totalSupply),
+          totalActiveStake: Number(protocol.totalActiveStake),
+          roundLength: Number(protocol.roundLength),
 
-      rewardCallRatio,
-      rewardCut: Number(transcoder.rewardCut) / 1000000,
-    },
-  });
+          rewardCallRatio,
+          rewardCut: Number(transcoder.rewardCut) / 1000000,
+        },
+      }),
+    [protocol, transcoder, principle, rewardCallRatio]
+  );
 
-  client.writeQuery({
-    query: gql`
-      query {
-        principle
-        roiFees
-        roiFeesLpt
-        roiRewards
-      }
-    `,
-    data: {
+  const { setYieldResults } = useExplorerStore();
+
+  useEffect(() => {
+    setYieldResults({
       principle,
       roiFeesLpt: roi.delegator.feesLpt,
       roiFees: roi.delegator.fees,
       roiRewards: roi.delegator.rewards,
-    },
-  });
+    });
+  }, [setYieldResults, principle, roi.delegator]);
 
   return (
     <Box

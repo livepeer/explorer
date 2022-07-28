@@ -1,54 +1,39 @@
-import { Box, Text, Flex, Button, Container } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-  L1_CHAIN_ID,
-  l2Migrator,
-} from "lib/chains";
-import { ethers, constants } from "ethers";
-import { useContext, useEffect, useState } from "react";
-import LivepeerSDK from "@livepeer/sdk";
-import { useApolloClient } from "@apollo/client";
-import { initTransaction } from "@lib/utils";
-import { MutationsContext } from "contexts";
-import { useAccountAddress } from "hooks";
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
-
-const getDelegatorOnL1 = async (account) => {
-  const sdk = await LivepeerSDK({
-    controllerAddress: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-    provider: INFURA_NETWORK_URLS[L1_CHAIN_ID],
-    account: account,
-  });
-  const delegator = await sdk.rpc.getDelegator(account);
-  const status = await sdk.rpc.getTranscoderStatus(account);
-  const unbondingLocks = await sdk.rpc.getDelegatorUnbondingLocks(account);
-  return { delegator, status, unbondingLocks };
-};
+import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { constants, ethers } from "ethers";
+import {
+  useAccountAddress,
+  useHandleTransaction,
+  useL1DelegatorData,
+  useL2Migrator,
+} from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { useEffect, useState } from "react";
 
 const Claim = () => {
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
-  const { claimStake }: any = useContext(MutationsContext);
+
+  const l1Delegator = useL1DelegatorData(accountAddress);
+
   const [migrationParams, setMigrationParams] = useState(undefined);
   const [isDelegator, setIsDelegator] = useState(false);
   const [isClaimStakeEnabled, setIsClaimStakeEnabled] = useState(false);
   const [isMigrated, setIsMigrated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const l2Migrator = useL2Migrator();
+  const handleTransaction = useHandleTransaction("claimStake", () =>
+    setIsMigrated(true)
+  );
+
   useEffect(() => {
     const init = async () => {
-      if (accountAddress) {
+      if (accountAddress && l2Migrator && l1Delegator) {
         setLoading(true);
 
         // reset on account change
         setIsDelegator(false);
-
-        const { delegator, status, unbondingLocks } = await getDelegatorOnL1(
-          accountAddress
-        );
 
         const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
         setIsClaimStakeEnabled(claimStakeEnabled);
@@ -57,16 +42,16 @@ const Claim = () => {
         setIsMigrated(isMigrated);
 
         setMigrationParams({
-          delegate: delegator.delegateAddress,
-          stake: delegator.pendingStake,
-          fees: delegator.pendingFees,
+          delegate: l1Delegator.delegateAddress,
+          stake: l1Delegator.pendingStake,
+          fees: l1Delegator.pendingFees,
         });
 
         if (
-          status === "NotRegistered" &&
-          (delegator.pendingStake !== "0" ||
-            delegator.pendingFees !== "0" ||
-            unbondingLocks.length > 1)
+          l1Delegator.transcoderStatus === "not-registered" &&
+          (l1Delegator.pendingStake !== "0" ||
+            l1Delegator.pendingFees !== "0" ||
+            l1Delegator.unbondingLocks.length > 1)
         ) {
           setIsDelegator(true);
         }
@@ -74,7 +59,7 @@ const Claim = () => {
       }
     };
     init();
-  }, [accountAddress]);
+  }, [accountAddress, l2Migrator, l1Delegator]);
 
   return loading || !isDelegator || isMigrated ? null : (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
@@ -187,15 +172,13 @@ const Claim = () => {
                     });
                     const proof = await res.json();
 
-                    await claimStake({
-                      variables: {
-                        delegate: migrationParams.delegate,
-                        stake: migrationParams.stake,
-                        fees: migrationParams.fees,
-                        proof,
-                        newDelegate: constants.AddressZero,
-                      },
-                    });
+                    return l2Migrator.claimStake(
+                      migrationParams.delegate,
+                      migrationParams.stake,
+                      migrationParams.fees,
+                      proof,
+                      constants.AddressZero
+                    );
                   } catch (e) {
                     console.log(e);
                     throw new Error(e);
@@ -203,7 +186,7 @@ const Claim = () => {
                 };
 
                 setTimeout(() => {
-                  initTransaction(client, mutation, () => setIsMigrated(true));
+                  handleTransaction(mutation, {});
                 }, 1000);
               }}
               size="3"

@@ -1,0 +1,10 @@
+query orchestratorsSorted {
+  transcoders(
+    orderDirection: desc
+    orderBy: totalStake
+    where: { active: true }
+  ) {
+    id
+    totalStake
+  }
+}

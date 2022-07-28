@@ -4,15 +4,14 @@ import { useRef } from "react";
 import { useRouter } from "next/router";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 
-import { useAccountAddress, useAccountEnsData } from "hooks";
+import { useAccountAddress, useEnsData } from "hooks";
 
 const Account = () => {
   const router = useRouter();
-  const ens = useAccountEnsData();
+  const accountAddress = useAccountAddress();
+  const ens = useEnsData(accountAddress);
   const { asPath } = router;
   const ref = useRef();
-
-  const accountAddress = useAccountAddress();
 
   return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>

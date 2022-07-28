@@ -1,0 +1,70 @@
+query account($account: ID!) {
+  delegator(id: $account) {
+    id
+    bondedAmount
+    principal
+    unbonded
+    withdrawnFees
+    startRound
+    lastClaimRound {
+      id
+    }
+    unbondingLocks {
+      id
+      amount
+      unbondingLockId
+      withdrawRound
+      delegate {
+        id
+      }
+    }
+    delegate {
+      id
+      active
+      status
+      totalStake
+    }
+  }
+  transcoder(id: $account) {
+    id
+    active
+    feeShare
+    rewardCut
+    status
+    active
+    totalStake
+    totalVolumeETH
+    activationTimestamp
+    activationRound
+    deactivationRound
+    thirtyDayVolumeETH
+    ninetyDayVolumeETH
+    lastRewardRound {
+      id
+    }
+    pools(
+      first: 30
+      skip: 1
+      orderBy: id
+      orderDirection: desc
+    ) {
+      rewardTokens
+    }
+    delegators(first: 1000) {
+      id
+    }
+  }
+  protocol(id: "0") {
+    id
+    totalSupply
+    totalActiveStake
+    participationRate
+    inflation
+    inflationChange
+    lptPriceEth
+    roundLength
+    currentRound {
+      id
+    }
+  }
+}

@@ -1,7 +1,6 @@
 import Logo from "../Logo";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import RoundStatus from "../RoundStatus";
 import UniswapModal from "../UniswapModal";
 import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";

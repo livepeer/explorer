@@ -1,4 +1,3 @@
-import { gql, useApolloClient, useQuery } from "@apollo/client";
 import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import fm from "front-matter";
@@ -23,49 +22,44 @@ import dayjs from "dayjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
-import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { useAccountAddress } from "../../hooks";
-import { accountQuery } from "../../queries/accountQuery";
-import { pollQuery } from "../../queries/pollQuery";
-import { voteQuery } from "../../queries/voteQuery";
+import {
+  useAccountAddress,
+  useCurrentRoundData,
+  useExplorerStore,
+} from "../../hooks";
 import FourZeroFour from "../404";
 
+import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { getPollExtended, PollExtended } from "@lib/api/polls";
+import { sentenceCase } from "change-case";
+import numeral from "numeral";
 dayjs.extend(relativeTime);
+
+const formatPercent = (percent: number) => numeral(percent).format("0.0000%")
 
 const Poll = () => {
   const router = useRouter();
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
+
   const { width } = useWindowSize();
 
-  const [pollData, setPollData] = useState(null);
+  const [pollData, setPollData] = useState<PollExtended>(null);
   const { query } = router;
 
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 20000;
 
-  const { data } = useQuery(pollQuery, {
+  const { setBottomDrawerOpen } = useExplorerStore();
+
+  const { data } = usePollQuery({
     variables: {
       id: pollId,
     },
     pollInterval,
   });
 
-  const { data: currentRoundData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-
-  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
-
-  const { data: myAccountData } = useQuery(q, {
+  const { data: myAccountData } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
@@ -73,7 +67,7 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const { data: voteData } = useQuery(voteQuery, {
+  const { data: voteData } = useVoteQuery({
     variables: {
       id: `${accountAddress?.toLowerCase()}-${pollId}`,
     },
@@ -81,7 +75,7 @@ const Poll = () => {
     skip: !accountAddress,
   });
 
-  const { data: delegateVoteData } = useQuery(voteQuery, {
+  const { data: delegateVoteData } = useVoteQuery({
     variables: {
       id: `${myAccountData?.delegator?.delegate?.id.toLowerCase()}-${pollId}`,
     },
@@ -89,17 +83,20 @@ const Poll = () => {
     skip: !myAccountData?.delegator?.delegate,
   });
 
+  const currentRound = useCurrentRoundData();
+
   useEffect(() => {
     const init = async () => {
-      if (data) {
-        const response = await transformData({
-          poll: data.poll,
-        });
+      if (data && currentRound?.currentL2Block) {
+        const response = await getPollExtended(
+          data.poll,
+          currentRound.currentL2Block
+        );
         setPollData(response);
       }
     };
     init();
-  }, [data]);
+  }, [data, currentRound?.currentL2Block]);
 
   if (!query?.poll) {
     return <FourZeroFour />;
@@ -122,10 +119,6 @@ const Poll = () => {
       </Flex>
     );
   }
-
-  const noVoteStake = +pollData?.tally?.no || 0;
-  const yesVoteStake = +pollData?.tally?.yes || 0;
-  const totalVoteStake = noVoteStake + yesVoteStake;
 
   return (
     <>
@@ -158,35 +151,37 @@ const Poll = () => {
                   variant={
                     pollData.status === "rejected"
                       ? "red"
-                      : pollData.stats === "active"
+                      : pollData.status === "active"
                       ? "blue"
-                      : "primary"
+                      : pollData.status === "passed"
+                      ? "primary"
+                      : "neutral"
                   }
                   css={{ textTransform: "capitalize", fontWeight: 700 }}
                 >
-                  {pollData.status}
+                  {sentenceCase(pollData.status)}
                 </Badge>
               </Flex>
               <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
-                {pollData.title} (LIP-{pollData.lip})
+                {pollData.attributes.title} (LIP-{pollData.attributes.lip})
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
-                {!pollData.isActive ? (
+                {pollData.status !== "active" ? (
                   <Box>
                     Voting ended on{" "}
-                    {dayjs.unix(pollData.endTime).format("MMM Do, YYYY")} at
-                    block #{pollData.endBlock}
+                    {dayjs
+                      .unix(pollData.estimatedEndTime)
+                      .format("MMM D, YYYY")}{" "}
+                    at block #{pollData.endBlock}.
                   </Box>
                 ) : (
                   <Box>
                     Voting ends in ~
-                    {dayjs()
-                      .add(pollData.estimatedTimeRemaining, "seconds")
-                      .fromNow(true)}
+                    {dayjs.unix(pollData.estimatedEndTime).fromNow(true)}
                   </Box>
                 )}
               </Text>
-              {pollData.isActive && (
+              {pollData.status === "active" && (
                 <Button
                   size="4"
                   variant="primary"
@@ -198,18 +193,7 @@ const Poll = () => {
                       display: "none",
                     },
                   }}
-                  onClick={() =>
-                    client.writeQuery({
-                      query: gql`
-                        query {
-                          bottomDrawerOpen
-                        }
-                      `,
-                      data: {
-                        bottomDrawerOpen: true,
-                      },
-                    })
-                  }
+                  onClick={() => setBottomDrawerOpen(true)}
                 >
                   Vote
                 </Button>
@@ -231,9 +215,9 @@ const Poll = () => {
                 <Stat
                   css={{ flex: 1, mb: 0 }}
                   label={
-                    <Box>Total Support ({pollData.quota / 10000}% needed)</Box>
+                    <Box>Total Support ({+pollData.quota / 10000}% needed)</Box>
                   }
-                  value={<Box>{pollData.totalSupport.toPrecision(5)}%</Box>}
+                  value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
                   meta={
                     <Box css={{ mt: "$4" }}>
                       <Flex
@@ -246,18 +230,11 @@ const Poll = () => {
                       >
                         <Flex css={{ alignItems: "center" }}>
                           <Box>
-                            Yes (
-                            {isNaN(yesVoteStake / totalVoteStake)
-                              ? 0
-                              : (
-                                  (yesVoteStake / totalVoteStake) *
-                                  100
-                                ).toPrecision(5)}
-                            %)
+                            Yes ({formatPercent(pollData.percent.yes)})
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(yesVoteStake, 4)} LPT
+                          {abbreviateNumber(pollData.stake.yes, 4)} LPT
                         </Box>
                       </Flex>
                       <Flex
@@ -269,18 +246,11 @@ const Poll = () => {
                       >
                         <Flex css={{ alignItems: "center" }}>
                           <Box>
-                            No (
-                            {isNaN(noVoteStake / totalVoteStake)
-                              ? 0
-                              : (
-                                  (noVoteStake / totalVoteStake) *
-                                  100
-                                ).toPrecision(5)}
-                            %)
+                            No ({formatPercent(pollData.percent.no)})
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(noVoteStake, 4)} LPT
+                          {abbreviateNumber(pollData.stake.no, 4)} LPT
                         </Box>
                       </Flex>
                     </Box>
@@ -291,12 +261,10 @@ const Poll = () => {
                   css={{ flex: 1, mb: 0 }}
                   label={
                     <Box>
-                      Total Participation ({pollData.quorum / 10000}% needed)
+                      Total Participation ({+pollData.quorum / 10000}% needed)
                     </Box>
                   }
-                  value={
-                    <Box>{pollData.totalParticipation.toPrecision(5)}%</Box>
-                  }
+                  value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
                   meta={
                     <Box css={{ mt: "$4" }}>
                       <Flex
@@ -308,12 +276,11 @@ const Poll = () => {
                         }}
                       >
                         <Box as="span" css={{ color: "$muted" }}>
-                          Voters ({pollData.totalParticipation.toPrecision(5)}
-                          %)
+                          Voters ({formatPercent(pollData.percent.voters)})
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(totalVoteStake, 4)} LPT
+                            {abbreviateNumber(pollData.stake.voters, 4)} LPT
                           </Box>
                         </Box>
                       </Flex>
@@ -325,12 +292,11 @@ const Poll = () => {
                         }}
                       >
                         <Box as="span" css={{ color: "$muted" }}>
-                          Nonvoters ({pollData.nonVoters.toPrecision(5)}
-                          %)
+                          Nonvoters ({formatPercent(pollData.percent.nonVoters)})
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(pollData.nonVotersStake, 4)} LPT
+                            {abbreviateNumber(pollData.stake.nonVoters, 4)} LPT
                           </Box>
                         </Box>
                       </Flex>
@@ -360,7 +326,7 @@ const Poll = () => {
                   },
                 }}
               >
-                <ReactMarkdown>{pollData.text}</ReactMarkdown>
+                <ReactMarkdown>{pollData.attributes.text}</ReactMarkdown>
               </Card>
             </Box>
           </Flex>
@@ -405,38 +371,6 @@ const Poll = () => {
     </>
   );
 };
-
-async function transformData({ poll }) {
-  const noVoteStake = +poll?.tally?.no || 0;
-  const yesVoteStake = +poll?.tally?.yes || 0;
-  const totalVoteStake = +poll?.totalVoteStake;
-  const totalNonVoteStake = +poll?.totalNonVoteStake;
-  const totalSupport = isNaN(yesVoteStake / totalVoteStake)
-    ? 0
-    : (yesVoteStake / totalVoteStake) * 100;
-  const totalStake = totalNonVoteStake + totalVoteStake;
-  const totalParticipation = (totalVoteStake / totalStake) * 100;
-  const nonVotersStake = totalStake - totalVoteStake;
-  const nonVoters = ((totalStake - totalVoteStake) / totalStake) * 100;
-
-  const { gitCommitHash, text } = await catIpfsJson<IpfsPoll>(poll?.proposal);
-
-  const response = fm(text);
-  return {
-    ...response.attributes,
-    created: response.attributes.created.toString(),
-    text: response.body,
-    gitCommitHash,
-    totalStake,
-    totalSupport,
-    totalParticipation,
-    nonVoters,
-    nonVotersStake,
-    yesVoteStake,
-    noVoteStake,
-    ...poll,
-  };
-}
 
 Poll.getLayout = getLayout;
 

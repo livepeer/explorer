@@ -14,7 +14,18 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
 
 export const AVERAGE_L1_BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
 
-const MAINNET_CONTRACTS = {
+export type AllContracts = {
+  controller: string;
+  pollCreator: string;
+  l1Migrator: string;
+  l2Migrator: string;
+  inbox: string;
+  outbox: string;
+  arbRetryableTx: string;
+  nodeInterface: string;
+};
+
+const MAINNET_CONTRACTS: AllContracts = {
   controller: "0xf96d54e490317c557a967abfa5d6e33006be69b3",
   pollCreator: "0xBf824EDb6b94D9B52d972d5B25bCc19b4e6E3F3C",
   l1Migrator: "0xcC7E99a650ED63f061AC26660f2bb71570e571b2",
@@ -25,7 +36,7 @@ const MAINNET_CONTRACTS = {
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
 
-const ARBITRUM_ONE_CONTRACTS = {
+const ARBITRUM_ONE_CONTRACTS: AllContracts = {
   controller: "0xD8E8328501E9645d16Cf49539efC04f734606ee4",
   pollCreator: "0x8bb50806D60c492c0004DAD5D9627DAA2d9732E6",
   l1Migrator: "0x21146B872D3A95d2cF9afeD03eE5a783DaE9A89A",
@@ -36,7 +47,7 @@ const ARBITRUM_ONE_CONTRACTS = {
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
 
-const RINKEBY_CONTRACTS = {
+const RINKEBY_CONTRACTS: AllContracts = {
   controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
   pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
   l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8",
@@ -47,7 +58,7 @@ const RINKEBY_CONTRACTS = {
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
 
-const ARBITRUM_RINKEBY_CONTRACTS = {
+const ARBITRUM_RINKEBY_CONTRACTS: AllContracts = {
   controller: "0x9ceC649179e2C7Ab91688271bcD09fb707b3E574",
   pollCreator: "0x7e3305D48489e43B7fBf318D575D5dF654EE175c",
   l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8",
@@ -114,15 +125,6 @@ export enum NetworkType {
   L2,
 }
 
-const abis = {
-  l1Migrator: require("../abis/bridge/L1Migrator.json"),
-  l2Migrator: require("../abis/bridge/L2Migrator.json"),
-  inbox: require("../abis/bridge/Inbox.json"),
-  outbox: require("../abis/bridge/Outbox.json"),
-  arbRetryableTx: require("../abis/bridge/ArbRetryableTx.json"),
-  nodeInterface: require("../abis/bridge/NodeInterface.json"),
-};
-
 export const CHAIN_INFO = {
   [chain.mainnet.id]: {
     networkType: NetworkType.L1,
@@ -138,7 +140,6 @@ export const CHAIN_INFO = {
     },
     subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: MAINNET_CONTRACTS,
-    abis,
   },
   [chain.rinkeby.id]: {
     networkType: NetworkType.L1,
@@ -155,7 +156,6 @@ export const CHAIN_INFO = {
     subgraph:
       "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
     contracts: RINKEBY_CONTRACTS,
-    abis,
   },
   [chain.arbitrum.id]: {
     networkType: NetworkType.L2,
@@ -173,7 +173,6 @@ export const CHAIN_INFO = {
     },
     subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
     contracts: ARBITRUM_ONE_CONTRACTS,
-    abis,
   },
   [chain.arbitrumRinkeby.id]: {
     networkType: NetworkType.L2,
@@ -196,7 +195,6 @@ export const CHAIN_INFO = {
     subgraph:
       "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
     contracts: ARBITRUM_RINKEBY_CONTRACTS,
-    abis,
   },
 };
 
@@ -210,30 +208,6 @@ export const l1Provider = new ethers.providers.JsonRpcProvider(
 
 export const l2Provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-);
-
-export const l1Migrator = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-  abis.l1Migrator,
-  l1Provider
-);
-
-export const l2Migrator = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-  abis.l2Migrator,
-  l2Provider
-);
-
-export const arbRetryableTx = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.arbRetryableTx,
-  abis.arbRetryableTx,
-  l2Provider
-);
-
-export const nodeInterface = new ethers.Contract(
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
-  abis.nodeInterface,
-  l2Provider
 );
 
 export function isL2ChainId(chainId: number | undefined): boolean {

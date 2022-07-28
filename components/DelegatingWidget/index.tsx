@@ -1,31 +1,23 @@
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
+import { useEnsData, useExplorerStore } from "hooks";
+import numeral from "numeral";
 import { useMemo, useState } from "react";
-import Header from "./Header";
-import ProjectionBox from "./ProjectionBox";
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
-import { Tabs, TabList, Tab } from "./Tabs";
-import {
-  Account,
-  Delegator,
-  Transcoder,
-  Protocol,
-  Round,
-  Identity,
-} from "../../@types";
+import Header from "./Header";
 import InputBox from "./InputBox";
-import { Box, Text, Card, Flex, Button } from "@livepeer/design-system";
-import numeral from "numeral";
-import { useEnsName } from "hooks";
+import ProjectionBox from "./ProjectionBox";
+import { Tab, TabList, Tabs } from "./Tabs";
 
 interface Props {
-  transcoders: [Transcoder];
-  transcoder: Transcoder;
-  delegator?: Delegator;
-  protocol: Protocol;
-  account: Account;
-  currentRound: Round;
-  selectedAction?: string;
-  delegateProfile?: Identity;
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  transcoder: AccountQueryResult["data"]["transcoder"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  protocol: AccountQueryResult["data"]["protocol"];
+  account: EnsIdentity;
+  delegateProfile?: EnsIdentity;
 }
 
 const Index = ({
@@ -34,22 +26,23 @@ const Index = ({
   account,
   transcoder,
   protocol,
-  currentRound,
-  selectedAction = "delegate",
   delegateProfile,
 }: Props) => {
   const [amount, setAmount] = useState("");
-  const [action, setAction] = useState(selectedAction);
+  const { selectedStakingAction, setSelectedStakingAction } =
+    useExplorerStore();
 
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
     [delegator, transcoder]
   );
 
-  const delegateEns = useEnsName(delegator?.delegate?.id);
+  const delegateEns = useEnsData(delegator?.delegate?.id);
 
-  const isDelegated =
-    delegator?.bondedAmount && delegator?.bondedAmount !== "0";
+  const isDelegated = useMemo(
+    () => delegator?.bondedAmount && delegator?.bondedAmount !== "0",
+    [delegator]
+  );
   const isTransferStake = useMemo(
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
@@ -72,14 +65,21 @@ const Index = ({
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
       <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
         <Tabs
-          defaultIndex={selectedAction === "delegate" ? 0 : 1}
-          onChange={(index: number) =>
-            setAction(index ? "undelegate" : "delegate")
-          }
+          index={selectedStakingAction === "delegate" ? 0 : 1}
+          onChange={(index: number) => {
+            setSelectedStakingAction(index ? "undelegate" : "delegate");
+          }}
         >
           <TabList>
-            <Tab>Delegate</Tab>
-            <Tab disabled={isTransferStake}>Undelegate</Tab>
+            <Tab isSelected={selectedStakingAction === "delegate"}>
+              Delegate
+            </Tab>
+            <Tab
+              disabled={isTransferStake}
+              isSelected={selectedStakingAction === "undelegate"}
+            >
+              Undelegate
+            </Tab>
           </TabList>
         </Tabs>
 
@@ -109,17 +109,13 @@ const Index = ({
                     </Box>
                     {` from `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {delegateEns
-                        ? delegateEns
-                        : delegator?.delegate?.id?.replace(
-                            delegator?.delegate?.id?.slice(7, 37),
-                            "…"
-                          ) ?? ""}
+                      {delegateEns.name
+                        ? delegateEns.name
+                        : delegateEns.idShort ?? ""}
                     </Box>
                     {" to "}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {delegateProfile?.name ??
-                        transcoder.id.replace(transcoder.id.slice(7, 37), "…")}
+                      {delegateProfile?.name ?? delegateProfile?.idShort ?? ""}
                     </Box>
                     {"."}
                   </Text>
@@ -131,7 +127,7 @@ const Index = ({
           <>
             <InputBox
               account={account}
-              action={action}
+              action={selectedStakingAction}
               delegator={delegator}
               transcoder={transcoder}
               amount={amount}
@@ -151,7 +147,7 @@ const Index = ({
                 css={{ width: 16, color: "rgba(255, 255, 255, .8)" }}
               />
             </Flex>
-            <ProjectionBox action={action} />
+            <ProjectionBox action={selectedStakingAction} />
           </>
         )}
         <Footer
@@ -161,11 +157,11 @@ const Index = ({
             isMyTranscoder,
             isDelegated,
             transcoders,
-            currentRound,
+            currentRound: protocol.currentRound,
             account,
             delegator,
             transcoder,
-            action,
+            action: selectedStakingAction,
             amount,
           }}
         />

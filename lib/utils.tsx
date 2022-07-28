@@ -1,16 +1,15 @@
-import { Delegator, Round, UnbondingLock } from "../@types";
-import Utils from "web3-utils";
-import url from "url";
-import parseDomain from "parse-domain";
-import { ethers } from "ethers";
-import { gql } from "@apollo/client";
-import Numeral from "numeral";
 import {
-  AVERAGE_L1_BLOCK_TIME,
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
-} from "lib/chains";
+  AccountQueryResult,
+  Delegator,
+  OrchestratorsSortedQueryResult,
+  Round,
+  UnbondingLock,
+} from "apollo";
+import { BigNumber, BigNumberish, ethers } from "ethers";
+import { formatEther } from "ethers/lib/utils";
+import { StakingAction } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
+import Numeral from "numeral";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -56,8 +55,8 @@ export const getDelegationStatusColor = (status) => {
 };
 
 export const getDelegatorStatus = (
-  delegator: Delegator,
-  currentRound: Round
+  delegator: AccountQueryResult["data"]["delegator"],
+  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"]
 ): string => {
   if (!+delegator?.bondedAmount) {
     return "Unbonded";
@@ -80,28 +79,8 @@ export const getDelegatorStatus = (
   }
 };
 
-export const MAXIUMUM_VALUE_UINT256 =
+export const MAXIMUM_VALUE_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-
-export const removeURLParameter = (_url, _parameter) => {
-  //prefer to use l.search if you have a location/link object
-  var urlparts = _url.split("?");
-  if (urlparts.length >= 2) {
-    var prefix = encodeURIComponent(_parameter) + "=";
-    var pars = urlparts[1].split(/[&;]/g);
-
-    //reverse iteration as may be destructive
-    for (var i = pars.length; i-- > 0; ) {
-      //idiom for string.startsWith
-      if (pars[i].lastIndexOf(prefix, 0) !== -1) {
-        pars.splice(i, 1);
-      }
-    }
-
-    return urlparts[0] + (pars.length > 0 ? "?" + pars.join("&") : "");
-  }
-  return _url;
-};
 
 export const nl2br = (str, is_xhtml = true) => {
   if (typeof str === "undefined" || str === null) {
@@ -129,78 +108,11 @@ export const textTruncate = (str, length, ending) => {
   }
 };
 
-export const networksTypes = {
-  1: "mainnet",
-  4: "rinkeby",
-  42161: "arbitrum",
-  421611: "arbitrum-rinkeby",
-};
-
-const networksIds = {
-  main: 1,
-  mainnet: 1,
-  morden: 2,
-  ropsten: 3,
-  kovan: 42,
-  rinkeby: 4,
-  arbitrum: 42161,
-  "arbitrum-rinkeby": 421611,
-};
-
-export const detectNetwork = async (provider) => {
-  let netId = null;
-
-  if (provider instanceof Object) {
-    // MetamaskInpageProvider
-    if (
-      provider.publicConfigStore &&
-      provider.publicConfigStore._state &&
-      provider.publicConfigStore._state.networkVersion
-    ) {
-      netId = provider.publicConfigStore._state.networkVersion;
-
-      // Web3.providers.HttpProvider
-    } else if (provider.host) {
-      const parsed = url.parse(provider.host);
-      const { subdomain, domain, tld } = parseDomain(parsed.host);
-
-      if (domain === "infura" && tld === "io") {
-        netId = networksIds[subdomain];
-      }
-    }
-  } else if (typeof window !== "undefined" && window["web3"]) {
-    if (window["web3"].version && window["web3"].version.getNetwork) {
-      netId = await window["web3"].version.getNetwork();
-
-      // web3.js v1.0+
-    } else if (
-      window["web3"].eth &&
-      window["web3"].eth.net &&
-      window["web3"].eth.net.getId
-    ) {
-      netId = await window["web3"].eth.net.getId();
-    }
-  }
-
-  if (netId === undefined) {
-    netId = null;
-  }
-
-  const type = networksTypes[netId] || "unknown";
-
-  return {
-    id: netId,
-    type: type,
-  };
-};
-
-export const checkAddressEquality = (address1, address2) => {
+export const checkAddressEquality = (address1: string, address2: string) => {
   if (!isAddress(address1) || !isAddress(address2)) {
     return false;
   }
-  return (
-    Utils.toChecksumAddress(address1) === Utils.toChecksumAddress(address2)
-  );
+  return address1.toLowerCase() === address2.toLowerCase();
 };
 
 export const txMessages = {
@@ -248,86 +160,7 @@ export const txMessages = {
     pending: "Claiming",
     confirmed: "Claimed",
   },
-};
-
-export const initTransaction = async (client, mutation, callback = null) => {
-  try {
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: true,
-          error: false,
-        },
-      },
-    });
-
-    await mutation();
-
-    if (callback) {
-      callback();
-    }
-
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: false,
-          error: false,
-        },
-      },
-    });
-  } catch (e) {
-    client.writeQuery({
-      query: gql`
-        query {
-          txSummaryModal {
-            __typename
-            open
-            error
-          }
-        }
-      `,
-      data: {
-        txSummaryModal: {
-          __typename: "TxSummaryModal",
-          open: true,
-          error: true,
-        },
-      },
-    });
-
-    return {
-      error: e.message.replace("GraphQL error: ", ""),
-    };
-  }
-};
-
-export const getBlock = async () => {
-  const blockDataResponse = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=proxy&action=eth_blockNumber&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await blockDataResponse.json();
-  return Utils.hexToNumber(result);
-};
+} as const;
 
 export const getBlockByNumber = async (number) => {
   const blockDataResponse = await fetch(
@@ -335,34 +168,6 @@ export const getBlockByNumber = async (number) => {
   );
   const { result } = await blockDataResponse.json();
   return result;
-};
-
-export const getEstimatedBlockCountdown = async (number) => {
-  const countdownRaw = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockcountdown&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await countdownRaw.json();
-  return result;
-};
-
-export const expandedPriceLabels = {
-  pixel: "pixel",
-  "1m pixels": "1 million pixels",
-  "1b pixels": "1 billion pixels",
-  "1t pixels": "1 trillion pixels",
-};
-
-export const mergeObjectsInUnique = (array, property) => {
-  const newArray = new Map();
-
-  array.forEach((item) => {
-    const propertyValue = item[property];
-    newArray.has(propertyValue)
-      ? newArray.set(propertyValue, { ...item, ...newArray.get(propertyValue) })
-      : newArray.set(propertyValue, item);
-  });
-
-  return Array.from(newArray.values());
 };
 
 export const getHint = (id, transcoders) => {
@@ -401,6 +206,12 @@ export const simulateNewActiveSetOrder = ({
   amount,
   newDelegate,
   oldDelegate = EMPTY_ADDRESS,
+}: {
+  action: StakingAction;
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  amount: BigNumber;
+  newDelegate: string;
+  oldDelegate?: string;
 }) => {
   const index = transcoders.findIndex(
     (t) => t.id.toLowerCase() === newDelegate.toLowerCase()
@@ -410,8 +221,10 @@ export const simulateNewActiveSetOrder = ({
     return transcoders;
   }
 
-  if (action === "stake") {
-    transcoders[index].totalStake = +transcoders[index].totalStake + +amount;
+  if (action === "delegate") {
+    transcoders[index].totalStake = (
+      +transcoders[index].totalStake + +amount
+    ).toString();
 
     // if delegator is moving stake, subtract amount from old delegate
     if (
@@ -423,19 +236,22 @@ export const simulateNewActiveSetOrder = ({
         (t) => t.id.toLowerCase() === oldDelegate.toLowerCase()
       );
       if (oldDelegateIndex !== -1) {
-        transcoders[oldDelegateIndex].totalStake =
-          +transcoders[oldDelegateIndex].totalStake - +amount;
+        transcoders[oldDelegateIndex].totalStake = (
+          +transcoders[oldDelegateIndex].totalStake - +amount
+        ).toString();
       }
     }
   } else {
-    transcoders[index].totalStake = +transcoders[index].totalStake - +amount;
+    transcoders[index].totalStake = (
+      +transcoders[index].totalStake - +amount
+    ).toString();
   }
 
   // reorder transcoders array
   return transcoders.sort((a, b) => +a.totalStake - +b.totalStake);
 };
 
-export const isAddress = (address) => {
+export const isAddress = (address: string) => {
   try {
     ethers.utils.getAddress(address);
   } catch (e) {
@@ -589,3 +405,5 @@ export function toTitleCase(str) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
 }
+
+export const fromWei = (wei: BigNumberish) => formatEther(wei);

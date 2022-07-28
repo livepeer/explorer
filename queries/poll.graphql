@@ -1,0 +1,16 @@
+query poll($id: ID!) {
+  poll(id: $id) {
+    id
+    proposal
+    endBlock
+    quorum
+    quota
+    tally {
+      yes
+      no
+    }
+    votes {
+      id
+    }
+  }
+}

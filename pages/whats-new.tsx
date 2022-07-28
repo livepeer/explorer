@@ -1,40 +1,20 @@
 import Spinner from "@components/Spinner";
-import dayjs from "dayjs";
-import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
-import Markdown from "markdown-to-jsx";
-import { createApolloFetch } from "apollo-fetch";
-import { useEffect, useState } from "react";
-import Head from "next/head";
 import {
+  Badge,
   Box,
-  Flex,
   Card,
   Container,
-  Badge,
+  Flex,
   Heading,
 } from "@livepeer/design-system";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import { useChangefeedData } from "hooks";
+import Markdown from "markdown-to-jsx";
+import Head from "next/head";
+import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
 
-const query = `
-  {
-    projectBySlugs(organizationSlug: "livepeer", projectSlug: "explorer") {
-      name
-      releases {
-        edges {
-          node {
-            title
-            description
-            isPublished
-            publishedAt
-            changes {
-              type
-              content
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+dayjs.extend(localizedFormat);
 
 function getBadgeColor(changeType) {
   if (changeType === "NEW") {
@@ -60,18 +40,7 @@ const groupBy = (key) => (array) =>
 const groupByType = groupBy("type");
 
 const WhatsNew = () => {
-  const [changeFeedData, setChangeFeedData] = useState(null);
-
-  useEffect(() => {
-    const apolloFetch = createApolloFetch({
-      uri: `${window.location.origin}/api/graphql`,
-    });
-    async function getChangefeed() {
-      const { data } = await apolloFetch({ query });
-      setChangeFeedData(data);
-    }
-    getChangefeed();
-  }, []);
+  const changeFeedData = useChangefeedData();
 
   return (
     <>
@@ -127,7 +96,7 @@ const WhatsNew = () => {
                 What&apos;s New
               </Heading>
               <Box css={{ img: { maxWidth: "100%" } }}>
-                {changeFeedData.projectBySlugs.releases.edges.map(
+                {changeFeedData.releases.edges.map(
                   ({ node }, index1) =>
                     node.isPublished && (
                       <Card
@@ -150,7 +119,7 @@ const WhatsNew = () => {
                             color: "$neutral11",
                           }}
                         >
-                          {dayjs(node.publishedAt).format("MMM Do, YYYY")}
+                          {dayjs(node.publishedAt).format("LL")}
                         </Box>
                         <Box
                           css={{
