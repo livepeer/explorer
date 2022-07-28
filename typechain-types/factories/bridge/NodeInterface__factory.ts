@@ -24,17 +24,12 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "destAddr",
+        name: "to",
         type: "address",
       },
       {
         internalType: "uint256",
         name: "l2CallValue",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxSubmissionCost",
         type: "uint256",
       },
       {
@@ -48,34 +43,13 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "maxGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "gasPriceBid",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "data",
         type: "bytes",
       },
     ],
     name: "estimateRetryableTicket",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    outputs: [],
     stateMutability: "pure",
     type: "function",
   },

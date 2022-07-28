@@ -55,8 +55,32 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "dataLength",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "baseFee",
+        type: "uint256",
+      },
+    ],
+    name: "calculateRetryableSubmissionFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
-        name: "destAddr",
+        name: "to",
         type: "address",
       },
       {
@@ -81,12 +105,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "maxGas",
+        name: "gasLimit",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "gasPriceBid",
+        name: "maxFeePerGas",
         type: "uint256",
       },
       {

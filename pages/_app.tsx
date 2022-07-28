@@ -26,7 +26,7 @@ function App({ Component, pageProps, fallback = null }) {
   const { wagmiClient, chains, layoutKey } = useMemo(() => {
     const { provider, chains } = configureChains(
       [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ infuraId: INFURA_KEY }), publicProvider()]
+      [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()]
     );
 
     const { connectors } = getDefaultWallets({

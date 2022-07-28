@@ -23,7 +23,7 @@ import type {
 
 export interface NodeInterfaceInterface extends utils.Interface {
   functions: {
-    "estimateRetryableTicket(address,uint256,address,uint256,uint256,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "estimateRetryableTicket(address,uint256,address,uint256,address,address,bytes)": FunctionFragment;
     "lookupMessageBatchProof(uint256,uint64)": FunctionFragment;
   };
 
@@ -40,11 +40,8 @@ export interface NodeInterfaceInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -95,16 +92,13 @@ export interface NodeInterface extends BaseContract {
     estimateRetryableTicket(
       sender: PromiseOrValue<string>,
       deposit: PromiseOrValue<BigNumberish>,
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+    ): Promise<[void]>;
 
     lookupMessageBatchProof(
       batchNum: PromiseOrValue<BigNumberish>,
@@ -138,16 +132,13 @@ export interface NodeInterface extends BaseContract {
   estimateRetryableTicket(
     sender: PromiseOrValue<string>,
     deposit: PromiseOrValue<BigNumberish>,
-    destAddr: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
     l2CallValue: PromiseOrValue<BigNumberish>,
-    maxSubmissionCost: PromiseOrValue<BigNumberish>,
     excessFeeRefundAddress: PromiseOrValue<string>,
     callValueRefundAddress: PromiseOrValue<string>,
-    maxGas: PromiseOrValue<BigNumberish>,
-    gasPriceBid: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber]>;
+  ): Promise<void>;
 
   lookupMessageBatchProof(
     batchNum: PromiseOrValue<BigNumberish>,
@@ -181,16 +172,13 @@ export interface NodeInterface extends BaseContract {
     estimateRetryableTicket(
       sender: PromiseOrValue<string>,
       deposit: PromiseOrValue<BigNumberish>,
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+    ): Promise<void>;
 
     lookupMessageBatchProof(
       batchNum: PromiseOrValue<BigNumberish>,
@@ -227,13 +215,10 @@ export interface NodeInterface extends BaseContract {
     estimateRetryableTicket(
       sender: PromiseOrValue<string>,
       deposit: PromiseOrValue<BigNumberish>,
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -249,13 +234,10 @@ export interface NodeInterface extends BaseContract {
     estimateRetryableTicket(
       sender: PromiseOrValue<string>,
       deposit: PromiseOrValue<BigNumberish>,
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
-      maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
