@@ -1,5 +1,5 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { getBondingManager } from "@lib/api/contracts";
+import { getBondingManager, getRoundsManager } from "@lib/api/contracts";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { BigNumber } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -17,42 +17,19 @@ const handler = async (
       const { address } = req.query;
 
       if (isValidAddress(address)) {
-        const response = await fetch(
-          `https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              query: `
-                query {
-                  protocol(id: "0") {
-                    id
-                    currentRound {
-                      id
-                    }
-                  }
-                }
-            `,
-            }),
-          }
-        );
-
-        const {
-          data: { protocol },
-        } = await response.json();
-
         const bondingManager = await getBondingManager();
+        const roundsManager = await getRoundsManager();
+
+        const currentRound = roundsManager.currentRound();
 
         const pendingStake = await bondingManager.pendingStake(
           address,
-          protocol?.currentRound?.id
+          currentRound
         );
 
         const pendingFees = await bondingManager.pendingFees(
           address,
-          protocol?.currentRound?.id
+          currentRound
         );
 
         const roundInfo: PendingFeesAndStake = {

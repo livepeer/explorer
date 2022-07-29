@@ -8171,6 +8171,24 @@ export type AccountQuery = {
   } | null;
 };
 
+export type AccountInactiveQueryVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type AccountInactiveQuery = {
+  __typename: "Query";
+  delegator?: {
+    __typename: "Delegator";
+    id: string;
+    delegate?: { __typename: "Transcoder"; id: string; active: boolean } | null;
+  } | null;
+  protocol?: {
+    __typename: "Protocol";
+    id: string;
+    pendingActivation: Array<{ __typename: "Transcoder"; id: string }>;
+  } | null;
+};
+
 export type CurrentRoundQueryVariables = Exact<{ [key: string]: never }>;
 
 export type CurrentRoundQuery = {
@@ -9158,6 +9176,74 @@ export type AccountLazyQueryHookResult = ReturnType<typeof useAccountLazyQuery>;
 export type AccountQueryResult = Apollo.QueryResult<
   AccountQuery,
   AccountQueryVariables
+>;
+export const AccountInactiveDocument = gql`
+  query accountInactive($id: ID!) {
+    delegator(id: $id) {
+      id
+      delegate {
+        id
+        active
+      }
+    }
+    protocol(id: "0") {
+      id
+      pendingActivation {
+        id
+      }
+    }
+  }
+`;
+
+/**
+ * __useAccountInactiveQuery__
+ *
+ * To run a query within a React component, call `useAccountInactiveQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAccountInactiveQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAccountInactiveQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useAccountInactiveQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    AccountInactiveQuery,
+    AccountInactiveQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<AccountInactiveQuery, AccountInactiveQueryVariables>(
+    AccountInactiveDocument,
+    options
+  );
+}
+export function useAccountInactiveLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    AccountInactiveQuery,
+    AccountInactiveQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    AccountInactiveQuery,
+    AccountInactiveQueryVariables
+  >(AccountInactiveDocument, options);
+}
+export type AccountInactiveQueryHookResult = ReturnType<
+  typeof useAccountInactiveQuery
+>;
+export type AccountInactiveLazyQueryHookResult = ReturnType<
+  typeof useAccountInactiveLazyQuery
+>;
+export type AccountInactiveQueryResult = Apollo.QueryResult<
+  AccountInactiveQuery,
+  AccountInactiveQueryVariables
 >;
 export const CurrentRoundDocument = gql`
   query currentRound {

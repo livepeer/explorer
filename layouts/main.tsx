@@ -1,7 +1,9 @@
 import AppBar from "@components/AppBar";
+import Claim from "@components/Claim";
 import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
+import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
@@ -9,7 +11,7 @@ import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import { IS_L2 } from "@lib/chains";
+import { isL2ChainId, IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import {
@@ -603,12 +605,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   }}
                 >
                   <Box css={{ width: "100%" }}>
-                    {/* {!pathname.includes("/migrate") &&
-                      isL2ChainId(DEFAULT_CHAIN_ID) &&
-                      accountAddress && <InactiveWarning />} */}
-                    {/* {!pathname.includes("/migrate") &&
-                      isL2ChainId(DEFAULT_CHAIN_ID) &&
-                      accountAddress && <Claim />} */}
+                    {!asPath.includes("/migrate") && accountAddress && (
+                      <InactiveWarning />
+                    )}
+                    {!asPath?.includes("/migrate") && accountAddress && (
+                      <Claim />
+                    )}
                     {children}
                   </Box>
                 </Flex>

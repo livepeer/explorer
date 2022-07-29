@@ -25,7 +25,7 @@ import { useAccount } from "wagmi";
 import { useAccountSigner } from "./wallet";
 
 const useLivepeerContract = <T>(
-  getContract: (signer: Signer) => Promise<T>
+  getContract: (signer?: Signer | null | undefined) => Promise<T>
 ) => {
   const getContractMemoized = useCallback(getContract, []);
   const account = useAccount();
@@ -35,10 +35,14 @@ const useLivepeerContract = <T>(
   useEffect(() => {
     const fn = async () => {
       try {
-        if (account.connector) {
+        if (account?.connector && account.status === "connected") {
           const contract = await getContractMemoized(
             await account.connector.getSigner()
           );
+
+          setLivepeerContract(contract);
+        } else {
+          const contract = await getContractMemoized();
 
           setLivepeerContract(contract);
         }

@@ -1,35 +1,20 @@
 import { gql, useQuery } from "@apollo/client";
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Button, Container, Text } from "@livepeer/design-system";
+import { useAccountInactiveQuery } from "apollo";
 import { useAccountAddress } from "hooks";
 
 import Link from "next/link";
 
 const InactiveWarning = () => {
   const accountAddress = useAccountAddress();
-  const query = gql`
-    query delegator($id: ID!) {
-      delegator(id: $id) {
-        id
-        delegate {
-          id
-          active
-        }
-      }
-      protocol(id: "0") {
-        id
-        pendingActivation {
-          id
-        }
-      }
-    }
-  `;
 
-  const { data, loading } = useQuery(query, {
+  const { data, loading } = useAccountInactiveQuery({
     variables: {
       id: accountAddress?.toLowerCase(),
     },
-    pollInterval: 60000,
+    pollInterval: 120000,
+    skip: !accountAddress,
   });
 
   const isPendingActivation = data?.protocol?.pendingActivation.some((o) => {

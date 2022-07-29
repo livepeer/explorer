@@ -1,12 +1,20 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getRoundsManager } from "@lib/api/contracts";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
-import { CHAIN_INFO, l1Provider, L1_CHAIN_ID } from "@lib/chains";
+import {
+  CHAIN_INFO,
+  DEFAULT_CHAIN,
+  DEFAULT_CHAIN_ID,
+  l1Provider,
+  L1_CHAIN_ID,
+} from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   Controller__factory,
   L1BondingManager__factory,
+  RoundsManager__factory,
 } from "typechain-types";
 
 const handler = async (
@@ -22,52 +30,40 @@ const handler = async (
       const { address } = req.query;
 
       if (isValidAddress(address)) {
-        const response = await fetch(
-          `https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              query: `
-                query {
-                  protocol(id: "0") {
-                    id
-                    currentRound {
-                      id
-                    }
-                  }
-                }
-            `,
-            }),
-          }
-        );
-
-        const {
-          data: { protocol },
-        } = await response.json();
-
         const l1Controller = Controller__factory.connect(
           CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
           l1Provider
         );
 
-        const hash = keccak256(toUtf8Bytes("BondingManager"));
-        const address = await l1Controller.getContract(hash);
+        const bondingManagerHash = keccak256(toUtf8Bytes("BondingManager"));
+        const bondingManagerAddress = await l1Controller.getContract(
+          bondingManagerHash
+        );
+
+        const roundsManagerHash = keccak256(toUtf8Bytes("RoundsManager"));
+        const roundsManagerAddress = await l1Controller.getContract(
+          roundsManagerHash
+        );
+
+        const roundsManager = RoundsManager__factory.connect(
+          roundsManagerAddress,
+          l1Provider
+        );
+
+        const currentRound = await roundsManager.currentRound();
 
         const l1BondingManager = L1BondingManager__factory.connect(
-          address,
+          bondingManagerAddress,
           l1Provider
         );
 
         const pendingStake = await l1BondingManager.pendingStake(
           address,
-          protocol?.currentRound?.id
+          currentRound
         );
         const pendingFees = await l1BondingManager.pendingFees(
           address,
-          protocol?.currentRound?.id
+          currentRound
         );
         const delegator = await l1BondingManager.getDelegator(address);
 
