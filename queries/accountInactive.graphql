@@ -1,0 +1,15 @@
+query accountInactive($id: ID!) {
+  delegator(id: $id) {
+    id
+    delegate {
+      id
+      active
+    }
+  }
+  protocol(id: "0") {
+    id
+    pendingActivation {
+      id
+    }
+  }
+}

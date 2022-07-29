@@ -1,8 +1,6 @@
 import {
   AccountQueryResult,
-  Delegator,
   OrchestratorsSortedQueryResult,
-  Round,
   UnbondingLock,
 } from "apollo";
 import { BigNumber, BigNumberish, ethers } from "ethers";
@@ -21,7 +19,7 @@ export function avg(obj, key) {
   return arr.reduce(sum)[key] / arr.length;
 }
 
-export const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const EMPTY_ADDRESS = ethers.constants.AddressZero;
 
 export const abbreviateNumber = (value, precision = 3) => {
   let newValue = value;
