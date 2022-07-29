@@ -115,7 +115,7 @@ const Claim = () => {
             </Box>
             in earned fees{" "}
             {isClaimStakeEnabled
-              ? `is availabile to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`
+              ? `is available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`
               : `will be available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
           state snapshot.`}
           </Text>
