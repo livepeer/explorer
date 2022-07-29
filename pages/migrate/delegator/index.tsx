@@ -22,9 +22,8 @@ import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import {
   useAccountAddress,
-  useAccountSigner,
   useActiveChain,
-  useArbRetryableTx,
+  useInbox,
   useL1DelegatorData,
   useL1Migrator,
   useNodeInterface,
@@ -32,7 +31,6 @@ import {
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  INFURA_NETWORK_URLS,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
@@ -210,9 +208,8 @@ const MigrateUndelegatedStake = () => {
 
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
-  const accountSigner = useAccountSigner();
 
-  const arbRetryableTx = useArbRetryableTx();
+  const inbox = useInbox();
   const l1Migrator = useL1Migrator();
   const nodeInterface = useNodeInterface();
 
@@ -271,8 +268,9 @@ const MigrateUndelegatedStake = () => {
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-      const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-        state.migrationCallData.length
+      const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+        state.migrationCallData.length,
+        gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
       );
 
       // overpaying submission price to account for increase
@@ -281,18 +279,16 @@ const MigrateUndelegatedStake = () => {
       const maxSubmissionPrice = submissionPrice.mul(4);
 
       // calculating estimated gas for the tx
-      const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-        ethers.utils.parseEther("0.01"),
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-        0,
-        maxSubmissionPrice,
-        accountAddress,
-        accountAddress,
-        0,
-        gasPriceBid,
-        state.migrationCallData
-      );
+      const estimatedGas =
+        await nodeInterface.estimateGas.estimateRetryableTicket(
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+          ethers.utils.parseEther("0.01"),
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+          0,
+          accountAddress,
+          accountAddress,
+          state.migrationCallData
+        );
 
       // overpaying gas just in case
       // the excess will be sent back to the refund address
@@ -304,9 +300,7 @@ const MigrateUndelegatedStake = () => {
       // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
       const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-      const signer = l1Migrator.connect(accountSigner);
-
-      const tx1 = await signer.migrateUnbondingLocks(
+      const tx1 = await l1Migrator.migrateUnbondingLocks(
         state.signer ? state.signer : accountAddress,
         state.signer ? state.signer : accountAddress,
         state.migrationParams.unbondingLockIds,

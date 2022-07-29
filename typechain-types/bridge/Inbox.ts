@@ -31,6 +31,7 @@ import type {
 export interface InboxInterface extends utils.Interface {
   functions: {
     "bridge()": FunctionFragment;
+    "calculateRetryableSubmissionFee(uint256,uint256)": FunctionFragment;
     "createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)": FunctionFragment;
     "createRetryableTicketNoRefundAliasRewrite(address,uint256,uint256,address,address,uint256,uint256,bytes)": FunctionFragment;
     "depositEth(address)": FunctionFragment;
@@ -48,6 +49,7 @@ export interface InboxInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "bridge"
+      | "calculateRetryableSubmissionFee"
       | "createRetryableTicket"
       | "createRetryableTicketNoRefundAliasRewrite"
       | "depositEth"
@@ -63,6 +65,10 @@ export interface InboxInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "bridge", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "calculateRetryableSubmissionFee",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "createRetryableTicket",
     values: [
@@ -157,6 +163,10 @@ export interface InboxInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "bridge", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateRetryableSubmissionFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "createRetryableTicket",
     data: BytesLike
@@ -260,14 +270,20 @@ export interface Inbox extends BaseContract {
   functions: {
     bridge(overrides?: CallOverrides): Promise<[string]>;
 
+    calculateRetryableSubmissionFee(
+      dataLength: PromiseOrValue<BigNumberish>,
+      baseFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
       maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
+      gasLimit: PromiseOrValue<BigNumberish>,
+      maxFeePerGas: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -353,14 +369,20 @@ export interface Inbox extends BaseContract {
 
   bridge(overrides?: CallOverrides): Promise<string>;
 
+  calculateRetryableSubmissionFee(
+    dataLength: PromiseOrValue<BigNumberish>,
+    baseFee: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   createRetryableTicket(
-    destAddr: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
     l2CallValue: PromiseOrValue<BigNumberish>,
     maxSubmissionCost: PromiseOrValue<BigNumberish>,
     excessFeeRefundAddress: PromiseOrValue<string>,
     callValueRefundAddress: PromiseOrValue<string>,
-    maxGas: PromiseOrValue<BigNumberish>,
-    gasPriceBid: PromiseOrValue<BigNumberish>,
+    gasLimit: PromiseOrValue<BigNumberish>,
+    maxFeePerGas: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -446,14 +468,20 @@ export interface Inbox extends BaseContract {
   callStatic: {
     bridge(overrides?: CallOverrides): Promise<string>;
 
+    calculateRetryableSubmissionFee(
+      dataLength: PromiseOrValue<BigNumberish>,
+      baseFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
       maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
+      gasLimit: PromiseOrValue<BigNumberish>,
+      maxFeePerGas: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -558,14 +586,20 @@ export interface Inbox extends BaseContract {
   estimateGas: {
     bridge(overrides?: CallOverrides): Promise<BigNumber>;
 
+    calculateRetryableSubmissionFee(
+      dataLength: PromiseOrValue<BigNumberish>,
+      baseFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
       maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
+      gasLimit: PromiseOrValue<BigNumberish>,
+      maxFeePerGas: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -652,14 +686,20 @@ export interface Inbox extends BaseContract {
   populateTransaction: {
     bridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    calculateRetryableSubmissionFee(
+      dataLength: PromiseOrValue<BigNumberish>,
+      baseFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     createRetryableTicket(
-      destAddr: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
       l2CallValue: PromiseOrValue<BigNumberish>,
       maxSubmissionCost: PromiseOrValue<BigNumberish>,
       excessFeeRefundAddress: PromiseOrValue<string>,
       callValueRefundAddress: PromiseOrValue<string>,
-      maxGas: PromiseOrValue<BigNumberish>,
-      gasPriceBid: PromiseOrValue<BigNumberish>,
+      gasLimit: PromiseOrValue<BigNumberish>,
+      maxFeePerGas: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
