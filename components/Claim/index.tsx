@@ -29,25 +29,17 @@ const Claim = () => {
 
   useEffect(() => {
     const init = async () => {
-      console.log(l2Migrator);
-      console.log(l1Delegator);
       if (accountAddress && l2Migrator && l1Delegator) {
         setLoading(true);
 
         // reset on account change
         setIsDelegator(false);
 
-        console.log(l1Delegator);
-
         const claimStakeEnabled = await l2Migrator.claimStakeEnabled();
         setIsClaimStakeEnabled(claimStakeEnabled);
 
-        console.log({ claimStakeEnabled });
-
         const isMigrated = await l2Migrator.migratedDelegators(accountAddress);
         setIsMigrated(isMigrated);
-
-        console.log({ isMigrated });
 
         setMigrationParams({
           delegate: l1Delegator.delegateAddress,
