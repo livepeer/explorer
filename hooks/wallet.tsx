@@ -17,7 +17,7 @@ export const useAccountAddress = () => {
 
   const isChainSupported = useIsChainSupported();
 
-  return isChainSupported && account?.address ? account.address : null;
+  return isChainSupported && account?.address ? account.address.toLowerCase() : null;
 };
 
 export const useAccountSigner = () => {
