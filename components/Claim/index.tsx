@@ -186,7 +186,12 @@ const Claim = () => {
                 };
 
                 setTimeout(() => {
-                  handleTransaction(mutation, {});
+                  handleTransaction(mutation, {
+                    delegate: migrationParams.delegate,
+                    stake: migrationParams.stake,
+                    fees: migrationParams.fees,
+                    newDelegate: constants.AddressZero,
+                  });
                 }, 1000);
               }}
               size="3"
