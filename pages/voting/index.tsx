@@ -46,12 +46,11 @@ const Voting = () => {
   const pollInterval = 20000;
   const [polls, setPolls] = useState<PollExtended[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const currentRound = useCurrentRoundData();
-
   const { data } = usePollsQuery({
     pollInterval,
   });
+
+  const currentRound = useCurrentRoundData();
 
   useEffect(() => {
     if (data && currentRound?.currentL2Block) {
