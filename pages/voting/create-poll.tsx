@@ -243,6 +243,7 @@ export async function getStaticProps() {
     }
   }
   `;
+
   const apolloFetch = createApolloFetch({
     uri: "https://api.github.com/graphql",
   });
