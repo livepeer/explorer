@@ -109,8 +109,6 @@ const Charts = ({ chartData }) => {
     [chartData]
   );
 
-  console.log({chartData})
-
   return (
     <>
       <Panel>
