@@ -653,6 +653,8 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
   const contractAddresses = useContractInfoData(isOpen);
 
+  console.log({ contractAddresses, EMPTY_ADDRESS });
+
   return (
     <Popover onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -719,7 +721,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             </Text>
 
             {Object.keys(contractAddresses ?? {})
-              .filter((key) => contractAddresses?.[key] !== EMPTY_ADDRESS)
+              .filter((key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS)
               .map((key) => (
                 <Flex key={key}>
                   {contractAddresses?.[key] ? (
