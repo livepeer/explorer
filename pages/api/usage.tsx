@@ -91,7 +91,7 @@ const chartDataHandler = async (
 
       // the # of pixels in a minute of 240p30fps, 360p30fps, 480p30fps, 720p30fps transcoded renditions.
       // (width * height * framerate * seconds in a minute)
-      const pixelsPerMinute = 2995488000;
+      const pixelsPerMinute = 2995488000; // should this be something like 1280 * 720 * 30 * 60?
 
       try {
         // get timestamps for the days

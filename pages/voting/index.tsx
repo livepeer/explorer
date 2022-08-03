@@ -53,13 +53,13 @@ const Voting = () => {
   const currentRound = useCurrentRoundData();
 
   useEffect(() => {
-    if (data && currentRound?.currentL2Block) {
+    if (data && currentRound?.currentL1Block) {
       const init = async () => {
         setPolls(
           await Promise.all(
             (data?.polls ?? [])
               .filter((p) => +p.endBlock < 13810621)
-              .map((p) => getPollExtended(p, currentRound.currentL2Block))
+              .map((p) => getPollExtended(p, currentRound.currentL1Block))
           )
         );
 
@@ -67,7 +67,7 @@ const Voting = () => {
       };
       init();
     }
-  }, [data, currentRound?.currentL2Block]);
+  }, [data, currentRound?.currentL1Block]);
 
   return (
     <>

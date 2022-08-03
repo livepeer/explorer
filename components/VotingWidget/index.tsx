@@ -11,9 +11,14 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
-import { useAccountAddress } from "hooks";
+import {
+  useAccountAddress,
+  useHandleTransaction,
+  usePendingFeesAndStakeData,
+  useRoundsManager,
+} from "hooks";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
@@ -22,29 +27,31 @@ import VoteButton from "../VoteButton";
 import duration from "dayjs/plugin/duration";
 import { PollExtended } from "@lib/api/polls";
 import { PollChoice, AccountQuery } from "apollo";
+import { poll } from "ethers/lib/utils";
+import numeral from "numeral";
 
 dayjs.extend(duration);
 
-const Index = ({
-  data,
-}: {
-  data: {
-    poll: PollExtended;
-    delegateVote: {
-      __typename: "Vote";
-      choiceID?: PollChoice;
-      voteStake: string;
-      nonVoteStake: string;
-    };
-    vote: {
-      __typename: "Vote";
-      choiceID?: PollChoice;
-      voteStake: string;
-      nonVoteStake: string;
-    };
-    myAccount: AccountQuery;
+type Props = {
+  poll: PollExtended;
+  delegateVote: {
+    __typename: "Vote";
+    choiceID?: PollChoice;
+    voteStake: string;
+    nonVoteStake: string;
   };
-}) => {
+  vote: {
+    __typename: "Vote";
+    choiceID?: PollChoice;
+    voteStake: string;
+    nonVoteStake: string;
+  };
+  myAccount: AccountQuery;
+};
+
+const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+
+const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();
   const [copied, setCopied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -58,10 +65,19 @@ const Index = ({
     }
   }, [copied]);
 
-  const votingPower = getVotingPower(
-    accountAddress,
-    data?.myAccount,
-    data?.vote
+  const pendingFeesAndStake = usePendingFeesAndStakeData(
+    data?.myAccount?.delegator?.id
+  );
+
+  const votingPower = useMemo(
+    () =>
+      getVotingPower(
+        accountAddress,
+        data?.myAccount,
+        data?.vote,
+        pendingFeesAndStake.pendingStake
+      ),
+    [accountAddress, data, pendingFeesAndStake]
   );
 
   let delegate = null;
@@ -85,6 +101,7 @@ const Index = ({
           <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
             Do you support LIP-{data.poll.attributes.lip}?
           </Heading>
+
           <Box
             css={{
               mb: "$3",
@@ -133,7 +150,7 @@ const Index = ({
                     fontSize: "$2",
                   }}
                 >
-                  {data.poll.percent.yes.toPrecision(5)}%
+                  {formatPercent(data.poll.percent.yes)}
                 </Box>
               </Flex>
               <Flex
@@ -174,7 +191,7 @@ const Index = ({
                     fontSize: "$2",
                   }}
                 >
-                  {data.poll.percent.no.toPrecision(5)}%
+                  {formatPercent(data.poll.percent.no)}
                 </Box>
               </Flex>
             </Box>
@@ -238,7 +255,11 @@ const Index = ({
                 {((!data?.vote?.choiceID && data.poll.status === "active") ||
                   data?.vote?.choiceID) && (
                   <Flex
-                    css={{ fontSize: "$2", justifyContent: "space-between" }}
+                    css={{
+                      mt: "$2",
+                      fontSize: "$2",
+                      justifyContent: "space-between",
+                    }}
                   >
                     <Box as="span" css={{ color: "$muted" }}>
                       My Voting Power
@@ -261,7 +282,14 @@ const Index = ({
                   </Flex>
                 )}
               </Box>
-              {data.poll.status === "active" && renderVoteButton(data)}
+              {data.poll.status === "active" &&
+                data &&
+                renderVoteButton(
+                  data?.myAccount,
+                  data?.vote,
+                  data?.poll,
+                  pendingFeesAndStake?.pendingStake
+                )}
             </>
           ) : (
             <Flex align="center" direction="column">
@@ -310,7 +338,7 @@ const Index = ({
           </Box>
         </Box>
       )}
-      <Dialog open={modalOpen}>
+      <Dialog onOpenChange={setModalOpen} open={modalOpen}>
         <DialogContent>
           <Flex
             css={{
@@ -419,17 +447,22 @@ const Index = ({
 
 export default Index;
 
-function renderVoteButton(data) {
-  switch (data?.vote?.choiceID) {
+function renderVoteButton(
+  myAccount: Props["myAccount"],
+  vote: Props["vote"],
+  poll: Props["poll"],
+  pendingStake: string
+) {
+  switch (vote?.choiceID) {
     case "Yes":
       return (
         <VoteButton
-          disabled={!(parseFloat(data?.myAccount?.delegator?.pendingStake) > 0)}
+          disabled={!(parseFloat(pendingStake) > 0)}
           css={{ mt: "$4", width: "100%" }}
           variant="red"
           size="4"
           choiceId={1}
-          pollAddress={data.poll.id}
+          pollAddress={poll?.id}
         >
           Change Vote To No
         </VoteButton>
@@ -437,12 +470,12 @@ function renderVoteButton(data) {
     case "No":
       return (
         <VoteButton
-          disabled={!(parseFloat(data?.myAccount?.delegator?.pendingStake) > 0)}
+          disabled={!(parseFloat(pendingStake) > 0)}
           css={{ mt: "$4", width: "100%" }}
           size="4"
           variant="primary"
           choiceId={0}
-          pollAddress={data.poll.id}
+          pollAddress={poll?.id}
         >
           Change Vote To Yes
         </VoteButton>
@@ -451,24 +484,20 @@ function renderVoteButton(data) {
       return (
         <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
           <VoteButton
-            disabled={
-              !(parseFloat(data?.myAccount?.delegator?.pendingStake) > 0)
-            }
+            disabled={!(parseFloat(pendingStake) > 0)}
             variant="primary"
             choiceId={0}
             size="4"
-            pollAddress={data.poll.id}
+            pollAddress={poll?.id}
           >
             Yes
           </VoteButton>
           <VoteButton
-            disabled={
-              !(parseFloat(data?.myAccount?.delegator?.pendingStake) > 0)
-            }
+            disabled={!(parseFloat(pendingStake) > 0)}
             variant="red"
             size="4"
             choiceId={1}
-            pollAddress={data.poll.id}
+            pollAddress={poll?.id}
           >
             No
           </VoteButton>
@@ -477,7 +506,12 @@ function renderVoteButton(data) {
   }
 }
 
-function getVotingPower(accountAddress, myAccount, vote) {
+function getVotingPower(
+  accountAddress: string,
+  myAccount: Props["myAccount"],
+  vote: Props["vote"],
+  pendingStake?: string
+) {
   // if account is a delegate its voting power is its total stake minus its delegators' vote stake (nonVoteStake)
   if (accountAddress === myAccount?.delegator?.delegate?.id) {
     if (vote?.voteStake) {
@@ -489,9 +523,5 @@ function getVotingPower(accountAddress, myAccount, vote) {
     );
   }
 
-  return fromWei(
-    myAccount?.delegator?.pendingStake
-      ? myAccount?.delegator?.pendingStake
-      : "0"
-  );
+  return fromWei(pendingStake ? pendingStake : "0");
 }

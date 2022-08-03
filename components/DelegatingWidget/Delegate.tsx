@@ -37,14 +37,14 @@ const Delegate = ({
     () =>
       amountIsNonEmpty &&
       parseFloat(amount) > 0 &&
-      BigNumber.from(tokenBalance).gte(amount),
+      Number(tokenBalance) >= amount,
     [amount, amountIsNonEmpty, tokenBalance]
   );
   const sufficientTransferAllowance = useMemo(
     () =>
       amountIsNonEmpty &&
-      BigNumber.from(transferAllowance).gt(0) &&
-      BigNumber.from(transferAllowance).gte(amount),
+      Number(transferAllowance) > 0 &&
+      Number(transferAllowance) >= amount,
     [amount, amountIsNonEmpty, transferAllowance]
   );
 

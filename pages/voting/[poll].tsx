@@ -87,16 +87,16 @@ const Poll = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (data && currentRound?.currentL2Block) {
+      if (data && currentRound?.currentL1Block) {
         const response = await getPollExtended(
           data.poll,
-          currentRound.currentL2Block
+          currentRound.currentL1Block
         );
         setPollData(response);
       }
     };
     init();
-  }, [data, currentRound?.currentL2Block]);
+  }, [data, currentRound?.currentL1Block]);
 
   if (!query?.poll) {
     return <FourZeroFour />;

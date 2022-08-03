@@ -653,8 +653,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
   const contractAddresses = useContractInfoData(isOpen);
 
-  console.log({ contractAddresses, EMPTY_ADDRESS });
-
   return (
     <Popover onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>

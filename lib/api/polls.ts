@@ -1,4 +1,8 @@
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import {
+  AVERAGE_L1_BLOCK_TIME,
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+} from "@lib/chains";
 import {
   getApollo,
   PollsQueryResult,
@@ -6,6 +10,7 @@ import {
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
 } from "apollo";
+import dayjs from "dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
@@ -41,7 +46,7 @@ export type PollExtended = PollsQueryResult["data"]["polls"][number] & {
 
 export const getPollExtended = async (
   poll: PollsQueryResult["data"]["polls"][number] | null | undefined,
-  l2BlockNumber: number
+  l1BlockNumber: number
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
@@ -60,9 +65,9 @@ export const getPollExtended = async (
     };
   }
 
-  const isActive = l2BlockNumber <= parseInt(poll.endBlock);
+  const isActive = l1BlockNumber <= parseInt(poll.endBlock);
   const totalStakeString = await getTotalStake(
-    isActive ? l2BlockNumber : +poll.endBlock
+    isActive ? l1BlockNumber : +poll.endBlock
   );
 
   const totalStake = +totalStakeString;
@@ -85,7 +90,10 @@ export const getPollExtended = async (
       : "rejected"
     : "quorum-not-met";
 
-  const estimatedEndTime = await getEndTimeByBlockNumber(+poll.endBlock);
+  const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(
+    +poll.endBlock,
+    l1BlockNumber
+  );
 
   const totalNonVoteStake = totalStake - totalVoteStake;
   const nonVotersPercent = totalNonVoteStake / totalStake;
@@ -113,12 +121,14 @@ export const getPollExtended = async (
   };
 };
 
-const getEndTimeByBlockNumber = async (number: number) => {
-  const blockDataResponse = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await blockDataResponse.json();
-  return Number(result?.timeStamp) ?? 0;
+const getEstimatedEndTimeByBlockNumber = async (
+  requestedBlock: number,
+  currentBlock: number
+) => {
+  // we don't need to make requests to the etherscan, since we can rely on consistent L1 block times
+  return dayjs()
+    .add((requestedBlock - currentBlock) * AVERAGE_L1_BLOCK_TIME, "s")
+    .unix();
 };
 
 const getTotalStake = async (l2BlockNumber: number) => {
