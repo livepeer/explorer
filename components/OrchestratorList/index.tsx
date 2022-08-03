@@ -4,7 +4,6 @@ import { textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -20,30 +19,33 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import {
+  ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
-  ChevronDownIcon,
 } from "@radix-ui/react-icons";
 import dayjs from "dayjs";
 import Link from "next/link";
 import numeral from "numeral";
-import { useCallback, useMemo, useState } from "react";
 import QRCode from "qrcode.react";
+import { useCallback, useMemo, useState } from "react";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
-import relativeTime from "dayjs/plugin/relativeTime";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import {
   calculateROI,
   ROIFactors,
   ROIInflationChange,
   ROITimeHorizon,
 } from "@lib/roi";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { useEnsData } from "hooks";
+import {
+  ArrowTopRightIcon,
+  ExclamationTriangleIcon,
+} from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useEnsData } from "hooks";
 
 dayjs.extend(relativeTime);
 
@@ -118,6 +120,15 @@ const OrchestratorList = ({
 
         const isNewlyActive = dayjs().diff(activation, "days") < 45;
 
+        const feeShareDaysSinceChange = dayjs().diff(
+          dayjs.unix(row.feeShareUpdateTimestamp),
+          "days"
+        );
+        const rewardCutDaysSinceChange = dayjs().diff(
+          dayjs.unix(row.rewardCutUpdateTimestamp),
+          "days"
+        );
+
         const roi = calculateROI({
           inputs: {
             principle: Number(principle),
@@ -148,6 +159,14 @@ const OrchestratorList = ({
 
         return {
           ...row,
+          daysSinceChangeParams:
+            (feeShareDaysSinceChange < rewardCutDaysSinceChange
+              ? feeShareDaysSinceChange
+              : rewardCutDaysSinceChange) ?? 0,
+          daysSinceChangeParamsFormatted:
+            (feeShareDaysSinceChange < rewardCutDaysSinceChange
+              ? dayjs.unix(row.feeShareUpdateTimestamp).fromNow()
+              : dayjs.unix(row.rewardCutUpdateTimestamp).fromNow()) ?? "",
           earningsComputed: {
             roi,
             activation,
@@ -275,6 +294,20 @@ const OrchestratorList = ({
                       <Box css={{ fontWeight: 600 }}>
                         {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
+                    )}
+                    {(row?.original?.daysSinceChangeParams ??
+                      Number.MAX_VALUE) < 30 && (
+                      <ExplorerTooltip
+                        multiline
+                        content={`This orchestrator changed their fee or reward cut ${row?.original?.daysSinceChangeParamsFormatted}.`}
+                      >
+                        <Box>
+                          <Box
+                            as={ExclamationTriangleIcon}
+                            css={{ ml: "$2", color: "$neutral11" }}
+                          />
+                        </Box>
+                      </ExplorerTooltip>
                     )}
                   </Flex>
                 </Flex>
@@ -615,6 +648,29 @@ const OrchestratorList = ({
                             "0.0a"
                           )}
                           {" LPT"}
+                        </Text>
+                      </Flex>
+                      <Flex>
+                        <Text
+                          variant="neutral"
+                          css={{
+                            mb: "$1",
+                          }}
+                          size="2"
+                        >
+                          Latest fee/reward change
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            display: "block",
+                            fontWeight: 600,
+                            color: "$white",
+                            mb: "$1",
+                          }}
+                          size="2"
+                        >
+                          {row?.original?.daysSinceChangeParams} days ago
                         </Text>
                       </Flex>
                     </Box>

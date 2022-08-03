@@ -20,10 +20,12 @@ query orchestrators(
     id
     totalVolumeETH
     feeShare
+    feeShareUpdateTimestamp
     activationTimestamp
     activationRound
     deactivationRound
     rewardCut
+    rewardCutUpdateTimestamp
     totalStake
     # price
     delegator {
