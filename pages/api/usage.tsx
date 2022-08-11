@@ -91,7 +91,10 @@ const chartDataHandler = async (
 
       // the # of pixels in a minute of 240p30fps, 360p30fps, 480p30fps, 720p30fps transcoded renditions.
       // (width * height * framerate * seconds in a minute)
-      const pixelsPerMinute = 2995488000; // should this be something like 1280 * 720 * 30 * 60?
+      const pixelsPerMinute = 2995488000;
+      // Could be 15 * 848 * 480 * 60 * 0.7 +
+      // (15 * 848 * 480 * 60 + 25 * 1280 * 720 * 60) * 0.3;
+      // - based on conversations with Evan and Studio database entries for common rendition profiles
 
       try {
         // get timestamps for the days
