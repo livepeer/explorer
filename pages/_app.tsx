@@ -4,7 +4,7 @@ import { IdProvider } from "@radix-ui/react-id";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
-import Layout from "layouts/main";
+import Layout, { IS_NITRO_UPGRADE_IN_PROGRESS } from "layouts/main";
 import { DEFAULT_CHAIN, INFURA_KEY, L1_CHAIN } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -36,7 +36,7 @@ function App({ Component, pageProps, fallback = null }) {
 
     const wagmiClient = createClient({
       autoConnect: true,
-      connectors,
+      connectors: IS_NITRO_UPGRADE_IN_PROGRESS ? [] : connectors,
       provider,
     });
 

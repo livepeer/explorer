@@ -61,6 +61,11 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 
+// this is a temporary variable to disable wallet interactions on the frontend,
+// to prevent unintended side effects when the nitro upgrade is in progress.
+// will be removed
+export const IS_NITRO_UPGRADE_IN_PROGRESS = true;
+
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
 } else {
@@ -81,7 +86,7 @@ type DrawerItem = {
 };
 
 // increment this value when updating the banner
-const uniqueBannerID = 3;
+const uniqueBannerID = 4;
 
 export const LAYOUT_MAX_WIDTH = 1400;
 
@@ -272,27 +277,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   css={{
                     mr: "$3",
                     pr: "$3",
-                    borderRight: "1px solid",
-                    borderColor: "$border",
                   }}
                 >
                   <Box as="span">
-                    The Livepeer Protocol is now on Arbitrum 🚀
+                    The Livepeer Protocol is moving to Arbitrum Nitro - wallet connection is temporarily paused 🚦
                   </Box>
                 </Box>
-                <A
-                  href="https://medium.com/livepeer-blog/lower-gas-fees-higher-returns-welcome-to-life-on-l2-with-livepeer-a24bb95b479"
-                  target="_blank"
-                  variant="primary"
-                  css={{
-                    minWidth: 94,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  Read more <Box as={ArrowTopRightIcon} />
-                </A>
 
                 <Box
                   as={FiX}
@@ -589,9 +579,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
                       <Flex css={{ ml: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
-                        <Flex css={{ ai: "center", ml: "8px" }}>
-                          <ConnectButton showBalance={false} />
-                        </Flex>
+                        {!IS_NITRO_UPGRADE_IN_PROGRESS && (
+                          <Flex css={{ ai: "center", ml: "8px" }}>
+                            <ConnectButton showBalance={false} />
+                          </Flex>
+                        )}
                         <Search />
                       </Flex>
                     </Flex>
@@ -719,7 +711,9 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             </Text>
 
             {Object.keys(contractAddresses ?? {})
-              .filter((key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS)
+              .filter(
+                (key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS
+              )
               .map((key) => (
                 <Flex key={key}>
                   {contractAddresses?.[key] ? (
