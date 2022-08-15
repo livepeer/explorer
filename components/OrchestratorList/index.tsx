@@ -41,7 +41,7 @@ import {
 } from "@lib/roi";
 import {
   ArrowTopRightIcon,
-  ExclamationTriangleIcon,
+  // ExclamationTriangleIcon,
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -295,7 +295,7 @@ const OrchestratorList = ({
                         {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
                     )}
-                    {(row?.original?.daysSinceChangeParams ??
+                    {/* {(row?.original?.daysSinceChangeParams ??
                       Number.MAX_VALUE) < 30 && (
                       <ExplorerTooltip
                         multiline
@@ -308,7 +308,7 @@ const OrchestratorList = ({
                           />
                         </Box>
                       </ExplorerTooltip>
-                    )}
+                    )} */}
                   </Flex>
                 </Flex>
               </A>
