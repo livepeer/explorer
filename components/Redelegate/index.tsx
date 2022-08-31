@@ -1,28 +1,25 @@
-import { useContext } from "react";
-import { MutationsContext } from "../../contexts";
-import { useApolloClient } from "@apollo/client";
-import { initTransaction } from "../../lib/utils";
 import { Button } from "@livepeer/design-system";
+import { useBondingManager, useHandleTransaction } from "hooks";
 
 const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
-  const client = useApolloClient();
-  const { rebond }: any = useContext(MutationsContext);
+  const bondingManager = useBondingManager();
+  const handleTransaction = useHandleTransaction("rebond");
 
   return (
     <>
       <Button
         variant="primary"
         size="3"
-        onClick={() => {
-          initTransaction(client, async () => {
-            await rebond({
-              variables: {
+        onClick={async () => {
+          await handleTransaction(
+            () =>
+              bondingManager.rebondWithHint(
                 unbondingLockId,
                 newPosPrev,
-                newPosNext,
-              },
-            });
-          });
+                newPosNext
+              ),
+            { unbondingLockId, newPosPrev, newPosNext }
+          );
         }}
         css={{ mr: "$3" }}
       >

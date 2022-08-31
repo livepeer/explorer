@@ -1,4 +1,10 @@
-import { useTable, useSortBy, usePagination } from "react-table";
+import {
+  useTable,
+  useSortBy,
+  usePagination,
+  Column,
+  TableState,
+} from "react-table";
 import {
   Flex,
   Box,
@@ -15,13 +21,20 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
+import { ReactNode } from "react";
 
-function DataTable({
+function DataTable<T extends object>({
   heading = null,
   input = null,
   data,
   columns,
   initialState = {},
+}: {
+  heading?: ReactNode;
+  input?: ReactNode;
+  data: T[];
+  columns: Column<T>[];
+  initialState: object;
 }) {
   const {
     getTableProps,
@@ -35,7 +48,7 @@ function DataTable({
     nextPage,
     previousPage,
     state: { pageIndex },
-  }: any = useTable(
+  }: any = useTable<T>(
     {
       columns,
       data,

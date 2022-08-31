@@ -1,31 +1,38 @@
-import { Link as A, Container, Card } from "@livepeer/design-system";
+import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import {
   Box,
+  Card,
+  Container,
   Flex,
   Heading,
   Label,
+  Link as A,
   styled,
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { useEffect, useState } from "react";
-import useForm from "react-hook-form";
-import { isValidAddress } from "utils/validAddress";
-import Spinner from "@components/Spinner";
+import { ethers } from "ethers";
 import {
-  arbRetryableTx,
+  useInbox,
+  useL1DelegatorData,
+  useL1Migrator,
+  useNodeInterface,
+} from "hooks";
+import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  l1Migrator,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
-import { ethers } from "ethers";
-import { getUnbondingLocks } from ".";
+import { useEffect, useState } from "react";
+import useForm from "react-hook-form";
+import { Inbox, L1Migrator, NodeInterface } from "typechain-types";
+import { isValidAddress } from "utils/validAddress";
 
 const ReadOnlyCard = styled(Box, {
+  length: {},
   display: "flex",
   backgroundColor: "$neutral3",
   border: "1px solid $neutral6",
@@ -44,12 +51,25 @@ const ContractWalletTool = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const inbox = useInbox();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
+
+  const l1Delegator = useL1DelegatorData(l1Addr);
+
   useEffect(() => {
     async function init() {
       if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
         setLoading(true);
         setParams(null);
-        const params = await getParams(l1Addr, l2Addr);
+        const params = await getParams(
+          l1Addr,
+          l2Addr,
+          inbox,
+          l1Migrator,
+          nodeInterface,
+          l1Delegator
+        );
         if (
           params?.migrateDelegatorParams ||
           params?.migrateUnbondingLockParams
@@ -66,7 +86,7 @@ const ContractWalletTool = () => {
       }
     }
     init();
-  }, [l1Addr, l2Addr]);
+  }, [l1Addr, l2Addr, inbox, l1Migrator, nodeInterface, l1Delegator]);
 
   return (
     <Container
@@ -122,7 +142,8 @@ const ContractWalletTool = () => {
             Enter the address that will receive migrated stake on L2
           </Label>
           <Label css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
-            This address should be different from the L1 address and you MUST verify you have access to it on L2
+            This address should be different from the L1 address and you MUST
+            verify you have access to it on L2
           </Label>
           <TextField
             ref={register}
@@ -207,57 +228,62 @@ const ContractWalletTool = () => {
   );
 };
 
-async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
+async function getMigrateDelegatorParams(
+  _l1Addr,
+  _l2Addr,
+  inbox: Inbox,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface
+) {
   try {
     const { data } = await l1Migrator.getMigrateDelegatorParams(
       _l1Addr,
       _l2Addr
     );
 
-    const _gasPriceBid = await l2Provider.getGasPrice();
+    const gasPriceBid = await l2Provider.getGasPrice();
 
     // fetching submission price
     // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-    const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-      data.length
+    const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+      data.length,
+      gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
     );
 
     // overpaying submission price to account for increase
     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
     // the excess will be sent back to the refund address
-    const _maxSubmissionPrice = submissionPrice.mul(4);
+    const maxSubmissionPrice = submissionPrice.mul(4);
 
     // calculating estimated gas for the tx
-    const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-      ethers.utils.parseEther("0.01"),
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-      0,
-      _maxSubmissionPrice,
-      _l1Addr,
-      _l1Addr,
-      0,
-      _gasPriceBid,
-      data
-    );
+    const estimatedGas =
+      await nodeInterface.estimateGas.estimateRetryableTicket(
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        ethers.utils.parseEther("0.01"),
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+        0,
+        _l1Addr,
+        _l1Addr,
+        data
+      );
 
     // overpaying gas just in case
     // the excess will be sent back to the refund address
-    const _maxGas = estimatedGas.mul(4);
+    const maxGas = estimatedGas.mul(4);
 
     // ethValue will be sent as callvalue
     // this entire amount will be used for successfully completing
     // the L2 side of the transaction
     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-    const ethValue = await _maxSubmissionPrice.add(_gasPriceBid.mul(_maxGas));
+    const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
     return {
       _l1Addr,
       _l2Addr,
       _sig: "Can be ignored and left blank",
-      _maxGas: _maxGas.toString(),
-      _gasPriceBid: _gasPriceBid.toString(),
-      _maxSubmissionPrice: _maxSubmissionPrice.toString(),
+      _maxGas: maxGas.toString(),
+      _gasPriceBid: gasPriceBid.toString(),
+      _maxSubmissionPrice: maxSubmissionPrice.toString(),
       ethValue: ethValue.toString(),
     };
   } catch (e) {
@@ -265,14 +291,28 @@ async function getMigrateDelegatorParams(_l1Addr, _l2Addr) {
   }
 }
 
-async function getParams(_l1Addr, _l2Addr) {
+async function getParams(
+  _l1Addr,
+  _l2Addr,
+  inbox: Inbox,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface,
+  l1Delegator: L1Delegator
+) {
   const migrateDelegatorParams = await getMigrateDelegatorParams(
     _l1Addr,
-    _l2Addr
+    _l2Addr,
+    inbox,
+    l1Migrator,
+    nodeInterface
   );
   const migrateUnbondingLockParams = await getMigrateUnbondingLockParams(
     _l1Addr,
-    _l2Addr
+    _l2Addr,
+    inbox,
+    l1Migrator,
+    nodeInterface,
+    l1Delegator
   );
 
   return {
@@ -280,9 +320,16 @@ async function getParams(_l1Addr, _l2Addr) {
     migrateUnbondingLockParams,
   };
 }
-async function getMigrateUnbondingLockParams(_l1Addr, _l2Addr) {
+async function getMigrateUnbondingLockParams(
+  _l1Addr,
+  _l2Addr,
+  inbox: Inbox,
+  l1Migrator: L1Migrator,
+  nodeInterface: NodeInterface,
+  l1Delegator: L1Delegator
+) {
   try {
-    const locks = await getUnbondingLocks(_l1Addr);
+    const locks = l1Delegator.activeLocks.map((e) => e.id);
 
     // fetch calldata to be submitted for calling L2 function
     const { data, params } = await l1Migrator.getMigrateUnbondingLocksParams(
@@ -291,42 +338,41 @@ async function getMigrateUnbondingLockParams(_l1Addr, _l2Addr) {
       locks
     );
 
-    const _gasPriceBid = await l2Provider.getGasPrice();
+    const gasPriceBid = await l2Provider.getGasPrice();
 
     // fetching submission price
     // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-    const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-      data.length
+    const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+      data.length,
+      gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
     );
 
     // overpaying submission price to account for increase
     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
     // the excess will be sent back to the refund address
-    const _maxSubmissionPrice = submissionPrice.mul(4);
+    const maxSubmissionPrice = submissionPrice.mul(4);
 
     // calculating estimated gas for the tx
-    const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-      ethers.utils.parseEther("0.01"),
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-      0,
-      _maxSubmissionPrice,
-      _l1Addr,
-      _l1Addr,
-      0,
-      _gasPriceBid,
-      data
-    );
+    const estimatedGas =
+      await nodeInterface.estimateGas.estimateRetryableTicket(
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        ethers.utils.parseEther("0.01"),
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+        0,
+        _l1Addr,
+        _l1Addr,
+        data
+      );
 
     // overpaying gas just in case
     // the excess will be sent back to the refund address
-    const _maxGas = estimatedGas.mul(4);
+    const maxGas = estimatedGas.mul(4);
 
     // ethValue will be sent as callvalue
     // this entire amount will be used for successfully completing
     // the L2 side of the transaction
     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-    const ethValue = await _maxSubmissionPrice.add(_gasPriceBid.mul(_maxGas));
+    const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
     return {
       _l1Addr,
@@ -335,9 +381,9 @@ async function getMigrateUnbondingLockParams(_l1Addr, _l2Addr) {
         params.unbondingLockIds.map((lock) => +lock.toString())
       ),
       _sig: "Can be ignored and left blank",
-      _maxGas: _maxGas.toString(),
-      _gasPriceBid: _gasPriceBid.toString(),
-      _maxSubmissionPrice: _maxSubmissionPrice.toString(),
+      _maxGas: maxGas.toString(),
+      _gasPriceBid: gasPriceBid.toString(),
+      _maxSubmissionPrice: maxSubmissionPrice.toString(),
       ethValue: ethValue.toString(),
     };
   } catch (e) {

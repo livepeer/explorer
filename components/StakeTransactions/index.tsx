@@ -1,26 +1,27 @@
-import Utils from "web3-utils";
 import {
   abbreviateNumber,
   getHint,
   simulateNewActiveSetOrder,
 } from "../../lib/utils";
-import { UnbondingLock } from "../../@types";
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
+import { parseEther } from "ethers/lib/utils";
+import { UnbondingLock } from "apollo";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
-        item.withdrawRound && item.withdrawRound > parseInt(currentRound.id, 10)
+        item.withdrawRound &&
+        +item.withdrawRound > parseInt(currentRound.id, 10)
     );
   const completedStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
         item.withdrawRound &&
-        item.withdrawRound <= parseInt(currentRound.id, 10)
+        +item.withdrawRound <= parseInt(currentRound.id, 10)
     );
   const isBonded = !!delegator.delegate;
 
@@ -33,9 +34,9 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
           </Heading>
           {pendingStakeTransactions.map((lock) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
-              action: "stake",
+              action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: Utils.toWei(lock.amount),
+              amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(
@@ -68,7 +69,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     </Box>
                     <Text variant="neutral" size="1">
                       Tokens will be available for withdrawal in approximately{" "}
-                      {lock.withdrawRound - parseInt(currentRound.id, 10)} days.
+                      {+lock.withdrawRound - parseInt(currentRound.id, 10)}{" "}
+                      days.
                     </Text>
                   </Box>
                   <Flex css={{ alignItems: "center" }}>
@@ -108,9 +110,9 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
           </Heading>
           {completedStakeTransactions.map((lock) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
-              action: "stake",
+              action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: Utils.toWei(lock.amount),
+              amount: parseEther(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(

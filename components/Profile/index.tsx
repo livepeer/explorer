@@ -1,38 +1,28 @@
-import { useState, useEffect } from "react";
-import QRCode from "qrcode.react";
-import { Identity } from "../../@types";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import EditProfile from "../EditProfile";
-import ShowMoreText from "react-show-more-text";
-import { nl2br } from "../../lib/utils";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   CopyIcon,
-  TwitterLogoIcon,
   GlobeIcon,
+  TwitterLogoIcon,
 } from "@modulz/radix-icons";
-import {
-  Text,
-  Heading,
-  Box,
-  Flex,
-  Link as A,
-  Badge,
-} from "@livepeer/design-system";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import QRCode from "qrcode.react";
+import { useEffect, useState } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import ShowMoreText from "react-show-more-text";
+import { nl2br } from "../../lib/utils";
+import EditProfile from "../EditProfile";
+
 interface Props {
   account: string;
   isActive: boolean;
   isMyAccount: boolean;
-  identity?: Identity;
   css?: object;
+  identity: EnsIdentity;
 }
 
-const Index = ({
-  account,
-  isMyAccount = false,
-  identity,
-}: Props) => {
+const Index = ({ account, isMyAccount = false, identity }: Props) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -61,7 +51,7 @@ const Index = ({
             },
           }}
         >
-          {identity?.image ? (
+          {identity?.avatar ? (
             <Box
               as="img"
               css={{
@@ -72,7 +62,7 @@ const Index = ({
                 width: "100%",
                 height: "100%",
               }}
-              src={identity.image}
+              src={identity.avatar}
             />
           ) : (
             <Box
@@ -94,7 +84,7 @@ const Index = ({
           direction="column"
           css={{ height: "100%", ml: "$3" }}
         >
-          <Flex css={{ alignItems: "center", mb: "$2" }}>
+          <Flex css={{ alignItems: "center" }}>
             <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
               <Heading
                 size="2"
@@ -150,23 +140,23 @@ const Index = ({
             {isMyAccount && <EditProfile />}
           </Flex>
           <Flex align="center">
-            {identity?.website && (
-              <Flex align="center" css={{ mr: "$3" }}>
+            {identity?.url && (
+              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
                 <Box as={GlobeIcon} css={{ mr: "$1" }} />
                 <A
                   variant="contrast"
                   css={{ fontSize: "$2" }}
-                  href={identity.website}
+                  href={identity.url}
                   target="__blank"
                   rel="noopener noreferrer"
                 >
-                  {identity.website.replace(/(^\w+:|^)\/\//, "")}
+                  {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </A>
               </Flex>
             )}
 
             {identity?.twitter && (
-              <Flex align="center" css={{ mr: "$3" }}>
+              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
                 <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
                 <A
                   variant="contrast"

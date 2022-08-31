@@ -1,39 +1,25 @@
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import Head from "next/head";
-import { Flex, Container, Heading, Box } from "@livepeer/design-system";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import PerformanceList from "@components/PerformanceList";
-import { getApollo } from "../apollo";
-import { getOrchestrators } from "api";
-import { orchestratorsQuery } from "../queries/orchestratorsQuery";
-import { gql, useQuery } from "@apollo/client";
-import { useState } from "react";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
+import { getOrchestrators } from "@lib/api/ssr";
+import { GetStaticProps } from "next";
+import Head from "next/head";
+import { useState } from "react";
+import { ALL_REGIONS } from "utils/allRegions";
+import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
-const LeaderboardPage = () => {
-  const [region, setRegion] = useState("global");
-  const regions = {
-    global: "Global",
-    fra: "Frankfurt",
-    lax: "Los Angeles",
-    lon: "London",
-    mdw: "Chicago",
-    nyc: "New York City",
-    prg: "Prague",
-    sin: "Singapore",
-  };
+type PageProps = {
+  orchestratorIds: Pick<
+    OrchestratorsQueryResult["data"]["transcoders"][number],
+    "id"
+  >[];
+  fallback: { [key: string]: EnsIdentity };
+};
 
-  const { data: protocolData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-  const query = orchestratorsQuery(protocolData.protocol.currentRound.id);
-  const { data } = useQuery(query);
+const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
+  const [region, setRegion] = useState<keyof typeof ALL_REGIONS>("global");
 
   return (
     <>
@@ -86,7 +72,7 @@ const LeaderboardPage = () => {
                     pr: "$5",
                   }}
                 >
-                  {Object.entries(regions).map(([key, value]) => (
+                  {Object.entries(ALL_REGIONS).map(([key, value]) => (
                     <Box as="option" key={key} value={key}>
                       {value}
                     </Box>
@@ -105,7 +91,7 @@ const LeaderboardPage = () => {
           </Flex>
           <Box css={{ mb: "$5" }}>
             <PerformanceList
-              data={data.transcoders}
+              data={orchestratorIds}
               pageSize={20}
               region={region}
             />
@@ -116,17 +102,33 @@ const LeaderboardPage = () => {
   );
 };
 
-export async function getStaticProps() {
-  const client = getApollo();
-  await getOrchestrators(client);
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const client = getApollo();
+    const { orchestrators, fallback } = await getOrchestrators(client);
 
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-    revalidate: 1,
-  };
-}
+    if (!orchestrators.data) {
+      return { notFound: true };
+    }
+
+    const props: PageProps = {
+      // initialApolloState: client.cache.extract(),
+      orchestratorIds: orchestrators.data.transcoders.map((t) => ({
+        id: t.id,
+      })),
+      fallback,
+    };
+
+    return {
+      props,
+      revalidate: 3600,
+    };
+  } catch (e) {
+    console.error(e);
+  }
+
+  return { notFound: true };
+};
 
 LeaderboardPage.getLayout = getLayout;
 

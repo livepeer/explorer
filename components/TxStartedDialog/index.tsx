@@ -1,5 +1,4 @@
-import { txMessages } from "@lib/utils";
-import Utils from "web3-utils";
+import { fromWei, txMessages } from "@lib/utils";
 import Spinner from "../Spinner";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
@@ -15,14 +14,21 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { TransactionStatus, useExplorerStore } from "hooks";
 
-const Index = ({ tx, isOpen, onDismiss }) => {
+const Index = () => {
+  const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+
+  if (!latestTransaction || latestTransaction.step !== "started") {
+    return null;
+  }
+
   return (
     <Dialog
-      open={isOpen}
+      open={true}
       onOpenChange={(open) => {
         if (!open) {
-          onDismiss();
+          clearLatestTransaction();
         }
       }}
     >
@@ -49,8 +55,8 @@ const Index = ({ tx, isOpen, onDismiss }) => {
       </DialogTitle>
       <DialogContent css={{ maxWidth: 370, width: "100%" }}>
         <Box>
-          <Header tx={tx} />
-          <Box>{Table({ tx })}</Box>
+          <Header tx={latestTransaction} />
+          <Box>{Table({ tx: latestTransaction })}</Box>
         </Box>
 
         <DialogClose asChild>
@@ -65,7 +71,7 @@ const Index = ({ tx, isOpen, onDismiss }) => {
 
 export default Index;
 
-function Table({ tx }) {
+function Table({ tx }: { tx: TransactionStatus }) {
   return (
     <Box
       css={{
@@ -84,9 +90,9 @@ function Table({ tx }) {
   );
 }
 
-function Inputs({ tx }) {
-  const inputData = JSON.parse(tx.inputData);
-  switch (tx.__typename) {
+function Inputs({ tx }: { tx: TransactionStatus }) {
+  const inputData = tx.inputData;
+  switch (tx.name) {
     case "bond":
       return (
         <>
@@ -97,8 +103,7 @@ function Inputs({ tx }) {
 
           {Number(inputData.amount) > 0 ? (
             <Row>
-              <Box>Amount</Box>{" "}
-              {tx.inputData && Utils.fromWei(inputData.amount)} LPT
+              <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)} LPT
             </Row>
           ) : (
             <></>
@@ -109,8 +114,7 @@ function Inputs({ tx }) {
       return (
         <>
           <Row>
-            <Box>Amount</Box> {tx.inputData && Utils.fromWei(inputData.amount)}{" "}
-            LPT
+            <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)} LPT
           </Row>
         </>
       );
@@ -151,17 +155,17 @@ function Inputs({ tx }) {
       return null;
     case "approve":
       return null;
-    case "initializeRound":
-      return null;
+    // case "initializeRound":
+    //   return null;
     case "claimStake":
       return (
         <>
           <Row>
-            <Box>Stake</Box> {tx.inputData && Utils.fromWei(inputData.stake)}
+            <Box>Stake</Box> {tx.inputData && fromWei(inputData.stake)}
           </Row>
 
           <Row>
-            <Box>Fees</Box> {tx.inputData && Utils.fromWei(inputData.fees)} LPT
+            <Box>Fees</Box> {tx.inputData && fromWei(inputData.fees)} LPT
           </Row>
         </>
       );
@@ -190,42 +194,25 @@ function Row({ css = {}, children, ...props }) {
   );
 }
 
-function Header({ css = {}, tx }) {
+function Header({ tx }: { tx: TransactionStatus }) {
   return (
     <Flex
       css={{
         alignItems: "center",
         justifyContent: "space-between",
         mb: "$3",
-        ...css,
       }}
     >
       <Spinner />
-      {/* <Flex
-        css={{
-          mr: "$3",
-          color: "$hiContrast",
-          fontSize: "$1",
-          fontWeight: "bold",
-        }}
-      >
-        {timeLeft
-          ? `${
-              Math.floor(((tx?.estimate - timeLeft) / tx?.estimate) * 100) < 100
-                ? Math.floor(((tx?.estimate - timeLeft) / tx?.estimate) * 100)
-                : "100"
-            }%`
-          : "0%"}
-      </Flex> */}
       <Box css={{ fontWeight: 700, fontSize: "$5" }}>
-        {txMessages[tx?.__typename]?.pending}
+        {txMessages[tx?.name]?.pending}
       </Box>
       <A
         variant="primary"
         css={{ display: "flex", ai: "center" }}
         target="_blank"
         rel="noopener noreferrer"
-        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.txHash}`}
+        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Details{" "}
         <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />

@@ -1,10 +1,14 @@
-import React, { useContext, useMemo, useState } from "react";
-import { useApolloClient } from "@apollo/client";
-import Utils from "web3-utils";
-import { MutationsContext } from "../../contexts";
-import { initTransaction, MAXIUMUM_VALUE_UINT256 } from "@lib/utils";
-import ProgressSteps from "../ProgressSteps";
+import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
+import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import {
+  useBondingManager,
+  useHandleTransaction,
+  useLivepeerToken,
+} from "hooks";
+import { useMemo, useState } from "react";
+import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({
   to,
@@ -12,7 +16,6 @@ const Delegate = ({
   isTransferStake,
   tokenBalance,
   transferAllowance,
-  delegator,
   reset,
   hint: {
     oldDelegateNewPosPrev,
@@ -21,18 +24,27 @@ const Delegate = ({
     currDelegateNewPosNext,
   },
 }) => {
-  const client = useApolloClient();
-  const { bond, approve }: any = useContext(MutationsContext);
+  const bondingManager = useBondingManager();
+  const livepeerToken = useLivepeerToken();
+
+  const handleBondTransaction = useHandleTransaction("bond");
+  const handleApproveTransaction = useHandleTransaction("approve");
+
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
-  const amountIsNonEmpty = amount !== "";
+  const amountIsNonEmpty = useMemo(() => amount, [amount]);
   const sufficientBalance = useMemo(
-    () => amountIsNonEmpty && +amount >= 0 && +amount <= tokenBalance,
+    () =>
+      amountIsNonEmpty &&
+      parseFloat(amount) > 0 &&
+      Number(tokenBalance) >= amount,
     [amount, amountIsNonEmpty, tokenBalance]
   );
   const sufficientTransferAllowance = useMemo(
     () =>
-      amountIsNonEmpty && transferAllowance > 0 && +amount <= transferAllowance,
+      amountIsNonEmpty &&
+      Number(transferAllowance) > 0 &&
+      Number(transferAllowance) >= amount,
     [amount, amountIsNonEmpty, transferAllowance]
   );
 
@@ -44,44 +56,50 @@ const Delegate = ({
     [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted]
   );
 
-  const onApprove = () => {
-    const tx = async () => {
-      try {
-        setApprovalSubmitted(true);
-        await approve({
-          variables: {
-            type: "bond",
-            amount: MAXIUMUM_VALUE_UINT256,
-          },
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    initTransaction(client, tx);
+  const onApprove = async () => {
+    try {
+      setApprovalSubmitted(true);
+
+      await handleApproveTransaction(
+        () =>
+          livepeerToken.approve(bondingManager.address, MAXIMUM_VALUE_UINT256),
+        {
+          type: "bond",
+          amount: MAXIMUM_VALUE_UINT256,
+        }
+      );
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const onDelegate = () => {
-    const tx = async () => {
-      try {
-        await bond({
-          variables: {
-            amount: Utils.toWei(amount ? amount.toString() : "0"),
+  const onDelegate = async () => {
+    try {
+      const args = {
+        amount: amount?.toString() ? parseEther(amount) : "0",
+        to,
+        oldDelegateNewPosPrev,
+        oldDelegateNewPosNext,
+        currDelegateNewPosPrev,
+        currDelegateNewPosNext,
+      };
+
+      await handleBondTransaction(
+        () =>
+          bondingManager.bondWithHint(
+            args.amount,
             to,
             oldDelegateNewPosPrev,
             oldDelegateNewPosNext,
             currDelegateNewPosPrev,
-            currDelegateNewPosNext,
-            delegator: delegator?.id,
-            lastClaimRound: parseInt(delegator?.lastClaimRound.id, 10),
-          },
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    };
+            currDelegateNewPosNext
+          ),
+        args
+      );
+    } catch (e) {
+      console.error(e);
+    }
 
-    initTransaction(client, tx);
     setApprovalSubmitted(false);
     reset();
   };

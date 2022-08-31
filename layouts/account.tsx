@@ -1,11 +1,8 @@
-import { useQuery } from "@apollo/client";
 import DelegatingWidget from "@components/DelegatingWidget";
 import Profile from "@components/Profile";
-import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 
-import { gql } from "@apollo/client";
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
 import HistoryView from "@components/HistoryView";
@@ -21,13 +18,15 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@livepeer/design-system";
+import {
+  AccountQueryResult,
+  OrchestratorsSortedQueryResult,
+  useAccountQuery,
+} from "apollo";
 import Link from "next/link";
-import { useMemo } from "react";
-import useWindowSize from "react-use/lib/useWindowSize";
-import { useAccountAddress } from "../hooks";
-import { accountQuery } from "../queries/accountQuery";
-
-const pollInterval = 5000;
+import { useEffect, useMemo, useState } from "react";
+import { useWindowSize } from "react-use";
+import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
   name: string;
@@ -35,53 +34,41 @@ export interface TabType {
   isActive?: boolean;
 }
 
-const ACCOUNT_VIEWS = ["delegating", "orchestrating", "history"];
+type TabTypeEnum = "delegating" | "orchestrating" | "history";
 
-const AccountLayout = () => {
+const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+
+const AccountLayout = ({
+  account,
+  sortedOrchestrators,
+}: {
+  account?: AccountQueryResult["data"] | null;
+  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
+}) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const router = useRouter();
   const { query, asPath } = router;
-  const view = ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v);
-
-  const { data: currentRoundData } = useQuery(gql`
-    {
-      protocol(id: "0") {
-        id
-        currentRound {
-          id
-        }
-      }
-    }
-  `);
-
-  const q = accountQuery(currentRoundData?.protocol.currentRound.id);
-
-  const account = query?.account?.toString().toLowerCase();
-
-  const { data, loading } = useQuery(q, {
-    variables: {
-      account,
-    },
-    pollInterval,
-  });
-
-  const { data: dataTranscoders, loading: loadingTranscoders } = useQuery(
-    gql`
-      {
-        transcoders(
-          orderDirection: desc
-          orderBy: totalStake
-          where: { active: true }
-        ) {
-          id
-          totalStake
-        }
-      }
-    `
+  const view = useMemo(
+    () => ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v),
+    [asPath]
   );
 
-  const { data: dataMyAccount } = useQuery(q, {
+  const { setSelectedStakingAction, latestTransaction } = useExplorerStore();
+
+  const accountId = useMemo(
+    () => query?.account?.toString().toLowerCase(),
+    [query]
+  );
+
+  const identity = useEnsData(accountId);
+  const myIdentity = useEnsData(accountAddress);
+
+  const [pollInterval, setPollInterval] = useState<number | undefined>(
+    undefined
+  );
+
+  const { data: dataMyAccount } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
@@ -89,51 +76,36 @@ const AccountLayout = () => {
     pollInterval,
   });
 
-  const SELECTED_STAKING_ACTION = gql`
-    {
-      selectedStakingAction @client
+  // start polling when when transactions finish
+  useEffect(() => {
+    if (latestTransaction?.step === "confirmed") {
+      setPollInterval(5000);
     }
-  `;
-  const { data: selectedStakingAction } = useQuery(SELECTED_STAKING_ACTION);
+  }, [latestTransaction?.step]);
 
   const isActive = useMemo(
-    () => Boolean(data?.transcoder?.active),
-    [data?.transcoder]
+    () => Boolean(account?.transcoder?.active),
+    [account?.transcoder]
   );
 
-  if (loading || loadingTranscoders) {
-    return (
-      <Flex
-        css={{
-          height: "calc(100vh - 100px)",
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          "@bp3": {
-            height: "100vh",
-          },
-        }}
-      >
-        <Spinner />
-      </Flex>
-    );
-  }
-
-  const isMyAccount = checkAddressEquality(
-    accountAddress,
-    query?.account?.toString()
+  const isMyAccount = useMemo(
+    () => checkAddressEquality(accountAddress, accountId),
+    [accountAddress, accountId]
   );
-  const isOrchestrator = data?.transcoder;
-  const isMyDelegate =
-    query?.account?.toString().toLowerCase() ===
-    dataMyAccount?.delegator?.delegate?.id.toLowerCase();
-
-  const tabs: Array<TabType> = getTabs(
-    isOrchestrator,
-    query?.account?.toString(),
-    asPath,
-    isMyDelegate
+  const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
+  const isMyDelegate = useMemo(
+    () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
+    [accountId, dataMyAccount]
   );
+
+  const tabs: Array<TabType> = useMemo(
+    () => getTabs(isOrchestrator, accountId, view, isMyDelegate),
+    [isOrchestrator, accountId, view, isMyDelegate]
+  );
+
+  useEffect(() => {
+    setSelectedStakingAction("delegate");
+  }, [setSelectedStakingAction]);
 
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
@@ -155,7 +127,7 @@ const AccountLayout = () => {
             isActive={isActive}
             account={query?.account.toString()}
             isMyAccount={isMyAccount}
-            identity={data?.account?.identity}
+            identity={identity}
           />
           <Flex
             css={{
@@ -175,14 +147,12 @@ const AccountLayout = () => {
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={dataTranscoders.transcoders}
-                    selectedAction="delegate"
-                    currentRound={data.protocol.currentRound}
+                    transcoders={sortedOrchestrators.transcoders}
                     delegator={dataMyAccount?.delegator}
-                    account={dataMyAccount?.account}
-                    transcoder={data.transcoder}
-                    protocol={data.protocol}
-                    delegateProfile={data?.account?.identity}
+                    account={myIdentity}
+                    transcoder={account?.transcoder}
+                    protocol={account?.protocol}
+                    delegateProfile={identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -196,14 +166,12 @@ const AccountLayout = () => {
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={dataTranscoders.transcoders}
-                    selectedAction="undelegate"
-                    currentRound={data.protocol.currentRound}
+                    transcoders={sortedOrchestrators.transcoders}
                     delegator={dataMyAccount?.delegator}
-                    account={dataMyAccount?.account}
-                    transcoder={data.transcoder}
-                    protocol={data.protocol}
-                    delegateProfile={data?.account?.identity}
+                    account={myIdentity}
+                    transcoder={account.transcoder}
+                    protocol={account.protocol}
+                    delegateProfile={identity}
                   />
                 </SheetContent>
               </Sheet>
@@ -244,16 +212,16 @@ const AccountLayout = () => {
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
-              currentRound={data?.protocol?.currentRound}
-              transcoder={data?.transcoder}
+              currentRound={account?.protocol?.currentRound}
+              transcoder={account?.transcoder}
             />
           )}
           {view === "delegating" && (
             <DelegatingView
-              transcoders={dataTranscoders.transcoders}
-              delegator={data.delegator}
-              protocol={data.protocol}
-              currentRound={data.protocol.currentRound}
+              transcoders={sortedOrchestrators.transcoders}
+              delegator={account?.delegator}
+              protocol={account?.protocol}
+              currentRound={account.protocol.currentRound}
             />
           )}
           {view === "history" && <HistoryView />}
@@ -274,26 +242,23 @@ const AccountLayout = () => {
               }}
             >
               <DelegatingWidget
-                currentRound={data.protocol.currentRound}
-                transcoders={dataTranscoders.transcoders}
+                transcoders={sortedOrchestrators.transcoders}
                 delegator={dataMyAccount?.delegator}
-                account={dataMyAccount?.account}
-                transcoder={data.transcoder}
-                protocol={data.protocol}
-                delegateProfile={data?.account?.identity}
+                account={myIdentity}
+                transcoder={account?.transcoder}
+                protocol={account?.protocol}
+                delegateProfile={identity}
               />
             </Flex>
           ) : (
             <BottomDrawer>
               <DelegatingWidget
-                transcoders={dataTranscoders.transcoders}
-                selectedAction={selectedStakingAction?.selectedStakingAction}
-                currentRound={data.protocol.currentRound}
+                transcoders={sortedOrchestrators.transcoders}
                 delegator={dataMyAccount?.delegator}
-                account={dataMyAccount?.account}
-                transcoder={data.transcoder}
-                protocol={data.protocol}
-                delegateProfile={data?.account?.identity}
+                account={myIdentity}
+                transcoder={account?.transcoder}
+                protocol={account?.protocol}
+                delegateProfile={identity}
               />
             </BottomDrawer>
           ))}
@@ -309,26 +274,26 @@ export default AccountLayout;
 function getTabs(
   isOrchestrator: boolean,
   account: string,
-  asPath: string,
+  view: TabTypeEnum,
   isMyDelegate: boolean
 ): Array<TabType> {
   const tabs: Array<TabType> = [
     {
       name: "Delegating",
       href: `/accounts/${account}/delegating`,
-      isActive: asPath === `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
     },
     {
       name: "History",
       href: `/accounts/${account}/history`,
-      isActive: asPath === `/accounts/${account}/history`,
+      isActive: view === "history",
     },
   ];
   if (isOrchestrator || isMyDelegate) {
     tabs.unshift({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
-      isActive: asPath === `/accounts/${account}/orchestrating`,
+      isActive: view === "orchestrating",
     });
   }
 

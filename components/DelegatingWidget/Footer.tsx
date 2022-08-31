@@ -1,27 +1,37 @@
-import Delegate from "./Delegate";
-import Undelegate from "./Undelegate";
-import { Account, Delegator, Transcoder, Round } from "../../@types";
-import Utils from "web3-utils";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
   getDelegatorStatus,
   getHint,
   simulateNewActiveSetOrder,
 } from "@lib/utils";
+import { Box, Button } from "@livepeer/design-system";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
+import { parseEther } from "ethers/lib/utils";
+import {
+  StakingAction,
+  useAccountAddress,
+  useAccountBalanceData,
+  usePendingFeesAndStakeData,
+} from "hooks";
+import { useMemo } from "react";
+import Delegate from "./Delegate";
 import Footnote from "./Footnote";
-import { Box, Button, Flex } from "@livepeer/design-system";
-import { useAccountAddress } from "hooks";
+import Undelegate from "./Undelegate";
 
 type FooterData = {
   isTransferStake: boolean;
   isMyTranscoder: boolean;
   isDelegated: boolean;
-  transcoders: [Transcoder];
-  action: string;
+
+  action: StakingAction;
   amount: string;
-  transcoder: Transcoder;
-  delegator?: Delegator;
-  currentRound: Round;
-  account: Account;
+
+  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"];
+
+  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  transcoder: AccountQueryResult["data"]["transcoder"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  account: EnsIdentity;
 };
 interface Props {
   reset: Function;
@@ -47,6 +57,58 @@ const Footer = ({
 }: Props) => {
   const accountAddress = useAccountAddress();
 
+  const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
+    delegator?.id
+  );
+  const accountBalance = useAccountBalanceData(accountAddress);
+
+  const tokenBalance = useMemo(() => accountBalance?.balance, [accountBalance]);
+  const transferAllowance = useMemo(
+    () => accountBalance?.allowance,
+    [accountBalance]
+  );
+  const delegatorStatus = useMemo(
+    () => getDelegatorStatus(delegator, currentRound),
+    [currentRound, delegator]
+  );
+  const stake = useMemo(
+    () =>
+      delegatorPendingStakeAndFees?.pendingStake
+        ? +delegatorPendingStakeAndFees?.pendingStake
+        : 0,
+    [delegatorPendingStakeAndFees]
+  );
+  const sufficientStake = useMemo(
+    () => delegator && amount && parseFloat(amount) <= stake,
+    [delegator, amount, stake]
+  );
+  const canUndelegate = useMemo(
+    () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
+    [isMyTranscoder, isDelegated, amount]
+  );
+  const newActiveSetOrder = useMemo(
+    () =>
+      simulateNewActiveSetOrder({
+        action,
+        transcoders: JSON.parse(JSON.stringify(transcoders)),
+        amount: parseEther(amount ? amount.toString() : "0"),
+        newDelegate: transcoder.id,
+        oldDelegate: delegator?.delegate?.id,
+      }),
+    [action, transcoders, amount, transcoder, delegator]
+  );
+  const { newPosPrev, newPosNext } = useMemo(
+    () => getHint(delegator?.delegate?.id, newActiveSetOrder),
+    [delegator, newActiveSetOrder]
+  );
+  const {
+    newPosPrev: currDelegateNewPosPrev,
+    newPosNext: currDelegateNewPosNext,
+  } = useMemo(
+    () => getHint(transcoder.id, newActiveSetOrder),
+    [newActiveSetOrder, transcoder]
+  );
+
   if (!accountAddress) {
     return (
       <>
@@ -66,44 +128,10 @@ const Footer = ({
     );
   }
 
-  const tokenBalance =
-    account && parseFloat(Utils.fromWei(account.tokenBalance));
-  const transferAllowance =
-    account && parseFloat(Utils.fromWei(account.allowance));
-  const delegatorStatus = getDelegatorStatus(delegator, currentRound);
-  const stake = delegator?.pendingStake
-    ? parseFloat(Utils.fromWei(delegator.pendingStake))
-    : 0;
-  const sufficientStake = delegator && amount && parseFloat(amount) <= stake;
-  const canUndelegate = isMyTranscoder && isDelegated && parseFloat(amount) > 0;
-  const newActiveSetOrder = simulateNewActiveSetOrder({
-    action,
-    transcoders: JSON.parse(JSON.stringify(transcoders)),
-    amount: Utils.toWei(amount ? amount.toString() : "0"),
-    newDelegate: transcoder.id,
-    oldDelegate: delegator?.delegate?.id,
-  });
-  const { newPosPrev, newPosNext } = getHint(
-    delegator?.delegate?.id,
-    newActiveSetOrder
-  );
-  const {
-    newPosPrev: currDelegateNewPosPrev,
-    newPosNext: currDelegateNewPosNext,
-  } = getHint(transcoder.id, newActiveSetOrder);
-
   if (action === "delegate") {
-    if (!isDelegated) {
-      delegator = {
-        id: account?.id,
-        lastClaimRound: { id: "0" },
-      };
-    }
-
     return (
       <Box css={{ ...css }}>
         <Delegate
-          delegator={delegator}
           to={transcoder.id}
           amount={amount}
           isTransferStake={isTransferStake}

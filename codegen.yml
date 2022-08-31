@@ -1,0 +1,22 @@
+overwrite: true
+schema: https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one
+documents: ./queries/**/*.graphql
+generates:
+  ./apollo/subgraph.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      nonOptionalTypename: true
+      exportFragmentSpreadSubTypes: true
+
+config:
+  scalars:
+    BigInt: string
+    BigDecimal: string
+
+hooks:
+  afterAllFileWrite:
+    - yarn -T run prettier --write

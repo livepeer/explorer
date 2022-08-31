@@ -1,3 +1,0 @@
-mutation withdrawFees($recipient: String!, $amount: String!) {
-  tx: withdrawFees(recipient: $recipient, amount: $amount)
-}

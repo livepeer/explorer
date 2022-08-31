@@ -8,7 +8,7 @@ import {
 import InboxABI from "../abis/bridge/Inbox.json";
 
 export async function waitForTx(
-  tx: Promise<ContractTransaction>,
+  tx: ContractTransaction | Promise<ContractTransaction>,
   _confirmations?: number
 ): Promise<providers.TransactionReceipt> {
   const resolvedTx = await tx;

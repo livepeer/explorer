@@ -1,10 +1,11 @@
 import Table from "@components/Table";
 import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useEnsName } from "hooks";
+import { useEnsData } from "hooks";
 import Link from "next/link";
 import numeral from "numeral";
 import { useCallback, useMemo } from "react";
@@ -41,30 +42,13 @@ const getPercentAmount = (number: number | string | undefined) => {
   );
 };
 
-type Identity = {
-  id: string;
-  name: string;
-  image: string;
-};
-
-const EthAddress = (props: {
-  identities: Identity[];
-  value: string | undefined;
-}) => {
-  const ensIdentity = useMemo(
-    () => props.identities.find((i) => i.id === props.value)?.name,
-    [props.identities, props.value]
-  );
-  const ensName = useEnsName(props.value, ensIdentity);
+const EthAddress = (props: { value: string | undefined }) => {
+  const ensName = useEnsData(props.value);
 
   return (
     <Link passHref href={`/accounts/${props.value}/delegating`}>
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName
-          ? ensName
-          : props.value
-          ? props.value.replace(props.value.slice(5, 39), "…")
-          : "A user"}
+        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
       </Badge>
     </Link>
   );
@@ -94,192 +78,126 @@ const renderEmoji = (emoji: string) => (
   </Box>
 );
 
-const TransactionsList = ({ identities, events, pageSize = 10 }) => {
+const TransactionsList = ({
+  events,
+  pageSize = 10,
+}: {
+  pageSize: number;
+  events: EventsQueryResult["data"]["transactions"][number]["events"];
+}) => {
   const getAccountForRow = useCallback(
-    (event) => {
+    (
+      event: EventsQueryResult["data"]["transactions"][number]["events"][number]
+    ) => {
       switch (event.__typename) {
         case "BondEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-          );
+          return <EthAddress value={event?.delegator?.id} />;
 
         case "UnbondEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-          );
+          return <EthAddress value={event?.delegator?.id} />;
 
         case "RebondEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-          );
+          return <EthAddress value={event?.delegator?.id} />;
 
         case "TranscoderUpdateEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
         case "RewardEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
         case "WithdrawStakeEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-          );
+          return <EthAddress value={event?.delegator?.id} />;
 
         case "WithdrawFeesEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegator?.id} />
-          );
+          return <EthAddress value={event?.delegator?.id} />;
 
         case "WinningTicketRedeemedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.recipient?.id} />
-          );
+          return <EthAddress value={event?.recipient?.id} />;
 
         case "DepositFundedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.sender?.id} />
-          );
+          return <EthAddress value={event?.sender?.id} />;
 
         case "ReserveFundedEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.reserveHolder?.id}
-            />
-          );
+          return <EthAddress value={event?.reserveHolder?.id} />;
 
         case "TransferBondEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.newDelegator?.id}
-            />
-          );
+          return <EthAddress value={event?.newDelegator?.id} />;
 
         case "TranscoderActivatedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
         case "TranscoderDeactivatedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
-        case "EarningsClaimedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+        // case "EarningsClaimedEvent":
+        //   return <EthAddress value={event?.transaction?.from} />;
 
         case "TranscoderResignedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
         case "TranscoderEvictedEvent":
-          return (
-            <EthAddress identities={identities} value={event?.delegate?.id} />
-          );
+          return <EthAddress value={event?.delegate?.id} />;
 
         case "NewRoundEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
 
         case "WithdrawalEvent":
-          return (
-            <EthAddress identities={identities} value={event?.sender?.id} />
-          );
+          return <EthAddress value={event?.sender?.id} />;
 
         case "SetCurrentRewardTokensEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
         case "PauseEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
         case "UnpauseEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
         case "ParameterUpdateEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
         case "VoteEvent":
-          return <EthAddress identities={identities} value={event?.voter} />;
+          return <EthAddress value={event?.voter} />;
 
         case "PollCreatedEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
 
         case "ServiceURIUpdateEvent":
-          return <EthAddress identities={identities} value={event?.addr} />;
+          return <EthAddress value={event?.addr} />;
 
-        case "MintEvent":
-          return <EthAddress identities={identities} value={event?.to} />;
+        // case "MintEvent":
+        //   return <EthAddress value={event?.to} />;
 
         case "BurnEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
         case "MigrateDelegatorFinalizedEvent":
-          return <EthAddress identities={identities} value={event?.l2Addr} />;
+          return <EthAddress value={event?.l2Addr} />;
 
         case "StakeClaimedEvent":
-          return (
-            <EthAddress
-              identities={identities}
-              value={event?.transaction?.from}
-            />
-          );
+          return <EthAddress value={event?.transaction?.from} />;
 
         default:
           return <Box>{`Error fetching event information.`}</Box>;
       }
     },
-    [identities]
+    []
   );
 
   const getDescriptionForRow = useCallback(
-    (event) => {
+    (
+      event: EventsQueryResult["data"]["transactions"][number]["events"][number]
+    ) => {
       switch (event.__typename) {
         case "BondEvent":
-          return (
+          return event?.additionalAmount === "0" && event?.oldDelegate?.id ? (
+            <Box>
+              {`Migrated from `}
+              <EthAddress value={event?.oldDelegate?.id} />
+              {` to `}
+              <EthAddress value={event?.newDelegate?.id} />
+            </Box>
+          ) : (
             <Box>
               {`Delegated `}
               {getLptAmount(event?.additionalAmount)}
               {` to `}
-              <EthAddress
-                identities={identities}
-                value={event?.newDelegate?.id}
-              />
+              <EthAddress value={event?.newDelegate?.id} />
             </Box>
           );
         case "UnbondEvent":
@@ -288,7 +206,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               {`Undelegated `}
               {getLptAmount(event.amount)}
               {` from `}
-              <EthAddress identities={identities} value={event?.delegate?.id} />
+              <EthAddress value={event?.delegate?.id} />
             </Box>
           );
         case "RebondEvent":
@@ -297,7 +215,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               {`Rebonded `}
               {getLptAmount(event.amount)}
               {` to `}
-              <EthAddress identities={identities} value={event?.delegate?.id} />
+              <EthAddress value={event?.delegate?.id} />
             </Box>
           );
         case "TranscoderUpdateEvent":
@@ -361,15 +279,9 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
             <Box>
               {getLptAmount(Number(event?.amount))}
               {` was transferred between `}
-              <EthAddress
-                identities={identities}
-                value={event?.newDelegator?.id}
-              />
+              <EthAddress value={event?.newDelegator?.id} />
               {` and `}
-              <EthAddress
-                identities={identities}
-                value={event?.oldDelegator?.id}
-              />
+              <EthAddress value={event?.oldDelegator?.id} />
             </Box>
           );
         case "TranscoderActivatedEvent":
@@ -386,18 +298,18 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
               {getRound(event?.deactivationRound)}
             </Box>
           );
-        case "EarningsClaimedEvent":
-          return event?.rewardTokens ? (
-            <>
-              {`Claimed `}
-              {getLptAmount(event?.rewardTokens)}
-              {` and `}
-              {getEthAmount(event?.fees)}
-              {` in earnings`}
-            </>
-          ) : (
-            <Box>N/A</Box>
-          );
+        // case "EarningsClaimedEvent":
+        //   return event?.rewardTokens ? (
+        //     <>
+        //       {`Claimed `}
+        //       {getLptAmount(event?.rewardTokens)}
+        //       {` and `}
+        //       {getEthAmount(event?.fees)}
+        //       {` in earnings`}
+        //     </>
+        //   ) : (
+        //     <Box>N/A</Box>
+        //   );
         case "TranscoderResignedEvent":
           return <Box>{`Resigned from the active set`}</Box>;
         case "TranscoderEvictedEvent":
@@ -440,10 +352,10 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
             <Box>
               {`Voted `}
               <Badge
-                variant={event?.choiceID === 0 ? "primary" : "red"}
+                variant={+event?.choiceID === 0 ? "primary" : "red"}
                 size="1"
               >
-                {event?.choiceID === 0 ? '"Yes"' : '"No"'}
+                {+event?.choiceID === 0 ? '"Yes"' : '"No"'}
               </Badge>
               {` on a proposal`}
               {renderEmoji("👩‍⚖️")}
@@ -453,7 +365,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           return (
             <Box>
               {`Poll `}
-              <EthAddress identities={identities} value={event?.poll?.id} />
+              <EthAddress value={event?.poll?.id} />
               {` has been created and will end on block ${getRound(
                 event?.endBlock
               )}`}
@@ -468,14 +380,14 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           );
         // case "MintEvent":
         //   We do not handle this case for now, since it is duplicated with RewardEvent
-        case "BurnEvent":
-          return (
-            <Box>
-              {getLptAmount(event?.value)}
-              {` has been burned`}
-              {renderEmoji("🔥")}
-            </Box>
-          );
+        // case "BurnEvent":
+        //   return (
+        //     <Box>
+        //       {getLptAmount(event?.value)}
+        //       {` has been burned`}
+        //       {renderEmoji("🔥")}
+        //     </Box>
+        //   );
         case "MigrateDelegatorFinalizedEvent":
           return <Box>{`Migrated to Arbitrum One`}</Box>;
         case "StakeClaimedEvent":
@@ -491,7 +403,7 @@ const TransactionsList = ({ identities, events, pageSize = 10 }) => {
           return <Box>{`Error fetching event information.`}</Box>;
       }
     },
-    [identities]
+    []
   );
 
   const columns = useMemo(

@@ -1,22 +1,20 @@
-import { useApolloClient } from "@apollo/client";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
-import { checkAddressEquality, initTransaction } from "@lib/utils";
-import {
-  Box,
-  Button,
-  Flex,
-  Link as A,
-  Text,
-} from "@livepeer/design-system";
+import { checkAddressEquality } from "@lib/utils";
+import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { MutationsContext } from "contexts";
-import { ethers } from "ethers";
-import { useAccountAddress } from "hooks";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
+import {
+  useAccountAddress,
+  useBondingManager,
+  useEnsData,
+  useHandleTransaction,
+  usePendingFeesAndStakeData,
+} from "hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import numeral from "numeral";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import StakeTransactions from "../StakeTransactions";
 
@@ -27,44 +25,58 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const Index = ({ delegator, transcoders, protocol, currentRound }) => {
+interface Props {
+  transcoders?: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  delegator?: AccountQueryResult["data"]["delegator"];
+  protocol?: AccountQueryResult["data"]["protocol"];
+  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+}
+
+const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   const router = useRouter();
   const query = router.query;
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
-  const { withdrawFees }: any = useContext(MutationsContext);
+
+  const delegateIdentity = useEnsData(delegator?.delegate?.id);
+
+  const bondingManager = useBondingManager();
+  const handleTransaction = useHandleTransaction("withdrawFees");
 
   const isMyAccount = checkAddressEquality(
     accountAddress,
     query.account.toString()
   );
 
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
+
   const pendingStake = useMemo(
-    () => Number(delegator?.pendingStake || 0) / 10 ** 18,
-    [delegator?.pendingStake]
+    () => Number(pendingFeesAndStake?.pendingStake || 0) / 10 ** 18,
+    [pendingFeesAndStake?.pendingStake]
+  );
+  const pendingFees = useMemo(
+    () => Number(pendingFeesAndStake?.pendingFees || 0) / 10 ** 18,
+    [pendingFeesAndStake?.pendingFees]
   );
   const unbonded = useMemo(
-    () => Math.abs(delegator?.unbonded || 0),
+    () => Math.abs(+delegator?.unbonded || 0),
     [delegator]
   );
 
   const rewards = useMemo(
-    () => pendingStake + unbonded - Math.abs(delegator?.principal ?? 0),
+    () => pendingStake + unbonded - Math.abs(+delegator?.principal ?? 0),
     [unbonded, pendingStake, delegator]
   );
   const totalActiveStake = useMemo(
-    () => Math.abs(protocol.totalActiveStake),
+    () => Math.abs(+protocol.totalActiveStake),
     [protocol]
   );
   const lifetimeEarnings = useMemo(
-    () =>
-      Math.abs(delegator?.pendingFees ?? 0) +
-      Math.abs(delegator?.withdrawnFees ?? 0),
-    [delegator]
+    () => Math.abs(pendingFees) + Math.abs(+delegator?.withdrawnFees ?? 0),
+    [delegator, pendingFees]
   );
   const withdrawButtonDisabled = useMemo(
-    () => Number(delegator?.pendingFees ?? 0) === 0,
-    [delegator]
+    () => pendingFees === 0,
+    [pendingFees]
   );
 
   if (!delegator?.bondedAmount) {
@@ -111,7 +123,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
         className="masonry-grid"
         columnClassName="masonry-grid_column"
       >
-        {delegator.delegate && (
+        {delegator?.delegate && (
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
@@ -129,10 +141,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                 variant="interactive"
                 value={
                   <Box>
-                    {delegator.delegate.identity?.name
-                      ? delegator.delegate.identity?.name
-                      : delegator.delegate.id.replace(
-                          delegator.delegate.id.slice(7, 37),
+                    {delegateIdentity?.name
+                      ? delegateIdentity?.name
+                      : delegator?.delegate?.id.replace(
+                          delegator?.delegate?.id.slice(7, 37),
                           "…"
                         )}
                   </Box>
@@ -146,14 +158,16 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
           className="masonry-grid_item"
           label="Stake"
           value={
-            <Box
-              css={{
-                mb: "$4",
-                fontSize: 26,
-              }}
-            >
-              {`${numeral(pendingStake).format("0.00a")} LPT`}
-            </Box>
+            pendingFeesAndStake?.pendingStake ? (
+              <Box
+                css={{
+                  mb: "$2",
+                  fontSize: 26,
+                }}
+              >
+                {`${numeral(pendingStake).format("0.00a")} LPT`}
+              </Box>
+            ) : null
           }
           meta={
             <Box>
@@ -176,7 +190,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -204,7 +221,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -219,14 +239,16 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
           className="masonry-grid_item"
           label="Pending Fees"
           value={
-            <Box
-              css={{
-                mb: "$4",
-                fontSize: 26,
-              }}
-            >
-              {numeral(delegator.pendingFees).format("0.000")} ETH
-            </Box>
+            pendingFeesAndStake ? (
+              <Box
+                css={{
+                  mb: "$2",
+                  fontSize: 26,
+                }}
+              >
+                {numeral(pendingFees).format("0.000")} ETH
+              </Box>
+            ) : null
           }
           meta={
             <Box>
@@ -249,7 +271,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -275,7 +300,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     }
                   >
                     <Flex css={{ ml: "$1" }}>
-                      <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
                     </Flex>
                   </ExplorerTooltip>
                 </Flex>
@@ -283,7 +311,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   {numeral(delegator?.withdrawnFees || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
-              {isMyAccount && !withdrawButtonDisabled && (
+              {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
                   variant="primary"
                   size="4"
@@ -291,17 +319,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     mt: "$3",
                     width: "100%",
                   }}
-                  onClick={() => {
-                    initTransaction(client, async () => {
-                      await withdrawFees({
-                        variables: {
-                          recipient: delegator.id,
-                          amount: ethers.utils
-                            .parseEther(delegator.pendingFees)
-                            .toString(),
-                        },
-                      });
-                    });
+                  onClick={async () => {
+                    const recipient: string = delegator.id;
+                    const amount = pendingFeesAndStake?.pendingFees ?? "0";
+
+                    await handleTransaction(
+                      () => bondingManager.withdrawFees(recipient, amount),
+                      { recipient, amount }
+                    );
                   }}
                 >
                   Withdraw Pending Fees
@@ -310,7 +335,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
             </Box>
           }
         />
-        {delegator.delegate && (
+        {delegator?.delegate && (
           <Stat
             className="masonry-grid_item"
             label={
@@ -325,7 +350,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   }
                 >
                   <Flex css={{ ml: "$1" }}>
-                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
                   </Flex>
                 </ExplorerTooltip>
               </Flex>
@@ -336,7 +364,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                   totalActiveStake === 0
                     ? 0
                     : delegator.delegate.id === delegator.id
-                    ? (Math.abs(delegator.delegate.totalStake) + pendingStake) /
+                    ? (Math.abs(+delegator.delegate.totalStake) +
+                        pendingStake) /
                       totalActiveStake
                     : pendingStake / totalActiveStake
                 ).format("0.000%")}
@@ -376,13 +405,13 @@ const Index = ({ delegator, transcoders, protocol, currentRound }) => {
                     {numeral(
                       totalActiveStake === 0
                         ? 0
-                        : Math.abs(delegator.delegate.totalStake) /
+                        : Math.abs(+delegator.delegate.totalStake) /
                             totalActiveStake
                     ).format("0.00%")}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(Math.abs(delegator.delegate.totalStake)).format(
+                    {numeral(Math.abs(+delegator.delegate.totalStake)).format(
                       "0.00a"
                     )}{" "}
                     LPT

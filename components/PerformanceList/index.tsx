@@ -1,13 +1,28 @@
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
-import { Badge, Box, Flex, Link as A } from "@livepeer/design-system";
+import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import Link from "next/link";
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
+import { useAllScoreData, useEnsData } from "hooks";
+import { OrchestratorsQueryResult } from "apollo";
+import { ALL_REGIONS } from "utils/allRegions";
+import numeral from "numeral";
 
-const PerformanceList = ({ data, pageSize = 10, region }) => {
+const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
+
+const PerformanceList = ({
+  data,
+  pageSize = 20,
+  region,
+}: {
+  pageSize: number;
+  region: keyof typeof ALL_REGIONS;
+  data: Pick<OrchestratorsQueryResult["data"]["transcoders"][number], "id">[];
+}) => {
+  const allScores = useAllScoreData();
   const initialState = {
-    pageSize: 20,
+    pageSize: pageSize,
     sortBy: [
       {
         id: "scores.global",
@@ -51,74 +66,82 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
     ],
   };
 
+  const mergedData = useMemo(
+    () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
+    [allScores, data]
+  );
+
   const columns: any = useMemo(
     () => [
       {
         Header: "Orchestrator",
         accessor: "id",
         defaultCanSort: false,
-        Cell: ({ row }, i) => (
-          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-            <A
-              css={{
-                width: 300,
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Flex css={{ alignItems: "center" }}>
-                {row.values.identity?.image ? (
-                  <Box
-                    as="img"
-                    css={{
-                      mr: "$2",
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      borderRadius: 1000,
-                    }}
-                    src={row.values.identity.image}
-                  />
-                ) : (
-                  <Box
-                    as={QRCode}
-                    css={{
-                      mr: "$2",
-                      borderRadius: 1000,
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                    }}
-                    fgColor={`#${row.values.id.substr(2, 6)}`}
-                    value={row.values.id}
-                  />
-                )}
-                {row.values.identity?.name ? (
-                  <Flex css={{ fontWeight: 600, ai: "center" }}>
+        Cell: ({ row }, i) => {
+          const identity = useEnsData(row.values.id);
+          return (
+            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+              <A
+                css={{
+                  width: 300,
+                  display: "block",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "none" },
+                }}
+              >
+                <Flex css={{ alignItems: "center" }}>
+                  {identity?.avatar ? (
                     <Box
+                      as="img"
                       css={{
                         mr: "$2",
-                        fontSize: "$3",
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                        borderRadius: 1000,
                       }}
-                    >
-                      {textTruncate(row.values.identity.name, 20, "…")}
+                      src={identity.avatar}
+                    />
+                  ) : (
+                    <Box
+                      as={QRCode}
+                      css={{
+                        mr: "$2",
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                      }}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      value={row.values.id}
+                    />
+                  )}
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+                      <Box
+                        css={{
+                          mr: "$2",
+                          fontSize: "$3",
+                        }}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
+                      </Box>
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                     </Box>
-                    <Badge size="2" css={{ fontSize: "$2" }}>
-                      {row.values.id.substring(0, 6)}
-                    </Badge>
-                  </Flex>
-                ) : (
-                  <Box css={{ fontWeight: 600 }}>
-                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                  </Box>
-                )}
-              </Flex>
-            </A>
-          </Link>
-        ),
+                  )}
+                </Flex>
+              </A>
+            </Link>
+          );
+        },
       },
       {
         Header: "Activation Round",
@@ -146,10 +169,14 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
             typeof row.values[`scores.${region}`] === "undefined" ||
             row.values[`scores.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
           return (
-            <Box>{(row.values[`scores.${region}`] / 1000).toFixed(2)}</Box>
+            <Box>
+              {numeral(row.values[`scores.${region}`])
+                .divide(10)
+                .format("0.00")}
+            </Box>
           );
         },
       },
@@ -161,10 +188,16 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
             typeof row.values[`successRates.${region}`] === "undefined" ||
             row.values[`successRates.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
 
-          return <Box>{row.values[`successRates.${region}`].toFixed(2)}%</Box>;
+          return (
+            <Box>
+              {numeral(row.values[`successRates.${region}`])
+                .divide(100)
+                .format("0%")}
+            </Box>
+          );
         },
       },
       {
@@ -175,11 +208,13 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
             typeof row.values[`roundTripScores.${region}`] === "undefined" ||
             row.values[`roundTripScores.${region}`] === null
           ) {
-            return null;
+            return <EmptyData />;
           }
           return (
             <Box>
-              {(row.values[`roundTripScores.${region}`] / 1000).toFixed(2)}
+              {numeral(row.values[`roundTripScores.${region}`])
+                .divide(10)
+                .format("0.00")}
             </Box>
           );
         },
@@ -187,7 +222,9 @@ const PerformanceList = ({ data, pageSize = 10, region }) => {
     ],
     [region]
   );
-  return <Table data={data} columns={columns} initialState={initialState} />;
+  return (
+    <Table data={mergedData} columns={columns} initialState={initialState} />
+  );
 };
 
 export default PerformanceList;

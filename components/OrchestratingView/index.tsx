@@ -5,8 +5,11 @@ import dayjs from "dayjs";
 import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
+import { AccountQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useScoreData } from "hooks";
 import { useMemo } from "react";
+import { ALL_REGIONS } from "utils/allRegions";
 dayjs.extend(relativeTime);
 
 const breakpointColumnsObj = {
@@ -16,26 +19,35 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const Index = ({ currentRound, transcoder, isActive }) => {
+interface Props {
+  transcoder?: AccountQueryResult["data"]["transcoder"];
+  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+  isActive: boolean;
+}
+
+const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
     [transcoder?.pools]
   );
+
+  const scores = useScoreData(transcoder?.id);
+
   const maxScore = useMemo(
     () =>
-      Object.keys(transcoder?.scores ?? {}).reduce(
+      Object.keys(scores?.scores ?? {}).reduce(
         (prev, curr) => {
-          if (transcoder.scores[curr] >= prev.score) {
+          if (scores?.scores[curr] >= prev.score) {
             return {
-              region: curr.toUpperCase(),
-              score: transcoder.scores[curr],
+              region: ALL_REGIONS[curr],
+              score: scores?.scores[curr],
             };
           }
           return prev;
         },
         { region: "N/A", score: 0 }
       ),
-    [transcoder?.scores]
+    [scores]
   );
 
   return (
@@ -68,7 +80,11 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
-          value={`${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`}
+          value={
+            transcoder
+              ? `${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`
+              : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -80,9 +96,13 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           className="masonry-grid_item"
           label="Top Regional Score"
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
-          value={`${numeral(maxScore.score).format("0.0%")} (${
-            maxScore.region
-          })`}
+          value={
+            scores
+              ? `${numeral(maxScore.score).divide(100).format("0.0%")} (${
+                  maxScore.region
+                })`
+              : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -90,7 +110,9 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
-          value={`${callsMade}/${transcoder?.pools?.length ?? 0}`}
+          value={
+            transcoder ? `${callsMade}/${transcoder?.pools?.length ?? 0}` : null
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -106,9 +128,13 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           className="masonry-grid_item"
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
-          value={`${numeral(
-            (transcoder?.price || 0) <= 0 ? 0 : transcoder.price
-          ).format("0,0")} WEI`}
+          value={
+            scores
+              ? `${numeral(
+                  (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
+                ).format("0,0")} WEI`
+              : null
+          }
         />
         {/* <Stat
           className="masonry-grid_item"
@@ -126,7 +152,7 @@ const Index = ({ currentRound, transcoder, isActive }) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={numeral(1 - (transcoder?.feeShare || 0) / 1000000).format(
+          value={numeral(1 - (+transcoder?.feeShare || 0) / 1000000).format(
             "0%"
           )}
         />

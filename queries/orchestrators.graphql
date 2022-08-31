@@ -1,0 +1,53 @@
+query orchestrators(
+  $currentRound: BigInt
+  $currentRoundString: String
+  $where: Transcoder_filter
+  $first: Int
+  $skip: Int
+  $orderBy: Transcoder_orderBy
+  $orderDirection: OrderDirection
+) {
+  transcoders(
+    where: {
+      activationRound_lte: $currentRound
+      deactivationRound_gt: $currentRound
+    }
+    first: $first
+    skip: $skip
+    orderBy: thirtyDayVolumeETH
+    orderDirection: desc
+  ) {
+    id
+    totalVolumeETH
+    feeShare
+    feeShareUpdateTimestamp
+    activationTimestamp
+    activationRound
+    deactivationRound
+    rewardCut
+    rewardCutUpdateTimestamp
+    totalStake
+    # price
+    delegator {
+      startRound
+      bondedAmount
+      unbondingLocks {
+        withdrawRound
+      }
+    }
+    delegators(first: 1000) {
+      id
+    }
+    pools(
+      first: 90
+      orderBy: id
+      orderDirection: desc
+      where: { round_not: $currentRoundString }
+    ) {
+      rewardTokens
+    }
+    thirtyDayVolumeETH
+    sixtyDayVolumeETH
+    ninetyDayVolumeETH
+  }
+}

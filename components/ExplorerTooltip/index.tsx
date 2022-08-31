@@ -10,6 +10,7 @@ type TooltipProps = React.ComponentProps<typeof TooltipPrimitive.Root> &
   };
 
 const Content = styled(TooltipPrimitive.Content, {
+  length: {},
   backgroundColor: "$neutral4",
   borderRadius: "$1",
   padding: "$1 $2",
@@ -46,7 +47,7 @@ export function ExplorerTooltip({
         align="center"
         sideOffset={5}
         {...props}
-        multiline={multiline}
+        {...{ multiline }}
       >
         <Text
           size="1"

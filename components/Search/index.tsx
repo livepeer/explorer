@@ -14,75 +14,29 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
+import { useAllEnsData } from "hooks";
 import { useMemo, useState } from "react";
 
 const Index = ({ css = {}, ...props }) => {
   const [search, setSearch] = useState("");
-  const { data: accountsData } = useQuery<{
-    livepeerAccounts?: {
-      id: string;
-      identity: {
-        id: string;
-        name: string;
-        website: string;
-        twitter: string;
-        description: string;
-      };
-      delegator: {
-        id: string;
-      };
-      delegate: {
-        id: string;
-        active: boolean;
-      };
-    }[];
-  }>(gql`
-    {
-      livepeerAccounts(
-        first: 500
-        orderBy: lastUpdatedTimestamp
-        orderDirection: desc
-      ) {
-        id
-        identity {
-          id
-          name
-          website
-          twitter
-          description
-        }
-        delegator {
-          id
-        }
-        delegate {
-          id
-          active
-        }
-      }
-    }
-  `);
-
-  const accounts = useMemo(
-    () => accountsData?.livepeerAccounts ?? [],
-    [accountsData]
-  );
+  const accounts = useAllEnsData();
 
   const fuse = useMemo(
     () =>
       new Fuse(accounts, {
         keys: [
           "id",
-          "identity.name",
+          "name",
           {
-            name: "identity.twitter",
+            name: "twitter",
             weight: 0.5,
           },
           {
-            name: "identity.website",
+            name: "url",
             weight: 0.5,
           },
           {
-            name: "identity.description",
+            name: "description",
             weight: 0.2,
           },
         ],
@@ -217,10 +171,8 @@ const Index = ({ css = {}, ...props }) => {
                   >
                     <Flex>
                       <Text>
-                        {result.item.identity.name
-                          ? `${
-                              result.item.identity.name
-                            } (${result.item.id.replace(
+                        {result.item.name
+                          ? `${result.item.name} (${result.item.id.replace(
                               result.item.id.slice(5, 39),
                               "…"
                             )})`
@@ -229,20 +181,6 @@ const Index = ({ css = {}, ...props }) => {
                               "…"
                             )}
                       </Text>
-                      {result.item.id === result.item.delegate.id &&
-                        result.item.delegate.active && (
-                          <Badge
-                            size="2"
-                            variant="primary"
-                            css={{
-                              ml: "$2",
-                              color: "$white",
-                              fontSize: "$2",
-                            }}
-                          >
-                            Orchestrator
-                          </Badge>
-                        )}
                     </Flex>
                     <Box as={ArrowRightIcon} />
                   </Flex>

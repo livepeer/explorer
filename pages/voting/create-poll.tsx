@@ -1,5 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
+import { fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -11,42 +11,42 @@ import {
   RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { utils } from "ethers";
 import fm from "front-matter";
-import { useAccountAddress } from "hooks";
+import {
+  useAccountAddress,
+  useHandleTransaction,
+  usePendingFeesAndStakeData,
+  usePollCreator,
+} from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import Utils from "web3-utils";
-import { MutationsContext } from "../../contexts";
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
 
-  const accountQuery = gql`
-    query ($account: ID!) {
-      delegator(id: $account) {
-        id
-        pendingStake
-      }
-    }
-  `;
-
-  const { data, loading } = useQuery(accountQuery, {
+  const { data, loading } = useAccountQuery({
     variables: {
       account: accountAddress?.toLowerCase(),
     },
     skip: !accountAddress,
   });
 
+  const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
+    data?.delegator?.id
+  );
+
   useEffect(() => {
-    if (data?.delegator?.pendingStake) {
+    if (delegatorPendingStakeAndFees?.pendingStake) {
       const lptPendingStake = parseFloat(
-        Utils.fromWei(data.delegator.pendingStake)
+        fromWei(delegatorPendingStakeAndFees.pendingStake)
       );
 
       if (lptPendingStake >= 100) {
@@ -55,10 +55,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
         setSufficientStake(false);
       }
     }
-  }, [data, accountAddress]);
+  }, [delegatorPendingStakeAndFees]);
 
   const [selectedProposal, setSelectedProposal] = useState(null);
-  const { createPoll }: any = useContext(MutationsContext);
+
+  const pollCreator = usePollCreator();
+  const handleTransaction = useHandleTransaction("createPoll");
 
   return (
     <>
@@ -84,9 +86,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             try {
               const hash = await addIpfs(selectedProposal);
 
-              await createPoll({
-                variables: { proposal: hash },
-              });
+              await handleTransaction(
+                () => pollCreator.createPoll(utils.toUtf8Bytes(hash)),
+                {
+                  proposal: hash,
+                }
+              );
             } catch (err) {
               console.error(err);
               return {
@@ -238,6 +243,7 @@ export async function getStaticProps() {
     }
   }
   `;
+
   const apolloFetch = createApolloFetch({
     uri: "https://api.github.com/graphql",
   });
@@ -268,7 +274,7 @@ export async function getStaticProps() {
 
         // check if proposal is valid format {text, gitCommitHash}
         if (obj?.text && obj?.gitCommitHash) {
-          const transformedProposal = fm(obj.text);
+          const transformedProposal = fm(obj.text) as any;
           createdPolls.push(transformedProposal.attributes.lip);
         }
       })
@@ -278,7 +284,7 @@ export async function getStaticProps() {
   const lips = [];
   if (data) {
     for (const lip of data.repository.content.entries) {
-      const transformedLip = fm(lip.content.text);
+      const transformedLip = fm(lip.content.text) as any;
       transformedLip.attributes.created =
         transformedLip.attributes.created.toString();
       if (
@@ -288,6 +294,11 @@ export async function getStaticProps() {
       )
         lips.push({ ...transformedLip, text: lip.content.text });
     }
+  } else {
+    // return 404 so it is clear that it is misconfigured
+    return {
+      notFound: true,
+    };
   }
 
   return {
@@ -297,6 +308,6 @@ export async function getStaticProps() {
       gitCommitHash: data ? data.repository.defaultBranchRef.target.oid : null,
       lips: lips.sort((a, b) => (a.attributes.lip < b.attributes.lip ? 1 : -1)),
     },
-    revalidate: 1,
+    revalidate: 600,
   };
 }

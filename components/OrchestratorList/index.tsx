@@ -4,7 +4,6 @@ import { textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -20,28 +19,33 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import {
+  ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
-  ChevronDownIcon,
 } from "@radix-ui/react-icons";
 import dayjs from "dayjs";
 import Link from "next/link";
 import numeral from "numeral";
-import { useCallback, useMemo, useState } from "react";
 import QRCode from "qrcode.react";
+import { useCallback, useMemo, useState } from "react";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
-import relativeTime from "dayjs/plugin/relativeTime";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import {
   calculateROI,
   ROIFactors,
   ROIInflationChange,
   ROITimeHorizon,
 } from "@lib/roi";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import {
+  ArrowTopRightIcon,
+  // ExclamationTriangleIcon,
+} from "@modulz/radix-icons";
+import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useEnsData } from "hooks";
 
 dayjs.extend(relativeTime);
 
@@ -65,7 +69,15 @@ const formatFactors = (factors: ROIFactors) =>
     ? `LPT Only`
     : `ETH Only`;
 
-const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
+const OrchestratorList = ({
+  data,
+  protocolData,
+  pageSize = 10,
+}: {
+  pageSize: number;
+  protocolData: ProtocolQueryResult["data"]["protocol"];
+  data: OrchestratorsQueryResult["data"]["transcoders"];
+}) => {
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
@@ -108,6 +120,15 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
 
         const isNewlyActive = dayjs().diff(activation, "days") < 45;
 
+        const feeShareDaysSinceChange = dayjs().diff(
+          dayjs.unix(row.feeShareUpdateTimestamp),
+          "days"
+        );
+        const rewardCutDaysSinceChange = dayjs().diff(
+          dayjs.unix(row.rewardCutUpdateTimestamp),
+          "days"
+        );
+
         const roi = calculateROI({
           inputs: {
             principle: Number(principle),
@@ -138,6 +159,14 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
 
         return {
           ...row,
+          daysSinceChangeParams:
+            (feeShareDaysSinceChange < rewardCutDaysSinceChange
+              ? feeShareDaysSinceChange
+              : rewardCutDaysSinceChange) ?? 0,
+          daysSinceChangeParamsFormatted:
+            (feeShareDaysSinceChange < rewardCutDaysSinceChange
+              ? dayjs.unix(row.feeShareUpdateTimestamp).fromNow()
+              : dayjs.unix(row.rewardCutUpdateTimestamp).fromNow()) ?? "",
           earningsComputed: {
             roi,
             activation,
@@ -184,90 +213,108 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
           </ExplorerTooltip>
         ),
         accessor: "id",
-        Cell: ({ row }) => (
-          <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-            <A
-              css={{
-                width: 350,
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Flex css={{ alignItems: "center" }}>
-                <Box
-                  css={{
-                    mr: "$2",
-                    backgroundColor: "$neutral4",
-                    borderRadius: 1000,
-                    color: "$neutral11",
-                    fontWeight: 700,
-                    width: 24,
-                    height: 24,
-                    minWidth: 24,
-                    minHeight: 24,
-                    fontSize: 11,
-                    justifyContent: "center",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {+row.id + 1}
-                </Box>
+        Cell: ({ row }) => {
+          const identity = useEnsData(row.values.id);
 
-                <Flex css={{ mr: "$2", alignItems: "center" }}>
-                  {row.values.identity?.image ? (
-                    <Box
-                      as="img"
-                      css={{
-                        mr: "$2",
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                        borderRadius: 1000,
-                      }}
-                      src={row.values.identity.image}
-                    />
-                  ) : (
-                    <Box
-                      as={QRCode}
-                      css={{
-                        mr: "$2",
-                        borderRadius: 1000,
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                      }}
-                      fgColor={`#${row.values.id.substr(2, 6)}`}
-                      value={row.values.id}
-                    />
-                  )}
-                  {row.values.identity?.name ? (
-                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+          return (
+            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+              <A
+                css={{
+                  width: 350,
+                  display: "block",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "none" },
+                }}
+              >
+                <Flex css={{ alignItems: "center" }}>
+                  <Box
+                    css={{
+                      mr: "$2",
+                      backgroundColor: "$neutral4",
+                      borderRadius: 1000,
+                      color: "$neutral11",
+                      fontWeight: 700,
+                      width: 24,
+                      height: 24,
+                      minWidth: 24,
+                      minHeight: 24,
+                      fontSize: 11,
+                      justifyContent: "center",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {+row.id + 1}
+                  </Box>
+
+                  <Flex css={{ mr: "$2", alignItems: "center" }}>
+                    {identity?.avatar ? (
                       <Box
+                        as="img"
                         css={{
                           mr: "$2",
-                          fontSize: "$3",
+                          width: 24,
+                          height: 24,
+                          maxWidth: 24,
+                          maxHeight: 24,
+                          borderRadius: 1000,
                         }}
-                      >
-                        {textTruncate(row.values.identity.name, 20, "…")}
+                        src={identity.avatar}
+                      />
+                    ) : (
+                      <Box
+                        as={QRCode}
+                        css={{
+                          mr: "$2",
+                          borderRadius: 1000,
+                          width: 24,
+                          height: 24,
+                          maxWidth: 24,
+                          maxHeight: 24,
+                        }}
+                        fgColor={`#${row.values.id.substr(2, 6)}`}
+                        value={row.values.id}
+                      />
+                    )}
+                    {identity?.name ? (
+                      <Flex css={{ fontWeight: 600, ai: "center" }}>
+                        <Box
+                          css={{
+                            mr: "$2",
+                            fontSize: "$3",
+                          }}
+                        >
+                          {textTruncate(identity.name, 20, "…")}
+                        </Box>
+                        <Badge size="2" css={{ fontSize: "$2" }}>
+                          {row.values.id.substring(0, 6)}
+                        </Badge>
+                      </Flex>
+                    ) : (
+                      <Box css={{ fontWeight: 600 }}>
+                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
-                      <Badge size="2" css={{ fontSize: "$2" }}>
-                        {row.values.id.substring(0, 6)}
-                      </Badge>
-                    </Flex>
-                  ) : (
-                    <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                    </Box>
-                  )}
+                    )}
+                    {/* {(row?.original?.daysSinceChangeParams ??
+                      Number.MAX_VALUE) < 30 && (
+                      <ExplorerTooltip
+                        multiline
+                        content={`This orchestrator changed their fee or reward cut ${row?.original?.daysSinceChangeParamsFormatted}.`}
+                      >
+                        <Box>
+                          <Box
+                            as={ExclamationTriangleIcon}
+                            css={{ ml: "$2", color: "$neutral11" }}
+                          />
+                        </Box>
+                      </ExplorerTooltip>
+                    )} */}
+                  </Flex>
                 </Flex>
-              </Flex>
-            </A>
-          </Link>
-        ),
+              </A>
+            </Link>
+          );
+        },
       },
       {
         Header: "Identity",
@@ -601,6 +648,29 @@ const OrchestratorList = ({ data, protocolData, pageSize = 10 }) => {
                             "0.0a"
                           )}
                           {" LPT"}
+                        </Text>
+                      </Flex>
+                      <Flex>
+                        <Text
+                          variant="neutral"
+                          css={{
+                            mb: "$1",
+                          }}
+                          size="2"
+                        >
+                          Latest fee/reward change
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            display: "block",
+                            fontWeight: 600,
+                            color: "$white",
+                            mb: "$1",
+                          }}
+                          size="2"
+                        >
+                          {row?.original?.daysSinceChangeParams} days ago
                         </Text>
                       </Flex>
                     </Box>

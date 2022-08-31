@@ -1,21 +1,17 @@
-import { useContext } from "react";
-import Utils from "web3-utils";
 import { Button } from "@livepeer/design-system";
 
-import { MutationsContext } from "../../contexts";
-import { useApolloClient } from "@apollo/client";
-import { initTransaction } from "../../lib/utils";
-import { useAccountAddress } from "hooks";
+import { parseEther } from "ethers/lib/utils";
+import {
+  useAccountAddress,
+  useBondingManager,
+  useHandleTransaction,
+} from "hooks";
 
-const Undelegate = ({
-  amount,
-  newPosPrev,
-  newPosNext,
-  disabled,
-}) => {
+const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
   const accountAddress = useAccountAddress();
-  const client = useApolloClient();
-  const { unbond }: any = useContext(MutationsContext);
+
+  const bondingManager = useBondingManager();
+  const handleTransaction = useHandleTransaction("unbond");
 
   if (!accountAddress) {
     return null;
@@ -30,20 +26,22 @@ const Undelegate = ({
         css={{
           width: "100%",
         }}
-        onClick={() => {
-          initTransaction(client, async () => {
-            try {
-              await unbond({
-                variables: {
-                  amount: Utils.toWei(amount ? amount.toString() : "0"),
-                  newPosPrev,
-                  newPosNext,
-                },
-              });
-            } catch (err) {
-              console.log(err);
-            }
-          });
+        onClick={async () => {
+          const args = {
+            amount: parseEther(amount ? amount.toString() : "0"),
+            newPosPrev,
+            newPosNext,
+          };
+
+          await handleTransaction(
+            () =>
+              bondingManager.unbondWithHint(
+                args.amount,
+                newPosPrev,
+                newPosNext
+              ),
+            args
+          );
         }}
       >
         {!amount ? "Enter an amount" : "Undelegate"}

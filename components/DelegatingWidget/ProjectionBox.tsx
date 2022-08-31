@@ -1,25 +1,16 @@
-import { useQuery, gql } from "@apollo/client";
-import { Box, Flex, Card, Text } from "@livepeer/design-system";
-import numeral from "numeral";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { useMemo } from "react";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { useExplorerStore } from "hooks";
+import numeral from "numeral";
+import { useMemo } from "react";
 
 const ProjectionBox = ({ action }) => {
-  const GET_ROI = gql`
-    {
-      roiFeesLpt @client
-      roiFees @client
-      roiRewards @client
-      principle @client
-    }
-  `;
-
-  const { data } = useQuery(GET_ROI);
+  const { yieldResults } = useExplorerStore();
 
   const formattedPrinciple = useMemo(
-    () => numeral(Number(data?.principle) || 0).format("0a"),
-    [data]
+    () => numeral(Number(yieldResults?.principle) || 0).format("0a"),
+    [yieldResults]
   );
 
   return (
@@ -64,7 +55,10 @@ const ProjectionBox = ({ action }) => {
                   }
                 >
                   <Flex css={{ ml: "$1" }}>
-                    <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
                   </Flex>
                 </ExplorerTooltip>
               </Flex>
@@ -72,8 +66,9 @@ const ProjectionBox = ({ action }) => {
             {action === "delegate" && (
               <Box css={{ fontFamily: "$monospace", color: "$neutral11" }}>
                 {numeral(
-                  data.principle
-                    ? (data.roiFeesLpt + data.roiRewards) / +data.principle
+                  yieldResults.principle
+                    ? (yieldResults.roiFeesLpt + yieldResults.roiRewards) /
+                        +yieldResults.principle
                     : 0
                 ).format("0.0%")}
               </Box>
@@ -93,12 +88,15 @@ const ProjectionBox = ({ action }) => {
                 }
               >
                 <Flex css={{ ml: "$1" }}>
-                  <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                  <Box
+                    as={QuestionMarkCircledIcon}
+                    css={{ color: "$neutral11" }}
+                  />
                 </Flex>
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numeral(data.roiRewards).format("0.0")} LPT
+              {numeral(yieldResults.roiRewards).format("0.0")} LPT
             </Text>
           </Flex>
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -114,12 +112,15 @@ const ProjectionBox = ({ action }) => {
                 }
               >
                 <Flex css={{ ml: "$1" }}>
-                  <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11"}} />
+                  <Box
+                    as={QuestionMarkCircledIcon}
+                    css={{ color: "$neutral11" }}
+                  />
                 </Flex>
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numeral(data.roiFees).format("0.000")} ETH
+              {numeral(yieldResults.roiFees).format("0.000")} ETH
             </Text>
           </Flex>
         </Box>

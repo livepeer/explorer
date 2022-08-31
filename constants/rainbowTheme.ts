@@ -6,7 +6,7 @@ const darkGrey = "#252a27";
 // TODO move this into the design system library and use variables
 const rainbowTheme: Theme = {
   blurs: {
-    modalOverlay: 'blur(0px)',
+    modalOverlay: "blur(0px)",
   },
   fonts: {
     body: "Inter, -apple-system, system-ui, sans-serif",

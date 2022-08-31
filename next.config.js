@@ -1,17 +1,4 @@
-require("dotenv").config();
-const withMDX = require("@next/mdx")({
-  extension: /\.mdx?$/,
-});
-
 const nextConfig = {
-  webpack(config, { webpack }) {
-    config.module.rules.push({
-      test: /\.(graphql|gql)$/,
-      exclude: /node_modules/,
-      loader: "graphql-tag/loader",
-    });
-    return config;
-  },
   async redirects() {
     return [
       {
@@ -48,4 +35,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withMDX(nextConfig);
+module.exports = nextConfig;

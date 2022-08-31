@@ -1,3 +1,4 @@
+import { getCacheControlHeader } from "@lib/api";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
@@ -19,6 +20,9 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
       }),
     }
   );
+
+  res.setHeader("Cache-Control", getCacheControlHeader("day"));
+
   const {
     data: { protocol },
   } = await response.json();

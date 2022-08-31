@@ -1,43 +1,46 @@
+import Spinner from "@components/Spinner";
+import { getLayout } from "@layouts/main";
 import {
   Box,
+  Button,
+  Card,
+  Container,
   Flex,
   Heading,
-  Text,
-  Container,
-  Card,
-  styled,
-  Button,
-  TextField,
   Link as A,
+  styled,
+  Text,
+  TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { getLayout } from "@layouts/main";
 import { useEffect, useReducer, useState } from "react";
-import Spinner from "@components/Spinner";
 
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { CodeBlock } from "@components/CodeBlock";
+import { isL2ChainId } from "@lib/chains";
+import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import useForm from "react-hook-form";
 import {
-  arbRetryableTx,
+  useAccountAddress,
+  useActiveChain,
+  useInbox,
+  useL1Migrator,
+  useNodeInterface,
+} from "hooks";
+import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
-  l1Migrator,
   l1Provider,
   L1_CHAIN_ID,
   l2Provider,
-  nodeInterface,
 } from "lib/chains";
-import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
-import { ArrowRightIcon, ArrowTopRightIcon } from "@modulz/radix-icons";
-import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
-import { isValidAddress } from "utils/validAddress";
-import { isL2ChainId } from "@lib/chains";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccountAddress, useAccountSigner, useActiveChain } from "hooks";
+import { useRouter } from "next/router";
+import useForm from "react-hook-form";
+import { useTimer } from "react-timer-hook";
+import { waitForTx, waitToRelayTxsToL2 } from "utils/messaging";
+import { isValidAddress } from "utils/validAddress";
+import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
   `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -204,7 +207,6 @@ const MigrateBroadcaster = () => {
 
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
-  const accountSigner = useAccountSigner();
 
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
@@ -214,6 +216,10 @@ const MigrateBroadcaster = () => {
   const signerAddress = watch("signerAddress");
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+
+  const inbox = useInbox();
+  const l1Migrator = useL1Migrator();
+  const nodeInterface = useNodeInterface();
 
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
@@ -256,8 +262,9 @@ const MigrateBroadcaster = () => {
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-      const [submissionPrice] = await arbRetryableTx.getSubmissionPrice(
-        state.migrationCallData.length
+      const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+        state.migrationCallData.length,
+        gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
       );
 
       // overpaying submission price to account for increase
@@ -266,18 +273,16 @@ const MigrateBroadcaster = () => {
       const maxSubmissionPrice = submissionPrice.mul(4);
 
       // calculating estimated gas for the tx
-      const [estimatedGas] = await nodeInterface.estimateRetryableTicket(
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-        ethers.utils.parseEther("0.01"),
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-        0,
-        maxSubmissionPrice,
-        accountAddress,
-        accountAddress,
-        0,
-        gasPriceBid,
-        state.migrationCallData
-      );
+      const estimatedGas =
+        await nodeInterface.estimateGas.estimateRetryableTicket(
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+          ethers.utils.parseEther("0.01"),
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+          0,
+          accountAddress,
+          accountAddress,
+          state.migrationCallData
+        );
 
       // overpaying gas just in case
       // the excess will be sent back to the refund address
@@ -289,11 +294,9 @@ const MigrateBroadcaster = () => {
       // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
       const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-      const signer = l1Migrator.connect(accountSigner);
-
-      const tx1 = await signer.migrateSender(
-        state.signer ? state.signer : accountAddress,
-        state.signer ? state.signer : accountAddress,
+      const tx1 = await l1Migrator.migrateDelegator(
+        accountAddress,
+        accountAddress,
         signature ? signature : "0x",
         maxGas,
         gasPriceBid,
@@ -398,7 +401,7 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-  }, [accountAddress]);
+  }, [accountAddress, l1Migrator]);
 
   useEffect(() => {
     const init = async () => {
@@ -564,7 +567,6 @@ const MigrateBroadcaster = () => {
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
-              variant="primary"
               isHighlightingLines={false}
             >
               {JSON.stringify(payload)}
@@ -796,6 +798,7 @@ const MigrateBroadcaster = () => {
 
 function MigrationFields({ migrationParams, css = {} }) {
   const ReadOnlyCard = styled(Box, {
+    length: {},
     display: "flex",
     backgroundColor: "$neutral3",
     border: "1px solid $neutral6",

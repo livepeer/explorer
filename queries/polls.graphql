@@ -1,0 +1,22 @@
+query polls {
+  polls {
+    id
+    proposal
+    endBlock
+    quorum
+    quota
+    # status
+    # isActive
+    # totalVoteStake
+    # totalNonVoteStake
+    # estimatedTimeRemaining
+    # endTime
+    tally {
+      yes
+      no
+    }
+    votes {
+      id
+    }
+  }
+}
