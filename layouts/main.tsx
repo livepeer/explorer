@@ -61,10 +61,7 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 
-// this is a temporary variable to disable wallet interactions on the frontend,
-// to prevent unintended side effects when the nitro upgrade is in progress.
-// will be removed
-export const IS_NITRO_UPGRADE_IN_PROGRESS = true;
+export const IS_BANNER_ENABLED = false;
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
@@ -127,7 +124,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     if (storage && storage.includes(uniqueBannerID)) {
       setBannerActive(false);
     } else {
-      setBannerActive(true);
+      if (IS_BANNER_ENABLED) {
+        setBannerActive(true);
+      }
     }
   }, []);
 
@@ -280,7 +279,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   }}
                 >
                   <Box as="span">
-                    The Livepeer Protocol is moving to Arbitrum Nitro - wallet connection is temporarily paused 🚦
+                    The Livepeer Protocol is moving to Arbitrum Nitro - wallet
+                    connection is temporarily paused 🚦
                   </Box>
                 </Box>
 
@@ -579,11 +579,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
                       <Flex css={{ ml: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
-                        {!IS_NITRO_UPGRADE_IN_PROGRESS && (
-                          <Flex css={{ ai: "center", ml: "8px" }}>
-                            <ConnectButton showBalance={false} />
-                          </Flex>
-                        )}
+                        <Flex css={{ ai: "center", ml: "8px" }}>
+                          <ConnectButton showBalance={false} />
+                        </Flex>
                         <Search />
                       </Flex>
                     </Flex>
