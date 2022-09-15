@@ -11,7 +11,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      res.setHeader("Cache-Control", getCacheControlHeader("hour"));
+      res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
       const { address } = req.query;
 

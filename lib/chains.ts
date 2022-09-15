@@ -12,7 +12,7 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   );
 }
 
-export const AVERAGE_L1_BLOCK_TIME = 13; // ethereum blocks are confirmed on average 13 seconds
+export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
 export type AllContracts = {
   controller: string;
