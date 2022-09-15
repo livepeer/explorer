@@ -1,6 +1,10 @@
 const cacheControlValues = {
+  revalidate: {
+    maxAge: 0,
+    swr: 10,
+  },
   second: {
-    maxAge: 20,
+    maxAge: 10,
     swr: 60,
   },
   hour: {
