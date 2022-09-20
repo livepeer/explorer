@@ -22,7 +22,7 @@ export const catIpfsJson = async <T>(
 ): Promise<T | null> => {
   if (ipfsHash) {
     const fetchResult = await fetch(
-      `https://ipfs.livepeer.studio/ipfs/${ipfsHash}`,
+      `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
       {
         method: "GET",
       }
