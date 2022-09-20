@@ -16,13 +16,11 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { usePollsQuery } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useBlockNumber } from "wagmi";
 import { useCurrentRoundData } from "hooks";
-import { capitalCase, sentenceCase } from "change-case";
+import { sentenceCase } from "change-case";
 dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
@@ -57,9 +55,9 @@ const Voting = () => {
       const init = async () => {
         setPolls(
           await Promise.all(
-            (data?.polls ?? [])
-              .filter((p) => +p.endBlock < 13810621)
-              .map((p) => getPollExtended(p, currentRound.currentL1Block))
+            (data?.polls ?? []).map((p) =>
+              getPollExtended(p, currentRound.currentL1Block)
+            )
           )
         );
 
