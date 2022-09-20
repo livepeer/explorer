@@ -75,7 +75,9 @@ const Index = ({ data }: { data: Props }) => {
         accountAddress,
         data?.myAccount,
         data?.vote,
-        pendingFeesAndStake.pendingStake
+        pendingFeesAndStake?.pendingStake
+          ? pendingFeesAndStake?.pendingStake
+          : "0"
       ),
     [accountAddress, data, pendingFeesAndStake]
   );

@@ -135,6 +135,7 @@ const Poll = () => {
               pt: "$2",
               width: "100%",
               "@bp3": {
+                width: "75%",
                 pr: "$7",
               },
             }}
@@ -337,7 +338,7 @@ const Poll = () => {
                   alignSelf: "flex-start",
                   top: "$9",
                   mt: "$6",
-                  width: "40%",
+                  width: "25%",
                   display: "flex",
                 },
               }}
