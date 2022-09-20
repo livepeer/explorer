@@ -48,7 +48,7 @@ const Poll = () => {
   const { query } = router;
 
   const pollId = query?.poll?.toString().toLowerCase();
-  const pollInterval = 20000;
+  const pollInterval = 10000;
 
   const { setBottomDrawerOpen } = useExplorerStore();
 
