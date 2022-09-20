@@ -72,7 +72,6 @@
     "graphql": "^16.5.0",
     "graphql-tools": "^8.3.0",
     "gsap": "^3.5.1",
-    "ipfs-mini": "^1.1.5",
     "isomorphic-unfetch": "^3.0.0",
     "lightweight-charts": "^3.2.0",
     "markdown-to-jsx": "^7.1.7",
