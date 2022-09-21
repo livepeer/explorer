@@ -1,6 +1,5 @@
 import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import fm from "front-matter";
 import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
 import { abbreviateNumber } from "../../lib/utils";
@@ -29,10 +28,10 @@ import {
 } from "../../hooks";
 import FourZeroFour from "../404";
 
-import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
+import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
+import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
 dayjs.extend(relativeTime);
 
@@ -87,16 +86,21 @@ const Poll = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (data && currentRound?.currentL1Block) {
+      if (
+        data &&
+        currentRound?.currentL1Block &&
+        currentRound?.currentL2Block
+      ) {
         const response = await getPollExtended(
           data.poll,
-          currentRound.currentL1Block
+          currentRound.currentL1Block,
+          currentRound.currentL2Block
         );
         setPollData(response);
       }
     };
     init();
-  }, [data, currentRound?.currentL1Block]);
+  }, [data, currentRound?.currentL1Block, currentRound?.currentL2Block]);
 
   if (!query?.poll) {
     return <FourZeroFour />;

@@ -1,14 +1,12 @@
 import {
-  AVERAGE_L1_BLOCK_TIME,
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
+  AVERAGE_L1_BLOCK_TIME
 } from "@lib/chains";
 import {
   getApollo,
   PollsQueryResult,
   ProtocolByBlockDocument,
   ProtocolByBlockQuery,
-  ProtocolByBlockQueryVariables,
+  ProtocolByBlockQueryVariables
 } from "apollo";
 import dayjs from "dayjs";
 import fm from "front-matter";
@@ -46,7 +44,8 @@ export type PollExtended = PollsQueryResult["data"]["polls"][number] & {
 
 export const getPollExtended = async (
   poll: PollsQueryResult["data"]["polls"][number] | null | undefined,
-  l1BlockNumber: number
+  l1BlockNumber: number,
+  l2BlockNumber: number
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
@@ -67,7 +66,8 @@ export const getPollExtended = async (
 
   const isActive = l1BlockNumber <= parseInt(poll.endBlock);
   const totalStakeString = await getTotalStake(
-    isActive ? l1BlockNumber : +poll.endBlock
+    // TODO fix endblock to query for l2 block corresponding to end of poll
+    isActive ? l2BlockNumber : +poll.endBlock
   );
 
   const totalStake = +totalStakeString;
