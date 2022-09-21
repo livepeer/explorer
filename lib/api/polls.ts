@@ -1,12 +1,10 @@
-import {
-  AVERAGE_L1_BLOCK_TIME
-} from "@lib/chains";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import {
   getApollo,
   PollsQueryResult,
   ProtocolByBlockDocument,
   ProtocolByBlockQuery,
-  ProtocolByBlockQueryVariables
+  ProtocolByBlockQueryVariables,
 } from "apollo";
 import dayjs from "dayjs";
 import fm from "front-matter";
@@ -44,8 +42,7 @@ export type PollExtended = PollsQueryResult["data"]["polls"][number] & {
 
 export const getPollExtended = async (
   poll: PollsQueryResult["data"]["polls"][number] | null | undefined,
-  l1BlockNumber: number,
-  l2BlockNumber: number
+  l1BlockNumber: number
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
@@ -67,7 +64,7 @@ export const getPollExtended = async (
   const isActive = l1BlockNumber <= parseInt(poll.endBlock);
   const totalStakeString = await getTotalStake(
     // TODO fix endblock to query for l2 block corresponding to end of poll
-    isActive ? l2BlockNumber : +poll.endBlock
+    isActive ? undefined : +poll.endBlock
   );
 
   const totalStake = +totalStakeString;
@@ -131,7 +128,7 @@ const getEstimatedEndTimeByBlockNumber = async (
     .unix();
 };
 
-const getTotalStake = async (l2BlockNumber: number) => {
+const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   const client = getApollo();
 
   const protocolResponse = await client.query<
