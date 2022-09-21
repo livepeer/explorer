@@ -1,8 +1,4 @@
-import {
-  AVERAGE_L1_BLOCK_TIME,
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-} from "@lib/chains";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import {
   getApollo,
   PollsQueryResult,
@@ -67,7 +63,8 @@ export const getPollExtended = async (
 
   const isActive = l1BlockNumber <= parseInt(poll.endBlock);
   const totalStakeString = await getTotalStake(
-    isActive ? l1BlockNumber : +poll.endBlock
+    // TODO fix endblock to query for l2 block corresponding to end of poll
+    isActive ? undefined : +poll.endBlock
   );
 
   const totalStake = +totalStakeString;
@@ -131,7 +128,7 @@ const getEstimatedEndTimeByBlockNumber = async (
     .unix();
 };
 
-const getTotalStake = async (l2BlockNumber: number) => {
+const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   const client = getApollo();
 
   const protocolResponse = await client.query<
@@ -139,11 +136,13 @@ const getTotalStake = async (l2BlockNumber: number) => {
     ProtocolByBlockQueryVariables
   >({
     query: ProtocolByBlockDocument,
-    variables: {
-      block: {
-        number: l2BlockNumber,
-      },
-    },
+    variables: l2BlockNumber
+      ? {
+          block: {
+            number: l2BlockNumber,
+          },
+        }
+      : undefined,
   });
 
   return protocolResponse?.data?.protocol?.totalActiveStake;
