@@ -136,11 +136,13 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
     ProtocolByBlockQueryVariables
   >({
     query: ProtocolByBlockDocument,
-    variables: {
-      block: {
-        number: l2BlockNumber,
-      },
-    },
+    variables: l2BlockNumber
+      ? {
+          block: {
+            number: l2BlockNumber,
+          },
+        }
+      : undefined,
   });
 
   return protocolResponse?.data?.protocol?.totalActiveStake;
