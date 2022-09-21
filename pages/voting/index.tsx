@@ -56,7 +56,11 @@ const Voting = () => {
         setPolls(
           await Promise.all(
             (data?.polls ?? []).map((p) =>
-              getPollExtended(p, currentRound.currentL1Block)
+              getPollExtended(
+                p,
+                currentRound.currentL1Block,
+                currentRound.currentL2Block
+              )
             )
           )
         );
@@ -65,7 +69,7 @@ const Voting = () => {
       };
       init();
     }
-  }, [data, currentRound?.currentL1Block]);
+  }, [data, currentRound?.currentL1Block, currentRound.currentL2Block]);
 
   return (
     <>
