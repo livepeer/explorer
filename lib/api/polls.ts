@@ -81,8 +81,8 @@ export const getPollExtended = async (
 
   const status = isActive
     ? "active"
-    : totalParticipationPercent > +poll.quorum / 10000
-    ? totalYesVotePercent > +poll.quota / 10000
+    : totalParticipationPercent > +poll.quorum / 1000000
+    ? totalYesVotePercent > +poll.quota / 1000000
       ? "passed"
       : "rejected"
     : "quorum-not-met";
