@@ -11,7 +11,6 @@ import QRCode from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
-import { nl2br } from "../../lib/utils";
 import EditProfile from "../EditProfile";
 
 interface Props {
@@ -191,7 +190,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             <Box
               css={{ a: { color: "$primary11" } }}
               dangerouslySetInnerHTML={{
-                __html: nl2br(identity.description),
+                __html: identity.description,
               }}
             />
           </ShowMoreText>
