@@ -80,18 +80,6 @@ export const getDelegatorStatus = (
 export const MAXIMUM_VALUE_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
-export const nl2br = (str, is_xhtml = true) => {
-  if (typeof str === "undefined" || str === null) {
-    return "";
-  }
-  var breakTag =
-    is_xhtml || typeof is_xhtml === "undefined" ? "<br />" : "<br>";
-  return (str + "").replace(
-    /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g,
-    "$1" + breakTag + "$2"
-  );
-};
-
 export const textTruncate = (str, length, ending) => {
   if (length === null) {
     length = 100;
