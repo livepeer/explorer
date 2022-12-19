@@ -26,7 +26,7 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
   const {
     data: { protocol },
   } = await response.json();
-  res.json(protocol.totalSupply);
+  res.json(Number(protocol.totalSupply));
 };
 
 export default totalTokenSupply;
