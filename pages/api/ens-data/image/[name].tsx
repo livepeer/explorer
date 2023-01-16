@@ -30,10 +30,6 @@ const handler = async (
 
         const response = await fetch(imageUrl);
 
-        if (response.headers.get("content-type").includes("application/json")) {
-          return null;
-        }
-
         const imageBlob = await response.blob();
 
         const buffer = await imageBlob.stream();
