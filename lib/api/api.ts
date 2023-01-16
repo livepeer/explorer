@@ -20,7 +20,14 @@ const cacheControlValues = {
 export const getCacheControlHeader = (
   type: keyof typeof cacheControlValues
 ) => {
-  return `public, s-maxage=${cacheControlValues[type].maxAge}, stale-while-revalidate=${cacheControlValues[type].swr}`;
+  const randomJitterValue = Number(
+    (Math.random() * (type === "day" ? 3600 : 600)).toFixed(0)
+  );
+
+  return `public, s-maxage=${
+    cacheControlValues[type].maxAge +
+    (type === "day" || type == "hour" ? randomJitterValue : 0)
+  }, stale-while-revalidate=${cacheControlValues[type].swr}`;
 };
 
 export const isValidAddress = (
