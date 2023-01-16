@@ -1,5 +1,8 @@
 import { getCacheControlHeader } from "@lib/api";
+import { l1Provider } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
+
+import { parseArweaveTxId, parseCid } from "livepeer/utils";
 
 const handler = async (
   req: NextApiRequest,
@@ -14,9 +17,23 @@ const handler = async (
       res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
       if (name && typeof name === "string" && name.length > 0) {
-        const imageUrl = `https://metadata.ens.domains/mainnet/avatar/${name}`;
+        const avatar = await l1Provider.getAvatar(name);
+
+        const cid = parseCid(avatar);
+        const arweaveId = parseArweaveTxId(avatar);
+
+        const imageUrl = cid?.id
+          ? `https://dweb.link/ipfs/${cid.id}`
+          : arweaveId.id
+          ? arweaveId.url
+          : null;
+
+        if (!imageUrl) {
+          return null;
+        }
 
         const response = await fetch(imageUrl);
+
         if (response.headers.get("content-type").includes("application/json")) {
           return null;
         }

@@ -75,6 +75,7 @@
     "gsap": "^3.5.1",
     "isomorphic-unfetch": "^3.0.0",
     "lightweight-charts": "^3.2.0",
+    "livepeer": "^2.1.0",
     "markdown-to-jsx": "^7.1.7",
     "match-sorter": "^6.3.1",
     "micro-cors": "^0.1.1",
