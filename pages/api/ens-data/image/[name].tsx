@@ -24,8 +24,10 @@ const handler = async (
 
         const imageUrl = cid?.id
           ? `https://dweb.link/ipfs/${cid.id}`
-          : arweaveId.id
+          : arweaveId?.id
           ? arweaveId.url
+          : avatar.startsWith("https://")
+          ? avatar
           : `https://metadata.ens.domains/mainnet/avatar/${name}`;
 
         const response = await fetch(imageUrl);
