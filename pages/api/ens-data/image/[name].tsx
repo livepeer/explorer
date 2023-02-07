@@ -14,8 +14,6 @@ const handler = async (
     if (method === "GET") {
       const { name } = req.query;
 
-      res.setHeader("Cache-Control", getCacheControlHeader("day"));
-
       if (name && typeof name === "string" && name.length > 0) {
         const avatar = await l1Provider.getAvatar(name);
 
@@ -30,13 +28,19 @@ const handler = async (
           ? avatar
           : `https://metadata.ens.domains/mainnet/avatar/${name}`;
 
-        const response = await fetch(imageUrl);
+        try {
+          const response = await fetch(imageUrl);
 
-        const imageBlob = await response.blob();
+          const imageBlob = await response.blob();
 
-        const buffer = await imageBlob.stream();
+          const buffer = await imageBlob.stream();
 
-        return buffer.pipe(res);
+          res.setHeader("Cache-Control", getCacheControlHeader("day"));
+
+          return buffer.pipe(res);
+        } catch (e) {
+          return res.status(500).end("Invalid name");
+        }
       } else {
         return res.status(500).end("Invalid name");
       }
