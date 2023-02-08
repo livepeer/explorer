@@ -287,20 +287,28 @@ export const getTwoPeriodPercentChange = (
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export const getBlocksFromTimestamps = async (timestamps) => {
+export const getBlocksFromTimestamps = async (timestamps, retry?: number) => {
   if (!timestamps?.length) {
     return [];
   }
-  const blocks = [];
-  for (const timestamp of timestamps) {
-    const blockDataResponse = await fetch(
-      `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-    );
-    const { result } = await blockDataResponse.json();
-    blocks.push(+result);
-  }
+  try {
+    const blocks = [];
+    for (const timestamp of timestamps) {
+      const blockDataResponse = await fetch(
+        `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+      );
+      const { result } = await blockDataResponse.json();
+      blocks.push(+result);
+    }
 
-  return blocks;
+    return blocks;
+  } catch (e) {
+    if (retry < 5) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return getBlocksFromTimestamps(timestamps, (retry ?? 0) + 1);
+    }
+    throw e;
+  }
 };
 
 /**

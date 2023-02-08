@@ -59,10 +59,10 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
   if (name) {
     const resolver = await l1Provider.getResolver(name);
     const [description, url, twitter, avatar] = await Promise.all([
-      resolver.getText("description"),
-      resolver.getText("url"),
-      resolver.getText("com.twitter"),
-      resolver.getAvatar(),
+      resolver?.getText("description"),
+      resolver?.getText("url"),
+      resolver?.getText("com.twitter"),
+      resolver?.getAvatar(),
     ]);
 
     const ens: EnsIdentity = {
