@@ -294,7 +294,7 @@ export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
   try {
     const blocks = [];
     for (const timestamp of timestamps) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const blockDataResponse = await fetch(
         `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
       );

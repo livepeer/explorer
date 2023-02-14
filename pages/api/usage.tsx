@@ -409,7 +409,8 @@ const chartDataHandler = async (
           data.dayData = data.dayData.slice(0, -1);
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
+        return res.status(500).json(null);
       }
 
       res.setHeader("Cache-Control", getCacheControlHeader("day"));
