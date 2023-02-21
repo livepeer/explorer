@@ -158,7 +158,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
                     height: "100%",
                     border: "0",
                   }}
-                  src={`https://uniswap.exchange/swap/0x58b6a8a3302369daec383334672404ee733ab239`}
+                  src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
                 />
               </UniswapModal>
               <A

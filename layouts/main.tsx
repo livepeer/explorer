@@ -561,7 +561,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://uniswap.exchange/swap/0x58b6a8a3302369daec383334672404ee733ab239&chain=mainnet`}
+                                  href={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
                                 >
                                   Get LPT
                                 </PopoverLink>
