@@ -22,7 +22,7 @@ export const catIpfsJson = async <T>(
 ): Promise<T | null> => {
   if (ipfsHash) {
     const fetchResult = await fetch(
-      `https://w3s.link/ipfs/${ipfsHash}`,
+      `https://ipfs.livepeer.org/ipfs/${ipfsHash}`,
       {
         method: "GET",
       }
