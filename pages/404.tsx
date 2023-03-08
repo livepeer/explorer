@@ -8,6 +8,9 @@ function Error() {
         alignItems: "center",
         justifyContent: "center",
         bc: "$loContrast",
+        height: "100vh",
+        alignContent: "center",
+        justifyItems: "center"
       }}
     >
       <Box
@@ -21,7 +24,7 @@ function Error() {
       >
         404
       </Box>
-      <Box>This page could not be found</Box>
+      <Box>{"We've encountered an error on this page. We're working on a fix now!"}</Box>
     </Flex>
   );
 }
