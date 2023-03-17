@@ -1,3 +1,4 @@
+import LivepeerLogo from "@components/Logo";
 import { Box, Flex } from "@livepeer/design-system";
 
 function Error() {
@@ -8,23 +9,36 @@ function Error() {
         alignItems: "center",
         justifyContent: "center",
         bc: "$loContrast",
-        height: "100vh",
-        alignContent: "center",
-        justifyItems: "center"
+        height: "90vh",
+        flexDirection: "column",
+        px: "$2"
       }}
     >
+      <Box>
+        <LivepeerLogo isDark />
+      </Box>
       <Box
         css={{
-          fontSize: "$5",
-          pr: "$4",
-          mr: "$4",
-          borderRight: "1px solid",
-          borderColor: "$hiContrast",
+          fontSize: 48,
+          fontWeight: "700",
+          maxWidth: 520,
+          textAlign: "center",
         }}
       >
-        404
+        Wait! This page encountered an error.
       </Box>
-      <Box>{"We've encountered an error on this page. We're working on a fix now!"}</Box>
+      <Box
+        css={{
+          mt: "$8",
+          maxWidth: 520,
+          textAlign: "center",
+          color: "$neutral11",
+        }}
+      >
+        {
+          "We are actively working on a fix. Please check back soon."
+        }
+      </Box>
     </Flex>
   );
 }
