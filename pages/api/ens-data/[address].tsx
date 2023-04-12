@@ -13,7 +13,7 @@ const handler = async (
     if (method === "GET") {
       const { address } = req.query;
 
-      res.setHeader("Cache-Control", getCacheControlHeader("day"));
+      res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
       if (isValidAddress(address)) {
         const ens = await getEnsForAddress(address);

@@ -35,7 +35,7 @@ const handler = async (
 
           const buffer = await imageBlob.stream();
 
-          res.setHeader("Cache-Control", getCacheControlHeader("day"));
+          res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
           return buffer.pipe(res);
         } catch (e) {

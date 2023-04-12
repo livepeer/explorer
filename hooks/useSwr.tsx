@@ -10,25 +10,14 @@ import {
   AllPerformanceMetrics,
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
-import { useMemo } from "react";
 import useSWR from "swr";
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
-  const { data: allEnsData } = useSWR<EnsIdentity[]>(`/ens-data`);
-  const foundEns = useMemo(
-    () =>
-      allEnsData?.find(
-        (e) => address && e?.id?.toLowerCase() === address?.toLowerCase()
-      ),
-    [address, allEnsData]
-  );
-
   const { data } = useSWR<EnsIdentity>(
-    foundEns ? null : address ? `/ens-data/${address.toLowerCase()}` : null
+    address ? `/ens-data/${address.toLowerCase()}` : null
   );
 
   return (
-    foundEns ??
     data ?? {
       id: address,
       idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
