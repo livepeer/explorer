@@ -15,6 +15,10 @@ const cacheControlValues = {
     maxAge: 86400,
     swr: 86400 * 7,
   },
+  week: {
+    maxAge: 86400 * 7,
+    swr: 86400 * 14,
+  },
 } as const;
 
 export const getCacheControlHeader = (

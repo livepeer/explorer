@@ -11,7 +11,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      res.setHeader("Cache-Control", getCacheControlHeader("day"));
+      res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
       const response = await fetch(
         `https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one`,
@@ -24,7 +24,7 @@ const handler = async (
             query: `
               query {
                 livepeerAccounts(
-                  first: 800
+                  first: 200
                   orderBy: lastUpdatedTimestamp
                   orderDirection: desc
                 ) {
