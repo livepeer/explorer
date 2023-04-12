@@ -15,20 +15,22 @@ const handler = async (
       const { name } = req.query;
 
       if (name && typeof name === "string" && name.length > 0) {
-        const avatar = await l1Provider.getAvatar(name);
-
-        const cid = parseCid(avatar);
-        const arweaveId = parseArweaveTxId(avatar);
-
-        const imageUrl = cid?.id
-          ? `https://dweb.link/ipfs/${cid.id}`
-          : arweaveId?.id
-          ? arweaveId.url
-          : avatar.startsWith("https://")
-          ? avatar
-          : `https://metadata.ens.domains/mainnet/avatar/${name}`;
-
         try {
+          res.setHeader("Cache-Control", getCacheControlHeader("day"));
+
+          const avatar = await l1Provider.getAvatar(name);
+
+          const cid = parseCid(avatar);
+          const arweaveId = parseArweaveTxId(avatar);
+
+          const imageUrl = cid?.id
+            ? `https://dweb.link/ipfs/${cid.id}`
+            : arweaveId?.id
+            ? arweaveId.url
+            : avatar.startsWith("https://")
+            ? avatar
+            : `https://metadata.ens.domains/mainnet/avatar/${name}`;
+
           const response = await fetch(imageUrl);
 
           const imageBlob = await response.blob();
@@ -39,7 +41,7 @@ const handler = async (
 
           return buffer.pipe(res);
         } catch (e) {
-          return res.status(500).end("Invalid name");
+          return res.status(404).end("Invalid name");
         }
       } else {
         return res.status(500).end("Invalid name");
