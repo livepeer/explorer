@@ -6,10 +6,16 @@ import { chain } from "wagmi";
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
+const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
+
 if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
+}
+
+if (typeof SUBGRAPH_KEY === "undefined") {
+  throw new Error(`SUBGRAPH_KEY must be defined in environment variables`);
 }
 
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
@@ -138,7 +144,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg`,
     contracts: MAINNET_CONTRACTS,
   },
   [chain.rinkeby.id]: {
@@ -171,7 +177,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+    subgraph: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumRinkeby.id]: {
