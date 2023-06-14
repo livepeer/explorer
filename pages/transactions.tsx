@@ -78,7 +78,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const { events, fallback } = await getEvents(client, numberTransactions);
 
     if (!events.data) {
-      return { notFound: true };
+      return null;
     }
 
     const props: PageProps = {
@@ -94,7 +94,7 @@ export const getStaticProps: GetStaticProps = async () => {
     console.error(e);
   }
 
-  return { notFound: true };
+  return null;
 };
 
 TransactionsPage.getLayout = getLayout;
