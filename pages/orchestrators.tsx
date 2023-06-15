@@ -81,7 +81,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !protocol.data) {
-      return { notFound: true };
+      return null;
     }
 
     const props: PageProps = {
@@ -98,7 +98,7 @@ export const getStaticProps: GetStaticProps = async () => {
     console.error(e);
   }
 
-  return { notFound: true };
+  return null;
 };
 
 OrchestratorsPage.getLayout = getLayout;

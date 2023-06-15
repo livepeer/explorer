@@ -108,7 +108,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const { orchestrators, fallback } = await getOrchestrators(client);
 
     if (!orchestrators.data) {
-      return { notFound: true };
+      return null;
     }
 
     const props: PageProps = {
@@ -127,7 +127,7 @@ export const getStaticProps: GetStaticProps = async () => {
     console.error(e);
   }
 
-  return { notFound: true };
+  return null;
 };
 
 LeaderboardPage.getLayout = getLayout;
