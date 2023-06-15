@@ -14,10 +14,6 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   );
 }
 
-if (typeof SUBGRAPH_KEY === "undefined") {
-  throw new Error(`SUBGRAPH_KEY must be defined in environment variables`);
-}
-
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
 export type AllContracts = {
@@ -179,7 +175,9 @@ export const CHAIN_INFO = {
     },
     subgraph:
       process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-        ? `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
+        ? `https://gateway-arbitrum.network.thegraph.com/api/${
+            SUBGRAPH_KEY ?? "none"
+          }/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
         : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
