@@ -177,7 +177,10 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`,
+    subgraph:
+      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+        ? `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
+        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumRinkeby.id]: {
