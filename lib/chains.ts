@@ -6,6 +6,8 @@ import { chain } from "wagmi";
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
+const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
+
 if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
@@ -138,7 +140,12 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+    subgraph:
+      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+        ? `https://gateway.thegraph.com/api/${
+            SUBGRAPH_KEY ?? "none"
+          }/subgraphs/id/FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg`
+        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: MAINNET_CONTRACTS,
   },
   [chain.rinkeby.id]: {
@@ -171,7 +178,12 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+    subgraph:
+      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+        ? `https://gateway-arbitrum.network.thegraph.com/api/${
+            SUBGRAPH_KEY ?? "none"
+          }/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
+        : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumRinkeby.id]: {
