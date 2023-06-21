@@ -295,10 +295,7 @@ export async function getStaticProps() {
         lips.push({ ...transformedLip, text: lip.content.text });
     }
   } else {
-    // return 404 so it is clear that it is misconfigured
-    return {
-      notFound: true,
-    };
+    return null;
   }
 
   return {

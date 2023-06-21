@@ -45,7 +45,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       await getSortedOrchestrators(client);
 
     if (!account.data || !sortedOrchestrators.data) {
-      return { notFound: true };
+      return null;
     }
 
     const props: PageProps = {
@@ -65,7 +65,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     console.error(e);
   }
 
-  return { notFound: true };
+  return null;
 };
 
 export default Orchestrating;
