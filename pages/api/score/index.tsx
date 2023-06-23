@@ -44,6 +44,7 @@ const handler = async (
               lax: metrics[transcoderId]?.LAX?.success_rate * 100 || 0,
               lon: metrics[transcoderId]?.LON?.success_rate * 100 || 0,
               prg: metrics[transcoderId]?.PRG?.success_rate * 100 || 0,
+              sao: metrics[transcoderId]?.SAO?.success_rate * 100 || 0,
             },
             roundTripScores: {
               global: avg(metrics[transcoderId], "round_trip_score") * 100,
@@ -54,6 +55,7 @@ const handler = async (
               lax: metrics[transcoderId]?.LAX?.round_trip_score * 100 || 0,
               lon: metrics[transcoderId]?.LON?.round_trip_score * 100 || 0,
               prg: metrics[transcoderId]?.PRG?.round_trip_score * 100 || 0,
+              sao: metrics[transcoderId]?.SAO?.round_trip_score * 100 || 0,
             },
             scores: {
               global: avg(metrics[transcoderId], "score") * 100 || 0,
@@ -64,6 +66,7 @@ const handler = async (
               lax: metrics[transcoderId]?.LAX?.score * 100 || 0,
               lon: metrics[transcoderId]?.LON?.score * 100 || 0,
               prg: metrics[transcoderId]?.PRG?.score * 100 || 0,
+              sao: metrics[transcoderId]?.SAO?.score * 100 || 0,
             },
           },
         }),
