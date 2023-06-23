@@ -56,6 +56,10 @@ const PerformanceList = ({
         id: "scores.sin",
         desc: true,
       },
+      {
+        id: "scores.sao",
+        desc: true,
+      },
     ],
     hiddenColumns: [
       "activationRound",
