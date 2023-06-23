@@ -7,4 +7,5 @@ export const ALL_REGIONS = {
   nyc: "New York City",
   prg: "Prague",
   sin: "Singapore",
+  sao: "São Paulo"
 } as const;
