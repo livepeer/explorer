@@ -61,7 +61,7 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
                 <Box
                   as="select"
                   onChange={(e) => {
-                    setRegion(e.target.value);
+                    setRegion(e.target.value as keyof typeof ALL_REGIONS);
                   }}
                   css={{
                     py: "$1",

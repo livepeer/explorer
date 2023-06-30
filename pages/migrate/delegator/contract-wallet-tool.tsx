@@ -15,10 +15,9 @@ import {
 } from "@livepeer/design-system";
 import { ethers } from "ethers";
 import {
-  useInbox,
+
   useL1DelegatorData,
-  useL1Migrator,
-  useNodeInterface,
+
 } from "hooks";
 import {
   CHAIN_INFO,
@@ -28,7 +27,6 @@ import {
 } from "lib/chains";
 import { useEffect, useState } from "react";
 import useForm from "react-hook-form";
-import { Inbox, L1Migrator, NodeInterface } from "typechain-types";
 import { isValidAddress } from "utils/validAddress";
 
 const ReadOnlyCard = styled(Box, {
@@ -51,42 +49,38 @@ const ContractWalletTool = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const inbox = useInbox();
-  const l1Migrator = useL1Migrator();
-  const nodeInterface = useNodeInterface();
-
   const l1Delegator = useL1DelegatorData(l1Addr);
 
-  useEffect(() => {
-    async function init() {
-      if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
-        setLoading(true);
-        setParams(null);
-        const params = await getParams(
-          l1Addr,
-          l2Addr,
-          inbox,
-          l1Migrator,
-          nodeInterface,
-          l1Delegator
-        );
-        if (
-          params?.migrateDelegatorParams ||
-          params?.migrateUnbondingLockParams
-        ) {
-          setParams(params);
-          setMessage(null);
-        } else {
-          setMessage("This account has no stake to migrate.");
-        }
-        setLoading(false);
-      } else {
-        setParams(null);
-        setMessage(null);
-      }
-    }
-    init();
-  }, [l1Addr, l2Addr, inbox, l1Migrator, nodeInterface, l1Delegator]);
+  // useEffect(() => {
+  //   async function init() {
+  //     if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
+  //       setLoading(true);
+  //       setParams(null);
+  //       const params = await getParams(
+  //         l1Addr,
+  //         l2Addr,
+  //         inbox,
+  //         l1Migrator,
+  //         nodeInterface,
+  //         l1Delegator
+  //       );
+  //       if (
+  //         params?.migrateDelegatorParams ||
+  //         params?.migrateUnbondingLockParams
+  //       ) {
+  //         setParams(params);
+  //         setMessage(null);
+  //       } else {
+  //         setMessage("This account has no stake to migrate.");
+  //       }
+  //       setLoading(false);
+  //     } else {
+  //       setParams(null);
+  //       setMessage(null);
+  //     }
+  //   }
+  //   init();
+  // }, [l1Addr, l2Addr, inbox, l1Migrator, nodeInterface, l1Delegator]);
 
   return (
     <Container
@@ -228,168 +222,168 @@ const ContractWalletTool = () => {
   );
 };
 
-async function getMigrateDelegatorParams(
-  _l1Addr,
-  _l2Addr,
-  inbox: Inbox,
-  l1Migrator: L1Migrator,
-  nodeInterface: NodeInterface
-) {
-  try {
-    const { data } = await l1Migrator.getMigrateDelegatorParams(
-      _l1Addr,
-      _l2Addr
-    );
+// async function getMigrateDelegatorParams(
+//   _l1Addr,
+//   _l2Addr,
+//   inbox: Inbox,
+//   l1Migrator: L1Migrator,
+//   nodeInterface: NodeInterface
+// ) {
+//   try {
+//     const { data } = await l1Migrator.getMigrateDelegatorParams(
+//       _l1Addr,
+//       _l2Addr
+//     );
 
-    const gasPriceBid = await l2Provider.getGasPrice();
+//     const gasPriceBid = await l2Provider.getGasPrice();
 
-    // fetching submission price
-    // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-    const submissionPrice = await inbox.calculateRetryableSubmissionFee(
-      data.length,
-      gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
-    );
+//     // fetching submission price
+//     // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
+//     const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+//       data.length,
+//       gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
+//     );
 
-    // overpaying submission price to account for increase
-    // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
-    // the excess will be sent back to the refund address
-    const maxSubmissionPrice = submissionPrice.mul(4);
+//     // overpaying submission price to account for increase
+//     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
+//     // the excess will be sent back to the refund address
+//     const maxSubmissionPrice = submissionPrice.mul(4);
 
-    // calculating estimated gas for the tx
-    const estimatedGas =
-      await nodeInterface.estimateGas.estimateRetryableTicket(
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-        ethers.utils.parseEther("0.01"),
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-        0,
-        _l1Addr,
-        _l1Addr,
-        data
-      );
+//     // calculating estimated gas for the tx
+//     const estimatedGas =
+//       await nodeInterface.estimateGas.estimateRetryableTicket(
+//         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+//         ethers.utils.parseEther("0.01"),
+//         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+//         0,
+//         _l1Addr,
+//         _l1Addr,
+//         data
+//       );
 
-    // overpaying gas just in case
-    // the excess will be sent back to the refund address
-    const maxGas = estimatedGas.mul(4);
+//     // overpaying gas just in case
+//     // the excess will be sent back to the refund address
+//     const maxGas = estimatedGas.mul(4);
 
-    // ethValue will be sent as callvalue
-    // this entire amount will be used for successfully completing
-    // the L2 side of the transaction
-    // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-    const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
+//     // ethValue will be sent as callvalue
+//     // this entire amount will be used for successfully completing
+//     // the L2 side of the transaction
+//     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
+//     const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-    return {
-      _l1Addr,
-      _l2Addr,
-      _sig: "Can be ignored and left blank",
-      _maxGas: maxGas.toString(),
-      _gasPriceBid: gasPriceBid.toString(),
-      _maxSubmissionPrice: maxSubmissionPrice.toString(),
-      ethValue: ethValue.toString(),
-    };
-  } catch (e) {
-    console.error(e);
-  }
-}
+//     return {
+//       _l1Addr,
+//       _l2Addr,
+//       _sig: "Can be ignored and left blank",
+//       _maxGas: maxGas.toString(),
+//       _gasPriceBid: gasPriceBid.toString(),
+//       _maxSubmissionPrice: maxSubmissionPrice.toString(),
+//       ethValue: ethValue.toString(),
+//     };
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
 
-async function getParams(
-  _l1Addr,
-  _l2Addr,
-  inbox: Inbox,
-  l1Migrator: L1Migrator,
-  nodeInterface: NodeInterface,
-  l1Delegator: L1Delegator
-) {
-  const migrateDelegatorParams = await getMigrateDelegatorParams(
-    _l1Addr,
-    _l2Addr,
-    inbox,
-    l1Migrator,
-    nodeInterface
-  );
-  const migrateUnbondingLockParams = await getMigrateUnbondingLockParams(
-    _l1Addr,
-    _l2Addr,
-    inbox,
-    l1Migrator,
-    nodeInterface,
-    l1Delegator
-  );
+// async function getParams(
+//   _l1Addr,
+//   _l2Addr,
+//   inbox: Inbox,
+//   l1Migrator: L1Migrator,
+//   nodeInterface: NodeInterface,
+//   l1Delegator: L1Delegator
+// ) {
+//   const migrateDelegatorParams = await getMigrateDelegatorParams(
+//     _l1Addr,
+//     _l2Addr,
+//     inbox,
+//     l1Migrator,
+//     nodeInterface
+//   );
+//   const migrateUnbondingLockParams = await getMigrateUnbondingLockParams(
+//     _l1Addr,
+//     _l2Addr,
+//     inbox,
+//     l1Migrator,
+//     nodeInterface,
+//     l1Delegator
+//   );
 
-  return {
-    migrateDelegatorParams,
-    migrateUnbondingLockParams,
-  };
-}
-async function getMigrateUnbondingLockParams(
-  _l1Addr,
-  _l2Addr,
-  inbox: Inbox,
-  l1Migrator: L1Migrator,
-  nodeInterface: NodeInterface,
-  l1Delegator: L1Delegator
-) {
-  try {
-    const locks = l1Delegator.activeLocks.map((e) => e.id);
+//   return {
+//     migrateDelegatorParams,
+//     migrateUnbondingLockParams,
+//   };
+// }
+// async function getMigrateUnbondingLockParams(
+//   _l1Addr,
+//   _l2Addr,
+//   inbox: Inbox,
+//   l1Migrator: L1Migrator,
+//   nodeInterface: NodeInterface,
+//   l1Delegator: L1Delegator
+// ) {
+//   try {
+//     const locks = l1Delegator.activeLocks.map((e) => e.id);
 
-    // fetch calldata to be submitted for calling L2 function
-    const { data, params } = await l1Migrator.getMigrateUnbondingLocksParams(
-      _l1Addr,
-      _l2Addr,
-      locks
-    );
+//     // fetch calldata to be submitted for calling L2 function
+//     const { data, params } = await l1Migrator.getMigrateUnbondingLocksParams(
+//       _l1Addr,
+//       _l2Addr,
+//       locks
+//     );
 
-    const gasPriceBid = await l2Provider.getGasPrice();
+//     const gasPriceBid = await l2Provider.getGasPrice();
 
-    // fetching submission price
-    // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-    const submissionPrice = await inbox.calculateRetryableSubmissionFee(
-      data.length,
-      gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
-    );
+//     // fetching submission price
+//     // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
+//     const submissionPrice = await inbox.calculateRetryableSubmissionFee(
+//       data.length,
+//       gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
+//     );
 
-    // overpaying submission price to account for increase
-    // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
-    // the excess will be sent back to the refund address
-    const maxSubmissionPrice = submissionPrice.mul(4);
+//     // overpaying submission price to account for increase
+//     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
+//     // the excess will be sent back to the refund address
+//     const maxSubmissionPrice = submissionPrice.mul(4);
 
-    // calculating estimated gas for the tx
-    const estimatedGas =
-      await nodeInterface.estimateGas.estimateRetryableTicket(
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-        ethers.utils.parseEther("0.01"),
-        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-        0,
-        _l1Addr,
-        _l1Addr,
-        data
-      );
+//     // calculating estimated gas for the tx
+//     const estimatedGas =
+//       await nodeInterface.estimateGas.estimateRetryableTicket(
+//         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+//         ethers.utils.parseEther("0.01"),
+//         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+//         0,
+//         _l1Addr,
+//         _l1Addr,
+//         data
+//       );
 
-    // overpaying gas just in case
-    // the excess will be sent back to the refund address
-    const maxGas = estimatedGas.mul(4);
+//     // overpaying gas just in case
+//     // the excess will be sent back to the refund address
+//     const maxGas = estimatedGas.mul(4);
 
-    // ethValue will be sent as callvalue
-    // this entire amount will be used for successfully completing
-    // the L2 side of the transaction
-    // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-    const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
+//     // ethValue will be sent as callvalue
+//     // this entire amount will be used for successfully completing
+//     // the L2 side of the transaction
+//     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
+//     const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
-    return {
-      _l1Addr,
-      _l2Addr,
-      _unbondingLockIds: JSON.stringify(
-        params.unbondingLockIds.map((lock) => +lock.toString())
-      ),
-      _sig: "Can be ignored and left blank",
-      _maxGas: maxGas.toString(),
-      _gasPriceBid: gasPriceBid.toString(),
-      _maxSubmissionPrice: maxSubmissionPrice.toString(),
-      ethValue: ethValue.toString(),
-    };
-  } catch (e) {
-    console.error(e);
-  }
-}
+//     return {
+//       _l1Addr,
+//       _l2Addr,
+//       _unbondingLockIds: JSON.stringify(
+//         params.unbondingLockIds.map((lock) => +lock.toString())
+//       ),
+//       _sig: "Can be ignored and left blank",
+//       _maxGas: maxGas.toString(),
+//       _gasPriceBid: gasPriceBid.toString(),
+//       _maxSubmissionPrice: maxSubmissionPrice.toString(),
+//       ethValue: ethValue.toString(),
+//     };
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
 
 ContractWalletTool.getLayout = getLayout;
 
