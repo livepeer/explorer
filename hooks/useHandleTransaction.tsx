@@ -1,12 +1,17 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
+import { WriteContractResult } from "@wagmi/core";
 import { capitalCase } from "change-case";
-import { ContractTransaction } from "ethers";
-import { useCallback } from "react";
+import { useEffect } from "react";
 import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
-  onSuccess?: ((result: ContractTransaction) => Promise<void> | void) | null
+  data: WriteContractResult | undefined,
+  error: Error | null,
+  isLoading: boolean,
+  isSuccess: boolean,
+  args: any,
+  onSuccess?: ((result: WriteContractResult) => Promise<void> | void) | null
 ) => {
   const {
     setLatestTransactionError,
@@ -16,44 +21,41 @@ export const useHandleTransaction = (
   } = useExplorerStore();
   const addRecentTransaction = useAddRecentTransaction();
 
-  return useCallback(
-    async <T extends object>(
-      transaction: () => Promise<ContractTransaction>,
-      args: T
-    ) => {
-      try {
-        setLatestTransactionSummary();
+  useEffect(() => {
+    if (isLoading) {
+      setLatestTransactionSummary();
+    }
+  }, [isLoading]);
 
-        const result = await transaction();
+  useEffect(() => {
+    if (data) {
+      addRecentTransaction({
+        hash: data.hash,
+        description: capitalCase(id),
+      });
+    }
+  }, [data]);
 
-        addRecentTransaction({
-          hash: result.hash,
-          description: capitalCase(id),
-        });
+  useEffect(() => {
+    if (data) {
+      setLatestTransactionDetails(data.hash, id, args);
 
-        setLatestTransactionDetails(result.hash, result.from, id, args);
-
-        if (onSuccess) {
-          await onSuccess(result);
-        }
-
-        const _awaitedResult = await result.wait();
-
-        setLatestTransactionDetails(result.hash, result.from, id, args);
-        setLatestTransactionConfirmed();
-      } catch (e) {
-        console.error(e);
-        setLatestTransactionError(e.message.replace("GraphQL error: ", ""));
+      if (onSuccess) {
+        onSuccess(data);
       }
-    },
-    [
-      id,
-      setLatestTransactionError,
-      setLatestTransactionDetails,
-      setLatestTransactionSummary,
-      setLatestTransactionConfirmed,
-      onSuccess,
-      addRecentTransaction,
-    ]
-  );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setLatestTransactionConfirmed();
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+      setLatestTransactionError(error.message.replace("GraphQL error: ", ""));
+    }
+  }, [error]);
 };

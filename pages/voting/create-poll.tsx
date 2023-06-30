@@ -1,4 +1,6 @@
 import Spinner from "@components/Spinner";
+import { pollCreator } from "@lib/api/abis/main/PollCreator";
+import { getPollCreatorAddress } from "@lib/api/contracts";
 import { fromWei } from "@lib/utils";
 import {
   Box,
@@ -13,24 +15,27 @@ import {
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
-import { utils } from "ethers";
 import fm from "front-matter";
 import {
   useAccountAddress,
   useHandleTransaction,
   usePendingFeesAndStakeData,
-  usePollCreator,
 } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
+
+const pollCreatorAddress = getPollCreatorAddress();
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
+
+  const [hash, setHash] = useState<string | null>(null);
 
   const { data, loading } = useAccountQuery({
     variables: {
@@ -59,8 +64,37 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const [selectedProposal, setSelectedProposal] = useState(null);
 
-  const pollCreator = usePollCreator();
-  const handleTransaction = useHandleTransaction("createPoll");
+  const { config } = usePrepareContractWrite({
+    address: pollCreatorAddress,
+    abi: pollCreator,
+    functionName: "createPoll",
+    args: [hash],
+  });
+  const {
+    data: createPollResult,
+    status,
+    isLoading,
+    write,
+    error,
+    isSuccess,
+  } = useContractWrite(config);
+
+  useHandleTransaction(
+    "createPoll",
+    createPollResult,
+    error,
+    isLoading,
+    isSuccess,
+    {
+      proposal: hash,
+    }
+  );
+
+  useEffect(() => {
+    if (hash && status === "idle") {
+      write();
+    }
+  }, [hash, write, status]);
 
   return (
     <>
@@ -86,12 +120,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             try {
               const hash = await addIpfs(selectedProposal);
 
-              await handleTransaction(
-                () => pollCreator.createPoll(utils.toUtf8Bytes(hash)),
-                {
-                  proposal: hash,
-                }
-              );
+              setHash(hash);
             } catch (err) {
               console.error(err);
               return {

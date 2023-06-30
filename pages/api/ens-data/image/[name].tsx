@@ -1,8 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
-import { l1Provider } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
+import { l1PublicClient } from "@lib/chains";
+import { normalize } from "viem/ens";
 
 const handler = async (
   req: NextApiRequest,
@@ -18,7 +19,9 @@ const handler = async (
         try {
           res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
-          const avatar = await l1Provider.getAvatar(name);
+          const avatar = await l1PublicClient.getEnsAvatar({
+            name: normalize(name),
+          });
 
           const cid = parseCid(avatar);
           const arweaveId = parseArweaveTxId(avatar);

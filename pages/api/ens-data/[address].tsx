@@ -2,6 +2,7 @@ import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -16,7 +17,7 @@ const handler = async (
       res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
       if (isValidAddress(address)) {
-        const ens = await getEnsForAddress(address);
+        const ens = await getEnsForAddress(address as Address);
 
         return res.status(200).json(ens);
       } else {

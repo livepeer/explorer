@@ -1,3 +1,4 @@
+import { PollExtended } from "@lib/api/polls";
 import {
   Box,
   Button,
@@ -8,27 +9,22 @@ import {
   Flex,
   Heading,
   Text,
-  useSnackbar,
+  useSnackbar
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  usePendingFeesAndStakeData,
-  useRoundsManager,
-} from "hooks";
+import { AccountQuery, PollChoice } from "apollo";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import {
+  useAccountAddress, usePendingFeesAndStakeData
+} from "hooks";
+import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";
-import duration from "dayjs/plugin/duration";
-import { PollExtended } from "@lib/api/polls";
-import { PollChoice, AccountQuery } from "apollo";
-import { poll } from "ethers/lib/utils";
-import numeral from "numeral";
 
 dayjs.extend(duration);
 

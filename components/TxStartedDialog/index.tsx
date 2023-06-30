@@ -14,10 +14,11 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { TransactionStatus, useExplorerStore } from "hooks";
+import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 
 const Index = () => {
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+  const account = useAccountAddress();
 
   if (!latestTransaction || latestTransaction.step !== "started") {
     return null;
@@ -56,7 +57,7 @@ const Index = () => {
       <DialogContent css={{ maxWidth: 370, width: "100%" }}>
         <Box>
           <Header tx={latestTransaction} />
-          <Box>{Table({ tx: latestTransaction })}</Box>
+          <Box>{Table({ tx: latestTransaction, account })}</Box>
         </Box>
 
         <DialogClose asChild>
@@ -71,7 +72,7 @@ const Index = () => {
 
 export default Index;
 
-function Table({ tx }: { tx: TransactionStatus }) {
+function Table({ tx, account }: { tx: TransactionStatus; account: string }) {
   return (
     <Box
       css={{
@@ -83,7 +84,7 @@ function Table({ tx }: { tx: TransactionStatus }) {
       }}
     >
       <Row>
-        <Box>Your account</Box> {tx.from.replace(tx.from.slice(7, 37), "…")}
+        <Box>Your account</Box> {account?.replace(account?.slice(7, 37), "…")}
       </Row>
       <Inputs tx={tx} />
     </Box>

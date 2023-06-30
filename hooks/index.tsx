@@ -3,7 +3,6 @@ import { useEffect } from "react";
 export * from "./useExplorerStore";
 export * from "./useSwr";
 export * from "./useHandleTransaction";
-export * from "./useLivepeerContracts";
 export * from "./wallet";
 
 export function useOnClickOutside(ref, handler) {

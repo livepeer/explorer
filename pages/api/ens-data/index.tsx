@@ -2,6 +2,7 @@ import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -45,7 +46,7 @@ const handler = async (
         .filter((e) => e);
 
       const ensAddresses = await Promise.all(
-        addresses.map((address) => getEnsForAddress(address))
+        addresses.map((address) => getEnsForAddress(address as Address))
       );
 
       return res.status(200).json(ensAddresses);

@@ -5,7 +5,7 @@ import {
   providers,
   utils,
 } from "ethers";
-import InboxABI from "../abis/bridge/Inbox.json";
+import InboxABI from "./Inbox.json";
 
 export async function waitForTx(
   tx: ContractTransaction | Promise<ContractTransaction>,

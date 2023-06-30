@@ -1,16 +1,14 @@
-import { txMessages } from "@lib/utils";
 import {
   Box,
-  Flex,
+  Button,
   Dialog,
   DialogContent,
+  Flex,
+  keyframes,
   Text,
-  Button,
 } from "@livepeer/design-system";
-import { keyframes } from "@livepeer/design-system";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
-import { useCallback } from "react";
 import CloseIcon from "../../public/img/close.svg";
 
 const rotate = keyframes({

@@ -5,13 +5,18 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, INFURA_KEY, L1_CHAIN } from "lib/chains";
+import {
+  DEFAULT_CHAIN,
+  WALLET_CONNECT_PROJECT_ID,
+  INFURA_KEY,
+  L1_CHAIN,
+} from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { useApollo } from "../apollo";
@@ -23,25 +28,26 @@ function App({ Component, pageProps, fallback = null }) {
 
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
-  const { wagmiClient, chains, layoutKey } = useMemo(() => {
-    const { provider, chains } = configureChains(
+  const { config, chains, layoutKey } = useMemo(() => {
+    const { chains, publicClient } = configureChains(
       [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ infuraId: INFURA_KEY }), publicProvider()]
+      [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()]
     );
 
     const { connectors } = getDefaultWallets({
-      appName: "Livepeer",
+      appName: "Livepeer Explorer",
+      projectId: WALLET_CONNECT_PROJECT_ID,
       chains,
     });
 
-    const wagmiClient = createClient({
+    const config = createConfig({
       autoConnect: true,
       connectors,
-      provider,
+      publicClient,
     });
 
     return {
-      wagmiClient,
+      config,
       chains,
       layoutKey: chains.map((e) => e.id).join(","),
     };
@@ -58,11 +64,11 @@ function App({ Component, pageProps, fallback = null }) {
         key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
         client={client}
       >
-        <WagmiConfig client={wagmiClient}>
+        <WagmiConfig config={config}>
           <RainbowKitProvider
             showRecentTransactions={true}
             appInfo={{
-              appName: "Livepeer",
+              appName: "Livepeer Explorer",
               learnMoreUrl: "https://livepeer.org/primer",
             }}
             theme={rainbowTheme}

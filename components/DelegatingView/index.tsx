@@ -1,21 +1,23 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
-  useBondingManager,
   useEnsData,
   useHandleTransaction,
   usePendingFeesAndStakeData,
 } from "hooks";
+import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import numeral from "numeral";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -39,15 +41,30 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const delegateIdentity = useEnsData(delegator?.delegate?.id);
 
-  const bondingManager = useBondingManager();
-  const handleTransaction = useHandleTransaction("withdrawFees");
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
+
+  const recipient: string = delegator.id;
+  const amount = pendingFeesAndStake?.pendingFees ?? "0";
+
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+
+  const { config } = usePrepareContractWrite({
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "withdrawFees",
+    args: [recipient, amount],
+  });
+  const { data, isLoading, write, isSuccess, error } = useContractWrite(config);
+
+  useHandleTransaction("withdrawFees", data, error, isLoading, isSuccess, {
+    recipient,
+    amount,
+  });
 
   const isMyAccount = checkAddressEquality(
     accountAddress,
     query.account.toString()
   );
-
-  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
   const pendingStake = useMemo(
     () => Number(pendingFeesAndStake?.pendingStake || 0) / 10 ** 18,
@@ -319,15 +336,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     mt: "$3",
                     width: "100%",
                   }}
-                  onClick={async () => {
-                    const recipient: string = delegator.id;
-                    const amount = pendingFeesAndStake?.pendingFees ?? "0";
-
-                    await handleTransaction(
-                      () => bondingManager.withdrawFees(recipient, amount),
-                      { recipient, amount }
-                    );
-                  }}
+                  onClick={write}
                 >
                   Withdraw Pending Fees
                 </Button>

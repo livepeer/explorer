@@ -4,13 +4,13 @@ import delegatorClaimSnapshotRinkeby from "../../data/delegatorClaimSnapshotRink
 import { EarningsTree } from "@lib/earningsTree";
 import { utils } from "ethers";
 import { DEFAULT_CHAIN_ID } from "@lib/chains";
-import { chain } from "wagmi";
+import { arbitrum } from "viem/chains";
 
 const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
   const { account, delegate, stake, fees } = _req.body;
   // generate the merkle tree from JSON
   const tree = EarningsTree.fromJSON(
-    DEFAULT_CHAIN_ID === chain.arbitrum.id
+    DEFAULT_CHAIN_ID === arbitrum.id
       ? JSON.stringify(delegatorClaimSnapshot)
       : JSON.stringify(delegatorClaimSnapshotRinkeby)
   );

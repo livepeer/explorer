@@ -1,7 +1,8 @@
 import { getCacheControlHeader } from "@lib/api";
-import { getRoundsManager } from "@lib/api/contracts";
+import { roundsManager } from "@lib/api/abis/main/RoundsManager";
+import { getRoundsManagerAddress } from "@lib/api/contracts";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { l1Provider, l2Provider } from "@lib/chains";
+import { l1PublicClient, l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -14,21 +15,33 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
-      const roundsManager = await getRoundsManager();
+      const roundsManagerAddress = await getRoundsManagerAddress();
 
-      const id = await roundsManager.currentRound();
-      const startBlock = await roundsManager.currentRoundStartBlock();
-      const initialized = await roundsManager.currentRoundInitialized();
+      const id = await l2PublicClient.readContract({
+        address: roundsManagerAddress,
+        abi: roundsManager,
+        functionName: "currentRound",
+      });
+      const startBlock = await l2PublicClient.readContract({
+        address: roundsManagerAddress,
+        abi: roundsManager,
+        functionName: "currentRoundStartBlock",
+      });
+      const initialized = await l2PublicClient.readContract({
+        address: roundsManagerAddress,
+        abi: roundsManager,
+        functionName: "currentRoundInitialized",
+      });
 
-      const currentL1Block = await l1Provider.getBlockNumber();
-      const currentL2Block = await l2Provider.getBlockNumber();
+      const currentL1Block = await l1PublicClient.getBlockNumber();
+      const currentL2Block = await l2PublicClient.getBlockNumber();
 
       const roundInfo: CurrentRoundInfo = {
-        id: id.toNumber(),
-        startBlock: startBlock.toNumber(),
+        id: Number(id),
+        startBlock: Number(startBlock),
         initialized,
-        currentL1Block,
-        currentL2Block,
+        currentL1Block: Number(currentL1Block),
+        currentL2Block: Number(currentL2Block),
       };
 
       return res.status(200).json(roundInfo);
