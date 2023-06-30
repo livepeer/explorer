@@ -1,21 +1,13 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { getRoundsManager } from "@lib/api/contracts";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { controller } from "@lib/api/abis/main/Controller";
+import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN,
-  DEFAULT_CHAIN_ID,
-  l1Provider,
-  L1_CHAIN_ID,
-} from "@lib/chains";
+import { CHAIN_INFO, l1PublicClient, L1_CHAIN_ID } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import {
-  Controller__factory,
-  L1BondingManager__factory,
-  RoundsManager__factory,
-} from "typechain-types";
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -30,71 +22,82 @@ const handler = async (
       const { address } = req.query;
 
       if (isValidAddress(address)) {
-        const l1Controller = Controller__factory.connect(
-          CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
-          l1Provider
-        );
+        const bondingManagerHash = keccak256(
+          toUtf8Bytes("BondingManager")
+        ) as Address;
+        const bondingManagerAddress = await l1PublicClient.readContract({
+          address: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
+          abi: controller,
+          functionName: "getContract",
+          args: [bondingManagerHash],
+        });
 
-        const bondingManagerHash = keccak256(toUtf8Bytes("BondingManager"));
-        const bondingManagerAddress = await l1Controller.getContract(
-          bondingManagerHash
-        );
+        const roundsManagerHash = keccak256(
+          toUtf8Bytes("RoundsManager")
+        ) as Address;
+        const roundsManagerAddress = await l1PublicClient.readContract({
+          address: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
+          abi: controller,
+          functionName: "getContract",
+          args: [roundsManagerHash],
+        });
 
-        const roundsManagerHash = keccak256(toUtf8Bytes("RoundsManager"));
-        const roundsManagerAddress = await l1Controller.getContract(
-          roundsManagerHash
-        );
+        const currentRound = await l1PublicClient.readContract({
+          address: roundsManagerAddress,
+          abi: roundsManager,
+          functionName: "currentRound",
+        });
 
-        const roundsManager = RoundsManager__factory.connect(
-          roundsManagerAddress,
-          l1Provider
-        );
+        const pendingStake = await l1PublicClient.readContract({
+          address: bondingManagerAddress,
+          abi: bondingManager,
+          functionName: "pendingStake",
+          args: [address as Address, currentRound],
+        });
+        const pendingFees = await l1PublicClient.readContract({
+          address: bondingManagerAddress,
+          abi: bondingManager,
+          functionName: "pendingFees",
+          args: [address as Address, currentRound],
+        });
+        const delegator = await l1PublicClient.readContract({
+          address: bondingManagerAddress,
+          abi: bondingManager,
+          functionName: "getDelegator",
+          args: [address as Address],
+        });
 
-        const currentRound = await roundsManager.currentRound();
-
-        const l1BondingManager = L1BondingManager__factory.connect(
-          bondingManagerAddress,
-          l1Provider
-        );
-
-        const pendingStake = await l1BondingManager.pendingStake(
-          address,
-          currentRound
-        );
-        const pendingFees = await l1BondingManager.pendingFees(
-          address,
-          currentRound
-        );
-        const delegator = await l1BondingManager.getDelegator(address);
-
-        let unbondingLockId = Number(delegator.nextUnbondingLockId);
+        let unbondingLockId = delegator[6];
         if (unbondingLockId > 0) {
-          unbondingLockId -= 1;
+          unbondingLockId -= BigInt(1);
         }
 
         const unbondingLocks: UnbondingLock[] = [];
 
         while (unbondingLockId >= 0) {
-          const lock = await l1BondingManager.getDelegatorUnbondingLock(
-            address,
-            unbondingLockId
-          );
-          unbondingLocks.push({
-            id: unbondingLockId,
-            amount: lock.amount.toString(),
-            withdrawRound: lock.withdrawRound.toString(),
+          const lock = await l1PublicClient.readContract({
+            address: bondingManagerAddress,
+            abi: bondingManager,
+            functionName: "getDelegatorUnbondingLock",
+            args: [address as Address, unbondingLockId],
           });
-          unbondingLockId -= 1;
+          unbondingLocks.push({
+            id: Number(unbondingLockId),
+            amount: lock[0].toString(),
+            withdrawRound: lock[1].toString(),
+          });
+          unbondingLockId -= BigInt(1);
         }
 
         const delegateAddress =
-          delegator.delegateAddress === EMPTY_ADDRESS
-            ? ""
-            : delegator.delegateAddress;
+          delegator[2] === EMPTY_ADDRESS ? "" : delegator[2];
 
-        const transcoderStatus = await l1BondingManager.transcoderStatus(
-          address
-        );
+        const transcoderStatus = await l1PublicClient.readContract({
+          address: bondingManagerAddress,
+          abi: bondingManager,
+          functionName: "transcoderStatus",
+          args: [address as Address],
+        });
 
         const l1Delegator: L1Delegator = {
           transcoderStatus:

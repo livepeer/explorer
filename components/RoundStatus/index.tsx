@@ -35,7 +35,8 @@ const Index = ({
     () =>
       currentRoundInfo?.initialized && protocol
         ? +protocol.roundLength -
-          (+currentRoundInfo.currentL1Block - +currentRoundInfo.startBlock)
+          (+Number(currentRoundInfo.currentL1Block) -
+            +Number(currentRoundInfo.startBlock))
         : 0,
     [protocol, currentRoundInfo]
   );
@@ -46,7 +47,8 @@ const Index = ({
   const blocksSinceCurrentRoundStart = useMemo(
     () =>
       currentRoundInfo?.initialized
-        ? +currentRoundInfo.currentL1Block - +currentRoundInfo.startBlock
+        ? +Number(currentRoundInfo.currentL1Block) -
+          +Number(currentRoundInfo.startBlock)
         : 0,
     [currentRoundInfo]
   );
@@ -223,7 +225,7 @@ const Index = ({
                     fontWeight: "bold",
                   }}
                 >
-                  #{+currentRoundInfo.id + 1}
+                  #{+Number(currentRoundInfo.id) + 1}
                 </Box>{" "}
                 begins.
               </Text>

@@ -58,7 +58,11 @@ const Stat = ({
       </Flex>
     </Heading>
     <Text size="7" css={{ fontWeight: 600 }}>
-      {value ? value : <Skeleton css={{ mt: "$1", height: 35, width: 100 }} />}
+      {value ? (
+        value
+      ) : (
+        <Skeleton css={{ mt: "$1", height: 35, width: 100, borderRadius: 8 }} />
+      )}
     </Text>
     {meta && <Box css={{ mt: "$1" }}>{meta}</Box>}
   </Card>

@@ -1,7 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import {
-  Badge,
   Box,
   Dialog,
   DialogContent,
@@ -10,7 +8,7 @@ import {
   IconButton,
   Link as A,
   Text,
-  TextField,
+  TextField
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";

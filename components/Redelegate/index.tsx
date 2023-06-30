@@ -1,28 +1,29 @@
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
-import { useBondingManager, useHandleTransaction } from "hooks";
+import { useHandleTransaction } from "hooks";
+import { useBondingManagerAddress } from "hooks/useContracts";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
-  const bondingManager = useBondingManager();
-  const handleTransaction = useHandleTransaction("rebond");
+  const bondingManagerAddress = useBondingManagerAddress();
+
+  const { config } = usePrepareContractWrite({
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "rebondWithHint",
+    args: [unbondingLockId, newPosPrev, newPosNext],
+  });
+  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+
+  useHandleTransaction("rebond", data, error, isLoading, isSuccess, {
+    unbondingLockId,
+    newPosPrev,
+    newPosNext,
+  });
 
   return (
     <>
-      <Button
-        variant="primary"
-        size="3"
-        onClick={async () => {
-          await handleTransaction(
-            () =>
-              bondingManager.rebondWithHint(
-                unbondingLockId,
-                newPosPrev,
-                newPosNext
-              ),
-            { unbondingLockId, newPosPrev, newPosNext }
-          );
-        }}
-        css={{ mr: "$3" }}
-      >
+      <Button variant="primary" size="3" onClick={write} css={{ mr: "$3" }}>
         Redelegate
       </Button>
     </>

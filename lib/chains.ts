@@ -1,8 +1,9 @@
 import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
-import { ethers } from "ethers";
 
 import * as chain from "@wagmi/core/chains";
+import { Address, createPublicClient, http } from "viem";
+import { ethers } from "ethers";
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -21,14 +22,14 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
 export type AllContracts = {
-  controller: string;
-  pollCreator: string;
-  l1Migrator: string;
-  l2Migrator: string;
-  inbox: string;
-  outbox: string;
-  arbRetryableTx: string;
-  nodeInterface: string;
+  controller: Address;
+  pollCreator: Address;
+  l1Migrator: Address;
+  l2Migrator: Address;
+  inbox: Address;
+  outbox: Address;
+  arbRetryableTx: Address;
+  nodeInterface: Address;
 };
 
 const MAINNET_CONTRACTS: AllContracts = {
@@ -221,6 +222,16 @@ export const CHAIN_INFO = {
 export const L1_CHAIN = CHAIN_INFO[DEFAULT_CHAIN_ID].l1;
 
 export const L1_CHAIN_ID = L1_CHAIN.id;
+
+export const l1PublicClient = createPublicClient({
+  chain: L1_CHAIN,
+  transport: http(INFURA_NETWORK_URLS[L1_CHAIN_ID]),
+});
+
+export const l2PublicClient = createPublicClient({
+  chain: DEFAULT_CHAIN,
+  transport: http(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]),
+});
 
 export const l1Provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[L1_CHAIN_ID]

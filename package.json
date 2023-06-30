@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "codegen": "yarn typechain --out-dir ./typechain-types/ --target ethers-v5 \"abis/**/**.json\" && graphql-codegen",
+    "codegen": "graphql-codegen",
     "dev": "next",
     "build": "next build",
     "start": "next start",

@@ -1,7 +1,14 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { getBondingManager, getLivepeerToken } from "@lib/api/contracts";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
+import {
+  getLivepeerTokenAddress,
+  getBondingManagerAddress,
+} from "@lib/api/contracts";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
+import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -16,14 +23,22 @@ const handler = async (
       const { address } = req.query;
 
       if (isValidAddress(address)) {
-        const livepeerToken = await getLivepeerToken();
-        const bondingManager = await getBondingManager();
+        const livepeerTokenAddress = await getLivepeerTokenAddress();
+        const bondingManagerAddress = await getBondingManagerAddress();
 
-        const balance = await livepeerToken.balanceOf(address);
-        const allowance = await livepeerToken.allowance(
-          address,
-          bondingManager.address
-        );
+        const balance = await l2PublicClient.readContract({
+          address: livepeerTokenAddress,
+          abi: livepeerToken,
+          functionName: "balanceOf",
+          args: [address as Address],
+        });
+
+        const allowance = await l2PublicClient.readContract({
+          address: livepeerTokenAddress,
+          abi: livepeerToken,
+          functionName: "allowance",
+          args: [address as Address, bondingManagerAddress as Address],
+        });
 
         const accountBalance: AccountBalance = {
           balance: balance.toString(),

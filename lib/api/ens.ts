@@ -1,6 +1,8 @@
+import { l1PublicClient } from "@lib/chains";
 import sanitizeHtml from "sanitize-html";
+import { Address } from "viem";
+import { normalize } from "viem/ens";
 
-import { l1Provider } from "@lib/chains";
 import { EnsIdentity } from "./types/get-ens";
 
 const sanitizeOptions: sanitizeHtml.IOptions = {
@@ -51,28 +53,38 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   enforceHtmlBoundary: true,
 };
 
-export const getEnsForAddress = async (address: string | null | undefined) => {
+export const getEnsForAddress = async (address: Address | null | undefined) => {
   const idShort = address.replace(address.slice(6, 38), "…");
 
-  const name = await l1Provider.lookupAddress(address);
+  const name = await l1PublicClient.getEnsName({ address });
 
   if (name) {
-    const resolver = await l1Provider.getResolver(name);
     const [description, url, twitter, avatar] = await Promise.all([
-      resolver?.getText("description"),
-      resolver?.getText("url"),
-      resolver?.getText("com.twitter"),
-      resolver?.getAvatar(),
+      l1PublicClient.getEnsText({
+        name: normalize(name),
+        key: "description",
+      }),
+      l1PublicClient.getEnsText({
+        name: normalize(name),
+        key: "url",
+      }),
+      l1PublicClient.getEnsText({
+        name: normalize(name),
+        key: "com.twitter",
+      }),
+      l1PublicClient.getEnsAvatar({
+        name: normalize(name),
+      }),
     ]);
 
     const ens: EnsIdentity = {
       id: address,
       idShort,
-      name: name ?? null,
+      name: normalize(name) ?? null,
       description: sanitizeHtml(nl2br(description), sanitizeOptions),
       url,
       twitter,
-      avatar: avatar?.url ? `/api/ens-data/image/${name}` : null,
+      avatar: avatar ? `/api/ens-data/image/${normalize(name)}` : null,
     };
 
     return ens;

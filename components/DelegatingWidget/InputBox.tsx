@@ -11,6 +11,7 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
+import { ConsoleView } from "react-device-detect";
 
 interface Props {
   transcoder: AccountQueryResult["data"]["transcoder"];
@@ -38,6 +39,8 @@ const InputBox = ({
     delegator?.id
   );
   const accountBalance = useAccountBalanceData(account?.id);
+
+  console.log({ accountBalance });
 
   const tokenBalance = useMemo(
     () => accountBalance && fromWei(accountBalance.balance.toString()),

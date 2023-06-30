@@ -14,7 +14,6 @@ export type TransactionIdentifier = keyof typeof txMessages;
 export type TransactionStatus = {
   hash?: string;
   name?: TransactionIdentifier;
-  from?: string;
   inputData?: any | null;
   step: TransactionStep | null;
   error?: string;
@@ -34,7 +33,6 @@ export type ExplorerState = {
 
   setLatestTransactionDetails: (
     hash: string,
-    from: string,
     id: TransactionIdentifier,
     inputData?: any
   ) => void;
@@ -64,14 +62,12 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
 
   setLatestTransactionDetails: (
     hash: string,
-    from: string,
     id: TransactionIdentifier,
     inputData?: any
   ) =>
     set(() => ({
       latestTransaction: {
         hash,
-        from,
         name: id,
         step: "started",
         inputData: inputData ?? null,

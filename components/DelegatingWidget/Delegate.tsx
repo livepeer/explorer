@@ -1,13 +1,15 @@
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { useHandleTransaction } from "hooks";
 import {
-  useBondingManager,
-  useHandleTransaction,
-  useLivepeerToken,
-} from "hooks";
+  useBondingManagerAddress,
+  useLivepeerTokenAddress,
+} from "hooks/useContracts";
 import { useMemo, useState } from "react";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({
@@ -24,11 +26,75 @@ const Delegate = ({
     currDelegateNewPosNext,
   },
 }) => {
-  const bondingManager = useBondingManager();
-  const livepeerToken = useLivepeerToken();
+  const { data: livepeerTokenAddress } = useLivepeerTokenAddress();
 
-  const handleBondTransaction = useHandleTransaction("bond");
-  const handleApproveTransaction = useHandleTransaction("approve");
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+
+  const { config } = usePrepareContractWrite({
+    address: livepeerTokenAddress,
+    abi: livepeerToken,
+    functionName: "approve",
+    args: [bondingManagerAddress, MAXIMUM_VALUE_UINT256],
+  });
+  const {
+    data: approveData,
+    isLoading: approveIsLoading,
+    write: approveWrite,
+    error: approveError,
+    isSuccess: approveIsSuccess,
+  } = useContractWrite(config);
+
+  useHandleTransaction(
+    "approve",
+    approveData,
+    approveError,
+    approveIsLoading,
+    approveIsSuccess,
+    {
+      type: "bond",
+      amount: MAXIMUM_VALUE_UINT256,
+    }
+  );
+
+  const bondWithHintArgs = {
+    amount: amount?.toString() ? parseEther(amount) : "0",
+    to,
+    oldDelegateNewPosPrev,
+    oldDelegateNewPosNext,
+    currDelegateNewPosPrev,
+    currDelegateNewPosNext,
+  };
+
+  const { config: bondWithHintConfig } = usePrepareContractWrite({
+    enabled: Boolean(to),
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "bondWithHint",
+    args: [
+      bondWithHintArgs.amount,
+      to,
+      oldDelegateNewPosPrev,
+      oldDelegateNewPosNext,
+      currDelegateNewPosPrev,
+      currDelegateNewPosNext,
+    ],
+  });
+  const {
+    data: bondData,
+    isLoading: bondIsLoading,
+    write: bondWrite,
+    isSuccess: bondIsSuccess,
+    error: bondError,
+  } = useContractWrite(bondWithHintConfig);
+
+  useHandleTransaction(
+    "bond",
+    bondData,
+    bondError,
+    bondIsLoading,
+    bondIsSuccess,
+    bondWithHintArgs
+  );
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
@@ -60,14 +126,7 @@ const Delegate = ({
     try {
       setApprovalSubmitted(true);
 
-      await handleApproveTransaction(
-        () =>
-          livepeerToken.approve(bondingManager.address, MAXIMUM_VALUE_UINT256),
-        {
-          type: "bond",
-          amount: MAXIMUM_VALUE_UINT256,
-        }
-      );
+      approveWrite();
     } catch (e) {
       console.log(e);
     }
@@ -75,27 +134,7 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      const args = {
-        amount: amount?.toString() ? parseEther(amount) : "0",
-        to,
-        oldDelegateNewPosPrev,
-        oldDelegateNewPosNext,
-        currDelegateNewPosPrev,
-        currDelegateNewPosNext,
-      };
-
-      await handleBondTransaction(
-        () =>
-          bondingManager.bondWithHint(
-            args.amount,
-            to,
-            oldDelegateNewPosPrev,
-            oldDelegateNewPosNext,
-            currDelegateNewPosPrev,
-            currDelegateNewPosNext
-          ),
-        args
-      );
+      bondWrite();
     } catch (e) {
       console.error(e);
     }
