@@ -43,7 +43,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
-  const recipient: Address = delegator.id;
+  const recipient = delegator.id;
   const amount = pendingFeesAndStake?.pendingFees ?? "0";
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
