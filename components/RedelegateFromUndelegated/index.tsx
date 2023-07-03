@@ -4,12 +4,13 @@ import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
+const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
   const accountAddress = useAccountAddress();
 
-  const bondingManagerAddress = useBondingManagerAddress();
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(delegate && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondFromUnbondedWithHint",

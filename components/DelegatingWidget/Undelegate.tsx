@@ -6,7 +6,7 @@ import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
+const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
   const accountAddress = useAccountAddress();
 
   const args = {
@@ -18,10 +18,11 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "unbondWithHint",
-    args: [args.amount, newPosPrev, newPosNext],
+    args: [BigInt(args.amount.toString()), newPosPrev, newPosNext],
   });
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 

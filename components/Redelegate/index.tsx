@@ -4,10 +4,11 @@ import { useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
-  const bondingManagerAddress = useBondingManagerAddress();
+const Index = ({ unbondingLockId, newPosPrev, newPosNext }: any) => {
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(unbondingLockId && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondWithHint",

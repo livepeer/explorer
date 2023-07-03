@@ -4,12 +4,13 @@ import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-const Index = ({ unbondingLockId }) => {
+const Index = ({ unbondingLockId }: any) => {
   const accountAddress = useAccountAddress();
 
-  const bondingManagerAddress = useBondingManagerAddress();
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(unbondingLockId && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawStake",

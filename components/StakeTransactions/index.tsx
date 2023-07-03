@@ -10,7 +10,7 @@ import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
 import { parseEther } from "ethers/lib/utils";
 import { UnbondingLock } from "apollo";
 
-const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
+const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>

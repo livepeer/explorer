@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 import numeral from "numeral";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -43,16 +43,17 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
-  const recipient: string = delegator.id;
+  const recipient: Address = delegator.id;
   const amount = pendingFeesAndStake?.pendingFees ?? "0";
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawFees",
-    args: [recipient, amount],
+    args: [recipient, BigInt(amount)],
   });
   const { data, isLoading, write, isSuccess, error } = useContractWrite(config);
 

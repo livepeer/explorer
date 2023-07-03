@@ -31,10 +31,11 @@ const Delegate = ({
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(livepeerTokenAddress && bondingManagerAddress),
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
-    args: [bondingManagerAddress, MAXIMUM_VALUE_UINT256],
+    args: [bondingManagerAddress, BigInt(MAXIMUM_VALUE_UINT256)],
   });
   const {
     data: approveData,
