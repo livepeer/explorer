@@ -65,6 +65,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const [selectedProposal, setSelectedProposal] = useState(null);
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(pollCreatorAddress && hash),
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",

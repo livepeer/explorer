@@ -7,6 +7,7 @@ const Index = ({ pollAddress, choiceId, children, ...props }) => {
   const accountAddress = useAccountAddress();
 
   const { config } = usePrepareContractWrite({
+    enabled: Boolean(pollAddress),
     address: pollAddress,
     abi: poll,
     functionName: "vote",

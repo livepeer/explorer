@@ -32,7 +32,7 @@ const Claim = () => {
   const [loading, setLoading] = useState(true);
 
   const { config } = usePrepareContractWrite({
-    enabled: Boolean(migrationParams),
+    enabled: Boolean(migrationParams && l2MigratorAddress),
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStake",

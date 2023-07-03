@@ -1,687 +1,138 @@
 export const bondingManager = [
   {
-    constant: false,
     inputs: [
-      { internalType: "address", name: "_to", type: "address" },
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-      { internalType: "address", name: "_newPosPrev", type: "address" },
-      { internalType: "address", name: "_newPosNext", type: "address" },
-    ],
-    name: "rebondFromUnbondedWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "_delegator", type: "address" },
-      { internalType: "uint256", name: "_amount", type: "uint256" },
       {
         internalType: "address",
-        name: "_oldDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_oldDelegateNewPosNext",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_newDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_newDelegateNewPosNext",
+        name: "_controller",
         type: "address",
       },
     ],
-    name: "transferBond",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "isActiveTranscoder",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [
-      { internalType: "address", name: "_delegator", type: "address" },
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-    ],
-    name: "isValidUnbondingLock",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_delegator", type: "address" }],
-    name: "delegatorStatus",
-    outputs: [
-      {
-        internalType: "enum BondingManager.DelegatorStatus",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [],
-    name: "reward",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "_transcoder", type: "address" },
-      { internalType: "address", name: "_finder", type: "address" },
-      { internalType: "uint256", name: "_slashAmount", type: "uint256" },
-      { internalType: "uint256", name: "_finderFee", type: "uint256" },
-    ],
-    name: "slashTranscoder",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "getNextTranscoderInPool",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [
-      { internalType: "address", name: "_transcoder", type: "address" },
-      { internalType: "uint256", name: "_round", type: "uint256" },
-    ],
-    name: "getTranscoderEarningsPoolForRound",
-    outputs: [
-      { internalType: "uint256", name: "totalStake", type: "uint256" },
-      {
-        internalType: "uint256",
-        name: "transcoderRewardCut",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "transcoderFeeShare",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "cumulativeRewardFactor",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "cumulativeFeeFactor",
-        type: "uint256",
-      },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [{ internalType: "uint256", name: "_endRound", type: "uint256" }],
-    name: "claimEarnings",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-    ],
-    name: "withdrawStake",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [{ internalType: "uint256", name: "_amount", type: "uint256" }],
-    name: "unbond",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "getTranscoderPoolSize",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_rewardCut", type: "uint256" },
-      { internalType: "uint256", name: "_feeShare", type: "uint256" },
-      { internalType: "address", name: "_newPosPrev", type: "address" },
-      { internalType: "address", name: "_newPosNext", type: "address" },
-    ],
-    name: "transcoderWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "_to", type: "address" },
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-    ],
-    name: "rebondFromUnbonded",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "_transcoder", type: "address" },
-      { internalType: "uint256", name: "_fees", type: "uint256" },
-      { internalType: "uint256", name: "_round", type: "uint256" },
-    ],
-    name: "updateTranscoderWithFees",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [
-      { internalType: "address", name: "_delegator", type: "address" },
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-    ],
-    name: "getDelegatorUnbondingLock",
-    outputs: [
-      { internalType: "uint256", name: "amount", type: "uint256" },
-      { internalType: "uint256", name: "withdrawRound", type: "uint256" },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "currentRoundTotalActiveStake",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_rewardCut", type: "uint256" },
-      { internalType: "uint256", name: "_feeShare", type: "uint256" },
-    ],
-    name: "transcoder",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "nextRoundTotalActiveStake",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "targetContractId",
-    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "getTranscoderPoolMaxSize",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "getTotalBonded",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "getTranscoder",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "lastRewardRound",
-        type: "uint256",
-      },
-      { internalType: "uint256", name: "rewardCut", type: "uint256" },
-      { internalType: "uint256", name: "feeShare", type: "uint256" },
-      {
-        internalType: "uint256",
-        name: "lastActiveStakeUpdateRound",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "activationRound",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "deactivationRound",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "activeCumulativeRewards",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "cumulativeRewards",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "cumulativeFees",
-        type: "uint256",
-      },
-      { internalType: "uint256", name: "lastFeeRound", type: "uint256" },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_numActiveTranscoders",
-        type: "uint256",
-      },
-    ],
-    name: "setNumActiveTranscoders",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "isRegisteredTranscoder",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_amount", type: "uint256" },
-      { internalType: "address", name: "_to", type: "address" },
-      {
-        internalType: "address",
-        name: "_oldDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_oldDelegateNewPosNext",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_currDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_currDelegateNewPosNext",
-        type: "address",
-      },
-    ],
-    name: "bondWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "unbondingPeriod",
-    outputs: [{ internalType: "uint64", name: "", type: "uint64" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [],
-    name: "setCurrentRoundTotalActiveStake",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-      { internalType: "address", name: "_newPosPrev", type: "address" },
-      { internalType: "address", name: "_newPosNext", type: "address" },
-    ],
-    name: "rebondWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "_newPosPrev", type: "address" },
-      { internalType: "address", name: "_newPosNext", type: "address" },
-    ],
-    name: "rewardWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "getFirstTranscoderInPool",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "transcoderStatus",
-    outputs: [
-      {
-        internalType: "enum BondingManager.TranscoderStatus",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [{ internalType: "address", name: "_controller", type: "address" }],
-    name: "setController",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_amount", type: "uint256" },
-      { internalType: "address", name: "_newPosPrev", type: "address" },
-      { internalType: "address", name: "_newPosNext", type: "address" },
-    ],
-    name: "unbondWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [
-      { internalType: "address", name: "_delegator", type: "address" },
-      { internalType: "uint256", name: "_endRound", type: "uint256" },
-    ],
-    name: "pendingStake",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_transcoder", type: "address" }],
-    name: "transcoderTotalStake",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [{ internalType: "address", name: "_delegator", type: "address" }],
-    name: "getDelegator",
-    outputs: [
-      { internalType: "uint256", name: "bondedAmount", type: "uint256" },
-      { internalType: "uint256", name: "fees", type: "uint256" },
-      {
-        internalType: "address",
-        name: "delegateAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "delegatedAmount",
-        type: "uint256",
-      },
-      { internalType: "uint256", name: "startRound", type: "uint256" },
-      {
-        internalType: "uint256",
-        name: "lastClaimRound",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "nextUnbondingLockId",
-        type: "uint256",
-      },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "address payable",
-        name: "_recipient",
-        type: "address",
-      },
-      { internalType: "uint256", name: "_amount", type: "uint256" },
-    ],
-    name: "withdrawFees",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_amount", type: "uint256" },
-      { internalType: "address", name: "_to", type: "address" },
-    ],
-    name: "bond",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_unbondingLockId",
-        type: "uint256",
-      },
-    ],
-    name: "rebond",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint256", name: "_amount", type: "uint256" },
-      { internalType: "address", name: "_owner", type: "address" },
-      { internalType: "address", name: "_to", type: "address" },
-      {
-        internalType: "address",
-        name: "_oldDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_oldDelegateNewPosNext",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_currDelegateNewPosPrev",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_currDelegateNewPosNext",
-        type: "address",
-      },
-    ],
-    name: "bondForWithHint",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      { internalType: "uint64", name: "_unbondingPeriod", type: "uint64" },
-    ],
-    name: "setUnbondingPeriod",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [
-      { internalType: "address", name: "_delegator", type: "address" },
-      { internalType: "uint256", name: "_endRound", type: "uint256" },
-    ],
-    name: "pendingFees",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "controller",
-    outputs: [
-      { internalType: "contract IController", name: "", type: "address" },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_controller", type: "address" }],
-    payable: false,
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newDelegate",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "oldDelegate",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "additionalAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "bondedAmount",
+        type: "uint256",
+      },
+    ],
+    name: "Bond",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegate",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "rewards",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fees",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startRound",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "endRound",
+        type: "uint256",
+      },
+    ],
+    name: "EarningsClaimed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "param",
+        type: "string",
+      },
+    ],
+    name: "ParameterUpdate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegate",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "unbondingLockId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Rebond",
+    type: "event",
   },
   {
     anonymous: false,
@@ -695,17 +146,24 @@ export const bondingManager = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "rewardCut",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "feeShare",
+        name: "amount",
         type: "uint256",
       },
     ],
-    name: "TranscoderUpdate",
+    name: "Reward",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "controller",
+        type: "address",
+      },
+    ],
+    name: "SetController",
     type: "event",
   },
   {
@@ -789,116 +247,17 @@ export const bondingManager = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "rewardCut",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "feeShare",
         type: "uint256",
       },
     ],
-    name: "Reward",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newDelegate",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "oldDelegate",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "delegator",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "additionalAmount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "bondedAmount",
-        type: "uint256",
-      },
-    ],
-    name: "Bond",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "delegate",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "delegator",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "unbondingLockId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "withdrawRound",
-        type: "uint256",
-      },
-    ],
-    name: "Unbond",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "delegate",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "delegator",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "unbondingLockId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "Rebond",
+    name: "TranscoderUpdate",
     type: "event",
   },
   {
@@ -944,6 +303,12 @@ export const bondingManager = [
       {
         indexed: true,
         internalType: "address",
+        name: "delegate",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
         name: "delegator",
         type: "address",
       },
@@ -966,7 +331,7 @@ export const bondingManager = [
         type: "uint256",
       },
     ],
-    name: "WithdrawStake",
+    name: "Unbond",
     type: "event",
   },
   {
@@ -1000,67 +365,985 @@ export const bondingManager = [
       {
         indexed: true,
         internalType: "address",
-        name: "delegate",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
         name: "delegator",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "rewards",
+        name: "unbondingLockId",
         type: "uint256",
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "withdrawRound",
+        type: "uint256",
+      },
+    ],
+    name: "WithdrawStake",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "bond",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosNext",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_currDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_currDelegateNewPosNext",
+        type: "address",
+      },
+    ],
+    name: "bondForWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosNext",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_currDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_currDelegateNewPosNext",
+        type: "address",
+      },
+    ],
+    name: "bondWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_endRound",
+        type: "uint256",
+      },
+    ],
+    name: "claimEarnings",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "controller",
+    outputs: [
+      {
+        internalType: "contract IController",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "currentRoundTotalActiveStake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+    ],
+    name: "delegatorStatus",
+    outputs: [
+      {
+        internalType: "enum BondingManager.DelegatorStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+    ],
+    name: "getDelegator",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "bondedAmount",
+        type: "uint256",
+      },
+      {
         internalType: "uint256",
         name: "fees",
         type: "uint256",
       },
       {
-        indexed: false,
+        internalType: "address",
+        name: "delegateAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "delegatedAmount",
+        type: "uint256",
+      },
+      {
         internalType: "uint256",
         name: "startRound",
         type: "uint256",
       },
       {
-        indexed: false,
         internalType: "uint256",
-        name: "endRound",
+        name: "lastClaimRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "nextUnbondingLockId",
         type: "uint256",
       },
     ],
-    name: "EarningsClaimed",
-    type: "event",
+    stateMutability: "view",
+    type: "function",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: false,
         internalType: "address",
-        name: "controller",
+        name: "_delegator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+    ],
+    name: "getDelegatorUnbondingLock",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "withdrawRound",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getFirstTranscoderInPool",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
         type: "address",
       },
     ],
-    name: "SetController",
-    type: "event",
+    stateMutability: "view",
+    type: "function",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "string",
-        name: "param",
-        type: "string",
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
       },
     ],
-    name: "ParameterUpdate",
-    type: "event",
+    name: "getNextTranscoderInPool",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getTotalBonded",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+    ],
+    name: "getTranscoder",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "lastRewardRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "rewardCut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "feeShare",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastActiveStakeUpdateRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "activationRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "deactivationRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "activeCumulativeRewards",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "cumulativeRewards",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "cumulativeFees",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastFeeRound",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_round",
+        type: "uint256",
+      },
+    ],
+    name: "getTranscoderEarningsPoolForRound",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "totalStake",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "transcoderRewardCut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "transcoderFeeShare",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "cumulativeRewardFactor",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "cumulativeFeeFactor",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getTranscoderPoolMaxSize",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getTranscoderPoolSize",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+    ],
+    name: "isActiveTranscoder",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+    ],
+    name: "isRegisteredTranscoder",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+    ],
+    name: "isValidUnbondingLock",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "nextRoundTotalActiveStake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_endRound",
+        type: "uint256",
+      },
+    ],
+    name: "pendingFees",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_endRound",
+        type: "uint256",
+      },
+    ],
+    name: "pendingStake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+    ],
+    name: "rebond",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+    ],
+    name: "rebondFromUnbonded",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_newPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newPosNext",
+        type: "address",
+      },
+    ],
+    name: "rebondFromUnbondedWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_newPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newPosNext",
+        type: "address",
+      },
+    ],
+    name: "rebondWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "reward",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_newPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newPosNext",
+        type: "address",
+      },
+    ],
+    name: "rewardWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_controller",
+        type: "address",
+      },
+    ],
+    name: "setController",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "setCurrentRoundTotalActiveStake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_numActiveTranscoders",
+        type: "uint256",
+      },
+    ],
+    name: "setNumActiveTranscoders",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "_unbondingPeriod",
+        type: "uint64",
+      },
+    ],
+    name: "setUnbondingPeriod",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_finder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_slashAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_finderFee",
+        type: "uint256",
+      },
+    ],
+    name: "slashTranscoder",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "targetContractId",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_rewardCut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_feeShare",
+        type: "uint256",
+      },
+    ],
+    name: "transcoder",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+    ],
+    name: "transcoderStatus",
+    outputs: [
+      {
+        internalType: "enum BondingManager.TranscoderStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+    ],
+    name: "transcoderTotalStake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_rewardCut",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_feeShare",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_newPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newPosNext",
+        type: "address",
+      },
+    ],
+    name: "transcoderWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_delegator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_oldDelegateNewPosNext",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newDelegateNewPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newDelegateNewPosNext",
+        type: "address",
+      },
+    ],
+    name: "transferBond",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "unbond",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_newPosPrev",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_newPosNext",
+        type: "address",
+      },
+    ],
+    name: "unbondWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "unbondingPeriod",
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_transcoder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_fees",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_round",
+        type: "uint256",
+      },
+    ],
+    name: "updateTranscoderWithFees",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "_recipient",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawFees",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_unbondingLockId",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawStake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ] as const;
