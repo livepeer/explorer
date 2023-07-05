@@ -76,6 +76,7 @@ function App({ Component, pageProps, fallback = null }) {
           >
             <SWRConfig
               value={{
+                loadingTimeout: 40000,
                 fetcher: fetcher,
                 fallback: fallback ?? {},
               }}

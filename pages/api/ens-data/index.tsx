@@ -1,8 +1,12 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
+
+const timeout = <T,>(prom: Promise<T>, time: number) =>
+  Promise.race([prom, new Promise<T>((_r, rej) => setTimeout(rej, time))]);
 
 const handler = async (
   req: NextApiRequest,
@@ -14,15 +18,13 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-      const response = await fetch(
-        `https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: `
+      const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
               query {
                 livepeerAccounts(
                   first: 200
@@ -33,9 +35,8 @@ const handler = async (
                 }
               }
           `,
-          }),
-        }
-      );
+        }),
+      });
 
       const {
         data: { livepeerAccounts },
@@ -45,9 +46,18 @@ const handler = async (
         ?.map((a) => a?.id)
         .filter((e) => e);
 
-      const ensAddresses = await Promise.all(
-        addresses.map((address) => getEnsForAddress(address as Address))
-      );
+      const ensAddresses: EnsIdentity[] = [];
+
+      for (const address of addresses) {
+        try {
+          const result = await timeout(
+            getEnsForAddress(address as Address),
+            400
+          );
+
+          ensAddresses.push(result);
+        } catch (e) {}
+      }
 
       return res.status(200).json(ensAddresses);
     }
