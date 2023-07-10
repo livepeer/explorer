@@ -120,9 +120,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
 
   useEffect(() => {
-    const storage = JSON.parse(
-      window.localStorage.getItem(`bannersDismissed`) ?? ""
-    );
+    const ls = window.localStorage.getItem(`bannersDismissed`);
+    const storage = ls ? JSON.parse(ls) : null;
     if (storage && storage.includes(uniqueBannerID)) {
       setBannerActive(false);
     } else {
@@ -290,9 +289,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   as={FiX}
                   onClick={() => {
                     setBannerActive(false);
-                    const storage = JSON.parse(
-                      window.localStorage.getItem(`bannersDismissed`) ?? ""
-                    );
+                    const ls = window.localStorage.getItem(`bannersDismissed`);
+                    const storage = ls ? JSON.parse(ls) : null;
                     if (storage) {
                       storage.push(uniqueBannerID);
                       window.localStorage.setItem(

@@ -46,18 +46,19 @@ const handler = async (
         ?.map((a) => a?.id)
         .filter((e) => e);
 
-      const ensAddresses: EnsIdentity[] = [];
+      const ensAddresses: EnsIdentity[] = (
+        await Promise.all(
+          addresses.map((address) => {
+            try {
+              return getEnsForAddress(address as Address);
+            } catch (e) {}
 
-      for (const address of addresses) {
-        try {
-          const result = await timeout(
-            getEnsForAddress(address as Address),
-            400
-          );
-
-          ensAddresses.push(result);
-        } catch (e) {}
-      }
+            return null;
+          })
+        )
+      )
+        .filter((e) => e)
+        .map((e) => e!);
 
       return res.status(200).json(ensAddresses);
     }
