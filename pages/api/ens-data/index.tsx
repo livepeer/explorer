@@ -48,7 +48,7 @@ const handler = async (
 
       const ensAddresses: EnsIdentity[] = (
         await Promise.all(
-          addresses.map((address) => {
+          addresses.map(async (address) => {
             try {
               return getEnsForAddress(address as Address);
             } catch (e) {}

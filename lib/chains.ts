@@ -233,7 +233,9 @@ export const L1_CHAIN_ID = L1_CHAIN.id;
 
 export const l1PublicClient = createPublicClient({
   batch: {
-    multicall: true,
+    multicall: {
+      wait: 50,
+    },
   },
   chain: L1_CHAIN as unknown as typeof chain.arbitrum,
   transport: http(INFURA_NETWORK_URLS[L1_CHAIN_ID]),
@@ -241,7 +243,9 @@ export const l1PublicClient = createPublicClient({
 
 export const l2PublicClient = createPublicClient({
   batch: {
-    multicall: true,
+    multicall: {
+      wait: 50,
+    },
   },
   chain: DEFAULT_CHAIN as unknown as typeof chain.mainnet,
   transport: http(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]),
