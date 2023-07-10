@@ -40,8 +40,6 @@ const InputBox = ({
   );
   const accountBalance = useAccountBalanceData(account?.id);
 
-  console.log({ accountBalance });
-
   const tokenBalance = useMemo(
     () => accountBalance && fromWei(accountBalance.balance.toString()),
     [accountBalance]

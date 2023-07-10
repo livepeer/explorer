@@ -10,7 +10,6 @@ const Index = ({ unbondingLockId }: any) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
-    enabled: Boolean(unbondingLockId && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawStake",
