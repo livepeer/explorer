@@ -1,5 +1,5 @@
 import { controller } from "@lib/api/abis/main/Controller";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2PublicClient } from "@lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { useMemo } from "react";
 import { Address } from "viem";

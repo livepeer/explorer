@@ -17,7 +17,7 @@ const Index = () => {
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
-    args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
+    args: [bondingManagerAddress, BigInt(MAXIMUM_VALUE_UINT256)],
   });
   const { data, isLoading, isSuccess, write, error } = useContractWrite(config);
 

@@ -8,7 +8,6 @@ const Index = ({ unbondingLockId, newPosPrev, newPosNext }: any) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
-    enabled: Boolean(unbondingLockId && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondWithHint",

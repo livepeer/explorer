@@ -10,7 +10,6 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
-    enabled: Boolean(delegate && bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondFromUnbondedWithHint",
@@ -18,12 +17,19 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
   });
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
-  useHandleTransaction("rebondFromUnbonded", data, error, isLoading, isSuccess, {
-    delegate,
-    unbondingLockId,
-    newPosPrev,
-    newPosNext,
-  });
+  useHandleTransaction(
+    "rebondFromUnbonded",
+    data,
+    error,
+    isLoading,
+    isSuccess,
+    {
+      delegate,
+      unbondingLockId,
+      newPosPrev,
+      newPosNext,
+    }
+  );
 
   if (!accountAddress) {
     return null;
