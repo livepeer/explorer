@@ -371,7 +371,7 @@ const MigrateOrchestrator = () => {
       // });
     } catch (e) {
       console.log(e);
-      openSnackbar(e.message);
+      openSnackbar((e as Error).message);
       handleReset();
     }
   };
@@ -393,7 +393,7 @@ const MigrateOrchestrator = () => {
         dispatch({
           type: "initialize",
           payload: {
-            isOrchestrator: l1Delegator.transcoderStatus === "registered",
+            isOrchestrator: l1Delegator?.transcoderStatus === "registered",
             migrationCallData: data,
             migrationParams: {
               delegate: params.delegate,

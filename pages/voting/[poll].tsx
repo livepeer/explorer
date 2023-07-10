@@ -43,7 +43,7 @@ const Poll = () => {
 
   const { width } = useWindowSize();
 
-  const [pollData, setPollData] = useState<PollExtended>(null);
+  const [pollData, setPollData] = useState<PollExtended | null>(null);
   const { query } = router;
 
   const pollId = query?.poll?.toString().toLowerCase();
@@ -53,14 +53,15 @@ const Poll = () => {
 
   const { data } = usePollQuery({
     variables: {
-      id: pollId,
+      id: pollId ?? "",
     },
     pollInterval,
+    skip: !pollId,
   });
 
   const { data: myAccountData } = useAccountQuery({
     variables: {
-      account: accountAddress?.toLowerCase(),
+      account: accountAddress?.toLowerCase() ?? "",
     },
     pollInterval,
     skip: !accountAddress,
@@ -163,7 +164,7 @@ const Poll = () => {
                 </Badge>
               </Flex>
               <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
-                {pollData.attributes.title} (LIP-{pollData.attributes.lip})
+                {pollData.attributes?.title} (LIP-{pollData.attributes?.lip})
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 {pollData.status !== "active" ? (
@@ -323,7 +324,7 @@ const Poll = () => {
                   },
                 }}
               >
-                <ReactMarkdown>{pollData.attributes.text}</ReactMarkdown>
+                <ReactMarkdown>{pollData.attributes?.text ?? ""}</ReactMarkdown>
               </Card>
             </Box>
           </Flex>
@@ -345,9 +346,9 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote,
-                  vote: voteData?.vote,
-                  myAccount: myAccountData,
+                  delegateVote: delegateVoteData?.vote as any,
+                  vote: voteData?.vote as any,
+                  myAccount: myAccountData as any,
                 }}
               />
             </Flex>
@@ -356,9 +357,9 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote,
-                  vote: voteData?.vote,
-                  myAccount: myAccountData,
+                  delegateVote: delegateVoteData?.vote as any,
+                  vote: voteData?.vote as any,
+                  myAccount: myAccountData as any,
                 }}
               />
             </BottomDrawer>

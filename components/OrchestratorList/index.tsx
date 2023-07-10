@@ -75,22 +75,26 @@ const OrchestratorList = ({
   pageSize = 10,
 }: {
   pageSize: number;
-  protocolData: ProtocolQueryResult["data"]["protocol"];
-  data: OrchestratorsQueryResult["data"]["transcoders"];
+  protocolData:
+    | NonNullable<ProtocolQueryResult["data"]>["protocol"]
+    | undefined;
+  data:
+    | NonNullable<OrchestratorsQueryResult["data"]>["transcoders"]
+    | undefined;
 }) => {
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
         ? `Fixed at ${numeral(
-            Number(protocolData.inflation) / 1000000000
+            Number(protocolData?.inflation) / 1000000000
           ).format("0.000%")}`
         : change === "positive"
-        ? `+${numeral(Number(protocolData.inflationChange) / 1000000000).format(
-            "0.00000%"
-          )} per round`
-        : `-${numeral(Number(protocolData.inflationChange) / 1000000000).format(
-            "0.00000%"
-          )} per round`,
+        ? `+${numeral(
+            Number(protocolData?.inflationChange) / 1000000000
+          ).format("0.00000%")} per round`
+        : `-${numeral(
+            Number(protocolData?.inflationChange) / 1000000000
+          ).format("0.00000%")} per round`,
     [protocolData?.inflation, protocolData?.inflationChange]
   );
 
@@ -110,7 +114,7 @@ const OrchestratorList = ({
 
   const mappedData = useMemo(() => {
     return data
-      .map((row) => {
+      ?.map((row) => {
         const pools = row.pools ?? [];
         const rewardCalls =
           pools.length > 0 ? pools.filter((r) => r?.rewardTokens).length : 0;
@@ -142,15 +146,15 @@ const OrchestratorList = ({
           feeParams: {
             ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
             feeShare: Number(row.feeShare) / 1000000,
-            lptPriceEth: Number(protocolData.lptPriceEth),
+            lptPriceEth: Number(protocolData?.lptPriceEth),
           },
           rewardParams: {
-            inflation: Number(protocolData.inflation) / 1000000000,
+            inflation: Number(protocolData?.inflation) / 1000000000,
             inflationChangePerRound:
-              Number(protocolData.inflationChange) / 1000000000,
-            totalSupply: Number(protocolData.totalSupply),
-            totalActiveStake: Number(protocolData.totalActiveStake),
-            roundLength: Number(protocolData.roundLength),
+              Number(protocolData?.inflationChange) / 1000000000,
+            totalSupply: Number(protocolData?.totalSupply),
+            totalActiveStake: Number(protocolData?.totalActiveStake),
+            roundLength: Number(protocolData?.roundLength),
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
@@ -177,7 +181,7 @@ const OrchestratorList = ({
             feeShare: row.feeShare,
             rewardCut: row.rewardCut,
             ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-            totalActiveStake: Number(protocolData.totalActiveStake),
+            totalActiveStake: Number(protocolData?.totalActiveStake),
             totalStake: Number(row.totalStake),
           },
         };
@@ -949,8 +953,8 @@ const OrchestratorList = ({
 
   return (
     <Table
-      data={mappedData}
-      columns={columns}
+      data={mappedData as any}
+      columns={columns as any}
       initialState={{
         pageSize,
         hiddenColumns: ["identity"],

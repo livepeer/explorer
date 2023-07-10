@@ -30,7 +30,7 @@ const handler = async (
             ? `https://dweb.link/ipfs/${cid.id}`
             : arweaveId?.id
             ? arweaveId.url
-            : avatar.startsWith("https://")
+            : avatar?.startsWith("https://")
             ? avatar
             : `https://metadata.ens.domains/mainnet/avatar/${name}`;
 

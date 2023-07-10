@@ -20,8 +20,10 @@ const breakpointColumnsObj = {
 };
 
 interface Props {
-  transcoder?: AccountQueryResult["data"]["transcoder"];
-  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+  transcoder?: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  currentRound?: NonNullable<
+    NonNullable<AccountQueryResult["data"]>["protocol"]
+  >["currentRound"];
   isActive: boolean;
 }
 
@@ -152,7 +154,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={numeral(1 - (+transcoder?.feeShare || 0) / 1000000).format(
+          value={numeral(1 - (+(transcoder?.feeShare || 0)) / 1000000).format(
             "0%"
           )}
         />
@@ -190,7 +192,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                 {transcoder.lastRewardRound.id}{" "}
                 {isActive && (
                   <Flex>
-                    {transcoder.lastRewardRound.id === currentRound.id ? (
+                    {transcoder.lastRewardRound.id === currentRound?.id ? (
                       <Box
                         as={CheckIcon}
                         css={{ fontSize: "$3", color: "$green11", ml: "$2" }}

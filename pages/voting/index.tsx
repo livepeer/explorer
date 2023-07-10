@@ -176,7 +176,7 @@ const Voting = () => {
                         >
                           <Box>
                             <Heading size="1" css={{ mb: "$1" }}>
-                              {poll.attributes.title} (LIP {poll.attributes.lip}
+                              {poll.attributes?.title} (LIP {poll.attributes?.lip}
                               )
                             </Heading>
                             <Box css={{ fontSize: "$1", color: "$neutral10" }}>

@@ -64,7 +64,7 @@ import DNS from "../public/img/dns.svg";
 export const IS_BANNER_ENABLED = false;
 
 if (process.env.NODE_ENV === "production") {
-  ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID);
+  ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "");
 } else {
   ReactGA.initialize("test", { testMode: true });
 }
@@ -120,7 +120,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
 
   useEffect(() => {
-    const storage = JSON.parse(window.localStorage.getItem(`bannersDismissed`));
+    const storage = JSON.parse(
+      window.localStorage.getItem(`bannersDismissed`) ?? ""
+    );
     if (storage && storage.includes(uniqueBannerID)) {
       setBannerActive(false);
     } else {
@@ -170,7 +172,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       name: (
         <Flex css={{ alignItems: "center" }}>
           Voting{" "}
-          {totalActivePolls > 0 && (
+          {(totalActivePolls ?? 0) > 0 && (
             <Badge
               size="2"
               variant="green"
@@ -289,7 +291,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   onClick={() => {
                     setBannerActive(false);
                     const storage = JSON.parse(
-                      window.localStorage.getItem(`bannersDismissed`)
+                      window.localStorage.getItem(`bannersDismissed`) ?? ""
                     );
                     if (storage) {
                       storage.push(uniqueBannerID);
@@ -321,7 +323,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref}
+                ref={ref as any}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}
@@ -401,7 +403,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 ml: "$2",
                                 bc:
-                                  !asPath.includes(accountAddress) &&
+                                  !asPath.includes(accountAddress ?? "") &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
@@ -442,7 +444,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Governance{" "}
-                              {totalActivePolls > 0 && (
+                              {(totalActivePolls ?? 0) > 0 && (
                                 <Badge
                                   size="2"
                                   variant="green"
@@ -666,18 +668,24 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             width={18}
             height={18}
             alt={
-              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
-                .label
+              (
+                CHAIN_INFO[activeChain?.id ?? ""] ??
+                CHAIN_INFO[DEFAULT_CHAIN_ID]
+              ).label
             }
             src={
-              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
-                .logoUrl
+              (
+                CHAIN_INFO[activeChain?.id ?? ""] ??
+                CHAIN_INFO[DEFAULT_CHAIN_ID]
+              ).logoUrl
             }
           />
           <Box css={{ ml: "8px" }}>
             {
-              (CHAIN_INFO[activeChain?.id] ?? CHAIN_INFO[DEFAULT_CHAIN_ID])
-                .label
+              (
+                CHAIN_INFO[activeChain?.id ?? ""] ??
+                CHAIN_INFO[DEFAULT_CHAIN_ID]
+              ).label
             }
           </Box>
 
@@ -752,7 +760,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           ]?.address?.replace(
                             contractAddresses?.[
                               key as keyof typeof contractAddresses
-                            ]?.address?.slice(7, 37),
+                            ]?.address?.slice(7, 37) ?? "",
                             "…"
                           )}
                         </Text>

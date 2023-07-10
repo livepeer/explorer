@@ -1,17 +1,16 @@
-import { EnsIdentity } from "@lib/api/types/get-ens";
 import OrchestratorList from "@components/OrchestratorList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { getOrchestrators, getProtocol } from "@lib/api/ssr";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
+  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
-  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import { getOrchestrators, getProtocol } from "@lib/api/ssr";
-import { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import {
@@ -63,7 +62,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
           </Flex>
           <Box css={{ mb: "$5" }}>
             <OrchestratorList
-              data={orchestrators.transcoders}
+              data={orchestrators?.transcoders}
               pageSize={20}
               protocolData={protocol?.protocol}
             />
@@ -74,7 +73,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps = async () => {
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);

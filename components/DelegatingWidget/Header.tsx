@@ -7,7 +7,7 @@ const Header = ({
   delegateProfile,
 }: {
   transcoder: any;
-  delegateProfile: EnsIdentity;
+  delegateProfile: EnsIdentity | undefined;
 }) => {
   return (
     <Box

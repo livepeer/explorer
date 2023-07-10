@@ -6,7 +6,7 @@ import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
 
-const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }) => {
+const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
   const router = useRouter();
   const { asPath } = router;
 

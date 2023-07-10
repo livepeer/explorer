@@ -19,7 +19,7 @@ export const useEnsData = (address: string | undefined | null): EnsIdentity => {
 
   return (
     data ?? {
-      id: address,
+      id: address ?? "",
       idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
       name: null,
     }

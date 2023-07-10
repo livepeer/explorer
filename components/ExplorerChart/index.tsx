@@ -230,7 +230,7 @@ const ExplorerChart = ({
                     ml: "$2",
                     fontSize: "$3",
                     color:
-                      numeral(barSelected.percentChange).value() < 0
+                      (numeral(barSelected.percentChange).value() ?? 0) < 0
                         ? "#ff0022"
                         : "#00EB88",
                   }}
@@ -260,14 +260,14 @@ const ExplorerChart = ({
           }}
         >
           <Button
-            onClick={() => onToggleGrouping("day")}
+            onClick={() => onToggleGrouping?.("day")}
             size="1"
             variant={grouping === "day" ? "primary" : "neutral"}
           >
             D
           </Button>
           <Button
-            onClick={() => onToggleGrouping("week")}
+            onClick={() => onToggleGrouping?.("week")}
             size="1"
             variant={grouping === "week" ? "primary" : "neutral"}
             css={{ ml: "$1" }}

@@ -22,7 +22,7 @@ dayjs.extend(relativeTime);
 const Index = ({
   protocol,
 }: {
-  protocol: ProtocolQueryResult["data"]["protocol"];
+  protocol: NonNullable<ProtocolQueryResult["data"]>["protocol"];
 }) => {
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme?.includes("-")

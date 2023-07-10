@@ -1,13 +1,12 @@
-import { getLayout } from "@layouts/main";
 import AccountLayout from "@layouts/account";
+import { getLayout } from "@layouts/main";
+import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
   AccountQueryResult,
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
-import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
-import { GetStaticProps } from "next";
-import { EnsIdentity } from "@lib/api/types/get-ens";
 
 type PageProps = {
   account: AccountQueryResult["data"] | null;
@@ -33,7 +32,7 @@ export const getStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps = async (context) => {
   try {
     const client = getApollo();
     const { account, fallback } = await getAccount(

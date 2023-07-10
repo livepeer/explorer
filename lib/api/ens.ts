@@ -54,9 +54,9 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
 };
 
 export const getEnsForAddress = async (address: Address | null | undefined) => {
-  const idShort = address.replace(address.slice(6, 38), "…");
+  const idShort = address?.replace(address?.slice(6, 38), "…");
 
-  const name = await l1PublicClient.getEnsName({ address });
+  const name = address ? await l1PublicClient.getEnsName({ address }) : null;
 
   if (name) {
     const [description, url, twitter, avatar] = await Promise.all([
@@ -78,8 +78,8 @@ export const getEnsForAddress = async (address: Address | null | undefined) => {
     ]);
 
     const ens: EnsIdentity = {
-      id: address,
-      idShort,
+      id: address ?? "",
+      idShort: idShort ?? "",
       name: normalize(name) ?? null,
       description: sanitizeHtml(nl2br(description), sanitizeOptions),
       url,
@@ -91,8 +91,8 @@ export const getEnsForAddress = async (address: Address | null | undefined) => {
   }
 
   const ens: EnsIdentity = {
-    id: address,
-    idShort,
+    id: address ?? "",
+    idShort: idShort ?? "",
     name: null,
   };
 

@@ -14,9 +14,9 @@ import { fromWei } from "@lib/utils";
 import { ConsoleView } from "react-device-detect";
 
 interface Props {
-  transcoder: AccountQueryResult["data"]["transcoder"];
-  delegator?: AccountQueryResult["data"]["delegator"];
-  protocol: AccountQueryResult["data"]["protocol"];
+  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
+  protocol: NonNullable<AccountQueryResult["data"]>["protocol"];
   account: EnsIdentity;
   action?: StakingAction;
   delegateProfile?: EnsIdentity;
@@ -74,12 +74,12 @@ const InputBox = ({
               (action === "delegate" ? (
                 <ExplorerTooltip content="Enter Max Amount">
                   <Box
-                    onClick={() => setAmount(tokenBalance)}
+                    onClick={() => setAmount(tokenBalance ?? "0")}
                     css={{ cursor: "pointer", color: "$muted" }}
                   >
                     Balance:{" "}
                     <Box as="span" css={{ fontFamily: "$monospace" }}>
-                      {parseFloat(tokenBalance)}
+                      {parseFloat(tokenBalance ?? "0")}
                     </Box>
                   </Box>
                 </ExplorerTooltip>

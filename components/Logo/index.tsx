@@ -21,7 +21,7 @@ const LivepeerLogo = ({
   id = "",
 }: Props) => {
   const [hover, setHover] = useState(false);
-  const svgRef = useRef(null);
+  const svgRef = useRef<SVGElement | null>(null);
 
   const handleMouseOver = useCallback(() => setHover(true), []);
   const handleMouseOut = useCallback(() => setHover(false), []);
@@ -84,7 +84,7 @@ const LivepeerLogo = ({
         css={{ height: "34px", width: 110, mb: "$4" }}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        ref={svgRef}
+        ref={svgRef as any}
       >
         <defs>
           <linearGradient

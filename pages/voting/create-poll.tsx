@@ -26,7 +26,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
@@ -35,11 +35,11 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
 
-  const [hash, setHash] = useState<string | null>(null);
+  const [hash, setHash] = useState<Address | null>(null);
 
   const { data, loading } = useAccountQuery({
     variables: {
-      account: accountAddress?.toLowerCase(),
+      account: accountAddress?.toLowerCase() ?? "",
     },
     skip: !accountAddress,
   });
@@ -62,14 +62,14 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     }
   }, [delegatorPendingStakeAndFees]);
 
-  const [selectedProposal, setSelectedProposal] = useState(null);
+  const [selectedProposal, setSelectedProposal] = useState<any>(null);
 
   const { config } = usePrepareContractWrite({
     enabled: Boolean(pollCreatorAddress && hash),
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
-    args: [hash],
+    args: [hash ?? "0x"],
   });
   const {
     data: createPollResult,
@@ -93,7 +93,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   useEffect(() => {
     if (hash && status === "idle") {
-      write();
+      write?.();
     }
   }, [hash, write, status]);
 
@@ -119,13 +119,16 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
             setIsCreatePollLoading(true);
             e.preventDefault();
             try {
+              if (!selectedProposal) {
+                return;
+              }
               const hash = await addIpfs(selectedProposal);
 
-              setHash(hash);
+              setHash(hash as Address);
             } catch (err) {
               console.error(err);
               return {
-                error: err.message.replace("GraphQL error: ", ""),
+                error: (err as Error)?.message?.replace("GraphQL error: ", ""),
               };
             } finally {
               setIsCreatePollLoading(false);
@@ -296,7 +299,7 @@ export async function getStaticProps() {
     query: `{ polls { proposal } }`,
   });
 
-  const createdPolls = [];
+  const createdPolls: string[] = [];
   if (pollsData) {
     await Promise.all(
       pollsData.polls.map(async (poll) => {
@@ -311,7 +314,7 @@ export async function getStaticProps() {
     );
   }
 
-  const lips = [];
+  const lips: any[] = [];
   if (data) {
     for (const lip of data.repository.content.entries) {
       const transformedLip = fm(lip.content.text) as any;
@@ -333,7 +336,7 @@ export async function getStaticProps() {
       projectOwner: data ? data.repository.owner.login : null,
       projectName: data ? data.repository.name : null,
       gitCommitHash: data ? data.repository.defaultBranchRef.target.oid : null,
-      lips: lips.sort((a, b) => (a.attributes.lip < b.attributes.lip ? 1 : -1)),
+      lips: lips.sort((a, b) => (a?.attributes?.lip < b?.attributes?.lip ? 1 : -1)),
     },
     revalidate: 300,
   };

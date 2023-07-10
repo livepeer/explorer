@@ -45,7 +45,7 @@ const ContractWalletTool = () => {
   const l1Addr = watch("l1Addr");
   const l2Addr = watch("l2Addr");
 
-  const [params, setParams] = useState(null);
+  const [params, setParams] = useState<any>(null);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 

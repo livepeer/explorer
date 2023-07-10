@@ -1,16 +1,14 @@
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { getEvents } from "@lib/api/ssr";
-import { GetStaticProps } from "next";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import Head from "next/head";
 import { useMemo } from "react";
-import { EventsQueryResult, getApollo, useEventsQuery } from "../apollo";
+import { EventsQueryResult, getApollo } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;
 const TRANSACTIONS_PER_PAGE = 20;
@@ -28,9 +26,9 @@ const TransactionsPage = ({ events }: PageProps) => {
       events?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.filter((e) =>
-          e.__typename === "BondEvent"
+          e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
-            : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
+            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? "")
         )
         ?.slice(0, numberTransactions) ?? [],
     [events]
@@ -61,7 +59,7 @@ const TransactionsPage = ({ events }: PageProps) => {
               </Flex>
             ) : (
               <TransactionsList
-                events={allEvents}
+                events={allEvents as any}
                 pageSize={TRANSACTIONS_PER_PAGE}
               />
             )}
@@ -72,7 +70,7 @@ const TransactionsPage = ({ events }: PageProps) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps = async () => {
   try {
     const client = getApollo();
     const { events, fallback } = await getEvents(client, numberTransactions);

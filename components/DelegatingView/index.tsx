@@ -28,10 +28,14 @@ const breakpointColumnsObj = {
 };
 
 interface Props {
-  transcoders?: OrchestratorsSortedQueryResult["data"]["transcoders"];
-  delegator?: AccountQueryResult["data"]["delegator"];
-  protocol?: AccountQueryResult["data"]["protocol"];
-  currentRound?: AccountQueryResult["data"]["protocol"]["currentRound"];
+  transcoders?: NonNullable<
+    OrchestratorsSortedQueryResult["data"]
+  >["transcoders"];
+  delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
+  protocol?: NonNullable<AccountQueryResult["data"]>["protocol"];
+  currentRound?: NonNullable<
+    NonNullable<AccountQueryResult["data"]>["protocol"]
+  >["currentRound"];
 }
 
 const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
@@ -43,17 +47,17 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
-  const recipient = delegator.id;
+  const recipient = delegator?.id as Address | undefined;
   const amount = pendingFeesAndStake?.pendingFees ?? "0";
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { config } = usePrepareContractWrite({
-    enabled: Boolean(bondingManagerAddress),
+    enabled: Boolean(bondingManagerAddress && recipient),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawFees",
-    args: [recipient, BigInt(amount)],
+    args: [recipient ?? "0x", BigInt(amount)],
   });
   const { data, isLoading, write, isSuccess, error } = useContractWrite(config);
 
@@ -63,8 +67,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   });
 
   const isMyAccount = checkAddressEquality(
-    accountAddress,
-    query.account.toString()
+    accountAddress ?? "",
+    query?.account?.toString() ?? ""
   );
 
   const pendingStake = useMemo(
@@ -76,20 +80,20 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     [pendingFeesAndStake?.pendingFees]
   );
   const unbonded = useMemo(
-    () => Math.abs(+delegator?.unbonded || 0),
+    () => Math.abs(+(delegator?.unbonded ?? 0) || 0),
     [delegator]
   );
 
   const rewards = useMemo(
-    () => pendingStake + unbonded - Math.abs(+delegator?.principal ?? 0),
+    () => pendingStake + unbonded - Math.abs(+(delegator?.principal ?? 0)),
     [unbonded, pendingStake, delegator]
   );
   const totalActiveStake = useMemo(
-    () => Math.abs(+protocol.totalActiveStake),
+    () => Math.abs(+(protocol?.totalActiveStake ?? 0)),
     [protocol]
   );
   const lifetimeEarnings = useMemo(
-    () => Math.abs(pendingFees) + Math.abs(+delegator?.withdrawnFees ?? 0),
+    () => Math.abs(pendingFees) + Math.abs(+(delegator?.withdrawnFees ?? 0)),
     [delegator, pendingFees]
   );
   const withdrawButtonDisabled = useMemo(

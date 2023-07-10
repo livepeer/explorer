@@ -154,11 +154,11 @@ const chartDataHandler = async (
         const dayDataResult = await getDayData();
         const dayData = dayDataResult.data.days;
 
-        let livepeerComDayData = [];
-        let livepeerComOneDayData = [];
-        let livepeerComTwoDaysData = [];
-        let livepeerComOneWeekData = [];
-        let livepeerComTwoWeekData = [];
+        let livepeerComDayData: any[] = [];
+        let livepeerComOneDayData: any[] = [];
+        let livepeerComTwoDaysData: any[] = [];
+        let livepeerComOneWeekData: any[] = [];
+        let livepeerComTwoWeekData: any[] = [];
 
         // No need to fetch usage data on testnets
         if (!IS_TESTNET) {
@@ -197,8 +197,10 @@ const chartDataHandler = async (
 
         // merge in Livepeer.com usage data
         const mergedDayData = dayData.map((item) => {
-          const found: { sourceSegmentsDuration: number } =
-            livepeerComDayData.find((element) => item.date === element.date);
+          const found: { sourceSegmentsDuration: number } | undefined =
+            livepeerComDayData.find(
+              (element: any) => item.date === element?.date
+            );
 
           // if Livepeer.com's broadcaster changed max price, use updated price
           if (
@@ -272,15 +274,22 @@ const chartDataHandler = async (
 
         // fetch the historical data
         const protocolDataResult = await getProtocolData();
-        data.totalVolumeUSD = +protocolDataResult.data.protocol.totalVolumeUSD;
-        data.totalVolumeETH = +protocolDataResult.data.protocol.totalVolumeETH;
-        data.participationRate =
-          +protocolDataResult.data.protocol.participationRate;
-        data.inflation = +protocolDataResult.data.protocol.inflation;
-        data.activeTranscoderCount =
-          +protocolDataResult.data.protocol.activeTranscoderCount;
-        data.delegatorsCount =
-          +protocolDataResult.data.protocol.delegatorsCount;
+        data.totalVolumeUSD = +(
+          protocolDataResult.data.protocol?.totalVolumeUSD ?? 0
+        );
+        data.totalVolumeETH = +(
+          protocolDataResult.data.protocol?.totalVolumeETH ?? 0
+        );
+        data.participationRate = +(
+          protocolDataResult.data.protocol?.participationRate ?? 0
+        );
+        data.inflation = +(protocolDataResult.data.protocol?.inflation ?? 0);
+        data.activeTranscoderCount = +(
+          protocolDataResult.data.protocol?.activeTranscoderCount ?? 0
+        );
+        data.delegatorsCount = +(
+          protocolDataResult.data.protocol?.delegatorsCount ?? 0
+        );
 
         const oneDayResult = await getProtocolDataByBlock(oneDayBlock);
         const oneDayData = oneDayResult.data.protocol;
@@ -296,14 +305,14 @@ const chartDataHandler = async (
 
         const [oneDayVolumeUSD, volumeChangeUSD] = getTwoPeriodPercentChange(
           +data.totalVolumeUSD,
-          +oneDayData?.totalVolumeUSD,
-          +twoDayData?.totalVolumeUSD
+          +(oneDayData?.totalVolumeUSD ?? 0),
+          +(twoDayData?.totalVolumeUSD ?? 0)
         );
 
         const [oneDayVolumeETH, volumeChangeETH] = getTwoPeriodPercentChange(
           +data?.totalVolumeETH,
-          +oneDayData?.totalVolumeETH,
-          +twoDayData?.totalVolumeETH
+          +(oneDayData?.totalVolumeETH ?? 0),
+          +(twoDayData?.totalVolumeETH ?? 0)
         );
 
         const [oneWeekVolumeUSD, weeklyVolumeChangeUSD] =

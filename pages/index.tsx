@@ -7,29 +7,28 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
+  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
-  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 
 import { useMemo, useState } from "react";
-import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
 import {
   EventsQueryResult,
   getApollo,
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
+import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
 
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useChartData } from "hooks";
-import { GetStaticProps } from "next";
 import "react-circular-progressbar/dist/styles.css";
 
 const Panel = ({ children }) => (
@@ -51,7 +50,7 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Charts = ({ chartData }: { chartData: HomeChartData }) => {
+const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
     "week"
   );
@@ -228,9 +227,9 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
       events?.transactions
         ?.flatMap((transaction) => transaction.events)
         ?.filter((e) =>
-          e.__typename === "BondEvent"
+          e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
-            : !FILTERED_EVENT_TYPENAMES.includes(e.__typename)
+            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? "")
         )
         ?.slice(0, 100) ?? [],
     [events]
@@ -415,7 +414,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
             </Flex>
 
             <Box>
-              <TransactionsList events={allEvents} pageSize={10} />
+              <TransactionsList events={allEvents as any} pageSize={10} />
             </Box>
           </Box>
         </Flex>
@@ -424,7 +423,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps = async () => {
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);

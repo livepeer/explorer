@@ -1,9 +1,17 @@
-import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
+import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 
 import * as chain from "@wagmi/core/chains";
-import { Address, createPublicClient, http } from "viem";
 import { ethers } from "ethers";
+import {
+  Address,
+  Client,
+  HttpTransport,
+  PublicActions,
+  PublicRpcSchema,
+  createPublicClient,
+  http,
+} from "viem";
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -224,12 +232,22 @@ export const L1_CHAIN = CHAIN_INFO[DEFAULT_CHAIN_ID].l1;
 export const L1_CHAIN_ID = L1_CHAIN.id;
 
 export const l1PublicClient = createPublicClient({
-  chain: L1_CHAIN,
+  batch: {
+    multicall: {
+      wait: 16,
+    },
+  },
+  chain: L1_CHAIN as unknown as typeof chain.arbitrum,
   transport: http(INFURA_NETWORK_URLS[L1_CHAIN_ID]),
 });
 
 export const l2PublicClient = createPublicClient({
-  chain: DEFAULT_CHAIN,
+  batch: {
+    multicall: {
+      wait: 16,
+    },
+  },
+  chain: DEFAULT_CHAIN as unknown as typeof chain.mainnet,
   transport: http(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]),
 });
 

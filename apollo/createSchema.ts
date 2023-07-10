@@ -5,7 +5,7 @@ import fetch from "isomorphic-unfetch";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
 const createSchema = async () => {
-  const executor = async ({ document, variables }) => {
+  const executor = (async ({ document, variables }) => {
     const query = print(document);
     const fetchResult = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, {
       method: "POST",
@@ -16,7 +16,7 @@ const createSchema = async () => {
     });
 
     return fetchResult.json();
-  };
+  }) as any;
 
   const subgraphSchema = wrapSchema({
     schema: await introspectSchema(executor),

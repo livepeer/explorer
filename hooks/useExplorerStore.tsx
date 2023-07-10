@@ -83,7 +83,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     })),
   setLatestTransactionError: (v: string) =>
     set(({ latestTransaction }) => ({
-      latestTransaction: { ...latestTransaction, error: v },
+      latestTransaction: { ...latestTransaction, error: v } as any,
     })),
   clearLatestTransaction: () =>
     set(() => ({

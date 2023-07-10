@@ -18,7 +18,9 @@ export type Fm = {
   text: string;
 };
 
-export type PollExtended = PollsQueryResult["data"]["polls"][number] & {
+export type PollExtended = NonNullable<
+  PollsQueryResult["data"]
+>["polls"][number] & {
   attributes?: Fm | null;
   estimatedEndTime: number;
   status: "active" | "passed" | "rejected" | "quorum-not-met";
@@ -41,7 +43,10 @@ export type PollExtended = PollsQueryResult["data"]["polls"][number] & {
 };
 
 export const getPollExtended = async (
-  poll: PollsQueryResult["data"]["polls"][number] | null | undefined,
+  poll:
+    | NonNullable<PollsQueryResult["data"]>["polls"][number]
+    | null
+    | undefined,
   l1BlockNumber: number
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
@@ -61,15 +66,15 @@ export const getPollExtended = async (
     };
   }
 
-  const isActive = l1BlockNumber <= parseInt(poll.endBlock);
+  const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
   const totalStakeString = await getTotalStake(
     // TODO fix endblock to query for l2 block corresponding to end of poll
-    isActive ? undefined : +poll.endBlock
+    isActive ? undefined : +(poll?.endBlock ?? 0)
   );
 
-  const totalStake = +totalStakeString;
-  const noVoteStake = +poll?.tally?.no || 0;
-  const yesVoteStake = +poll?.tally?.yes || 0;
+  const totalStake = +(totalStakeString ?? 0);
+  const noVoteStake = +(poll?.tally?.no || 0);
+  const yesVoteStake = +(poll?.tally?.yes || 0);
   const totalVoteStake = noVoteStake + yesVoteStake;
   const totalYesVotePercent = isNaN(yesVoteStake / totalVoteStake)
     ? 0
@@ -81,14 +86,14 @@ export const getPollExtended = async (
 
   const status = isActive
     ? "active"
-    : totalParticipationPercent > +poll.quorum / 1000000
-    ? totalYesVotePercent > +poll.quota / 1000000
+    : totalParticipationPercent > +(poll?.quorum ?? 0) / 1000000
+    ? totalYesVotePercent > +(poll?.quota ?? 0) / 1000000
       ? "passed"
       : "rejected"
     : "quorum-not-met";
 
   const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(
-    +poll.endBlock,
+    +(poll?.endBlock ?? 0),
     l1BlockNumber
   );
 
@@ -96,7 +101,7 @@ export const getPollExtended = async (
   const nonVotersPercent = totalNonVoteStake / totalStake;
 
   return {
-    ...poll,
+    ...(poll as any),
     attributes,
     status,
     estimatedEndTime,

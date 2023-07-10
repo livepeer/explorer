@@ -18,7 +18,10 @@ const PerformanceList = ({
 }: {
   pageSize: number;
   region: keyof typeof ALL_REGIONS;
-  data: Pick<OrchestratorsQueryResult["data"]["transcoders"][number], "id">[];
+  data: Pick<
+    NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
+    "id"
+  >[];
 }) => {
   const allScores = useAllScoreData();
   const initialState = {

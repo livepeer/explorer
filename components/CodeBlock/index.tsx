@@ -13,20 +13,22 @@ export function CodeBlock({
   css = {},
 }) {
   const [hasCopied, setHasCopied] = useState(false);
-  const [code, setCode] = useState(undefined);
-  const preRef = useRef(null);
+  const [code, setCode] = useState<string | undefined>(undefined);
+  const preRef = useRef<HTMLPreElement | null>(null);
 
   useEffect(() => {
     if (preRef.current) {
-      const codeElement = preRef.current.querySelector("code");
+      const codeElement = preRef.current?.querySelector("code");
       // remove double line breaks
-      const code = codeElement.innerText.replace(/\n{3,}/g, "\n");
-      setCode(code);
+      const code = codeElement?.innerText.replace(/\n{3,}/g, "\n");
+      if (code) {
+        setCode(code);
+      }
     }
   }, [preRef]);
 
   useEffect(() => {
-    if (hasCopied) copy(code);
+    if (hasCopied && code) copy(code);
     setTimeout(() => setHasCopied(false), 1500);
   }, [code, hasCopied]);
 

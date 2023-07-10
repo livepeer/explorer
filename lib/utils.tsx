@@ -16,7 +16,7 @@ export const provider = new ethers.providers.JsonRpcProvider(
 export function avg(obj, key) {
   const arr = Object.values(obj);
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-  return arr.reduce(sum)[key] / arr.length;
+  return (arr.reduce(sum)?.[key] ?? 0) / arr.length;
 }
 
 export const EMPTY_ADDRESS = ethers.constants.AddressZero;
@@ -53,23 +53,28 @@ export const getDelegationStatusColor = (status) => {
 };
 
 export const getDelegatorStatus = (
-  delegator: AccountQueryResult["data"]["delegator"],
-  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"]
+  delegator: NonNullable<AccountQueryResult["data"]>["delegator"],
+  currentRound:
+    | NonNullable<
+        NonNullable<AccountQueryResult["data"]>["protocol"]
+      >["currentRound"]
+    | undefined
 ): string => {
-  if (!+delegator?.bondedAmount) {
+  if (!+(delegator?.bondedAmount ?? 0)) {
     return "Unbonded";
   } else if (
-    delegator.unbondingLocks.filter(
-      (lock: UnbondingLock) =>
-        lock.withdrawRound && +lock.withdrawRound > +currentRound.id
-    ).length > 0
+    (delegator?.unbondingLocks?.filter(
+      (lock) =>
+        lock?.withdrawRound &&
+        +(lock.withdrawRound ?? 0) > +(currentRound?.id ?? 0)
+    )?.length ?? 0) > 0
   ) {
     return "Unbonding";
-  } else if (+delegator.startRound > +currentRound.id) {
+  } else if (+(delegator?.startRound ?? 0) > +(currentRound?.id ?? 0)) {
     return "Pending";
   } else if (
-    +delegator.startRound > 0 &&
-    +delegator.startRound <= +currentRound.id
+    +(delegator?.startRound ?? 0) > 0 &&
+    +(delegator?.startRound ?? 0) <= +(currentRound?.id ?? 0)
   ) {
     return "Bonded";
   } else {
@@ -194,7 +199,9 @@ export const simulateNewActiveSetOrder = ({
   oldDelegate = EMPTY_ADDRESS,
 }: {
   action: StakingAction;
-  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
+  transcoders: NonNullable<
+    OrchestratorsSortedQueryResult["data"]
+  >["transcoders"];
   amount: BigNumber;
   newDelegate: string;
   oldDelegate?: string;
@@ -292,14 +299,14 @@ export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
     return [];
   }
   try {
-    const blocks = [];
+    const blocks: number[] = [];
     for (const timestamp of timestamps) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const blockDataResponse = await fetch(
         `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
       );
       const { result } = await blockDataResponse.json();
-      blocks.push(+result);
+      blocks.push(+(result ?? 0));
     }
 
     return blocks;
@@ -354,7 +361,7 @@ export const getLivepeerComUsageData = async (
         ...day,
         date: day.date / 1000,
       })) ?? [];
-    return arr;
+    return arr as any;
   } catch (e) {
     console.log(e);
   }

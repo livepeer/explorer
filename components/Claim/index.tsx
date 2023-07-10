@@ -26,8 +26,8 @@ const Claim = () => {
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const [proof, setProof] = useState<string | null>(null);
-  const [migrationParams, setMigrationParams] = useState(undefined);
+  const [proof, setProof] = useState<any>(null);
+  const [migrationParams, setMigrationParams] = useState<any>(undefined);
   const [isDelegator, setIsDelegator] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +50,7 @@ const Claim = () => {
 
   useEffect(() => {
     if (proof && isIdle) {
-      write();
+      write?.();
     }
   }, [proof, write, isIdle]);
 
@@ -66,7 +66,7 @@ const Claim = () => {
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "migratedDelegators",
-    args: [accountAddress],
+    args: [accountAddress ?? "0x"],
   });
 
   useHandleTransaction(
@@ -228,7 +228,7 @@ const Claim = () => {
                     setProof(proof);
                   } catch (e) {
                     console.log(e);
-                    throw new Error(e);
+                    throw new Error((e as Error)?.message);
                   }
                 };
               }}

@@ -9,15 +9,13 @@ import {
   Flex,
   Heading,
   Text,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import {
-  useAccountAddress, usePendingFeesAndStakeData
-} from "hooks";
+import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -30,18 +28,24 @@ dayjs.extend(duration);
 
 type Props = {
   poll: PollExtended;
-  delegateVote: {
-    __typename: "Vote";
-    choiceID?: PollChoice;
-    voteStake: string;
-    nonVoteStake: string;
-  };
-  vote: {
-    __typename: "Vote";
-    choiceID?: PollChoice;
-    voteStake: string;
-    nonVoteStake: string;
-  };
+  delegateVote:
+    | {
+        __typename: "Vote";
+        choiceID?: PollChoice;
+        voteStake: string;
+        nonVoteStake: string;
+      }
+    | undefined
+    | null;
+  vote:
+    | {
+        __typename: "Vote";
+        choiceID?: PollChoice;
+        voteStake: string;
+        nonVoteStake: string;
+      }
+    | undefined
+    | null;
   myAccount: AccountQuery;
 };
 
@@ -68,7 +72,7 @@ const Index = ({ data }: { data: Props }) => {
   const votingPower = useMemo(
     () =>
       getVotingPower(
-        accountAddress,
+        accountAddress ?? "",
         data?.myAccount,
         data?.vote,
         pendingFeesAndStake?.pendingStake
@@ -78,7 +82,7 @@ const Index = ({ data }: { data: Props }) => {
     [accountAddress, data, pendingFeesAndStake]
   );
 
-  let delegate = null;
+  let delegate: any = null;
   if (data?.myAccount?.delegator?.delegate) {
     delegate = data?.myAccount?.delegator?.delegate;
   }
@@ -97,7 +101,7 @@ const Index = ({ data }: { data: Props }) => {
           }}
         >
           <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
-            Do you support LIP-{data.poll.attributes.lip}?
+            Do you support LIP-{data?.poll?.attributes?.lip ?? "ERR"}?
           </Heading>
 
           <Box
@@ -225,7 +229,10 @@ const Index = ({ data }: { data: Props }) => {
                   <Box as="span" css={{ color: "$neutral11" }}>
                     My Delegate Vote{" "}
                     {delegate &&
-                      `(${delegate.id.replace(delegate.id.slice(5, 39), "…")})`}
+                      `(${delegate?.id?.replace(
+                        delegate?.id?.slice(5, 39),
+                        "…"
+                      )})`}
                   </Box>
                   <Box as="span" css={{ fontWeight: 500, color: "white" }}>
                     {data?.delegateVote?.choiceID
@@ -286,7 +293,7 @@ const Index = ({ data }: { data: Props }) => {
                   data?.myAccount,
                   data?.vote,
                   data?.poll,
-                  pendingFeesAndStake?.pendingStake
+                  pendingFeesAndStake?.pendingStake ?? ""
                 )}
             </>
           ) : (

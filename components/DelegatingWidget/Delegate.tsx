@@ -35,7 +35,7 @@ const Delegate = ({
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
-    args: [bondingManagerAddress, BigInt(MAXIMUM_VALUE_UINT256)],
+    args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
   });
   const {
     data: approveData,
@@ -72,7 +72,7 @@ const Delegate = ({
     abi: bondingManager,
     functionName: "bondWithHint",
     args: [
-      bondWithHintArgs.amount,
+      BigInt(bondWithHintArgs.amount?.toString()),
       to,
       oldDelegateNewPosPrev,
       oldDelegateNewPosNext,
@@ -127,7 +127,7 @@ const Delegate = ({
     try {
       setApprovalSubmitted(true);
 
-      approveWrite();
+      approveWrite?.();
     } catch (e) {
       console.log(e);
     }
@@ -135,7 +135,7 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      bondWrite();
+      bondWrite?.();
     } catch (e) {
       console.error(e);
     }

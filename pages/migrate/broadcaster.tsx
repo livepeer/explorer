@@ -384,7 +384,7 @@ const MigrateBroadcaster = () => {
       // });
     } catch (e) {
       console.log(e);
-      openSnackbar(e.message);
+      openSnackbar((e as Error)?.message);
       handleReset();
     }
   };

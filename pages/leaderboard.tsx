@@ -1,10 +1,9 @@
-import { EnsIdentity } from "@lib/api/types/get-ens";
 import PerformanceList from "@components/PerformanceList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { getOrchestrators } from "@lib/api/ssr";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
-import { getOrchestrators } from "@lib/api/ssr";
-import { GetStaticProps } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { ALL_REGIONS } from "utils/allRegions";
@@ -12,7 +11,7 @@ import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
 type PageProps = {
   orchestratorIds: Pick<
-    OrchestratorsQueryResult["data"]["transcoders"][number],
+    NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
     "id"
   >[];
   fallback: { [key: string]: EnsIdentity };
@@ -102,7 +101,7 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps = async () => {
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);

@@ -26,11 +26,15 @@ type FooterData = {
   action: StakingAction;
   amount: string;
 
-  currentRound: AccountQueryResult["data"]["protocol"]["currentRound"];
+  currentRound: NonNullable<
+    NonNullable<AccountQueryResult["data"]>["protocol"]
+  >["currentRound"] | undefined;
 
-  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
-  transcoder: AccountQueryResult["data"]["transcoder"];
-  delegator?: AccountQueryResult["data"]["delegator"];
+  transcoders: NonNullable<
+    OrchestratorsSortedQueryResult["data"]
+  >["transcoders"] | undefined;
+  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   account: EnsIdentity;
 };
 interface Props {
@@ -92,7 +96,7 @@ const Footer = ({
         action,
         transcoders: JSON.parse(JSON.stringify(transcoders)),
         amount: parseEther(amount ? amount.toString() : "0"),
-        newDelegate: transcoder.id,
+        newDelegate: transcoder?.id ?? "",
         oldDelegate: delegator?.delegate?.id,
       }),
     [action, transcoders, amount, transcoder, delegator]
@@ -105,7 +109,7 @@ const Footer = ({
     newPosPrev: currDelegateNewPosPrev,
     newPosNext: currDelegateNewPosNext,
   } = useMemo(
-    () => getHint(transcoder.id, newActiveSetOrder),
+    () => getHint(transcoder?.id, newActiveSetOrder),
     [newActiveSetOrder, transcoder]
   );
 
@@ -132,7 +136,7 @@ const Footer = ({
     return (
       <Box css={{ ...css }}>
         <Delegate
-          to={transcoder.id}
+          to={transcoder?.id}
           amount={amount}
           isTransferStake={isTransferStake}
           tokenBalance={tokenBalance}

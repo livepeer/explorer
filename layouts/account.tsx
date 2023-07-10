@@ -70,7 +70,7 @@ const AccountLayout = ({
 
   const { data: dataMyAccount } = useAccountQuery({
     variables: {
-      account: accountAddress?.toLowerCase(),
+      account: accountAddress?.toLowerCase() ?? "",
     },
     skip: !accountAddress,
     pollInterval,
@@ -89,7 +89,7 @@ const AccountLayout = ({
   );
 
   const isMyAccount = useMemo(
-    () => checkAddressEquality(accountAddress, accountId),
+    () => checkAddressEquality(accountAddress ?? "", accountId ?? ""),
     [accountAddress, accountId]
   );
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
@@ -99,7 +99,13 @@ const AccountLayout = ({
   );
 
   const tabs: Array<TabType> = useMemo(
-    () => getTabs(isOrchestrator, accountId, view, isMyDelegate),
+    () =>
+      getTabs(
+        isOrchestrator,
+        accountId ?? "",
+        view ?? "delegating",
+        isMyDelegate
+      ),
     [isOrchestrator, accountId, view, isMyDelegate]
   );
 
@@ -125,7 +131,7 @@ const AccountLayout = ({
         >
           <Profile
             isActive={isActive}
-            account={query?.account.toString()}
+            account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
             identity={identity}
           />
@@ -147,7 +153,7 @@ const AccountLayout = ({
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={sortedOrchestrators.transcoders}
+                    transcoders={sortedOrchestrators?.transcoders as any}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
                     transcoder={account?.transcoder}
@@ -166,11 +172,11 @@ const AccountLayout = ({
                 </SheetTrigger>
                 <SheetContent side="bottom" css={{ height: "initial" }}>
                   <DelegatingWidget
-                    transcoders={sortedOrchestrators.transcoders}
+                    transcoders={sortedOrchestrators?.transcoders}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={account.transcoder}
-                    protocol={account.protocol}
+                    transcoder={account?.transcoder}
+                    protocol={account?.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -218,10 +224,10 @@ const AccountLayout = ({
           )}
           {view === "delegating" && (
             <DelegatingView
-              transcoders={sortedOrchestrators.transcoders}
+              transcoders={sortedOrchestrators?.transcoders}
               delegator={account?.delegator}
               protocol={account?.protocol}
-              currentRound={account.protocol.currentRound}
+              currentRound={account?.protocol?.currentRound}
             />
           )}
           {view === "history" && <HistoryView />}
@@ -242,7 +248,7 @@ const AccountLayout = ({
               }}
             >
               <DelegatingWidget
-                transcoders={sortedOrchestrators.transcoders}
+                transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
                 transcoder={account?.transcoder}
@@ -253,7 +259,7 @@ const AccountLayout = ({
           ) : (
             <BottomDrawer>
               <DelegatingWidget
-                transcoders={sortedOrchestrators.transcoders}
+                transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
                 transcoder={account?.transcoder}

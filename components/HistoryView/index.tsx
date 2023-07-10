@@ -40,14 +40,19 @@ const Index = () => {
 
   const events = useMemo(
     () =>
-      data?.transactions?.reduce((res, { events: e }) => res.concat(e), []) ??
-      [],
+      data?.transactions?.reduce(
+        (res, { events: e }) => res.concat(e as any),
+        []
+      ) ?? [],
     [data]
   );
 
   const lastEventTimestamp = useMemo(
     () =>
-      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
+      Number(
+        (events?.[(events?.length || 0) - 1] as any)?.transaction?.timestamp ??
+          0
+      ),
     [events]
   );
 
@@ -56,7 +61,9 @@ const Index = () => {
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter((e) => e.__typename !== "WinningTicketRedeemedEvent"),
+        ...events.filter(
+          (e) => (e as any)?.__typename !== "WinningTicketRedeemedEvent"
+        ),
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),

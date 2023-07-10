@@ -57,7 +57,7 @@ const Index = () => {
       <DialogContent css={{ maxWidth: 370, width: "100%" }}>
         <Box>
           <Header tx={latestTransaction} />
-          <Box>{Table({ tx: latestTransaction, account })}</Box>
+          <Box>{Table({ tx: latestTransaction, account: account ?? "" })}</Box>
         </Box>
 
         <DialogClose asChild>
@@ -206,7 +206,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
     >
       <Spinner />
       <Box css={{ fontWeight: 700, fontSize: "$5" }}>
-        {txMessages[tx?.name]?.pending}
+        {txMessages[tx?.name ?? ""]?.pending}
       </Box>
       <A
         variant="primary"

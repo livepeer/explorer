@@ -31,12 +31,12 @@ function App({ Component, pageProps, fallback = null }) {
   const { config, chains, layoutKey } = useMemo(() => {
     const { chains, publicClient } = configureChains(
       [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()]
+      [infuraProvider({ apiKey: INFURA_KEY ?? "" }), publicProvider()]
     );
 
     const { connectors } = getDefaultWallets({
       appName: "Livepeer Explorer",
-      projectId: WALLET_CONNECT_PROJECT_ID,
+      projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
     });
 

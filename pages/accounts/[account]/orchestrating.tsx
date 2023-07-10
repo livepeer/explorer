@@ -6,7 +6,6 @@ import {
   OrchestratorsSortedQueryResult,
 } from "apollo";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
-import { GetStaticProps } from "next";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 
 type PageProps = {
@@ -33,7 +32,7 @@ export const getStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps = async (context) => {
   try {
     const client = getApollo();
     const { account, fallback } = await getAccount(

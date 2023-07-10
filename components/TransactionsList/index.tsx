@@ -83,11 +83,15 @@ const TransactionsList = ({
   pageSize = 10,
 }: {
   pageSize: number;
-  events: EventsQueryResult["data"]["transactions"][number]["events"];
+  events: NonNullable<
+    EventsQueryResult["data"]
+  >["transactions"][number]["events"];
 }) => {
   const getAccountForRow = useCallback(
     (
-      event: EventsQueryResult["data"]["transactions"][number]["events"][number]
+      event: NonNullable<
+        NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
+      >[number]
     ) => {
       switch (event.__typename) {
         case "BondEvent":
@@ -181,7 +185,9 @@ const TransactionsList = ({
 
   const getDescriptionForRow = useCallback(
     (
-      event: EventsQueryResult["data"]["transactions"][number]["events"][number]
+      event: NonNullable<
+        NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
+      >[number]
     ) => {
       switch (event.__typename) {
         case "BondEvent":
@@ -528,7 +534,7 @@ const TransactionsList = ({
 
   return (
     <Table
-      data={events}
+      data={events as any}
       columns={columns}
       initialState={{
         pageSize,

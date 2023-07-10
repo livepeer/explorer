@@ -10,7 +10,7 @@ const InactiveWarning = () => {
 
   const { data, loading } = useAccountInactiveQuery({
     variables: {
-      id: accountAddress?.toLowerCase(),
+      id: accountAddress?.toLowerCase() ?? "",
     },
     pollInterval: 120000,
     skip: !accountAddress,

@@ -309,7 +309,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
         <Box css={{ mr: "10px" }}>🎉</Box>
-        {txMessages[tx?.name]?.confirmed}
+        {txMessages[tx?.name ?? ""]?.confirmed}
       </Flex>
       <A
         variant="primary"

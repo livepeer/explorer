@@ -16,8 +16,8 @@ type Props = {
   tooltip?: ReactNode;
   value?: ReactNode | null;
   variant?: "ghost" | "interactive" | "active";
-  css?: object;
-  className?: string;
+  css?: object | null;
+  className?: string | null;
 };
 const Stat = ({
   label,
@@ -30,7 +30,7 @@ const Stat = ({
 }: Props) => (
   <Card
     variant={variant}
-    className={className}
+    className={className ?? ""}
     css={{
       color: "$neutral9",
       p: "$3",

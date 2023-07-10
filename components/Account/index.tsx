@@ -11,7 +11,7 @@ const Account = () => {
   const accountAddress = useAccountAddress();
   const ens = useEnsData(accountAddress);
   const { asPath } = router;
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement | null>(null);
 
   return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>

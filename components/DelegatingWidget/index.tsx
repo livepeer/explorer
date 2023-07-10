@@ -12,10 +12,12 @@ import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
 
 interface Props {
-  transcoders: OrchestratorsSortedQueryResult["data"]["transcoders"];
-  transcoder: AccountQueryResult["data"]["transcoder"];
-  delegator?: AccountQueryResult["data"]["delegator"];
-  protocol: AccountQueryResult["data"]["protocol"];
+  transcoders: NonNullable<
+    OrchestratorsSortedQueryResult["data"]
+  >["transcoders"] | undefined;
+  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"] | undefined;
+  delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
+  protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;
   account: EnsIdentity;
   delegateProfile?: EnsIdentity;
 }
@@ -153,11 +155,11 @@ const Index = ({
         <Footer
           reset={() => setAmount("")}
           data={{
-            isTransferStake,
+            isTransferStake: isTransferStake || false,
             isMyTranscoder,
-            isDelegated,
+            isDelegated: isDelegated || false,
             transcoders,
-            currentRound: protocol.currentRound,
+            currentRound: protocol?.currentRound,
             account,
             delegator,
             transcoder,
