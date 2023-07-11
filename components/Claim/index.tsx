@@ -209,28 +209,26 @@ const Claim = () => {
           {claimStakeEnabled && (
             <Button
               onClick={async () => {
-                const mutation = async () => {
-                  try {
-                    const res = await fetch("/api/generateProof", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        account: accountAddress,
-                        delegate: migrationParams.delegate,
-                        stake: migrationParams.stake,
-                        fees: migrationParams.fees,
-                      }),
-                    });
-                    const proof = await res.json();
+                try {
+                  const res = await fetch("/api/generateProof", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      account: accountAddress,
+                      delegate: migrationParams.delegate,
+                      stake: migrationParams.stake,
+                      fees: migrationParams.fees,
+                    }),
+                  });
+                  const proof = await res.json();
 
-                    setProof(proof);
-                  } catch (e) {
-                    console.log(e);
-                    throw new Error((e as Error)?.message);
-                  }
-                };
+                  setProof(proof);
+                } catch (e) {
+                  console.log(e);
+                  throw new Error((e as Error)?.message);
+                }
               }}
               size="3"
               variant="transparentWhite"
