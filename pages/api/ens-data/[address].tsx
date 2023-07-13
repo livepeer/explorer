@@ -4,6 +4,10 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
 
+const blacklist = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"].map((a) =>
+  a.toLowerCase()
+);
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<EnsIdentity | null>
@@ -16,7 +20,10 @@ const handler = async (
 
       res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-      if (isValidAddress(address)) {
+      if (
+        isValidAddress(address) &&
+        !blacklist.includes(address.toLowerCase())
+      ) {
         const ens = await getEnsForAddress(address as Address);
 
         return res.status(200).json(ens);

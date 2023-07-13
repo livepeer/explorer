@@ -5,6 +5,8 @@ import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { l1PublicClient } from "@lib/chains";
 import { normalize } from "viem/ens";
 
+const blacklist = ["salty-minning.eth"];
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<ArrayBuffer | null>
@@ -15,7 +17,12 @@ const handler = async (
     if (method === "GET") {
       const { name } = req.query;
 
-      if (name && typeof name === "string" && name.length > 0) {
+      if (
+        name &&
+        typeof name === "string" &&
+        name.length > 0 &&
+        !blacklist.includes(name)
+      ) {
         try {
           res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
