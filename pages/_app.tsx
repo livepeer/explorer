@@ -5,12 +5,7 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
 import Layout from "layouts/main";
-import {
-  DEFAULT_CHAIN,
-  WALLET_CONNECT_PROJECT_ID,
-  INFURA_KEY,
-  L1_CHAIN,
-} from "lib/chains";
+import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -82,9 +77,7 @@ function App({ Component, pageProps, fallback = null }) {
               }}
             >
               <CookiesProvider>
-                <IdProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                </IdProvider>
+                <IdProvider>{getLayout(<Component {...pageProps} />)}</IdProvider>
               </CookiesProvider>
             </SWRConfig>
           </RainbowKitProvider>

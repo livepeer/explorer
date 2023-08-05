@@ -3,18 +3,9 @@ import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 
 import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
-import {
-  Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
-  createPublicClient,
-  http,
-} from "viem";
+import { Address, Client, HttpTransport, PublicActions, PublicRpcSchema, createPublicClient, http } from "viem";
 
-export const WALLET_CONNECT_PROJECT_ID =
-  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
+export const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
@@ -22,9 +13,7 @@ const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 
 if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
-  throw new Error(
-    `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
-  );
+  throw new Error(`NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`);
 }
 
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
@@ -32,6 +21,9 @@ export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 1
 export type AllContracts = {
   controller: Address;
   pollCreator: Address;
+  livepeerGovernor?: Address;
+  governorVotes?: Address;
+  treasury?: Address;
   l1Migrator: Address;
   l2Migrator: Address;
   inbox: Address;
@@ -62,24 +54,16 @@ const ARBITRUM_ONE_CONTRACTS: AllContracts = {
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
 
-const RINKEBY_CONTRACTS: AllContracts = {
-  controller: "0x9a9827455911a858E55f07911904fACC0D66027E",
-  pollCreator: "0x6749dFa7990Aa27E0B82dCD735C8100BC711AeE7",
-  l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8",
-  l2Migrator: "0x35e813A271ba1146B8C0Ed2837DD0b4577C7ffA8",
-  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
-  arbRetryableTx: "0x000000000000000000000000000000000000006E",
-  nodeInterface: "0x00000000000000000000000000000000000000C8",
-};
-
-const ARBITRUM_RINKEBY_CONTRACTS: AllContracts = {
-  controller: "0x9ceC649179e2C7Ab91688271bcD09fb707b3E574",
-  pollCreator: "0x7e3305D48489e43B7fBf318D575D5dF654EE175c",
-  l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8",
-  l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a",
-  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
-  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3",
+const ARBITRUM_GOERLI_CONTRACTS: AllContracts = {
+  controller: "0xEE48C1F8A6BE10FDf6aF8b17a74198E08961A17d",
+  pollCreator: "0xA1e283Cdad119Dd69c95a5aA0AF4F9796bdcD332",
+  livepeerGovernor: "0xD36575965fe609640dF08296EdDAcFc41b3D8540",
+  governorVotes: "0x04641C6BCE1fe5cBe136091b6E1f04832F688Cf7",
+  treasury: "0x60eB3084Ca22A62241D6c401EF74aA41baeEAB2B",
+  l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8", // does not exist
+  l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a", // does not exist
+  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", // does not exist
+  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3", // does not exist
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };
@@ -108,24 +92,15 @@ export const DEFAULT_CHAIN =
 
 export const DEFAULT_CHAIN_ID = DEFAULT_CHAIN.id;
 
-export const IS_TESTNET = Boolean(
-  TESTNET_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
-);
+export const IS_TESTNET = Boolean(TESTNET_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
 
-export const IS_L2 = Boolean(
-  L2_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
-);
-export const IS_L1 = Boolean(
-  L1_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
-);
+export const IS_L2 = Boolean(L2_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
+export const IS_L1 = Boolean(L1_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
 
 /**
  * Array of all the supported chain IDs
  */
-export const ALL_SUPPORTED_CHAIN_IDS = [
-  ...L2_CHAIN_IDS,
-  ...L1_CHAIN_IDS,
-] as const;
+export const ALL_SUPPORTED_CHAIN_IDS = [...L2_CHAIN_IDS, ...L1_CHAIN_IDS] as const;
 
 /**
  * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
@@ -178,9 +153,8 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.goerli.id],
     },
-    subgraph:
-      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
-    contracts: RINKEBY_CONTRACTS,
+    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+    contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
   [chain.arbitrum.id]: {
     networkType: NetworkType.L2,
@@ -206,25 +180,24 @@ export const CHAIN_INFO = {
   },
   [chain.arbitrumGoerli.id]: {
     networkType: NetworkType.L2,
-    l1: chain.goerli,
+    l1: chain.arbitrumGoerli,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",
     explorerAPI: "https://api-testnet.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
-    label: "Arbitrum Rinkeby",
+    label: "Arbitrum Goerli",
     logoUrl: arbitrumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: {
-        name: "Arbitrum Rinkeby Ether",
-        symbol: "ARETH",
+        name: "Arbitrum Goerli Ether",
+        symbol: "AGOR",
         decimals: 18,
       },
-      rpcUrl: "https://rinkeby.arbitrum.io/rpc",
+      rpcUrl: "https://goerli-rollup.arbitrum.io/rpc",
     },
-    subgraph:
-      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby",
-    contracts: ARBITRUM_RINKEBY_CONTRACTS,
+    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+    contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
 };
 
@@ -252,13 +225,9 @@ export const l2PublicClient = createPublicClient({
   transport: http(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]),
 });
 
-export const l1Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[L1_CHAIN_ID]
-);
+export const l1Provider = new ethers.providers.JsonRpcProvider(INFURA_NETWORK_URLS[L1_CHAIN_ID]);
 
-export const l2Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-);
+export const l2Provider = new ethers.providers.JsonRpcProvider(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]);
 
 export function isL2ChainId(chainId: number | undefined): boolean {
   return L2_CHAIN_IDS.some((e) => e.id === chainId);

@@ -1,17 +1,11 @@
-import {
-  AccountQueryResult,
-  OrchestratorsSortedQueryResult,
-  UnbondingLock,
-} from "apollo";
+import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } from "apollo";
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
 
-export const provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-);
+export const provider = new ethers.providers.JsonRpcProvider(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]);
 
 export function avg(obj, key) {
   const arr = Object.values(obj);
@@ -30,9 +24,10 @@ export const abbreviateNumber = (value, precision = 3) => {
     suffixNum++;
   }
 
-  newValue = parseFloat(Number.parseFloat(newValue).toPrecision(precision));
-
+  newValue = Number.parseFloat(newValue).toPrecision(precision);
   newValue += suffixes[suffixNum];
+  console.log("abbreviateNumber", value, newValue);
+
   return newValue;
 };
 
@@ -54,36 +49,26 @@ export const getDelegationStatusColor = (status) => {
 
 export const getDelegatorStatus = (
   delegator: NonNullable<AccountQueryResult["data"]>["delegator"],
-  currentRound:
-    | NonNullable<
-        NonNullable<AccountQueryResult["data"]>["protocol"]
-      >["currentRound"]
-    | undefined
+  currentRound: NonNullable<NonNullable<AccountQueryResult["data"]>["protocol"]>["currentRound"] | undefined
 ): string => {
   if (!+(delegator?.bondedAmount ?? 0)) {
     return "Unbonded";
   } else if (
     (delegator?.unbondingLocks?.filter(
-      (lock) =>
-        lock?.withdrawRound &&
-        +(lock.withdrawRound ?? 0) > +(currentRound?.id ?? 0)
+      (lock) => lock?.withdrawRound && +(lock.withdrawRound ?? 0) > +(currentRound?.id ?? 0)
     )?.length ?? 0) > 0
   ) {
     return "Unbonding";
   } else if (+(delegator?.startRound ?? 0) > +(currentRound?.id ?? 0)) {
     return "Pending";
-  } else if (
-    +(delegator?.startRound ?? 0) > 0 &&
-    +(delegator?.startRound ?? 0) <= +(currentRound?.id ?? 0)
-  ) {
+  } else if (+(delegator?.startRound ?? 0) > 0 && +(delegator?.startRound ?? 0) <= +(currentRound?.id ?? 0)) {
     return "Bonded";
   } else {
     return "Unbonded";
   }
 };
 
-export const MAXIMUM_VALUE_UINT256 =
-  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+export const MAXIMUM_VALUE_UINT256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
 export const textTruncate = (str, length, ending) => {
   if (length === null) {
@@ -171,9 +156,7 @@ export const getHint = (id, transcoders) => {
     return hint;
   }
 
-  const index = transcoders.findIndex(
-    (t) => t.id.toLowerCase() === id.toLowerCase()
-  );
+  const index = transcoders.findIndex((t) => t.id.toLowerCase() === id.toLowerCase());
 
   // if transcoder is not in active set return
   if (index < 0 || transcoders.length < 2) {
@@ -199,25 +182,19 @@ export const simulateNewActiveSetOrder = ({
   oldDelegate = EMPTY_ADDRESS,
 }: {
   action: StakingAction;
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"];
+  transcoders: NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"];
   amount: BigNumber;
   newDelegate: string;
   oldDelegate?: string;
 }) => {
-  const index = transcoders.findIndex(
-    (t) => t.id.toLowerCase() === newDelegate.toLowerCase()
-  );
+  const index = transcoders.findIndex((t) => t.id.toLowerCase() === newDelegate.toLowerCase());
 
   if (index < 0) {
     return transcoders;
   }
 
   if (action === "delegate") {
-    transcoders[index].totalStake = (
-      +transcoders[index].totalStake + +amount
-    ).toString();
+    transcoders[index].totalStake = (+transcoders[index].totalStake + +amount).toString();
 
     // if delegator is moving stake, subtract amount from old delegate
     if (
@@ -225,19 +202,13 @@ export const simulateNewActiveSetOrder = ({
       oldDelegate.toLowerCase() !== newDelegate.toLowerCase() &&
       oldDelegate.toLowerCase() !== EMPTY_ADDRESS
     ) {
-      const oldDelegateIndex = transcoders.findIndex(
-        (t) => t.id.toLowerCase() === oldDelegate.toLowerCase()
-      );
+      const oldDelegateIndex = transcoders.findIndex((t) => t.id.toLowerCase() === oldDelegate.toLowerCase());
       if (oldDelegateIndex !== -1) {
-        transcoders[oldDelegateIndex].totalStake = (
-          +transcoders[oldDelegateIndex].totalStake - +amount
-        ).toString();
+        transcoders[oldDelegateIndex].totalStake = (+transcoders[oldDelegateIndex].totalStake - +amount).toString();
       }
     }
   } else {
-    transcoders[index].totalStake = (
-      +transcoders[index].totalStake - +amount
-    ).toString();
+    transcoders[index].totalStake = (+transcoders[index].totalStake - +amount).toString();
   }
 
   // reorder transcoders array
@@ -269,17 +240,12 @@ export const toK = (num) => {
  * @param {*} valueAsOfPeriodOne
  * @param {*} valueAsOfPeriodTwo
  */
-export const getTwoPeriodPercentChange = (
-  valueNow: number,
-  valueAsOfPeriodOne: number,
-  valueAsOfPeriodTwo: number
-) => {
+export const getTwoPeriodPercentChange = (valueNow: number, valueAsOfPeriodOne: number, valueAsOfPeriodTwo: number) => {
   // get volume info for both 24 hour periods
   const currentChange = valueNow - valueAsOfPeriodOne;
   const previousChange = valueAsOfPeriodOne - valueAsOfPeriodTwo;
 
-  const adjustedPercentChange =
-    ((currentChange - previousChange) / previousChange) * 100;
+  const adjustedPercentChange = ((currentChange - previousChange) / previousChange) * 100;
 
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return [currentChange, 0];
@@ -326,9 +292,7 @@ export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
  */
 export const getPercentChange = (valueNow, value24HoursAgo) => {
   const adjustedPercentChange =
-    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) /
-      parseFloat(value24HoursAgo)) *
-    100;
+    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100;
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return 0;
   }
@@ -340,9 +304,7 @@ type LivepeerComUsageParams = {
   toTime: number;
 };
 
-export const getLivepeerComUsageData = async (
-  params?: LivepeerComUsageParams
-) => {
+export const getLivepeerComUsageData = async (params?: LivepeerComUsageParams) => {
   try {
     const endpoint = `https://livepeer.com/api/usage${
       params ? `?fromTime=${params.fromTime}&toTime=${params.toTime}` : ""
@@ -375,8 +337,7 @@ export const getTotalFeeDerivedMinutes = ({
 }): number => {
   const ethDaiRate = totalVolumeETH / totalVolumeUSD;
   const usdAveragePricePerPixel = pricePerPixel / ethDaiRate;
-  const feeDerivedMinutes =
-    totalVolumeUSD / usdAveragePricePerPixel / pixelsPerMinute || 0;
+  const feeDerivedMinutes = totalVolumeUSD / usdAveragePricePerPixel / pixelsPerMinute || 0;
   return feeDerivedMinutes;
 };
 

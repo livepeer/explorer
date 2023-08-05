@@ -455,6 +455,40 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               )}
                             </Button>
                           </Link>
+                          <Link passHref href="/treasury">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                bc: asPath.includes("/treasury")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Treasury{" "}
+                              {(totalActivePolls ?? 0) > 0 && (
+                                <Badge
+                                  size="2"
+                                  variant="green"
+                                  css={{
+                                    ml: "6px",
+                                  }}
+                                >
+                                  {totalActivePolls}
+                                </Badge>
+                              )}
+                            </Button>
+                          </Link>
                           {accountAddress && (
                             <Link passHref href={`/accounts/${accountAddress}`}>
                               <Button

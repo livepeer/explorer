@@ -17,6 +17,12 @@ export const getNodeInterfaceAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface;
 export const getPollCreatorAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.pollCreator;
+export const getLivepeerGovernorAddress = (): Address | undefined =>
+  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.livepeerGovernor;
+export const getGovernorVotesAddress = (): Address| undefined =>
+  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.governorVotes;
+export const getTreasuryAddress = (): Address| undefined =>
+  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.treasury;
 
 // DYNAMIC ADDRESSES FROM CONTROLLER
 
