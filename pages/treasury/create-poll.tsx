@@ -327,8 +327,6 @@ export async function getStaticProps() {
       )
         lips.push({ ...transformedLip, text: lip.content.text });
     }
-  } else {
-    return null;
   }
 
   return {
