@@ -40,14 +40,14 @@ const handler = async (
           address: bondingManagerAddress,
           abi: bondingManager,
           functionName: "pendingStake",
-          args: [address as Address, currentRound],
+          args: [address, currentRound],
         });
 
         const pendingFees = await l2PublicClient.readContract({
           address: bondingManagerAddress,
           abi: bondingManager,
           functionName: "pendingFees",
-          args: [address as Address, currentRound],
+          args: [address, currentRound],
         });
 
         const roundInfo: PendingFeesAndStake = {

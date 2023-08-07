@@ -85,8 +85,6 @@ export const getProposalVoteCounts = (
   const missingVotes = totalVoteSupply - totalVotes;
 
   return {
-    ...proposal,
-    ...state,
     estimatedEndTime,
 
     percent: {

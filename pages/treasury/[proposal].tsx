@@ -1,4 +1,3 @@
-import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
@@ -13,8 +12,10 @@ import Head from "next/head";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import {
+  useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
+  useProposalVotingPowerData,
   useTreasuryProposalData,
   useTreasuryProposalStateData,
 } from "../../hooks";
@@ -24,8 +25,12 @@ import { useProtocolQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
-import { getProposalTextAttributes, getProposalVoteCounts } from "@lib/api/treasury";
+import {
+  getProposalTextAttributes,
+  getProposalVoteCounts,
+} from "@lib/api/treasury";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
+import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
@@ -39,16 +44,29 @@ const Poll = () => {
 
   const proposalId = query?.proposal?.toString().toLowerCase();
 
+  const accountAddress = useAccountAddress();
   const proposal = useTreasuryProposalData(proposalId);
   const state = useTreasuryProposalStateData(proposalId);
+  const votingPower = useProposalVotingPowerData(proposal?.id, accountAddress);
   const protocol = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
   const isLoading = !proposal || !state || !protocol?.data || !currentRound;
 
-  const attributes = useMemo(() => (isLoading ? null : getProposalTextAttributes(proposal)), [isLoading, proposal]);
+  const attributes = useMemo(
+    () => (isLoading ? null : getProposalTextAttributes(proposal)),
+    [isLoading, proposal]
+  );
   const voteCounts = useMemo(
-    () => (isLoading ? null : getProposalVoteCounts(proposal, state, currentRound, protocol.data ?? ({} as any))),
+    () =>
+      isLoading
+        ? null
+        : getProposalVoteCounts(
+            proposal,
+            state,
+            currentRound,
+            protocol.data ?? ({} as any)
+          ),
     [isLoading, currentRound, protocol, proposal, state]
   );
 
@@ -117,9 +135,19 @@ const Poll = () => {
                 {isLoading ? (
                   <Box>Loading...</Box>
                 ) : !["Pending", "Active"].includes(state?.state) ? (
-                  <Box>Voting ended on {dayjs.unix(voteCounts.estimatedEndTime).format("MMM D, YYYY")}</Box>
+                  <Box>
+                    Voting ended on{" "}
+                    {dayjs
+                      .unix(voteCounts.estimatedEndTime)
+                      .format("MMM D, YYYY")}
+                  </Box>
                 ) : (
-                  <Box>Voting ongoing until ~${dayjs.unix(voteCounts.estimatedEndTime).format("MMM D, YYYY")}</Box>
+                  <Box>
+                    Voting ongoing until ~$
+                    {dayjs
+                      .unix(voteCounts.estimatedEndTime)
+                      .format("MMM D, YYYY")}
+                  </Box>
                 )}
               </Text>
               {state.state === "Active" && (
@@ -155,8 +183,16 @@ const Poll = () => {
               >
                 <Stat
                   css={{ flex: 1, mb: 0 }}
-                  label={<Box>Total Support ({+state.quota / 10000}% needed)</Box>}
-                  value={<Box>{formatPercent(voteCounts.total.for / voteCounts.total.quotaVoters)}</Box>}
+                  label={
+                    <Box>Total Support ({+state.quota / 10000}% needed)</Box>
+                  }
+                  value={
+                    <Box>
+                      {formatPercent(
+                        voteCounts.total.for / voteCounts.total.quotaVoters
+                      )}
+                    </Box>
+                  }
                   meta={
                     <Box css={{ mt: "$4" }}>
                       <Flex
@@ -168,9 +204,13 @@ const Poll = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>For ({formatPercent(voteCounts.percent.for)})</Box>
+                          <Box>
+                            For ({formatPercent(voteCounts.percent.for)})
+                          </Box>
                         </Flex>
-                        <Box as="span">{abbreviateNumber(voteCounts.total.for, 4)} LPT</Box>
+                        <Box as="span">
+                          {abbreviateNumber(voteCounts.total.for, 4)} LPT
+                        </Box>
                       </Flex>
                       <Flex
                         css={{
@@ -181,9 +221,14 @@ const Poll = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>Against ({formatPercent(voteCounts.percent.against)})</Box>
+                          <Box>
+                            Against ({formatPercent(voteCounts.percent.against)}
+                            )
+                          </Box>
                         </Flex>
-                        <Box as="span">{abbreviateNumber(voteCounts.total.against, 4)} LPT</Box>
+                        <Box as="span">
+                          {abbreviateNumber(voteCounts.total.against, 4)} LPT
+                        </Box>
                       </Flex>
                       <Flex
                         css={{
@@ -193,9 +238,14 @@ const Poll = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>Abstain ({formatPercent(voteCounts.percent.abstain)})</Box>
+                          <Box>
+                            Abstain ({formatPercent(voteCounts.percent.abstain)}
+                            )
+                          </Box>
                         </Flex>
-                        <Box as="span">{abbreviateNumber(voteCounts.total.abstain, 4)} LPT</Box>
+                        <Box as="span">
+                          {abbreviateNumber(voteCounts.total.abstain, 4)} LPT
+                        </Box>
                       </Flex>
                     </Box>
                   }
@@ -203,7 +253,12 @@ const Poll = () => {
 
                 <Stat
                   css={{ flex: 1, mb: 0 }}
-                  label={<Box>Total Participation ({(+state.quorum / +state.totalVoteSupply) * 100}% needed)</Box>}
+                  label={
+                    <Box>
+                      Total Participation (
+                      {(+state.quorum / +state.totalVoteSupply) * 100}% needed)
+                    </Box>
+                  }
                   value={<Box>{formatPercent(voteCounts.percent.voters)}</Box>}
                   meta={
                     <Box css={{ mt: "$4" }}>
@@ -219,7 +274,9 @@ const Poll = () => {
                           Voters ({formatPercent(voteCounts.percent.voters)})
                         </Box>
                         <Box as="span">
-                          <Box as="span">{abbreviateNumber(voteCounts.total.voters, 4)} LPT</Box>
+                          <Box as="span">
+                            {abbreviateNumber(voteCounts.total.voters, 4)} LPT
+                          </Box>
                         </Box>
                       </Flex>
                       <Flex
@@ -230,10 +287,14 @@ const Poll = () => {
                         }}
                       >
                         <Box as="span" css={{ color: "$muted" }}>
-                          Nonvoters ({formatPercent(voteCounts.percent.nonVoters)})
+                          Nonvoters (
+                          {formatPercent(voteCounts.percent.nonVoters)})
                         </Box>
                         <Box as="span">
-                          <Box as="span">{abbreviateNumber(voteCounts.total.nonVoters, 4)} LPT</Box>
+                          <Box as="span">
+                            {abbreviateNumber(voteCounts.total.nonVoters, 4)}{" "}
+                            LPT
+                          </Box>
                         </Box>
                       </Flex>
                     </Box>
@@ -281,10 +342,22 @@ const Poll = () => {
                 },
               }}
             >
-              {/* <VotingWidget data={{} as any} /> */}
+              <TreasuryVotingWidget
+                proposal={proposal}
+                state={state}
+                voteCounts={voteCounts}
+                vote={votingPower}
+              />
             </Flex>
           ) : (
-            <BottomDrawer>{/* <VotingWidget data={{} as any} /> */}</BottomDrawer>
+            <BottomDrawer>
+              <TreasuryVotingWidget
+                proposal={proposal}
+                state={state}
+                voteCounts={voteCounts}
+                vote={votingPower}
+              />
+            </BottomDrawer>
           )}
         </Flex>
       </Container>

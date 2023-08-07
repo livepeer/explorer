@@ -7,8 +7,13 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { AllPerformanceMetrics, PerformanceMetrics } from "@lib/api/types/get-performance";
-import { Proposal, ProposalState } from "@lib/api/types/get-treasury-proposal";
+import {
+  Proposal,
+  ProposalState,
+  ProposalVotingPower,
+} from "@lib/api/types/get-treasury-proposal";
 import useSWR from "swr";
+import { Address } from "viem";
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
   const { data } = useSWR<EnsIdentity>(address ? `/ens-data/${address.toLowerCase()}` : null);
@@ -79,8 +84,22 @@ export const useTreasuryProposalData = (id: string | undefined) => {
 };
 
 export const useTreasuryProposalStateData = (id: string | undefined) => {
-  const { data } = useSWR<ProposalState>(id ? `/treasury/proposal/${id}/state` : null);
+  const { data } = useSWR<ProposalState>(
+    id ? `/treasury/proposal/${id}/state` : null
+  );
 
+  return data ?? null;
+};
+
+export const useProposalVotingPowerData = (
+  id: string | undefined,
+  address: Address | undefined | null
+) => {
+  const { data } = useSWR<ProposalVotingPower>(
+    id && address
+      ? `/treasury/proposal/${id}/votes/${address.toLowerCase()}`
+      : null
+  );
   return data ?? null;
 };
 

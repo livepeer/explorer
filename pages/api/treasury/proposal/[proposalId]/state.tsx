@@ -54,7 +54,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       })
       .then((bn) => bn.toString());
 
-    console.log("calling proposalVotes");
     const votes = await l2PublicClient
       .readContract({
         address: livepeerGovernorAddress,

@@ -1,18 +1,60 @@
+import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
+import { getLivepeerGovernorAddress } from "@lib/api/contracts";
 import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import {
+  Address,
+  UsePrepareContractWriteConfig,
+  useContractWrite,
+  usePrepareContractWrite,
+} from "wagmi";
 
-const Index = ({ pollAddress, choiceId, children, ...props }) => {
+type Props = React.ComponentProps<typeof Button> & {
+  pollAddress?: Address;
+  proposalId?: string;
+  choiceId: number;
+};
+
+const livepeerGovernorAddress = getLivepeerGovernorAddress();
+
+import { useMemo } from "react";
+
+const Index = ({
+  pollAddress,
+  proposalId,
+  choiceId,
+  children,
+  ...props
+}: Props) => {
   const accountAddress = useAccountAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(pollAddress),
-    address: pollAddress,
-    abi: poll,
-    functionName: "vote",
-    args: [choiceId],
-  });
+  const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
+    if (!proposalId && !pollAddress) {
+      return {
+        enabled: false,
+      };
+    }
+
+    if (proposalId) {
+      return {
+        enabled: Boolean(accountAddress),
+        address: livepeerGovernorAddress,
+        abi: livepeerGovernor,
+        functionName: "castVote",
+        args: [BigInt(proposalId), choiceId],
+      };
+    }
+    return {
+      enabled: Boolean(accountAddress),
+      address: pollAddress,
+      abi: poll,
+      functionName: "vote",
+      args: [BigInt(choiceId)],
+    };
+  }, [proposalId, pollAddress, choiceId, accountAddress]);
+
+  const { config } = usePrepareContractWrite(preparedWriteConfig);
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
   useHandleTransaction("vote", data, error, isLoading, isSuccess, { choiceId });

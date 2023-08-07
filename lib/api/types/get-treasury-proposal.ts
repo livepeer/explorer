@@ -1,3 +1,5 @@
+import { Address } from "viem";
+
 export type Proposal = {
   id: string;
   proposer: string;
@@ -8,7 +10,16 @@ export type Proposal = {
 
 export type ProposalState = {
   id: string;
-  state: "Pending" | "Active" | "Canceled" | "Defeated" | "Succeeded" | "Queued" | "Expired" | "Executed" | "Unknown";
+  state:
+    | "Pending"
+    | "Active"
+    | "Canceled"
+    | "Defeated"
+    | "Succeeded"
+    | "Queued"
+    | "Expired"
+    | "Executed"
+    | "Unknown";
   quota: string;
   quorum: string;
   totalVoteSupply: string;
@@ -16,5 +27,18 @@ export type ProposalState = {
     against: string;
     for: string;
     abstain: string;
+  };
+};
+
+export type ProposalVotingPower = {
+  self: {
+    address: Address;
+    votes: string;
+    hasVoted: boolean;
+  };
+  delegate?: {
+    address: Address;
+    votes: string;
+    hasVoted: boolean;
   };
 };
