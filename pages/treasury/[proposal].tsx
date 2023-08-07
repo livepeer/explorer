@@ -10,10 +10,9 @@ import Stat from "@components/Stat";
 import { Badge, Box, Button, Card, Container, Flex, Heading, Text } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import {
-  useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
   useTreasuryProposalData,
@@ -21,8 +20,7 @@ import {
 } from "../../hooks";
 import FourZeroFour from "../404";
 
-import { getPollExtended, PollExtended } from "@lib/api/polls";
-import { useAccountQuery, usePollQuery, useProtocolQuery, useVoteQuery } from "apollo";
+import { useProtocolQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
@@ -53,7 +51,6 @@ const Poll = () => {
     () => (isLoading ? null : getProposalVoteCounts(proposal, state, currentRound, protocol.data ?? ({} as any))),
     [isLoading, currentRound, protocol, proposal, state]
   );
-  console.log({ voteCounts, proposal, state, currentRound, protocol });
 
   if (!proposalId) {
     return <FourZeroFour />;
@@ -159,7 +156,7 @@ const Poll = () => {
                 <Stat
                   css={{ flex: 1, mb: 0 }}
                   label={<Box>Total Support ({+state.quota / 10000}% needed)</Box>}
-                  value={<Box>{formatPercent(voteCounts.percent.for)}</Box>}
+                  value={<Box>{formatPercent(voteCounts.total.for / voteCounts.total.quotaVoters)}</Box>}
                   meta={
                     <Box css={{ mt: "$4" }}>
                       <Flex

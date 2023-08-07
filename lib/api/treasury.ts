@@ -38,6 +38,7 @@ export type ProposalVoteCounts = {
     abstain: number;
 
     voters: number;
+    quotaVoters: number;
     nonVoters: number;
   };
 };
@@ -76,7 +77,8 @@ export const getProposalVoteCounts = (
   const againstVotes = +(state.votes.against || 0) / 1e18;
   const forVotes = +(state.votes.for || 0) / 1e18;
   const abstainVotes = +(state.votes.abstain || 0) / 1e18;
-  const totalVotes = againstVotes + forVotes + againstVotes;
+  const totalVotes = againstVotes + forVotes + abstainVotes;
+  const quotaTotalVotes = againstVotes + forVotes;
 
   const estimatedEndTime = getEstimatedEndTimeByRound(+(proposal.voteEnd ?? 0) + 1, currentRound, protocol);
 
@@ -101,6 +103,7 @@ export const getProposalVoteCounts = (
       abstain: abstainVotes,
 
       voters: totalVotes,
+      quotaVoters: quotaTotalVotes,
       nonVoters: missingVotes,
     },
   };
