@@ -44,11 +44,13 @@ const Poll = () => {
   const proposalId = query?.proposal?.toString().toLowerCase();
 
   const accountAddress = useAccountAddress();
-  const { data: proposalQuery } = useTreasuryProposalQuery({
-    variables: { id: proposalId ?? "" },
-    skip: !proposalId,
-  });
-  const { data: state } = useTreasuryProposalState(proposalId);
+  const { data: proposalQuery, error: proposalError } =
+    useTreasuryProposalQuery({
+      variables: { id: proposalId ?? "" },
+      skip: !proposalId,
+    });
+  const { data: state, error: stateError } =
+    useTreasuryProposalState(proposalId);
   const votingPower = useProposalVotingPowerData(proposalId, accountAddress);
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
@@ -65,25 +67,30 @@ const Poll = () => {
     );
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
-  if (!proposalId) {
+  if (stateError || proposalError) {
     return <FourZeroFour />;
   }
 
   if (!proposal) {
     return (
-      <Flex
-        css={{
-          height: "calc(100vh - 100px)",
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          "@bp3": {
-            height: "100vh",
-          },
-        }}
-      >
-        <Spinner />
-      </Flex>
+      <>
+        <Head>
+          <title>Livepeer Explorer - Voting</title>
+        </Head>
+        <Flex
+          css={{
+            height: "calc(100vh - 100px)",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            "@bp3": {
+              height: "100vh",
+            },
+          }}
+        >
+          <Spinner />
+        </Flex>
+      </>
     );
   }
 
