@@ -71,24 +71,8 @@ export const usePendingFeesAndStakeData = (address: string | undefined | null) =
   return data ?? null;
 };
 
-export const useTreasuryProposalListData = () => {
-  const { data } = useSWR<Proposal[]>(`/treasury/proposal`);
-
-  return data ?? null;
-};
-
-export const useTreasuryProposalData = (id: string | undefined) => {
-  const { data } = useSWR<Proposal>(id ? `/treasury/proposal/${id}` : null);
-
-  return data ?? null;
-};
-
-export const useTreasuryProposalStateData = (id: string | undefined) => {
-  const { data } = useSWR<ProposalState>(
-    id ? `/treasury/proposal/${id}/state` : null
-  );
-
-  return data ?? null;
+export const useTreasuryProposalState = (id: string | undefined) => {
+  return useSWR<ProposalState>(id ? `/treasury/proposal/${id}/state` : null);
 };
 
 export const useProposalVotingPowerData = (

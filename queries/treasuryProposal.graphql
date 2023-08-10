@@ -1,0 +1,14 @@
+query treasuryProposal($id: ID!) {
+  treasuryProposal(id: $id) {
+    id
+    description
+    calldatas
+    targets
+    values
+    voteEnd
+    voteStart
+    proposer {
+      id
+    }
+  }
+}

@@ -424,6 +424,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
+  const errorProps = {
+    props: {},
+    revalidate: 300,
+  };
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
@@ -431,7 +435,7 @@ export const getStaticProps = async () => {
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {
-      return null;
+      return errorProps;
     }
 
     const props: PageProps = {
@@ -450,7 +454,7 @@ export const getStaticProps = async () => {
     console.error(e);
   }
 
-  return null;
+  return errorProps;
 };
 
 Home.getLayout = getLayout;

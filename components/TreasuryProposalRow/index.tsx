@@ -1,13 +1,16 @@
 import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ProtocolQuery } from "apollo";
-import { useTreasuryProposalStateData } from "hooks";
+import { useTreasuryProposalState } from "hooks";
 import { sentenceCase } from "change-case";
-import { Proposal } from "@lib/api/types/get-treasury-proposal";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { ProposalVoteCounts, getProposalTextAttributes, getProposalVoteCounts } from "@lib/api/treasury";
+import {
+  ParsedProposal,
+  ProposalExtended,
+  getProposalExtended,
+} from "@lib/api/treasury";
 
 export const BadgeVariantByState = {
   Pending: "blue",
@@ -22,23 +25,38 @@ export const BadgeVariantByState = {
 
 type Props = {
   key: string;
-  proposal: Proposal;
+  proposal: ParsedProposal;
   currentRound: CurrentRoundInfo;
   protocol: ProtocolQuery["protocol"];
 };
 
-const TreasuryProposalRow = ({ key, proposal, currentRound, protocol, ...props }: Props) => {
-  const state = useTreasuryProposalStateData(proposal.id);
+const TreasuryProposalRow = ({
+  key,
+  proposal: parsedProposal,
+  currentRound,
+  protocol,
+  ...props
+}: Props) => {
+  const { data: state, error: stateFetchErr } = useTreasuryProposalState(
+    parsedProposal.id
+  );
+  const isLoadingState = !state && !stateFetchErr;
 
-  const attributes = useMemo(() => getProposalTextAttributes(proposal), [proposal]);
-
-  const voteCounts = useMemo(() => {
-    if (!state) return null;
-    return getProposalVoteCounts(proposal, state, currentRound, protocol);
-  }, [currentRound, protocol, proposal, state]);
+  const proposal = useMemo<ParsedProposal | ProposalExtended>(() => {
+    return !state
+      ? parsedProposal
+      : getProposalExtended(parsedProposal, state, currentRound, protocol);
+  }, [currentRound, protocol, parsedProposal, state]);
 
   return (
-    <Link {...props} href="/treasury/[proposal]" as={`/treasury/${proposal.id}`} passHref>
+    <Link
+      {...props}
+      href="/treasury/[proposal]"
+      as={`/treasury/${proposal.id}`}
+      passHref
+      // disable clicking if there's no state (i.e. details page would just hang)
+      {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
+    >
       <A
         css={{
           cursor: "pointer",
@@ -68,16 +86,28 @@ const TreasuryProposalRow = ({ key, proposal, currentRound, protocol, ...props }
           >
             <Box>
               <Heading size="1" css={{ mb: "$1" }}>
-                {attributes.title}
-                {!attributes.lip ? "" : ` (LIP ${attributes.lip})`}
+                {proposal.attributes.title}
+                {!proposal.attributes.lip
+                  ? ""
+                  : ` (LIP ${proposal.attributes.lip})`}
               </Heading>
               <Box css={{ fontSize: "$1", color: "$neutral10" }}>
-                {!state || !voteCounts ? (
+                {!state || !("votes" in proposal) ? (
                   <Box>Loading...</Box>
                 ) : !["Pending", "Active"].includes(state?.state) ? (
-                  <Box>Voting ended on {dayjs.unix(voteCounts.estimatedEndTime).format("MMM D, YYYY")}</Box>
+                  <Box>
+                    Voting ended on{" "}
+                    {dayjs
+                      .unix(proposal.votes.estimatedEndTime)
+                      .format("MMM D, YYYY")}
+                  </Box>
                 ) : (
-                  <Box>Voting ongoing until ~${dayjs.unix(voteCounts.estimatedEndTime).format("MMM D, YYYY")}</Box>
+                  <Box>
+                    Voting ongoing until ~$
+                    {dayjs
+                      .unix(proposal.votes.estimatedEndTime)
+                      .format("MMM D, YYYY")}
+                  </Box>
                 )}
               </Box>
             </Box>
@@ -89,7 +119,9 @@ const TreasuryProposalRow = ({ key, proposal, currentRound, protocol, ...props }
                 fontWeight: 700,
               }}
             >
-              {sentenceCase(state?.state ?? "Unknown")}
+              {sentenceCase(
+                isLoadingState ? "Loading" : state?.state ?? "Unknown"
+              )}
             </Badge>
           </Flex>
         </Card>

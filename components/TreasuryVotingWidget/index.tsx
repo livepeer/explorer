@@ -6,22 +6,13 @@ import numeral from "numeral";
 import { useMemo } from "react";
 import { abbreviateNumber } from "../../lib/utils";
 import VoteButton from "../VoteButton";
-import {
-  Proposal,
-  ProposalState,
-  ProposalVotingPower,
-} from "@lib/api/types/get-treasury-proposal";
-import {
-  ProposalVoteCounts,
-  getProposalTextAttributes,
-} from "@lib/api/treasury";
+import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
+import { ProposalExtended } from "@lib/api/treasury";
 
 dayjs.extend(duration);
 
 type Props = {
-  proposal: Proposal;
-  state: ProposalState;
-  voteCounts: ProposalVoteCounts;
+  proposal: ProposalExtended;
   vote: ProposalVotingPower | undefined | null;
 };
 
@@ -33,19 +24,8 @@ const shortenAddress = (address: string) =>
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(parseInt(lpt ?? "0") / 1e18, 4);
 
-const TreasuryVotingWidget = ({
-  proposal,
-  state,
-  voteCounts,
-  vote,
-  ...props
-}: Props) => {
+const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();
-
-  const attributes = useMemo(
-    () => proposal && getProposalTextAttributes(proposal),
-    [proposal]
-  );
 
   return (
     <Box css={{ width: "100%" }} {...props}>
@@ -62,7 +42,10 @@ const TreasuryVotingWidget = ({
         >
           <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
             Do you support{" "}
-            {attributes?.lip ? `LIP-${attributes?.lip}` : "this proposal"}?
+            {proposal.attributes?.lip
+              ? `LIP-${proposal.attributes?.lip}`
+              : "this proposal"}
+            ?
           </Heading>
 
           <Box
@@ -88,13 +71,13 @@ const TreasuryVotingWidget = ({
                     borderTopLeftRadius: 6,
                     borderBottomLeftRadius: 6,
                     borderTopRightRadius:
-                      voteCounts.percent.against === 1 ? 6 : 0,
+                      proposal.votes.percent.against === 1 ? 6 : 0,
                     borderBottomRightRadius:
-                      voteCounts.percent.against === 1 ? 6 : 0,
+                      proposal.votes.percent.against === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
                     backgroundColor: "rgba(255, 255, 255, .1)",
-                    width: `${voteCounts.percent.against * 100}%`,
+                    width: `${proposal.votes.percent.against * 100}%`,
                   }}
                 />
                 <Box
@@ -114,7 +97,7 @@ const TreasuryVotingWidget = ({
                     fontSize: "$2",
                   }}
                 >
-                  {formatPercent(voteCounts.percent.against)}
+                  {formatPercent(proposal.votes.percent.against)}
                 </Box>
               </Flex>
               <Flex
@@ -131,13 +114,14 @@ const TreasuryVotingWidget = ({
                   css={{
                     borderTopLeftRadius: 6,
                     borderBottomLeftRadius: 6,
-                    borderTopRightRadius: voteCounts.percent.for === 1 ? 6 : 0,
+                    borderTopRightRadius:
+                      proposal.votes.percent.for === 1 ? 6 : 0,
                     borderBottomRightRadius:
-                      voteCounts.percent.for === 1 ? 6 : 0,
+                      proposal.votes.percent.for === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
                     backgroundColor: "rgba(255, 255, 255, .2)",
-                    width: `${voteCounts.percent.for * 100}%`,
+                    width: `${proposal.votes.percent.for * 100}%`,
                   }}
                 />
                 <Box
@@ -157,7 +141,7 @@ const TreasuryVotingWidget = ({
                     fontSize: "$2",
                   }}
                 >
-                  {formatPercent(voteCounts.percent.for)}
+                  {formatPercent(proposal.votes.percent.for)}
                 </Box>
               </Flex>
               <Flex
@@ -174,13 +158,13 @@ const TreasuryVotingWidget = ({
                     borderTopLeftRadius: 6,
                     borderBottomLeftRadius: 6,
                     borderTopRightRadius:
-                      voteCounts.percent.abstain === 1 ? 6 : 0,
+                      proposal.votes.percent.abstain === 1 ? 6 : 0,
                     borderBottomRightRadius:
-                      voteCounts.percent.abstain === 1 ? 6 : 0,
+                      proposal.votes.percent.abstain === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
                     backgroundColor: "rgba(255, 255, 255, .3)",
-                    width: `${voteCounts.percent.abstain * 100}%`,
+                    width: `${proposal.votes.percent.abstain * 100}%`,
                   }}
                 />
                 <Box
@@ -200,17 +184,17 @@ const TreasuryVotingWidget = ({
                     fontSize: "$2",
                   }}
                 >
-                  {formatPercent(voteCounts.percent.abstain)}
+                  {formatPercent(proposal.votes.percent.abstain)}
                 </Box>
               </Flex>
             </Box>
             <Box css={{ fontSize: "$2", color: "$neutral11" }}>
-              {abbreviateNumber(voteCounts.total.voters, 4)} LPT voted ·{" "}
-              {state.state !== "Pending" && state.state !== "Active"
+              {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
+              {proposal.state !== "Pending" && proposal.state !== "Active"
                 ? "Final Results"
                 : dayjs
                     .duration(
-                      dayjs().unix() - voteCounts.estimatedEndTime,
+                      dayjs().unix() - proposal.votes.estimatedEndTime,
                       "seconds"
                     )
                     .humanize() + " left"}
@@ -229,14 +213,14 @@ const TreasuryVotingWidget = ({
                     }}
                   >
                     <Box as="span" css={{ color: "$neutral11" }}>
-                      My Delegate{" "}
+                      Your Delegate{" "}
                       {vote?.delegate &&
                         `(${shortenAddress(vote?.delegate.address)})`}
                       {vote?.delegate &&
-                        `: ${
+                        ` ${
                           vote.delegate.hasVoted
                             ? "already voted"
-                            : "vote pending"
+                            : "hasn't voted yet"
                         }`}
                     </Box>
                     <Box as="span" css={{ fontWeight: 500, color: "white" }}>
@@ -251,11 +235,11 @@ const TreasuryVotingWidget = ({
                   }}
                 >
                   <Box as="span" css={{ color: "$neutral11" }}>
-                    My Vote (
+                    You (
                     {accountAddress.replace(accountAddress.slice(5, 39), "…")})
                     {vote?.self &&
-                      `: ${
-                        vote.self.hasVoted ? "already voted" : "vote pending"
+                      ` ${
+                        vote.self.hasVoted ? "already voted" : "haven't voted yet"
                       }`}
                   </Box>
                   <Box
@@ -265,7 +249,7 @@ const TreasuryVotingWidget = ({
                     {vote?.self ? formatLPT(vote.self.votes) : "N/A"}
                   </Box>
                 </Flex>
-                {!vote?.self.hasVoted && state.state === "Active" && (
+                {!vote?.self.hasVoted && proposal.state === "Active" && (
                   <Flex
                     css={{
                       mt: "$2",
@@ -287,7 +271,7 @@ const TreasuryVotingWidget = ({
               </Box>
               {!proposal ||
               !vote ||
-              state.state !== "Active" ||
+              proposal.state !== "Active" ||
               vote?.self.hasVoted ? null : (
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <VoteButton

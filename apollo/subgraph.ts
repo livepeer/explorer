@@ -1,16 +1,10 @@
-import { gql } from "@apollo/client";
-import * as Apollo from "@apollo/client";
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -22,16 +16,17 @@ export type Scalars = {
   BigDecimal: string;
   BigInt: string;
   Bytes: any;
+  Int8: any;
 };
 
 export type BlockChangedFilter = {
-  number_gte: Scalars["Int"];
+  number_gte: Scalars['Int'];
 };
 
 export type Block_Height = {
-  hash?: InputMaybe<Scalars["Bytes"]>;
-  number?: InputMaybe<Scalars["Int"]>;
-  number_gte?: InputMaybe<Scalars["Int"]>;
+  hash?: InputMaybe<Scalars['Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /**
@@ -71,6 +66,7 @@ export type BondEvent_Filter = {
   additionalAmount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   additionalAmount_not?: InputMaybe<Scalars["BigDecimal"]>;
   additionalAmount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<BondEvent_Filter>>>;
   bondedAmount?: InputMaybe<Scalars["BigDecimal"]>;
   bondedAmount_gt?: InputMaybe<Scalars["BigDecimal"]>;
   bondedAmount_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -150,6 +146,7 @@ export type BondEvent_Filter = {
   oldDelegate_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   oldDelegate_starts_with?: InputMaybe<Scalars["String"]>;
   oldDelegate_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<BondEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -206,12 +203,81 @@ export enum BondEvent_OrderBy {
   AdditionalAmount = "additionalAmount",
   BondedAmount = "bondedAmount",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   NewDelegate = "newDelegate",
+  NewDelegateActivationRound = "newDelegate__activationRound",
+  NewDelegateActivationTimestamp = "newDelegate__activationTimestamp",
+  NewDelegateActive = "newDelegate__active",
+  NewDelegateDeactivationRound = "newDelegate__deactivationRound",
+  NewDelegateFeeShare = "newDelegate__feeShare",
+  NewDelegateFeeShareUpdateTimestamp = "newDelegate__feeShareUpdateTimestamp",
+  NewDelegateId = "newDelegate__id",
+  NewDelegateLastActiveStakeUpdateRound = "newDelegate__lastActiveStakeUpdateRound",
+  NewDelegateNinetyDayVolumeEth = "newDelegate__ninetyDayVolumeETH",
+  NewDelegateRewardCut = "newDelegate__rewardCut",
+  NewDelegateRewardCutUpdateTimestamp = "newDelegate__rewardCutUpdateTimestamp",
+  NewDelegateServiceUri = "newDelegate__serviceURI",
+  NewDelegateSixtyDayVolumeEth = "newDelegate__sixtyDayVolumeETH",
+  NewDelegateStatus = "newDelegate__status",
+  NewDelegateThirtyDayVolumeEth = "newDelegate__thirtyDayVolumeETH",
+  NewDelegateTotalStake = "newDelegate__totalStake",
+  NewDelegateTotalVolumeEth = "newDelegate__totalVolumeETH",
+  NewDelegateTotalVolumeUsd = "newDelegate__totalVolumeUSD",
   OldDelegate = "oldDelegate",
+  OldDelegateActivationRound = "oldDelegate__activationRound",
+  OldDelegateActivationTimestamp = "oldDelegate__activationTimestamp",
+  OldDelegateActive = "oldDelegate__active",
+  OldDelegateDeactivationRound = "oldDelegate__deactivationRound",
+  OldDelegateFeeShare = "oldDelegate__feeShare",
+  OldDelegateFeeShareUpdateTimestamp = "oldDelegate__feeShareUpdateTimestamp",
+  OldDelegateId = "oldDelegate__id",
+  OldDelegateLastActiveStakeUpdateRound = "oldDelegate__lastActiveStakeUpdateRound",
+  OldDelegateNinetyDayVolumeEth = "oldDelegate__ninetyDayVolumeETH",
+  OldDelegateRewardCut = "oldDelegate__rewardCut",
+  OldDelegateRewardCutUpdateTimestamp = "oldDelegate__rewardCutUpdateTimestamp",
+  OldDelegateServiceUri = "oldDelegate__serviceURI",
+  OldDelegateSixtyDayVolumeEth = "oldDelegate__sixtyDayVolumeETH",
+  OldDelegateStatus = "oldDelegate__status",
+  OldDelegateThirtyDayVolumeEth = "oldDelegate__thirtyDayVolumeETH",
+  OldDelegateTotalStake = "oldDelegate__totalStake",
+  OldDelegateTotalVolumeEth = "oldDelegate__totalVolumeETH",
+  OldDelegateTotalVolumeUsd = "oldDelegate__totalVolumeUSD",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -231,6 +297,7 @@ export type Broadcaster = {
 export type Broadcaster_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
   deposit?: InputMaybe<Scalars["BigDecimal"]>;
   deposit_gt?: InputMaybe<Scalars["BigDecimal"]>;
   deposit_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -247,6 +314,7 @@ export type Broadcaster_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
   reserve?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_gt?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -284,6 +352,7 @@ export type BurnEvent = Event & {
 export type BurnEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<BurnEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -292,6 +361,7 @@ export type BurnEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<BurnEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -355,8 +425,33 @@ export type BurnEvent_Filter = {
 export enum BurnEvent_OrderBy {
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   Value = "value",
 }
 
@@ -401,6 +496,7 @@ export type Day_Filter = {
   activeTranscoderCount_lte?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<Day_Filter>>>;
   date?: InputMaybe<Scalars["Int"]>;
   date_gt?: InputMaybe<Scalars["Int"]>;
   date_gte?: InputMaybe<Scalars["Int"]>;
@@ -441,6 +537,7 @@ export type Day_Filter = {
   numActiveTranscoders_lte?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Day_Filter>>>;
   participationRate?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gt?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -542,6 +639,7 @@ export type DelegatorUnbondingLocksArgs = {
 export type Delegator_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Delegator_Filter>>>;
   bondedAmount?: InputMaybe<Scalars["BigDecimal"]>;
   bondedAmount_gt?: InputMaybe<Scalars["BigDecimal"]>;
   bondedAmount_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -616,6 +714,7 @@ export type Delegator_Filter = {
   lastClaimRound_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   lastClaimRound_starts_with?: InputMaybe<Scalars["String"]>;
   lastClaimRound_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<Delegator_Filter>>>;
   principal?: InputMaybe<Scalars["BigDecimal"]>;
   principal_gt?: InputMaybe<Scalars["BigDecimal"]>;
   principal_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -654,10 +753,46 @@ export type Delegator_Filter = {
 export enum Delegator_OrderBy {
   BondedAmount = "bondedAmount",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   DelegatedAmount = "delegatedAmount",
   Fees = "fees",
   Id = "id",
   LastClaimRound = "lastClaimRound",
+  LastClaimRoundActiveTranscoderCount = "lastClaimRound__activeTranscoderCount",
+  LastClaimRoundDelegatorsCount = "lastClaimRound__delegatorsCount",
+  LastClaimRoundEndBlock = "lastClaimRound__endBlock",
+  LastClaimRoundId = "lastClaimRound__id",
+  LastClaimRoundInflation = "lastClaimRound__inflation",
+  LastClaimRoundInitialized = "lastClaimRound__initialized",
+  LastClaimRoundLength = "lastClaimRound__length",
+  LastClaimRoundMintableTokens = "lastClaimRound__mintableTokens",
+  LastClaimRoundMovedStake = "lastClaimRound__movedStake",
+  LastClaimRoundNewStake = "lastClaimRound__newStake",
+  LastClaimRoundNumActiveTranscoders = "lastClaimRound__numActiveTranscoders",
+  LastClaimRoundParticipationRate = "lastClaimRound__participationRate",
+  LastClaimRoundStartBlock = "lastClaimRound__startBlock",
+  LastClaimRoundStartTimestamp = "lastClaimRound__startTimestamp",
+  LastClaimRoundTotalActiveStake = "lastClaimRound__totalActiveStake",
+  LastClaimRoundTotalSupply = "lastClaimRound__totalSupply",
+  LastClaimRoundVolumeEth = "lastClaimRound__volumeETH",
+  LastClaimRoundVolumeUsd = "lastClaimRound__volumeUSD",
   Principal = "principal",
   StartRound = "startRound",
   Unbonded = "unbonded",
@@ -696,6 +831,7 @@ export type DepositFundedEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<DepositFundedEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -704,6 +840,7 @@ export type DepositFundedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<DepositFundedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -781,9 +918,37 @@ export enum DepositFundedEvent_OrderBy {
   Amount = "amount",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Sender = "sender",
+  SenderDeposit = "sender__deposit",
+  SenderId = "sender__id",
+  SenderReserve = "sender__reserve",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -817,6 +982,7 @@ export type EarningsClaimedEvent = Event & {
 export type EarningsClaimedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<EarningsClaimedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -896,6 +1062,7 @@ export type EarningsClaimedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<EarningsClaimedEvent_Filter>>>;
   rewardTokens?: InputMaybe<Scalars["BigDecimal"]>;
   rewardTokens_gt?: InputMaybe<Scalars["BigDecimal"]>;
   rewardTokens_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -966,15 +1133,84 @@ export type EarningsClaimedEvent_Filter = {
 
 export enum EarningsClaimedEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   EndRound = "endRound",
+  EndRoundActiveTranscoderCount = "endRound__activeTranscoderCount",
+  EndRoundDelegatorsCount = "endRound__delegatorsCount",
+  EndRoundEndBlock = "endRound__endBlock",
+  EndRoundId = "endRound__id",
+  EndRoundInflation = "endRound__inflation",
+  EndRoundInitialized = "endRound__initialized",
+  EndRoundLength = "endRound__length",
+  EndRoundMintableTokens = "endRound__mintableTokens",
+  EndRoundMovedStake = "endRound__movedStake",
+  EndRoundNewStake = "endRound__newStake",
+  EndRoundNumActiveTranscoders = "endRound__numActiveTranscoders",
+  EndRoundParticipationRate = "endRound__participationRate",
+  EndRoundStartBlock = "endRound__startBlock",
+  EndRoundStartTimestamp = "endRound__startTimestamp",
+  EndRoundTotalActiveStake = "endRound__totalActiveStake",
+  EndRoundTotalSupply = "endRound__totalSupply",
+  EndRoundVolumeEth = "endRound__volumeETH",
+  EndRoundVolumeUsd = "endRound__volumeUSD",
   Fees = "fees",
   Id = "id",
   RewardTokens = "rewardTokens",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   StartRound = "startRound",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 export type Event = {
@@ -987,6 +1223,7 @@ export type Event = {
 export type Event_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Event_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -995,6 +1232,7 @@ export type Event_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Event_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1050,8 +1288,33 @@ export type Event_Filter = {
 export enum Event_OrderBy {
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1073,6 +1336,7 @@ export type LivepeerAccount = {
 export type LivepeerAccount_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<LivepeerAccount_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -1131,11 +1395,38 @@ export type LivepeerAccount_Filter = {
   lastUpdatedTimestamp_lte?: InputMaybe<Scalars["Int"]>;
   lastUpdatedTimestamp_not?: InputMaybe<Scalars["Int"]>;
   lastUpdatedTimestamp_not_in?: InputMaybe<Array<Scalars["Int"]>>;
+  or?: InputMaybe<Array<InputMaybe<LivepeerAccount_Filter>>>;
 };
 
 export enum LivepeerAccount_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   LastUpdatedTimestamp = "lastUpdatedTimestamp",
 }
@@ -1165,6 +1456,7 @@ export type MigrateDelegatorFinalizedEvent = Event & {
 export type MigrateDelegatorFinalizedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<MigrateDelegatorFinalizedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
   delegate_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -1249,6 +1541,7 @@ export type MigrateDelegatorFinalizedEvent_Filter = {
   l2Addr_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   l2Addr_starts_with?: InputMaybe<Scalars["String"]>;
   l2Addr_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<MigrateDelegatorFinalizedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1317,9 +1610,34 @@ export enum MigrateDelegatorFinalizedEvent_OrderBy {
   L1Addr = "l1Addr",
   L2Addr = "l2Addr",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Stake = "stake",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1353,6 +1671,7 @@ export type MintEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<MintEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -1361,6 +1680,7 @@ export type MintEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<MintEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1437,9 +1757,34 @@ export enum MintEvent_OrderBy {
   Amount = "amount",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   To = "to",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1463,6 +1808,7 @@ export type NewRoundEvent = Event & {
 export type NewRoundEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<NewRoundEvent_Filter>>>;
   blockHash?: InputMaybe<Scalars["String"]>;
   blockHash_contains?: InputMaybe<Scalars["String"]>;
   blockHash_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -1491,6 +1837,7 @@ export type NewRoundEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<NewRoundEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1547,8 +1894,33 @@ export enum NewRoundEvent_OrderBy {
   BlockHash = "blockHash",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /** Defines the order direction, either ascending or descending */
@@ -1578,6 +1950,7 @@ export type ParameterUpdateEvent = Event & {
 export type ParameterUpdateEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ParameterUpdateEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -1586,6 +1959,7 @@ export type ParameterUpdateEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<ParameterUpdateEvent_Filter>>>;
   param?: InputMaybe<Scalars["String"]>;
   param_contains?: InputMaybe<Scalars["String"]>;
   param_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -1662,8 +2036,33 @@ export enum ParameterUpdateEvent_OrderBy {
   Id = "id",
   Param = "param",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1685,6 +2084,7 @@ export type PauseEvent = Event & {
 export type PauseEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<PauseEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -1693,6 +2093,7 @@ export type PauseEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<PauseEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1748,8 +2149,33 @@ export type PauseEvent_Filter = {
 export enum PauseEvent_OrderBy {
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1820,6 +2246,7 @@ export type PollCreatedEvent = Event & {
 export type PollCreatedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<PollCreatedEvent_Filter>>>;
   endBlock?: InputMaybe<Scalars["BigInt"]>;
   endBlock_gt?: InputMaybe<Scalars["BigInt"]>;
   endBlock_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -1836,6 +2263,7 @@ export type PollCreatedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<PollCreatedEvent_Filter>>>;
   poll?: InputMaybe<Scalars["String"]>;
   poll_?: InputMaybe<Poll_Filter>;
   poll_contains?: InputMaybe<Scalars["String"]>;
@@ -1859,7 +2287,11 @@ export type PollCreatedEvent_Filter = {
   poll_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   proposal?: InputMaybe<Scalars["Bytes"]>;
   proposal_contains?: InputMaybe<Scalars["Bytes"]>;
+  proposal_gt?: InputMaybe<Scalars["Bytes"]>;
+  proposal_gte?: InputMaybe<Scalars["Bytes"]>;
   proposal_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  proposal_lt?: InputMaybe<Scalars["Bytes"]>;
+  proposal_lte?: InputMaybe<Scalars["Bytes"]>;
   proposal_not?: InputMaybe<Scalars["Bytes"]>;
   proposal_not_contains?: InputMaybe<Scalars["Bytes"]>;
   proposal_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -1935,12 +2367,42 @@ export enum PollCreatedEvent_OrderBy {
   EndBlock = "endBlock",
   Id = "id",
   Poll = "poll",
+  PollEndBlock = "poll__endBlock",
+  PollId = "poll__id",
+  PollProposal = "poll__proposal",
+  PollQuorum = "poll__quorum",
+  PollQuota = "poll__quota",
   Proposal = "proposal",
   Quorum = "quorum",
   Quota = "quota",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -1960,6 +2422,7 @@ export type PollTally = {
 export type PollTally_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<PollTally_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -1976,6 +2439,7 @@ export type PollTally_Filter = {
   no_lte?: InputMaybe<Scalars["BigDecimal"]>;
   no_not?: InputMaybe<Scalars["BigDecimal"]>;
   no_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  or?: InputMaybe<Array<InputMaybe<PollTally_Filter>>>;
   yes?: InputMaybe<Scalars["BigDecimal"]>;
   yes_gt?: InputMaybe<Scalars["BigDecimal"]>;
   yes_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -1995,6 +2459,7 @@ export enum PollTally_OrderBy {
 export type Poll_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Poll_Filter>>>;
   endBlock?: InputMaybe<Scalars["BigInt"]>;
   endBlock_gt?: InputMaybe<Scalars["BigInt"]>;
   endBlock_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -2011,6 +2476,7 @@ export type Poll_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Poll_Filter>>>;
   proposal?: InputMaybe<Scalars["String"]>;
   proposal_contains?: InputMaybe<Scalars["String"]>;
   proposal_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -2084,6 +2550,9 @@ export enum Poll_OrderBy {
   Quorum = "quorum",
   Quota = "quota",
   Tally = "tally",
+  TallyId = "tally__id",
+  TallyNo = "tally__no",
+  TallyYes = "tally__yes",
   Votes = "votes",
 }
 
@@ -2114,6 +2583,7 @@ export type Pool = {
 export type Pool_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Pool_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -2159,6 +2629,7 @@ export type Pool_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Pool_Filter>>>;
   rewardCut?: InputMaybe<Scalars["BigInt"]>;
   rewardCut_gt?: InputMaybe<Scalars["BigInt"]>;
   rewardCut_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -2208,12 +2679,48 @@ export type Pool_Filter = {
 
 export enum Pool_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   FeeShare = "feeShare",
   Fees = "fees",
   Id = "id",
   RewardCut = "rewardCut",
   RewardTokens = "rewardTokens",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   TotalStake = "totalStake",
 }
 
@@ -2312,6 +2819,7 @@ export type Protocol_Filter = {
   activeTranscoderCount_lte?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<Protocol_Filter>>>;
   currentRound?: InputMaybe<Scalars["String"]>;
   currentRound_?: InputMaybe<Round_Filter>;
   currentRound_contains?: InputMaybe<Scalars["String"]>;
@@ -2445,6 +2953,7 @@ export type Protocol_Filter = {
   numActiveTranscoders_lte?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Protocol_Filter>>>;
   participationRate?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gt?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -2558,12 +3067,66 @@ export type Protocol_Filter = {
 export enum Protocol_OrderBy {
   ActiveTranscoderCount = "activeTranscoderCount",
   CurrentRound = "currentRound",
+  CurrentRoundActiveTranscoderCount = "currentRound__activeTranscoderCount",
+  CurrentRoundDelegatorsCount = "currentRound__delegatorsCount",
+  CurrentRoundEndBlock = "currentRound__endBlock",
+  CurrentRoundId = "currentRound__id",
+  CurrentRoundInflation = "currentRound__inflation",
+  CurrentRoundInitialized = "currentRound__initialized",
+  CurrentRoundLength = "currentRound__length",
+  CurrentRoundMintableTokens = "currentRound__mintableTokens",
+  CurrentRoundMovedStake = "currentRound__movedStake",
+  CurrentRoundNewStake = "currentRound__newStake",
+  CurrentRoundNumActiveTranscoders = "currentRound__numActiveTranscoders",
+  CurrentRoundParticipationRate = "currentRound__participationRate",
+  CurrentRoundStartBlock = "currentRound__startBlock",
+  CurrentRoundStartTimestamp = "currentRound__startTimestamp",
+  CurrentRoundTotalActiveStake = "currentRound__totalActiveStake",
+  CurrentRoundTotalSupply = "currentRound__totalSupply",
+  CurrentRoundVolumeEth = "currentRound__volumeETH",
+  CurrentRoundVolumeUsd = "currentRound__volumeUSD",
   DelegatorsCount = "delegatorsCount",
   Id = "id",
   Inflation = "inflation",
   InflationChange = "inflationChange",
   LastInitializedRound = "lastInitializedRound",
+  LastInitializedRoundActiveTranscoderCount = "lastInitializedRound__activeTranscoderCount",
+  LastInitializedRoundDelegatorsCount = "lastInitializedRound__delegatorsCount",
+  LastInitializedRoundEndBlock = "lastInitializedRound__endBlock",
+  LastInitializedRoundId = "lastInitializedRound__id",
+  LastInitializedRoundInflation = "lastInitializedRound__inflation",
+  LastInitializedRoundInitialized = "lastInitializedRound__initialized",
+  LastInitializedRoundLength = "lastInitializedRound__length",
+  LastInitializedRoundMintableTokens = "lastInitializedRound__mintableTokens",
+  LastInitializedRoundMovedStake = "lastInitializedRound__movedStake",
+  LastInitializedRoundNewStake = "lastInitializedRound__newStake",
+  LastInitializedRoundNumActiveTranscoders = "lastInitializedRound__numActiveTranscoders",
+  LastInitializedRoundParticipationRate = "lastInitializedRound__participationRate",
+  LastInitializedRoundStartBlock = "lastInitializedRound__startBlock",
+  LastInitializedRoundStartTimestamp = "lastInitializedRound__startTimestamp",
+  LastInitializedRoundTotalActiveStake = "lastInitializedRound__totalActiveStake",
+  LastInitializedRoundTotalSupply = "lastInitializedRound__totalSupply",
+  LastInitializedRoundVolumeEth = "lastInitializedRound__volumeETH",
+  LastInitializedRoundVolumeUsd = "lastInitializedRound__volumeUSD",
   LastRoundLengthUpdateRound = "lastRoundLengthUpdateRound",
+  LastRoundLengthUpdateRoundActiveTranscoderCount = "lastRoundLengthUpdateRound__activeTranscoderCount",
+  LastRoundLengthUpdateRoundDelegatorsCount = "lastRoundLengthUpdateRound__delegatorsCount",
+  LastRoundLengthUpdateRoundEndBlock = "lastRoundLengthUpdateRound__endBlock",
+  LastRoundLengthUpdateRoundId = "lastRoundLengthUpdateRound__id",
+  LastRoundLengthUpdateRoundInflation = "lastRoundLengthUpdateRound__inflation",
+  LastRoundLengthUpdateRoundInitialized = "lastRoundLengthUpdateRound__initialized",
+  LastRoundLengthUpdateRoundLength = "lastRoundLengthUpdateRound__length",
+  LastRoundLengthUpdateRoundMintableTokens = "lastRoundLengthUpdateRound__mintableTokens",
+  LastRoundLengthUpdateRoundMovedStake = "lastRoundLengthUpdateRound__movedStake",
+  LastRoundLengthUpdateRoundNewStake = "lastRoundLengthUpdateRound__newStake",
+  LastRoundLengthUpdateRoundNumActiveTranscoders = "lastRoundLengthUpdateRound__numActiveTranscoders",
+  LastRoundLengthUpdateRoundParticipationRate = "lastRoundLengthUpdateRound__participationRate",
+  LastRoundLengthUpdateRoundStartBlock = "lastRoundLengthUpdateRound__startBlock",
+  LastRoundLengthUpdateRoundStartTimestamp = "lastRoundLengthUpdateRound__startTimestamp",
+  LastRoundLengthUpdateRoundTotalActiveStake = "lastRoundLengthUpdateRound__totalActiveStake",
+  LastRoundLengthUpdateRoundTotalSupply = "lastRoundLengthUpdateRound__totalSupply",
+  LastRoundLengthUpdateRoundVolumeEth = "lastRoundLengthUpdateRound__volumeETH",
+  LastRoundLengthUpdateRoundVolumeUsd = "lastRoundLengthUpdateRound__volumeUSD",
   LastRoundLengthUpdateStartBlock = "lastRoundLengthUpdateStartBlock",
   LockPeriod = "lockPeriod",
   LptPriceEth = "lptPriceEth",
@@ -2662,6 +3225,8 @@ export type Query = {
   transcoders: Array<Transcoder>;
   transferBondEvent?: Maybe<TransferBondEvent>;
   transferBondEvents: Array<TransferBondEvent>;
+  treasuryProposal?: Maybe<TreasuryProposal>;
+  treasuryProposals: Array<TreasuryProposal>;
   unbondEvent?: Maybe<UnbondEvent>;
   unbondEvents: Array<UnbondEvent>;
   unbondingLock?: Maybe<UnbondingLock>;
@@ -3278,6 +3843,22 @@ export type QueryTransferBondEventsArgs = {
   where?: InputMaybe<TransferBondEvent_Filter>;
 };
 
+export type QueryTreasuryProposalArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryTreasuryProposalsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<TreasuryProposal_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TreasuryProposal_Filter>;
+};
+
 export type QueryUnbondEventArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
@@ -3454,6 +4035,7 @@ export type RebondEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<RebondEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -3504,6 +4086,7 @@ export type RebondEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<RebondEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -3567,11 +4150,62 @@ export type RebondEvent_Filter = {
 export enum RebondEvent_OrderBy {
   Amount = "amount",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   UnbondingLockId = "unbondingLockId",
 }
 
@@ -3608,6 +4242,7 @@ export type ReserveClaimedEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<ReserveClaimedEvent_Filter>>>;
   claimant?: InputMaybe<Scalars["String"]>;
   claimant_?: InputMaybe<Transcoder_Filter>;
   claimant_contains?: InputMaybe<Scalars["String"]>;
@@ -3637,6 +4272,7 @@ export type ReserveClaimedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<ReserveClaimedEvent_Filter>>>;
   reserveHolder?: InputMaybe<Scalars["String"]>;
   reserveHolder_?: InputMaybe<Broadcaster_Filter>;
   reserveHolder_contains?: InputMaybe<Scalars["String"]>;
@@ -3713,11 +4349,57 @@ export type ReserveClaimedEvent_Filter = {
 export enum ReserveClaimedEvent_OrderBy {
   Amount = "amount",
   Claimant = "claimant",
+  ClaimantActivationRound = "claimant__activationRound",
+  ClaimantActivationTimestamp = "claimant__activationTimestamp",
+  ClaimantActive = "claimant__active",
+  ClaimantDeactivationRound = "claimant__deactivationRound",
+  ClaimantFeeShare = "claimant__feeShare",
+  ClaimantFeeShareUpdateTimestamp = "claimant__feeShareUpdateTimestamp",
+  ClaimantId = "claimant__id",
+  ClaimantLastActiveStakeUpdateRound = "claimant__lastActiveStakeUpdateRound",
+  ClaimantNinetyDayVolumeEth = "claimant__ninetyDayVolumeETH",
+  ClaimantRewardCut = "claimant__rewardCut",
+  ClaimantRewardCutUpdateTimestamp = "claimant__rewardCutUpdateTimestamp",
+  ClaimantServiceUri = "claimant__serviceURI",
+  ClaimantSixtyDayVolumeEth = "claimant__sixtyDayVolumeETH",
+  ClaimantStatus = "claimant__status",
+  ClaimantThirtyDayVolumeEth = "claimant__thirtyDayVolumeETH",
+  ClaimantTotalStake = "claimant__totalStake",
+  ClaimantTotalVolumeEth = "claimant__totalVolumeETH",
+  ClaimantTotalVolumeUsd = "claimant__totalVolumeUSD",
   Id = "id",
   ReserveHolder = "reserveHolder",
+  ReserveHolderDeposit = "reserveHolder__deposit",
+  ReserveHolderId = "reserveHolder__id",
+  ReserveHolderReserve = "reserveHolder__reserve",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -3751,6 +4433,7 @@ export type ReserveFundedEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<ReserveFundedEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -3759,6 +4442,7 @@ export type ReserveFundedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<ReserveFundedEvent_Filter>>>;
   reserveHolder?: InputMaybe<Scalars["String"]>;
   reserveHolder_?: InputMaybe<Broadcaster_Filter>;
   reserveHolder_contains?: InputMaybe<Scalars["String"]>;
@@ -3836,9 +4520,37 @@ export enum ReserveFundedEvent_OrderBy {
   Amount = "amount",
   Id = "id",
   ReserveHolder = "reserveHolder",
+  ReserveHolderDeposit = "reserveHolder__deposit",
+  ReserveHolderId = "reserveHolder__id",
+  ReserveHolderReserve = "reserveHolder__reserve",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -3864,6 +4576,7 @@ export type RewardEvent = Event & {
 export type RewardEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<RewardEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -3893,6 +4606,7 @@ export type RewardEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<RewardEvent_Filter>>>;
   rewardTokens?: InputMaybe<Scalars["BigDecimal"]>;
   rewardTokens_gt?: InputMaybe<Scalars["BigDecimal"]>;
   rewardTokens_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -3955,11 +4669,54 @@ export type RewardEvent_Filter = {
 
 export enum RewardEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Id = "id",
   RewardTokens = "rewardTokens",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -4031,6 +4788,7 @@ export type Round_Filter = {
   activeTranscoderCount_lte?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<Round_Filter>>>;
   delegatorsCount?: InputMaybe<Scalars["BigInt"]>;
   delegatorsCount_gt?: InputMaybe<Scalars["BigInt"]>;
   delegatorsCount_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -4107,6 +4865,7 @@ export type Round_Filter = {
   numActiveTranscoders_lte?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not?: InputMaybe<Scalars["BigInt"]>;
   numActiveTranscoders_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Round_Filter>>>;
   participationRate?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gt?: InputMaybe<Scalars["BigDecimal"]>;
   participationRate_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -4231,6 +4990,7 @@ export type ServiceUriUpdateEvent_Filter = {
   addr_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   addr_starts_with?: InputMaybe<Scalars["String"]>;
   addr_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  and?: InputMaybe<Array<InputMaybe<ServiceUriUpdateEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -4239,6 +4999,7 @@ export type ServiceUriUpdateEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<ServiceUriUpdateEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -4315,9 +5076,34 @@ export enum ServiceUriUpdateEvent_OrderBy {
   Addr = "addr",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   ServiceUri = "serviceURI",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -4343,6 +5129,7 @@ export type SetCurrentRewardTokensEvent = Event & {
 export type SetCurrentRewardTokensEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<SetCurrentRewardTokensEvent_Filter>>>;
   currentInflation?: InputMaybe<Scalars["BigInt"]>;
   currentInflation_gt?: InputMaybe<Scalars["BigInt"]>;
   currentInflation_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -4367,6 +5154,7 @@ export type SetCurrentRewardTokensEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<SetCurrentRewardTokensEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -4424,8 +5212,33 @@ export enum SetCurrentRewardTokensEvent_OrderBy {
   CurrentMintableTokens = "currentMintableTokens",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -4451,6 +5264,7 @@ export type StakeClaimedEvent = Event & {
 export type StakeClaimedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<StakeClaimedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
   delegate_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -4507,6 +5321,7 @@ export type StakeClaimedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<StakeClaimedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -4573,9 +5388,34 @@ export enum StakeClaimedEvent_OrderBy {
   Fees = "fees",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Stake = "stake",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 export type Subscription = {
@@ -4656,6 +5496,8 @@ export type Subscription = {
   transcoders: Array<Transcoder>;
   transferBondEvent?: Maybe<TransferBondEvent>;
   transferBondEvents: Array<TransferBondEvent>;
+  treasuryProposal?: Maybe<TreasuryProposal>;
+  treasuryProposals: Array<TreasuryProposal>;
   unbondEvent?: Maybe<UnbondEvent>;
   unbondEvents: Array<UnbondEvent>;
   unbondingLock?: Maybe<UnbondingLock>;
@@ -5272,6 +6114,22 @@ export type SubscriptionTransferBondEventsArgs = {
   where?: InputMaybe<TransferBondEvent_Filter>;
 };
 
+export type SubscriptionTreasuryProposalArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type SubscriptionTreasuryProposalsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<TreasuryProposal_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TreasuryProposal_Filter>;
+};
+
 export type SubscriptionUnbondEventArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
@@ -5455,6 +6313,7 @@ export type TransactionEventsArgs = {
 export type Transaction_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
   blockNumber?: InputMaybe<Scalars["BigInt"]>;
   blockNumber_gt?: InputMaybe<Scalars["BigInt"]>;
   blockNumber_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -5463,6 +6322,7 @@ export type Transaction_Filter = {
   blockNumber_lte?: InputMaybe<Scalars["BigInt"]>;
   blockNumber_not?: InputMaybe<Scalars["BigInt"]>;
   blockNumber_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  events_?: InputMaybe<Event_Filter>;
   from?: InputMaybe<Scalars["String"]>;
   from_contains?: InputMaybe<Scalars["String"]>;
   from_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -5507,6 +6367,7 @@ export type Transaction_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Transaction_Filter>>>;
   timestamp?: InputMaybe<Scalars["Int"]>;
   timestamp_gt?: InputMaybe<Scalars["Int"]>;
   timestamp_gte?: InputMaybe<Scalars["Int"]>;
@@ -5669,6 +6530,7 @@ export type TranscoderActivatedEvent_Filter = {
   activationRound_lte?: InputMaybe<Scalars["BigInt"]>;
   activationRound_not?: InputMaybe<Scalars["BigInt"]>;
   activationRound_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderActivatedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -5698,6 +6560,7 @@ export type TranscoderActivatedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderActivatedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -5753,10 +6616,53 @@ export type TranscoderActivatedEvent_Filter = {
 export enum TranscoderActivatedEvent_OrderBy {
   ActivationRound = "activationRound",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -5780,6 +6686,7 @@ export type TranscoderDay = {
 export type TranscoderDay_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderDay_Filter>>>;
   date?: InputMaybe<Scalars["Int"]>;
   date_gt?: InputMaybe<Scalars["Int"]>;
   date_gte?: InputMaybe<Scalars["Int"]>;
@@ -5796,6 +6703,7 @@ export type TranscoderDay_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderDay_Filter>>>;
   transcoder?: InputMaybe<Scalars["String"]>;
   transcoder_?: InputMaybe<Transcoder_Filter>;
   transcoder_contains?: InputMaybe<Scalars["String"]>;
@@ -5839,6 +6747,24 @@ export enum TranscoderDay_OrderBy {
   Date = "date",
   Id = "id",
   Transcoder = "transcoder",
+  TranscoderActivationRound = "transcoder__activationRound",
+  TranscoderActivationTimestamp = "transcoder__activationTimestamp",
+  TranscoderActive = "transcoder__active",
+  TranscoderDeactivationRound = "transcoder__deactivationRound",
+  TranscoderFeeShare = "transcoder__feeShare",
+  TranscoderFeeShareUpdateTimestamp = "transcoder__feeShareUpdateTimestamp",
+  TranscoderId = "transcoder__id",
+  TranscoderLastActiveStakeUpdateRound = "transcoder__lastActiveStakeUpdateRound",
+  TranscoderNinetyDayVolumeEth = "transcoder__ninetyDayVolumeETH",
+  TranscoderRewardCut = "transcoder__rewardCut",
+  TranscoderRewardCutUpdateTimestamp = "transcoder__rewardCutUpdateTimestamp",
+  TranscoderServiceUri = "transcoder__serviceURI",
+  TranscoderSixtyDayVolumeEth = "transcoder__sixtyDayVolumeETH",
+  TranscoderStatus = "transcoder__status",
+  TranscoderThirtyDayVolumeEth = "transcoder__thirtyDayVolumeETH",
+  TranscoderTotalStake = "transcoder__totalStake",
+  TranscoderTotalVolumeEth = "transcoder__totalVolumeETH",
+  TranscoderTotalVolumeUsd = "transcoder__totalVolumeUSD",
   VolumeEth = "volumeETH",
   VolumeUsd = "volumeUSD",
 }
@@ -5866,6 +6792,7 @@ export type TranscoderDeactivatedEvent = Event & {
 export type TranscoderDeactivatedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderDeactivatedEvent_Filter>>>;
   deactivationRound?: InputMaybe<Scalars["BigInt"]>;
   deactivationRound_gt?: InputMaybe<Scalars["BigInt"]>;
   deactivationRound_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -5903,6 +6830,7 @@ export type TranscoderDeactivatedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderDeactivatedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -5958,10 +6886,53 @@ export type TranscoderDeactivatedEvent_Filter = {
 export enum TranscoderDeactivatedEvent_OrderBy {
   DeactivationRound = "deactivationRound",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -5985,6 +6956,7 @@ export type TranscoderEvictedEvent = Event & {
 export type TranscoderEvictedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderEvictedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -6014,6 +6986,7 @@ export type TranscoderEvictedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderEvictedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -6068,10 +7041,53 @@ export type TranscoderEvictedEvent_Filter = {
 
 export enum TranscoderEvictedEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -6095,6 +7111,7 @@ export type TranscoderResignedEvent = Event & {
 export type TranscoderResignedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderResignedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -6124,6 +7141,7 @@ export type TranscoderResignedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderResignedEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -6178,10 +7196,53 @@ export type TranscoderResignedEvent_Filter = {
 
 export enum TranscoderResignedEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -6211,6 +7272,7 @@ export type TranscoderSlashedEvent = Event & {
 export type TranscoderSlashedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderSlashedEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -6242,7 +7304,11 @@ export type TranscoderSlashedEvent_Filter = {
   finderReward_not?: InputMaybe<Scalars["BigInt"]>;
   finderReward_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   finder_contains?: InputMaybe<Scalars["Bytes"]>;
+  finder_gt?: InputMaybe<Scalars["Bytes"]>;
+  finder_gte?: InputMaybe<Scalars["Bytes"]>;
   finder_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  finder_lt?: InputMaybe<Scalars["Bytes"]>;
+  finder_lte?: InputMaybe<Scalars["Bytes"]>;
   finder_not?: InputMaybe<Scalars["Bytes"]>;
   finder_not_contains?: InputMaybe<Scalars["Bytes"]>;
   finder_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -6254,6 +7320,7 @@ export type TranscoderSlashedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderSlashedEvent_Filter>>>;
   penalty?: InputMaybe<Scalars["BigDecimal"]>;
   penalty_gt?: InputMaybe<Scalars["BigDecimal"]>;
   penalty_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -6316,13 +7383,56 @@ export type TranscoderSlashedEvent_Filter = {
 
 export enum TranscoderSlashedEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Finder = "finder",
   FinderReward = "finderReward",
   Id = "id",
   Penalty = "penalty",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 export enum TranscoderStatus {
@@ -6355,6 +7465,7 @@ export type TranscoderUpdateEvent = Event & {
 export type TranscoderUpdateEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TranscoderUpdateEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -6392,6 +7503,7 @@ export type TranscoderUpdateEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TranscoderUpdateEvent_Filter>>>;
   rewardCut?: InputMaybe<Scalars["BigInt"]>;
   rewardCut_gt?: InputMaybe<Scalars["BigInt"]>;
   rewardCut_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -6454,12 +7566,55 @@ export type TranscoderUpdateEvent_Filter = {
 
 export enum TranscoderUpdateEvent_OrderBy {
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   FeeShare = "feeShare",
   Id = "id",
   RewardCut = "rewardCut",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 export type Transcoder_Filter = {
@@ -6485,6 +7640,7 @@ export type Transcoder_Filter = {
   active_in?: InputMaybe<Array<Scalars["Boolean"]>>;
   active_not?: InputMaybe<Scalars["Boolean"]>;
   active_not_in?: InputMaybe<Array<Scalars["Boolean"]>>;
+  and?: InputMaybe<Array<InputMaybe<Transcoder_Filter>>>;
   deactivationRound?: InputMaybe<Scalars["BigInt"]>;
   deactivationRound_gt?: InputMaybe<Scalars["BigInt"]>;
   deactivationRound_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -6576,6 +7732,7 @@ export type Transcoder_Filter = {
   ninetyDayVolumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
   ninetyDayVolumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
   ninetyDayVolumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  or?: InputMaybe<Array<InputMaybe<Transcoder_Filter>>>;
   pools_?: InputMaybe<Pool_Filter>;
   rewardCut?: InputMaybe<Scalars["BigInt"]>;
   rewardCutUpdateTimestamp?: InputMaybe<Scalars["Int"]>;
@@ -6672,12 +7829,38 @@ export enum Transcoder_OrderBy {
   Active = "active",
   DeactivationRound = "deactivationRound",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Delegators = "delegators",
   FeeShare = "feeShare",
   FeeShareUpdateTimestamp = "feeShareUpdateTimestamp",
   Id = "id",
   LastActiveStakeUpdateRound = "lastActiveStakeUpdateRound",
   LastRewardRound = "lastRewardRound",
+  LastRewardRoundActiveTranscoderCount = "lastRewardRound__activeTranscoderCount",
+  LastRewardRoundDelegatorsCount = "lastRewardRound__delegatorsCount",
+  LastRewardRoundEndBlock = "lastRewardRound__endBlock",
+  LastRewardRoundId = "lastRewardRound__id",
+  LastRewardRoundInflation = "lastRewardRound__inflation",
+  LastRewardRoundInitialized = "lastRewardRound__initialized",
+  LastRewardRoundLength = "lastRewardRound__length",
+  LastRewardRoundMintableTokens = "lastRewardRound__mintableTokens",
+  LastRewardRoundMovedStake = "lastRewardRound__movedStake",
+  LastRewardRoundNewStake = "lastRewardRound__newStake",
+  LastRewardRoundNumActiveTranscoders = "lastRewardRound__numActiveTranscoders",
+  LastRewardRoundParticipationRate = "lastRewardRound__participationRate",
+  LastRewardRoundStartBlock = "lastRewardRound__startBlock",
+  LastRewardRoundStartTimestamp = "lastRewardRound__startTimestamp",
+  LastRewardRoundTotalActiveStake = "lastRewardRound__totalActiveStake",
+  LastRewardRoundTotalSupply = "lastRewardRound__totalSupply",
+  LastRewardRoundVolumeEth = "lastRewardRound__volumeETH",
+  LastRewardRoundVolumeUsd = "lastRewardRound__volumeUSD",
   NinetyDayVolumeEth = "ninetyDayVolumeETH",
   Pools = "pools",
   RewardCut = "rewardCut",
@@ -6724,6 +7907,7 @@ export type TransferBondEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<TransferBondEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -6790,6 +7974,7 @@ export type TransferBondEvent_Filter = {
   oldUnbondingLockId_lte?: InputMaybe<Scalars["Int"]>;
   oldUnbondingLockId_not?: InputMaybe<Scalars["Int"]>;
   oldUnbondingLockId_not_in?: InputMaybe<Array<Scalars["Int"]>>;
+  or?: InputMaybe<Array<InputMaybe<TransferBondEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -6846,12 +8031,176 @@ export enum TransferBondEvent_OrderBy {
   Amount = "amount",
   Id = "id",
   NewDelegator = "newDelegator",
+  NewDelegatorBondedAmount = "newDelegator__bondedAmount",
+  NewDelegatorDelegatedAmount = "newDelegator__delegatedAmount",
+  NewDelegatorFees = "newDelegator__fees",
+  NewDelegatorId = "newDelegator__id",
+  NewDelegatorPrincipal = "newDelegator__principal",
+  NewDelegatorStartRound = "newDelegator__startRound",
+  NewDelegatorUnbonded = "newDelegator__unbonded",
+  NewDelegatorWithdrawnFees = "newDelegator__withdrawnFees",
   NewUnbondingLockId = "newUnbondingLockId",
   OldDelegator = "oldDelegator",
+  OldDelegatorBondedAmount = "oldDelegator__bondedAmount",
+  OldDelegatorDelegatedAmount = "oldDelegator__delegatedAmount",
+  OldDelegatorFees = "oldDelegator__fees",
+  OldDelegatorId = "oldDelegator__id",
+  OldDelegatorPrincipal = "oldDelegator__principal",
+  OldDelegatorStartRound = "oldDelegator__startRound",
+  OldDelegatorUnbonded = "oldDelegator__unbonded",
+  OldDelegatorWithdrawnFees = "oldDelegator__withdrawnFees",
   OldUnbondingLockId = "oldUnbondingLockId",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
+}
+
+export type TreasuryProposal = {
+  __typename: "TreasuryProposal";
+  /** Functions to call on the targets on proposal execution */
+  calldatas: Array<Scalars["Bytes"]>;
+  /** Description of the proposal */
+  description: Scalars["String"];
+  /** Governor proposal ID formatted as a decimal number */
+  id: Scalars["ID"];
+  /** Account that created the proposal */
+  proposer: LivepeerAccount;
+  /** Targets to be called on proposal execution */
+  targets: Array<Scalars["String"]>;
+  /** Values to be passed to the targets on proposal execution */
+  values: Array<Scalars["BigInt"]>;
+  /** Round after which the proposal voting will end and, if approved, execution will be allowed */
+  voteEnd: Scalars["BigInt"];
+  /** Round after which the proposal voting will begin */
+  voteStart: Scalars["BigInt"];
+};
+
+export type TreasuryProposal_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
+  calldatas?: InputMaybe<Array<Scalars["Bytes"]>>;
+  calldatas_contains?: InputMaybe<Array<Scalars["Bytes"]>>;
+  calldatas_contains_nocase?: InputMaybe<Array<Scalars["Bytes"]>>;
+  calldatas_not?: InputMaybe<Array<Scalars["Bytes"]>>;
+  calldatas_not_contains?: InputMaybe<Array<Scalars["Bytes"]>>;
+  calldatas_not_contains_nocase?: InputMaybe<Array<Scalars["Bytes"]>>;
+  description?: InputMaybe<Scalars["String"]>;
+  description_contains?: InputMaybe<Scalars["String"]>;
+  description_contains_nocase?: InputMaybe<Scalars["String"]>;
+  description_ends_with?: InputMaybe<Scalars["String"]>;
+  description_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  description_gt?: InputMaybe<Scalars["String"]>;
+  description_gte?: InputMaybe<Scalars["String"]>;
+  description_in?: InputMaybe<Array<Scalars["String"]>>;
+  description_lt?: InputMaybe<Scalars["String"]>;
+  description_lte?: InputMaybe<Scalars["String"]>;
+  description_not?: InputMaybe<Scalars["String"]>;
+  description_not_contains?: InputMaybe<Scalars["String"]>;
+  description_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  description_not_ends_with?: InputMaybe<Scalars["String"]>;
+  description_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  description_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  description_not_starts_with?: InputMaybe<Scalars["String"]>;
+  description_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  description_starts_with?: InputMaybe<Scalars["String"]>;
+  description_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  id?: InputMaybe<Scalars["ID"]>;
+  id_gt?: InputMaybe<Scalars["ID"]>;
+  id_gte?: InputMaybe<Scalars["ID"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]>;
+  id_lte?: InputMaybe<Scalars["ID"]>;
+  id_not?: InputMaybe<Scalars["ID"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
+  proposer?: InputMaybe<Scalars["String"]>;
+  proposer_?: InputMaybe<LivepeerAccount_Filter>;
+  proposer_contains?: InputMaybe<Scalars["String"]>;
+  proposer_contains_nocase?: InputMaybe<Scalars["String"]>;
+  proposer_ends_with?: InputMaybe<Scalars["String"]>;
+  proposer_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  proposer_gt?: InputMaybe<Scalars["String"]>;
+  proposer_gte?: InputMaybe<Scalars["String"]>;
+  proposer_in?: InputMaybe<Array<Scalars["String"]>>;
+  proposer_lt?: InputMaybe<Scalars["String"]>;
+  proposer_lte?: InputMaybe<Scalars["String"]>;
+  proposer_not?: InputMaybe<Scalars["String"]>;
+  proposer_not_contains?: InputMaybe<Scalars["String"]>;
+  proposer_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  proposer_not_ends_with?: InputMaybe<Scalars["String"]>;
+  proposer_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  proposer_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  proposer_not_starts_with?: InputMaybe<Scalars["String"]>;
+  proposer_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  proposer_starts_with?: InputMaybe<Scalars["String"]>;
+  proposer_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  targets?: InputMaybe<Array<Scalars["String"]>>;
+  targets_contains?: InputMaybe<Array<Scalars["String"]>>;
+  targets_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  targets_not?: InputMaybe<Array<Scalars["String"]>>;
+  targets_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+  targets_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  values?: InputMaybe<Array<Scalars["BigInt"]>>;
+  values_contains?: InputMaybe<Array<Scalars["BigInt"]>>;
+  values_contains_nocase?: InputMaybe<Array<Scalars["BigInt"]>>;
+  values_not?: InputMaybe<Array<Scalars["BigInt"]>>;
+  values_not_contains?: InputMaybe<Array<Scalars["BigInt"]>>;
+  values_not_contains_nocase?: InputMaybe<Array<Scalars["BigInt"]>>;
+  voteEnd?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_gt?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_gte?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  voteEnd_lt?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_lte?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_not?: InputMaybe<Scalars["BigInt"]>;
+  voteEnd_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  voteStart?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_gt?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_gte?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  voteStart_lt?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_lte?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_not?: InputMaybe<Scalars["BigInt"]>;
+  voteStart_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+};
+
+export enum TreasuryProposal_OrderBy {
+  Calldatas = "calldatas",
+  Description = "description",
+  Id = "id",
+  Proposer = "proposer",
+  ProposerId = "proposer__id",
+  ProposerLastUpdatedTimestamp = "proposer__lastUpdatedTimestamp",
+  Targets = "targets",
+  Values = "values",
+  VoteEnd = "voteEnd",
+  VoteStart = "voteStart",
 }
 
 /**
@@ -6891,6 +8240,7 @@ export type UnbondEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<UnbondEvent_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -6941,6 +8291,7 @@ export type UnbondEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<UnbondEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -7012,11 +8363,62 @@ export type UnbondEvent_Filter = {
 export enum UnbondEvent_OrderBy {
   Amount = "amount",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   UnbondingLockId = "unbondingLockId",
   WithdrawRound = "withdrawRound",
 }
@@ -7054,6 +8456,7 @@ export type UnbondingLock_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<UnbondingLock_Filter>>>;
   delegate?: InputMaybe<Scalars["String"]>;
   delegate_?: InputMaybe<Transcoder_Filter>;
   delegate_contains?: InputMaybe<Scalars["String"]>;
@@ -7104,6 +8507,7 @@ export type UnbondingLock_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<UnbondingLock_Filter>>>;
   sender?: InputMaybe<Scalars["String"]>;
   sender_contains?: InputMaybe<Scalars["String"]>;
   sender_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -7145,7 +8549,33 @@ export type UnbondingLock_Filter = {
 export enum UnbondingLock_OrderBy {
   Amount = "amount",
   Delegate = "delegate",
+  DelegateActivationRound = "delegate__activationRound",
+  DelegateActivationTimestamp = "delegate__activationTimestamp",
+  DelegateActive = "delegate__active",
+  DelegateDeactivationRound = "delegate__deactivationRound",
+  DelegateFeeShare = "delegate__feeShare",
+  DelegateFeeShareUpdateTimestamp = "delegate__feeShareUpdateTimestamp",
+  DelegateId = "delegate__id",
+  DelegateLastActiveStakeUpdateRound = "delegate__lastActiveStakeUpdateRound",
+  DelegateNinetyDayVolumeEth = "delegate__ninetyDayVolumeETH",
+  DelegateRewardCut = "delegate__rewardCut",
+  DelegateRewardCutUpdateTimestamp = "delegate__rewardCutUpdateTimestamp",
+  DelegateServiceUri = "delegate__serviceURI",
+  DelegateSixtyDayVolumeEth = "delegate__sixtyDayVolumeETH",
+  DelegateStatus = "delegate__status",
+  DelegateThirtyDayVolumeEth = "delegate__thirtyDayVolumeETH",
+  DelegateTotalStake = "delegate__totalStake",
+  DelegateTotalVolumeEth = "delegate__totalVolumeETH",
+  DelegateTotalVolumeUsd = "delegate__totalVolumeUSD",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   Sender = "sender",
   UnbondingLockId = "unbondingLockId",
@@ -7171,6 +8601,7 @@ export type UnpauseEvent = Event & {
 export type UnpauseEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<UnpauseEvent_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -7179,6 +8610,7 @@ export type UnpauseEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<UnpauseEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -7234,8 +8666,33 @@ export type UnpauseEvent_Filter = {
 export enum UnpauseEvent_OrderBy {
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -7285,6 +8742,7 @@ export type VoteEvent = Event & {
 export type VoteEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<VoteEvent_Filter>>>;
   choiceID?: InputMaybe<Scalars["BigInt"]>;
   choiceID_gt?: InputMaybe<Scalars["BigInt"]>;
   choiceID_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -7301,6 +8759,7 @@ export type VoteEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<VoteEvent_Filter>>>;
   poll?: InputMaybe<Scalars["String"]>;
   poll_?: InputMaybe<Poll_Filter>;
   poll_contains?: InputMaybe<Scalars["String"]>;
@@ -7398,15 +8857,46 @@ export enum VoteEvent_OrderBy {
   ChoiceId = "choiceID",
   Id = "id",
   Poll = "poll",
+  PollEndBlock = "poll__endBlock",
+  PollId = "poll__id",
+  PollProposal = "poll__proposal",
+  PollQuorum = "poll__quorum",
+  PollQuota = "poll__quota",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   Voter = "voter",
 }
 
 export type Vote_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Vote_Filter>>>;
   choiceID?: InputMaybe<PollChoice>;
   choiceID_in?: InputMaybe<Array<PollChoice>>;
   choiceID_not?: InputMaybe<PollChoice>;
@@ -7427,6 +8917,7 @@ export type Vote_Filter = {
   nonVoteStake_lte?: InputMaybe<Scalars["BigDecimal"]>;
   nonVoteStake_not?: InputMaybe<Scalars["BigDecimal"]>;
   nonVoteStake_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  or?: InputMaybe<Array<InputMaybe<Vote_Filter>>>;
   poll?: InputMaybe<Scalars["String"]>;
   poll_?: InputMaybe<Poll_Filter>;
   poll_contains?: InputMaybe<Scalars["String"]>;
@@ -7487,6 +8978,11 @@ export enum Vote_OrderBy {
   Id = "id",
   NonVoteStake = "nonVoteStake",
   Poll = "poll",
+  PollEndBlock = "poll__endBlock",
+  PollId = "poll__id",
+  PollProposal = "poll__proposal",
+  PollQuorum = "poll__quorum",
+  PollQuota = "poll__quota",
   RegisteredTranscoder = "registeredTranscoder",
   VoteStake = "voteStake",
   Voter = "voter",
@@ -7527,9 +9023,14 @@ export type WinningTicketRedeemedEvent = Event & {
 export type WinningTicketRedeemedEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<WinningTicketRedeemedEvent_Filter>>>;
   auxData?: InputMaybe<Scalars["Bytes"]>;
   auxData_contains?: InputMaybe<Scalars["Bytes"]>;
+  auxData_gt?: InputMaybe<Scalars["Bytes"]>;
+  auxData_gte?: InputMaybe<Scalars["Bytes"]>;
   auxData_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  auxData_lt?: InputMaybe<Scalars["Bytes"]>;
+  auxData_lte?: InputMaybe<Scalars["Bytes"]>;
   auxData_not?: InputMaybe<Scalars["Bytes"]>;
   auxData_not_contains?: InputMaybe<Scalars["Bytes"]>;
   auxData_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -7557,6 +9058,7 @@ export type WinningTicketRedeemedEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<WinningTicketRedeemedEvent_Filter>>>;
   recipient?: InputMaybe<Scalars["String"]>;
   recipientRand?: InputMaybe<Scalars["BigInt"]>;
   recipientRand_gt?: InputMaybe<Scalars["BigInt"]>;
@@ -7682,11 +9184,57 @@ export enum WinningTicketRedeemedEvent_OrderBy {
   Id = "id",
   Recipient = "recipient",
   RecipientRand = "recipientRand",
+  RecipientActivationRound = "recipient__activationRound",
+  RecipientActivationTimestamp = "recipient__activationTimestamp",
+  RecipientActive = "recipient__active",
+  RecipientDeactivationRound = "recipient__deactivationRound",
+  RecipientFeeShare = "recipient__feeShare",
+  RecipientFeeShareUpdateTimestamp = "recipient__feeShareUpdateTimestamp",
+  RecipientId = "recipient__id",
+  RecipientLastActiveStakeUpdateRound = "recipient__lastActiveStakeUpdateRound",
+  RecipientNinetyDayVolumeEth = "recipient__ninetyDayVolumeETH",
+  RecipientRewardCut = "recipient__rewardCut",
+  RecipientRewardCutUpdateTimestamp = "recipient__rewardCutUpdateTimestamp",
+  RecipientServiceUri = "recipient__serviceURI",
+  RecipientSixtyDayVolumeEth = "recipient__sixtyDayVolumeETH",
+  RecipientStatus = "recipient__status",
+  RecipientThirtyDayVolumeEth = "recipient__thirtyDayVolumeETH",
+  RecipientTotalStake = "recipient__totalStake",
+  RecipientTotalVolumeEth = "recipient__totalVolumeETH",
+  RecipientTotalVolumeUsd = "recipient__totalVolumeUSD",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Sender = "sender",
   SenderNonce = "senderNonce",
+  SenderDeposit = "sender__deposit",
+  SenderId = "sender__id",
+  SenderReserve = "sender__reserve",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   WinProb = "winProb",
 }
 
@@ -7723,6 +9271,7 @@ export type WithdrawFeesEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<WithdrawFeesEvent_Filter>>>;
   delegator?: InputMaybe<Scalars["String"]>;
   delegator_?: InputMaybe<Delegator_Filter>;
   delegator_contains?: InputMaybe<Scalars["String"]>;
@@ -7752,6 +9301,7 @@ export type WithdrawFeesEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<WithdrawFeesEvent_Filter>>>;
   recipient?: InputMaybe<Scalars["String"]>;
   recipient_contains?: InputMaybe<Scalars["String"]>;
   recipient_contains_nocase?: InputMaybe<Scalars["String"]>;
@@ -7827,11 +9377,44 @@ export type WithdrawFeesEvent_Filter = {
 export enum WithdrawFeesEvent_OrderBy {
   Amount = "amount",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   Recipient = "recipient",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 /**
@@ -7867,6 +9450,7 @@ export type WithdrawStakeEvent_Filter = {
   amount_lte?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not?: InputMaybe<Scalars["BigDecimal"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<WithdrawStakeEvent_Filter>>>;
   delegator?: InputMaybe<Scalars["String"]>;
   delegator_?: InputMaybe<Delegator_Filter>;
   delegator_contains?: InputMaybe<Scalars["String"]>;
@@ -7896,6 +9480,7 @@ export type WithdrawStakeEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<WithdrawStakeEvent_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -7959,10 +9544,43 @@ export type WithdrawStakeEvent_Filter = {
 export enum WithdrawStakeEvent_OrderBy {
   Amount = "amount",
   Delegator = "delegator",
+  DelegatorBondedAmount = "delegator__bondedAmount",
+  DelegatorDelegatedAmount = "delegator__delegatedAmount",
+  DelegatorFees = "delegator__fees",
+  DelegatorId = "delegator__id",
+  DelegatorPrincipal = "delegator__principal",
+  DelegatorStartRound = "delegator__startRound",
+  DelegatorUnbonded = "delegator__unbonded",
+  DelegatorWithdrawnFees = "delegator__withdrawnFees",
   Id = "id",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
   UnbondingLockId = "unbondingLockId",
 }
 
@@ -7991,6 +9609,7 @@ export type WithdrawalEvent = Event & {
 export type WithdrawalEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<WithdrawalEvent_Filter>>>;
   deposit?: InputMaybe<Scalars["BigDecimal"]>;
   deposit_gt?: InputMaybe<Scalars["BigDecimal"]>;
   deposit_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -8007,6 +9626,7 @@ export type WithdrawalEvent_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<WithdrawalEvent_Filter>>>;
   reserve?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_gt?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_gte?: InputMaybe<Scalars["BigDecimal"]>;
@@ -8093,9 +9713,37 @@ export enum WithdrawalEvent_OrderBy {
   Id = "id",
   Reserve = "reserve",
   Round = "round",
+  RoundActiveTranscoderCount = "round__activeTranscoderCount",
+  RoundDelegatorsCount = "round__delegatorsCount",
+  RoundEndBlock = "round__endBlock",
+  RoundId = "round__id",
+  RoundInflation = "round__inflation",
+  RoundInitialized = "round__initialized",
+  RoundLength = "round__length",
+  RoundMintableTokens = "round__mintableTokens",
+  RoundMovedStake = "round__movedStake",
+  RoundNewStake = "round__newStake",
+  RoundNumActiveTranscoders = "round__numActiveTranscoders",
+  RoundParticipationRate = "round__participationRate",
+  RoundStartBlock = "round__startBlock",
+  RoundStartTimestamp = "round__startTimestamp",
+  RoundTotalActiveStake = "round__totalActiveStake",
+  RoundTotalSupply = "round__totalSupply",
+  RoundVolumeEth = "round__volumeETH",
+  RoundVolumeUsd = "round__volumeUSD",
   Sender = "sender",
+  SenderDeposit = "sender__deposit",
+  SenderId = "sender__id",
+  SenderReserve = "sender__reserve",
   Timestamp = "timestamp",
   Transaction = "transaction",
+  TransactionBlockNumber = "transaction__blockNumber",
+  TransactionFrom = "transaction__from",
+  TransactionGasPrice = "transaction__gasPrice",
+  TransactionGasUsed = "transaction__gasUsed",
+  TransactionId = "transaction__id",
+  TransactionTimestamp = "transaction__timestamp",
+  TransactionTo = "transaction__to",
 }
 
 export type _Block_ = {
@@ -8104,6 +9752,8 @@ export type _Block_ = {
   hash?: Maybe<Scalars["Bytes"]>;
   /** The block number */
   number: Scalars["Int"];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars["Int"]>;
 };
 
 /** The type for the top-level _meta field */
@@ -9076,6 +10726,42 @@ export type TransactionsQuery = {
     faceValue: string;
     round: { __typename: "Round"; id: string };
     transaction: { __typename: "Transaction"; id: string; timestamp: number };
+  }>;
+};
+
+export type TreasuryProposalQueryVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type TreasuryProposalQuery = {
+  __typename: "Query";
+  treasuryProposal?: {
+    __typename: "TreasuryProposal";
+    id: string;
+    description: string;
+    calldatas: Array<any>;
+    targets: Array<string>;
+    values: Array<string>;
+    voteEnd: string;
+    voteStart: string;
+    proposer: { __typename: "LivepeerAccount"; id: string };
+  } | null;
+};
+
+export type TreasuryProposalsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type TreasuryProposalsQuery = {
+  __typename: "Query";
+  treasuryProposals: Array<{
+    __typename: "TreasuryProposal";
+    id: string;
+    description: string;
+    calldatas: Array<any>;
+    targets: Array<string>;
+    values: Array<string>;
+    voteEnd: string;
+    voteStart: string;
+    proposer: { __typename: "LivepeerAccount"; id: string };
   }>;
 };
 
@@ -10161,6 +11847,139 @@ export type TransactionsLazyQueryHookResult = ReturnType<
 export type TransactionsQueryResult = Apollo.QueryResult<
   TransactionsQuery,
   TransactionsQueryVariables
+>;
+export const TreasuryProposalDocument = gql`
+  query treasuryProposal($id: ID!) {
+    treasuryProposal(id: $id) {
+      id
+      description
+      calldatas
+      targets
+      values
+      voteEnd
+      voteStart
+      proposer {
+        id
+      }
+    }
+  }
+`;
+
+/**
+ * __useTreasuryProposalQuery__
+ *
+ * To run a query within a React component, call `useTreasuryProposalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTreasuryProposalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTreasuryProposalQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTreasuryProposalQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    TreasuryProposalQuery,
+    TreasuryProposalQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<TreasuryProposalQuery, TreasuryProposalQueryVariables>(
+    TreasuryProposalDocument,
+    options
+  );
+}
+export function useTreasuryProposalLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TreasuryProposalQuery,
+    TreasuryProposalQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    TreasuryProposalQuery,
+    TreasuryProposalQueryVariables
+  >(TreasuryProposalDocument, options);
+}
+export type TreasuryProposalQueryHookResult = ReturnType<
+  typeof useTreasuryProposalQuery
+>;
+export type TreasuryProposalLazyQueryHookResult = ReturnType<
+  typeof useTreasuryProposalLazyQuery
+>;
+export type TreasuryProposalQueryResult = Apollo.QueryResult<
+  TreasuryProposalQuery,
+  TreasuryProposalQueryVariables
+>;
+export const TreasuryProposalsDocument = gql`
+  query treasuryProposals {
+    treasuryProposals(orderBy: voteStart, orderDirection: desc) {
+      id
+      description
+      calldatas
+      targets
+      values
+      voteEnd
+      voteStart
+      proposer {
+        id
+      }
+    }
+  }
+`;
+
+/**
+ * __useTreasuryProposalsQuery__
+ *
+ * To run a query within a React component, call `useTreasuryProposalsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTreasuryProposalsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTreasuryProposalsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTreasuryProposalsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    TreasuryProposalsQuery,
+    TreasuryProposalsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    TreasuryProposalsQuery,
+    TreasuryProposalsQueryVariables
+  >(TreasuryProposalsDocument, options);
+}
+export function useTreasuryProposalsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TreasuryProposalsQuery,
+    TreasuryProposalsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    TreasuryProposalsQuery,
+    TreasuryProposalsQueryVariables
+  >(TreasuryProposalsDocument, options);
+}
+export type TreasuryProposalsQueryHookResult = ReturnType<
+  typeof useTreasuryProposalsQuery
+>;
+export type TreasuryProposalsLazyQueryHookResult = ReturnType<
+  typeof useTreasuryProposalsLazyQuery
+>;
+export type TreasuryProposalsQueryResult = Apollo.QueryResult<
+  TreasuryProposalsQuery,
+  TreasuryProposalsQueryVariables
 >;
 export const VoteDocument = gql`
   query vote($id: ID!) {

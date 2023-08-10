@@ -153,7 +153,8 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.goerli.id],
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby",
+    subgraph:
+      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-goerli",
     contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
   [chain.arbitrum.id]: {
@@ -196,7 +197,8 @@ export const CHAIN_INFO = {
       },
       rpcUrl: "https://goerli-rollup.arbitrum.io/rpc",
     },
-    subgraph: "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+    subgraph:
+      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-goerli",
     contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
 };

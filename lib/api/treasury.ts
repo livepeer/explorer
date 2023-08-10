@@ -1,17 +1,11 @@
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import {
-  getApollo,
-  PollsQueryResult,
-  ProtocolByBlockDocument,
-  ProtocolByBlockQuery,
-  ProtocolByBlockQueryVariables,
-  ProtocolQuery,
-} from "apollo";
+import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
 import dayjs from "dayjs";
 import fm from "front-matter";
-import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { Proposal, ProposalState } from "./types/get-treasury-proposal";
+import { ProposalState } from "./types/get-treasury-proposal";
 import { CurrentRoundInfo } from "./types/get-current-round";
+
+export type Proposal = NonNullable<TreasuryProposalQuery["treasuryProposal"]>;
 
 export type ProposalTextAttributes = {
   title: string;
@@ -20,7 +14,7 @@ export type ProposalTextAttributes = {
   text: string;
 };
 
-export type ProposalVoteCounts = {
+export type ProposalVotesExtended = ProposalState["votes"] & {
   estimatedEndTime: number;
 
   percent: {
@@ -43,10 +37,21 @@ export type ProposalVoteCounts = {
   };
 };
 
+export type ParsedProposal = Proposal & {
+  attributes: ProposalTextAttributes;
+};
+
+export type ProposalExtended = ParsedProposal &
+  ProposalState & {
+    votes: ProposalVotesExtended;
+  };
+
 const zeroIfNaN = (value: number) => (isNaN(value) ? 0 : value);
 
-export const getProposalTextAttributes = (proposal: Proposal): ProposalTextAttributes => {
-  const transformedProposal = fm<ProposalTextAttributes>(proposal.description ?? "");
+export const parseProposalText = (proposal: Proposal): ParsedProposal => {
+  const transformedProposal = fm<ProposalTextAttributes>(
+    proposal.description ?? ""
+  );
 
   const attributes = {
     title: transformedProposal.attributes.title,
@@ -60,18 +65,24 @@ export const getProposalTextAttributes = (proposal: Proposal): ProposalTextAttri
     const titleAndBody = proposal.description?.split("\n", 2);
 
     attributes.title = titleAndBody[0].replace(/^#+\s*/, "");
-    attributes.text = titleAndBody.length === 1 ? attributes.title : titleAndBody[1].replace(/^\s+/, "");
+    attributes.text =
+      titleAndBody.length === 1
+        ? attributes.title
+        : titleAndBody[1].replace(/^\s+/, "");
   }
 
-  return attributes;
+  return { ...proposal, attributes };
 };
 
-export const getProposalVoteCounts = (
-  proposal: Proposal,
+export const getProposalExtended = (
+  proposalArg: Proposal | ParsedProposal,
   state: ProposalState,
   currentRound: CurrentRoundInfo,
   protocol: ProtocolQuery["protocol"]
-): ProposalVoteCounts => {
+): ProposalExtended => {
+  const proposal =
+    "attributes" in proposalArg ? proposalArg : parseProposalText(proposalArg);
+
   const totalVoteSupply = +(state.totalVoteSupply ?? 0) / 1e18;
 
   const againstVotes = +(state.votes.against || 0) / 1e18;
@@ -80,29 +91,39 @@ export const getProposalVoteCounts = (
   const totalVotes = againstVotes + forVotes + abstainVotes;
   const quotaTotalVotes = againstVotes + forVotes;
 
-  const estimatedEndTime = getEstimatedEndTimeByRound(+(proposal.voteEnd ?? 0) + 1, currentRound, protocol);
+  const estimatedEndTime = getEstimatedEndTimeByRound(
+    +parseInt(proposal.voteEnd) + 1,
+    currentRound,
+    protocol
+  );
 
   const missingVotes = totalVoteSupply - totalVotes;
 
   return {
-    estimatedEndTime,
+    ...proposal,
+    ...state,
+    votes: {
+      ...state.votes,
 
-    percent: {
-      against: zeroIfNaN(againstVotes / totalVotes),
-      for: zeroIfNaN(forVotes / totalVotes),
-      abstain: zeroIfNaN(abstainVotes / totalVotes),
+      estimatedEndTime,
 
-      voters: zeroIfNaN(totalVotes / totalVoteSupply),
-      nonVoters: zeroIfNaN(missingVotes / totalVoteSupply),
-    },
-    total: {
-      against: againstVotes,
-      for: forVotes,
-      abstain: abstainVotes,
+      percent: {
+        against: zeroIfNaN(againstVotes / totalVotes),
+        for: zeroIfNaN(forVotes / totalVotes),
+        abstain: zeroIfNaN(abstainVotes / totalVotes),
 
-      voters: totalVotes,
-      quotaVoters: quotaTotalVotes,
-      nonVoters: missingVotes,
+        voters: zeroIfNaN(totalVotes / totalVoteSupply),
+        nonVoters: zeroIfNaN(missingVotes / totalVoteSupply),
+      },
+      total: {
+        against: againstVotes,
+        for: forVotes,
+        abstain: abstainVotes,
+
+        voters: totalVotes,
+        quotaVoters: quotaTotalVotes,
+        nonVoters: missingVotes,
+      },
     },
   };
 };

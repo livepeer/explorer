@@ -4,11 +4,12 @@ import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useProtocolQuery } from "apollo";
+import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useCurrentRoundData, useTreasuryProposalListData } from "hooks";
+import { useCurrentRoundData } from "hooks";
 import TreasuryProposalRow from "@components/TreasuryProposalRow";
+import { parseProposalText } from "@lib/api/treasury";
+import { useMemo } from "react";
 dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
@@ -28,10 +29,17 @@ export const Status = styled("div", {
   },
 });
 
+const pollInterval = 20000;
+
 const Voting = () => {
-  const proposals = useTreasuryProposalListData();
   const protocol = useProtocolQuery();
   const currentRound = useCurrentRoundData();
+  const { data } = useTreasuryProposalsQuery({ pollInterval });
+
+  const proposals = useMemo(
+    () => data?.treasuryProposals.map((p) => parseProposalText(p)),
+    [data?.treasuryProposals]
+  );
 
   const isLoading = !proposals || !protocol?.data || !currentRound;
 
@@ -80,7 +88,11 @@ const Voting = () => {
               >
                 Voting
               </Heading>
-              <Link href="/voting/create-poll" as="/voting/create-poll" passHref>
+              <Link
+                href="/voting/create-poll"
+                as="/voting/create-poll"
+                passHref
+              >
                 <Button size="3" variant="primary">
                   Create Proposal
                 </Button>
@@ -102,16 +114,14 @@ const Voting = () => {
               </Flex>
             )}
             <Box>
-              {proposals
-                ?.sort((a, b) => b.voteEnd - a.voteEnd)
-                .map((prop) => (
-                  <TreasuryProposalRow
-                    key={prop.id}
-                    proposal={prop}
-                    currentRound={currentRound}
-                    protocol={protocol.data ?? ({} as any)}
-                  />
-                ))}
+              {proposals?.map((prop) => (
+                <TreasuryProposalRow
+                  key={prop.id}
+                  proposal={prop}
+                  currentRound={currentRound}
+                  protocol={protocol.data ?? ({} as any)}
+                />
+              ))}
             </Box>
           </Flex>
         )}
