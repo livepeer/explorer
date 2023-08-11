@@ -42,27 +42,23 @@ const handler = async (
       abi: livepeerGovernor,
       functionName: "clock",
     });
-    const snapshot = await l2PublicClient.readContract({
+    let snapshot = await l2PublicClient.readContract({
       address: livepeerGovernorAddress,
       abi: livepeerGovernor,
       functionName: "proposalSnapshot",
       args: [BigInt(proposalId)],
     });
+    if (snapshot > now) {
+      snapshot = BigInt(now);
+    }
 
     const getVotes = async (address: Address) => {
       const votesProm = l2PublicClient
         .readContract({
           address: governorVotesAddress,
           abi: bondingCheckpointsVotes,
-          ...(now >= snapshot
-            ? {
-                functionName: "getPastVotes",
-                args: [address, snapshot],
-              }
-            : {
-                functionName: "getVotes",
-                args: [address],
-              }),
+          functionName: "getPastVotes",
+          args: [address, snapshot],
         })
         .then((bn) => bn.toString());
       const hasVotedProm = l2PublicClient.readContract({
@@ -79,15 +75,8 @@ const handler = async (
     const delegateAddress = await l2PublicClient.readContract({
       address: governorVotesAddress,
       abi: bondingCheckpointsVotes,
-      ...(now >= snapshot
-        ? {
-            functionName: "delegatedAt",
-            args: [address, snapshot],
-          }
-        : {
-            functionName: "delegates",
-            args: [address],
-          }),
+      functionName: "delegatedAt",
+      args: [address, snapshot],
     });
 
     return res.status(200).json({

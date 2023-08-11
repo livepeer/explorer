@@ -34,6 +34,15 @@ dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
+const formatDateTime = (date: dayjs.Dayjs) => {
+  const now = dayjs()
+  let str = date.format("MMM D, YYYY");
+  if (date.isAfter(now) && date.diff(now, "hour") < 24) {
+    str += ` (in ${dayjs.duration(date.diff()).humanize()})`;
+  }
+  return str;
+};
+
 const Poll = () => {
   const router = useRouter();
   const { width } = useWindowSize();
@@ -136,19 +145,19 @@ const Poll = () => {
                   : ` (LIP ${proposal.attributes.lip})`}
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
-                {!["Pending", "Active"].includes(proposal.state) ? (
+                {proposal.state === "Pending" ? (
                   <Box>
-                    Voting ended on{" "}
-                    {dayjs
-                      .unix(proposal.votes.estimatedEndTime)
-                      .format("MMM D, YYYY")}
+                    Voting starts on{" "}
+                    {formatDateTime(proposal.votes.voteStartTime)}
+                  </Box>
+                ) : proposal.state === "Active" ? (
+                  <Box>
+                    Voting ongoing until ~
+                    {formatDateTime(proposal.votes.voteEndTime)}
                   </Box>
                 ) : (
                   <Box>
-                    Voting ongoing until ~$
-                    {dayjs
-                      .unix(proposal.votes.estimatedEndTime)
-                      .format("MMM D, YYYY")}
+                    Voting ended on {formatDateTime(proposal.votes.voteEndTime)}
                   </Box>
                 )}
               </Text>

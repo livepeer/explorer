@@ -16,7 +16,8 @@ export type ProposalTextAttributes = {
 };
 
 export type ProposalVotesExtended = ProposalState["votes"] & {
-  estimatedEndTime: number;
+  voteStartTime: dayjs.Dayjs;
+  voteEndTime: dayjs.Dayjs;
 
   percent: {
     against: number;
@@ -92,8 +93,13 @@ export const getProposalExtended = (
   const totalVotes = againstVotes + forVotes + abstainVotes;
   const quotaTotalVotes = againstVotes + forVotes;
 
-  const estimatedEndTime = getEstimatedEndTimeByRound(
-    +parseInt(proposal.voteEnd) + 1,
+  const voteStartTime = estimateRoundStartTime(
+    +proposal.voteStart + 1,
+    currentRound,
+    protocol
+  );
+  const voteEndTime = estimateRoundStartTime(
+    +proposal.voteEnd + 1,
     currentRound,
     protocol
   );
@@ -106,7 +112,8 @@ export const getProposalExtended = (
     votes: {
       ...state.votes,
 
-      estimatedEndTime,
+      voteStartTime,
+      voteEndTime,
 
       percent: {
         against: zeroIfNaN(againstVotes / totalVotes),
@@ -129,7 +136,7 @@ export const getProposalExtended = (
   };
 };
 
-const getEstimatedEndTimeByRound = (
+const estimateRoundStartTime = (
   requestedRound: number,
   currentRound: CurrentRoundInfo,
   protocol: ProtocolQuery["protocol"]
@@ -141,5 +148,5 @@ const getEstimatedEndTimeByRound = (
   // we don't need to make requests to the etherscan, since we can rely on consistent L1 block times
   const diffFromNow =
     (requestedStartBlock - currentRound.currentL1Block) * AVERAGE_L1_BLOCK_TIME;
-  return dayjs().add(diffFromNow, "s").unix();
+  return dayjs().add(diffFromNow, "s");
 };

@@ -192,12 +192,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
               {proposal.state !== "Pending" && proposal.state !== "Active"
                 ? "Final Results"
-                : dayjs
-                    .duration(
-                      dayjs().unix() - proposal.votes.estimatedEndTime,
-                      "seconds"
-                    )
-                    .humanize() + " left"}
+                : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
+                  " left"}
             </Box>
           </Box>
 
@@ -239,7 +235,9 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     {accountAddress.replace(accountAddress.slice(5, 39), "…")})
                     {vote?.self &&
                       ` ${
-                        vote.self.hasVoted ? "already voted" : "haven't voted yet"
+                        vote.self.hasVoted
+                          ? "already voted"
+                          : "haven't voted yet"
                       }`}
                   </Box>
                   <Box

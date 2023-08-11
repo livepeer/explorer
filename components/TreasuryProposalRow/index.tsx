@@ -97,16 +97,12 @@ const TreasuryProposalRow = ({
                 ) : !["Pending", "Active"].includes(state?.state) ? (
                   <Box>
                     Voting ended on{" "}
-                    {dayjs
-                      .unix(proposal.votes.estimatedEndTime)
-                      .format("MMM D, YYYY")}
+                    {proposal.votes.voteEndTime.format("MMM D, YYYY")}
                   </Box>
                 ) : (
                   <Box>
-                    Voting ongoing until ~
-                    {dayjs
-                      .unix(proposal.votes.estimatedEndTime)
-                      .format("MMM D, YYYY")}
+                    Voting will end on ~
+                    {proposal.votes.voteEndTime.format("MMM D, YYYY")}
                   </Box>
                 )}
               </Box>

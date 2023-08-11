@@ -44,24 +44,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       abi: livepeerGovernor,
       functionName: "clock",
     });
-    const snapshot = await l2PublicClient.readContract({
+    let snapshot = await l2PublicClient.readContract({
       address: livepeerGovernorAddress,
       abi: livepeerGovernor,
       functionName: "proposalSnapshot",
       args: [BigInt(proposalId)],
     });
+    if (snapshot > now) {
+      snapshot = BigInt(now);
+    }
+
     const totalVoteSupply = await l2PublicClient
       .readContract({
         address: governorVotesAddress,
         abi: bondingCheckpointsVotes,
-        ...(now >= snapshot
-          ? {
-              functionName: "getPastTotalSupply",
-              args: [snapshot],
-            }
-          : {
-              functionName: "totalSupply",
-            }),
+        functionName: "getPastTotalSupply",
+        args: [snapshot],
       })
       .then((bn) => bn.toString());
 
@@ -86,7 +84,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
         functionName: "quorum",
-        args: [snapshot < now ? snapshot : BigInt(now)],
+        args: [snapshot],
       })
       .then((bn) => bn.toString());
 
