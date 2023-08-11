@@ -118,7 +118,9 @@ export const useL1DelegatorData = (address: string | undefined | null) => {
   return data ?? null;
 };
 
-export const useContractInfoData = (shouldFetch: boolean = true): ContractInfo | null => {
+export const useContractInfoData = (
+  shouldFetch: boolean = true
+): ContractInfo => {
   const { data } = useSWR<ContractInfo>(shouldFetch ? `/contracts` : null);
 
   return (
@@ -137,6 +139,9 @@ export const useContractInfoData = (shouldFetch: boolean = true): ContractInfo |
       RoundsManager: null,
       ServiceRegistry: null,
       TicketBroker: null,
+      LivepeerGovernor: null,
+      Treasury: null,
+      GovernorVotes: null,
     }
   );
 };

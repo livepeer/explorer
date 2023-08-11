@@ -32,6 +32,9 @@ const handler = async (
         RoundsManager: await getContractAddress("RoundsManager"),
         ServiceRegistry: await getContractAddress("ServiceRegistry"),
         TicketBroker: await getContractAddress("TicketBroker"),
+        LivepeerGovernor: await getContractAddress("LivepeerGovernor"),
+        Treasury: await getContractAddress("Treasury"),
+        GovernorVotes: await getContractAddress("BondingCheckpointsVotes"),
       };
 
       const contractsInfo: ContractInfo = {
@@ -96,6 +99,21 @@ const handler = async (
           name: "Ticket Broker (Proxy)",
           address: contracts.TicketBroker,
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.TicketBroker}`,
+        },
+        LivepeerGovernor: {
+          name: "Livepeer Governor",
+          address: contracts.LivepeerGovernor,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.LivepeerGovernor}`,
+        },
+        Treasury: {
+          name: "Treasury",
+          address: contracts.Treasury,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.Treasury}`,
+        },
+        GovernorVotes: {
+          name: "Governor Votes",
+          address: contracts.GovernorVotes,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.GovernorVotes}`,
         },
       };
 

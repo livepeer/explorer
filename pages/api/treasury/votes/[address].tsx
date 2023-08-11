@@ -30,8 +30,8 @@ const handler = async (
       throw new Error("Missing address");
     }
 
-    const livepeerGovernorAddress = getLivepeerGovernorAddress();
-    const governorVotesAddress = getGovernorVotesAddress();
+    const livepeerGovernorAddress = await getLivepeerGovernorAddress();
+    const governorVotesAddress = await getGovernorVotesAddress();
     if (!livepeerGovernorAddress || !governorVotesAddress) {
       throw new Error("Unsupported chain");
     }

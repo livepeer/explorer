@@ -31,10 +31,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       throw new Error("Missing proposalId");
     }
 
-    // TODO: Implement proposal indexing using The Graph
-
-    const livepeerGovernorAddress = getLivepeerGovernorAddress();
-    const governorVotesAddress = getGovernorVotesAddress();
+    const livepeerGovernorAddress = await getLivepeerGovernorAddress();
+    const governorVotesAddress = await getGovernorVotesAddress();
     if (!livepeerGovernorAddress || !governorVotesAddress) {
       throw new Error("Unsupported chain");
     }

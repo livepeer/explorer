@@ -20,6 +20,7 @@ import {
 import {
   useAccountAddress,
   useAccountBalanceData,
+  useContractInfoData,
   useHandleTransaction,
   useTreasuryVotingPowerData,
 } from "hooks";
@@ -29,16 +30,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-const livepeerGovernorAddress = getLivepeerGovernorAddress();
-const treasuryAddress = getTreasuryAddress();
-
 type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
 };
 
 const CreateProposal = () => {
   const accountAddress = useAccountAddress();
-  const treasuryAccountBalanceData = useAccountBalanceData(treasuryAddress);
+  const contractAddresses = useContractInfoData();
+  const treasuryAccountBalanceData = useAccountBalanceData(
+    contractAddresses.Treasury?.address
+  );
   const treasuryBalance = useMemo(
     () =>
       treasuryAccountBalanceData &&
@@ -91,14 +92,14 @@ const CreateProposal = () => {
   }, [lptReceiver, lptAmount]);
 
   const txEnabled = Boolean(
-    livepeerGovernorAddress &&
+    contractAddresses.LivepeerGovernor?.address &&
       livepeerTokenAddress &&
       transferTokenFunctionData &&
       description
   );
   const { config } = usePrepareContractWrite({
     enabled: txEnabled,
-    address: livepeerGovernorAddress,
+    address: contractAddresses.LivepeerGovernor?.address,
     abi: livepeerGovernor,
     functionName: "propose",
     args: [

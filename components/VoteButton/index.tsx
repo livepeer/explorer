@@ -10,15 +10,14 @@ import {
   usePrepareContractWrite,
 } from "wagmi";
 
+import { useMemo } from "react";
+import { useLivepeerGovernorAddress } from "hooks/useContracts";
+
 type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;
   proposalId?: string;
   choiceId: number;
 };
-
-const livepeerGovernorAddress = getLivepeerGovernorAddress();
-
-import { useMemo } from "react";
 
 const Index = ({
   pollAddress,
@@ -28,17 +27,14 @@ const Index = ({
   ...props
 }: Props) => {
   const accountAddress = useAccountAddress();
+  const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
   const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
-    if (!proposalId && !pollAddress) {
-      return {
-        enabled: false,
-      };
-    }
-
     if (proposalId) {
       return {
-        enabled: Boolean(accountAddress),
+        enabled: Boolean(
+          livepeerGovernorAddress && accountAddress && proposalId
+        ),
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
         functionName: "castVote",
@@ -46,13 +42,19 @@ const Index = ({
       };
     }
     return {
-      enabled: Boolean(accountAddress),
+      enabled: Boolean(pollAddress && accountAddress),
       address: pollAddress,
       abi: poll,
       functionName: "vote",
       args: [BigInt(choiceId)],
     };
-  }, [proposalId, pollAddress, choiceId, accountAddress]);
+  }, [
+    livepeerGovernorAddress,
+    proposalId,
+    pollAddress,
+    choiceId,
+    accountAddress,
+  ]);
 
   const { config } = usePrepareContractWrite(preparedWriteConfig);
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);

@@ -17,12 +17,6 @@ export const getNodeInterfaceAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface;
 export const getPollCreatorAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.pollCreator;
-export const getLivepeerGovernorAddress = (): Address | undefined =>
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.livepeerGovernor;
-export const getGovernorVotesAddress = (): Address| undefined =>
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.governorVotes;
-export const getTreasuryAddress = (): Address| undefined =>
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.treasury;
 
 // DYNAMIC ADDRESSES FROM CONTROLLER
 
@@ -57,3 +51,13 @@ export const getServiceRegistryAddress = async () =>
   getContractAddress("ServiceRegistry");
 export const getTicketBrokerAddress = async () =>
   getContractAddress("TicketBroker");
+// TODO: Remove the hardcoded addresses after new devnet deploy
+export const getLivepeerGovernorAddress = async () =>
+  ("0xD36575965fe609640dF08296EdDAcFc41b3D8540" as Address) ??
+  getContractAddress("LivepeerGovernor");
+export const getTreasuryAddress = async () =>
+  ("0xA5B10e911a308B4480F6384cb9B734C57626aC0C" as Address) ??
+  getContractAddress("Treasury");
+export const getGovernorVotesAddress = async () =>
+  ("0x04641C6BCE1fe5cBe136091b6E1f04832F688Cf7" as Address) ??
+  getContractAddress("BondingCheckpointsVotes");
