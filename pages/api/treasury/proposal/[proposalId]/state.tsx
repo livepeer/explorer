@@ -39,6 +39,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       throw new Error("Unsupported chain");
     }
 
+    const now = await l2PublicClient.readContract({
+      address: livepeerGovernorAddress,
+      abi: livepeerGovernor,
+      functionName: "clock",
+    });
     const snapshot = await l2PublicClient.readContract({
       address: livepeerGovernorAddress,
       abi: livepeerGovernor,
@@ -49,8 +54,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       .readContract({
         address: governorVotesAddress,
         abi: bondingCheckpointsVotes,
-        functionName: "getPastTotalSupply",
-        args: [snapshot],
+        ...(now >= snapshot
+          ? {
+              functionName: "getPastTotalSupply",
+              args: [snapshot],
+            }
+          : {
+              functionName: "totalSupply",
+            }),
       })
       .then((bn) => bn.toString());
 
@@ -75,7 +86,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
         functionName: "quorum",
-        args: [snapshot],
+        args: [snapshot < now ? snapshot : BigInt(now)],
       })
       .then((bn) => bn.toString());
 
@@ -101,7 +112,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error("state api error", err);
     return res.status(500).json(null);
   }
 };

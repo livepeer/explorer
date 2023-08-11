@@ -59,7 +59,7 @@ const ARBITRUM_GOERLI_CONTRACTS: AllContracts = {
   pollCreator: "0xA1e283Cdad119Dd69c95a5aA0AF4F9796bdcD332",
   livepeerGovernor: "0xD36575965fe609640dF08296EdDAcFc41b3D8540",
   governorVotes: "0x04641C6BCE1fe5cBe136091b6E1f04832F688Cf7",
-  treasury: "0x60eB3084Ca22A62241D6c401EF74aA41baeEAB2B",
+  treasury: "0xA5B10e911a308B4480F6384cb9B734C57626aC0C",
   l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8", // does not exist
   l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a", // does not exist
   inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", // does not exist
@@ -92,15 +92,24 @@ export const DEFAULT_CHAIN =
 
 export const DEFAULT_CHAIN_ID = DEFAULT_CHAIN.id;
 
-export const IS_TESTNET = Boolean(TESTNET_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
+export const IS_TESTNET = Boolean(
+  TESTNET_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
+);
 
-export const IS_L2 = Boolean(L2_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
-export const IS_L1 = Boolean(L1_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id));
+export const IS_L2 = Boolean(
+  L2_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
+);
+export const IS_L1 = Boolean(
+  L1_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
+);
 
 /**
  * Array of all the supported chain IDs
  */
-export const ALL_SUPPORTED_CHAIN_IDS = [...L2_CHAIN_IDS, ...L1_CHAIN_IDS] as const;
+export const ALL_SUPPORTED_CHAIN_IDS = [
+  ...L2_CHAIN_IDS,
+  ...L1_CHAIN_IDS,
+] as const;
 
 /**
  * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
@@ -181,7 +190,7 @@ export const CHAIN_INFO = {
   },
   [chain.arbitrumGoerli.id]: {
     networkType: NetworkType.L2,
-    l1: chain.arbitrumGoerli,
+    l1: chain.goerli,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",

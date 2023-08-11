@@ -1,5 +1,17 @@
 import { Address } from "viem";
 
+export type VotingPower = {
+  proposalThreshold: string;
+  self: {
+    address: Address;
+    votes: string;
+  };
+  delegate?: {
+    address: Address;
+    votes: string;
+  };
+};
+
 export type Proposal = {
   id: string;
   proposer: string;

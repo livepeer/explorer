@@ -4,7 +4,7 @@ import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
 import { useMemo } from "react";
-import { abbreviateNumber } from "../../lib/utils";
+import { abbreviateNumber, fromWei } from "../../lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
@@ -22,7 +22,7 @@ const shortenAddress = (address: string) =>
   address?.replace(address.slice(5, 39), "…") ?? "";
 
 const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(parseInt(lpt ?? "0") / 1e18, 4);
+  abbreviateNumber(fromWei(lpt ?? 0), 4);
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();

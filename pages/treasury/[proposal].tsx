@@ -75,7 +75,7 @@ const Poll = () => {
     return (
       <>
         <Head>
-          <title>Livepeer Explorer - Voting</title>
+          <title>Livepeer Explorer - Treasury</title>
         </Head>
         <Flex
           css={{

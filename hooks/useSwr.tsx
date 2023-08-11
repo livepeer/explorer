@@ -11,12 +11,15 @@ import {
   Proposal,
   ProposalState,
   ProposalVotingPower,
+  VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
 import useSWR from "swr";
 import { Address } from "viem";
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
-  const { data } = useSWR<EnsIdentity>(address ? `/ens-data/${address.toLowerCase()}` : null);
+  const { data } = useSWR<EnsIdentity>(
+    address ? `/ens-data/${address.toLowerCase()}` : null
+  );
 
   return (
     data ?? {
@@ -52,7 +55,9 @@ export const useAllScoreData = () => {
 };
 
 export const useScoreData = (address: string | undefined | null) => {
-  const { data } = useSWR<PerformanceMetrics>(address ? `/score/${address.toLowerCase()}` : null);
+  const { data } = useSWR<PerformanceMetrics>(
+    address ? `/score/${address.toLowerCase()}` : null
+  );
 
   return data ?? null;
 };
@@ -65,8 +70,22 @@ export const useCurrentRoundData = () => {
   return data ?? null;
 };
 
-export const usePendingFeesAndStakeData = (address: string | undefined | null) => {
-  const { data } = useSWR<PendingFeesAndStake>(address ? `/pending-stake/${address.toLowerCase()}` : null);
+export const usePendingFeesAndStakeData = (
+  address: string | undefined | null
+) => {
+  const { data } = useSWR<PendingFeesAndStake>(
+    address ? `/pending-stake/${address.toLowerCase()}` : null
+  );
+
+  return data ?? null;
+};
+
+export const useTreasuryVotingPowerData = (
+  address: string | undefined | null
+) => {
+  const { data } = useSWR<VotingPower>(
+    address ? `/treasury/votes/${address.toLowerCase()}` : null
+  );
 
   return data ?? null;
 };

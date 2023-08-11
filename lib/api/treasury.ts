@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import fm from "front-matter";
 import { ProposalState } from "./types/get-treasury-proposal";
 import { CurrentRoundInfo } from "./types/get-current-round";
+import { fromWei } from "@lib/utils";
 
 export type Proposal = NonNullable<TreasuryProposalQuery["treasuryProposal"]>;
 
@@ -83,11 +84,11 @@ export const getProposalExtended = (
   const proposal =
     "attributes" in proposalArg ? proposalArg : parseProposalText(proposalArg);
 
-  const totalVoteSupply = +(state.totalVoteSupply ?? 0) / 1e18;
+  const totalVoteSupply = +fromWei(state.totalVoteSupply || 0);
 
-  const againstVotes = +(state.votes.against || 0) / 1e18;
-  const forVotes = +(state.votes.for || 0) / 1e18;
-  const abstainVotes = +(state.votes.abstain || 0) / 1e18;
+  const againstVotes = +fromWei(state.votes.against || 0);
+  const forVotes = +fromWei(state.votes.for || 0);
+  const abstainVotes = +fromWei(state.votes.abstain || 0);
   const totalVotes = againstVotes + forVotes + abstainVotes;
   const quotaTotalVotes = againstVotes + forVotes;
 
@@ -134,9 +135,11 @@ const getEstimatedEndTimeByRound = (
   protocol: ProtocolQuery["protocol"]
 ) => {
   const roundLength = +(protocol?.roundLength ?? 1);
-  const requestedStartBlock = currentRound.startBlock + (requestedRound - currentRound.id) * roundLength;
+  const requestedStartBlock =
+    currentRound.startBlock + (requestedRound - currentRound.id) * roundLength;
+
   // we don't need to make requests to the etherscan, since we can rely on consistent L1 block times
-  return dayjs()
-    .add((requestedStartBlock - currentRound.currentL1Block) * AVERAGE_L1_BLOCK_TIME, "s")
-    .unix();
+  const diffFromNow =
+    (requestedStartBlock - currentRound.currentL1Block) * AVERAGE_L1_BLOCK_TIME;
+  return dayjs().add(diffFromNow, "s").unix();
 };

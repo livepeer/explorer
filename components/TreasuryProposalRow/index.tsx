@@ -103,7 +103,7 @@ const TreasuryProposalRow = ({
                   </Box>
                 ) : (
                   <Box>
-                    Voting ongoing until ~$
+                    Voting ongoing until ~
                     {dayjs
                       .unix(proposal.votes.estimatedEndTime)
                       .format("MMM D, YYYY")}

@@ -89,8 +89,8 @@ const Voting = () => {
                 Voting
               </Heading>
               <Link
-                href="/voting/create-poll"
-                as="/voting/create-poll"
+                href="/treasury/create-proposal"
+                as="/treasury/create-proposal"
                 passHref
               >
                 <Button size="3" variant="primary">
@@ -119,7 +119,7 @@ const Voting = () => {
                   key={prop.id}
                   proposal={prop}
                   currentRound={currentRound}
-                  protocol={protocol.data ?? ({} as any)}
+                  protocol={protocol.data?.protocol}
                 />
               ))}
             </Box>
