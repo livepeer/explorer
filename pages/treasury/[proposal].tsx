@@ -586,7 +586,7 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <ReactMarkdown>{proposal.attributes?.text ?? ""}</ReactMarkdown>
+                <ReactMarkdown>{proposal.description}</ReactMarkdown>
               </Card>
             </Box>
           </Flex>

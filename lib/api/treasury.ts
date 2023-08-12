@@ -64,13 +64,13 @@ export const parseProposalText = (proposal: Proposal): ParsedProposal => {
 
   if (!attributes.title || !attributes.text) {
     // strip the first line of the title as if it were a markdown title
-    const titleAndBody = proposal.description?.split("\n", 2);
+    const titleAndBody = proposal.description?.split("\n");
 
     attributes.title = titleAndBody[0].replace(/^#+\s*/, "");
     attributes.text =
       titleAndBody.length === 1
         ? attributes.title
-        : titleAndBody[1].replace(/^\s+/, "");
+        : titleAndBody.slice(1).join("\n").replace(/^\s+/, "");
   }
 
   return { ...proposal, attributes };
