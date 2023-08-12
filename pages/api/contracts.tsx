@@ -1,5 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
-import { getContractAddress } from "@lib/api/contracts";
+import {
+  getContractAddress,
+  getGovernorVotesAddress,
+  getLivepeerGovernorAddress,
+  getTreasuryAddress,
+} from "@lib/api/contracts";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -32,9 +37,10 @@ const handler = async (
         RoundsManager: await getContractAddress("RoundsManager"),
         ServiceRegistry: await getContractAddress("ServiceRegistry"),
         TicketBroker: await getContractAddress("TicketBroker"),
-        LivepeerGovernor: await getContractAddress("LivepeerGovernor"),
-        Treasury: await getContractAddress("Treasury"),
-        GovernorVotes: await getContractAddress("BondingCheckpointsVotes"),
+        // TODO: Switch back to above pattern
+        LivepeerGovernor: await getLivepeerGovernorAddress(),
+        Treasury: await getTreasuryAddress(),
+        GovernorVotes: await getGovernorVotesAddress(),
       };
 
       const contractsInfo: ContractInfo = {

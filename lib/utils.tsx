@@ -135,6 +135,14 @@ export const txMessages = {
     pending: "Creating Proposal",
     confirmed: "Proposal Created",
   },
+  queue: {
+    pending: "Enqueueing Proposal",
+    confirmed: "Proposal Enqueued",
+  },
+  execute: {
+    pending: "Executing Proposal",
+    confirmed: "Proposal Executed",
+  },
   withdrawFees: {
     pending: "Withdrawing Fees",
     confirmed: "Fees Withdrawn",

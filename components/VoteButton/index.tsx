@@ -59,7 +59,12 @@ const Index = ({
   const { config } = usePrepareContractWrite(preparedWriteConfig);
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
-  useHandleTransaction("vote", data, error, isLoading, isSuccess, { choiceId });
+  useHandleTransaction("vote", data, error, isLoading, isSuccess, {
+    choiceId,
+    choiceName: proposalId
+      ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
+      : { 0: "No", 1: "Yes" }[choiceId],
+  });
 
   if (!accountAddress) {
     return null;

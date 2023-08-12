@@ -8,6 +8,7 @@ import { abbreviateNumber, fromWei } from "../../lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
+import QueueExecuteButton from "@components/QueueExecuteButton";
 
 dayjs.extend(duration);
 
@@ -267,10 +268,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </Flex>
                 )}
               </Box>
-              {!proposal ||
-              !vote ||
-              proposal.state !== "Active" ||
-              vote?.self.hasVoted ? null : (
+              {proposal?.state === "Active" && vote?.self.hasVoted === false && (
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
@@ -299,6 +297,16 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   >
                     Abstain
                   </VoteButton>
+                </Box>
+              )}
+              {["Succeeded", "Queued"].includes(proposal?.state) && (
+                <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
+                  <QueueExecuteButton
+                    variant="primary"
+                    size="4"
+                    action={proposal.state === "Queued" ? "execute" : "queued"}
+                    proposal={proposal}
+                  />
                 </Box>
               )}
             </>

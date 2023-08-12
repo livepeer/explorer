@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { fromWei, txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import {
   Box,
   Flex,
@@ -17,9 +17,18 @@ import {
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";
+import QueueExecuteButton from "@components/QueueExecuteButton";
 
 const Index = () => {
+  const router = useRouter();
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+
+  const onDismiss = useCallback(() => {
+    clearLatestTransaction();
+    if (latestTransaction?.name === "propose") {
+      router.push("/treasury");
+    }
+  }, [clearLatestTransaction, latestTransaction, router]);
 
   if (!latestTransaction || latestTransaction.step !== "confirmed") {
     return null;
@@ -30,12 +39,12 @@ const Index = () => {
       open={true}
       onOpenChange={(open) => {
         if (!open) {
-          clearLatestTransaction();
+          onDismiss();
         }
       }}
     >
       <DialogContent
-        onPointerDownOutside={clearLatestTransaction}
+        onPointerDownOutside={onDismiss}
         css={{ maxWidth: 390, width: "100%" }}
       >
         <DialogTitle asChild>
@@ -59,7 +68,7 @@ const Index = () => {
             </Badge>
           </Heading>
         </DialogTitle>
-        {renderSwitch(latestTransaction, clearLatestTransaction)}
+        {renderSwitch(latestTransaction, onDismiss)}
       </DialogContent>
     </Dialog>
   );
@@ -172,14 +181,74 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
           </DialogClose>
         </Box>
       );
+    case "propose":
+      return (
+        <Box>
+          <Table css={{ mb: "$4" }}>
+            <Header tx={tx} />
+            <Box css={{ px: "$3", py: "$4" }}>
+              You&apos;ve successfully made a treasury proposal!
+            </Box>
+          </Table>
+          <DialogClose asChild>
+            <Button size="4" variant="primary" css={{ width: "100%" }}>
+              Close
+            </Button>
+          </DialogClose>
+        </Box>
+      );
     case "vote":
       return (
         <Box>
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              You&apos;ve successfully casted a vote{" "}
-              {tx.inputData && tx.inputData.choiceId === 0 ? '"Yes"' : '"No"'}
+              You&apos;ve successfully casted a vote
+              {` "${tx.inputData?.choiceName}"`}
+            </Box>
+          </Table>
+          <DialogClose asChild>
+            <Button size="4" variant="primary" css={{ width: "100%" }}>
+              Close
+            </Button>
+          </DialogClose>
+        </Box>
+      );
+    case "queue":
+      return (
+        <Box>
+          <Table css={{ mb: "$4" }}>
+            <Header tx={tx} />
+            <Box css={{ px: "$3", py: "$4" }}>
+              You&apos;ve successfully enqueued the proposal for execution!
+              {"\n\n"}
+              You may also execute the proposal below if available.
+            </Box>
+          </Table>
+          <Flex>
+            <QueueExecuteButton
+              action="execute"
+              size="4"
+              variant="primary"
+              css={{ mr: "$2", flex: 1 }}
+              proposal={tx.inputData?.proposal}
+              onClick={onDismiss}
+            />
+            <DialogClose asChild>
+              <Button size="4" variant="primary" css={{ flex: 1 }}>
+                Close
+              </Button>
+            </DialogClose>
+          </Flex>
+        </Box>
+      );
+    case "execute":
+      return (
+        <Box>
+          <Table css={{ mb: "$4" }}>
+            <Header tx={tx} />
+            <Box css={{ px: "$3", py: "$4" }}>
+              You&apos;ve successfully executed the treasury!
             </Box>
           </Table>
           <DialogClose asChild>
