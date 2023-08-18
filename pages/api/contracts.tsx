@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
   getContractAddress,
-  getGovernorVotesAddress,
+  getBondingVotesAddress,
   getLivepeerGovernorAddress,
   getTreasuryAddress,
 } from "@lib/api/contracts";
@@ -40,7 +40,7 @@ const handler = async (
         // TODO: Switch back to above pattern
         LivepeerGovernor: await getLivepeerGovernorAddress(),
         Treasury: await getTreasuryAddress(),
-        GovernorVotes: await getGovernorVotesAddress(),
+        BondingVotes: await getBondingVotesAddress(),
       };
 
       const contractsInfo: ContractInfo = {
@@ -116,10 +116,10 @@ const handler = async (
           address: contracts.Treasury,
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.Treasury}`,
         },
-        GovernorVotes: {
-          name: "Governor Votes",
-          address: contracts.GovernorVotes,
-          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.GovernorVotes}`,
+        BondingVotes: {
+          name: "Bonding Votes",
+          address: contracts.BondingVotes,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.BondingVotes}`,
         },
       };
 

@@ -1,7 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
-import { bondingCheckpointsVotes } from "@lib/api/abis/main/BondingCheckpointsVotes";
+import { bondingVotes } from "@lib/api/abis/main/BondingVotes";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
-import { getGovernorVotesAddress, getLivepeerGovernorAddress } from "@lib/api/contracts";
+import {
+  getBondingVotesAddress,
+  getLivepeerGovernorAddress,
+} from "@lib/api/contracts";
 import { ProposalState } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -17,7 +20,10 @@ const ProposalStateEnum = {
   7: "Executed",
 } as const;
 
-const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState | null>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<ProposalState | null>
+) => {
   try {
     const { method } = req;
     if (method !== "GET") {
@@ -32,8 +38,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
     }
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
-    const governorVotesAddress = await getGovernorVotesAddress();
-    if (!livepeerGovernorAddress || !governorVotesAddress) {
+    const bondingVotesAddress = await getBondingVotesAddress();
+    if (!livepeerGovernorAddress || !bondingVotesAddress) {
       throw new Error("Unsupported chain");
     }
 
@@ -54,8 +60,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ProposalState |
 
     const totalVoteSupply = await l2PublicClient
       .readContract({
-        address: governorVotesAddress,
-        abi: bondingCheckpointsVotes,
+        address: bondingVotesAddress,
+        abi: bondingVotes,
         functionName: "getPastTotalSupply",
         args: [snapshot],
       })

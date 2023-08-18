@@ -25,5 +25,5 @@ export type ContractInfo = {
   TicketBroker: ContractLink | null;
   LivepeerGovernor: ContractLink | null;
   Treasury: ContractLink | null;
-  GovernorVotes: ContractLink | null;
+  BondingVotes: ContractLink | null;
 };

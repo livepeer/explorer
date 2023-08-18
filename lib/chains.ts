@@ -22,7 +22,7 @@ export type AllContracts = {
   controller: Address;
   pollCreator: Address;
   livepeerGovernor?: Address;
-  governorVotes?: Address;
+  bondingVotes?: Address;
   treasury?: Address;
   l1Migrator: Address;
   l2Migrator: Address;
@@ -55,12 +55,12 @@ const ARBITRUM_ONE_CONTRACTS: AllContracts = {
 };
 
 const ARBITRUM_GOERLI_CONTRACTS: AllContracts = {
-  controller: "0xEE48C1F8A6BE10FDf6aF8b17a74198E08961A17d",
-  pollCreator: "0xA1e283Cdad119Dd69c95a5aA0AF4F9796bdcD332",
-  l1Migrator: "0x4756766C61e0755db5963Ab3505280Ddf1B36cD8", // does not exist
-  l2Migrator: "0xe2f931931B8E04a01c99a2DeBA44A9FF782F688a", // does not exist
-  inbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", // does not exist
-  outbox: "0x2360A33905dc1c72b12d975d975F42BaBdcef9F3", // does not exist
+  controller: "0x53Ea65f3E8B06d07DC1008276c5e4aa15126502B",
+  pollCreator: "0x8984Fa27b8213e310e7a67B10C158aA42C0733CD",
+  l1Migrator: "0xdeadbeef0deadbeef1deadbeef3deadbeef4dead", // does not exist
+  l2Migrator: "0xdeadbeef0deadbeef1deadbeef3deadbeef4dead", // does not exist
+  inbox: "0xdeadbeef0deadbeef1deadbeef3deadbeef4dead", // does not exist
+  outbox: "0xdeadbeef0deadbeef1deadbeef3deadbeef4dead", // does not exist
   arbRetryableTx: "0x000000000000000000000000000000000000006E",
   nodeInterface: "0x00000000000000000000000000000000000000C8",
 };

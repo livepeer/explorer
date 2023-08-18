@@ -141,7 +141,7 @@ export const useContractInfoData = (
       TicketBroker: null,
       LivepeerGovernor: null,
       Treasury: null,
-      GovernorVotes: null,
+      BondingVotes: null,
     }
   );
 };

@@ -1,8 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { bondingCheckpointsVotes } from "@lib/api/abis/main/BondingCheckpointsVotes";
+import { bondingVotes } from "@lib/api/abis/main/BondingVotes";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import {
-  getGovernorVotesAddress,
+  getBondingVotesAddress,
   getLivepeerGovernorAddress,
 } from "@lib/api/contracts";
 import {
@@ -31,8 +31,8 @@ const handler = async (
     }
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
-    const governorVotesAddress = await getGovernorVotesAddress();
-    if (!livepeerGovernorAddress || !governorVotesAddress) {
+    const bondingVotesAddress = await getBondingVotesAddress();
+    if (!livepeerGovernorAddress || !bondingVotesAddress) {
       throw new Error("Unsupported chain");
     }
 
@@ -47,8 +47,8 @@ const handler = async (
     const getVotes = async (address: Address) => {
       const votes = await l2PublicClient
         .readContract({
-          address: governorVotesAddress,
-          abi: bondingCheckpointsVotes,
+          address: bondingVotesAddress,
+          abi: bondingVotes,
           functionName: "getVotes",
           args: [address],
         })
@@ -58,8 +58,8 @@ const handler = async (
     };
 
     const delegateAddress = await l2PublicClient.readContract({
-      address: governorVotesAddress,
-      abi: bondingCheckpointsVotes,
+      address: bondingVotesAddress,
+      abi: bondingVotes,
       functionName: "delegates",
       args: [address],
     });
