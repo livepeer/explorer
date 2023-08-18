@@ -773,6 +773,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
                           mb: "$1",
                         }}
+                        target="_blank"
                         href={
                           contractAddresses?.[
                             key as keyof typeof contractAddresses
