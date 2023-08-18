@@ -107,7 +107,7 @@ const handler = async (
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.TicketBroker}`,
         },
         LivepeerGovernor: {
-          name: "Livepeer Governor",
+          name: "Livepeer Governor (Proxy)",
           address: contracts.LivepeerGovernor,
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.LivepeerGovernor}`,
         },
@@ -117,7 +117,7 @@ const handler = async (
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.Treasury}`,
         },
         BondingVotes: {
-          name: "Bonding Votes",
+          name: "Bonding Votes (Proxy)",
           address: contracts.BondingVotes,
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.BondingVotes}`,
         },
