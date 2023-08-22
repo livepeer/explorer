@@ -304,7 +304,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <QueueExecuteButton
                     variant="primary"
                     size="4"
-                    action={proposal.state === "Queued" ? "execute" : "queued"}
+                    action={proposal.state === "Queued" ? "execute" : "queue"}
                     proposal={proposal}
                   />
                 </Box>
