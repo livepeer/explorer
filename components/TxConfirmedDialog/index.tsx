@@ -181,6 +181,29 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
           </DialogClose>
         </Box>
       );
+    case "checkpoint":
+      const { targetAddress, isOrchestrator } = tx.inputData ?? {};
+      return (
+        <Box>
+          <Table css={{ mb: "$4" }}>
+            <Header tx={tx} />
+            <Box css={{ px: "$3", py: "$4" }}>
+              You&apos;ve successfully checkpointed{" "}
+              {!isOrchestrator
+                ? "your stake"
+                : `your orchestrator (${targetAddress.replace(
+                    targetAddress.slice(7, 37),
+                    "…"
+                  )}) stake!`}
+            </Box>
+          </Table>
+          <DialogClose asChild>
+            <Button size="4" variant="primary" css={{ width: "100%" }}>
+              Close
+            </Button>
+          </DialogClose>
+        </Box>
+      );
     case "propose":
       return (
         <Box>

@@ -57,8 +57,9 @@ const handler = async (
         .readContract({
           address: bondingVotesAddress,
           abi: bondingVotes,
-          functionName: "getPastVotes",
-          args: [address, snapshot],
+          ...(snapshot < now
+            ? { functionName: "getPastVotes", args: [address, snapshot] }
+            : { functionName: "getVotes", args: [address] }),
         })
         .then((bn) => bn.toString());
       const hasVotedProm = l2PublicClient.readContract({

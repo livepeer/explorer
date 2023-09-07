@@ -111,6 +111,10 @@ export const txMessages = {
     pending: "Delegating LPT",
     confirmed: "LPT Delegated",
   },
+  checkpoint: {
+    pending: "Checkpointing",
+    confirmed: "Stake Checkpointed",
+  },
   unbond: {
     pending: "Undelegating LPT",
     confirmed: "LPT Undelegated",

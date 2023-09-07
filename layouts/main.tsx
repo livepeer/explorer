@@ -11,7 +11,7 @@ import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import { isL2ChainId, IS_L2 } from "@lib/chains";
+import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import {
@@ -48,7 +48,7 @@ import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
-import { Chain, useBlockNumber } from "wagmi";
+import { Chain } from "wagmi";
 import {
   useAccountAddress,
   useActiveChain,
@@ -60,6 +60,7 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
+import RegisterToVote from "@components/RegisterToVote";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -634,6 +635,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     )}
                     {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
+                    )}
+                    {!asPath?.includes("/migrate") && accountAddress && (
+                      <RegisterToVote />
                     )}
                     {children}
                   </Box>

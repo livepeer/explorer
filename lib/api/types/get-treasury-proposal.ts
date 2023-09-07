@@ -1,5 +1,13 @@
 import { Address } from "viem";
 
+export type RegisteredToVote = {
+  registered: boolean;
+  delegate: {
+    address: Address;
+    registered: boolean;
+  };
+};
+
 export type VotingPower = {
   proposalThreshold: string;
   self: {

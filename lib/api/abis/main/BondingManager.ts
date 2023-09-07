@@ -303,6 +303,31 @@ export const bondingManager = [
       {
         indexed: true,
         internalType: "address",
+        name: "transcoder",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "treasury",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "TreasuryReward",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "delegate",
         type: "address",
       },
@@ -485,6 +510,19 @@ export const bondingManager = [
       },
     ],
     name: "bondWithHint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_account",
+        type: "address",
+      },
+    ],
+    name: "checkpointBondingState",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -880,6 +918,19 @@ export const bondingManager = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "nextRoundTreasuryRewardCutRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -1070,6 +1121,32 @@ export const bondingManager = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "_ceiling",
+        type: "uint256",
+      },
+    ],
+    name: "setTreasuryBalanceCeiling",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_cutRate",
+        type: "uint256",
+      },
+    ],
+    name: "setTreasuryRewardCutRate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint64",
         name: "_unbondingPeriod",
         type: "uint64",
@@ -1241,6 +1318,32 @@ export const bondingManager = [
     name: "transferBond",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "treasuryBalanceCeiling",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "treasuryRewardCutRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

@@ -11,6 +11,7 @@ import {
   Proposal,
   ProposalState,
   ProposalVotingPower,
+  RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
 import useSWR from "swr";
@@ -85,6 +86,16 @@ export const useTreasuryVotingPowerData = (
 ) => {
   const { data } = useSWR<VotingPower>(
     address ? `/treasury/votes/${address.toLowerCase()}` : null
+  );
+
+  return data ?? null;
+};
+
+export const useTreasuryRegisteredToVoteData = (
+  address: string | undefined | null
+) => {
+  const { data } = useSWR<RegisteredToVote>(
+    address ? `/treasury/votes/${address.toLowerCase()}/registered` : null
   );
 
   return data ?? null;

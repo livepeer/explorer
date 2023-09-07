@@ -5,10 +5,7 @@ import {
   getBondingVotesAddress,
   getLivepeerGovernorAddress,
 } from "@lib/api/contracts";
-import {
-  ProposalVotingPower,
-  VotingPower,
-} from "@lib/api/types/get-treasury-proposal";
+import { VotingPower } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
@@ -43,14 +40,19 @@ const handler = async (
         functionName: "proposalThreshold",
       })
       .then((bn) => bn.toString());
+    const currentRound = await l2PublicClient.readContract({
+      address: livepeerGovernorAddress,
+      abi: livepeerGovernor,
+      functionName: "clock",
+    });
 
     const getVotes = async (address: Address) => {
       const votes = await l2PublicClient
         .readContract({
           address: bondingVotesAddress,
           abi: bondingVotes,
-          functionName: "getVotes",
-          args: [address],
+          functionName: "getPastVotes",
+          args: [address, BigInt(currentRound - 1)],
         })
         .then((bn) => bn.toString());
 
