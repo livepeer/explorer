@@ -329,7 +329,9 @@ export async function getStaticProps() {
           lips.push({ ...transformedLip, text: lip.content.text });
       }
     } else {
-      console.log(`No data from apollo fetch: ${result}`);
+      console.log(
+        `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`
+      );
       return null;
     }
 
