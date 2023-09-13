@@ -329,6 +329,7 @@ export async function getStaticProps() {
           lips.push({ ...transformedLip, text: lip.content.text });
       }
     } else {
+      console.log(`No data from apollo fetch`);
       return null;
     }
 
@@ -346,7 +347,7 @@ export async function getStaticProps() {
       revalidate: 300,
     };
   } catch (e) {
-    console.error(e);
+    console.log(e);
     return null;
   }
 }
