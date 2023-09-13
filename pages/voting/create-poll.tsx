@@ -292,7 +292,7 @@ export async function getStaticProps() {
 
       next();
     });
-    const { data } = await apolloFetch({ query: lipsQuery });
+    const { data, errors } = await apolloFetch({ query: lipsQuery });
     const apolloSubgraphFetch = createApolloFetch({
       uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
     });
@@ -329,7 +329,7 @@ export async function getStaticProps() {
           lips.push({ ...transformedLip, text: lip.content.text });
       }
     } else {
-      console.log(`No data from apollo fetch`);
+      console.log(`No data from apollo fetch: ${errors}`);
       return null;
     }
 
