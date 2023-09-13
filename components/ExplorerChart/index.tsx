@@ -74,8 +74,13 @@ const ExplorerChart = ({
     (date: number) =>
       grouping === "day"
         ? `${dayjs.unix(date).format("MMM D")}`
-        : `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
+        : `${dayjs
             .unix(date)
+            .add(1, "day")
+            .startOf("week")
+            .format("MMM D")} - ${dayjs
+            .unix(date)
+            .add(1, "day")
             .endOf("week")
             .format("MMM D")}`,
     [grouping]
