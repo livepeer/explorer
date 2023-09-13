@@ -245,7 +245,8 @@ CreatePoll.getLayout = getLayout;
 export default CreatePoll;
 
 export async function getStaticProps() {
-  const lipsQuery = `
+  try {
+    const lipsQuery = `
   {
     repository(owner: "${
       process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
@@ -277,67 +278,75 @@ export async function getStaticProps() {
   }
   `;
 
-  const apolloFetch = createApolloFetch({
-    uri: "https://api.github.com/graphql",
-  });
+    const apolloFetch = createApolloFetch({
+      uri: "https://api.github.com/graphql",
+    });
 
-  apolloFetch.use(({ options }, next) => {
-    if (!options.headers) {
-      options.headers = {}; // Create the headers object if needed.
+    apolloFetch.use(({ options }, next) => {
+      if (!options.headers) {
+        options.headers = {}; // Create the headers object if needed.
+      }
+      options.headers[
+        "authorization"
+      ] = `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
+
+      next();
+    });
+    const { data } = await apolloFetch({ query: lipsQuery });
+    const apolloSubgraphFetch = createApolloFetch({
+      uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+    });
+    const { data: pollsData } = await apolloSubgraphFetch({
+      query: `{ polls { proposal } }`,
+    });
+
+    const createdPolls: string[] = [];
+    if (pollsData) {
+      await Promise.all(
+        pollsData.polls.map(async (poll) => {
+          const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
+
+          // check if proposal is valid format {text, gitCommitHash}
+          if (obj?.text && obj?.gitCommitHash) {
+            const transformedProposal = fm(obj.text) as any;
+            createdPolls.push(transformedProposal.attributes.lip);
+          }
+        })
+      );
     }
-    options.headers[
-      "authorization"
-    ] = `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
 
-    next();
-  });
-  const { data } = await apolloFetch({ query: lipsQuery });
-  const apolloSubgraphFetch = createApolloFetch({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  });
-  const { data: pollsData } = await apolloSubgraphFetch({
-    query: `{ polls { proposal } }`,
-  });
-
-  const createdPolls: string[] = [];
-  if (pollsData) {
-    await Promise.all(
-      pollsData.polls.map(async (poll) => {
-        const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
-
-        // check if proposal is valid format {text, gitCommitHash}
-        if (obj?.text && obj?.gitCommitHash) {
-          const transformedProposal = fm(obj.text) as any;
-          createdPolls.push(transformedProposal.attributes.lip);
-        }
-      })
-    );
-  }
-
-  const lips: any[] = [];
-  if (data) {
-    for (const lip of data.repository.content.entries) {
-      const transformedLip = fm(lip.content.text) as any;
-      transformedLip.attributes.created =
-        transformedLip.attributes.created.toString();
-      if (
-        transformedLip.attributes.status === "Proposed" &&
-        !transformedLip.attributes["part-of"] &&
-        !createdPolls.includes(transformedLip.attributes.lip)
-      )
-        lips.push({ ...transformedLip, text: lip.content.text });
+    const lips: any[] = [];
+    if (data) {
+      for (const lip of data.repository.content.entries) {
+        const transformedLip = fm(lip.content.text) as any;
+        transformedLip.attributes.created =
+          transformedLip.attributes.created.toString();
+        if (
+          transformedLip.attributes.status === "Proposed" &&
+          !transformedLip.attributes["part-of"] &&
+          !createdPolls.includes(transformedLip.attributes.lip)
+        )
+          lips.push({ ...transformedLip, text: lip.content.text });
+      }
+    } else {
+      return null;
     }
-  } else {
+
+    return {
+      props: {
+        projectOwner: data ? data.repository.owner.login : null,
+        projectName: data ? data.repository.name : null,
+        gitCommitHash: data
+          ? data.repository.defaultBranchRef.target.oid
+          : null,
+        lips: lips.sort((a, b) =>
+          a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
+        ),
+      },
+      revalidate: 300,
+    };
+  } catch (e) {
+    console.error(e);
     return null;
   }
-
-  return {
-    props: {
-      projectOwner: data ? data.repository.owner.login : null,
-      projectName: data ? data.repository.name : null,
-      gitCommitHash: data ? data.repository.defaultBranchRef.target.oid : null,
-      lips: lips.sort((a, b) => (a?.attributes?.lip < b?.attributes?.lip ? 1 : -1)),
-    },
-    revalidate: 300,
-  };
 }
