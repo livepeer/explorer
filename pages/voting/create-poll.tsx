@@ -292,7 +292,7 @@ export async function getStaticProps() {
 
       next();
     });
-    const { data, errors } = await apolloFetch({ query: lipsQuery });
+    const result = await apolloFetch({ query: lipsQuery });
     const apolloSubgraphFetch = createApolloFetch({
       uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
     });
@@ -316,8 +316,8 @@ export async function getStaticProps() {
     }
 
     const lips: any[] = [];
-    if (data) {
-      for (const lip of data.repository.content.entries) {
+    if (result.data) {
+      for (const lip of result.data.repository.content.entries) {
         const transformedLip = fm(lip.content.text) as any;
         transformedLip.attributes.created =
           transformedLip.attributes.created.toString();
@@ -329,16 +329,16 @@ export async function getStaticProps() {
           lips.push({ ...transformedLip, text: lip.content.text });
       }
     } else {
-      console.log(`No data from apollo fetch: ${errors}`);
+      console.log(`No data from apollo fetch: ${result}`);
       return null;
     }
 
     return {
       props: {
-        projectOwner: data ? data.repository.owner.login : null,
-        projectName: data ? data.repository.name : null,
-        gitCommitHash: data
-          ? data.repository.defaultBranchRef.target.oid
+        projectOwner: result?.data ? result.data.repository.owner.login : null,
+        projectName: result?.data ? result.data.repository.name : null,
+        gitCommitHash: result?.data
+          ? result.data.repository.defaultBranchRef.target.oid
           : null,
         lips: lips.sort((a, b) =>
           a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
