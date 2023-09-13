@@ -157,12 +157,11 @@ export const CHAIN_INFO = {
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
     subgraph:
-      // process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-      // ? "https://api.thegraph.com/subgraphs/name/livepeer/livepeer"
-      // ? `https://gateway.thegraph.com/api/${
-      //     SUBGRAPH_KEY ?? "none"
-      //   }/subgraphs/id/FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg`
-      "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+        ? `https://gateway.thegraph.com/api/${
+            SUBGRAPH_KEY ?? "none"
+          }/subgraphs/id/FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg`
+        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated
@@ -197,11 +196,11 @@ export const CHAIN_INFO = {
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
     subgraph:
-      // process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-      //   ? `https://gateway-arbitrum.network.thegraph.com/api/${
-      //       SUBGRAPH_KEY ?? "none"
-      //     }/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
-      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+        ? `https://gateway-arbitrum.network.thegraph.com/api/${
+            SUBGRAPH_KEY ?? "none"
+          }/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
+        : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumGoerli.id]: {
