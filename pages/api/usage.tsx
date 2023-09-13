@@ -24,7 +24,7 @@ const chartDataHandler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const cutoffDate = 1690934400000;
+      const cutoffDate = 1692489600000;
       const currentDate = Date.now();
 
       const response = await fetch(
