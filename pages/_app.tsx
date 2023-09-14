@@ -4,6 +4,7 @@ import { IdProvider } from "@radix-ui/react-id";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
 import {
   DEFAULT_CHAIN,
@@ -64,31 +65,33 @@ function App({ Component, pageProps, fallback = null }) {
         key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
         client={client}
       >
-        <WagmiConfig config={config}>
-          <RainbowKitProvider
-            showRecentTransactions={true}
-            appInfo={{
-              appName: "Livepeer Explorer",
-              learnMoreUrl: "https://livepeer.org/primer",
-            }}
-            theme={rainbowTheme}
-            chains={chains}
-          >
-            <SWRConfig
-              value={{
-                loadingTimeout: 40000,
-                fetcher: fetcher,
-                fallback: fallback ?? {},
+        <TooltipPrimitive.Provider>
+          <WagmiConfig config={config}>
+            <RainbowKitProvider
+              showRecentTransactions={true}
+              appInfo={{
+                appName: "Livepeer Explorer",
+                learnMoreUrl: "https://livepeer.org/primer",
               }}
+              theme={rainbowTheme}
+              chains={chains}
             >
-              <CookiesProvider>
-                <IdProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                </IdProvider>
-              </CookiesProvider>
-            </SWRConfig>
-          </RainbowKitProvider>
-        </WagmiConfig>
+              <SWRConfig
+                value={{
+                  loadingTimeout: 40000,
+                  fetcher: fetcher,
+                  fallback: fallback ?? {},
+                }}
+              >
+                <CookiesProvider>
+                  <IdProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </IdProvider>
+                </CookiesProvider>
+              </SWRConfig>
+            </RainbowKitProvider>
+          </WagmiConfig>
+        </TooltipPrimitive.Provider>
       </ApolloProvider>
     </>
   );

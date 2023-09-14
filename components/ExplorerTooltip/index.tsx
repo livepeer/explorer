@@ -14,6 +14,7 @@ const Content = styled(TooltipPrimitive.Content, {
   backgroundColor: "$neutral4",
   borderRadius: "$1",
   padding: "$1 $2",
+  zIndex: "4",
 
   variants: {
     multiline: {
@@ -46,14 +47,18 @@ export function ExplorerTooltip({
         side="top"
         align="center"
         sideOffset={5}
+        multiline
         {...props}
-        {...{ multiline }}
       >
         <Text
           size="1"
           as="p"
           css={{
-            color: "$white",
+            fontSize: "$2",
+            textTransform: "none",
+            fontWeight: 600,
+            color: "white",
+            zIndex: "$4",
             lineHeight: multiline ? "20px" : (undefined as any),
           }}
         >

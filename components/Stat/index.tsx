@@ -49,7 +49,7 @@ const Stat = ({
       <Flex css={{ ai: "center" }}>
         {label}
         {tooltip && (
-          <ExplorerTooltip multiline content={<Box>{tooltip}</Box>}>
+          <ExplorerTooltip multiline content={tooltip}>
             <Flex css={{ ml: "$1" }}>
               <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11" }} />
             </Flex>
