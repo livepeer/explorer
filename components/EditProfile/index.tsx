@@ -61,7 +61,6 @@ const Index = () => {
             <Button
               variant="primary"
               size="4"
-              asChild
               css={{ alignItems: "center", display: "flex" }}
             >
               <A

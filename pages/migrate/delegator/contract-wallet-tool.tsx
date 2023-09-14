@@ -7,7 +7,6 @@ import {
   Container,
   Flex,
   Heading,
-  Label,
   Link as A,
   styled,
   Text,
@@ -120,10 +119,10 @@ const ContractWalletTool = () => {
           </Text>
         </Box>
         <Box css={{ mb: "$3" }}>
-          <Label css={{ display: "block", mb: "$2" }}>
+          <Text css={{ display: "block", mb: "$2" }}>
             Enter the address of your contract wallet on L1 that has stake to
             migrate
-          </Label>
+          </Text>
           <TextField
             ref={register}
             size="3"
@@ -132,13 +131,13 @@ const ContractWalletTool = () => {
           />
         </Box>
         <Box>
-          <Label css={{ display: "block", mb: "$2" }}>
+          <Text css={{ display: "block", mb: "$2" }}>
             Enter the address that will receive migrated stake on L2
-          </Label>
-          <Label css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
+          </Text>
+          <Text css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
             This address should be different from the L1 address and you MUST
             verify you have access to it on L2
-          </Label>
+          </Text>
           <TextField
             ref={register}
             size="3"
