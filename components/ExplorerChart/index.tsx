@@ -192,6 +192,7 @@ const ExplorerChart = ({
       >
         <ExplorerTooltip
           multiline
+          side="bottom"
           content={
             tooltip ? (
               <>
