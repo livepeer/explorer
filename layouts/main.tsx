@@ -28,7 +28,7 @@ import {
   Skeleton,
   SnackbarProvider,
   Text,
-  themes,
+  getThemes,
 } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
@@ -69,10 +69,7 @@ if (process.env.NODE_ENV === "production") {
   ReactGA.initialize("test", { testMode: true });
 }
 
-const themeMap = {};
-Object.keys(themes).map(
-  (key, _index) => (themeMap[themes[key].className] = themes[key].className)
-);
+const themeMap = getThemes();
 
 type DrawerItem = {
   name: any;

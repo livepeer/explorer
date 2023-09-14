@@ -35,41 +35,43 @@ export function ExplorerTooltip({
   ...props
 }: TooltipProps) {
   return (
-    <TooltipPrimitive.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange}
-    >
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-
-      <Content
-        side="top"
-        align="center"
-        sideOffset={5}
-        {...props}
-        {...{ multiline }}
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
       >
-        <Text
-          size="1"
-          as="p"
-          css={{
-            color: "$white",
-            lineHeight: multiline ? "20px" : (undefined as any),
-          }}
+        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+
+        <Content
+          side="bottom"
+          align="center"
+          sideOffset={5}
+          {...props}
+          {...{ multiline }}
         >
-          {content}
-        </Text>
-        <Box css={{ color: "$neutral4" }}>
-          <TooltipPrimitive.Arrow
-            offset={5}
-            width={11}
-            height={5}
-            style={{
-              fill: "currentColor",
+          <Text
+            size="1"
+            as="p"
+            css={{
+              color: "$white",
+              lineHeight: multiline ? "20px" : (undefined as any),
             }}
-          />
-        </Box>
-      </Content>
-    </TooltipPrimitive.Root>
+          >
+            {content}
+          </Text>
+          <Box css={{ color: "$neutral4" }}>
+            <TooltipPrimitive.Arrow
+              offset={5}
+              width={11}
+              height={5}
+              style={{
+                fill: "currentColor",
+              }}
+            />
+          </Box>
+        </Content>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 }
