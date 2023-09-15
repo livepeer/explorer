@@ -24,8 +24,6 @@ const handler = async (
         !blacklist.includes(name)
       ) {
         try {
-          res.setHeader("Cache-Control", getCacheControlHeader("day"));
-
           const avatar = await l1PublicClient.getEnsAvatar({
             name: normalize(name),
           });
@@ -43,13 +41,11 @@ const handler = async (
 
           const response = await fetch(imageUrl);
 
-          const imageBlob = await response.blob();
-
-          const buffer = await imageBlob.stream();
+          const arrayBuffer = await response.arrayBuffer();
 
           res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-          return buffer.pipe(res);
+          return res.end(Buffer.from(arrayBuffer));
         } catch (e) {
           console.error(e);
           return res.status(404).end("Invalid name");
