@@ -51,6 +51,7 @@ const handler = async (
 
           return buffer.pipe(res);
         } catch (e) {
+          console.error(e);
           return res.status(404).end("Invalid name");
         }
       } else {
