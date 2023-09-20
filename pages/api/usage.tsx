@@ -56,9 +56,9 @@ const chartDataHandler = async (
         ...newApiData,
       ];
 
-      const sortedDays = mergedDayData.sort((a, b) =>
-        a.dateS > b.dateS ? 1 : -1
-      );
+      const sortedDays = mergedDayData
+        .sort((a, b) => (a.dateS > b.dateS ? 1 : -1))
+        .filter((s) => s.activeTranscoderCount);
 
       try {
         let startIndexWeekly = -1;
@@ -169,6 +169,15 @@ const chartDataHandler = async (
             sortedDays[sortedDays.length - 1].activeTranscoderCount,
           delegatorsCount: sortedDays[sortedDays.length - 1].delegatorsCount,
         };
+
+        if (
+          Number(
+            data?.dayData?.[(data?.dayData?.length ?? 1) - 1]
+              ?.activeTranscoderCount
+          ) <= 0
+        ) {
+          data.dayData = data.dayData.slice(0, -1);
+        }
 
         res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
