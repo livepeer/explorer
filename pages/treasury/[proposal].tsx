@@ -246,7 +246,10 @@ const Proposal = () => {
                 <Stat
                   css={{ flex: 1, mb: 0 }}
                   label={
-                    <Box>Total Support ({+proposal.quota / 10000}% needed)</Box>
+                    <Box>
+                      Total Support ({formatPercent(+proposal.quota / 1000000)}
+                      needed)
+                    </Box>
                   }
                   value={
                     <Box>
@@ -321,7 +324,9 @@ const Proposal = () => {
                   label={
                     <Box>
                       Total Participation (
-                      {(+proposal.quorum / +proposal.totalVoteSupply) * 100}%
+                      {formatPercent(
+                        +proposal.quorum / +proposal.totalVoteSupply
+                      )}
                       needed)
                     </Box>
                   }
