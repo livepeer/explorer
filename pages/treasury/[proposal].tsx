@@ -25,6 +25,7 @@ import {
   useAccountAddress,
   useContractInfoData,
   useCurrentRoundData,
+  useEnsData,
   useExplorerStore,
   useProposalVotingPowerData,
   useTreasuryProposalState,
@@ -95,6 +96,8 @@ const Proposal = () => {
       protocolQuery.protocol
     );
   }, [proposalQuery, state, currentRound, protocolQuery]);
+
+  const proposerId = useEnsData(proposal?.proposer.id);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -197,11 +200,8 @@ const Proposal = () => {
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 Proposed by{" "}
-                <Link
-                  href={blockExplorerLink(proposal.proposer.id)}
-                  target="_blank"
-                >
-                  {shortenAddress(proposal.proposer.id)}
+                <Link href={`/accounts/${proposal.proposer.id}`}>
+                  {proposerId?.name ?? shortenAddress(proposal.proposer.id)}
                 </Link>
               </Text>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
