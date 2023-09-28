@@ -13,14 +13,14 @@ import {
 } from "@lib/api/treasury";
 
 export const BadgeVariantByState = {
-  Pending: "blue",
+  Pending: "lime",
   Active: "blue",
-  Canceled: "red",
+  Canceled: "gray",
   Defeated: "red",
-  Succeeded: "primary",
-  Queued: "neutral",
-  Expired: "red",
-  Executed: "primary",
+  Succeeded: "green",
+  Queued: "yellow",
+  Expired: "orange",
+  Executed: "green",
 } as const;
 
 type Props = {

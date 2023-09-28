@@ -12,23 +12,6 @@ import { parseProposalText } from "@lib/api/treasury";
 import { useMemo } from "react";
 dayjs.extend(relativeTime);
 
-export const Status = styled("div", {
-  length: {},
-  variants: {
-    color: {
-      passed: {
-        color: "$primary",
-      },
-      rejected: {
-        color: "$red",
-      },
-      active: {
-        color: "$white",
-      },
-    },
-  },
-});
-
 const pollInterval = 20000;
 
 const Voting = () => {
