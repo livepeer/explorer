@@ -61,22 +61,6 @@ export const bondingVotes = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "checkpointRound",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxAllowedRound",
-        type: "uint256",
-      },
-    ],
-    name: "FutureTotalStakeCheckpoint",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "caller",
         type: "address",
@@ -104,6 +88,22 @@ export const bondingVotes = [
       },
     ],
     name: "InvalidStartRound",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "checkpointRound",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "requiredRound",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidTotalStakeCheckpointRound",
     type: "error",
   },
   {
@@ -195,17 +195,29 @@ export const bondingVotes = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "previousBalance",
+        name: "previousBondedAmount",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "newBalance",
+        name: "previousLastClaimRound",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newBondedAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newLastClaimRound",
         type: "uint256",
       },
     ],
-    name: "DelegatorVotesChanged",
+    name: "DelegatorBondedAmountChanged",
     type: "event",
   },
   {
@@ -335,6 +347,19 @@ export const bondingVotes = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -431,35 +456,6 @@ export const bondingVotes = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_round",
-        type: "uint256",
-      },
-    ],
-    name: "getBondingStateAt",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "delegateAddress",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_round",
         type: "uint256",
@@ -545,6 +541,35 @@ export const bondingVotes = [
         name: "_account",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "_round",
+        type: "uint256",
+      },
+    ],
+    name: "getVotesAndDelegateAtRoundStart",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "votes",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "delegateAddress",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_account",
+        type: "address",
+      },
     ],
     name: "hasCheckpoint",
     outputs: [
@@ -555,6 +580,19 @@ export const bondingVotes = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "name",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -572,12 +610,38 @@ export const bondingVotes = [
   },
   {
     inputs: [],
+    name: "symbol",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "targetContractId",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

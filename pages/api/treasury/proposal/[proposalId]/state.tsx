@@ -54,8 +54,9 @@ const handler = async (
       functionName: "proposalSnapshot",
       args: [BigInt(proposalId)],
     });
-    if (snapshot > now) {
-      snapshot = BigInt(now);
+    // we can only fetch quorum up to past round now - 1
+    if (snapshot >= now) {
+      snapshot = BigInt(now - 1);
     }
 
     const totalVoteSupply = await l2PublicClient
