@@ -196,6 +196,15 @@ const Proposal = () => {
                   : ` (LIP ${proposal.attributes.lip})`}
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
+                Proposed by{" "}
+                <Link
+                  href={blockExplorerLink(proposal.proposer.id)}
+                  target="_blank"
+                >
+                  {shortenAddress(proposal.proposer.id)}
+                </Link>
+              </Text>
+              <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 {proposal.state === "Pending" ? (
                   <Box>
                     Voting starts on{" "}
