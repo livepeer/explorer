@@ -15,6 +15,7 @@ import {
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
+import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
 import {
   useAccountAddress,
@@ -69,7 +70,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
-    args: [hash ?? "0x"],
+    args: [hash ? hexlify(toUtf8Bytes(hash)) as `0x${string}` : "0x"],
   });
   const {
     data: createPollResult,
