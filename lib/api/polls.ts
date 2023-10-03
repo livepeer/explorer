@@ -43,10 +43,7 @@ export type PollExtended = NonNullable<
 };
 
 export const getPollExtended = async (
-  poll:
-    | NonNullable<PollsQueryResult["data"]>["polls"][number]
-    | null
-    | undefined,
+  poll: NonNullable<PollsQueryResult["data"]>["polls"][number] | null | undefined,
   l1BlockNumber: number
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
@@ -64,6 +61,14 @@ export const getPollExtended = async (
       created: String(transformedProposal.attributes.created),
       text: String(transformedProposal.body),
     };
+
+    const commitOrBranch = attributes.commitHash ?? "master";
+    const lipNum = attributes.lip ?? "1";
+    const baseUrl = `https://github.com/livepeer/LIPs/blob/${commitOrBranch}/LIPs/LIP-${lipNum}.md`;
+    attributes = {
+      ...attributes,
+      text: absolutizeLinks(attributes.text, baseUrl),
+    };
   }
 
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
@@ -76,12 +81,8 @@ export const getPollExtended = async (
   const noVoteStake = +(poll?.tally?.no || 0);
   const yesVoteStake = +(poll?.tally?.yes || 0);
   const totalVoteStake = noVoteStake + yesVoteStake;
-  const totalYesVotePercent = isNaN(yesVoteStake / totalVoteStake)
-    ? 0
-    : yesVoteStake / totalVoteStake;
-  const totalNoVotePercent = isNaN(noVoteStake / totalVoteStake)
-    ? 0
-    : noVoteStake / totalVoteStake;
+  const totalYesVotePercent = isNaN(yesVoteStake / totalVoteStake) ? 0 : yesVoteStake / totalVoteStake;
+  const totalNoVotePercent = isNaN(noVoteStake / totalVoteStake) ? 0 : noVoteStake / totalVoteStake;
   const totalParticipationPercent = totalVoteStake / totalStake;
 
   const status = isActive
@@ -92,10 +93,7 @@ export const getPollExtended = async (
       : "rejected"
     : "quorum-not-met";
 
-  const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(
-    +(poll?.endBlock ?? 0),
-    l1BlockNumber
-  );
+  const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(+(poll?.endBlock ?? 0), l1BlockNumber);
 
   const totalNonVoteStake = totalStake - totalVoteStake;
   const nonVotersPercent = totalNonVoteStake / totalStake;
@@ -121,6 +119,20 @@ export const getPollExtended = async (
       nonVoters: totalNonVoteStake,
     },
   };
+};
+
+const absolutizeLinks = (markdown: string, baseUrl: string) => {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+  return markdown.replace(linkRegex, (match, linkText, url) => {
+    // If it's already an absolute link, return match as is
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return match;
+    }
+
+    const absoluteUrl = new URL(url, baseUrl).toString();
+    return `[${linkText}](${absoluteUrl})`;
+  });
 };
 
 const getEstimatedEndTimeByBlockNumber = async (
