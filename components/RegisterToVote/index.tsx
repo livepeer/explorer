@@ -9,11 +9,11 @@ import {
 import { useBondingManagerAddress } from "hooks/useContracts";
 
 import { useMemo, useState } from "react";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
-  bondingManagerAddress: string;
-  targetAddress: string;
+  bondingManagerAddress: Address | undefined;
+  targetAddress: Address | null;
   isOrchestrator: boolean;
   onSuccess?: () => void;
 };
@@ -33,7 +33,7 @@ const CheckpointButton = ({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "checkpointBondingState",
-    args: [targetAddress],
+    args: [targetAddress!],
   });
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
