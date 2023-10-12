@@ -146,7 +146,7 @@ const CreateProposal = () => {
           </Heading>
 
           {treasuryBalance && (
-            <Text variant="neutral" align="left" size="3">
+            <Text variant="neutral" size="3">
               Treasury Balance: {treasuryBalance} LPT
             </Text>
           )}
@@ -196,7 +196,7 @@ const CreateProposal = () => {
               justifyContent: "flex-start",
             }}
           >
-            <Text variant="neutral" align="left" size="3">
+            <Text variant="neutral" size="3">
               LPT receiver:
             </Text>
             <TextField
@@ -209,7 +209,7 @@ const CreateProposal = () => {
                 setLptReceiver(e.target.value);
               }}
             />
-            <Text variant="neutral" align="left" size="3">
+            <Text variant="neutral" size="3">
               Amount:
             </Text>
             <TextField
@@ -219,7 +219,7 @@ const CreateProposal = () => {
               type="number"
               size="3"
               min="1"
-              max={treasuryBalance}
+              max={treasuryBalance ?? 1}
               value={lptAmount}
               onChange={(e) => {
                 setLptAmount(parseFloat(e.target.value));

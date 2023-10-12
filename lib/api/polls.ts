@@ -9,6 +9,7 @@ import {
 import dayjs from "dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { Address } from "wagmi";
 
 export type Fm = {
   title: string;
@@ -19,6 +20,7 @@ export type Fm = {
 };
 
 export type PollExtended = NonNullable<PollsQueryResult["data"]>["polls"][number] & {
+  id: Address;
   attributes?: Fm | null;
   estimatedEndTime: number;
   status: "active" | "passed" | "rejected" | "quorum-not-met";

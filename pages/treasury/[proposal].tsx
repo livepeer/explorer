@@ -531,9 +531,9 @@ const Proposal = () => {
                                 color: "$white",
                                 ml: "auto",
                                 maxWidth: "50%",
+                                textAlign: "right",
                               }}
                               size="2"
-                              align="right"
                             >
                               {action.functionName}(
                               {action.args?.join(", ") ?? ""})
@@ -553,9 +553,9 @@ const Proposal = () => {
                                   ml: "auto",
                                   maxWidth: "50%",
                                   wordBreak: "break-all",
+                                  textAlign: "right",
                                 }}
                                 size="2"
-                                align="right"
                               >
                                 {action.calldata}
                               </Text>

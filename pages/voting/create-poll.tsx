@@ -333,7 +333,6 @@ export async function getStaticProps() {
       console.log(
         `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`
       );
-      return null;
     }
 
     return {
