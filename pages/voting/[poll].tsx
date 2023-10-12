@@ -51,7 +51,7 @@ const Poll = () => {
 
   const { setBottomDrawerOpen } = useExplorerStore();
 
-  const { data } = usePollQuery({
+  const { data, error: pollError } = usePollQuery({
     variables: {
       id: pollId ?? "",
     },
@@ -98,25 +98,30 @@ const Poll = () => {
     init();
   }, [data, currentRound?.currentL1Block]);
 
-  if (!query?.poll) {
+  if (pollError) {
     return <FourZeroFour />;
   }
 
   if (!pollData) {
     return (
-      <Flex
-        css={{
-          height: "calc(100vh - 100px)",
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          "@bp3": {
-            height: "100vh",
-          },
-        }}
-      >
-        <Spinner />
-      </Flex>
+      <>
+        <Head>
+          <title>Livepeer Explorer - Voting</title>
+        </Head>
+        <Flex
+          css={{
+            height: "calc(100vh - 100px)",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            "@bp3": {
+              height: "100vh",
+            },
+          }}
+        >
+          <Spinner />
+        </Flex>
+      </>
     );
   }
 

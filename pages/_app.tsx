@@ -6,12 +6,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
-import {
-  DEFAULT_CHAIN,
-  WALLET_CONNECT_PROJECT_ID,
-  INFURA_KEY,
-  L1_CHAIN,
-} from "lib/chains";
+import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";

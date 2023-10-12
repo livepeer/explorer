@@ -1,3 +1,5 @@
+import { Address } from "viem";
+
 const cacheControlValues = {
   revalidate: {
     maxAge: 0,
@@ -36,4 +38,4 @@ export const getCacheControlHeader = (
 
 export const isValidAddress = (
   address: string | string[] | null | undefined
-): address is string => typeof address === "string" && address.length === 42;
+): address is Address => typeof address === "string" && address.length === 42 && address.startsWith("0x");

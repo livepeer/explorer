@@ -248,36 +248,36 @@ export default CreatePoll;
 export async function getStaticProps() {
   try {
     const lipsQuery = `
-  {
-    repository(owner: "${
-      process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
-        ? process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
-        : "livepeer"
-    }", name: "LIPS") {
-      owner {
-        login
-      }
-      name
-      defaultBranchRef {
-        target {
-          oid
+    {
+      repository(owner: "${
+        process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
+          ? process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
+          : "livepeer"
+      }", name: "LIPS") {
+        owner {
+          login
         }
-      }
-      content: object(expression: "master:LIPs/") {
-        ... on Tree {
-          entries {
-            content: object {
-              commitResourcePath
-              ... on Blob {
-                text
+        name
+        defaultBranchRef {
+          target {
+            oid
+          }
+        }
+        content: object(expression: "master:LIPs/") {
+          ... on Tree {
+            entries {
+              content: object {
+                commitResourcePath
+                ... on Blob {
+                  text
+                }
               }
             }
           }
         }
       }
     }
-  }
-  `;
+    `;
 
     const apolloFetch = createApolloFetch({
       uri: "https://api.github.com/graphql",
@@ -333,7 +333,6 @@ export async function getStaticProps() {
       console.log(
         `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`
       );
-      return null;
     }
 
     return {

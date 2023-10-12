@@ -1,6 +1,8 @@
+import { Address } from "viem";
+
 export type ContractLink = {
   name: string;
-  address: string;
+  address: Address;
   link: string;
 };
 
@@ -21,4 +23,7 @@ export type ContractInfo = {
   RoundsManager: ContractLink | null;
   ServiceRegistry: ContractLink | null;
   TicketBroker: ContractLink | null;
+  LivepeerGovernor: ContractLink | null;
+  Treasury: ContractLink | null;
+  BondingVotes: ContractLink | null;
 };

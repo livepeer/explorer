@@ -71,12 +71,16 @@ const TransactionsPage = ({ events }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
+  const errorProps = {
+    props: {},
+    revalidate: 300,
+  };
   try {
     const client = getApollo();
     const { events, fallback } = await getEvents(client, numberTransactions);
 
     if (!events.data) {
-      return null;
+      return errorProps;
     }
 
     const props: PageProps = {
@@ -92,7 +96,7 @@ export const getStaticProps = async () => {
     console.error(e);
   }
 
-  return null;
+  return errorProps;
 };
 
 TransactionsPage.getLayout = getLayout;

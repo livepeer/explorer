@@ -9,6 +9,7 @@ import {
 import dayjs from "dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { Address } from "wagmi";
 
 export type Fm = {
   title: string;
@@ -18,9 +19,8 @@ export type Fm = {
   text: string;
 };
 
-export type PollExtended = NonNullable<
-  PollsQueryResult["data"]
->["polls"][number] & {
+export type PollExtended = NonNullable<PollsQueryResult["data"]>["polls"][number] & {
+  id: Address;
   attributes?: Fm | null;
   estimatedEndTime: number;
   status: "active" | "passed" | "rejected" | "quorum-not-met";
@@ -135,10 +135,7 @@ const absolutizeLinks = (markdown: string, baseUrl: string) => {
   });
 };
 
-const getEstimatedEndTimeByBlockNumber = async (
-  requestedBlock: number,
-  currentBlock: number
-) => {
+const getEstimatedEndTimeByBlockNumber = async (requestedBlock: number, currentBlock: number) => {
   // we don't need to make requests to the etherscan, since we can rely on consistent L1 block times
   return dayjs()
     .add((requestedBlock - currentBlock) * AVERAGE_L1_BLOCK_TIME, "s")
@@ -148,10 +145,7 @@ const getEstimatedEndTimeByBlockNumber = async (
 const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   const client = getApollo();
 
-  const protocolResponse = await client.query<
-    ProtocolByBlockQuery,
-    ProtocolByBlockQueryVariables
-  >({
+  const protocolResponse = await client.query<ProtocolByBlockQuery, ProtocolByBlockQueryVariables>({
     query: ProtocolByBlockDocument,
     variables: l2BlockNumber
       ? {

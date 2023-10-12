@@ -51,3 +51,8 @@ export const getServiceRegistryAddress = async () =>
   getContractAddress("ServiceRegistry");
 export const getTicketBrokerAddress = async () =>
   getContractAddress("TicketBroker");
+export const getLivepeerGovernorAddress = async () =>
+  getContractAddress("LivepeerGovernor");
+export const getTreasuryAddress = async () => getContractAddress("Treasury");
+export const getBondingVotesAddress = async () =>
+  getContractAddress("BondingVotes");

@@ -1,0 +1,14 @@
+query treasuryProposals {
+  treasuryProposals(orderBy: voteStart, orderDirection: desc) {
+    id
+    description
+    calldatas
+    targets
+    values
+    voteEnd
+    voteStart
+    proposer {
+      id
+    }
+  }
+}

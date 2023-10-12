@@ -33,3 +33,8 @@ export const useMerkleSnapshotAddress = () =>
 export const useServiceRegistryAddress = () =>
   useContractAddress("ServiceRegistry");
 export const useTicketBrokerAddress = () => useContractAddress("TicketBroker");
+export const useLivepeerGovernorAddress = () =>
+  useContractAddress("LivepeerGovernor");
+export const useTreasuryAddress = () =>
+  useContractAddress("Treasury");
+export const useBondingVotesAddress = () => useContractAddress("BondingVotes");

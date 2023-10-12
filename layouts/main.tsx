@@ -11,7 +11,7 @@ import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import { isL2ChainId, IS_L2 } from "@lib/chains";
+import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import {
@@ -48,7 +48,7 @@ import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
-import { Chain, useBlockNumber } from "wagmi";
+import { Chain } from "wagmi";
 import {
   useAccountAddress,
   useActiveChain,
@@ -60,6 +60,7 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
+import RegisterToVote from "@components/RegisterToVote";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -452,6 +453,40 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               )}
                             </Button>
                           </Link>
+                          <Link passHref href="/treasury">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                bc: asPath.includes("/treasury")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Treasury{" "}
+                              {(totalActivePolls ?? 0) > 0 && (
+                                <Badge
+                                  size="2"
+                                  variant="green"
+                                  css={{
+                                    ml: "6px",
+                                  }}
+                                >
+                                  {totalActivePolls}
+                                </Badge>
+                              )}
+                            </Button>
+                          </Link>
                           {accountAddress && (
                             <Link passHref href={`/accounts/${accountAddress}`}>
                               <Button
@@ -598,6 +633,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
                     )}
+                    {!asPath?.includes("/migrate") && accountAddress && (
+                      <RegisterToVote />
+                    )}
                     {children}
                   </Box>
                 </Flex>
@@ -736,6 +774,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
                           mb: "$1",
                         }}
+                        target="_blank"
                         href={
                           contractAddresses?.[
                             key as keyof typeof contractAddresses

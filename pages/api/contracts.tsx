@@ -1,5 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
-import { getContractAddress } from "@lib/api/contracts";
+import {
+  getContractAddress,
+  getBondingVotesAddress,
+  getLivepeerGovernorAddress,
+  getTreasuryAddress,
+} from "@lib/api/contracts";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -32,6 +37,10 @@ const handler = async (
         RoundsManager: await getContractAddress("RoundsManager"),
         ServiceRegistry: await getContractAddress("ServiceRegistry"),
         TicketBroker: await getContractAddress("TicketBroker"),
+        // TODO: Switch back to above pattern
+        LivepeerGovernor: await getLivepeerGovernorAddress(),
+        Treasury: await getTreasuryAddress(),
+        BondingVotes: await getBondingVotesAddress(),
       };
 
       const contractsInfo: ContractInfo = {
@@ -96,6 +105,21 @@ const handler = async (
           name: "Ticket Broker (Proxy)",
           address: contracts.TicketBroker,
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.TicketBroker}`,
+        },
+        LivepeerGovernor: {
+          name: "Livepeer Governor (Proxy)",
+          address: contracts.LivepeerGovernor,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.LivepeerGovernor}`,
+        },
+        Treasury: {
+          name: "Treasury",
+          address: contracts.Treasury,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.Treasury}`,
+        },
+        BondingVotes: {
+          name: "Bonding Votes (Proxy)",
+          address: contracts.BondingVotes,
+          link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.BondingVotes}`,
         },
       };
 

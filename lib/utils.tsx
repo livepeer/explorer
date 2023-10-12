@@ -1,10 +1,6 @@
-import {
-  AccountQueryResult,
-  OrchestratorsSortedQueryResult,
-  UnbondingLock,
-} from "apollo";
+import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } from "apollo";
 import { BigNumber, BigNumberish, ethers } from "ethers";
-import { formatEther } from "ethers/lib/utils";
+import { formatEther, parseUnits } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
@@ -30,9 +26,9 @@ export const abbreviateNumber = (value, precision = 3) => {
     suffixNum++;
   }
 
-  newValue = parseFloat(Number.parseFloat(newValue).toPrecision(precision));
-
+  newValue = Number.parseFloat(newValue).toPrecision(precision);
   newValue += suffixes[suffixNum];
+
   return newValue;
 };
 
@@ -115,6 +111,10 @@ export const txMessages = {
     pending: "Delegating LPT",
     confirmed: "LPT Delegated",
   },
+  checkpoint: {
+    pending: "Checkpointing",
+    confirmed: "Stake Checkpointed",
+  },
   unbond: {
     pending: "Undelegating LPT",
     confirmed: "LPT Undelegated",
@@ -134,6 +134,18 @@ export const txMessages = {
   vote: {
     pending: "Casting Vote",
     confirmed: "Vote Casted",
+  },
+  propose: {
+    pending: "Creating Proposal",
+    confirmed: "Proposal Created",
+  },
+  queue: {
+    pending: "Enqueueing Proposal",
+    confirmed: "Proposal Enqueued",
+  },
+  execute: {
+    pending: "Executing Proposal",
+    confirmed: "Proposal Executed",
   },
   withdrawFees: {
     pending: "Withdrawing Fees",
@@ -409,3 +421,6 @@ export function toTitleCase(str) {
 }
 
 export const fromWei = (wei: BigNumberish) => formatEther(wei);
+
+export const toWei = (ether: BigNumberish) =>
+  parseUnits(ether.toString(), "ether").toBigInt();
