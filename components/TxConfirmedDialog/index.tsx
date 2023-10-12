@@ -271,7 +271,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
           <Table css={{ mb: "$4" }}>
             <Header tx={tx} />
             <Box css={{ px: "$3", py: "$4" }}>
-              You&apos;ve successfully executed the treasury!
+              You&apos;ve successfully executed the treasury proposal!
             </Box>
           </Table>
           <DialogClose asChild>
