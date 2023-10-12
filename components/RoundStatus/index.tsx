@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { Box, Flex, Text, themes } from "@livepeer/design-system";
+import { Box, Flex, Text, getThemes } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
@@ -18,6 +18,8 @@ import { buildStyles } from "react-circular-progressbar";
 import CircularProgressbar from "../CircularProgressBar";
 
 dayjs.extend(relativeTime);
+
+const themes = getThemes();
 
 const Index = ({
   protocol,

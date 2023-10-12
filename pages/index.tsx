@@ -58,12 +58,12 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     () =>
       (feesPaidGrouping === "day"
         ? chartData?.dayData?.map((day) => ({
-            x: Number(day.date),
-            y: Number(day.volumeUSD),
+            x: Number(day.dateS),
+            y: Number(day.volumeUsd),
           }))
         : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
-            y: Number(week.weeklyVolumeUSD),
+            y: Number(week.weeklyVolumeUsd),
           }))) ?? [],
     [feesPaidGrouping, chartData]
   );
@@ -73,8 +73,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     () =>
       (usageGrouping === "day"
         ? chartData?.dayData?.map((day) => ({
-            x: Number(day.date),
-            y: Number(day.minutes),
+            x: Number(day.dateS),
+            y: Number(day.feeDerivedMinutes),
           }))
         : chartData?.weeklyData?.map((week) => ({
             x: Number(week.date),
@@ -86,7 +86,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const participationRateData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.date),
+        x: Number(day.dateS),
         y: Number(day.participationRate),
       })) ?? [],
     [chartData]
@@ -94,7 +94,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const inflationRateData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.date),
+        x: Number(day.dateS),
         y: Number(day?.inflation ?? 0) / 1000000000,
       })) ?? [],
     [chartData]
@@ -102,7 +102,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const delegatorsCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.date),
+        x: Number(day.dateS),
         y: Number(day.delegatorsCount),
       })) ?? [],
     [chartData]
@@ -110,7 +110,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const activeTranscoderCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.date),
+        x: Number(day.dateS),
         y: Number(day.activeTranscoderCount),
       })) ?? [],
     [chartData]

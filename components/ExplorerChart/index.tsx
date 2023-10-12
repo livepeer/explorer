@@ -74,8 +74,13 @@ const ExplorerChart = ({
     (date: number) =>
       grouping === "day"
         ? `${dayjs.unix(date).format("MMM D")}`
-        : `${dayjs.unix(date).startOf("week").format("MMM D")} - ${dayjs
+        : `${dayjs
             .unix(date)
+            .add(1, "day")
+            .startOf("week")
+            .format("MMM D")} - ${dayjs
+            .unix(date)
+            .add(1, "day")
             .endOf("week")
             .format("MMM D")}`,
     [grouping]
@@ -185,7 +190,27 @@ const ExplorerChart = ({
           zIndex: 3,
         }}
       >
-        <ExplorerTooltip multiline content={tooltip ? tooltip : <></>}>
+        <ExplorerTooltip
+          multiline
+          side="bottom"
+          content={
+            tooltip ? (
+              <>
+                <div>{tooltip}</div>
+                <br />
+                <div>
+                  {`The estimation methodology was updated on 8/21/23. `}
+                  <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
+                    Read more about the changes
+                  </a>
+                  {"."}
+                </div>
+              </>
+            ) : (
+              <></>
+            )
+          }
+        >
           <Flex
             css={{
               alignItems: "center",

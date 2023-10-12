@@ -110,7 +110,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             share of the fees being paid into the Livepeer network.
           </Box>
           <Link href="/orchestrators" passHref>
-            <Button asChild size="3" variant="primary">
+            <Button size="3" variant="primary">
               <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>

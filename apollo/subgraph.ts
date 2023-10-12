@@ -11509,7 +11509,7 @@ export type PollLazyQueryHookResult = ReturnType<typeof usePollLazyQuery>;
 export type PollQueryResult = Apollo.QueryResult<PollQuery, PollQueryVariables>;
 export const PollsDocument = gql`
   query polls {
-    polls {
+    polls(where: {id_not: "0x17759123c2ddcd774a1a0c577fa32a24deff5629"}) {
       id
       proposal
       endBlock

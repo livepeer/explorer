@@ -1,18 +1,32 @@
-import { DaysQuery } from "apollo";
-
-export type DayData = DaysQuery["days"][number] & { minutes: number };
 export type WeeklyData = {
   date: number;
-  weeklyVolumeUSD: number;
+  weeklyVolumeUsd: number;
   weeklyUsageMinutes: number;
+  weeklyVolumeEth: number;
+};
+
+export type DayData = {
+  // dateTs: string;
+  dateS: number;
+  // weekTs: string;
+  // weekS: number;
+  volumeEth: number;
+  volumeUsd: number;
+  feeDerivedMinutes: number;
+  participationRate: number;
+  inflation: number;
+  activeTranscoderCount: number;
+  delegatorsCount: number;
+  // averagePricePerPixel: number;
+  // averagePixelPerMinute: number;
 };
 
 export type HomeChartData = {
   dayData: DayData[];
   weeklyData: WeeklyData[];
-  totalVolumeUSD: number;
-  totalVolumeETH: number;
-  totalUsage: number;
+  // totalVolumeUSD: number;
+  // totalVolumeETH: number;
+  // totalUsage: number;
   participationRate: number;
   inflation: number;
   activeTranscoderCount: number;

@@ -59,6 +59,14 @@ export const getPollExtended = async (
       created: String(transformedProposal.attributes.created),
       text: String(transformedProposal.body),
     };
+
+    const commitOrBranch = attributes.commitHash ?? "master";
+    const lipNum = attributes.lip ?? "1";
+    const baseUrl = `https://github.com/livepeer/LIPs/blob/${commitOrBranch}/LIPs/LIP-${lipNum}.md`;
+    attributes = {
+      ...attributes,
+      text: absolutizeLinks(attributes.text, baseUrl),
+    };
   }
 
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
@@ -109,6 +117,20 @@ export const getPollExtended = async (
       nonVoters: totalNonVoteStake,
     },
   };
+};
+
+const absolutizeLinks = (markdown: string, baseUrl: string) => {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+  return markdown.replace(linkRegex, (match, linkText, url) => {
+    // If it's already an absolute link, return match as is
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return match;
+    }
+
+    const absoluteUrl = new URL(url, baseUrl).toString();
+    return `[${linkText}](${absoluteUrl})`;
+  });
 };
 
 const getEstimatedEndTimeByBlockNumber = async (requestedBlock: number, currentBlock: number) => {
