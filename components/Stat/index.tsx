@@ -59,12 +59,12 @@ const Stat = ({
     </Heading>
     <Text size="7" css={{ fontWeight: 600 }}>
       {value ? (
-        value
+        <Box css={{ color: "$hiContrast" }}>{value}</Box>
       ) : (
         <Skeleton css={{ mt: "$1", height: 35, width: 100, borderRadius: 8 }} />
       )}
     </Text>
-    {meta && <Box css={{ mt: "$1" }}>{meta}</Box>}
+    {meta && <Box css={{ mt: "$1", color: "$hiContrast" }}>{meta}</Box>}
   </Card>
 );
 
