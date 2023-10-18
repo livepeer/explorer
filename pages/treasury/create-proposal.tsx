@@ -6,7 +6,7 @@ import {
   getLivepeerTokenAddress,
   getTreasuryAddress,
 } from "@lib/api/contracts";
-import { fromWei, toWei } from "@lib/utils";
+import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -34,6 +34,9 @@ type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
 };
 
+const formatLPT = (lpt: string | undefined) =>
+  abbreviateNumber(fromWei(lpt ?? 0), 4);
+
 const CreateProposal = () => {
   const accountAddress = useAccountAddress();
   const contractAddresses = useContractInfoData();
@@ -43,7 +46,7 @@ const CreateProposal = () => {
   const treasuryBalance = useMemo(
     () =>
       treasuryAccountBalanceData &&
-      fromWei(treasuryAccountBalanceData?.balance),
+      formatLPT(treasuryAccountBalanceData?.balance),
     [treasuryAccountBalanceData]
   );
 
