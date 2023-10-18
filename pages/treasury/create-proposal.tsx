@@ -34,8 +34,7 @@ type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
 };
 
-const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? 0), 4);
+const formatLPT = (lpt: string) => abbreviateNumber(lpt, 6);
 
 const CreateProposal = () => {
   const accountAddress = useAccountAddress();
@@ -46,7 +45,7 @@ const CreateProposal = () => {
   const treasuryBalance = useMemo(
     () =>
       treasuryAccountBalanceData &&
-      formatLPT(treasuryAccountBalanceData?.balance),
+      fromWei(treasuryAccountBalanceData?.balance),
     [treasuryAccountBalanceData]
   );
 
@@ -150,7 +149,7 @@ const CreateProposal = () => {
 
           {treasuryBalance && (
             <Text variant="neutral" size="3">
-              Treasury Balance: {treasuryBalance} LPT
+              Treasury Balance: {formatLPT(treasuryBalance)} LPT
             </Text>
           )}
         </Flex>
