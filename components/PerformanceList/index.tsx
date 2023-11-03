@@ -11,6 +11,11 @@ import numeral from "numeral";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
+const sortByNumberMethod = (a: any, b: any) => {
+  console.log({ a, b });
+  return Number(a) - Number(b);
+};
+
 const PerformanceList = ({
   data,
   pageSize = 20,
@@ -168,7 +173,7 @@ const PerformanceList = ({
       },
       {
         Header: "Total Score (0-10)",
-        accessor: `scores.${region}`,
+        accessor: (row) => Number(row[`scores.${region}`]),
         sortDescFirst: true,
         defaultCanSort: true,
         Cell: ({ row }) => {
@@ -178,18 +183,14 @@ const PerformanceList = ({
           ) {
             return <EmptyData />;
           }
-          return (
-            <Box>
-              {numeral(row.values[`scores.${region}`])
-                .divide(10)
-                .format("0.00")}
-            </Box>
-          );
+          return numeral(row.values[`scores.${region}`])
+            .divide(10)
+            .format("0.00");
         },
       },
       {
         Header: "Success Rate (%)",
-        accessor: `successRates.${region}`,
+        accessor: (row)  => Number(row[`successRates.${region}`]),
         Cell: ({ row }) => {
           if (
             typeof row.values[`successRates.${region}`] === "undefined" ||
@@ -209,7 +210,7 @@ const PerformanceList = ({
       },
       {
         Header: "Latency Score (0-10)",
-        accessor: `roundTripScores.${region}`,
+        accessor: (row) => Number(row[`roundTripScores.${region}`]),
         Cell: ({ row }) => {
           if (
             typeof row.values[`roundTripScores.${region}`] === "undefined" ||
