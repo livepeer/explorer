@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
-import numeral from "numeral";
+import numbro from "numbro";
 import React, {
   useCallback,
   useEffect,
@@ -87,7 +87,7 @@ const ExplorerChart = ({
   );
   const formatSubtitle = useCallback(
     (value: number) =>
-      `${numeral(value).format(
+      `${numbro(value).format(
         unit === "usd"
           ? "$0,0"
           : unit === "eth"
@@ -107,7 +107,7 @@ const ExplorerChart = ({
   const defaultPercentChange = useMemo<string>(
     () =>
       basePercentChange !== 0
-        ? numeral(basePercentChange / 100).format("+0.00%")
+        ? numbro(basePercentChange / 100).format("+0.00%")
         : "",
     [basePercentChange]
   );
@@ -147,7 +147,7 @@ const ExplorerChart = ({
           fontWeight={400}
           fontSize="13px"
         >
-          {numeral(payload.value).format(
+          {numbro(payload.value).format(
             unit === "usd"
               ? "$0a"
               : unit === "eth"
@@ -255,7 +255,7 @@ const ExplorerChart = ({
                     ml: "$2",
                     fontSize: "$3",
                     color:
-                      (numeral(barSelected.percentChange).value() ?? 0) < 0
+                      (numbro(barSelected.percentChange).value() ?? 0) < 0
                         ? "#ff0022"
                         : "#00EB88",
                   }}

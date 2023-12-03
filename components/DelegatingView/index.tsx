@@ -14,7 +14,7 @@ import {
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
@@ -187,7 +187,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {`${numeral(pendingStake).format("0.00a")} LPT`}
+                {`${numbro(pendingStake).format("0.00a")} LPT`}
               </Box>
             ) : null
           }
@@ -222,7 +222,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      {numeral(-unbonded).format("+0.00a")} LPT
+                      {numbro(-unbonded).format("+0.00a")} LPT
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -251,7 +251,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  {numeral(Math.abs(rewards)).format("+0.00a")} LPT
+                  {numbro(Math.abs(rewards)).format("+0.00a")} LPT
                 </Text>
               </Flex>
             </Box>
@@ -268,7 +268,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {numeral(pendingFees).format("0.000")} ETH
+                {numbro(pendingFees).format("0.000")} ETH
               </Box>
             ) : null
           }
@@ -301,7 +301,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(lifetimeEarnings || 0).format("0.000a")} ETH
+                  {numbro(lifetimeEarnings || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
               <Flex
@@ -330,7 +330,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(delegator?.withdrawnFees || 0).format("0.000a")} ETH
+                  {numbro(delegator?.withdrawnFees || 0).format("0.000a")} ETH
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
@@ -374,7 +374,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             }
             value={
               <Box>
-                {numeral(
+                {numbro(
                   totalActiveStake === 0
                     ? 0
                     : delegator.delegate.id === delegator.id
@@ -396,7 +396,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 >
                   <Box>
                     Account (
-                    {numeral(
+                    {numbro(
                       totalActiveStake === 0
                         ? 0
                         : pendingStake / totalActiveStake
@@ -404,7 +404,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(pendingStake).format("0.00a")} LPT
+                    {numbro(pendingStake).format("0.00a")} LPT
                   </Text>
                 </Flex>
                 <Flex
@@ -416,7 +416,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 >
                   <Box>
                     Orchestrator (
-                    {numeral(
+                    {numbro(
                       totalActiveStake === 0
                         ? 0
                         : Math.abs(+delegator.delegate.totalStake) /
@@ -425,7 +425,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(Math.abs(+delegator.delegate.totalStake)).format(
+                    {numbro(Math.abs(+delegator.delegate.totalStake)).format(
                       "0.00a"
                     )}{" "}
                     LPT
