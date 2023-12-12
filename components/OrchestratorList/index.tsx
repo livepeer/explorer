@@ -367,7 +367,7 @@ const OrchestratorList = ({
             () =>
               `${numbro(row.values.earnings.rewardCalls)
                 .divide(row.values.earnings.rewardCallLength)
-                .format({mantissa:0, output: "precent"})}`,
+                .format({mantissa:0, output: "percent"})}`,
             [
               row.values.earnings.rewardCalls,
               row.values.earnings.rewardCallLength,
