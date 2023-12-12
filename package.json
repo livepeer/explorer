@@ -79,7 +79,7 @@
     "markdown-to-jsx": "^7.1.7",
     "match-sorter": "^6.3.1",
     "micro-cors": "^0.1.1",
-    "next": "12.2.2",
+    "next": "13.5.0",
     "next-themes": "^0.2.0",
     "numbro": "^2.4.0",
     "parse-domain": "^7.0.1",
