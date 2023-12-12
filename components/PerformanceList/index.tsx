@@ -7,7 +7,7 @@ import QRCode from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import { ALL_REGIONS } from "utils/allRegions";
-import numbro from "numbro";
+import numeral from "numeral";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
@@ -180,7 +180,7 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {numbro(row.values[`scores.${region}`])
+              {numeral(row.values[`scores.${region}`])
                 .divide(10)
                 .format("0.00")}
             </Box>
@@ -200,9 +200,9 @@ const PerformanceList = ({
 
           return (
             <Box>
-              {numbro(row.values[`successRates.${region}`])
+              {numeral(row.values[`successRates.${region}`])
                 .divide(100)
-                .format({mantissa:0, output: "percent"})}
+                .format("0%")}
             </Box>
           );
         },
@@ -219,7 +219,7 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {numbro(row.values[`roundTripScores.${region}`])
+              {numeral(row.values[`roundTripScores.${region}`])
                 .divide(10)
                 .format("0.00")}
             </Box>

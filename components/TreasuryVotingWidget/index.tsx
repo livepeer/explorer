@@ -2,7 +2,7 @@ import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
-import numbro from "numbro";
+import numeral from "numeral";
 import { useMemo } from "react";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 import VoteButton from "../VoteButton";
@@ -17,7 +17,7 @@ type Props = {
   vote: ProposalVotingPower | undefined | null;
 };
 
-const formatPercent = (percent: number) => numbro(percent).format("0.0000%");
+const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 const shortenAddress = (address: string) =>
   address?.replace(address.slice(5, 39), "…") ?? "";

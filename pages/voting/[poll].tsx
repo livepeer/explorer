@@ -32,10 +32,10 @@ import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
-import numbro from "numbro";
+import numeral from "numeral";
 dayjs.extend(relativeTime);
 
-const formatPercent = (percent: number) => numbro(percent).format("0.0000%");
+const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 const Poll = () => {
   const router = useRouter();

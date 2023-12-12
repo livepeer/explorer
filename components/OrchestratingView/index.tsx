@@ -2,7 +2,7 @@ import Stat from "@components/Stat";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
-import numbro from "numbro";
+import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
 import { AccountQueryResult } from "apollo";
@@ -84,7 +84,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           }
           value={
             transcoder
-              ? `${numbro(transcoder?.totalStake || 0).format("0.00a")} LPT`
+              ? `${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`
               : null
           }
         />
@@ -100,7 +100,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={`The transcoding score for the orchestrator's best operational region, ${maxScore.region}, in the past 24 hours. Note: this may be inaccurate, depending on the reliability of the testing infrastructure.`}
           value={
             scores
-              ? `${numbro(maxScore.score).divide(100).format("0.0%")} (${
+              ? `${numeral(maxScore.score).divide(100).format("0.0%")} (${
                   maxScore.region
                 })`
               : null
@@ -122,7 +122,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
-          value={`${numbro(transcoder?.totalVolumeETH || 0).format(
+          value={`${numeral(transcoder?.totalVolumeETH || 0).format(
             "0.00a"
           )} ETH`}
         />
@@ -132,7 +132,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
           value={
             scores
-              ? `${numbro(
+              ? `${numeral(
                   (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
                 ).format("0,0")} WEI`
               : null
@@ -144,7 +144,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The number of delegators which have delegated stake to this orchestrator."
           }
-          value={`${numbro(transcoder?.delegators?.length || 0).format(
+          value={`${numeral(transcoder?.delegators?.length || 0).format(
             "0,0"
           )}`}
         /> */}
@@ -154,7 +154,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={numbro(1 - (+(transcoder?.feeShare || 0)) / 1000000).format(
+          value={numeral(1 - (+(transcoder?.feeShare || 0)) / 1000000).format(
             "0%"
           )}
         />
@@ -164,9 +164,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={numbro(transcoder?.rewardCut || 0)
+          value={numeral(transcoder?.rewardCut || 0)
             .divide(1000000)
-            .format({mantissa: 0, output: "percent"})}
+            .format("0%")}
         />
         <Stat
           className="masonry-grid_item"
