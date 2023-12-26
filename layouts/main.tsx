@@ -177,7 +177,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     {
       name: (
         <Flex css={{ alignItems: "center" }}>
-          Voting{" "}
+          Governance{" "}
           {(totalActivePolls ?? 0) > 0 && (
             <Badge
               size="2"
@@ -195,6 +195,28 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/voting",
       icon: Ballot,
       className: "voting",
+    },
+    {
+      name: (
+        <Flex css={{ alignItems: "center" }}>
+          Treasury{" "}
+          {(totalActiveTreasuryProposals ?? 0) > 0 && (
+            <Badge
+              size="2"
+              variant="green"
+              css={{
+                ml: "6px",
+              }}
+            >
+              {totalActiveTreasuryProposals}
+            </Badge>
+          )}
+        </Flex>
+      ),
+      href: "/treasury",
+      as: "/treasury",
+      icon: Ballot,
+      className: "treasury",
     },
   ];
 
