@@ -5,5 +5,6 @@ export type EnsIdentity = {
   name?: string | null;
   url?: string | null;
   twitter?: string | null;
+  github?: string | null;
   description?: string | null;
 };

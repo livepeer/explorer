@@ -30,6 +30,10 @@ const Index = ({ css = {}, ...props }) => {
             weight: 0.5,
           },
           {
+            name: "github",
+            weight: 0.5,
+          },
+          {
             name: "url",
             weight: 0.5,
           },
