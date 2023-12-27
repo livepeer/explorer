@@ -85,8 +85,6 @@ const uniqueBannerID = 4;
 
 export const LAYOUT_MAX_WIDTH = 1400;
 
-const pollInterval = 20000;
-
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
@@ -95,7 +93,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
-  const { data: proposalsData } = useTreasuryProposalsQuery({ pollInterval });
+  const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -115,13 +113,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     [currentRound?.currentL1Block, pollData]
   );
 
-  const totalActiveProposals = useMemo(() => {
-    const currentBlock = currentRound?.id ? parseInt(String(currentRound.id)) : 0;
-    return proposalsData?.treasuryProposals.reduce((count, p) => {
-      const voteEndBlock = Number(p.voteEnd);
-      return voteEndBlock > currentBlock ? count + 1 : count;
+  const totalActiveTreasuryProposals = useMemo(() => {
+    const currentRoundNumber = currentRound?.id ?? 0;
+    return treasuryProposalsData?.treasuryProposals.reduce((count, p) => {
+      const voteEndRoundNumber = Number(p.voteEnd);
+      return voteEndRoundNumber >= currentRoundNumber ? count + 1 : count;
     }, 0);
-  }, [currentRound?.id, proposalsData?.treasuryProposals]);
+  }, [currentRound?.id, treasuryProposalsData?.treasuryProposals]);
 
   const hasPendingFees = useMemo(
     () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
@@ -485,7 +483,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Treasury{" "}
-                              {(totalActiveProposals ?? 0) > 0 && (
+                              {(totalActiveTreasuryProposals ?? 0) > 0 && (
                                 <Badge
                                   size="2"
                                   variant="green"
@@ -493,7 +491,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                     ml: "6px",
                                   }}
                                 >
-                                  {totalActiveProposals}
+                                  {totalActiveTreasuryProposals}
                                 </Badge>
                               )}
                             </Button>
