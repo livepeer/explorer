@@ -35,7 +35,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery } from "apollo";
+import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
@@ -85,6 +85,8 @@ const uniqueBannerID = 4;
 
 export const LAYOUT_MAX_WIDTH = 1400;
 
+const pollInterval = 20000;
+
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
@@ -93,6 +95,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
+  const { data: proposalsData } = useTreasuryProposalsQuery({ pollInterval });
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -111,6 +114,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       ).length,
     [currentRound?.currentL1Block, pollData]
   );
+
+  const totalActiveProposals = useMemo(() => {
+    const currentBlock = currentRound?.id ? parseInt(String(currentRound.id)) : 0;
+    return proposalsData?.treasuryProposals.reduce((count, p) => {
+      const voteEndBlock = Number(p.voteEnd);
+      return voteEndBlock > currentBlock ? count + 1 : count;
+    }, 0);
+  }, [currentRound?.id, proposalsData?.treasuryProposals]);
 
   const hasPendingFees = useMemo(
     () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
@@ -474,7 +485,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Treasury{" "}
-                              {(totalActivePolls ?? 0) > 0 && (
+                              {(totalActiveProposals ?? 0) > 0 && (
                                 <Badge
                                   size="2"
                                   variant="green"
@@ -482,7 +493,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                     ml: "6px",
                                   }}
                                 >
-                                  {totalActivePolls}
+                                  {totalActiveProposals}
                                 </Badge>
                               )}
                             </Button>
