@@ -35,7 +35,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery } from "apollo";
+import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
@@ -93,6 +93,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
+  const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -111,6 +112,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       ).length,
     [currentRound?.currentL1Block, pollData]
   );
+
+  const totalActiveTreasuryProposals = useMemo(() => {
+    const currentRoundNumber = currentRound?.id ?? 0;
+    return treasuryProposalsData?.treasuryProposals.reduce((count, p) => {
+      const voteEndRoundNumber = Number(p.voteEnd);
+      return voteEndRoundNumber >= currentRoundNumber ? count + 1 : count;
+    }, 0);
+  }, [currentRound?.id, treasuryProposalsData?.treasuryProposals]);
 
   const hasPendingFees = useMemo(
     () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
@@ -474,7 +483,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Treasury{" "}
-                              {(totalActivePolls ?? 0) > 0 && (
+                              {(totalActiveTreasuryProposals ?? 0) > 0 && (
                                 <Badge
                                   size="2"
                                   variant="green"
@@ -482,7 +491,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                     ml: "6px",
                                   }}
                                 >
-                                  {totalActivePolls}
+                                  {totalActiveTreasuryProposals}
                                 </Badge>
                               )}
                             </Button>
