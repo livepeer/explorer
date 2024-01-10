@@ -9807,8 +9807,22 @@ export type AccountQuery = {
       __typename: "Transcoder";
       id: string;
       active: boolean;
+      feeShare: string;
+      rewardCut: string;
       status: TranscoderStatus;
       totalStake: string;
+      totalVolumeETH: string;
+      activationTimestamp: number;
+      activationRound: string;
+      deactivationRound: string;
+      thirtyDayVolumeETH: string;
+      ninetyDayVolumeETH: string;
+      lastRewardRound?: { __typename: "Round"; id: string } | null;
+      pools?: Array<{
+        __typename: "Pool";
+        rewardTokens?: string | null;
+      }> | null;
+      delegators?: Array<{ __typename: "Delegator"; id: string }> | null;
     } | null;
   } | null;
   transcoder?: {
@@ -10803,8 +10817,26 @@ export const AccountDocument = gql`
       delegate {
         id
         active
+        feeShare
+        rewardCut
         status
+        active
         totalStake
+        totalVolumeETH
+        activationTimestamp
+        activationRound
+        deactivationRound
+        thirtyDayVolumeETH
+        ninetyDayVolumeETH
+        lastRewardRound {
+          id
+        }
+        pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
+          rewardTokens
+        }
+        delegators(first: 1000) {
+          id
+        }
       }
     }
     transcoder(id: $account) {
