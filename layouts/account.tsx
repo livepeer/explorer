@@ -151,6 +151,13 @@ const AccountLayout = ({
               },
             }}
           >
+            {/*
+              The delegation widget should only be displayed on the account page
+              under the following conditions:
+              a) the account page belongs to an orchestrator
+              b) the account page belongs to a deactivated orchestrator I am still delegated to
+              c) the account page belongs to me and I am a delegator
+            */}
             {(isOrchestrator ||
               isMyDelegate ||
               isDelegatingAndIsMyAccountView) && (
