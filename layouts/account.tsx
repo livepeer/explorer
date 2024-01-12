@@ -98,6 +98,13 @@ const AccountLayout = ({
     [accountId, dataMyAccount]
   );
 
+  const isDelegatingAndIsMyAccountView = useMemo(
+    () =>
+      dataMyAccount?.delegator?.bondedAmount !== "0" &&
+      accountId === dataMyAccount?.delegator?.id.toLowerCase(),
+    [accountId, dataMyAccount]
+  );
+
   const tabs: Array<TabType> = useMemo(
     () =>
       getTabs(
@@ -144,10 +151,27 @@ const AccountLayout = ({
               },
             }}
           >
-            {(isOrchestrator || isMyDelegate) && (
+            {/*
+              The delegation widget should only be displayed on the account page
+              under the following conditions:
+              a) the account page belongs to an orchestrator
+              b) the account page belongs to a deactivated orchestrator I am still delegated to
+              c) the account page belongs to me and I am a delegator
+            */}
+            {(isOrchestrator ||
+              isMyDelegate ||
+              isDelegatingAndIsMyAccountView) && (
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="primary" css={{ mr: "$3" }} size="4">
+                  <Button
+                    variant="primary"
+                    css={{ mr: "$3" }}
+                    size="4"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedStakingAction("delegate");
+                    }}
+                  >
                     Delegate
                   </Button>
                 </SheetTrigger>
@@ -156,32 +180,48 @@ const AccountLayout = ({
                     transcoders={sortedOrchestrators?.transcoders as any}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
-                    transcoder={account?.transcoder}
+                    transcoder={
+                      isDelegatingAndIsMyAccountView
+                        ? dataMyAccount?.delegator?.delegate
+                        : account?.transcoder
+                    }
                     protocol={account?.protocol}
                     delegateProfile={identity}
                   />
                 </SheetContent>
               </Sheet>
             )}
-            {isMyDelegate && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="red" size="4">
-                    Undelegate
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" css={{ height: "initial" }}>
-                  <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders}
-                    delegator={dataMyAccount?.delegator}
-                    account={myIdentity}
-                    transcoder={account?.transcoder}
-                    protocol={account?.protocol}
-                    delegateProfile={identity}
-                  />
-                </SheetContent>
-              </Sheet>
-            )}
+            {isMyDelegate ||
+              (isDelegatingAndIsMyAccountView && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="red"
+                      size="4"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedStakingAction("undelegate");
+                      }}
+                    >
+                      Undelegate
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" css={{ height: "initial" }}>
+                    <DelegatingWidget
+                      transcoders={sortedOrchestrators?.transcoders}
+                      delegator={dataMyAccount?.delegator}
+                      account={myIdentity}
+                      transcoder={
+                        isDelegatingAndIsMyAccountView
+                          ? dataMyAccount?.delegator?.delegate
+                          : account?.transcoder
+                      }
+                      protocol={account?.protocol}
+                      delegateProfile={identity}
+                    />
+                  </SheetContent>
+                </Sheet>
+              ))}
           </Flex>
           <Box
             css={{
@@ -232,7 +272,7 @@ const AccountLayout = ({
           )}
           {view === "history" && <HistoryView />}
         </Flex>
-        {(isOrchestrator || isMyDelegate) &&
+        {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
             <Flex
               css={{
@@ -251,7 +291,11 @@ const AccountLayout = ({
                 transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={account?.transcoder}
+                transcoder={
+                  isDelegatingAndIsMyAccountView
+                    ? dataMyAccount?.delegator?.delegate
+                    : account?.transcoder
+                }
                 protocol={account?.protocol}
                 delegateProfile={identity}
               />
@@ -262,7 +306,11 @@ const AccountLayout = ({
                 transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
-                transcoder={account?.transcoder}
+                transcoder={
+                  isDelegatingAndIsMyAccountView
+                    ? dataMyAccount?.delegator?.delegate
+                    : account?.transcoder
+                }
                 protocol={account?.protocol}
                 delegateProfile={identity}
               />
