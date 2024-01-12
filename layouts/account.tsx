@@ -163,7 +163,15 @@ const AccountLayout = ({
               isDelegatingAndIsMyAccountView) && (
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="primary" css={{ mr: "$3" }} size="4">
+                  <Button
+                    variant="primary"
+                    css={{ mr: "$3" }}
+                    size="4"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedStakingAction("delegate");
+                    }}
+                  >
                     Delegate
                   </Button>
                 </SheetTrigger>
@@ -183,29 +191,37 @@ const AccountLayout = ({
                 </SheetContent>
               </Sheet>
             )}
-            {isMyDelegate && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="red" size="4">
-                    Undelegate
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" css={{ height: "initial" }}>
-                  <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders}
-                    delegator={dataMyAccount?.delegator}
-                    account={myIdentity}
-                    transcoder={
-                      isDelegatingAndIsMyAccountView
-                        ? dataMyAccount?.delegator?.delegate
-                        : account?.transcoder
-                    }
-                    protocol={account?.protocol}
-                    delegateProfile={identity}
-                  />
-                </SheetContent>
-              </Sheet>
-            )}
+            {isMyDelegate ||
+              (isDelegatingAndIsMyAccountView && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="red"
+                      size="4"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedStakingAction("undelegate");
+                      }}
+                    >
+                      Undelegate
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" css={{ height: "initial" }}>
+                    <DelegatingWidget
+                      transcoders={sortedOrchestrators?.transcoders}
+                      delegator={dataMyAccount?.delegator}
+                      account={myIdentity}
+                      transcoder={
+                        isDelegatingAndIsMyAccountView
+                          ? dataMyAccount?.delegator?.delegate
+                          : account?.transcoder
+                      }
+                      protocol={account?.protocol}
+                      delegateProfile={identity}
+                    />
+                  </SheetContent>
+                </Sheet>
+              ))}
           </Flex>
           <Box
             css={{
