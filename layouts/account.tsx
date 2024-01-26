@@ -1,7 +1,10 @@
 import DelegatingWidget from "@components/DelegatingWidget";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import Profile from "@components/Profile";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
+import { useBondingManagerAddress } from "hooks/useContracts";
+import { useContractRead } from "wagmi";
 
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
@@ -75,6 +78,17 @@ const AccountLayout = ({
     skip: !accountAddress,
     pollInterval,
   });
+
+  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
+    enabled: Boolean(bondingManagerAddress),
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "treasuryRewardCutRate",
+  });
+  const treasury = {
+    treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+  };
 
   // start polling when when transactions finish
   useEffect(() => {
@@ -186,6 +200,7 @@ const AccountLayout = ({
                         : account?.transcoder
                     }
                     protocol={account?.protocol}
+                    treasury={treasury}
                     delegateProfile={identity}
                   />
                 </SheetContent>
@@ -217,6 +232,7 @@ const AccountLayout = ({
                           : account?.transcoder
                       }
                       protocol={account?.protocol}
+                      treasury={treasury}
                       delegateProfile={identity}
                     />
                   </SheetContent>
@@ -297,6 +313,7 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
+                treasury={treasury}
                 delegateProfile={identity}
               />
             </Flex>
@@ -312,6 +329,7 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
+                treasury={treasury}
                 delegateProfile={identity}
               />
             </BottomDrawer>

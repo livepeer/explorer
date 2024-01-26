@@ -1384,6 +1384,19 @@ export const bondingManager = [
   },
   {
     inputs: [],
+    name: "treasuryRewardCutRate",
+    outputs:[
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type:"function",
+  },
+  {
+    inputs: [],
     name: "unbondingPeriod",
     outputs: [
       {

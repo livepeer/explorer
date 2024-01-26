@@ -4,7 +4,7 @@ import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
 
-const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
+const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) => {
   const { width } = useWindowSize();
 
   const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);
@@ -42,6 +42,7 @@ const Input = ({ transcoder, value, onChange, protocol, ...props }) => {
 
           rewardCallRatio,
           rewardCut: Number(transcoder.rewardCut) / 1000000,
+          treasuryRewardCut: treasury.treasuryRewardCutRate,
         },
       }),
     [protocol, transcoder, principle, rewardCallRatio]

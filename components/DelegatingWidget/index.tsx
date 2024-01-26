@@ -18,6 +18,7 @@ interface Props {
   transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"] | undefined;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;
+  treasury: { treasuryRewardCutRate: number };
   account: EnsIdentity;
   delegateProfile?: EnsIdentity;
 }
@@ -28,6 +29,7 @@ const Index = ({
   account,
   transcoder,
   protocol,
+  treasury,
   delegateProfile,
 }: Props) => {
   const [amount, setAmount] = useState("");
@@ -135,6 +137,7 @@ const Index = ({
               amount={amount}
               setAmount={setAmount}
               protocol={protocol}
+              treasury={treasury}
             />
             <Flex
               css={{

@@ -32,9 +32,10 @@ export type ROIParams = {
     totalSupply: number;
     totalActiveStake: number;
     roundLength: number;
-
+    
     rewardCallRatio: number;
     rewardCut: number;
+    treasuryRewardCut: number;
   };
 };
 
@@ -69,6 +70,7 @@ export function calculateROI({
 
     rewardCallRatio,
     rewardCut,
+    treasuryRewardCut,
   },
 }: ROIParams) {
   const combinedTotalStaked = principle + totalStake;
@@ -83,6 +85,9 @@ export function calculateROI({
   const roundsCount = Math.round(
     (monthsForTimeHorizon * SECONDS_IN_A_MONTH) / averageSecondsPerRound
   );
+  
+  // Subtract treasury reward cut from the inflation.
+  inflation = inflation * (1 - treasuryRewardCut);
 
   let totalInflationPercent =
     (inflationChange !== "none"
