@@ -74,7 +74,7 @@ const Index = ({ css = {}, ...props }) => {
           <Box as={MagnifyingGlassIcon} css={{ width: 18, height: 18 }} />
         </IconButton>
       </DialogTrigger>
-      <DialogContent css={{ overflow: "scroll", transition: "max-height 2s" }}>
+      <DialogContent css={{ overflow: "auto", transition: "max-height 2s" }}>
         <Box
           css={{
             borderRadius: 10,
@@ -135,7 +135,7 @@ const Index = ({ css = {}, ...props }) => {
           css={{
             maxHeight: searchMapping.length > 0 ? 400 : 30,
             transition: "max-height 0.2s",
-            overflow: "scroll",
+            overflow: "auto",
             mt: "$1",
           }}
         >
