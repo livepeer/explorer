@@ -6,6 +6,7 @@ import {
   CopyIcon,
   GlobeIcon,
   TwitterLogoIcon,
+  GitHubLogoIcon,
 } from "@modulz/radix-icons";
 import QRCode from "qrcode.react";
 import { useEffect, useState } from "react";
@@ -138,35 +139,66 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             </CopyToClipboard>
             {isMyAccount && <EditProfile />}
           </Flex>
-          <Flex align="center">
+          <Flex align="center" css={{ flexWrap: 'wrap' }}>
             {identity?.url && (
-              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
-                <Box as={GlobeIcon} css={{ mr: "$1" }} />
-                <A
-                  variant="contrast"
-                  css={{ fontSize: "$2" }}
-                  href={identity.url}
-                  target="__blank"
-                  rel="noopener noreferrer"
-                >
+              <A
+                variant="contrast"
+                css={{ fontSize: "$2" }}
+                href={identity.url}
+                target="__blank"
+                rel="noopener noreferrer"
+              >
+                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
+                  <Box as={GlobeIcon} css={{ mr: "$1" }} />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
-                </A>
-              </Flex>
+                </Flex>
+              </A>
             )}
 
             {identity?.twitter && (
-              <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
-                <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
-                <A
-                  variant="contrast"
-                  css={{ fontSize: "$2" }}
-                  href={`https://twitter.com/${identity.twitter}`}
-                  target="__blank"
-                  rel="noopener noreferrer"
-                >
-                  @{identity.twitter}
-                </A>
-              </Flex>
+              <A
+                variant="contrast"
+                css={{ fontSize: "$2" }}
+                href={`https://twitter.com/${identity.twitter}`}
+                target="__blank"
+                rel="noopener noreferrer"
+              >
+                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
+                  <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
+                  <Box
+                    css={{
+                      "@media (max-width: 400px)": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    @{identity.twitter}
+                  </Box>
+                </Flex>
+              </A>
+            )}
+
+            {identity?.github && (
+              <A
+                variant="contrast"
+                css={{ fontSize: "$2" }}
+                href={`https://github.com/${identity.github}`}
+                target="__blank"
+                rel="noopener noreferrer"
+              >
+                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
+                  <Box as={GitHubLogoIcon} css={{ mr: "$1" }} />
+                  <Box
+                    css={{
+                      "@media (max-width: 400px)": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    {identity.github}
+                  </Box>
+                </Flex>
+              </A>
             )}
           </Flex>
         </Flex>

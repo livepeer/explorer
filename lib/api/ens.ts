@@ -58,10 +58,11 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
 
   if (name) {
     const resolver = await l1Provider.getResolver(name);
-    const [description, url, twitter, avatar] = await Promise.all([
+    const [description, url, twitter, github, avatar] = await Promise.all([
       resolver?.getText("description"),
       resolver?.getText("url"),
       resolver?.getText("com.twitter"),
+      resolver?.getText("com.github"),
       resolver?.getAvatar(),
     ]);
 
@@ -72,6 +73,7 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       description: sanitizeHtml(nl2br(description), sanitizeOptions),
       url,
       twitter,
+      github,
       avatar: avatar?.url ? `/api/ens-data/image/${name}` : null,
     };
 
