@@ -123,7 +123,11 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           tooltip={`The amount of ${
             feesPaidGrouping === "day" ? "daily" : "weekly"
           } fees in dollars which have been historically paid out using the protocol.`}
-          data={feesPaidData}
+          data={
+            feesPaidGrouping === "week"
+              ? feesPaidData.slice(-26)
+              : feesPaidData.slice(-183)
+          }
           base={Number(
             (feesPaidGrouping === "day"
               ? chartData?.oneDayVolumeUSD
@@ -168,7 +172,11 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           tooltip={`The ${
             usageGrouping === "day" ? "daily" : "weekly"
           } usage of the network in minutes.`}
-          data={usageData}
+          data={
+            usageGrouping === "week"
+              ? usageData.slice(-26)
+              : usageData.slice(-183)
+          }
           base={Number(
             (usageGrouping === "day"
               ? chartData?.oneDayUsage
