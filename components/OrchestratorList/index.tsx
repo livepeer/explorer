@@ -1,4 +1,5 @@
 import PopoverLink from "@components/PopoverLink";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
 import {
@@ -28,6 +29,7 @@ import Link from "next/link";
 import numeral from "numeral";
 import QRCode from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
+import { useBondingManagerAddress } from "hooks/useContracts";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
@@ -46,6 +48,7 @@ import {
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
+import { useContractRead } from "wagmi";
 
 dayjs.extend(relativeTime);
 
@@ -111,6 +114,13 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
+  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
+    enabled: Boolean(bondingManagerAddress),
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "treasuryRewardCutRate",
+  });
 
   const mappedData = useMemo(() => {
     return data
@@ -158,6 +168,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
+            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -198,7 +209,7 @@ const OrchestratorList = ({
           ? -1
           : 1
       );
-  }, [data, inflationChange, protocolData, principle, timeHorizon, factors]);
+  }, [data, inflationChange, protocolData, principle, timeHorizon, factors, treasuryRewardCutRate]);
 
   const columns = useMemo(
     () => [

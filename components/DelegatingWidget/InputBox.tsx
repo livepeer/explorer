@@ -13,10 +13,15 @@ import {
 import { fromWei } from "@lib/utils";
 import { ConsoleView } from "react-device-detect";
 
+interface Treasury {
+  treasuryRewardCutRate: number;
+}
+
 interface Props {
   transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"];
+  treasury: Treasury;
   account: EnsIdentity;
   action?: StakingAction;
   delegateProfile?: EnsIdentity;
@@ -33,6 +38,7 @@ const InputBox = ({
   amount,
   setAmount,
   protocol,
+  treasury,
 }: Props) => {
   const walletAddress = useAccountAddress();
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
@@ -110,6 +116,7 @@ const InputBox = ({
                 setAmount(e.target.value ? e.target.value : "");
               }}
               protocol={protocol}
+              treasury={treasury}
             />
           </Flex>
         </Box>
