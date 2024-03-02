@@ -20,6 +20,7 @@ export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
+const SUBGRAPH_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ID;
 
 if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
   throw new Error(
@@ -152,7 +153,7 @@ export const CHAIN_INFO = {
       process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
         ? `https://gateway.thegraph.com/api/${
             SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg`
+          }/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`
         : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
     contracts: MAINNET_CONTRACTS,
   },
@@ -191,7 +192,7 @@ export const CHAIN_INFO = {
       process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
         ? `https://gateway-arbitrum.network.thegraph.com/api/${
             SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC`
+          }/subgraphs/id/${SUBGRAPH_ID ||"FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`
         : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
