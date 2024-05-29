@@ -2,6 +2,7 @@ import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { abbreviateNumber } from "../../lib/utils";
 
 import BottomDrawer from "@components/BottomDrawer";
@@ -329,7 +330,9 @@ const Poll = () => {
                   },
                 }}
               >
-                <ReactMarkdown>{pollData.attributes?.text ?? ""}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {pollData.attributes?.text ?? ""}
+                </ReactMarkdown>
               </Card>
             </Box>
           </Flex>
