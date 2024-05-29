@@ -1,6 +1,7 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 
 import BottomDrawer from "@components/BottomDrawer";
@@ -600,7 +601,9 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <ReactMarkdown>{proposal.description}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {proposal.description}
+                </ReactMarkdown>
               </Card>
             </Box>
           </Flex>
