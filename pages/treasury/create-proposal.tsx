@@ -39,11 +39,27 @@ const MarkdownPreview = styled(ReactMarkdown, {
   boxShadow: "inset 0 0 0 1px $colors$neutral7",
   borderRadius: "$2",
   borderTopLeftRadius: "0",
-  padding: "$1 $2",
+  backgroundColor: "$panel",
+  p: "$4",
+  h2: {
+    fontWeight: 600,
+    "&:first-of-type": { mt: 0 },
+    mt: "$3",
+  },
+  h3: { fontWeight: 600, mt: "$3" },
+  h4: { fontWeight: 600, mt: "$3" },
+  h5: { fontWeight: 600, mt: "$3" },
+  lineHeight: 1.5,
+  a: {
+    color: "$primary11",
+  },
+  pre: {
+    whiteSpace: "pre-wrap",
+  },
 });
 
 const StyledTab = styled(Tab, {
-  position: 'relative',
+  position: "relative",
   cursor: "pointer",
   color: "$neutral10",
   paddingTop: "$1",
