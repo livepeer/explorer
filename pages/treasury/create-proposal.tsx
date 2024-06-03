@@ -261,7 +261,7 @@ const CreateProposal = () => {
               </TabPanel>
               <TabPanel style={{ paddingBottom: "4px" }}>
                 <MarkdownPreview remarkPlugins={[remarkGfm]}>
-                  {formDescription}
+                  {`# ${formTitle}\n${formDescription}`}
                 </MarkdownPreview>
               </TabPanel>
             </TabPanels>
