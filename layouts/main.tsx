@@ -848,7 +848,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
             <Link
               passHref
-              href="https://docs.livepeer.org/protocol/reference/deployed"
+              href="https://docs.livepeer.org/references/contract-addresses"
             >
               <A>
                 <Flex
