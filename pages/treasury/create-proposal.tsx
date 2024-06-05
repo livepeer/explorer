@@ -16,6 +16,7 @@ import {
   TextArea,
   TextField,
   Text,
+  styled,
 } from "@livepeer/design-system";
 import {
   useAccountAddress,
@@ -29,6 +30,62 @@ import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+const MarkdownPreview = styled(ReactMarkdown, {
+  minHeight: 360,
+  boxShadow: "inset 0 0 0 1px $colors$neutral7",
+  borderRadius: "$2",
+  borderTopLeftRadius: "0",
+  backgroundColor: "$panel",
+  p: "$4",
+  h2: {
+    fontWeight: 600,
+    "&:first-of-type": { mt: 0 },
+    mt: "$3",
+  },
+  h3: { fontWeight: 600, mt: "$3" },
+  h4: { fontWeight: 600, mt: "$3" },
+  h5: { fontWeight: 600, mt: "$3" },
+  lineHeight: 1.5,
+  a: {
+    color: "$primary11",
+  },
+  pre: {
+    whiteSpace: "pre-wrap",
+  },
+});
+
+const StyledTab = styled(Tab, {
+  position: "relative",
+  cursor: "pointer",
+  color: "$neutral10",
+  paddingTop: "$1",
+  paddingBottom: "$1",
+  paddingLeft: "$2",
+  paddingRight: "$2",
+  fontWeight: 600,
+  fontFamily: "$monospace",
+  border: "2px solid $neutral7",
+  backgroundColor: "$panel",
+  marginBottom: "-1px",
+  "&:first-child": {
+    borderTopLeftRadius: "$4",
+    marginRight: "-2px",
+  },
+  "&:last-child": {
+    borderTopRightRadius: "$4",
+    maringLeft: "-2px",
+  },
+  "&[data-selected]": {
+    zIndex: 1,
+    backgroundColor: "$panel",
+    color: "$primary11",
+    border: "2px solid $primary11",
+  },
+});
 
 type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
@@ -176,21 +233,39 @@ const CreateProposal = () => {
             onChange={(e) => {
               setFormTitle(e.target.value);
             }}
-          />
-          <TextArea
-            name="description"
-            value={formDescription}
-            onChange={(e) => {
-              setFormDescription(e.target.value);
-            }}
             css={{
-              mt: "$5",
-              height: 360,
-              // "boxShadow:active": "$colors$primary8 inset 0px 0px 0px 1px",
+              marginBottom: "$5",
             }}
-            placeholder="Describe your proposal (markdown)"
-            size="3"
           />
+
+          <Tabs>
+            <TabList>
+              <StyledTab>Write</StyledTab>
+              <StyledTab>Preview</StyledTab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <TextArea
+                  name="description"
+                  value={formDescription}
+                  onChange={(e) => {
+                    setFormDescription(e.target.value);
+                  }}
+                  css={{
+                    height: 360,
+                    borderTopLeftRadius: "0",
+                  }}
+                  placeholder="Describe your proposal (markdown)"
+                  size="3"
+                />
+              </TabPanel>
+              <TabPanel style={{ paddingBottom: "4px" }}>
+                <MarkdownPreview remarkPlugins={[remarkGfm]}>
+                  {`# ${formTitle}\n${formDescription}`}
+                </MarkdownPreview>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
           <Flex
             css={{
               mt: "$5",
