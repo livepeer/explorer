@@ -1,10 +1,9 @@
 import Spinner from "@components/Spinner";
+import MarkdownRenderer from "@components/MarkdownRenderer";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import {
-  getLivepeerGovernorAddress,
   getLivepeerTokenAddress,
-  getTreasuryAddress,
 } from "@lib/api/contracts";
 import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
@@ -17,6 +16,7 @@ import {
   TextField,
   Text,
   styled,
+  Card,
 } from "@livepeer/design-system";
 import {
   useAccountAddress,
@@ -31,32 +31,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
-import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-const MarkdownPreview = styled(ReactMarkdown, {
-  minHeight: 360,
-  boxShadow: "inset 0 0 0 1px $colors$neutral7",
-  borderRadius: "$2",
-  borderTopLeftRadius: "0",
-  backgroundColor: "$panel",
-  p: "$4",
-  h2: {
-    fontWeight: 600,
-    "&:first-of-type": { mt: 0 },
-    mt: "$3",
-  },
-  h3: { fontWeight: 600, mt: "$3" },
-  h4: { fontWeight: 600, mt: "$3" },
-  h5: { fontWeight: 600, mt: "$3" },
-  lineHeight: 1.5,
-  a: {
-    color: "$primary11",
-  },
-  pre: {
-    whiteSpace: "pre-wrap",
-  },
-});
 
 const StyledTab = styled(Tab, {
   position: "relative",
@@ -259,10 +234,40 @@ const CreateProposal = () => {
                   size="3"
                 />
               </TabPanel>
-              <TabPanel style={{ paddingBottom: "4px" }}>
-                <MarkdownPreview remarkPlugins={[remarkGfm]}>
-                  {`# ${formTitle}\n${formDescription}`}
-                </MarkdownPreview>
+              <TabPanel style={{ paddingBottom: "3.32px" }}>
+                <Card
+                  css={{
+                    minHeight: 360,
+                    boxShadow: "inset 0 0 0 1px $colors$neutral7",
+                    borderRadius: "$2",
+                    borderTopLeftRadius: "0",
+                    backgroundColor: "$panel",
+
+                    // Apply same card styling as proposal page.
+                    p: "$4",
+                    // border: "1px solid $neutral4",
+                    // mb: "$3",
+                    h2: {
+                      fontWeight: 600,
+                      "&:first-of-type": { mt: 0 },
+                      mt: "$3",
+                    },
+                    h3: { fontWeight: 600, mt: "$3" },
+                    h4: { fontWeight: 600, mt: "$3" },
+                    h5: { fontWeight: 600, mt: "$3" },
+                    lineHeight: 1.5,
+                    a: {
+                      color: "$primary11",
+                    },
+                    pre: {
+                      whiteSpace: "pre-wrap",
+                    },
+                  }}
+                >
+                  <MarkdownRenderer remarkPlugins={[remarkGfm]}>
+                    {`# ${formTitle}\n${formDescription}`}
+                  </MarkdownRenderer>
+                </Card>
               </TabPanel>
             </TabPanels>
           </Tabs>
