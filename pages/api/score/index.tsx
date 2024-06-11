@@ -45,12 +45,13 @@ const handler = async (
               lon: (metrics[transcoderId]?.LON?.success_rate ?? 0) * 100 || 0,
               prg: (metrics[transcoderId]?.PRG?.success_rate ?? 0) * 100 || 0,
               sao: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
-              atl: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              atl: (metrics[transcoderId]?.ATL?.success_rate ?? 0) * 100 || 0,
               hnd: (metrics[transcoderId]?.HND?.success_rate ?? 0) * 100 || 0,
-              mad: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
-              mos2: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
-              sto: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
-              syd: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              mad: (metrics[transcoderId]?.MAD?.success_rate ?? 0) * 100 || 0,
+              mia: (metrics[transcoderId]?.MIA?.success_rate ?? 0) * 100 || 0,
+              mos2: (metrics[transcoderId]?.MOS2?.success_rate ?? 0) * 100 || 0,
+              sto: (metrics[transcoderId]?.STO?.success_rate ?? 0) * 100 || 0,
+              syd: (metrics[transcoderId]?.SYD?.success_rate ?? 0) * 100 || 0,
             },
             roundTripScores: {
               global: avg(metrics[transcoderId], "round_trip_score") * 100,
@@ -71,17 +72,19 @@ const handler = async (
               sao:
                 (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
               atl:
-                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+                (metrics[transcoderId]?.ATL?.round_trip_score ?? 0) * 100 || 0,
               hnd:
                 (metrics[transcoderId]?.HND?.round_trip_score ?? 0) * 100 || 0,
               mad:
-                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+                (metrics[transcoderId]?.MAD?.round_trip_score ?? 0) * 100 || 0,
+              mia:
+                (metrics[transcoderId]?.MIA?.round_trip_score ?? 0) * 100 || 0,
               mos2:
-                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+                (metrics[transcoderId]?.MOS2?.round_trip_score ?? 0) * 100 || 0,
               sto:
-                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+                (metrics[transcoderId]?.STO?.round_trip_score ?? 0) * 100 || 0,
               syd:
-                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+                (metrics[transcoderId]?.SYD?.round_trip_score ?? 0) * 100 || 0,
             },
             scores: {
               global: avg(metrics[transcoderId], "score") * 100 || 0,
@@ -93,12 +96,13 @@ const handler = async (
               lon: (metrics[transcoderId]?.LON?.score ?? 0) * 100 || 0,
               prg: (metrics[transcoderId]?.PRG?.score ?? 0) * 100 || 0,
               sao: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
-              atl: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              atl: (metrics[transcoderId]?.ATL?.score ?? 0) * 100 || 0,
               hnd: (metrics[transcoderId]?.HND?.score ?? 0) * 100 || 0,
-              mad: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
-              mos2: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
-              sto: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
-              syd: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              mad: (metrics[transcoderId]?.MAD?.score ?? 0) * 100 || 0,
+              mia: (metrics[transcoderId]?.MIA?.score ?? 0) * 100 || 0,
+              mos2: (metrics[transcoderId]?.MOS2?.score ?? 0) * 100 || 0,
+              sto: (metrics[transcoderId]?.STO?.score ?? 0) * 100 || 0,
+              syd: (metrics[transcoderId]?.SYD?.score ?? 0) * 100 || 0,
             },
           },
         }),
