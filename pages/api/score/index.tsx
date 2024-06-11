@@ -45,6 +45,12 @@ const handler = async (
               lon: (metrics[transcoderId]?.LON?.success_rate ?? 0) * 100 || 0,
               prg: (metrics[transcoderId]?.PRG?.success_rate ?? 0) * 100 || 0,
               sao: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              atl: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              hnd: (metrics[transcoderId]?.HND?.success_rate ?? 0) * 100 || 0,
+              mad: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              mos2: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              sto: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
+              syd: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
             },
             roundTripScores: {
               global: avg(metrics[transcoderId], "round_trip_score") * 100,
@@ -64,6 +70,18 @@ const handler = async (
                 (metrics[transcoderId]?.PRG?.round_trip_score ?? 0) * 100 || 0,
               sao:
                 (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+              atl:
+                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+              hnd:
+                (metrics[transcoderId]?.HND?.round_trip_score ?? 0) * 100 || 0,
+              mad:
+                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+              mos2:
+                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+              sto:
+                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
+              syd:
+                (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
             },
             scores: {
               global: avg(metrics[transcoderId], "score") * 100 || 0,
@@ -75,6 +93,12 @@ const handler = async (
               lon: (metrics[transcoderId]?.LON?.score ?? 0) * 100 || 0,
               prg: (metrics[transcoderId]?.PRG?.score ?? 0) * 100 || 0,
               sao: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              atl: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              hnd: (metrics[transcoderId]?.HND?.score ?? 0) * 100 || 0,
+              mad: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              mos2: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              sto: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
+              syd: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
             },
           },
         }),

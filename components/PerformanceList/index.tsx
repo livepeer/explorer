@@ -63,6 +63,34 @@ const PerformanceList = ({
         id: "scores.sao",
         desc: true,
       },
+      {
+          id: "scores.atl",
+          desc: true,
+      },
+      {
+          id: "scores.hnd",
+          desc: true,
+      },
+      {
+          id: "scores.mad",
+          desc: true,
+      },
+      {
+          id: "scores.mia",
+          desc: true,
+      },
+      {
+          id: "scores.mos2",
+          desc: true,
+      },
+      {
+          id: "scores.sto",
+          desc: true,
+      },
+      {
+          id: "scores.syd",
+          desc: true,
+      },
     ],
     hiddenColumns: [
       "activationRound",
