@@ -36,7 +36,7 @@ import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
-import numeral from "numeral";
+import numbro from "numbro";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 import { getProposalExtended } from "@lib/api/treasury";
@@ -47,7 +47,7 @@ import { BigNumber } from "ethers";
 
 dayjs.extend(relativeTime);
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format("0.0000%");
 
 const shortenAddress = (address: string) =>
   address?.replace(address.slice(5, 39), "…") ?? "";
