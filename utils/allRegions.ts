@@ -15,4 +15,5 @@ export const ALL_REGIONS = {
   mos2: "Moscow",
   sto: "Stockholm",
   syd: "Sydney",
+  sea: "Seattle",
 } as const;

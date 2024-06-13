@@ -28,6 +28,7 @@ export type MetricsResponse = {
         MOS2: Metric;
         STO: Metric;
         SYD: Metric;
+        SEA: Metric;
       }
     | undefined;
 };
@@ -103,6 +104,7 @@ const handler = async (
             mos2: (metrics[transcoderId]?.MOS2?.success_rate ?? 0) * 100 || 0,
             sto: (metrics[transcoderId]?.STO?.success_rate ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.success_rate ?? 0) * 100 || 0,
+            sea: (metrics[transcoderId]?.SEA?.success_rate ?? 0) * 100 || 0,
           },
           roundTripScores: {
             global: avg(metrics[transcoderId], "round_trip_score") * 100,
@@ -121,6 +123,7 @@ const handler = async (
             mos2: (metrics[transcoderId]?.MOS2?.round_trip_score ?? 0) * 100 || 0,
             sto: (metrics[transcoderId]?.STO?.round_trip_score ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.round_trip_score ?? 0) * 100 || 0,
+            sea: (metrics[transcoderId]?.SEA?.round_trip_score ?? 0) * 100 || 0,
           },
           scores: {
             global: avg(metrics[transcoderId], "score") * 100 || 0,
@@ -139,6 +142,7 @@ const handler = async (
             mos2: (metrics[transcoderId]?.MOS2?.score ?? 0) * 100 || 0,
             sto: (metrics[transcoderId]?.STO?.score ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.score ?? 0) * 100 || 0,
+            sea: (metrics[transcoderId]?.SEA?.score ?? 0) * 100 || 0,
           },
         };
 
