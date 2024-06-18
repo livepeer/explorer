@@ -13,7 +13,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      res.setHeader("Cache-Control", getCacheControlHeader("second"));
+      res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
       const roundsManagerAddress = await getRoundsManagerAddress();
 

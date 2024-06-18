@@ -9,6 +9,10 @@ const cacheControlValues = {
     maxAge: 10,
     swr: 60,
   },
+  minute: {
+    maxAge: 60,
+    swr: 60,
+  },
   hour: {
     maxAge: 3600,
     swr: 3600 * 2,
@@ -32,7 +36,7 @@ export const getCacheControlHeader = (
 
   return `public, s-maxage=${
     cacheControlValues[type].maxAge +
-    (type === "day" || type == "hour" ? randomJitterValue : 0)
+    (type === "day" || type === "hour" ? randomJitterValue : 0)
   }, stale-while-revalidate=${cacheControlValues[type].swr}`;
 };
 
