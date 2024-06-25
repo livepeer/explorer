@@ -16,4 +16,9 @@ export const ALL_REGIONS = {
   sto: "Stockholm",
   syd: "Sydney",
   sea: "Seattle",
+  tor: "Toronto",
+  sjo: "San Jose",
+  ash: "Nashua",
+  hou: "Houston",
+  atl2: "Atlanta 2",
 } as const;
