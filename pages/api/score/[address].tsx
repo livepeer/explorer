@@ -29,6 +29,11 @@ export type MetricsResponse = {
         STO: Metric;
         SYD: Metric;
         SEA: Metric;
+        TOR: Metric;
+        SJO: Metric;
+        ASH: Metric;
+        HOU: Metric;
+        ATL2: Metric;
       }
     | undefined;
 };
@@ -105,6 +110,11 @@ const handler = async (
             sto: (metrics[transcoderId]?.STO?.success_rate ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.success_rate ?? 0) * 100 || 0,
             sea: (metrics[transcoderId]?.SEA?.success_rate ?? 0) * 100 || 0,
+            tor: (metrics[transcoderId]?.TOR?.success_rate ?? 0) * 100 || 0,
+            sjo: (metrics[transcoderId]?.SJO?.success_rate ?? 0) * 100 || 0,
+            ash: (metrics[transcoderId]?.ASH?.success_rate ?? 0) * 100 || 0,
+            hou: (metrics[transcoderId]?.HOU?.success_rate ?? 0) * 100 || 0,
+            atl2: (metrics[transcoderId]?.ATL2?.success_rate ?? 0) * 100 || 0,
           },
           roundTripScores: {
             global: avg(metrics[transcoderId], "round_trip_score") * 100,
@@ -124,6 +134,11 @@ const handler = async (
             sto: (metrics[transcoderId]?.STO?.round_trip_score ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.round_trip_score ?? 0) * 100 || 0,
             sea: (metrics[transcoderId]?.SEA?.round_trip_score ?? 0) * 100 || 0,
+            tor: (metrics[transcoderId]?.TOR?.round_trip_score ?? 0) * 100 || 0,
+            sjo: (metrics[transcoderId]?.SJO?.round_trip_score ?? 0) * 100 || 0,
+            ash: (metrics[transcoderId]?.ASH?.round_trip_score ?? 0) * 100 || 0,
+            hou: (metrics[transcoderId]?.HOU?.round_trip_score ?? 0) * 100 || 0,
+            atl2: (metrics[transcoderId]?.ATL2?.round_trip_score ?? 0) * 100 || 0,
           },
           scores: {
             global: avg(metrics[transcoderId], "score") * 100 || 0,
@@ -143,6 +158,11 @@ const handler = async (
             sto: (metrics[transcoderId]?.STO?.score ?? 0) * 100 || 0,
             syd: (metrics[transcoderId]?.SYD?.score ?? 0) * 100 || 0,
             sea: (metrics[transcoderId]?.SEA?.score ?? 0) * 100 || 0,
+            tor: (metrics[transcoderId]?.TOR?.score ?? 0) * 100 || 0,
+            sjo: (metrics[transcoderId]?.SJO?.score ?? 0) * 100 || 0,
+            ash: (metrics[transcoderId]?.ASH?.score ?? 0) * 100 || 0,
+            hou: (metrics[transcoderId]?.HOU?.score ?? 0) * 100 || 0,
+            atl2: (metrics[transcoderId]?.ATL2?.score ?? 0) * 100 || 0,
           },
         };
 
