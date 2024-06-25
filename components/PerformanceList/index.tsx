@@ -91,7 +91,7 @@ const PerformanceList = ({
           id: "scores.syd",
           desc: true,
       },
-{
+      {
           id: "scores.sea",
           desc: true,
       },
