@@ -18,6 +18,12 @@ const MarkdownRenderer = styled(OriginalReactMarkdown, {
     th: {
       borderBottom: "3px solid $neutral7",
     },
+    img: {
+      maxWidth: "100%", // Ensure images don't exceed the container width
+      height: "auto", // Maintain aspect ratio
+      maxHeight: "400px", // Set a maximum height (adjust as needed)
+      objectFit: "contain", // Ensure the entire image is visible
+    },
   },
 });
 
