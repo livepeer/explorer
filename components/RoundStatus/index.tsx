@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
 import CircularProgressbar from "../CircularProgressBar";
@@ -238,7 +238,7 @@ const Index = ({
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numeral(protocol?.currentRound?.volumeUSD || 0).format(
+                  {numbro(protocol?.currentRound?.volumeUSD || 0).format(
                     "$0,0k"
                   )}{" "}
                   at recent prices of ETH.
@@ -279,7 +279,7 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(protocol?.currentRound?.volumeETH || 0).format(
+                  {numbro(protocol?.currentRound?.volumeETH || 0).format(
                     "0.00a"
                   )}{" "}
                   ETH
@@ -329,8 +329,8 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(rewardTokensClaimed).format("0")}/
-                  {numeral(protocol?.currentRound?.mintableTokens || 0).format(
+                  {numbro(rewardTokensClaimed).format("0")}/
+                  {numbro(protocol?.currentRound?.mintableTokens || 0).format(
                     "0"
                   )}{" "}
                   LPT

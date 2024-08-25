@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useCallback, useMemo } from "react";
 
 dayjs.extend(relativeTime);
@@ -20,24 +20,24 @@ export const FILTERED_EVENT_TYPENAMES = [
 
 const getLptAmount = (number: number | string | undefined) => {
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.00a")} LPT`}</Badge>
+    <Badge size="1">{`${numbro(number || 0).format("0.00a")} LPT`}</Badge>
   );
 };
 
 const getEthAmount = (number: number | string | undefined) => {
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.000a")} ETH`}</Badge>
+    <Badge size="1">{`${numbro(number || 0).format("0.000a")} ETH`}</Badge>
   );
 };
 
 const getRound = (number: number | string | undefined) => {
-  return `#${numeral(number || 0).format("0")}`;
+  return `#${numbro(number || 0).format("0")}`;
 };
 
 const getPercentAmount = (number: number | string | undefined) => {
   return (
     <Badge color="white" size="1">
-      {numeral(number || 0).format("0%")}
+      {numbro(number || 0).format({mantissa:0, output: "percent"})}
     </Badge>
   );
 };
@@ -337,7 +337,7 @@ const TransactionsList = ({
             <Box>
               {`The inflation has been set to `}
               <Badge size="1">
-                {numeral(event?.currentInflation || 0)
+                {numbro(event?.currentInflation || 0)
                   .divide(1000000000)
                   .format("0.0000%")}
               </Badge>
