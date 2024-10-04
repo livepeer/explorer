@@ -122,11 +122,12 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
 
 /**
  * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
+ * configured in the environment variables.
  */
 export const INFURA_NETWORK_URLS = {
-  [chain.mainnet.id]: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.mainnet.id]: process.env.NEXT_PUBLIC_L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [chain.arbitrum.id]: `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.arbitrum.id]: process.env.NEXT_PUBLIC_L2_RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.arbitrumGoerli
   //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
 };
@@ -189,11 +190,9 @@ export const CHAIN_INFO = {
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
     subgraph:
-      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-        ? `https://gateway-arbitrum.network.thegraph.com/api/${
+      `https://gateway-arbitrum.network.thegraph.com/api/${
             SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/${SUBGRAPH_ID ||"FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`
-        : "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
+          }/subgraphs/id/${SUBGRAPH_ID ||"FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumGoerli.id]: {

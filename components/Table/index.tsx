@@ -109,9 +109,13 @@ function DataTable<T extends object>({
                         {...column.getHeaderProps(
                           column.getSortByToggleProps({ title: undefined })
                         )}
+
                         css={{
-                          px: i === 0 ? "$5" : 0,
+                          px: i === 0 ? "$2" : "auto",
                           width: i === 0 ? "40px" : "auto",
+                          "@bp1": {
+                            px: i === 0 ? "$5" : "auto",
+                          },
                         }}
                       >
                         <Box

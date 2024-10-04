@@ -1,0 +1,53 @@
+FROM node:16 as builder
+WORKDIR /app
+
+ARG CHANGEFEED_ACCESS_TOKEN
+ARG GITHUB_ACCESS_TOKEN
+ARG LIVEPEER_COM_API_ADMIN_TOKEN
+ARG API_TOKEN
+ARG PINATA_JWT
+ARG NEXT_PUBLIC_ETHERSCAN_API_KEY
+ARG NEXT_PUBLIC_GA_TRACKING_ID
+ARG NEXT_PUBLIC_NETWORK=ARBITRUM_ONE
+ARG NEXT_PUBLIC_INFURA_KEY
+ARG NEXT_PUBLIC_L1_RPC_URL
+ARG NEXT_PUBLIC_L2_RPC_URL
+ARG NEXT_PUBLIC_GITHUB_LIP_NAMESPACE=adamsoffer
+ARG NEXT_PUBLIC_SUBGRAPH_API_KEY
+ARG NEXT_PUBLIC_SUBGRAPH_ID
+ARG NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
+ARG NEXT_PUBLIC_METRICS_SERVER_URL=https://livepeer-leaderboard-serverless.vercel.app
+
+# Step 5: Create .env file with substituted values
+RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
+    echo "GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}" >> .env && \
+    echo "LIVEPEER_COM_API_ADMIN_TOKEN=${LIVEPEER_COM_API_ADMIN_TOKEN}" >> .env && \
+    echo "API_TOKEN=${API_TOKEN}" >> .env && \
+    echo "PINATA_JWT=${PINATA_JWT}" >> .env && \
+    echo "NEXT_PUBLIC_ETHERSCAN_API_KEY=${NEXT_PUBLIC_ETHERSCAN_API_KEY}" >> .env && \
+    echo "NEXT_PUBLIC_GA_TRACKING_ID=${NEXT_PUBLIC_GA_TRACKING_ID}" >> .env && \
+    echo "NEXT_PUBLIC_NETWORK=${NEXT_PUBLIC_NETWORK}" >> .env && \
+    echo "NEXT_PUBLIC_INFURA_KEY=${NEXT_PUBLIC_INFURA_KEY}" >> .env && \
+    echo "NEXT_PUBLIC_L1_RPC_URL=${NEXT_PUBLIC_L1_RPC_URL}" >> .env && \
+    echo "NEXT_PUBLIC_L2_RPC_URL=${NEXT_PUBLIC_L2_RPC_URL}" >> .env && \
+    echo "NEXT_PUBLIC_GITHUB_LIP_NAMESPACE=${NEXT_PUBLIC_GITHUB_LIP_NAMESPACE}" >> .env && \
+    echo "NEXT_PUBLIC_SUBGRAPH_API_KEY=${NEXT_PUBLIC_SUBGRAPH_API_KEY}" >> .env && \
+    echo "NEXT_PUBLIC_SUBGRAPH_ID=${NEXT_PUBLIC_SUBGRAPH_ID}" >> .env && \
+    echo "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}" >> .env && \
+    echo "NEXT_PUBLIC_METRICS_SERVER_URL=${NEXT_PUBLIC_METRICS_SERVER_URL}" >> .env
+
+COPY . .
+RUN yarn && yarn run build
+
+FROM node:16
+WORKDIR /app
+ENV NODE_ENV production
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
+
+EXPOSE 3000
+CMD ["yarn", "start"]
