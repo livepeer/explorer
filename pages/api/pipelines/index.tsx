@@ -11,9 +11,9 @@ const handler = async (
 
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
-      
+
       const { region } = req.query;
-      const url = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/pipelines${region ? `?region=${region}` : ""}`;
+      const url = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/pipelines${region ? `?region=${region}` : ""}`;
       const pipelinesResponse = await fetch(url)
         .then((res) => res.json())
         .catch((e) => {

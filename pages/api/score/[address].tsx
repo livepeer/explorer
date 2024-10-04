@@ -11,7 +11,7 @@ type Metric = {
 };
 
 export type MetricsResponse = {
-  [key: string]: 
+  [key: string]:
       | {
         [key: string]: Metric;
     }
@@ -65,7 +65,7 @@ const handler = async (
       if (isValidAddress(address)) {
         const transcoderId = address.toLowerCase();
         const topScoreResponse = await fetch(
-           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
+           `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
         );
         const topAIScore: ScoreResponse = await topScoreResponse.json();
 
@@ -93,11 +93,11 @@ const handler = async (
         const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse): RegionalValues => {
           const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
             const val = metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
-            if(val !== null && val !== "") 
+            if(val !== null && val !== "")
               acc[metricsRegionKey] = (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ?? 0) * 100 || 0;
             return acc;
           }, {} as RegionalValues);
-          
+
           // Define a global key that is the average of the other keys
           const globalValue = avg(metrics[transcoderId], metricKey) * 100;
           const finalMetricsObject: RegionalValues = {
