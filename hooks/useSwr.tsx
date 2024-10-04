@@ -7,8 +7,9 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { AllPerformanceMetrics, PerformanceMetrics } from "@lib/api/types/get-performance";
+import { AvailablePipelines, Pipeline } from "@lib/api/types/get-available-pipelines";
+import { Regions } from "@lib/api/types/get-regions";
 import {
-  Proposal,
   ProposalState,
   ProposalVotingPower,
   RegisteredToVote,
@@ -16,6 +17,12 @@ import {
 } from "@lib/api/types/get-treasury-proposal";
 import useSWR from "swr";
 import { Address } from "viem";
+
+export const useRegionsData = (): Regions => {
+  const { data } = useSWR<Regions>(`/regions`);
+
+  return data ?? { regions: [{id:"GLOBAL", name:"Global", type: "transcoding"}] };
+};
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
   const { data } = useSWR<EnsIdentity>(
@@ -49,10 +56,19 @@ export const useChangefeedData = () => {
   return data ?? null;
 };
 
-export const useAllScoreData = () => {
-  const { data } = useSWR<AllPerformanceMetrics>(`/score`);
+export const useAvailableInferencePipelinesData = () => {
+  const { data, isValidating } = useSWR<AvailablePipelines>(`/pipelines`);
+  return { data: data ?? {pipelines: []}, isValidating };
+};
 
-  return data ?? null;
+export const useAllScoreData = (pipeline: Pipeline["id"] | null, model: string | null) => {
+  const url = pipeline && model
+    ? `/score?pipeline=${encodeURIComponent(pipeline)}&model=${encodeURIComponent(model)}`
+    : `/score`;
+
+  const { data, isValidating } = useSWR<AllPerformanceMetrics>(url);
+
+  return { data: data ?? null, isValidating };
 };
 
 export const useScoreData = (address: string | undefined | null) => {

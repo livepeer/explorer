@@ -1,5 +1,5 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { PerformanceMetrics } from "@lib/api/types/get-performance";
+import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,31 +11,19 @@ type Metric = {
 };
 
 export type MetricsResponse = {
-  [key: string]:
-    | {
-        FRA: Metric;
-        LAX: Metric;
-        LON: Metric;
-        MDW: Metric;
-        NYC: Metric;
-        PRG: Metric;
-        SIN: Metric;
-        SAO: Metric;
-        ATL: Metric;
-        HND: Metric;
-        MAD: Metric;
-        MIA: Metric;
-        MOS2: Metric;
-        STO: Metric;
-        SYD: Metric;
-        SEA: Metric;
-        TOR: Metric;
-        SJO: Metric;
-        ASH: Metric;
-        HOU: Metric;
-        ATL2: Metric;
-      }
-    | undefined;
+  [key: string]: 
+      | {
+        [key: string]: Metric;
+    }
+  | undefined;
+};
+
+type ScoreResponse = {
+  value: number;
+  region: string;
+  model: string;
+  pipeline: string;
+  orchestrator: string;
 };
 
 export type PriceResponse = {
@@ -76,9 +64,13 @@ const handler = async (
 
       if (isValidAddress(address)) {
         const transcoderId = address.toLowerCase();
+        const topScoreResponse = await fetch(
+           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
+        );
+        const topAIScore: ScoreResponse = await topScoreResponse.json();
 
         const metricsResponse = await fetch(
-          `https://leaderboard-serverless.vercel.app/api/aggregated_stats?orchestrator=${transcoderId}`
+           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
         );
         const metrics: MetricsResponse = await metricsResponse.json();
 
@@ -89,81 +81,38 @@ const handler = async (
         const transcoderWithPrice = transcodersWithPrice.find((t) =>
           checkAddressEquality(t.Address, transcoderId)
         );
+        const uniqueRegions = (() => {
+          const keys = new Set<string>();
+          Object.values(metrics).forEach(metric => {
+            if (metric) {
+              Object.keys(metric).forEach(key => keys.add(key));
+            }
+          });
+          return Array.from(keys);
+        })();
+        const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse): RegionalValues => {
+          const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
+            const val = metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
+            if(val !== null && val !== "") 
+              acc[metricsRegionKey] = (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ?? 0) * 100 || 0;
+            return acc;
+          }, {} as RegionalValues);
+          
+          // Define a global key that is the average of the other keys
+          const globalValue = avg(metrics[transcoderId], metricKey) * 100;
+          const finalMetricsObject: RegionalValues = {
+            ...metricsObject,
+            GLOBAL: globalValue
+          };
+          return finalMetricsObject;
+        };
 
         const combined: PerformanceMetrics = {
           pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
-          successRates: {
-            global: avg(metrics[transcoderId], "success_rate") * 100,
-            fra: (metrics[transcoderId]?.FRA?.success_rate ?? 0) * 100 || 0,
-            mdw: (metrics[transcoderId]?.MDW?.success_rate ?? 0) * 100 || 0,
-            sin: (metrics[transcoderId]?.SIN?.success_rate ?? 0) * 100 || 0,
-            nyc: (metrics[transcoderId]?.NYC?.success_rate ?? 0) * 100 || 0,
-            lax: (metrics[transcoderId]?.LAX?.success_rate ?? 0) * 100 || 0,
-            lon: (metrics[transcoderId]?.LON?.success_rate ?? 0) * 100 || 0,
-            prg: (metrics[transcoderId]?.PRG?.success_rate ?? 0) * 100 || 0,
-            sao: (metrics[transcoderId]?.SAO?.success_rate ?? 0) * 100 || 0,
-            atl: (metrics[transcoderId]?.ATL?.success_rate ?? 0) * 100 || 0,
-            hnd: (metrics[transcoderId]?.HND?.success_rate ?? 0) * 100 || 0,
-            mad: (metrics[transcoderId]?.MAD?.success_rate ?? 0) * 100 || 0,
-            mia: (metrics[transcoderId]?.MIA?.success_rate ?? 0) * 100 || 0,
-            mos2: (metrics[transcoderId]?.MOS2?.success_rate ?? 0) * 100 || 0,
-            sto: (metrics[transcoderId]?.STO?.success_rate ?? 0) * 100 || 0,
-            syd: (metrics[transcoderId]?.SYD?.success_rate ?? 0) * 100 || 0,
-            sea: (metrics[transcoderId]?.SEA?.success_rate ?? 0) * 100 || 0,
-            tor: (metrics[transcoderId]?.TOR?.success_rate ?? 0) * 100 || 0,
-            sjo: (metrics[transcoderId]?.SJO?.success_rate ?? 0) * 100 || 0,
-            ash: (metrics[transcoderId]?.ASH?.success_rate ?? 0) * 100 || 0,
-            hou: (metrics[transcoderId]?.HOU?.success_rate ?? 0) * 100 || 0,
-            atl2: (metrics[transcoderId]?.ATL2?.success_rate ?? 0) * 100 || 0,
-          },
-          roundTripScores: {
-            global: avg(metrics[transcoderId], "round_trip_score") * 100,
-            fra: (metrics[transcoderId]?.FRA?.round_trip_score ?? 0) * 100 || 0,
-            mdw: (metrics[transcoderId]?.MDW?.round_trip_score ?? 0) * 100 || 0,
-            sin: (metrics[transcoderId]?.SIN?.round_trip_score ?? 0) * 100 || 0,
-            nyc: (metrics[transcoderId]?.NYC?.round_trip_score ?? 0) * 100 || 0,
-            lax: (metrics[transcoderId]?.LAX?.round_trip_score ?? 0) * 100 || 0,
-            lon: (metrics[transcoderId]?.LON?.round_trip_score ?? 0) * 100 || 0,
-            prg: (metrics[transcoderId]?.PRG?.round_trip_score ?? 0) * 100 || 0,
-            sao: (metrics[transcoderId]?.SAO?.round_trip_score ?? 0) * 100 || 0,
-            atl: (metrics[transcoderId]?.ATL?.round_trip_score ?? 0) * 100 || 0,
-            hnd: (metrics[transcoderId]?.HND?.round_trip_score ?? 0) * 100 || 0,
-            mad: (metrics[transcoderId]?.MAD?.round_trip_score ?? 0) * 100 || 0,
-            mia: (metrics[transcoderId]?.MIA?.round_trip_score ?? 0) * 100 || 0,
-            mos2: (metrics[transcoderId]?.MOS2?.round_trip_score ?? 0) * 100 || 0,
-            sto: (metrics[transcoderId]?.STO?.round_trip_score ?? 0) * 100 || 0,
-            syd: (metrics[transcoderId]?.SYD?.round_trip_score ?? 0) * 100 || 0,
-            sea: (metrics[transcoderId]?.SEA?.round_trip_score ?? 0) * 100 || 0,
-            tor: (metrics[transcoderId]?.TOR?.round_trip_score ?? 0) * 100 || 0,
-            sjo: (metrics[transcoderId]?.SJO?.round_trip_score ?? 0) * 100 || 0,
-            ash: (metrics[transcoderId]?.ASH?.round_trip_score ?? 0) * 100 || 0,
-            hou: (metrics[transcoderId]?.HOU?.round_trip_score ?? 0) * 100 || 0,
-            atl2: (metrics[transcoderId]?.ATL2?.round_trip_score ?? 0) * 100 || 0,
-          },
-          scores: {
-            global: avg(metrics[transcoderId], "score") * 100 || 0,
-            fra: (metrics[transcoderId]?.FRA?.score ?? 0) * 100 || 0,
-            mdw: (metrics[transcoderId]?.MDW?.score ?? 0) * 100 || 0,
-            sin: (metrics[transcoderId]?.SIN?.score ?? 0) * 100 || 0,
-            nyc: (metrics[transcoderId]?.NYC?.score ?? 0) * 100 || 0,
-            lax: (metrics[transcoderId]?.LAX?.score ?? 0) * 100 || 0,
-            lon: (metrics[transcoderId]?.LON?.score ?? 0) * 100 || 0,
-            prg: (metrics[transcoderId]?.PRG?.score ?? 0) * 100 || 0,
-            sao: (metrics[transcoderId]?.SAO?.score ?? 0) * 100 || 0,
-            atl: (metrics[transcoderId]?.ATL?.score ?? 0) * 100 || 0,
-            hnd: (metrics[transcoderId]?.HND?.score ?? 0) * 100 || 0,
-            mad: (metrics[transcoderId]?.MAD?.score ?? 0) * 100 || 0,
-            mia: (metrics[transcoderId]?.MIA?.score ?? 0) * 100 || 0,
-            mos2: (metrics[transcoderId]?.MOS2?.score ?? 0) * 100 || 0,
-            sto: (metrics[transcoderId]?.STO?.score ?? 0) * 100 || 0,
-            syd: (metrics[transcoderId]?.SYD?.score ?? 0) * 100 || 0,
-            sea: (metrics[transcoderId]?.SEA?.score ?? 0) * 100 || 0,
-            tor: (metrics[transcoderId]?.TOR?.score ?? 0) * 100 || 0,
-            sjo: (metrics[transcoderId]?.SJO?.score ?? 0) * 100 || 0,
-            ash: (metrics[transcoderId]?.ASH?.score ?? 0) * 100 || 0,
-            hou: (metrics[transcoderId]?.HOU?.score ?? 0) * 100 || 0,
-            atl2: (metrics[transcoderId]?.ATL2?.score ?? 0) * 100 || 0,
-          },
+          successRates: createMetricsObject("success_rate", transcoderId, metrics),
+          roundTripScores: createMetricsObject("round_trip_score", transcoderId, metrics),
+          scores: createMetricsObject("score", transcoderId, metrics),
+          topAIScore: topAIScore,
         };
 
         return res.status(200).json(combined);

@@ -1,7 +1,12 @@
-import { ALL_REGIONS } from "utils/allRegions";
-
 export type RegionalValues = {
-  [key in keyof typeof ALL_REGIONS]: number;
+  [key: string]: number;
+};
+export type Score = {
+  value: number;
+  region: string;
+  model: string;
+  pipeline: string;
+  orchestrator: string;
 };
 
 export type PerformanceMetrics = {
@@ -11,6 +16,8 @@ export type PerformanceMetrics = {
   scores: RegionalValues;
 
   pricePerPixel: number;
+
+  topAIScore: Score;
 };
 
 export type AllPerformanceMetrics = {
