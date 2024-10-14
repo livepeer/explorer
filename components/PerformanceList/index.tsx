@@ -35,9 +35,6 @@ const PerformanceList = ({
   const scoreAccessor = `scores.${region}`;//total score
   const successRateAccessor = `successRates.${region}`;//success rate
   const roundTripScoreAccessor = `roundTripScores.${region}`;//latency score
-  //alphanumeric sorting is used in order to properly handle null and undefined values
-  //https://github.com/TanStack/table/blob/v7/src/sortTypes.js#L3
-  const sortType = "alphanumeric";
 
   const initialState = {
     pageSize: pageSize,
@@ -59,6 +56,18 @@ const PerformanceList = ({
     () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
     [allScores, data]
   );
+
+  //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
+  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always 
+  //sort double values correctly.  As such, we use a custom sort function to place 0 values after 
+  //non-zero's and before null/undefined values.
+  const sortTypeFn = useMemo(() => (rowA: any, rowB: any, columnId: string) => {
+    const a = rowA.values[columnId];
+    const b = rowB.values[columnId];
+    if (a === null || a === undefined) return -1;
+    if (b === null || b === undefined) return 1;
+    return a === b ? 0 : a > b ? 1 : -1;
+  }, []);
 
   const columns: any = useMemo(
     () => [
@@ -204,7 +213,7 @@ const PerformanceList = ({
         accessor: `${scoreAccessor}`,
         sortDescFirst: true,
         defaultCanSort: true,
-        sortType: sortType,
+        sortType: sortTypeFn,
         Cell: ({ value }) => {
           if (
             isValidating
@@ -240,7 +249,7 @@ const PerformanceList = ({
         </Flex>
       </ExplorerTooltip></>),
         accessor: `${successRateAccessor}`,
-        sortType: sortType,
+        sortType: sortTypeFn,
         Cell: ({ value }) => {
           if (isValidating) {
             return <EmptyData />;
@@ -275,7 +284,7 @@ const PerformanceList = ({
         </Flex>
       </ExplorerTooltip></>),
         accessor: `${roundTripScoreAccessor}`,
-        sortType: sortType,
+        sortType: sortTypeFn,
         Cell: ({ value }) => {
           if (isValidating) {
             return <EmptyData />;
