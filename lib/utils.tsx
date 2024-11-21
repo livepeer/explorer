@@ -2,12 +2,9 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } fro
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Numeral from "numeral";
 
-export const provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
-);
 
 export function avg(obj, key) {
   const arr = Object.values(obj);
