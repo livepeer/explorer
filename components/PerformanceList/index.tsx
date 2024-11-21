@@ -58,8 +58,8 @@ const PerformanceList = ({
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
-  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always 
-  //sort double values correctly.  As such, we use a custom sort function to place 0 values after 
+  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always
+  //sort double values correctly.  As such, we use a custom sort function to place 0 values after
   //non-zero's and before null/undefined values.
   const sortTypeFn = useMemo(() => (rowA: any, rowB: any, columnId: string) => {
     const a = rowA.values[columnId];
@@ -81,7 +81,7 @@ const PerformanceList = ({
             </Box>
           );
         },
-      },  
+      },
       {
         Header: () => (<>Orchestrator <Box css={{pl:"3px","@bp1": {display: "none",pl: "0"}}}>(Score)</Box></>),
         accessor: "id",
@@ -150,7 +150,7 @@ const PerformanceList = ({
                       {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                     </Box>
                   )}
-                  {typeof row.values.scores != "undefined" && row.values.scores != null ? 
+                  {typeof row.values.scores != "undefined" && row.values.scores != null ?
                     <Badge size="2" variant="green"
                       css={{
                         mr: "$2",
@@ -161,7 +161,7 @@ const PerformanceList = ({
                       }}
                     >
                       {
-                      
+
                       numeral(row.values.scores)
                         .divide(10)
                         .format("0.00")
@@ -195,7 +195,7 @@ const PerformanceList = ({
           multiline
           content={
             <Box>
-              {isAIData ? 
+              {isAIData ?
                 "The AI Total Score combines the Orchestrator's Latency Score and average Success Rate, with a higher emphasis on Success Rate." :
                 "The Transcoding Total Score is based on the Orchestrator's Latency Score and Success Rate."
               }
@@ -222,8 +222,8 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
+              {typeof value === "undefined" || value === null ?
+                "---" :
                 numeral(value)
                   .divide(10)
                   .format("0.00")
@@ -256,8 +256,8 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
+              {typeof value === "undefined" || value === null ?
+                "---" :
                 numeral(value)
                   .divide(100)
                   .format("0%")
@@ -291,8 +291,8 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
+              {typeof value === "undefined" || value === null ?
+                "---" :
                 numeral(value)
                   .divide(10)
                   .format("0.00")
