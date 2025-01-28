@@ -1,5 +1,5 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
-import { Button } from "@livepeer/design-system";
+import { Button } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import {
   Address,

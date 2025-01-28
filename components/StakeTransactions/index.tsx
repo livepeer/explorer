@@ -6,7 +6,7 @@ import {
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
-import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
+import { Card, Text, Box, Flex, Heading } from "@jjasonn.stone/design-system";
 import { parseEther } from "ethers/lib/utils";
 import { UnbondingLock } from "apollo";
 

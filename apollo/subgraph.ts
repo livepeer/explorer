@@ -1,10 +1,16 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -17,16 +23,22 @@ export type Scalars = {
   BigInt: string;
   Bytes: any;
   Int8: any;
+  Timestamp: any;
 };
 
+export enum Aggregation_Interval {
+  Day = "day",
+  Hour = "hour",
+}
+
 export type BlockChangedFilter = {
-  number_gte: Scalars['Int'];
+  number_gte: Scalars["Int"];
 };
 
 export type Block_Height = {
-  hash?: InputMaybe<Scalars['Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
+  hash?: InputMaybe<Scalars["Bytes"]>;
+  number?: InputMaybe<Scalars["Int"]>;
+  number_gte?: InputMaybe<Scalars["Int"]>;
 };
 
 /**
@@ -9752,6 +9764,8 @@ export type _Block_ = {
   hash?: Maybe<Scalars["Bytes"]>;
   /** The block number */
   number: Scalars["Int"];
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars["Bytes"]>;
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars["Int"]>;
 };
@@ -10820,7 +10834,6 @@ export const AccountDocument = gql`
         feeShare
         rewardCut
         status
-        active
         totalStake
         totalVolumeETH
         activationTimestamp
@@ -10845,7 +10858,6 @@ export const AccountDocument = gql`
       feeShare
       rewardCut
       status
-      active
       totalStake
       totalVolumeETH
       activationTimestamp
@@ -11541,7 +11553,7 @@ export type PollLazyQueryHookResult = ReturnType<typeof usePollLazyQuery>;
 export type PollQueryResult = Apollo.QueryResult<PollQuery, PollQueryVariables>;
 export const PollsDocument = gql`
   query polls {
-    polls(where: {id_not: "0x17759123c2ddcd774a1a0c577fa32a24deff5629"}) {
+    polls {
       id
       proposal
       endBlock

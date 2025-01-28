@@ -1,5 +1,5 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@livepeer/design-system";
+import { Button } from "@jjasonn.stone/design-system";
 import { useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";

@@ -1,4 +1,4 @@
-import { Box, Flex } from "@livepeer/design-system";
+import { Box, Flex } from "@jjasonn.stone/design-system";
 
 const statusCodes: { [code: number]: string } = {
   400: "Bad Request",

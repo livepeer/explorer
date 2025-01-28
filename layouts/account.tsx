@@ -16,11 +16,11 @@ import {
   Button,
   Container,
   Flex,
-  Link as A,
+  Link as LivepeerLink,
   Sheet,
   SheetContent,
   SheetTrigger,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -251,7 +251,7 @@ const AccountLayout = ({
           >
             {tabs.map((tab: TabType, i: number) => (
               <Link scroll={false} key={i} href={tab.href} passHref>
-                <A
+                <LivepeerLink
                   variant="subtle"
                   css={{
                     color: tab.isActive ? "$hiContrast" : "$neutral11",
@@ -267,7 +267,7 @@ const AccountLayout = ({
                   }}
                 >
                   {tab.name}
-                </A>
+                </LivepeerLink>
               </Link>
             ))}
           </Box>

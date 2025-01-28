@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
-import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Link as LivepeerLink, Text } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -111,7 +111,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           </Box>
           <Link href="/orchestrators" passHref>
             <Button size="3" variant="primary">
-              <A variant="primary">View Orchestrators</A>
+              <LivepeerLink variant="primary">View Orchestrators</LivepeerLink>
             </Button>
           </Link>
         </Box>
@@ -150,7 +150,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
           >
-            <A
+            <LivepeerLink
               className="masonry-grid_item"
               css={{
                 display: "block",
@@ -172,7 +172,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </Box>
                 }
               />{" "}
-            </A>
+            </LivepeerLink>
           </Link>
         )}
 
@@ -447,3 +447,5 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 };
 
 export default Index;
+
+

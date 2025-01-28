@@ -21,7 +21,7 @@ import {
   Container,
   DesignSystemProvider,
   Flex,
-  Link as A,
+  Link as LivepeerLink,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -29,7 +29,7 @@ import {
   SnackbarProvider,
   Text,
   getThemes,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import {
   ArrowTopRightIcon,
   ChevronDownIcon,
@@ -76,7 +76,7 @@ type DrawerItem = {
   name: any;
   href: string;
   as: string;
-  icon: React.ElementType;
+  icon: React.ReactNode;
   className?: string;
 };
 
@@ -99,7 +99,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState(false);
   const { width } = useWindowSize();
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement>(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
 
@@ -350,7 +350,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref as any}
+                ref={ref}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}
@@ -799,7 +799,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           key as keyof typeof contractAddresses
                         ]?.name ?? ""}
                       </Text>
-                      <A
+                      <LivepeerLink
                         css={{
                           marginLeft: "auto",
 
@@ -829,7 +829,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                             "…"
                           )}
                         </Text>
-                      </A>
+                      </LivepeerLink>
                     </>
                   ) : (
                     <Skeleton
@@ -850,7 +850,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
             >
-              <A>
+              <LivepeerLink>
                 <Flex
                   css={{
                     mt: "$2",
@@ -860,7 +860,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 >
                   <Text
                     css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
+                    color="$white"
                     size="1"
                   >
                     Learn more about these contracts
@@ -874,7 +874,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                     as={ArrowTopRightIcon}
                   />
                 </Flex>
-              </A>
+              </LivepeerLink>
             </Link>
           </Box>
         </Box>

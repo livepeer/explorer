@@ -2,7 +2,7 @@ import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
 import { getL1MigratorAddress, getL2MigratorAddress } from "@lib/api/contracts";
-import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
 import {
@@ -231,7 +231,7 @@ const Claim = () => {
                 }
               }}
               size="3"
-              variant="transparentWhite"
+              variant="neutral"
               css={{ mr: "$2" }}
             >
               Claim Stake & Fees
@@ -242,7 +242,7 @@ const Claim = () => {
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
-            variant="transparentWhite"
+            variant="neutral"
             ghost
           >
             Discord Support Channel{" "}

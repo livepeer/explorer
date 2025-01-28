@@ -1,4 +1,4 @@
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
+import { Badge, Box, Card, Flex, Heading, Link as LivepeerLink } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -57,7 +57,7 @@ const TreasuryProposalRow = ({
       // disable clicking if there's no state (i.e. details page would just hang)
       {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
     >
-      <A
+      <LivepeerLink
         css={{
           cursor: "pointer",
           display: "block",
@@ -121,7 +121,7 @@ const TreasuryProposalRow = ({
             </Badge>
           </Flex>
         </Card>
-      </A>
+      </LivepeerLink>
     </Link>
   );
 };

@@ -1,4 +1,4 @@
-import { styled } from "@livepeer/design-system";
+import { styled } from "@jjasonn.stone/design-system";
 
 export const Button = styled("button", {
   length: {},

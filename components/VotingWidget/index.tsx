@@ -10,7 +10,7 @@ import {
   Heading,
   Text,
   useSnackbar,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";
 import dayjs from "dayjs";

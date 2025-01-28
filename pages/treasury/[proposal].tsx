@@ -17,7 +17,7 @@ import {
   Heading,
   Link,
   Text,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
 import { useMemo } from "react";
@@ -444,10 +444,12 @@ const Proposal = () => {
                                 display: "block",
                                 fontWeight: 600,
                                 color: "$white",
+                                overflow:"hidden",
+                                textOverflow:"ellipsis",
                               }}
                               size="2"
                             >
-                              {action.lptTransfer.receiver}
+                              {shortenAddress(action.lptTransfer.receiver)}
                             </Text>
                           </Link>
                         </Flex>

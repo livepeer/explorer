@@ -12,13 +12,13 @@ import {
   DropdownMenuTrigger,
   Flex,
   IconButton,
-  Link as A,
+  Link as LivepeerLink,
   Popover,
   PopoverContent,
   PopoverTrigger,
   Text,
   TextField,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
@@ -27,7 +27,7 @@ import {
 import dayjs from "dayjs";
 import Link from "next/link";
 import numeral from "numeral";
-import QRCode from "qrcode.react";
+import QRCode, { QRCodeCanvas } from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
@@ -49,6 +49,8 @@ import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
 import { useContractRead } from "wagmi";
+import { Tooltip } from "@material-ui/core";
+import { HelpCircle } from "react-feather";
 
 dayjs.extend(relativeTime);
 
@@ -215,31 +217,39 @@ const OrchestratorList = ({
     () => [
       {
         Header: (
-          <ExplorerTooltip
-            multiline
-            content={
-              <Box>
-                The account which is actively coordinating transcoders and
-                receiving fees/rewards.
-              </Box>
-            }
-          >
+          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
             <Box>Orchestrator</Box>
-          </ExplorerTooltip>
+            <ExplorerTooltip
+              content={
+                <Box>
+                  The account which is actively coordinating transcoders and
+                  receiving fees/rewards.
+                </Box>
+              }
+            >
+              <Box css={{ display: "flex", alignItems: "center" }}>
+                <HelpCircle size={14} />
+              </Box>
+            </ExplorerTooltip>
+          </Box>
         ),
         accessor: "id",
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
 
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-              <A
-                css={{
-                  width: 350,
-                  display: "block",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "none" },
+            <Box css={{
+              width: 350,
+              display: "block",
+              textDecoration: "none",
+              "&:hover": { textDecoration: "none" }
+            }}>
+              <Link 
+                href={`/accounts/${row.values.id}/orchestrating`}
+                style={{
+                  textDecoration: "none"
                 }}
+                legacyBehavior={false}
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box
@@ -278,7 +288,7 @@ const OrchestratorList = ({
                       />
                     ) : (
                       <Box
-                        as={QRCode}
+                        as={QRCodeCanvas}
                         css={{
                           mr: "$2",
                           borderRadius: 1000,
@@ -326,20 +336,16 @@ const OrchestratorList = ({
                     )} */}
                   </Flex>
                 </Flex>
-              </A>
-            </Link>
+              </Link>
+            </Box>
           );
         },
       },
       {
-        Header: "Identity",
-        accessor: "identity",
-      },
-      {
         Header: (
-          <Flex css={{ flexDirection: "row", alignItems: "center" }}>
+          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
+            <Box>Forecasted Yield</Box>
             <ExplorerTooltip
-              multiline
               content={
                 <Box>
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
@@ -349,9 +355,11 @@ const OrchestratorList = ({
                 </Box>
               }
             >
-              <Box>Forecasted Yield</Box>
+              <Box css={{ display: "flex", alignItems: "center" }}>
+                <HelpCircle size={14} />
+              </Box>
             </ExplorerTooltip>
-          </Flex>
+          </Box>
         ),
         accessor: (row) => row.earningsComputed,
         id: "earnings",
@@ -502,7 +510,7 @@ const OrchestratorList = ({
                         passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <A>
+                        <LivepeerLink>
                           <Flex
                             css={{
                               mt: "$2",
@@ -522,7 +530,7 @@ const OrchestratorList = ({
                               as={ArrowTopRightIcon}
                             />
                           </Flex>
-                        </A>
+                        </LivepeerLink>
                       </Link>
                     </Box>
 

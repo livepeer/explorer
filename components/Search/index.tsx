@@ -6,10 +6,10 @@ import {
   DialogTrigger,
   Flex,
   IconButton,
-  Link as A,
+  Link as LivepeerLink,
   Text,
   TextField
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
 import { useAllEnsData } from "hooks";
@@ -151,7 +151,7 @@ const Index = ({ css = {}, ...props }) => {
             searchMapping
               .filter((e) => e.item.id)
               .map((result) => (
-                <A key={result.item.id} href={`/accounts/${result.item.id}`}>
+                <LivepeerLink key={result.item.id} href={`/accounts/${result.item.id}`}>
                   <Flex
                     css={{
                       cursor: "pointer",
@@ -186,7 +186,7 @@ const Index = ({ css = {}, ...props }) => {
                     </Flex>
                     <Box as={ArrowRightIcon} />
                   </Flex>
-                </A>
+                </LivepeerLink>
               ))
           )}
         </Box>

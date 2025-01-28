@@ -3,7 +3,7 @@ import PerformanceListSelector from '@components/PerformanceListSelector';
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { Box, Container, Flex, Heading } from "@livepeer/design-system";
+import { Box, Container, Flex, Heading } from "@jjasonn.stone/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import { useState } from "react";

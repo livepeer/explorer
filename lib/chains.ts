@@ -155,7 +155,7 @@ export const CHAIN_INFO = {
         ? `https://gateway.thegraph.com/api/${
             SUBGRAPH_KEY ?? "none"
           }/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`
-        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+        : "https://gateway.thegraph.com/api/d63fd2fcf0818426ab895c6c5f6550c9/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC",
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated

@@ -8,10 +8,10 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   RadioCard,
   RadioCardGroup,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
@@ -165,7 +165,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
-                    <A
+                    <LivepeerLink
                       variant="primary"
                       css={{
                         display: "flex",
@@ -178,7 +178,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                     >
                       View Proposal
                       <ArrowTopRightIcon />
-                    </A>
+                    </LivepeerLink>
                   </RadioCard>
                 ))}
               </RadioCardGroup>

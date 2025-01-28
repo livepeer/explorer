@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Heading, Text } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";

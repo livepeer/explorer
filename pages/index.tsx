@@ -7,15 +7,15 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
-  Link as A,
+  Link as LivepeerLink, // Renamed to avoid confusion with next/link
   Box,
   Button,
   Container,
   Flex,
   Heading,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import Link from "next/link";
+import NextLink from "next/link"; // Import next/link as NextLink to differentiate
 
 import { useMemo, useState } from "react";
 import {
@@ -345,26 +345,24 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-                  <Link href="/leaderboard" passHref>
-                    <Button
-                      ghost
-                      as={A}
-                      css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
-                    >
-                      Performance Leaderboard
-                    </Button>
-                  </Link>
-                )}
-                <Link href="/orchestrators" passHref>
                   <Button
                     ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
+                    as={LivepeerLink}
+                    href="/leaderboard" // Moved href here
+                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
                   >
-                    View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    Performance Leaderboard
                   </Button>
-                </Link>
+                )}
+                <Button
+                  ghost
+                  as={LivepeerLink}
+                  href="/orchestrators" // Moved href here
+                  css={{ color: "$hiContrast", fontSize: "$2" }}
+                >
+                  View All
+                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                </Button>
               </Flex>
             </Flex>
 
@@ -408,16 +406,15 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Link href="/transactions" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
-                    View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                  </Button>
-                </Link>
+                <Button
+                  ghost
+                  as={LivepeerLink}
+                  href="/transactions" // Moved href here
+                  css={{ color: "$hiContrast", fontSize: "$2" }}
+                >
+                  View All
+                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                </Button>
               </Flex>
             </Flex>
 

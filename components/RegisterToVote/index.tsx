@@ -1,6 +1,6 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
 import {
   useAccountAddress,
   useHandleTransaction,
@@ -51,7 +51,7 @@ const CheckpointButton = ({
     <Button
       {...props}
       size="3"
-      variant="transparentBlack"
+      variant="gray"
       ghost
       disabled={disabled}
       onClick={write}
@@ -147,7 +147,7 @@ const RegisterToVote = () => {
                 targetAddress={voteState.delegate?.address}
                 isOrchestrator={true}
                 css={{ mt: "$2", mr: "$2" }}
-                variant="transparentBlack"
+                variant="gray"
                 ghost
                 disabled={hasRegisteredOrch}
                 onSuccess={() => setHasRegisteredOrch(true)}
@@ -163,7 +163,7 @@ const RegisterToVote = () => {
                 isOrchestrator={false}
                 size="3"
                 css={{ mt: "$2" }}
-                variant="transparentBlack"
+                variant="gray"
                 ghost
                 disabled={hasRegisteredSelf || uiState.orchestrator.pending} // orchestrator should be checkpointed first
                 onSuccess={() => setHasRegisteredSelf(true)}

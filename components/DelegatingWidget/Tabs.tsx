@@ -3,7 +3,7 @@ import {
   TabList as ReachTabList,
   Tab as ReachTab,
 } from "@reach/tabs";
-import { Box } from "@livepeer/design-system";
+import { Box } from "@jjasonn.stone/design-system";
 
 export const Tabs = (props) => <ReachTabs {...props} />;
 

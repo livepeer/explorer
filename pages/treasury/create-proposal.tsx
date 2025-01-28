@@ -17,7 +17,7 @@ import {
   Text,
   styled,
   Card,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import {
   useAccountAddress,
   useAccountBalanceData,

@@ -7,12 +7,12 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   styled,
   Text,
   TextField,
   useSnackbar,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
@@ -349,7 +349,7 @@ const MigrateOrchestrator = () => {
       //           passHref
       //         >
       //           <Button
-      //             as="A"
+      //             as="LivepeerLink"
       //             variant="primary"
       //             size="4"
       //             css={{
@@ -855,7 +855,7 @@ function ReceiptLink({ label, hash, chainId }) {
       }}
     >
       <Text variant="neutral">{label}:</Text>
-      <A
+      <LivepeerLink
         css={{ ml: "$2", display: "flex", ai: "center" }}
         variant="primary"
         target="_blank"
@@ -864,7 +864,7 @@ function ReceiptLink({ label, hash, chainId }) {
       >
         {hash.replace(hash.slice(6, 62), "…")}
         <Box as={ArrowTopRightIcon} />
-      </A>
+      </LivepeerLink>
     </Box>
   );
 }

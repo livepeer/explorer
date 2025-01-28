@@ -7,11 +7,11 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   styled,
   Text,
   TextField,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { ethers } from "ethers";
 import {
 
@@ -110,12 +110,12 @@ const ContractWalletTool = () => {
             If you used a contract wallet (i.e. multisig) to stake on L1 this is
             a tool will generate the required parameters needed to submit any
             necessary migration transactions using the{" "}
-            <A
+            <LivepeerLink
               target="_blank"
               href={`${CHAIN_INFO[L1_CHAIN_ID].explorer}address/${CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator}#code`}
             >
               L1Migrator contract.
-            </A>{" "}
+            </LivepeerLink>{" "}
           </Text>
         </Box>
         <Box css={{ mb: "$3" }}>

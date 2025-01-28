@@ -1,5 +1,5 @@
 import QRCode from "qrcode.react";
-import { Heading, Box, Flex } from "@livepeer/design-system";
+import { Heading, Box, Flex } from "@jjasonn.stone/design-system";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 
 const Header = ({

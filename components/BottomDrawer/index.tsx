@@ -1,4 +1,4 @@
-import { Box, keyframes } from "@livepeer/design-system";
+import { Box, keyframes } from "@jjasonn.stone/design-system";
 import { Dialog } from "@reach/dialog";
 import { useExplorerStore } from "hooks";
 import { useWindowSize } from "react-use";

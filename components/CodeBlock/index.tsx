@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, IconButton } from "@livepeer/design-system";
+import { Box, IconButton } from "@jjasonn.stone/design-system";
 import copy from "copy-to-clipboard";
 import { ClipboardIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Pre } from "@components/Pre";

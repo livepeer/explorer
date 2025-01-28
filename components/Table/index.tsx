@@ -14,7 +14,7 @@ import {
   Tr,
   Th,
   Td,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,

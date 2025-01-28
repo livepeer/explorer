@@ -10,10 +10,10 @@ import {
   DialogTitle,
   DialogClose,
   DialogContent,
-  Link as A,
+  Link as LivepeerLink,
   Badge,
   Heading,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";
@@ -403,7 +403,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         <Box css={{ mr: "10px" }}>🎉</Box>
         {txMessages[tx?.name ?? ""]?.confirmed}
       </Flex>
-      <A
+      <LivepeerLink
         variant="primary"
         css={{ display: "flex", alignItems: "center" }}
         target="_blank"
@@ -414,7 +414,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         <Box css={{ ml: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>
-      </A>
+      </LivepeerLink>
     </Flex>
   );
 }
