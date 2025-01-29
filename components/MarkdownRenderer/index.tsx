@@ -35,6 +35,13 @@ const StyledMarkdown = styled(OriginalReactMarkdown, {
     height: "auto",
     maxHeight: "400px"
   },
+  // Handle long URLs
+  a: {
+    wordBreak: "break-word",
+    overflowWrap: "break-word",
+    display: "inline-block",
+    maxWidth: "100%",
+  }
 });
 
 const MarkdownRenderer = (props) => (

@@ -54,8 +54,6 @@ const TreasuryProposalRow = ({
       href="/treasury/[proposal]"
       as={`/treasury/${proposal.id}`}
       legacyBehavior
-      // disable clicking if there's no state (i.e. details page would just hang)
-      {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
     >
       <LivepeerLink
         css={{
@@ -64,6 +62,7 @@ const TreasuryProposalRow = ({
           textDecoration: "none",
           "&:hover": { textDecoration: "none" },
         }}
+        {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
       >
         <Card
           variant="interactive"

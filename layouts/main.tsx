@@ -98,6 +98,7 @@ const NavButton = ({ href, children, isActive }: { href: string, children: React
         fontSize:"$3",
         bc: isActive ? "hsla(0,100%,100%,.05)" : "transparent",
         color: "white",
+        br:"$3",
         "&:hover": { bc: "hsla(0,100%,100%,.1)" },
         "&:active": { bc: "hsla(0,100%,100%,.15)" },
         "&:disabled": { opacity: 0.5 },
@@ -271,7 +272,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         value={{
           ...themeMap,
           dark: "dark-theme-green",
-          light: "light-theme-green",
+          light: "light-theme-green1",
         }}
       >
         <Head>
@@ -481,6 +482,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   fontSize:"$3",
                                   bc: "transparent",
                                   color: "white",
+                                  br:"$3",
                                   "&:hover": {
                                     bc: "hsla(0,100%,100%,.1)",
                                   },

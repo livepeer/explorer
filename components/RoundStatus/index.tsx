@@ -202,34 +202,42 @@ const Index = ({
             </Box>
             <Box css={{ lineHeight: 1.5 }}>
               <Text css={{ fontSize: "$2", display: "block" }}>
-                There are{" "}
-                <Text
-                  as="span"
-                  css={{
-                    fontWeight: "bold", fontSize:"$2",
-                  }}
-                >
-                  {blocksRemaining} blocks
-                </Text>{" "}
-                and approximately{" "}
-                <Text
-                  as="span"
-                  css={{
-                    fontWeight: "bold", fontSize:"$2"
-                  }}
-                >
-                  {dayjs().add(timeRemaining, "seconds").fromNow(true)}
-                </Text>{" "}
-                remaining until the current round ends and round{" "}
-                <Text
-                  as="span"
-                  css={{
-                    fontWeight: "bold", fontSize:"$2"
-                  }}
-                >
-                  #{+Number(currentRoundInfo.id) + 1}
-                </Text>{" "}
-                begins.
+                <Box css={{ display: "inline" }}>
+                  There are{" "}
+                  <Text
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                      fontSize: "$2",
+                      display: "inline"
+                    }}
+                  >
+                    {blocksRemaining} blocks
+                  </Text>{" "}
+                  and approximately{" "}
+                  <Text
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                      fontSize: "$2",
+                      display: "inline"
+                    }}
+                  >
+                    {dayjs().add(timeRemaining, "seconds").fromNow(true)}
+                  </Text>{" "}
+                  remaining until the current round ends and round{" "}
+                  <Text
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                      fontSize: "$2",
+                      display: "inline"
+                    }}
+                  >
+                    #{+Number(currentRoundInfo.id) + 1}
+                  </Text>{" "}
+                  begins.
+                </Box>
               </Text>
             </Box>
             <ExplorerTooltip
