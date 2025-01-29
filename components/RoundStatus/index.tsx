@@ -201,48 +201,48 @@ const Index = ({
               </Box>
             </Box>
             <Box css={{ lineHeight: 1.5 }}>
-              <Text css={{ fontSize: "$2" }}>
+              <Text css={{ fontSize: "$2", display: "block" }}>
                 There are{" "}
-                <Box
+                <Text
                   as="span"
                   css={{
-                    fontWeight: "bold",
+                    fontWeight: "bold", fontSize:"$2",
                   }}
                 >
                   {blocksRemaining} blocks
-                </Box>{" "}
+                </Text>{" "}
                 and approximately{" "}
-                <Box
+                <Text
                   as="span"
                   css={{
-                    fontWeight: "bold",
+                    fontWeight: "bold", fontSize:"$2"
                   }}
                 >
                   {dayjs().add(timeRemaining, "seconds").fromNow(true)}
-                </Box>{" "}
+                </Text>{" "}
                 remaining until the current round ends and round{" "}
-                <Box
+                <Text
                   as="span"
                   css={{
-                    fontWeight: "bold",
+                    fontWeight: "bold", fontSize:"$2"
                   }}
                 >
                   #{+Number(currentRoundInfo.id) + 1}
-                </Box>{" "}
+                </Text>{" "}
                 begins.
               </Text>
             </Box>
             <ExplorerTooltip
               multiline
               content={
-                <Box>
+                <Text css={{ display: "block" }}>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
                   {numeral(protocol?.currentRound?.volumeUSD || 0).format(
                     "$0,0k"
                   )}{" "}
                   at recent prices of ETH.
-                </Box>
+                </Text>
               }
             >
               <Flex
@@ -289,10 +289,10 @@ const Index = ({
             <ExplorerTooltip
               multiline
               content={
-                <Box>
+                <Text css={{ display: "block" }}>
                   The amount of rewards which have been claimed by orchestrators
                   in the current round.
-                </Box>
+                </Text>
               }
             >
               <Flex

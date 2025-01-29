@@ -68,30 +68,41 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 key={i}
                 href={item.href}
                 as={item.as}
-                className={asPath.split("?")[0] === item.as ? "active-link" : "link"}
+                legacyBehavior
               >
-                <Flex
+                <LivepeerLink
+                  variant="subtle"
                   css={{
-                    alignItems: "center",
+                    color: asPath.split("?")[0] === item.as ? "$hiContrast" : "$neutral11",
                     display: "flex",
-                    width: "100%",
-                    mb: "$3",
+                    fontSize: "$3",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    alignItems: "center",
+                    py: "$2",
+                    transition: "color .3s",
+                    "&:hover": {
+                      textDecoration: "none",
+                      color: "$hiContrast",
+                      transition: "color .3s",
+                    },
                   }}
                 >
                   <Flex
                     css={{
-                      alignItems: "center",
-                      justifyContent: "center",
                       width: 18,
                       height: 18,
                       mr: "$2",
-                      mt: "$2",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <item.icon />
                   </Flex>
-                  <Text css={{ display: "inline" }}>{item.name}</Text>
-                </Flex>
+                  <Box>
+                    {item.name}
+                  </Box>
+                </LivepeerLink>
               </Link>
             ))}
             <Account />

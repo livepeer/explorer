@@ -12,7 +12,12 @@ const Account = () => {
   const { asPath } = router;
   const ref = useRef<HTMLDivElement | null>(null);
 
-  return accountAddress ? (
+  // Return empty Box instead of null to ensure consistent rendering
+  if (!accountAddress) {
+    return <Box ref={ref} css={{ position: "relative" }} />;
+  }
+
+  return (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
         <LivepeerLink // Removed next/link, using LivepeerLink directly
@@ -55,8 +60,6 @@ const Account = () => {
         </LivepeerLink>
       </Flex>
     </Box>
-  ) : (
-    <></>
   );
 };
 

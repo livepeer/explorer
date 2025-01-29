@@ -115,7 +115,7 @@ const Voting = () => {
               <Link
                 href="/voting/create-poll"
                 as="/voting/create-poll"
-                passHref
+                legacyBehavior
               >
                 <Button size="3" variant="primary">
                   Create Poll
@@ -145,7 +145,7 @@ const Voting = () => {
                     key={poll.id}
                     href="/voting/[poll]"
                     as={`/voting/${poll.id}`}
-                    passHref
+                    legacyBehavior
                   >
                     <LivepeerLink
                       css={{

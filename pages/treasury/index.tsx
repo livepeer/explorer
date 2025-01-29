@@ -74,7 +74,7 @@ const Voting = () => {
               <Link
                 href="/treasury/create-proposal"
                 as="/treasury/create-proposal"
-                passHref
+                legacyBehavior
               >
                 <Button size="3" variant="primary">
                   Create Proposal

@@ -313,6 +313,9 @@ const Poll = () => {
                   p: "$4",
                   border: "1px solid $neutral4",
                   mb: "$3",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                  width: "100%",
                   h2: {
                     fontWeight: 600,
                     "&:first-of-type": { mt: 0 },
@@ -324,9 +327,12 @@ const Poll = () => {
                   lineHeight: 1.5,
                   a: {
                     color: "$primary11",
+                    wordBreak: "break-all",
                   },
                   pre: {
                     whiteSpace: "pre-wrap",
+                    maxWidth: "100%",
+                    overflow: "auto",
                   },
                 }}
               >

@@ -109,8 +109,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
-          <Link href="/orchestrators" passHref>
-            <Button size="3" variant="primary">
+          <Link href="/orchestrators" passHref legacyBehavior>
+            <Button size="3" variant="primary" >
               <LivepeerLink variant="primary">View Orchestrators</LivepeerLink>
             </Button>
           </Link>
@@ -149,6 +149,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
+            legacyBehavior
           >
             <LivepeerLink
               className="masonry-grid_item"
@@ -171,7 +172,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                         )}
                   </Box>
                 }
-              />{" "}
+              />
             </LivepeerLink>
           </Link>
         )}
@@ -447,5 +448,3 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 };
 
 export default Index;
-
-

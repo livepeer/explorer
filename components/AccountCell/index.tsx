@@ -35,7 +35,6 @@ const Index = ({ active, address }) => {
           <Box
             as="img"
             css={{
-              objectFit: "cover",
               borderRadius: 1000,
               width: 30,
               height: 30,

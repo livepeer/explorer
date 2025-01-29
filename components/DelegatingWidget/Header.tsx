@@ -27,7 +27,6 @@ const Header = ({
           <Box
             as="img"
             css={{
-              objectFit: "cover",
               borderRadius: 1000,
               width: 40,
               height: 40,

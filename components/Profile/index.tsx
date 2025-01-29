@@ -55,7 +55,6 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             <Box
               as="img"
               css={{
-                objectFit: "cover",
                 border: "1px solid",
                 borderColor: "$hiContrast",
                 borderRadius: 1000,

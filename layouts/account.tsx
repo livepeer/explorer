@@ -250,7 +250,13 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link scroll={false} key={i} href={tab.href} passHref>
+              <Link
+                scroll={false}
+                key={i}
+                href={tab.href}
+                passHref
+                legacyBehavior
+              >
                 <LivepeerLink
                   variant="subtle"
                   css={{

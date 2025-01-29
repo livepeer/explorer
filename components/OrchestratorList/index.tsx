@@ -810,6 +810,8 @@ const OrchestratorList = ({
       },
       {
         Header: (
+          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
+            <Box>Delegated Stake</Box>
           <ExplorerTooltip
             multiline
             content={
@@ -819,8 +821,11 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Delegated Stake</Box>
+            <Box css={{ display: "flex", alignItems: "center" }}>
+                <HelpCircle size={14} />
+              </Box>
           </ExplorerTooltip>
+          </Box>
         ),
         accessor: "totalStake",
         Cell: ({ row }) => (
@@ -840,6 +845,8 @@ const OrchestratorList = ({
       },
       {
         Header: (
+          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
+          <Box>Trailing 90D Fees</Box>
           <ExplorerTooltip
             multiline
             content={
@@ -849,8 +856,11 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Trailing 90D Fees</Box>
+            <Box css={{ display: "flex", alignItems: "center" }}>
+            <HelpCircle size={14} />
+              </Box> 
           </ExplorerTooltip>
+          </Box>
         ),
         accessor: "ninetyDayVolumeETH",
         Cell: ({ row }) => (

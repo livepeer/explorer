@@ -41,7 +41,6 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import Image from "next/image";
-import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -61,8 +60,6 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import RegisterToVote from "@components/RegisterToVote";
-import { transform } from "next/dist/build/swc/generated-native";
-import transitions from "@material-ui/core/styles/transitions";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -93,11 +90,12 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 // Reusable NavButton component for clarity
 const NavButton = ({ href, children, isActive }: { href: string, children: React.ReactNode, isActive: boolean }) => (
-  <Link passHref href={href}>
+  <LivepeerLink href={href}>
     <Button
       size="3"
       css={{
-        ml: "$2",
+        ml: "$3",
+        fontSize:"$3",
         bc: isActive ? "hsla(0,100%,100%,.05)" : "transparent",
         color: "white",
         "&:hover": { bc: "hsla(0,100%,100%,.1)" },
@@ -107,7 +105,7 @@ const NavButton = ({ href, children, isActive }: { href: string, children: React
     >
       {children}
     </Button>
-  </Link>
+  </LivepeerLink>
 );
 
 
@@ -206,6 +204,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               variant="green"
               css={{
                 ml: "6px",
+                mr: "2px"
               }}
             >
               {totalActivePolls}
@@ -478,7 +477,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  ml: "$2",
+                                  ml: "$3",
+                                  fontSize:"$3",
                                   bc: "transparent",
                                   color: "white",
                                   "&:hover": {
@@ -649,7 +649,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           }}
         >
           <Image
-            objectFit="contain"
             width={18}
             height={18}
             alt={
