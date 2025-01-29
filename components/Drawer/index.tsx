@@ -73,15 +73,25 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 <Flex
                   css={{
                     alignItems: "center",
-                    justifyContent: "center",
-                    width: 18,
-                    height: 18,
-                    mr: "$2",
+                    display: "flex",
+                    width: "100%",
+                    mb: "$3",
                   }}
                 >
-                  <item.icon />
+                  <Flex
+                    css={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 18,
+                      height: 18,
+                      mr: "$2",
+                      mt: "$2",
+                    }}
+                  >
+                    <item.icon />
+                  </Flex>
+                  <Text css={{ display: "inline" }}>{item.name}</Text>
                 </Flex>
-                {item.name}
               </Link>
             ))}
             <Account />
@@ -132,9 +142,9 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                       fontSize: "$2",
                       mb: "$2",
                       display: "block",
-                      color: "$neutral11",
+                      color: "hiContrast",
                       "&:hover": {
-                        color: "$hiContrast"
+                        opacity:0.8
                       }
                     }}
                   >

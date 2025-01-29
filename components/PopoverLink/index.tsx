@@ -1,6 +1,5 @@
 import { Box, Link as LivepeerLink } from "@jjasonn.stone/design-system";
 import { ChevronRightIcon } from "@modulz/radix-icons";
-import Link from "next/link";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {
   const linkStyles = {
@@ -31,20 +30,19 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
   };
 
   return (
-    <Link
+    <LivepeerLink
       href={href}
-      style={linkStyles}
+      css={linkStyles}
       {...(newWindow
         ? {
             target: "_blank",
             rel: "noopener noreferrer",
           }
         : {})}
-      legacyBehavior={false}
     >
       {children}
       <Box as={ChevronRightIcon} css={{ ml: "$2", width: 16, height: 16 }} />
-    </Link>
+    </LivepeerLink>
   );
 };
 

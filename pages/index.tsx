@@ -347,18 +347,18 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
                   <Button
                     ghost
-                    as={LivepeerLink}
+                    as={NextLink}
                     href="/leaderboard" // Moved href here
-                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2", cursor: "pointer" }}
                   >
                     Performance Leaderboard
                   </Button>
                 )}
                 <Button
                   ghost
-                  as={LivepeerLink}
+                  as={NextLink}
                   href="/orchestrators" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2" }}
+                  css={{ color: "$hiContrast", fontSize: "$2", cursor: "pointer" }}
                 >
                   View All
                   <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
@@ -408,9 +408,9 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 <Button
                   ghost
-                  as={LivepeerLink}
+                  as={NextLink}
                   href="/transactions" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2" }}
+                  css={{ color: "$hiContrast", fontSize: "$2", cursor:"pointer" }}
                 >
                   View All
                   <Box as={ArrowRightIcon} css={{ ml: "$1" }} />

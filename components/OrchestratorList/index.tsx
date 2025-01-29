@@ -24,10 +24,8 @@ import {
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
-import dayjs from "dayjs";
-import Link from "next/link";
 import numeral from "numeral";
-import QRCode, { QRCodeCanvas } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
@@ -46,11 +44,11 @@ import {
   // ExclamationTriangleIcon,
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
 import { useContractRead } from "wagmi";
-import { Tooltip } from "@material-ui/core";
 import { HelpCircle } from "react-feather";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
@@ -116,7 +114,7 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -220,6 +218,7 @@ const OrchestratorList = ({
           <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
             <Box>Orchestrator</Box>
             <ExplorerTooltip
+            multiline
               content={
                 <Box>
                   The account which is actively coordinating transcoders and
@@ -241,15 +240,14 @@ const OrchestratorList = ({
             <Box css={{
               width: 350,
               display: "block",
-              textDecoration: "none",
-              "&:hover": { textDecoration: "none" }
             }}>
-              <Link 
+              <LivepeerLink // Using LivepeerLink directly - Option 1
                 href={`/accounts/${row.values.id}/orchestrating`}
-                style={{
-                  textDecoration: "none"
+                css={{
+                  textDecoration: "none",
+                  display: "block", // Make LivepeerLink block to fill the Box
+                  "&:hover": { textDecoration: "none" }
                 }}
-                legacyBehavior={false}
               >
                 <Flex css={{ alignItems: "center" }}>
                   <Box
@@ -336,7 +334,7 @@ const OrchestratorList = ({
                     )} */}
                   </Flex>
                 </Flex>
-              </Link>
+              </LivepeerLink>
             </Box>
           );
         },
@@ -346,6 +344,7 @@ const OrchestratorList = ({
           <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
             <Box>Forecasted Yield</Box>
             <ExplorerTooltip
+            multiline
               content={
                 <Box>
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
@@ -506,32 +505,29 @@ const OrchestratorList = ({
                           </Text>
                         </Flex>
                       )}
-                      <Link
-                        passHref
+                      <LivepeerLink // Using LivepeerLink directly - Fix for nested link
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <LivepeerLink>
-                          <Flex
-                            css={{
-                              mt: "$2",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
+                        <Flex
+                          css={{
+                            mt: "$2",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text
+                            css={{ whiteSpace: "nowrap" }}
+                            variant="neutral"
+                            size="1"
                           >
-                            <Text
-                              css={{ whiteSpace: "nowrap" }}
-                              variant="neutral"
-                              size="1"
-                            >
-                              Learn how this calculation is performed
-                            </Text>
-                            <Box
-                              css={{ ml: "$1", width: 15, height: 15 }}
-                              as={ArrowTopRightIcon}
-                            />
-                          </Flex>
-                        </LivepeerLink>
-                      </Link>
+                            Learn how this calculation is performed
+                          </Text>
+                          <Box
+                            css={{ ml: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Flex>
+                      </LivepeerLink>
                     </Box>
 
                     <Box

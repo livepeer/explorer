@@ -61,6 +61,8 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import RegisterToVote from "@components/RegisterToVote";
+import { transform } from "next/dist/build/swc/generated-native";
+import transitions from "@material-ui/core/styles/transitions";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -88,6 +90,26 @@ export const LAYOUT_MAX_WIDTH = 1400;
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
+
+// Reusable NavButton component for clarity
+const NavButton = ({ href, children, isActive }: { href: string, children: React.ReactNode, isActive: boolean }) => (
+  <Link passHref href={href}>
+    <Button
+      size="3"
+      css={{
+        ml: "$2",
+        bc: isActive ? "hsla(0,100%,100%,.05)" : "transparent",
+        color: "white",
+        "&:hover": { bc: "hsla(0,100%,100%,.1)" },
+        "&:active": { bc: "hsla(0,100%,100%,.15)" },
+        "&:disabled": { opacity: 0.5 },
+      }}
+    >
+      {children}
+    </Button>
+  </Link>
+);
+
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
@@ -400,159 +422,51 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         <Logo isDark id="main" />
 
                         <Box css={{}}>
-                          <Link passHref href="/">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$4",
-                                bc:
-                                  asPath === "/"
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Overview
-                            </Button>
-                          </Link>
-                          <Link passHref href="/orchestrators">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc:
-                                  !asPath.includes(accountAddress ?? "") &&
-                                  (asPath.includes("/accounts") ||
-                                    asPath.includes("/orchestrators"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Orchestrators
-                            </Button>
-                          </Link>
-                          <Link passHref href="/voting">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc: asPath.includes("/voting")
-                                  ? "hsla(0,100%,100%,.05)"
-                                  : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Governance{" "}
-                              {(totalActivePolls ?? 0) > 0 && (
-                                <Badge
-                                  size="2"
-                                  variant="green"
-                                  css={{
-                                    ml: "6px",
-                                  }}
-                                >
-                                  {totalActivePolls}
-                                </Badge>
-                              )}
-                            </Button>
-                          </Link>
-                          <Link passHref href="/treasury">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc: asPath.includes("/treasury")
-                                  ? "hsla(0,100%,100%,.05)"
-                                  : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Treasury{" "}
-                              {(totalActiveTreasuryProposals ?? 0) > 0 && (
-                                <Badge
-                                  size="2"
-                                  variant="green"
-                                  css={{
-                                    ml: "6px",
-                                  }}
-                                >
-                                  {totalActiveTreasuryProposals}
-                                </Badge>
-                              )}
-                            </Button>
-                          </Link>
-                          {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
-                              <Button
-                                size="3"
+                          <NavButton href="/" isActive={asPath === "/"}>Overview</NavButton>
+                          <NavButton href="/orchestrators" isActive={!asPath.includes(accountAddress ?? "") && (asPath.includes("/accounts") || asPath.includes("/orchestrators"))}>Orchestrators</NavButton>
+                          <NavButton href="/voting" isActive={asPath.includes("/voting")}>
+                            Governance{" "}
+                            {(totalActivePolls ?? 0) > 0 && (
+                              <Badge
+                                size="2"
+                                variant="green"
                                 css={{
-                                  ml: "$2",
-                                  bc: asPath.includes(accountAddress)
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                  color: "white",
-                                  "&:hover": {
-                                    bc: "hsla(0,100%,100%,.1)",
-                                  },
-                                  "&:active": {
-                                    bc: "hsla(0,100%,100%,.15)",
-                                  },
-                                  "&:disabled": {
-                                    opacity: 0.5,
-                                  },
+                                  ml: "6px",
                                 }}
                               >
-                                My Account{" "}
-                                {hasPendingFees && (
-                                  <Badge
-                                    size="2"
-                                    variant="green"
-                                    css={{
-                                      ml: "6px",
-                                    }}
-                                  >
-                                    1
-                                  </Badge>
-                                )}
-                              </Button>
-                            </Link>
+                                {totalActivePolls}
+                              </Badge>
+                            )}
+                          </NavButton>
+                          <NavButton href="/treasury" isActive={asPath.includes("/treasury")}>
+                            Treasury{" "}
+                            {(totalActiveTreasuryProposals ?? 0) > 0 && (
+                              <Badge
+                                size="2"
+                                variant="green"
+                                css={{
+                                  ml: "6px",
+                                }}
+                              >
+                                {totalActiveTreasuryProposals}
+                              </Badge>
+                            )}
+                          </NavButton>
+                          {accountAddress && (
+                            <NavButton href={`/accounts/${accountAddress}`} isActive={asPath.includes(accountAddress)}>
+                              My Account{" "}
+                              {hasPendingFees && (
+                                <Badge
+                                  size="2"
+                                  variant="green"
+                                  css={{
+                                    ml: "6px",
+                                  }}
+                                >
+                                  1
+                                </Badge>
+                              )}
+                            </NavButton>
                           )}
                           <Popover>
                             <PopoverTrigger
@@ -586,29 +500,36 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              css={{ borderRadius: "$4", bc: "$neutral4" }}
+                              css={{ borderRadius: "$4", bc: "$neutral4", minWidth:200 }}
                             >
                               <Flex
                                 css={{
                                   flexDirection: "column",
                                   py: "$3",
                                   px: "$2",
-                                  borderBottom: "1px solid $neutral6",
                                 }}
                               >
                                 {IS_L2 && (
                                   <PopoverLink
                                     newWindow={true}
                                     href={`/migrate`}
-                                  >
+                                    >
+                                    <Flex align="center" justify="between">
                                     Arbitrum Migration Tool
+                                    <Box
+                                      css={{
+                                        ml: "$1",
+                                        transition: "transform 0.2s ease"
+                                      }} >
+                                      </Box>
+                                      </Flex>
                                   </PopoverLink>
                                 )}
                                 <PopoverLink
                                   newWindow={true}
                                   href={`/whats-new`}
                                 >
-                                  What&apos;s New
+                                  What's New
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
@@ -618,7 +539,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://livepeer.org/docs`}
+                                  href={`https://docs.livepeer.org/`}
                                 >
                                   Docs
                                 </PopoverLink>
@@ -845,12 +766,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   )}
                 </Flex>
               ))}
-
-            <Link
-              passHref
-              href="https://docs.livepeer.org/references/contract-addresses"
-            >
-              <LivepeerLink>
+              <LivepeerLink href="https://docs.livepeer.org/references/contract-addresses">
                 <Flex
                   css={{
                     mt: "$2",
@@ -860,7 +776,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 >
                   <Text
                     css={{ whiteSpace: "nowrap" }}
-                    color="$white"
                     size="1"
                   >
                     Learn more about these contracts
@@ -875,7 +790,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   />
                 </Flex>
               </LivepeerLink>
-            </Link>
           </Box>
         </Box>
       </PopoverContent>
