@@ -151,7 +151,7 @@ const PerformanceList = ({
                   </Box>
                 )}
                 {typeof row.values.scores != "undefined" && row.values.scores != null ?
-                  <Badge size="2" variant="green"
+                  <Badge size="2" variant="primary"
                     css={{
                       mr: "$2",
                       fontSize: "$1",

@@ -272,7 +272,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         value={{
           ...themeMap,
           dark: "dark-theme-green",
-          light: "light-theme-green1",
+          light: "light-theme-green",
         }}
       >
         <Head>
