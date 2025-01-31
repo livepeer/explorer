@@ -9,6 +9,11 @@ import {
   Container,
   Flex,
   Heading,
+  TabsTrigger,
+  Tabs,
+  TabsList,
+  TabsContent,
+  Text,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
@@ -18,6 +23,8 @@ import {
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
+import OrchestratorVotingList from "@components/OrchestratorVotingList";
+import { OrchestratorTabs } from "@lib/orchestrartor";
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
@@ -60,13 +67,46 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
               </Link>
             )}
           </Flex>
-          <Box css={{ mb: "$5" }}>
-            <OrchestratorList
-              data={orchestrators?.transcoders}
-              pageSize={20}
-              protocolData={protocol?.protocol}
-            />
-          </Box>
+          <Tabs
+            defaultValue={OrchestratorTabs["Yield Overview"]}
+            css={{ mb: "$5" }}
+          >
+            <TabsList>
+              <TabsTrigger
+                css={{
+                  height: 40,
+                }}
+                value={OrchestratorTabs["Yield Overview"]}
+              >
+                <Text size="3">Yield Overview</Text>
+              </TabsTrigger>
+              <TabsTrigger
+                css={{
+                  height: 40,
+                }}
+                value={OrchestratorTabs["Voting History"]}
+              >
+                <Text size="3">Voting History</Text>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value={OrchestratorTabs["Yield Overview"]}>
+              <Box>
+                <OrchestratorList
+                  data={orchestrators?.transcoders}
+                  pageSize={20}
+                  protocolData={protocol?.protocol}
+                />
+              </Box>
+            </TabsContent>
+            <TabsContent value={OrchestratorTabs["Voting History"]}>
+              <Box>
+                <OrchestratorVotingList
+                  data={orchestrators?.transcoders}
+                  pageSize={20}
+                />
+              </Box>
+            </TabsContent>
+          </Tabs>
         </Flex>
       </Container>
     </>
