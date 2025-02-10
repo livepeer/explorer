@@ -287,14 +287,16 @@ const ExplorerChart = ({
           <Button
             onClick={() => onToggleGrouping?.("day")}
             size="1"
-            variant={grouping === "day" ? "primary" : "neutral"}
+            ghost
+            variant={grouping === "day" ? "primary" : "gray"}
           >
             D
           </Button>
           <Button
             onClick={() => onToggleGrouping?.("week")}
             size="1"
-            variant={grouping === "week" ? "primary" : "neutral"}
+            ghost
+            variant={grouping === "week" ? "primary" : "gray"}
             css={{ ml: "$1" }}
           >
             W

@@ -8,10 +8,10 @@ import {
   Container,
   Flex,
   Heading,
+  Link as LivepeerLink,
 } from "@jjasonn.stone/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
-import Link from "next/link";
 import {
   getApollo,
   OrchestratorsQueryResult,
@@ -47,16 +47,15 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
             </Heading>
             {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
               process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <Link href="/leaderboard" passHref>
+              <LivepeerLink href="/leaderboard">
                 <Button
                   ghost
-                  // Removed as={LivepeerLink} - This was likely causing nested <a> tag
                   css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
                 >
                   Performance Leaderboard
                   <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                 </Button>
-              </Link>
+              </LivepeerLink>
             )}
           </Flex>
           <Box css={{ mb: "$5" }}>
