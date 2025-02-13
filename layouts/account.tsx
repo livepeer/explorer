@@ -9,6 +9,7 @@ import { useContractRead } from "wagmi";
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
 import HistoryView from "@components/HistoryView";
+import VotingHistoryView from "@components/VotingHistoryView";
 import OrchestratingView from "@components/OrchestratingView";
 import { checkAddressEquality } from "@lib/utils";
 import {
@@ -30,6 +31,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
+import VotingHistory from "pages/accounts/[account]/voting_history";
 
 export interface TabType {
   name: string;
@@ -37,9 +39,9 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history";
+type TabTypeEnum = "delegating" | "orchestrating" | "history" |"voting_history";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history", "voting_history"];
 
 const AccountLayout = ({
   account,
@@ -287,6 +289,7 @@ const AccountLayout = ({
             />
           )}
           {view === "history" && <HistoryView />}
+          {view === "voting_history" && <VotingHistoryView />}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
@@ -359,6 +362,11 @@ function getTabs(
       name: "History",
       href: `/accounts/${account}/history`,
       isActive: view === "history",
+    },
+    {
+      name: "Voting History",
+      href: `/accounts/${account}/voting_history`,
+      isActive: view === "voting_history",
     },
   ];
   if (isOrchestrator || isMyDelegate) {
