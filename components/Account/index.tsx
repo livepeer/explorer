@@ -1,45 +1,63 @@
 import AccountIcon from "../../public/img/account.svg";
-import { useRef } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
-import { Box, Flex, Link as LivepeerLink } from "@jjasonn.stone/design-system";
-
+import { Box, Flex, Link as A } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useEnsData } from "hooks";
 
-const Account = () => {
+type AccountProps = {
+  className?: string;
+};
+
+const PlaceholderBox = () => (
+  <Box css={{ position: "relative" }} />
+);
+
+const Account = ({ className }: AccountProps) => {
   const router = useRouter();
   const accountAddress = useAccountAddress();
   const ens = useEnsData(accountAddress);
   const { asPath } = router;
   const ref = useRef<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  // Return empty Box instead of null to ensure consistent rendering
-  if (!accountAddress) {
-    return <Box ref={ref} css={{ position: "relative" }} />;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const linkStyles = useMemo(() => ({
+    color: asPath.split("?")[0] === `/accounts/${accountAddress}/delegating`
+      ? "$hiContrast"
+      : "$neutral11",
+    display: "flex",
+    fontSize: "$3",
+    fontWeight: 500,
+    cursor: "pointer",
+    alignItems: "center",
+    py: "$2",
+    transition: "color .3s",
+    "&:hover": {
+      textDecoration: "none",
+      color: "$hiContrast",
+      transition: "color .3s",
+    },
+  }), [asPath, accountAddress]);
+
+  const displayAddress = useMemo(() => 
+    ens?.name || accountAddress?.replace(accountAddress.slice(6, 38), "…") || "",
+    [ens?.name, accountAddress]
+  );
+
+  if (!mounted || !accountAddress) {
+    return <PlaceholderBox />;
   }
 
   return (
-    <Box ref={ref} css={{ position: "relative" }}>
+    <Box ref={ref} css={{ position: "relative" }} className={className}>
       <Flex css={{ alignItems: "center" }}>
-        <LivepeerLink // Removed next/link, using LivepeerLink directly
-          href={`/accounts/${accountAddress}/delegating`} // Moved href prop here
+        <A
+          href={`/accounts/${accountAddress}/delegating`}
           variant="subtle"
-          css={{
-            color: asPath.split("?")[0] === `/accounts/${accountAddress}/delegating`
-              ? "$hiContrast"
-              : "$neutral11",
-            display: "flex",
-            fontSize: "$3",
-            fontWeight: 500,
-            cursor: "pointer",
-            alignItems: "center",
-            py: "$2",
-            transition: "color .3s",
-            "&:hover": {
-              textDecoration: "none",
-              color: "$hiContrast",
-              transition: "color .3s",
-            },
-          }}
+          css={linkStyles}
         >
           <Flex
             css={{
@@ -52,12 +70,8 @@ const Account = () => {
           >
             <AccountIcon />
           </Flex>
-          <Box>
-            {ens?.name
-              ? ens.name
-              : accountAddress.replace(accountAddress.slice(6, 38), "…")}
-          </Box>
-        </LivepeerLink>
+          <Box>{displayAddress}</Box>
+        </A>
       </Flex>
     </Box>
   );

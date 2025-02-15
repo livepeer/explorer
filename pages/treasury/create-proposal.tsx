@@ -57,8 +57,8 @@ const StyledTab = styled(Tab, {
   "&[data-selected]": {
     zIndex: 1,
     backgroundColor: "$panel",
-    color: "$primary11",
-    border: "2px solid $primary11",
+    color: "$green11",
+    border: "2px solid $green11",
   },
 });
 
@@ -204,12 +204,21 @@ const CreateProposal = () => {
             name="title"
             placeholder="Title"
             size="3"
+            variant="white"
             value={formTitle}
             onChange={(e) => {
               setFormTitle(e.target.value);
             }}
             css={{
               marginBottom: "$5",
+              bc: "$gray1",
+              "&:focus": {
+                boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                bc: "$gray1",
+              },
+              "&:hover": {
+                boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+              } 
             }}
           />
 
@@ -257,7 +266,7 @@ const CreateProposal = () => {
                     h5: { fontWeight: 600, mt: "$3" },
                     lineHeight: 1.5,
                     a: {
-                      color: "$primary11",
+                      color: "$green11",
                     },
                     pre: {
                       whiteSpace: "pre-wrap",
@@ -282,10 +291,19 @@ const CreateProposal = () => {
               LPT receiver:
             </Text>
             <TextField
-              css={{ ml: "$2", mr: "$3", width: 420 }}
+              css={{ ml: "$2", mr: "$3", width: 420, bc: "$gray1",
+                "&:focus": {
+                  boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                  bc: "$gray1",
+                },
+                "&:hover": {
+                  boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                } 
+              }}
               name="lpt-receiver"
               placeholder="Ethereum Address (0x...)"
               size="3"
+              variant="white"
               value={lptReceiver}
               onChange={(e) => {
                 setLptReceiver(e.target.value);
@@ -295,11 +313,20 @@ const CreateProposal = () => {
               Amount:
             </Text>
             <TextField
-              css={{ ml: "$2", mr: "$1", width: 200, minWidth: 100 }}
+              css={{ ml: "$2", mr: "$1", width: 200, minWidth: 100, bc: "$gray1",
+                "&:focus": {
+                  boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                  bc: "$gray1",
+                },
+                "&:hover": {
+                  boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                } 
+              }}
               name="lpt-amount"
               placeholder="Amount in LPT"
               type="number"
               size="3"
+              variant="white"
               min="1"
               max={treasuryBalance ?? 1}
               value={lptAmount}
@@ -349,10 +376,9 @@ const CreateProposal = () => {
 
                 <Button
                   size="3"
-                  variant="primary"
                   disabled={!sufficientStake || status !== "idle" || !txEnabled}
                   type="submit"
-                  css={{ ml: "$3", alignSelf: "flex-end" }}
+                  css={{ bc:"$green4", br:"$3",ml: "$3", fontSize:"$3", color:"$green11", alignSelf: "flex-end", "&:hover":{ bc:"$green5", color:"$green11" } }}
                 >
                   Create Proposal{" "}
                   {status === "loading" && <Spinner css={{ ml: "$2" }} />}

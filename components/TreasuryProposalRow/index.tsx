@@ -1,4 +1,4 @@
-import { Badge, Box, Card, Flex, Heading, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Badge, Box, Card, Flex, Heading, Link as A } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -24,14 +24,12 @@ export const BadgeVariantByState = {
 } as const;
 
 type Props = {
-  key: string;
   proposal: ParsedProposal;
   currentRound: CurrentRoundInfo;
   protocol: ProtocolQuery["protocol"];
 };
 
 const TreasuryProposalRow = ({
-  key,
   proposal: parsedProposal,
   currentRound,
   protocol,
@@ -55,7 +53,7 @@ const TreasuryProposalRow = ({
       as={`/treasury/${proposal.id}`}
       legacyBehavior
     >
-      <LivepeerLink
+      <A
         css={{
           cursor: "pointer",
           display: "block",
@@ -120,7 +118,7 @@ const TreasuryProposalRow = ({
             </Badge>
           </Flex>
         </Card>
-      </LivepeerLink>
+      </A>
     </Link>
   );
 };

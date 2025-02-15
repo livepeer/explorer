@@ -146,7 +146,7 @@ const Delegate = ({
 
   if (!amountIsNonEmpty && !isTransferStake) {
     return (
-      <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
+      <Button size="4" disabled variant="neutral" css={{ bc: "$gray4", color: "$gray11", width: "100%" , fontSize: "$4" }}>
         Enter an Amount
       </Button>
     );
@@ -154,7 +154,7 @@ const Delegate = ({
 
   if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
     return (
-      <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
+      <Button size="4" disabled variant="neutral" css={{ bc: "$gray4", color: "$gray11", width: "100%" , fontSize: "$4" }}>
         Insufficient Balance
       </Button>
     );
@@ -168,7 +168,7 @@ const Delegate = ({
         >
           <Button
             size="4"
-            variant="primary"
+            variant="green"
             disabled={sufficientTransferAllowance}
             onClick={onApprove}
             css={{ width: "100%" }}

@@ -301,7 +301,7 @@ const Index = ({ data }: { data: Props }) => {
               <Button
                 size="4"
                 disabled={true}
-                variant="primary"
+                variant="green"
                 css={{ width: "100%" }}
               >
                 Vote

@@ -1,5 +1,5 @@
 import Table from "@components/Table";
-import { Badge, Box, Flex, Text, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Badge, Box, Flex, Text, Link as A } from "@jjasonn.stone/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
@@ -47,7 +47,7 @@ const EthAddress = (props: { value: string | undefined }) => {
 
   return (
     <Link passHref href={`/accounts/${props.value}/delegating`}>
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+      <Badge css={{ cursor: "pointer" }} variant="green" size="1">
         {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
       </Badge>
     </Link>
@@ -56,7 +56,7 @@ const EthAddress = (props: { value: string | undefined }) => {
 
 const Transaction = (props: { id: string | undefined }) => {
   return (
-    <LivepeerLink
+    <A
       target="_blank"
       rel="noopener noreferrer"
       variant="primary"
@@ -64,11 +64,11 @@ const Transaction = (props: { id: string | undefined }) => {
         props.id ? `https://arbiscan.io/tx/${props.id}` : "https://arbiscan.io"
       }
     >
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+      <Badge css={{ cursor: "pointer" }} variant="green" size="1">
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
         <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
       </Badge>
-    </LivepeerLink>
+    </A>
   );
 };
 

@@ -7,7 +7,7 @@ import {
   Flex,
   Button,
   Text,
-  Link as LivepeerLink,
+  Link as A,
   DialogTrigger,
   DialogClose,
 } from "@jjasonn.stone/design-system";
@@ -18,11 +18,27 @@ const Index = () => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button css={{ mt: "3px", ml: "$3" }} variant="primary" size="1">
+          <Button 
+            css={{ 
+              color: "$green11",
+              mt: "2px", 
+              ml: "$3",
+              fontSize: "$1",
+              br: "$2",
+              bc: "$green4",
+              "&:hover": {
+                bc: "$green6",
+                opacity: 0.7
+              }
+            }} 
+            size="1"
+          >
             Edit Profile
           </Button>
         </DialogTrigger>
-        <DialogContent css={{ overflow: "scroll" }}>
+        <DialogContent
+          css={{ overflow: "scroll" }}
+        >
           <DialogTitle asChild>
             <Heading
               size="2"
@@ -35,35 +51,49 @@ const Index = () => {
             Profile content is automatically pulled from publicly available
             information provided through Ethereum Name Service (ENS). Connect to
             the{" "}
-            <LivepeerLink variant="primary" href="https://ens.domains">
+            <A css={{ color: "$green11" }} href="https://ens.domains">
               ENS Manager
-            </LivepeerLink>{" "}
+            </A>{" "}
             to register a .eth name and profile information such as a
             description, avatar, website, and more.
           </Text>{" "}
           <Text variant="neutral" css={{ mb: "$5" }}>
             New to ENS? Check out this{" "}
-            <LivepeerLink
-              variant="primary"
+            <A
+              css={{ color: "$green11" }}
               target="_blank"
               href="https://medium.com/the-ethereum-name-service/step-by-step-guide-to-registering-a-eth-name-on-the-new-ens-registrar-c07d3ab9d6a6"
             >
               step-by-step guide
-            </LivepeerLink>{" "}
+            </A>{" "}
             to registering a .eth name.
           </Text>
           <Flex align="center" justify="end">
             <DialogClose asChild>
-              <Button size="4" ghost css={{ mr: "$2" }}>
+              <Button size="4" ghost css={{ color: "$gray11", fontSize: "$4", mr: "$2",
+                "&:hover": {
+                  opacity: 0.7
+                } }}>
                 Dismiss
               </Button>
             </DialogClose>
             <Button
-              variant="primary"
               size="4"
-              css={{ alignItems: "center", display: "flex" }}
+              css={{
+                color: "$green11",
+                br: "$4",
+                fontSize: "$4",
+                bc: "$green4",
+                "&:hover": {
+                  bc: "$green6",
+                  opacity: 0.7
+                },
+                alignItems: "center",
+                display: "flex",
+                textDecoration: "none"
+              }}
             >
-              <LivepeerLink
+              <A
                 href="https://ens.domains"
                 target="_blank"
                 css={{
@@ -75,7 +105,7 @@ const Index = () => {
                 }}
               >
                 ENS Manager
-              </LivepeerLink>
+              </A>
               <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
             </Button>
           </Flex>

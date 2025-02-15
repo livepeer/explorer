@@ -8,7 +8,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   RadioCard,
   RadioCardGroup,
 } from "@jjasonn.stone/design-system";
@@ -165,7 +165,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
-                    <LivepeerLink
+                    <A
                       variant="primary"
                       css={{
                         display: "flex",
@@ -178,7 +178,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                     >
                       View Proposal
                       <ArrowTopRightIcon />
-                    </LivepeerLink>
+                    </A>
                   </RadioCard>
                 ))}
               </RadioCardGroup>

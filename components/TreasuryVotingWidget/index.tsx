@@ -272,8 +272,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="red"
                     size="4"
+                    css={{ bc:"$red4", fontSize: "$4", color: "$red11", br: "$4", "&:hover": { bc: "$red5", color: "$red11" } }}
                     choiceId={0}
                     proposalId={proposal?.id}
                   >
@@ -281,7 +281,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </VoteButton>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="primary"
+                    css={{ bc:"$green4", fontSize: "$4", color: "$green11", br: "$4", "&:hover": { bc: "$green5", color: "$green11" } }}
                     choiceId={1}
                     size="4"
                     proposalId={proposal?.id}
@@ -290,7 +290,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </VoteButton>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="gray"
+                    css={{ bc:"$gray4", fontSize: "$4", color: "$gray11", br: "$4", "&:hover": { bc: "$gray5", color: "$gray11" } }}
                     size="4"
                     choiceId={2}
                     proposalId={proposal?.id}
@@ -315,7 +315,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Button
                 size="4"
                 disabled={true}
-                variant="primary"
+                variant="green"
                 css={{ width: "100%" }}
               >
                 Vote

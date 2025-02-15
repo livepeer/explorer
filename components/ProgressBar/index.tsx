@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import { Box, Flex, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Box, Flex, Link as A } from "@jjasonn.stone/design-system";
 import { TransactionStatus } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { txMessages } from "../../lib/utils";
@@ -25,7 +25,7 @@ const Index = ({ tx }: { tx?: TransactionStatus }) => {
             {txMessages[tx.name]?.pending}
           </Box>
         </Box>
-        <LivepeerLink
+        <A
           variant="primary"
           css={{ fontSize: "$1", justifySelf: "flex-end" }}
           target="_blank"
@@ -33,7 +33,7 @@ const Index = ({ tx }: { tx?: TransactionStatus }) => {
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx.hash}`}
         >
           Details
-        </LivepeerLink>
+        </A>
       </Flex>
     </Box>
   );

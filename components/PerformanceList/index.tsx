@@ -1,6 +1,6 @@
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
-import { Badge, Box, Flex, Link as LivepeerLink, Skeleton } from "@jjasonn.stone/design-system";
+import { Badge, Box, Flex, Link as A, Skeleton } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import NextLink from "next/link"; // Import next/link as NextLink for clarity, though not directly used here anymore
@@ -89,7 +89,7 @@ const PerformanceList = ({
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
           return (
-            <LivepeerLink // Use LivepeerLink directly and set href
+            <A
               href={`/accounts/${row.values.id}/orchestrating`}
               css={{
                 width: 300,
@@ -168,7 +168,7 @@ const PerformanceList = ({
                   </Badge>
                 : null}
               </Flex>
-            </LivepeerLink>
+            </A>
           );
         },
       },

@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogClose,
   DialogContent,
-  Link as LivepeerLink,
+  Link as A,
   Badge,
   Heading,
 } from "@jjasonn.stone/design-system";
@@ -403,7 +403,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         <Box css={{ mr: "10px" }}>🎉</Box>
         {txMessages[tx?.name ?? ""]?.confirmed}
       </Flex>
-      <LivepeerLink
+      <A
         variant="primary"
         css={{ display: "flex", alignItems: "center" }}
         target="_blank"
@@ -414,7 +414,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         <Box css={{ ml: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>
-      </LivepeerLink>
+      </A>
     </Flex>
   );
 }

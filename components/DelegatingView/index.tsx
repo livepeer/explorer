@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
-import { Box, Button, Flex, Link as LivepeerLink, Text } from "@jjasonn.stone/design-system";
+import { Box, Button, Flex, Link as A, Text } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -111,7 +111,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           </Box>
           <Link href="/orchestrators" passHref legacyBehavior>
             <Button size="3" variant="primary" >
-              <LivepeerLink variant="primary">View Orchestrators</LivepeerLink>
+              <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>
         </Box>
@@ -146,12 +146,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         columnClassName="masonry-grid_column"
       >
         {delegator?.delegate && (
-          <Link
+          <A
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
-            passHref
-            legacyBehavior
           >
-            <LivepeerLink
+            <A
               className="masonry-grid_item"
               css={{
                 display: "block",
@@ -173,8 +171,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </Box>
                 }
               />
-            </LivepeerLink>
-          </Link>
+            </A>
+          </A>
         )}
 
         <Stat
@@ -336,11 +334,19 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
-                  variant="primary"
                   size="4"
                   css={{
+                    bc: "$green4",
+                    br: "$4",
+                    color: "$green11",
+                    fontSize: "$4",
                     mt: "$3",
                     width: "100%",
+                    fontWeight: 600,
+                    "&:hover": {
+                      bc: "$green5",
+                      color: "$green11",
+                    },
                   }}
                   onClick={write}
                 >

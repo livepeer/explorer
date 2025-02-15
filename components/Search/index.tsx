@@ -6,7 +6,7 @@ import {
   DialogTrigger,
   Flex,
   IconButton,
-  Link as LivepeerLink,
+  Link as A,
   Text,
   TextField
 } from "@jjasonn.stone/design-system";
@@ -151,7 +151,7 @@ const Index = ({ css = {}, ...props }) => {
             searchMapping
               .filter((e) => e.item.id)
               .map((result) => (
-                <LivepeerLink key={result.item.id} href={`/accounts/${result.item.id}`}>
+                <A key={result.item.id} href={`/accounts/${result.item.id}`}>
                   <Flex
                     css={{
                       cursor: "pointer",
@@ -186,7 +186,7 @@ const Index = ({ css = {}, ...props }) => {
                     </Flex>
                     <Box as={ArrowRightIcon} />
                   </Flex>
-                </LivepeerLink>
+                </A>
               ))
           )}
         </Box>

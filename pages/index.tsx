@@ -7,7 +7,7 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
-  Link as LivepeerLink, // Renamed to avoid confusion with next/link
+  Link as A, 
   Box,
   Button,
   Container,
@@ -349,7 +349,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                     ghost
                     as={NextLink}
                     href="/leaderboard" // Moved href here
-                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2", cursor: "pointer" }}
+                    css={{ color: "$hiContrast", fontSize: "$2", br:"$2", mr: "$2", cursor: "pointer" }}
                   >
                     Performance Leaderboard
                   </Button>
@@ -358,10 +358,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   ghost
                   as={NextLink}
                   href="/orchestrators" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2", cursor: "pointer" }}
+                  css={{ color: "$hiContrast", fontSize: "$2", br:"$2", cursor: "pointer" }}
                 >
                   View All
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  <Box as={ArrowRightIcon} css={{ color: "$white6", ml: "$1" }} />
                 </Button>
               </Flex>
             </Flex>
@@ -410,10 +410,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   ghost
                   as={NextLink}
                   href="/transactions" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2", cursor:"pointer" }}
+                  css={{ color: "$hiContrast", fontSize: "$2", br:"$2", cursor:"pointer" }}
                 >
                   View All
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  <Box as={ArrowRightIcon} css={{ color: "$white6", ml: "$1" }} />
                 </Button>
               </Flex>
             </Flex>

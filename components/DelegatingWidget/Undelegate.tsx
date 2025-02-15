@@ -36,10 +36,19 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
     <>
       <Button
         size="4"
-        variant="red"
+        ghost
         disabled={disabled}
         css={{
+          bc: "$red5",
+          color: "$red11",
           width: "100%",
+          br: "$4",
+          fontSize: "$4",
+
+          "&:hover": {
+            bc: "$red6",
+            color: "$red11",
+          },
         }}
         onClick={write}
       >

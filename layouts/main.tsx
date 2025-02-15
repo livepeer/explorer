@@ -21,7 +21,7 @@ import {
   Container,
   DesignSystemProvider,
   Flex,
-  Link as LivepeerLink,
+  Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -41,6 +41,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -75,7 +76,7 @@ type DrawerItem = {
   name: any;
   href: string;
   as: string;
-  icon: React.ReactNode;
+  icon: React.ElementType;
   className?: string;
 };
 
@@ -87,28 +88,6 @@ export const LAYOUT_MAX_WIDTH = 1400;
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
-
-// Reusable NavButton component for clarity
-const NavButton = ({ href, children, isActive }: { href: string, children: React.ReactNode, isActive: boolean }) => (
-  <LivepeerLink href={href}>
-    <Button
-      size="3"
-      css={{
-        ml: "$3",
-        fontSize:"$3",
-        bc: isActive ? "hsla(0,100%,100%,.05)" : "transparent",
-        color: "white",
-        br:"$3",
-        "&:hover": { bc: "hsla(0,100%,100%,.1)" },
-        "&:active": { bc: "hsla(0,100%,100%,.15)" },
-        "&:disabled": { opacity: 0.5 },
-      }}
-    >
-      {children}
-    </Button>
-  </LivepeerLink>
-);
-
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
@@ -205,7 +184,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               variant="green"
               css={{
                 ml: "6px",
-                mr: "2px"
               }}
             >
               {totalActivePolls}
@@ -372,7 +350,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref}
+                ref={ref as any}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}
@@ -422,40 +400,84 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         <Logo isDark id="main" />
 
                         <Box css={{}}>
-                          <NavButton href="/" isActive={asPath === "/"}>Overview</NavButton>
-                          <NavButton href="/orchestrators" isActive={!asPath.includes(accountAddress ?? "") && (asPath.includes("/accounts") || asPath.includes("/orchestrators"))}>Orchestrators</NavButton>
-                          <NavButton href="/voting" isActive={asPath.includes("/voting")}>
-                            Governance{" "}
-                            {(totalActivePolls ?? 0) > 0 && (
-                              <Badge
-                                size="2"
-                                variant="green"
-                                css={{
-                                  ml: "6px",
-                                }}
-                              >
-                                {totalActivePolls}
-                              </Badge>
-                            )}
-                          </NavButton>
-                          <NavButton href="/treasury" isActive={asPath.includes("/treasury")}>
-                            Treasury{" "}
-                            {(totalActiveTreasuryProposals ?? 0) > 0 && (
-                              <Badge
-                                size="2"
-                                variant="green"
-                                css={{
-                                  ml: "6px",
-                                }}
-                              >
-                                {totalActiveTreasuryProposals}
-                              </Badge>
-                            )}
-                          </NavButton>
-                          {accountAddress && (
-                            <NavButton href={`/accounts/${accountAddress}`} isActive={asPath.includes(accountAddress)}>
-                              My Account{" "}
-                              {hasPendingFees && (
+                          <Link passHref href="/">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$4",
+                                br: "$3",
+                                fontSize: "$3",
+                                bc:
+                                  asPath === "/"
+                                    ? "hsla(0,100%,100%,.05)"
+                                    : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Overview
+                            </Button>
+                          </Link>
+                          <Link passHref href="/orchestrators">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                br: "$3",
+                                fontSize: "$3",
+                                bc:
+                                  !asPath.includes(accountAddress ?? "") &&
+                                  (asPath.includes("/accounts") ||
+                                    asPath.includes("/orchestrators"))
+                                    ? "hsla(0,100%,100%,.05)"
+                                    : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Orchestrators
+                            </Button>
+                          </Link>
+                          <Link passHref href="/voting">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                br: "$3",
+                                fontSize: "$3",
+                                bc: asPath.includes("/voting")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Governance{" "}
+                              {(totalActivePolls ?? 0) > 0 && (
                                 <Badge
                                   size="2"
                                   variant="green"
@@ -463,10 +485,84 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                     ml: "6px",
                                   }}
                                 >
-                                  1
+                                  {totalActivePolls}
                                 </Badge>
                               )}
-                            </NavButton>
+                            </Button>
+                          </Link>
+                          <Link passHref href="/treasury">
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                br: "$3",
+                                fontSize: "$3",
+                                bc: asPath.includes("/treasury")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Treasury{" "}
+                              {(totalActiveTreasuryProposals ?? 0) > 0 && (
+                                <Badge
+                                  size="2"
+                                  variant="green"
+                                  css={{
+                                    ml: "6px",
+                                  }}
+                                >
+                                  {totalActiveTreasuryProposals}
+                                </Badge>
+                              )}
+                            </Button>
+                          </Link>
+                          {accountAddress && (
+                            <Link passHref href={`/accounts/${accountAddress}`}>
+                              <Button
+                                size="3"
+                                css={{
+                                  ml: "$2",
+                                  br: "$3",
+                                  fontSize: "$3",
+                                  bc: asPath.includes(accountAddress)
+                                    ? "hsla(0,100%,100%,.05)"
+                                    : "transparent",
+                                  color: "white",
+                                  "&:hover": {
+                                    bc: "hsla(0,100%,100%,.1)",
+                                  },
+                                  "&:active": {
+                                    bc: "hsla(0,100%,100%,.15)",
+                                  },
+                                  "&:disabled": {
+                                    opacity: 0.5,
+                                  },
+                                }}
+                              >
+                                My Account{" "}
+                                {hasPendingFees && (
+                                  <Badge
+                                    size="2"
+                                    variant="green"
+                                    css={{
+                                      ml: "6px",
+                                    }}
+                                  >
+                                    1
+                                  </Badge>
+                                )}
+                              </Button>
+                            </Link>
                           )}
                           <Popover>
                             <PopoverTrigger
@@ -478,11 +574,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  ml: "$3",
-                                  fontSize:"$3",
+                                  ml: "$2",
+                                  br: "$3",
+                                  fontSize: "$3",
                                   bc: "transparent",
                                   color: "white",
-                                  br:"$3",
                                   "&:hover": {
                                     bc: "hsla(0,100%,100%,.1)",
                                   },
@@ -502,36 +598,29 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              css={{ borderRadius: "$4", bc: "$neutral4", minWidth:200 }}
+                              css={{ borderRadius: "$4", bc: "$neutral4" }}
                             >
                               <Flex
                                 css={{
                                   flexDirection: "column",
                                   py: "$3",
                                   px: "$2",
+                                  borderBottom: "1px solid $neutral6",
                                 }}
                               >
                                 {IS_L2 && (
                                   <PopoverLink
                                     newWindow={true}
                                     href={`/migrate`}
-                                    >
-                                    <Flex align="center" justify="between">
+                                  >
                                     Arbitrum Migration Tool
-                                    <Box
-                                      css={{
-                                        ml: "$1",
-                                        transition: "transform 0.2s ease"
-                                      }} >
-                                      </Box>
-                                      </Flex>
                                   </PopoverLink>
                                 )}
                                 <PopoverLink
                                   newWindow={true}
                                   href={`/whats-new`}
                                 >
-                                  What's New
+                                  What&apos;s New
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
@@ -541,7 +630,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://docs.livepeer.org/`}
+                                  href={`https://livepeer.org/docs`}
                                 >
                                   Docs
                                 </PopoverLink>
@@ -651,6 +740,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           }}
         >
           <Image
+            style={{ objectFit: "contain" }}
             width={18}
             height={18}
             alt={
@@ -721,7 +811,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           key as keyof typeof contractAddresses
                         ]?.name ?? ""}
                       </Text>
-                      <LivepeerLink
+                      <A
                         css={{
                           marginLeft: "auto",
 
@@ -751,7 +841,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                             "…"
                           )}
                         </Text>
-                      </LivepeerLink>
+                      </A>
                     </>
                   ) : (
                     <Skeleton
@@ -767,7 +857,10 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   )}
                 </Flex>
               ))}
-              <LivepeerLink href="https://docs.livepeer.org/references/contract-addresses">
+
+            <A
+              href="https://docs.livepeer.org/references/contract-addresses"
+            >
                 <Flex
                   css={{
                     mt: "$2",
@@ -777,6 +870,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 >
                   <Text
                     css={{ whiteSpace: "nowrap" }}
+                    variant="neutral"
                     size="1"
                   >
                     Learn more about these contracts
@@ -790,7 +884,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                     as={ArrowTopRightIcon}
                   />
                 </Flex>
-              </LivepeerLink>
+            </A>
           </Box>
         </Box>
       </PopoverContent>

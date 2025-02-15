@@ -7,7 +7,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   styled,
   Text,
   TextField,
@@ -349,7 +349,7 @@ const MigrateOrchestrator = () => {
       //           passHref
       //         >
       //           <Button
-      //             as="LivepeerLink"
+      //             as="A"
       //             variant="primary"
       //             size="4"
       //             css={{
@@ -771,7 +771,7 @@ const MigrateOrchestrator = () => {
           }}
         >
           <Button
-            css={{ bottom: 20, right: 20 }}
+            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20 }}
             as="a"
             href="https://docs.livepeer.org/video-miners/how-to-guides/l2-migration"
             target="_blank"
@@ -782,7 +782,7 @@ const MigrateOrchestrator = () => {
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
           </Button>
           <Button
-            css={{ bottom: 20, right: 20 }}
+            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20 }}
             as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
@@ -855,7 +855,7 @@ function ReceiptLink({ label, hash, chainId }) {
       }}
     >
       <Text variant="neutral">{label}:</Text>
-      <LivepeerLink
+      <A
         css={{ ml: "$2", display: "flex", ai: "center" }}
         variant="primary"
         target="_blank"
@@ -864,7 +864,7 @@ function ReceiptLink({ label, hash, chainId }) {
       >
         {hash.replace(hash.slice(6, 62), "…")}
         <Box as={ArrowTopRightIcon} />
-      </LivepeerLink>
+      </A>
     </Box>
   );
 }

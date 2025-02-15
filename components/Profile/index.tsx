@@ -1,6 +1,6 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Flex, Heading, Link as LivepeerLink, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Heading, Link as A, Text } from "@jjasonn.stone/design-system";
 import {
   CheckIcon,
   CopyIcon,
@@ -140,7 +140,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </Flex>
           <Flex align="center" css={{ flexWrap: 'wrap' }}>
             {identity?.url && (
-              <LivepeerLink
+              <A
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={identity.url}
@@ -151,11 +151,11 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   <Box as={GlobeIcon} css={{ mr: "$1" }} />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </Flex>
-              </LivepeerLink>
+              </A>
             )}
 
             {identity?.twitter && (
-              <LivepeerLink
+              <A
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://twitter.com/${identity.twitter}`}
@@ -174,11 +174,11 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                     @{identity.twitter}
                   </Box>
                 </Flex>
-              </LivepeerLink>
+              </A>
             )}
 
             {identity?.github && (
-              <LivepeerLink
+              <A
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://github.com/${identity.github}`}
@@ -197,7 +197,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                     {identity.github}
                   </Box>
                 </Flex>
-              </LivepeerLink>
+              </A>
             )}
           </Flex>
         </Flex>

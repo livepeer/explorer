@@ -138,7 +138,7 @@ const Index = ({
             ) : (
               <Box
                 as={CheckIcon}
-                css={{ ml: "$1", width: 20, height: 20, color: "$primary11" }}
+                css={{ ml: "$1", width: 20, height: 20, color: "$green11" }}
               />
             )}
           </Flex>
@@ -184,7 +184,7 @@ const Index = ({
                 strokeWidth={6}
                 styles={buildStyles({
                   strokeLinecap: "butt",
-                  pathColor: theme.colors.primary11,
+                  pathColor: theme.colors.green11,
                   textColor: theme.colors.black,
                   trailColor: theme.colors.neutral7,
                 })}
@@ -243,7 +243,7 @@ const Index = ({
             <ExplorerTooltip
               multiline
               content={
-                <Text css={{ display: "block" }}>
+                <Text css={{ fontSize: "$2", display: "block" }}>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
                   {numeral(protocol?.currentRound?.volumeUSD || 0).format(
@@ -297,7 +297,7 @@ const Index = ({
             <ExplorerTooltip
               multiline
               content={
-                <Text css={{ display: "block" }}>
+                <Text css={{ fontSize: "$2", display: "block" }}>
                   The amount of rewards which have been claimed by orchestrators
                   in the current round.
                 </Text>

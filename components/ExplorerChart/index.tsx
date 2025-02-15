@@ -288,7 +288,7 @@ const ExplorerChart = ({
             onClick={() => onToggleGrouping?.("day")}
             size="1"
             ghost
-            variant={grouping === "day" ? "primary" : "gray"}
+            css={{ ...baseButtonStyle, ...(grouping === "day" ? activeStyle : inactiveStyle) }}
           >
             D
           </Button>
@@ -296,8 +296,7 @@ const ExplorerChart = ({
             onClick={() => onToggleGrouping?.("week")}
             size="1"
             ghost
-            variant={grouping === "week" ? "primary" : "gray"}
-            css={{ ml: "$1" }}
+            css={{ ...baseButtonStyle, ...(grouping === "week" ? activeStyle : inactiveStyle), ml: "$1" }}
           >
             W
           </Button>
@@ -423,5 +422,9 @@ const ExplorerChart = ({
     </Box>
   );
 };
+
+const baseButtonStyle = { br: "$2", "&:hover": { br: "$2" } }
+const activeStyle = { color: "$green11", bc: "$green3", "&:hover": { bc: "$green4", color: "$green11" } }
+const inactiveStyle = { bc: "$gray4", color: "$gray11", "&:hover": { bc: "$gray5", color: "$gray11" } }
 
 export default ExplorerChart;

@@ -15,7 +15,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   Text,
 } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
@@ -201,9 +201,9 @@ const Proposal = () => {
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 Proposed by{" "}
-                <LivepeerLink href={`/accounts/${proposal.proposer.id}`}>
+                <A href={`/accounts/${proposal.proposer.id}`}>
                   {proposerId?.name ?? shortenAddress(proposal.proposer.id)}
-                </LivepeerLink>
+                </A>
               </Text>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 {proposal.state === "Pending" ? (
@@ -225,13 +225,20 @@ const Proposal = () => {
               {proposal.state === "Active" && (
                 <Button
                   size="4"
-                  variant="primary"
                   css={{
+                    br: "$4",
+                    bc: "$green4",
+                    color: "$green11",
+                    fontSize: "$4",
                     display: "flex",
                     mt: "$3",
                     mr: "$3",
                     "@bp3": {
                       display: "none",
+                    },
+                    "&:hover": {
+                      bc: "$green5",
+                      color: "$green11",
                     },
                   }}
                   onClick={() => setBottomDrawerOpen(true)}
@@ -430,7 +437,7 @@ const Proposal = () => {
                           <Text variant="neutral" size="3">
                             Receiver:
                           </Text>
-                          <LivepeerLink
+                          <A
                             css={{
                               marginLeft: "auto",
                             }}
@@ -453,7 +460,7 @@ const Proposal = () => {
                                 ? shortenAddress(action.lptTransfer.receiver)
                                 : action.lptTransfer.receiver}
                             </Text>
-                          </LivepeerLink>
+                          </A>
                         </Flex>
                         <Flex css={{ pl: "$2", mb: "0.2em" }}>
                           <Text variant="neutral" size="3">
@@ -481,7 +488,7 @@ const Proposal = () => {
                           <Text variant="neutral" size="3">
                             Target:
                           </Text>
-                          <LivepeerLink
+                          <A
                             css={{
                               marginLeft: "auto",
                             }}
@@ -505,7 +512,7 @@ const Proposal = () => {
                                   )})`
                                 : action.target}
                             </Text>
-                          </LivepeerLink>
+                          </A>
                         </Flex>
                         <Flex css={{ pl: "$2", mb: "0.2em" }}>
                           <Text variant="neutral" size="3">

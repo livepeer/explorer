@@ -11,7 +11,7 @@ export const TabList = (props) => (
   <Box
     as={ReachTabList}
     css={{
-      backgroundColor: "$neutral3",
+      bc: "$neutral3",
       display: "flex",
       alignItems: "center",
       width: "100%",
@@ -33,8 +33,8 @@ export const Tab = (props) => (
       textAlign: "center",
       color: props.isSelected
         ? props.children === "Delegate"
-          ? "$primary11"
-          : "$red11"
+          ? "$green11"
+          : "$red10"
         : "$neutral10",
       py: "10px",
       width: "50%",
@@ -45,8 +45,8 @@ export const Tab = (props) => (
       bc: "transparent",
       borderColor: props.isSelected
         ? props.children === "Delegate"
-          ? "$primary11"
-          : "$red11"
+          ? "$green11"
+          : "$red10"
         : "transparent",
     }}
     {...props}

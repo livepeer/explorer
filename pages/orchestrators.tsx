@@ -8,7 +8,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
 } from "@jjasonn.stone/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
@@ -47,7 +47,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
             </Heading>
             {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
               process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <LivepeerLink href="/leaderboard">
+              <A href="/leaderboard">
                 <Button
                   ghost
                   css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
@@ -55,7 +55,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
                   Performance Leaderboard
                   <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                 </Button>
-              </LivepeerLink>
+              </A>
             )}
           </Flex>
           <Box css={{ mb: "$5" }}>

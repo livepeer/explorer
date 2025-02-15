@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import UniswapModal from "../UniswapModal";
 import Account from "../Account";
-import { Box, Flex, Text, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Box, Flex, Text, Link as A } from "@jjasonn.stone/design-system";
 import { IS_L2 } from "lib/chains";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
@@ -70,7 +70,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 as={item.as}
                 legacyBehavior
               >
-                <LivepeerLink
+                <A
                   variant="subtle"
                   css={{
                     color: asPath.split("?")[0] === item.as ? "$hiContrast" : "$neutral11",
@@ -102,7 +102,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                   <Box>
                     {item.name}
                   </Box>
-                </LivepeerLink>
+                </A>
               </Link>
             ))}
             <Account />
@@ -113,14 +113,14 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 pb: "$4",
               }}
             >
-              <LivepeerLink
+              <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Livepeer.org
-              </LivepeerLink>
+              </A>
               {IS_L2 && (
                 <Link
                   href="/migrate"
@@ -136,14 +136,14 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                   L2 Migration Tool
                 </Link>
               )}
-              <LivepeerLink
+              <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org/docs"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Docs
-              </LivepeerLink>
+              </A>
 
               <UniswapModal
                 trigger={
@@ -174,14 +174,14 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                   src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
                 />
               </UniswapModal>
-              <LivepeerLink
+              <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://discord.gg/uaPhtyrWsF"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Discord
-              </LivepeerLink>
+              </A>
 
               <Link
                 href="/whats-new"

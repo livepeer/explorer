@@ -161,7 +161,7 @@ const Poll = () => {
                       : pollData.status === "active"
                       ? "blue"
                       : pollData.status === "passed"
-                      ? "primary"
+                      ? "green"
                       : "neutral"
                   }
                   css={{ textTransform: "capitalize", fontWeight: 700 }}

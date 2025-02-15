@@ -30,7 +30,7 @@ export const Button = styled("button", {
   variants: {
     color: {
       primary: {
-        color: "$green",
+        color: "$primary",
         bg: "rgba(0,235,136,.1)",
         transition: "background-color .3s",
         "&:hover": {

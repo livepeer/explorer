@@ -3,7 +3,7 @@ import {
   Box,
   Card as CardBase,
   Flex,
-  Link as LivepeerLink,
+  Link as A,
   styled,
 } from "@jjasonn.stone/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
@@ -160,7 +160,7 @@ function renderSwitch(event: any, i: number) {
     case "BondEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -223,7 +223,7 @@ function renderSwitch(event: any, i: number) {
     case "NewRoundEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -279,7 +279,7 @@ function renderSwitch(event: any, i: number) {
     case "RebondEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -339,7 +339,7 @@ function renderSwitch(event: any, i: number) {
     case "UnbondEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -399,7 +399,7 @@ function renderSwitch(event: any, i: number) {
     case "RewardEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -458,7 +458,7 @@ function renderSwitch(event: any, i: number) {
     case "TranscoderUpdateEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -523,7 +523,7 @@ function renderSwitch(event: any, i: number) {
     case "WithdrawStakeEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -580,7 +580,7 @@ function renderSwitch(event: any, i: number) {
     case "WithdrawFeesEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -637,7 +637,7 @@ function renderSwitch(event: any, i: number) {
     case "WinningTicketRedeemedEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -694,7 +694,7 @@ function renderSwitch(event: any, i: number) {
     case "DepositFundedEvent":
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"
@@ -756,7 +756,7 @@ function renderSwitch(event: any, i: number) {
       }
       return (
         <Card
-          as={LivepeerLink}
+          as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
           target="_blank"

@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Button, Card, Container, Flex, Heading, Link as LivepeerLink, styled, Text } from "@jjasonn.stone/design-system";
+import { Badge, Box, Button, Card, Container, Flex, Heading, Link as A, styled, Text } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
@@ -76,7 +76,7 @@ const Voting = () => {
                 as="/treasury/create-proposal"
                 legacyBehavior
               >
-                <Button size="3" variant="primary">
+                <Button size="3" css={{ bc: "$green4", fontSize: "$3",color: "$green11",br: "$2", "&:hover": { bc: "$green5", color: "$green11" } }}>
                   Create Proposal
                 </Button>
               </Link>

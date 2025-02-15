@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
   Flex,
   IconButton,
-  Link as LivepeerLink,
+  Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -241,12 +241,12 @@ const OrchestratorList = ({
               width: 350,
               display: "block",
             }}>
-              <LivepeerLink // Using LivepeerLink directly - Option 1
+              <A
                 href={`/accounts/${row.values.id}/orchestrating`}
                 css={{
                   textDecoration: "none",
-                  display: "block", // Make LivepeerLink block to fill the Box
-                  "&:hover": { textDecoration: "none" }
+                  display: "block",
+                  "&:hover": { textDecoration: "none" },
                 }}
               >
                 <Flex css={{ alignItems: "center" }}>
@@ -334,7 +334,7 @@ const OrchestratorList = ({
                     )} */}
                   </Flex>
                 </Flex>
-              </LivepeerLink>
+              </A>
             </Box>
           );
         },
@@ -505,7 +505,7 @@ const OrchestratorList = ({
                           </Text>
                         </Flex>
                       )}
-                      <LivepeerLink // Using LivepeerLink directly - Fix for nested link
+                      <A
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
                         <Flex
@@ -527,7 +527,7 @@ const OrchestratorList = ({
                             as={ArrowTopRightIcon}
                           />
                         </Flex>
-                      </LivepeerLink>
+                      </A>
                     </Box>
 
                     <Box
@@ -898,7 +898,7 @@ const OrchestratorList = ({
                     opacity: 1,
                     transition: "background-color .3s",
                     "&:hover": {
-                      bc: "$primary5",
+                      bc: "$green5",
                       transition: "background-color .3s",
                     },
                   }}

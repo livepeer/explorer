@@ -16,7 +16,7 @@ import {
   Button,
   Container,
   Flex,
-  Link as LivepeerLink,
+  Link as A,
   Sheet,
   SheetContent,
   SheetTrigger,
@@ -178,8 +178,17 @@ const AccountLayout = ({
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
-                    variant="primary"
-                    css={{ mr: "$3" }}
+                    css={{
+                      bc: "$green4",
+                      color: "$green11",
+                      br: "$4",
+                      mr: "$3",
+                      fontSize: "$4",
+                      "&:hover": {
+                        bc: "$green5",
+                        color: "$green11",
+                      },
+                    }}
                     size="4"
                     onClick={(event) => {
                       event.stopPropagation();
@@ -211,7 +220,17 @@ const AccountLayout = ({
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button
-                      variant="red"
+                      css={{
+                        bc: "$red4",
+                        color: "$red11",
+                        br: "$4",
+                        mr: "$3",
+                        fontSize: "$4",
+                        "&:hover": {
+                          bc: "$red5",
+                          color: "$red11",
+                        },
+                      }}
                       size="4"
                       onClick={(event) => {
                         event.stopPropagation();
@@ -257,7 +276,7 @@ const AccountLayout = ({
                 passHref
                 legacyBehavior
               >
-                <LivepeerLink
+                <A
                   variant="subtle"
                   css={{
                     color: tab.isActive ? "$hiContrast" : "$neutral11",
@@ -273,7 +292,7 @@ const AccountLayout = ({
                   }}
                 >
                   {tab.name}
-                </LivepeerLink>
+                </A>
               </Link>
             ))}
           </Box>
@@ -363,7 +382,7 @@ function getTabs(
     },
     {
       name: "History",
-      href: `/accounts/${account}/history`,
+      href: `/accounts/${account}/history`, 
       isActive: view === "history",
     },
   ];

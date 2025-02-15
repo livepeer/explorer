@@ -174,11 +174,11 @@ const Footer = ({
 export default Footer;
 
 function renderUnstakeWarnings(
-  amount,
-  delegatorStatus,
-  isDelegated,
-  sufficientStake,
-  isMyTranscoder
+  amount: string,
+  delegatorStatus: string,
+  isDelegated: boolean,
+  sufficientStake: string | boolean | null | undefined,
+  isMyTranscoder: boolean
 ) {
   if (delegatorStatus === "Pending") {
     return (

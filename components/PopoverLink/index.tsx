@@ -1,4 +1,4 @@
-import { Box, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Box, Link as A } from "@jjasonn.stone/design-system";
 import { ChevronRightIcon } from "@modulz/radix-icons";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {
@@ -30,7 +30,7 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
   };
 
   return (
-    <LivepeerLink
+    <A
       href={href}
       css={linkStyles}
       {...(newWindow
@@ -42,7 +42,7 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
     >
       {children}
       <Box as={ChevronRightIcon} css={{ ml: "$2", width: 16, height: 16 }} />
-    </LivepeerLink>
+    </A>
   );
 };
 

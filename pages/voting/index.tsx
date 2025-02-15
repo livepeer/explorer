@@ -7,7 +7,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   styled,
   Text,
 } from "@jjasonn.stone/design-system";
@@ -28,7 +28,7 @@ export const Status = styled("div", {
   variants: {
     color: {
       passed: {
-        color: "$primary",
+        color: "$green",
       },
       rejected: {
         color: "$red",
@@ -117,7 +117,7 @@ const Voting = () => {
                 as="/voting/create-poll"
                 legacyBehavior
               >
-                <Button size="3" variant="primary">
+                <Button size="3" css={{ bc: "$green4", br: "$3", fontSize: "$3", color: "$green11", "&:hover": { bc: "$green5", color: "$green11" } }}>
                   Create Poll
                 </Button>
               </Link>
@@ -147,7 +147,7 @@ const Voting = () => {
                     as={`/voting/${poll.id}`}
                     legacyBehavior
                   >
-                    <LivepeerLink
+                    <A
                       css={{
                         cursor: "pointer",
                         display: "block",
@@ -205,7 +205,7 @@ const Voting = () => {
                                 : poll.status === "active"
                                 ? "blue"
                                 : poll.status === "passed"
-                                ? "primary"
+                                ? "green"
                                 : "neutral"
                             }
                             css={{
@@ -217,7 +217,7 @@ const Voting = () => {
                           </Badge>
                         </Flex>
                       </Card>
-                    </LivepeerLink>
+                    </A>
                   </Link>
                 ))}
             </Box>

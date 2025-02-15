@@ -7,7 +7,7 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   styled,
   Text,
   TextField,
@@ -352,7 +352,7 @@ const MigrateUndelegatedStake = () => {
   //               passHref
   //             >
   //               <Button
-  //                 as="LivepeerLink"
+  //                 as="A"
   //                 variant="primary"
   //                 size="4"
   //                 css={{
@@ -841,7 +841,7 @@ function ReceiptLink({ label, hash, chainId }) {
       }}
     >
       <Text variant="neutral">{label}:</Text>
-      <LivepeerLink
+      <A
         css={{ ml: "$2", display: "flex", ai: "center" }}
         variant="primary"
         target="_blank"
@@ -850,7 +850,7 @@ function ReceiptLink({ label, hash, chainId }) {
       >
         {hash.replace(hash.slice(6, 62), "…")}
         <Box as={ArrowTopRightIcon} />
-      </LivepeerLink>
+      </A>
     </Box>
   );
 }
