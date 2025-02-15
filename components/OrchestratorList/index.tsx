@@ -1169,6 +1169,16 @@ const OrchestratorList = ({
                         max={`${Number(
                           protocolData?.totalSupply || 1e7
                         ).toFixed(0)}`}
+                        css={{
+                        bc: "$gray1",
+                        "&:focus": {
+                          boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                          bc: "$gray1",
+                        },
+                        "&:hover": {
+                          boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+                        } 
+                      }}
                       />
                       <Text
                         variant="neutral"

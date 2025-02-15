@@ -119,8 +119,8 @@ const Footer = ({
         <Button
           size="4"
           disabled={true}
-          variant="primary"
-          css={{ width: "100%" }}
+          variant="green"
+          css={{ bc:"$green4", color: "$green11", fontSize: "$4", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
         >
           {action === "delegate" ? "Delegate" : "Undelegate"}
         </Button>

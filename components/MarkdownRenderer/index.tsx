@@ -37,13 +37,6 @@ const StyledMarkdown = styled(OriginalReactMarkdown, {
     display: "block",
     margin: "$2 0"
   },
-  // Handle long URLs
-  a: {
-    wordBreak: "break-word",
-    overflowWrap: "break-word",
-    display: "inline-block",
-    maxWidth: "100%",
-  }
 });
 
 const isImageUrl = (url: string) => {
@@ -60,16 +53,25 @@ const MarkdownRenderer = ({ children, ...props }) => {
         img: ({ src, alt, ...imgProps }) => {
           if (!src) return null;
           const cleanSrc = src.replace(/\/+$/, '');
+          // eslint-disable-next-line @next/next/no-img-element
           return (
             <img
               src={cleanSrc}
               alt={alt || ''}
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                maxHeight: '400px',
+                display: 'block',
+                margin: '8px 0'
+              }}
               {...imgProps}
             />
           );
         },
         a: ({ node, href, children, ...props }) => {
           if (href && isImageUrl(href)) {
+            // eslint-disable-next-line @next/next/no-img-element
             return (
               <img
                 src={href.replace(/\/+$/, '')}
@@ -85,7 +87,18 @@ const MarkdownRenderer = ({ children, ...props }) => {
             );
           }
           return (
-            <a href={href} {...props}>
+            <a 
+              href={href} 
+              style={{
+                color: 'var(--colors-green11)',
+                textDecoration: 'underline',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                display: 'inline-block',
+                maxWidth: '100%'
+              }}
+              {...props}
+            >
               {children}
             </a>
           );

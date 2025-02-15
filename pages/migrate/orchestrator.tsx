@@ -60,8 +60,7 @@ const initialState = {
       <Button
         size="4"
         disabled={true}
-        variant="primary"
-        css={{ width: "100%" }}
+        css={{ bc: "$green4", width: "100%", fontSize: "17px", color: "$green11", br: "$4", fontwidth: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
       >
         Migrate Orchestrator
       </Button>
@@ -771,7 +770,7 @@ const MigrateOrchestrator = () => {
           }}
         >
           <Button
-            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20 }}
+            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20, color: "$gray10", "&:hover":{ bc: "$gray3", color: "$gray10" } }}
             as="a"
             href="https://docs.livepeer.org/video-miners/how-to-guides/l2-migration"
             target="_blank"
@@ -782,7 +781,7 @@ const MigrateOrchestrator = () => {
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
           </Button>
           <Button
-            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20 }}
+            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20, color: "$gray10" , "&:hover":{ bc: "$gray3", color: "$gray10" } }}
             as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"

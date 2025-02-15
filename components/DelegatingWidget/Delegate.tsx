@@ -197,8 +197,7 @@ const Delegate = ({
     <Button
       size="4"
       onClick={onDelegate}
-      variant="primary"
-      css={{ width: "100%" }}
+      css={{ bc: "$green4", color: "$green11", fontSize: "$4", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
     >
       {+amount >= 0 && isTransferStake ? "Move Delegated Stake" : "Delegate"}
     </Button>

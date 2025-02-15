@@ -10,7 +10,7 @@ const Index = ({ css = {}, speed = "1s" }) => (
       border: "3px solid",
       borderColor: "$neutral4",
       borderRadius: "50%",
-      borderTopColor: "$primary10",
+      borderTopColor: "$green10",
       width: 26,
       height: 26,
       maxWidth: 26,

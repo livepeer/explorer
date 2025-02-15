@@ -202,7 +202,7 @@ function DataTable<T extends object>({
               as={ArrowLeftIcon}
               css={{
                 cursor: "pointer",
-                color: canPreviousPage ? "$primary11" : "$hiContrast",
+                color: canPreviousPage ? "$green11" : "$hiContrast",
                 opacity: canPreviousPage ? 1 : 0.5,
               }}
               onClick={() => {

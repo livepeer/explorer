@@ -302,7 +302,7 @@ const Index = ({ data }: { data: Props }) => {
                 size="4"
                 disabled={true}
                 variant="green"
-                css={{ width: "100%" }}
+                css={{ br: "$4", fontSize: "$4", bc: "$green4", color: "$green11", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
               >
                 Vote
               </Button>

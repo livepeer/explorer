@@ -285,7 +285,7 @@ const AccountLayout = ({
                     fontSize: "$3",
                     fontWeight: 500,
                     borderBottom: "2px solid",
-                    borderColor: tab.isActive ? "$primary11" : "transparent",
+                    borderColor: tab.isActive ? "$green11" : "transparent",
                     "&:hover": {
                       textDecoration: "none",
                     },

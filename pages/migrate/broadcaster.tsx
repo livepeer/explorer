@@ -61,8 +61,7 @@ const initialState = {
       <Button
         size="4"
         disabled={true}
-        variant="primary"
-        css={{ width: "100%" }}
+        css={{ bc: "$green4", fontSize: "$4", color: "$green11", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
       >
         Migrate Broadcaster
       </Button>
@@ -792,7 +791,7 @@ const MigrateBroadcaster = () => {
           }}
         >
           <Button
-            css={{ bottom: 20, right: 20 }}
+            css={{ br: "$3", color: "$gray10", fontSize: "$3", bottom: 20, right: 20, "&:hover":{ bc: "$gray3", color: "$gray10" } }}
             as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
