@@ -79,7 +79,7 @@ const Index = () => {
                   : "Error with transaction, please check your inputs and try again."}
               </Text>
               <DialogClose asChild>
-                <Button size="4" variant="primary" css={{ width: "100%" }}>
+                <Button size="4" css={{ br: "$4", bc: "$green4", color: "$green11", fontSize: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}>
                   Close
                 </Button>
               </DialogClose>
