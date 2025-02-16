@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Container,
+  styled,
   Flex,
   Heading,
   Link as A,
@@ -30,6 +31,19 @@ import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
+
+const StyledRadioCard = styled(RadioCard, {
+  '&[data-state="checked"]': {
+    boxShadow: "inset 0 0 0 1px $colors$green8, 0 0 0 1px $colors$green8 !important",
+    "& div:first-child": {  // Target the StyledRadioButton
+      boxShadow: "inset 0 0 0 1px $colors$gray8",  // Remove the box shadow
+      "& div": {  // Target the StyledRadioIndicator
+        backgroundColor: "$green9",
+        transform: "scale(1)"
+      }
+    }
+  }
+});
 
 const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   const accountAddress = useAccountAddress();
@@ -147,9 +161,9 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                 }}
               >
                 {lips.map((lip, i) => (
-                  <RadioCard
-                    key={i}
-                    value={i.toString()}
+                  <StyledRadioCard
+                  key={i}
+                  value={i.toString()}
                     css={{
                       width: "100%",
                       justifyContent: "space-between",
@@ -158,19 +172,27 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       mb: "$4",
                       display: "flex",
                       borderRadius: "$4",
+                      boxShadow: "inset 0 0 0 1px $colors$neutral7",
+                      "@hover": {
+                        "&:hover": {
+                          boxShadow: "inset 0 0 0 1px $colors$neutral9",
+                        },
+                      }
                     }}
                   >
                     <Flex css={{ alignItems: "center", width: "100%" }}>
-                      <Box css={{ ml: "$3", width: "100%" }}>
+                      <Box css={{ border: "1px solid $gray1" }}></Box>
+                      <Box css={{ ml: "$3", width: "100%"}}>
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
                     <A
-                      variant="primary"
+                      variant="green"
                       css={{
                         display: "flex",
                         ml: "$2",
                         minWidth: 108,
+                        color: "$green11",
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -179,7 +201,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       View Proposal
                       <ArrowTopRightIcon />
                     </A>
-                  </RadioCard>
+                  </StyledRadioCard>
                 ))}
               </RadioCardGroup>
               <Flex
@@ -220,7 +242,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         isCreatePollLoading
                       }
                       type="submit"
-                      css={{ ml: "$3", alignSelf: "flex-end" }}
+                      css={{ bc: "$green4", br: "$3", fontSize: "$3", color: "$green11", ml: "$3", alignSelf: "flex-end", "&:hover":{ bc: "$green5", color: "$green11" } }}
                     >
                       Create Poll{" "}
                       {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}

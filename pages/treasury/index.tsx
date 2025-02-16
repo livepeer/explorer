@@ -76,7 +76,7 @@ const Voting = () => {
                 as="/treasury/create-proposal"
                 legacyBehavior
               >
-                <Button size="3" css={{ bc: "$green4", fontSize: "$3",color: "$green11",br: "$2", "&:hover": { bc: "$green5", color: "$green11" } }}>
+                <Button size="3" css={{ bc: "$green4", fontSize: "$3",color: "$green11",br: "$3", "&:hover": { bc: "$green5", color: "$green11" } }}>
                   Create Proposal
                 </Button>
               </Link>
