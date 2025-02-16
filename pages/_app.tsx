@@ -12,9 +12,10 @@ import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { Chain, configureChains, createConfig, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { useApollo } from "../apollo";
 
 function App({ Component, pageProps, fallback = null }) {
@@ -25,9 +26,32 @@ function App({ Component, pageProps, fallback = null }) {
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
   const { config, chains, layoutKey } = useMemo(() => {
+    const currentChain = isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN;
+    
+    // Custom RPC first (chain-specific)
+    const customRpcUrl = isMigrateRoute 
+      ? process.env.NEXT_PUBLIC_L1_RPC_URL 
+      : process.env.NEXT_PUBLIC_L2_RPC_URL;
+
+    const providers = [
+      ...(customRpcUrl
+        ? [
+            jsonRpcProvider({
+              rpc: () => ({
+                http: customRpcUrl,
+              }),
+            }),
+          ]
+        : []),
+      // Infura as fallback if available
+      ...(INFURA_KEY ? [infuraProvider({ apiKey: INFURA_KEY })] : []),
+      // Public provider as final fallback
+      publicProvider(),
+    ];
+
     const { chains, publicClient } = configureChains(
-      [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ apiKey: INFURA_KEY ?? "" }), publicProvider()]
+      [currentChain as Chain],
+      providers
     );
 
     const { connectors } = getDefaultWallets({
