@@ -111,7 +111,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           </Box>
           <Link href="/orchestrators" passHref legacyBehavior>
             <Button size="3" css={{ bc: "$green4", color: "$green11", br: "$3", fontSize: "$3", mr: "$3", "&:hover": { bc: "$green5", color: "$green11" } }} >
-              <A variant="green">View Orchestrators</A>
+              <A css={{bc:"$green4", color: "$green11", "&:hover": { bc: "$green5", color: "$green11" }}}>View Orchestrators</A>
             </Button>
           </Link>
         </Box>
