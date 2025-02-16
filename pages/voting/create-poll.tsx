@@ -187,7 +187,6 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       </Box>
                     </Flex>
                     <A
-                      variant="green"
                       css={{
                         display: "flex",
                         ml: "$2",
