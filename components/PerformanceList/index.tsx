@@ -3,7 +3,6 @@ import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import NextLink from "next/link"; // Import next/link as NextLink for clarity, though not directly used here anymore
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";

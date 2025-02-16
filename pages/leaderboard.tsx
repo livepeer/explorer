@@ -94,6 +94,7 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
                     css={{
                       py: "$1",
                       pl: "$2",
+                      pr: "$4",
                       border: "none",
                       bc: "$panel",
                       appearance: "none",

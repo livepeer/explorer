@@ -110,8 +110,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             share of the fees being paid into the Livepeer network.
           </Box>
           <Link href="/orchestrators" passHref legacyBehavior>
-            <Button size="3" variant="primary" >
-              <A variant="primary">View Orchestrators</A>
+            <Button size="3" css={{ bc: "$green4", color: "$green11", br: "$3", fontSize: "$3", mr: "$3", "&:hover": { bc: "$green5", color: "$green11" } }} >
+              <A variant="green">View Orchestrators</A>
             </Button>
           </Link>
         </Box>
@@ -160,7 +160,13 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               <Stat
                 label="Delegated with"
                 variant="interactive"
-                css={{mb: "$3"}}
+                css={{mb: "$3", 
+                  textDecoration: "underline",
+                  textDecorationColor: "$gray1",
+                  "&:hover": { 
+                    textDecoration: "underline",
+                    textDecorationColor: "$gray1"
+                  }}}
                 value={
                   <Box>
                     {delegateIdentity?.name
