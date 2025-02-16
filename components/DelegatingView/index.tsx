@@ -160,6 +160,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               <Stat
                 label="Delegated with"
                 variant="interactive"
+                css={{mb: "$3"}}
                 value={
                   <Box>
                     {delegateIdentity?.name
