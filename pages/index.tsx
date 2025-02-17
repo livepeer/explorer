@@ -13,6 +13,11 @@ import {
   Container,
   Flex,
   Heading,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Text,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
@@ -30,6 +35,8 @@ import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useChartData } from "hooks";
 import "react-circular-progressbar/dist/styles.css";
+import OrchestratorVotingList from "@components/OrchestratorVotingList";
+import { OrchestratorTabs } from "@lib/orchestrartor";
 
 const Panel = ({ children }) => (
   <Flex
@@ -368,19 +375,52 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
 
-            {!orchestrators?.transcoders || !protocol?.protocol ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Box>
-                <OrchestratorList
-                  data={orchestrators?.transcoders}
-                  pageSize={10}
-                  protocolData={protocol?.protocol}
-                />
-              </Box>
-            )}
+            <Tabs
+              defaultValue={OrchestratorTabs["Yield Overview"]}
+              css={{ mb: "$5" }}
+            >
+              <TabsList>
+                <TabsTrigger
+                  css={{
+                    height: 40,
+                  }}
+                  value={OrchestratorTabs["Yield Overview"]}
+                >
+                  <Text size="3">Yield Overview</Text>
+                </TabsTrigger>
+                <TabsTrigger
+                  css={{
+                    height: 40,
+                  }}
+                  value={OrchestratorTabs["Voting History"]}
+                >
+                  <Text size="3">Voting History</Text>
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value={OrchestratorTabs["Yield Overview"]}>
+                {!orchestrators?.transcoders || !protocol?.protocol ? (
+                  <Flex align="center" justify="center">
+                    <Spinner />
+                  </Flex>
+                ) : (
+                  <Box>
+                    <OrchestratorList
+                      data={orchestrators?.transcoders}
+                      pageSize={10}
+                      protocolData={protocol?.protocol}
+                    />
+                  </Box>
+                )}
+              </TabsContent>
+              <TabsContent value={OrchestratorTabs["Voting History"]}>
+                <Box>
+                  <OrchestratorVotingList
+                    data={orchestrators?.transcoders}
+                    pageSize={20}
+                  />
+                </Box>
+              </TabsContent>
+            </Tabs>
 
             <Flex
               css={{
