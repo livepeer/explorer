@@ -4,7 +4,8 @@ import Profile from "@components/Profile";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
+import { toNumber } from "ethers";
 
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
@@ -80,11 +81,13 @@ const AccountLayout = ({
   });
 
   const { data: bondingManagerAddress } = useBondingManagerAddress(); 
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
-    enabled: Boolean(bondingManagerAddress),
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
+    query: {
+      enabled: Boolean(bondingManagerAddress)
+    }
   });
   const treasury = {
     treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,

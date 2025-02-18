@@ -2,17 +2,15 @@ import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { Button } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import {
-  Address,
-  UsePrepareContractWriteConfig,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
+  useSimulateContract,
+  useReadContract,
+  useWriteContract,
 } from "wagmi";
 
-import { useMemo } from "react";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { ProposalExtended } from "@lib/api/treasury";
-import { ethers } from "ethers";
+import { keccak256 as ethersKeccak256, toUtf8Bytes } from "ethers";
+import { Address } from "viem";
 
 type Props = {
   action: "queue" | "execute";
@@ -20,8 +18,10 @@ type Props = {
   onClick?: () => void;
 };
 
-const keccak256 = (input: string) =>
-  ethers.utils.solidityKeccak256(["string"], [input ?? ""]);
+const keccak256 = (input: string): `0x${string}` => {
+  const hash = ethersKeccak256(toUtf8Bytes(input ?? ""));
+  return hash as `0x${string}`;
+};
 
 const QueueExecuteButton = (
   allProps: Props & React.ComponentProps<typeof Button>
@@ -30,12 +30,14 @@ const QueueExecuteButton = (
   const accountAddress = useAccountAddress();
   const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
-  const { data: eta } = useContractRead({
-    enabled: Boolean(livepeerGovernorAddress && proposal),
+  const { data: eta } = useReadContract({
     address: livepeerGovernorAddress,
     abi: livepeerGovernor,
     functionName: "proposalEta",
     args: [BigInt(proposal?.id ?? 0)],
+    query: {
+      enabled: Boolean(livepeerGovernorAddress && proposal)
+    },
   });
 
   const enabled =
@@ -44,26 +46,39 @@ const QueueExecuteButton = (
       ? proposal.state === "Succeeded" // only enable queue if proposal is explicitly in Succeeded state
       : Boolean(eta) && Date.now() >= eta! * 1000n);
 
-  const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(
-    () => ({
-      enabled,
-      address: livepeerGovernorAddress,
+  const { data: simulateData } = useSimulateContract({
+    address: livepeerGovernorAddress,
+    abi: livepeerGovernor,
+    functionName: action,
+    args: [
+      proposal?.targets as Address[],
+      proposal?.values.map((v) => BigInt(v)),
+      proposal?.calldatas,
+      keccak256(proposal?.description),
+    ],
+    query: {
+      enabled
+    }
+  });
+
+  const { writeContract, data, isPending, error, isSuccess } = useWriteContract();
+
+  const handleWrite = () => {
+    if (!simulateData) return;
+    writeContract({
+      address: livepeerGovernorAddress as Address,
       abi: livepeerGovernor,
       functionName: action,
-      value: 0n,
       args: [
         proposal?.targets as Address[],
         proposal?.values.map((v) => BigInt(v)),
         proposal?.calldatas,
         keccak256(proposal?.description),
-      ],
-    }),
-    [action, enabled, livepeerGovernorAddress, proposal]
-  );
-  const { config } = usePrepareContractWrite(preparedWriteConfig);
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+      ]
+    });
+  };
 
-  useHandleTransaction(action, data, error, isLoading, isSuccess, {
+  useHandleTransaction(action, data ? { hash: data } : undefined, error, isPending, isSuccess, {
     proposal,
   });
 
@@ -74,7 +89,7 @@ const QueueExecuteButton = (
   return (
     <Button
       onClick={() => {
-        write?.();
+        handleWrite();
         onClick?.();
       }}
       disabled={!enabled}

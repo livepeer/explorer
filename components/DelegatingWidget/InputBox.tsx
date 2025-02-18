@@ -5,13 +5,12 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AccountQueryResult } from "apollo";
 import {
-  StakingAction,
   useAccountAddress,
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
-import { ConsoleView } from "react-device-detect";
+import { StakingAction } from "@lib/types";
 
 interface Treasury {
   treasuryRewardCutRate: number;

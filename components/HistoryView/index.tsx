@@ -98,11 +98,13 @@ const Index = () => {
   }
 
   return (
-    <InfiniteScroll
-      css={{ overflow: "hidden !important" }}
-      scrollThreshold={0.5}
-      dataLength={data && data.transactions.length}
-      next={async () => {
+    <Box css={{ overflow: "hidden !important" }}>
+      <InfiniteScroll
+        scrollThreshold={0.5}
+        dataLength={data?.transactions?.length ?? 0}
+        hasMore={data?.transactions?.length >= 10}
+        loader={<Flex css={{ justifyContent: "center", my: "$4" }}><Spinner /></Flex>}
+        next={async () => {
         stopPolling();
         if (!loading && data.transactions.length >= 10) {
           try {
@@ -128,28 +130,14 @@ const Index = () => {
           }
         }
       }}
-      hasMore={true}
-    >
-      <Box css={{ mt: "$3", mb: "$5", pb: "$4", position: "relative" }}>
-        <Box css={{ pb: "$3" }}>
-          {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
+      >
+        <Box css={{ mt: "$3", mb: "$5", pb: "$4", position: "relative" }}>
+          <Box css={{ pb: "$3" }}>
+            {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
+          </Box>
         </Box>
-        {loading && data.transactions.length >= 10 && (
-          <Flex
-            css={{
-              position: "absolute",
-              transform: "translateX(-50%)",
-              left: "50%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Spinner />
-          </Flex>
-        )}
-      </Box>
-    </InfiniteScroll>
+      </InfiniteScroll>
+    </Box>
   );
 };
 

@@ -43,7 +43,7 @@ import { getProposalExtended } from "@lib/api/treasury";
 import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { BigNumber } from "ethers";
+import { toNumber } from "ethers";
 
 dayjs.extend(relativeTime);
 
@@ -119,7 +119,7 @@ const Proposal = () => {
         abi: livepeerToken,
         data: calldata,
       });
-      if (functionName === "transfer" && BigNumber.from(value).isZero()) {
+      if (functionName === "transfer" && Number(value) === Number(0)) {
         return {
           lptTransfer: {
             receiver: args[0],

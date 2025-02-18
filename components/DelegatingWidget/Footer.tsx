@@ -1,4 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { StakingAction } from "@lib/types";
 import {
   getDelegatorStatus,
   getHint,
@@ -6,9 +7,8 @@ import {
 } from "@lib/utils";
 import { Box, Button } from "@jjasonn.stone/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { parseEther } from "ethers/lib/utils";
+import { ZeroAddress } from "ethers";
 import {
-  StakingAction,
   useAccountAddress,
   useAccountBalanceData,
   usePendingFeesAndStakeData,
@@ -95,21 +95,21 @@ const Footer = ({
       simulateNewActiveSetOrder({
         action,
         transcoders: JSON.parse(JSON.stringify(transcoders)),
-        amount: parseEther(amount ? amount.toString() : "0"),
+        amount: (amount ? amount: "0"),
         newDelegate: transcoder?.id ?? "",
         oldDelegate: delegator?.delegate?.id,
       }),
     [action, transcoders, amount, transcoder, delegator]
   );
   const { newPosPrev, newPosNext } = useMemo(
-    () => getHint(delegator?.delegate?.id, newActiveSetOrder),
+    () => getHint(delegator?.delegate?.id ?? ZeroAddress, newActiveSetOrder),
     [delegator, newActiveSetOrder]
   );
   const {
     newPosPrev: currDelegateNewPosPrev,
     newPosNext: currDelegateNewPosNext,
   } = useMemo(
-    () => getHint(transcoder?.id, newActiveSetOrder),
+    () => getHint(transcoder?.id ?? ZeroAddress, newActiveSetOrder),
     [newActiveSetOrder, transcoder]
   );
 

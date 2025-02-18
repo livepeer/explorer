@@ -17,9 +17,9 @@ import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { isL2ChainId } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { ethers } from "ethers";
+import { ethers, TypedDataEncoder, verifyTypedData } from "ethers";
 import {
   useAccountAddress,
   useActiveChain,
@@ -526,7 +526,7 @@ const MigrateUndelegatedStake = () => {
           unbondingLockIds: state.migrationParams.unbondingLockIds,
         };
 
-        const payload = ethers.utils._TypedDataEncoder.getPayload(
+        const payload = TypedDataEncoder.getPayload(
           domain,
           types,
           value
@@ -535,7 +535,7 @@ const MigrateUndelegatedStake = () => {
 
         if (signature) {
           try {
-            signer = ethers.utils.verifyTypedData(
+            signer = verifyTypedData(
               domain,
               types,
               value,
@@ -821,7 +821,7 @@ function MigrationFields({ migrationParams, css = {} }) {
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>
           Total Undelegated
         </Box>
-        <Box>{ethers.utils.formatEther(migrationParams.total)} LPT</Box>
+        <Box>{ethers.formatEther(migrationParams.total)} LPT</Box>
       </ReadOnlyCard>
     </Box>
   );

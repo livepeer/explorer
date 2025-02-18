@@ -1,4 +1,4 @@
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { textTruncate } from "@lib/utils";
 import { Box, Flex } from "@jjasonn.stone/design-system";
 import { useEnsData } from "hooks";
@@ -45,7 +45,7 @@ const Index = ({ active, address }) => {
             src={identity.avatar}
           />
         ) : (
-          <QRCode
+          <QRCodeSVG
             style={{
               borderRadius: 1000,
               width: 24,

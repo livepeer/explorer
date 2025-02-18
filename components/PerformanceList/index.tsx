@@ -5,7 +5,7 @@ import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import NextLink from "next/link"; // Import next/link as NextLink for clarity, though not directly used here anymore
 import { useMemo } from "react";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import numeral from "numeral";
@@ -114,19 +114,19 @@ const PerformanceList = ({
                     src={identity.avatar}
                   />
                 ) : (
-                  <Box
-                    as={QRCode}
-                    css={{
-                      mr: "$2",
-                      borderRadius: 1000,
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                    }}
-                    fgColor={`#${row.values.id.substr(2, 6)}`}
+                  <Box css={{ mr: "$2" }}>
+                    <QRCodeSVG
+                      style={{
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                      }}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
                     value={row.values.id}
-                  />
+                    />
+                  </Box>
                 )}
                 {identity?.name ? (
                   <Flex css={{ fontWeight: 600, ai: "center" }}>
@@ -150,8 +150,10 @@ const PerformanceList = ({
                     {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                   </Box>
                 )}
-                {typeof row.values.scores != "undefined" && row.values.scores != null ?
-                  <Badge size="2" variant="primary"
+                {typeof row.values.scores != "undefined" && row.values.scores != null ? (
+                  <Badge
+                    size="2"
+                    variant="primary"
                     css={{
                       mr: "$2",
                       fontSize: "$1",
@@ -160,13 +162,9 @@ const PerformanceList = ({
                       },
                     }}
                   >
-                    {
-                      numeral(row.values.scores)
-                        .divide(10)
-                        .format("0.00")
-                    }
+                    {numeral(row.values.scores).divide(10).format("0.00")}
                   </Badge>
-                : null}
+                ) : null}
               </Flex>
             </LivepeerLink>
           );

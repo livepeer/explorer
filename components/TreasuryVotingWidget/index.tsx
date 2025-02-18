@@ -8,6 +8,7 @@ import { abbreviateNumber, fromWei } from "../../lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
+import { formatEther } from "viem";
 import QueueExecuteButton from "@components/QueueExecuteButton";
 
 dayjs.extend(duration);
@@ -23,7 +24,7 @@ const shortenAddress = (address: string) =>
   address?.replace(address.slice(5, 39), "…") ?? "";
 
 const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? 0), 4);
+  abbreviateNumber(Number(formatEther(BigInt(lpt ?? "0"))), 4);
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();

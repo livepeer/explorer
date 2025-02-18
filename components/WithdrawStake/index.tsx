@@ -2,24 +2,56 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import {
+  useSimulateContract,
+  useWriteContract,
+} from "wagmi";
+import { useState } from "react";
+import { type Address } from "viem";
 
-const Index = ({ unbondingLockId }: any) => {
+type Props = {
+  unbondingLockId: number;
+};
+
+const Index = ({ unbondingLockId }: Props) => {
   const accountAddress = useAccountAddress();
-
   const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const [txError, setTxError] = useState<Error | null>(null);
 
-  const { config } = usePrepareContractWrite({
+  const { data: simulateData } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawStake",
-    args: [unbondingLockId],
+    args: [BigInt(unbondingLockId)],
+    query: {
+      enabled: Boolean(bondingManagerAddress && accountAddress)
+    }
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
-  useHandleTransaction("withdrawStake", data, error, isLoading, isSuccess, {
-    unbondingLockId,
-  });
+  const { writeContract, isPending, data: writeData } = useWriteContract();
+
+  useHandleTransaction(
+    "withdrawStake",
+    { hash: writeData },
+    txError,
+    isPending,
+    Boolean(writeData),
+    {
+      unbondingLockId,
+    }
+  );
+
+  const handleClick = async () => {
+    try {
+      if (simulateData?.request) {
+        writeContract(simulateData.request);
+        setTxError(null);
+      }
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      setTxError(error as Error);
+    }
+  };
 
   if (!accountAddress) {
     return null;
@@ -30,7 +62,8 @@ const Index = ({ unbondingLockId }: any) => {
       <Button
         variant="primary"
         size="3"
-        onClick={write}
+        onClick={handleClick}
+        disabled={!simulateData?.request || isPending}
         css={{ py: "$2", mr: "$3" }}
       >
         Withdraw

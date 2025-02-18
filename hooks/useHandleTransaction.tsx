@@ -1,17 +1,17 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
-import { WriteContractResult } from "@wagmi/core";
-import { capitalCase } from "change-case";
+import { type UseSimulateContractReturnType } from "wagmi";
 import { useEffect } from "react";
 import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
+import { capitalCase } from "change-case";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
-  data: WriteContractResult | undefined,
+  simulationData: { hash?: `0x${string}` } | undefined,
   error: Error | null,
   isLoading: boolean,
   isSuccess: boolean,
   args: any,
-  onSuccess?: ((result: WriteContractResult) => Promise<void> | void) | null
+  onSuccess?: ((result: { hash?: `0x${string}` }) => Promise<void> | void) | null
 ) => {
   const {
     setLatestTransactionError,
@@ -28,23 +28,24 @@ export const useHandleTransaction = (
   }, [isLoading]);
 
   useEffect(() => {
-    if (data) {
+    if (simulationData?.hash) {
       addRecentTransaction({
-        hash: data.hash,
+        hash: simulationData.hash,
         description: capitalCase(id),
       });
     }
-  }, [data]);
+  }, [simulationData]);
 
   useEffect(() => {
-    if (data) {
-      setLatestTransactionDetails(data.hash, id, args);
+    if (simulationData) {
+      // Store simulation data for later use
+      setLatestTransactionDetails(simulationData.hash!, id, args);
 
       if (onSuccess) {
-        onSuccess(data);
+        onSuccess(simulationData);
       }
     }
-  }, [data]);
+  }, [simulationData]);
 
   useEffect(() => {
     if (isSuccess) {

@@ -1,16 +1,19 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
+import { MAXIMUM_VALUE_UINT256, toWei } from "@lib/utils";
 import { Box, Button } from "@jjasonn.stone/design-system";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther } from "viem";
 import { useHandleTransaction } from "hooks";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
-import { useMemo, useState } from "react";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useMemo, useState, useEffect } from "react";
+import { useSimulateContract, useWriteContract } from "wagmi";
+import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import ProgressSteps from "../ProgressSteps";
+import { Address } from "viem";
+import { error } from "console";
 
 const Delegate = ({
   to,
@@ -27,28 +30,41 @@ const Delegate = ({
   },
 }) => {
   const { data: livepeerTokenAddress } = useLivepeerTokenAddress();
-
   const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const addRecentTransaction = useAddRecentTransaction();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(livepeerTokenAddress && bondingManagerAddress),
+  const { data: approveSimData } = useSimulateContract({
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
-    args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
+    args: [bondingManagerAddress as Address, BigInt(MAXIMUM_VALUE_UINT256)],
+    query: {
+      enabled: Boolean(livepeerTokenAddress && bondingManagerAddress && bondingManagerAddress !== "0x")
+    }
+
   });
-  const {
-    data: approveData,
-    isLoading: approveIsLoading,
-    write: approveWrite,
-    error: approveError,
-    isSuccess: approveIsSuccess,
-  } = useContractWrite(config);
+
+  const { writeContract: approve, isPending: approveIsLoading, isSuccess: approveIsSuccess, data: approveWriteData } = useWriteContract();
+
+  useEffect(() => {
+    if (approveWriteData) {
+      addRecentTransaction({
+        hash: approveWriteData,
+        description: "Approve"
+      });
+    }
+  }, [approveWriteData, addRecentTransaction]);
+
+  const handleApprove = () => {
+    if (approveSimData?.request) {
+      approve(approveSimData.request);
+    }
+  };
 
   useHandleTransaction(
     "approve",
-    approveData,
-    approveError,
+    approveWriteData ? { hash: approveWriteData } : undefined,
+    null,
     approveIsLoading,
     approveIsSuccess,
     {
@@ -57,17 +73,16 @@ const Delegate = ({
     }
   );
 
-  const bondWithHintArgs = {
+  const bondWithHintArgs = useMemo(() => ({
     amount: amount?.toString() ? parseEther(amount) : "0",
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
     currDelegateNewPosNext,
-  };
+  }), [amount, to, oldDelegateNewPosPrev, oldDelegateNewPosNext, currDelegateNewPosPrev, currDelegateNewPosNext]);
 
-  const { config: bondWithHintConfig } = usePrepareContractWrite({
-    enabled: Boolean(to),
+  const { data: bondSimData } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "bondWithHint",
@@ -79,19 +94,30 @@ const Delegate = ({
       currDelegateNewPosPrev,
       currDelegateNewPosNext,
     ],
+
   });
-  const {
-    data: bondData,
-    isLoading: bondIsLoading,
-    write: bondWrite,
-    isSuccess: bondIsSuccess,
-    error: bondError,
-  } = useContractWrite(bondWithHintConfig);
+
+  const { writeContract: bond, isPending: bondIsLoading, isSuccess: bondIsSuccess, data: bondWriteData } = useWriteContract();
+
+  useEffect(() => {
+    if (bondWriteData) {
+      addRecentTransaction({
+        hash: bondWriteData,
+        description: "Bond"
+      });
+    }
+  }, [bondWriteData, addRecentTransaction]);
+
+  const handleBond = () => {
+    if (bondSimData?.request) {
+      bond(bondSimData.request);
+    }
+  };
 
   useHandleTransaction(
     "bond",
-    bondData,
-    bondError,
+    bondWriteData ? { hash: bondWriteData } : undefined,
+    null,
     bondIsLoading,
     bondIsSuccess,
     bondWithHintArgs
@@ -127,7 +153,7 @@ const Delegate = ({
     try {
       setApprovalSubmitted(true);
 
-      approveWrite?.();
+      handleApprove();
     } catch (e) {
       console.log(e);
     }
@@ -135,7 +161,7 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      bondWrite?.();
+      handleBond();
     } catch (e) {
       console.error(e);
     }

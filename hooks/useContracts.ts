@@ -1,9 +1,9 @@
 import { controller } from "@lib/api/abis/main/Controller";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
+import { keccak256, toUtf8Bytes } from "ethers";
 import { useMemo } from "react";
 import { Address } from "viem";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
 
 // DYNAMIC ADDRESSES FROM CONTROLLER
 
@@ -11,7 +11,7 @@ import { useContractRead } from "wagmi";
 const useContractAddress = (name: string) => {
   const hash = useMemo(() => keccak256(toUtf8Bytes(name)) as Address, [name]);
 
-  return useContractRead({
+  return useReadContract({
     address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.controller,
     abi: controller,
     functionName: "getContract",

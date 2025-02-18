@@ -8,7 +8,7 @@ import {
   TwitterLogoIcon,
   GitHubLogoIcon,
 } from "@modulz/radix-icons";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
@@ -64,8 +64,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
               src={identity.avatar}
             />
           ) : (
-            <Box
-              as={QRCode}
+            <QRCodeSVG
               style={{
                 border: "1px solid",
                 padding: "4px",

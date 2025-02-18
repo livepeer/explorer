@@ -1,29 +1,28 @@
 import { Signer } from "ethers";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useDisconnect, useNetwork, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, useDisconnect, useConfig, useWalletClient } from "wagmi";
+import { SUPPORTED_CHAINS } from "../lib/chains";
 
 const useIsChainSupported = () => {
-  const activeChain = useActiveChain();
+  const { chain } = useAccount();
+  const { chains } = useConfig();
 
   return useMemo(
-    () => (activeChain ? !activeChain.unsupported : false),
-    [activeChain]
+    () => chain ? chains.some(c => c.id === chain.id) : false,
+    [chain, chains]
   );
 };
 
 export const useAccountAddress = () => {
-  const account = useAccount();
-
+  const { address } = useAccount();
   const isChainSupported = useIsChainSupported();
 
-  return isChainSupported && account?.address ? account.address : null;
+  return isChainSupported && address ? address : null;
 };
 
 export const useAccountSigner = () => {
-  const walletClient = useWalletClient();
-
+  const { data: walletClient } = useWalletClient();
   const isChainSupported = useIsChainSupported();
-
   const [signer, setSigner] = useState<Signer | null>(null);
 
   // useEffect(() => {
@@ -44,15 +43,14 @@ export const useAccountSigner = () => {
 };
 
 export const useActiveChain = () => {
-  const { chain } = useNetwork();
-
+  const { chain } = useAccount();
   return chain;
 };
 
 export function useDisconnectWallet() {
-  const disconnect = useDisconnect();
+  const { disconnect } = useDisconnect();
 
   return () => {
-    disconnect?.disconnect?.();
+    disconnect?.();
   };
 }

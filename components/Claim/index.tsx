@@ -1,10 +1,10 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
-import { getL1MigratorAddress, getL2MigratorAddress } from "@lib/api/contracts";
+import { getL2MigratorAddress } from "@lib/api/contracts";
+import { useCallback } from 'react';
 import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { constants, ethers } from "ethers";
+import { ethers } from "ethers";
 import {
   useAccountAddress,
   useHandleTransaction,
@@ -13,17 +13,16 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
 import {
-  Address,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
+  useSimulateContract,
+  useWriteContract,
+  useReadContract,
 } from "wagmi";
+import { Address as ViemAddress } from "viem";
 
-const l2MigratorAddress = getL2MigratorAddress();
+const l2MigratorAddress = getL2MigratorAddress() as `0x${string}`;
 
 const Claim = () => {
   const accountAddress = useAccountAddress();
-
   const l1Delegator = useL1DelegatorData(accountAddress);
 
   const [proof, setProof] = useState<any>(null);
@@ -31,8 +30,8 @@ const Claim = () => {
   const [isDelegator, setIsDelegator] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(migrationParams && l2MigratorAddress),
+  // Simulate contract interaction
+  const { data: simulateData } = useSimulateContract({
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStake",
@@ -41,48 +40,76 @@ const Claim = () => {
       migrationParams?.stake,
       migrationParams?.fees,
       proof,
-      constants.AddressZero,
+      ethers.ZeroAddress as `0x${string}`,
     ],
   });
 
-  const { data, isIdle, isLoading, write, isSuccess, error } =
-    useContractWrite(config);
-
-  useEffect(() => {
-    if (proof && isIdle) {
-      write?.();
-    }
-  }, [proof, write, isIdle]);
-
-  const { data: claimStakeEnabled } = useContractRead({
-    enabled: Boolean(l2MigratorAddress),
+  // Read contract state
+  const { data: isClaimEnabled } = useReadContract({
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStakeEnabled",
   });
 
-  const { data: isMigrated, refetch } = useContractRead({
-    enabled: Boolean(accountAddress),
+  const { data: migratedDelegators } = useReadContract({
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "migratedDelegators",
-    args: [accountAddress ?? "0x"],
+    args: [accountAddress as `0x${string}`],
   });
+
+  // Write contract interaction
+  const { writeContract, data: writeData, isPending, isSuccess, error } = useWriteContract();
+
+  // Handle the write operation
+  const handleClaim = useCallback(async () => {
+    if (simulateData) {
+      writeContract({...simulateData.request});
+    }
+  }, [simulateData, writeContract]);
+
+  useEffect(() => {
+    const fetchProof = async () => {
+      try {
+        const response = await fetch(
+          `/api/l1-delegator/${accountAddress}`
+        );
+        const data = await response.json();
+        setProof(data.proof);
+        setMigrationParams(data.migrationParams);
+        setIsDelegator(data.isDelegator);
+      } catch (err) {
+        console.error("Error fetching proof:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (accountAddress) {
+      fetchProof();
+    }
+  }, [accountAddress]);
+
+  useEffect(() => {
+    if (proof && !isPending) {
+      handleClaim();
+    }
+  }, [proof, handleClaim, isPending]);
 
   useHandleTransaction(
     "claimStake",
-    data,
+    writeData ? { hash: writeData } : undefined,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     {
       delegate: migrationParams?.delegate,
       stake: migrationParams?.stake,
       fees: migrationParams?.fees,
-      newDelegate: constants.AddressZero,
+      newDelegate: ethers.ZeroAddress,
     },
     () => {
-      refetch();
+      // refetch();
     }
   );
 
@@ -114,7 +141,7 @@ const Claim = () => {
     init();
   }, [accountAddress, l1Delegator]);
 
-  return loading || !isDelegator || isMigrated ? null : (
+  return loading || !isDelegator || migratedDelegators ? null : (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
       <Box
         css={{
@@ -150,7 +177,7 @@ const Claim = () => {
                 letterSpacing: "-.4px",
               }}
             >
-              {ethers.utils.formatEther(migrationParams?.stake)} LPT
+              {ethers.formatEther(migrationParams?.stake)} LPT
             </Box>
             and
             <Box
@@ -164,10 +191,10 @@ const Claim = () => {
                 letterSpacing: "-.4px",
               }}
             >
-              {ethers.utils.formatEther(migrationParams.fees)} ETH
+              {ethers.formatEther(migrationParams.fees)} ETH
             </Box>
             in earned fees{" "}
-            {claimStakeEnabled
+            {isClaimEnabled
               ? `is available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`
               : `will be available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
           state snapshot.`}
@@ -206,7 +233,7 @@ const Claim = () => {
           </Box>
         </Box>
         <Flex css={{ mt: "$3", alignItems: "center" }}>
-          {claimStakeEnabled && (
+          {isClaimEnabled && (
             <Button
               onClick={async () => {
                 try {

@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { fromWei, txMessages } from "../../lib/utils";
-import { MdReceipt } from "react-icons/md";
+import { MdCheckCircle } from "@react-icons/all-files/md/MdCheckCircle";
 import Router, { useRouter } from "next/router";
 import {
   Box,
@@ -412,7 +412,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
       >
         Transfer Receipt{" "}
         <Box css={{ ml: "6px", color: "$primary10" }}>
-          <MdReceipt />
+          <MdCheckCircle />
         </Box>
       </LivepeerLink>
     </Flex>

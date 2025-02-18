@@ -35,8 +35,8 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
-import { BigNumber } from "ethers";
+import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo/subgraph";
+import type { Chain } from "viem";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -47,7 +47,6 @@ import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
-import { Chain } from "wagmi";
 import {
   useAccountAddress,
   useActiveChain,
@@ -112,9 +111,15 @@ const NavButton = ({ href, children, isActive }: { href: string, children: React
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath } = useRouter();
-  const { data: protocolData } = useProtocolQuery();
-  const { data: pollData } = usePollsQuery();
-  const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
+  const { data: protocolData } = useProtocolQuery({
+    fetchPolicy: 'cache-and-network',
+  });
+  const { data: pollData } = usePollsQuery({
+    fetchPolicy: 'cache-and-network',
+  });
+  const { data: treasuryProposalsData } = useTreasuryProposalsQuery({
+    fetchPolicy: 'cache-and-network',
+  });
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -143,7 +148,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, [currentRound?.id, treasuryProposalsData?.treasuryProposals]);
 
   const hasPendingFees = useMemo(
-    () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
+    () => Number(pendingFeesAndStake?.pendingFees ?? 0) > 0,
     [pendingFeesAndStake?.pendingFees]
   );
 

@@ -19,7 +19,7 @@ import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { abbreviateNumber, fromWei } from "../../lib/utils";
+import { abbreviateNumber, fromWei, toNumber } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";
@@ -274,7 +274,7 @@ const Index = ({ data }: { data: Props }) => {
                       css={{ fontWeight: 500, color: "$hiContrast" }}
                     >
                       <Box as="span">
-                        {abbreviateNumber(votingPower, 4)} LPT (
+                      {abbreviateNumber(toNumber(votingPower), 4)} LPT (
                         {(
                           (+votingPower /
                             (data.poll.stake.nonVoters +

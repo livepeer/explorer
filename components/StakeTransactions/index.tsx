@@ -2,12 +2,12 @@ import {
   abbreviateNumber,
   getHint,
   simulateNewActiveSetOrder,
+  toNumber,
 } from "../../lib/utils";
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 import { Card, Text, Box, Flex, Heading } from "@jjasonn.stone/design-system";
-import { parseEther } from "ethers/lib/utils";
 import { UnbondingLock } from "apollo";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
@@ -36,7 +36,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
               action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: parseEther(lock.amount),
+              amount: (lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(
@@ -92,7 +92,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                     <Box css={{ ml: "$4" }}>
                       {" "}
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 4)}
+                        {abbreviateNumber(toNumber(lock.amount), 4)}
                       </Box>{" "}
                       LPT
                     </Box>
@@ -112,7 +112,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
             const newActiveSetOrder = simulateNewActiveSetOrder({
               action: "delegate",
               transcoders: JSON.parse(JSON.stringify(transcoders)),
-              amount: parseEther(lock.amount),
+              amount:(lock.amount),
               newDelegate: isBonded ? delegator.delegate.id : lock.delegate.id,
             });
             const { newPosPrev, newPosNext } = getHint(
@@ -146,7 +146,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                   <Flex css={{ alignItems: "center" }}>
                     {isMyAccount && (
                       <>
-                        {isBonded ? (
+                        {lock.delegate?.id ? (
                           <Redelegate
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
@@ -166,7 +166,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                     <Box css={{ ml: "$4" }}>
                       {" "}
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 3)}
+                        {abbreviateNumber(toNumber(lock.amount), 3)}
                       </Box>{" "}
                       LPT
                     </Box>

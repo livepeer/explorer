@@ -101,84 +101,91 @@ function DataTable<T extends object>({
               }}
             >
               <Thead>
-                {headerGroups.map((headerGroup, i) => (
-                  <Tr key={i} {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column: any, i) => (
-                      <Th
-                        key={i}
-                        {...column.getHeaderProps(
+                {headerGroups.map((headerGroup) => {
+                  const { key, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+                  return (
+                    <Tr key={key} {...headerGroupProps}>
+                      {headerGroup.headers.map((column: any) => {
+                        const { key, ...cellProps } = column.getHeaderProps(
                           column.getSortByToggleProps({ title: undefined })
-                        )}
-
-                        css={{
-                          px: i === 0 ? "$2" : "auto",
-                          width: i === 0 ? "40px" : "auto",
-                          "@bp1": {
-                            px: i === 0 ? "$5" : "auto",
-                          },
-                        }}
-                      >
-                        <Box
-                          css={{
-                            fontSize: 11,
-                            color: "$neutral10",
-                            display: "flex",
-                            pt: "$2",
-                            alignItems: "center",
-                            textTransform: "uppercase",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {column?.sortIconAlignment !== "start" &&
-                            column.render("Header")}
-                          <Box
+                        );
+                        return (
+                          <Th
+                            key={key}
+                            {...cellProps}
                             css={{
-                              minWidth:
-                                column?.sortIconAlignment !== "start" ? 20 : 0,
+                              px: column.id === "0" ? "$2" : "auto",
+                              width: column.id === "0" ? "40px" : "auto",
+                              "@bp1": {
+                                px: column.id === "0" ? "$5" : "auto",
+                              },
                             }}
                           >
-                            {column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <ChevronDownIcon />
-                              ) : (
-                                <ChevronUpIcon />
-                              )
-                            ) : (
-                              <></>
-                            )}
-                          </Box>
-
-                          {column?.sortIconAlignment === "start" && (
                             <Box
                               css={{
-                                ml: "$1",
+                                fontSize: 11,
+                                color: "$neutral10",
+                                display: "flex",
+                                pt: "$2",
+                                alignItems: "center",
+                                textTransform: "uppercase",
+                                fontWeight: 700,
                               }}
                             >
-                              {column.render("Header")}
+                              {column?.sortIconAlignment !== "start" &&
+                                column.render("Header")}
+                              <Box
+                                css={{
+                                  minWidth:
+                                    column?.sortIconAlignment !== "start" ? 20 : 0,
+                                }}
+                              >
+                                {column.isSorted ? (
+                                  column.isSortedDesc ? (
+                                    <ChevronDownIcon />
+                                  ) : (
+                                    <ChevronUpIcon />
+                                  )
+                                ) : (
+                                  <></>
+                                )}
+                              </Box>
+
+                              {column?.sortIconAlignment === "start" && (
+                                <Box
+                                  css={{
+                                    ml: "$1",
+                                  }}
+                                >
+                                  {column.render("Header")}
+                                </Box>
+                              )}
                             </Box>
-                          )}
-                        </Box>
-                      </Th>
-                    ))}
-                  </Tr>
-                ))}
+                          </Th>
+                        );
+                      })}
+                    </Tr>
+                  );
+                })}
               </Thead>
               <Tbody {...getTableBodyProps()}>
-                {page.map((row, i) => {
+                {page.map((row) => {
                   prepareRow(row);
+                  const { key, ...rowProps } = row.getRowProps();
                   return (
-                    <Tr key={i} {...row.getRowProps()}>
-                      {row.cells.map((cell, i) => {
+                    <Tr key={key} {...rowProps}>
+                      {row.cells.map((cell) => {
+                        const { key, ...cellProps } = cell.getCellProps();
                         return (
                           <Td
-                            key={i}
-                            {...cell.getCellProps()}
+                            key={key}
+                            {...cellProps}
                             css={{
                               fontSize: "$3",
                               fontWeight: 500,
                               lineHeight: 2,
-                              px: i === 0 ? "$5" : "$1",
-                              width: i === 0 ? "40px" : "auto",
+                              px: cell.column.id === "0" ? "$5" : "$1",
+                              width: cell.column.id === "0" ? "40px" : "auto",
                             }}
                           >
                             {cell.render("Cell")}

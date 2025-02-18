@@ -9,7 +9,8 @@ import {
 import { useBondingManagerAddress } from "hooks/useContracts";
 
 import { useMemo, useState } from "react";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
+import { type Address } from "viem";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
   bondingManagerAddress: Address | undefined;
@@ -28,20 +29,29 @@ const CheckpointButton = ({
   ...props
 }: ButtonProps) => {
   disabled ||= !Boolean(bondingManagerAddress && targetAddress);
-  const { config } = usePrepareContractWrite({
-    enabled: !disabled,
+  
+  const { data: simulateData } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "checkpointBondingState",
     args: [targetAddress!],
+    query: {
+      enabled: !disabled
+    },
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+
+  const { writeContract, data, isPending, error, isSuccess } = useWriteContract();
+
+  const handleWrite = () => {
+    if (!simulateData) return;
+    writeContract(simulateData.request);
+  };
 
   useHandleTransaction(
     "checkpoint",
-    data,
+    data ? { hash: data } : undefined,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     { targetAddress, isOrchestrator },
     onSuccess
@@ -54,7 +64,7 @@ const CheckpointButton = ({
       variant="gray"
       ghost
       disabled={disabled}
-      onClick={write}
+      onClick={handleWrite}
     >
       {children}
     </Button>

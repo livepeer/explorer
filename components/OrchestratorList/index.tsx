@@ -45,7 +45,7 @@ import {
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
 import { HelpCircle } from "react-feather";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -115,11 +115,13 @@ const OrchestratorList = ({
     [principle]
   );
   const { data: bondingManagerAddress } = useBondingManagerAddress();
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
-    enabled: Boolean(bondingManagerAddress),
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
+    query: {
+      enabled: Boolean(bondingManagerAddress)
+    }
   });
 
   const mappedData = useMemo(() => {
@@ -168,7 +170,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut: Number(treasuryRewardCutRate) / 1e18,
           },
         });
 

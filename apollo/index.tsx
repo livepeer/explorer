@@ -1,21 +1,49 @@
-import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { useMemo } from "react";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 export * from "./subgraph";
 
-export const client = new ApolloClient({
-  link: new HttpLink({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  }),
-  cache: new InMemoryCache(),
-});
+const createApolloClient = () => {
+  let subgraphUrl = process.env.NEXT_PUBLIC_SUBGRAPH_URL;
+  
+  if (!subgraphUrl) {
+    throw new Error('NEXT_PUBLIC_SUBGRAPH_URL environment variable is not set');
+  }
 
-export function getApollo() {
-  return client;
-}
+  // Ensure URL has proper scheme
+  if (!subgraphUrl.startsWith('http://') && !subgraphUrl.startsWith('https://')) {
+    subgraphUrl = `https://${subgraphUrl}`;
+  }
 
-export function useApollo() {
-  const store = useMemo(() => getApollo(), []);
-  return store;
-}
+  return new ApolloClient({
+    uri: subgraphUrl,
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            // Add cache policies for your queries if needed
+          }
+        }
+      }
+    }),
+    defaultOptions: {
+      query: {
+        fetchPolicy: "no-cache",
+      },
+      watchQuery: {
+        fetchPolicy: "no-cache",
+      }
+    },
+  });
+};
+
+// Client-side usage
+export const useApollo = () => {
+  return createApolloClient();
+};
+
+// Server-side usage
+export const getApollo = () => {
+  return createApolloClient();
+};
+
+export default useApollo;

@@ -24,9 +24,9 @@ import {
   getNodeInterfaceAddress
 } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { BigNumber, ethers } from "ethers";
+import { ethers, TypedDataEncoder, verifyTypedData } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
 import {
   CHAIN_INFO,
@@ -212,7 +212,12 @@ const MigrateBroadcaster = () => {
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const { register, watch } = useForm();
+  interface FormInputs {
+  signerAddress: string;
+  signature: string;
+}
+
+const { register, watch } = useForm<FormInputs>();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
   const time = new Date();
@@ -255,24 +260,25 @@ const MigrateBroadcaster = () => {
         type: "initiate",
       });
 
-      const gasPriceBid = await l2Provider.getGasPrice();
+      // Get the current block to use its base fee
+      const block = await l2Provider.getBlock('latest');
+      if (!block?.baseFeePerGas) throw new Error("Failed to get base fee");
 
-      // fetching submission price
-      // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
+      // fetching submission price using block's base fee
+      // https://docs.arbitrum.io/how-arbitrum-works/gas-fees
       const submissionPrice = await l1PublicClient.readContract({
         address: inboxAddress,
         abi: inbox,
         functionName: "calculateRetryableSubmissionFee",
         args: [
           state.migrationCallData.length,
-          BigInt(gasPriceBid.toString()), // TODO change this to 0 to use the block.basefee once Nitro upgrades
+          block.baseFeePerGas,  // Use block's base fee as per Nitro upgrade
         ],
       });
 
-      // overpaying submission price to account for increase
-      // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
-      // the excess will be sent back to the refund address
-      const maxSubmissionPrice = BigNumber.from(submissionPrice).mul(4);
+      // Overpay submission price by 50% to account for potential increases
+      // https://docs.arbitrum.io/how-arbitrum-works/gas-fees#important-note-about-base-submission-fee
+      // Any excess will be credited back to the credit-back address
 
       // calculating estimated gas for the tx
       // const estimatedGas = await l2PublicClient.estimateContractGas({
@@ -297,7 +303,7 @@ const MigrateBroadcaster = () => {
       // ethValue will be sent as callvalue
       // this entire amount will be used for successfully completing
       // the L2 side of the transaction
-      // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
+      // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPriceBid)
       // const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
 
       // const tx1 = await l1Migrator.migrateDelegator(
@@ -392,12 +398,17 @@ const MigrateBroadcaster = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const [_unused, params] = await l1PublicClient.readContract({
+        const [_unused, params] = (await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
           args: [accountAddress, accountAddress],
-        });
+        })) as [string, {
+          l1Addr: string;
+          l2Addr: string;
+          deposit: number;
+          reserve: number;
+        }];
 
         const showSigningSteps =
           params.deposit.toString() == "0" && params.reserve.toString() == "0";
@@ -416,13 +427,20 @@ const MigrateBroadcaster = () => {
     const init = async () => {
       if (accountAddress) {
         // fetch calldata to be submitted for calling L2 function
-        const [data, params] = await l1PublicClient.readContract({
+        interface MigrationParams {
+          l1Addr: string;
+          l2Addr: string;
+          deposit: number;
+          reserve: number;
+        }
+
+        const [data, params] = (await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
           args: [ state.signer ? state.signer : accountAddress,
             state.signer ? state.signer : accountAddress],
-        });
+        })) as [string, MigrationParams];
 
         dispatch({
           type: "initialize",
@@ -542,21 +560,12 @@ const MigrateBroadcaster = () => {
           l2Addr: state.signer,
         };
 
-        const payload = ethers.utils._TypedDataEncoder.getPayload(
-          domain,
-          types,
-          value
-        );
+        const payload = TypedDataEncoder.getPayload(domain, types, value);
         let signer = "";
 
         if (signature) {
           try {
-            signer = ethers.utils.verifyTypedData(
-              domain,
-              types,
-              value,
-              signature
-            );
+            signer = verifyTypedData(domain, types, value, signature);
           } catch (e) {
             console.log(e);
           }
@@ -833,11 +842,11 @@ function MigrationFields({ migrationParams, css = {} }) {
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Deposit</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.deposit)} ETH</Box>
+        <Box>{ethers.formatEther(migrationParams.deposit)} ETH</Box>
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Reserve</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.reserve)} ETH</Box>
+        <Box>{ethers.formatEther(migrationParams.reserve)} ETH</Box>
       </ReadOnlyCard>
     </Box>
   );
