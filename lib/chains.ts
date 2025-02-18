@@ -56,7 +56,7 @@ export const RPC_URLS: { [chainId: number]: string } = {
   [arbitrumGoerli.id]: getRpcUrl(arbitrumGoerli.id, false),
 };
 
-const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
+export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
 export type AllContracts = {
   controller: Address;
