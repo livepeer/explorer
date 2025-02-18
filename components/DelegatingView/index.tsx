@@ -128,7 +128,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           </Box>
           <Link href="/orchestrators" passHref legacyBehavior>
             <Button size="3" variant="primary" >
-              <LivepeerLink variant="primary">View Orchestrators</LivepeerLink>
+              <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>
         </Box>
@@ -168,7 +168,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             passHref
             legacyBehavior
           >
-            <LivepeerLink
+            <A
               className="masonry-grid_item"
               css={{
                 display: "block",
@@ -190,7 +190,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </Box>
                 }
               />
-            </LivepeerLink>
+            </A>
           </Link>
         )}
 
