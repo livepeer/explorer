@@ -1,5 +1,5 @@
 overwrite: true
-schema: https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one
+schema: https://gateway.thegraph.com/api/d63fd2fcf0818426ab895c6c5f6550c9/subgraphs/id/FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC
 documents: ./queries/**/*.graphql
 generates:
   ./apollo/subgraph.ts:

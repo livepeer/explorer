@@ -76,6 +76,7 @@ const MarkdownImage: CustomComponents['img'] = React.memo(({ src, alt, ...imgPro
     />
   );
 });
+MarkdownImage.displayName = 'MarkdownImage';
 
 const MarkdownLink: CustomComponents['a'] = React.memo(({ href, children, ...props }) => {
   const isExternal = href?.startsWith('http');
@@ -90,6 +91,7 @@ const MarkdownLink: CustomComponents['a'] = React.memo(({ href, children, ...pro
     </StyledLink>
   );
 });
+MarkdownLink.displayName = 'MarkdownLink';
 
 /**
  * MarkdownRenderer - A component for rendering markdown content with custom styling
@@ -99,11 +101,10 @@ const MarkdownLink: CustomComponents['a'] = React.memo(({ href, children, ...pro
  * @param {Object} props - Additional props passed to react-markdown
  */
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, ...props }) => {
-  if (typeof children !== 'string') {
-    console.warn('MarkdownRenderer: children prop must be a string');
-    return null;
-  }
+  // Always validate children first
+  const safeChildren = typeof children === 'string' ? children : '';
 
+  // Always call useMemo, regardless of children content
   const components = React.useMemo(() => ({
     p: ({ children }) => <StyledParagraph>{children}</StyledParagraph>,
     img: MarkdownImage,
@@ -118,7 +119,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, ...props 
       }
       return <MarkdownLink href={href} {...props}>{children}</MarkdownLink>;
     }
-  }), []);
+  }), []); 
+
+  // Return null if children is not a string
+  if (!safeChildren) {
+    console.warn('MarkdownRenderer: children prop must be a string');
+    return null;
+  }
 
   return (
     <StyledMarkdown 
@@ -126,9 +133,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, ...props 
       components={components}
       {...props}
     >
-      {children}
+      {safeChildren}
     </StyledMarkdown>
   );
 };
+MarkdownRenderer.displayName = 'MarkdownRenderer';
 
 export default React.memo(MarkdownRenderer);
