@@ -6,15 +6,13 @@ import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
+import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, L1_CHAIN, l1PublicClient, l2PublicClient} from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { infuraProvider } from "wagmi/providers/infura";
-import { publicProvider } from "wagmi/providers/public";
+import { createConfig, WagmiConfig } from "wagmi";
 import { useApollo } from "../apollo";
 
 function App({ Component, pageProps, fallback = null }) {
@@ -25,10 +23,8 @@ function App({ Component, pageProps, fallback = null }) {
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
   const { config, chains, layoutKey } = useMemo(() => {
-    const { chains, publicClient } = configureChains(
-      [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ apiKey: INFURA_KEY ?? "" }), publicProvider()]
-    );
+    const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN];
+    const publicClient = isMigrateRoute ? l1PublicClient : l2PublicClient;
 
     const { connectors } = getDefaultWallets({
       appName: "Livepeer Explorer",

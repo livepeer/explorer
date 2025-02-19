@@ -18,14 +18,14 @@ export const WALLET_CONNECT_PROJECT_ID =
 
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
+const L1_RPC_URL = process.env.NEXT_PUBLIC_L1_RPC_URL;
+const L2_RPC_URL = process.env.NEXT_PUBLIC_L2_RPC_URL;
 
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 const SUBGRAPH_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ID;
 
-if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
-  throw new Error(
-    `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
-  );
+if (!INFURA_KEY && (!L1_RPC_URL || !L2_RPC_URL)) {
+  throw new Error("Missing environment variables: NEXT_PUBLIC_INFURA_KEY or both NEXT_PUBLIC_L1_RPC_URL and NEXT_PUBLIC_L2_RPC_URL must be defined");
 }
 
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
@@ -125,9 +125,9 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  * configured in the environment variables.
  */
 export const INFURA_NETWORK_URLS = {
-  [chain.mainnet.id]: process.env.NEXT_PUBLIC_L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.mainnet.id]: L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [chain.arbitrum.id]: process.env.NEXT_PUBLIC_L2_RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.arbitrum.id]: L2_RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.arbitrumGoerli
   //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
 };
