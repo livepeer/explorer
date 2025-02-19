@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -8,6 +7,7 @@ import {
   keyframes,
   Text,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
 
@@ -79,7 +79,7 @@ const Index = () => {
                   : "Error with transaction, please check your inputs and try again."}
               </Text>
               <DialogClose asChild>
-                <Button size="4" css={{ br: "$4", bc: "$green4", color: "$green11", fontSize: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}>
+                <Button size="4" color="green" css={{ width: "100%" }}>
                   Close
                 </Button>
               </DialogClose>

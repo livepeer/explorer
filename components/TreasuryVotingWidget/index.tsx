@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Heading, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Heading, Text } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
@@ -273,7 +274,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
                     size="4"
-                    css={{ bc:"$red4", fontSize: "$4", color: "$red11", br: "$4", "&:hover": { bc: "$red5", color: "$red11" } }}
+                    color="danger"
+                    css={{ width: "100%" }}
                     choiceId={0}
                     proposalId={proposal?.id}
                   >
@@ -281,7 +283,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </VoteButton>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
-                    css={{ bc:"$green4", fontSize: "$4", color: "$green11", br: "$4", "&:hover": { bc: "$green5", color: "$green11" } }}
+                    color="green"
+                    css={{ width: "100%" }}
                     choiceId={1}
                     size="4"
                     proposalId={proposal?.id}
@@ -290,7 +293,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </VoteButton>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
-                    css={{ bc:"$gray4", fontSize: "$4", color: "$gray11", br: "$4", "&:hover": { bc: "$gray5", color: "$gray11" } }}
+                    color="gray"
+                    css={{ width: "100%" }}
                     size="4"
                     choiceId={2}
                     proposalId={proposal?.id}
@@ -315,8 +319,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Button
                 size="4"
                 disabled={true}
-                variant="green"
-                css={{  br: "$4", fontSize: "$4", bc: "$green4", color: "$green11", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" }}}
+                color="green"
+                css={{ width: "100%" }}
               >
                 Vote
               </Button>

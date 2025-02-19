@@ -1,8 +1,9 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
+import { Button } from "@components/Button";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
-import { Box, Button, Flex, Link as A, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Link as A, Text } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -110,8 +111,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             share of the fees being paid into the Livepeer network.
           </Box>
           <Link href="/orchestrators" passHref legacyBehavior>
-            <Button size="3" css={{ bc: "$green4", color: "$green11", br: "$3", fontSize: "$3", mr: "$3", "&:hover": { bc: "$green5", color: "$green11" } }} >
-              <A css={{bc:"$green4", color: "$green11", "&:hover": { bc: "$green5", color: "$green11" }}}>View Orchestrators</A>
+            <Button size="3" color="green" >
+              View Orchestrators
             </Button>
           </Link>
         </Box>
@@ -146,27 +147,22 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         columnClassName="masonry-grid_column"
       >
         {delegator?.delegate && (
-          <A
+          <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
+            legacyBehavior
           >
             <A
               className="masonry-grid_item"
               css={{
                 display: "block",
                 textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
+                "&:hover": { textDecoration: "none",
+                             cursor: "pointer" },
+                  }}
             >
               <Stat
                 label="Delegated with"
                 variant="interactive"
-                css={{mb: "$3", 
-                  textDecoration: "underline",
-                  textDecorationColor: "$gray1",
-                  "&:hover": { 
-                    textDecoration: "underline",
-                    textDecorationColor: "$gray1"
-                  }}}
                 value={
                   <Box>
                     {delegateIdentity?.name
@@ -179,7 +175,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 }
               />
             </A>
-          </A>
+          </Link>
         )}
 
         <Stat
@@ -342,19 +338,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
                   size="4"
-                  css={{
-                    bc: "$green4",
-                    br: "$4",
-                    color: "$green11",
-                    fontSize: "$4",
-                    mt: "$3",
-                    width: "100%",
-                    fontWeight: 600,
-                    "&:hover": {
-                      bc: "$green5",
-                      color: "$green11",
-                    },
-                  }}
+                  color="green"
+                  css={{ mt: "$3", width: "100%", cursor: " pointer" }}
                   onClick={write}
                 >
                   Withdraw Pending Fees

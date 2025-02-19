@@ -117,7 +117,6 @@ const InputBox = ({
               }}
               protocol={protocol}
               treasury={treasury}
-              treasuryRewardCut={treasury.treasuryRewardCutRate}
             />
           </Flex>
         </Box>

@@ -4,7 +4,8 @@ import {
   getHint,
   simulateNewActiveSetOrder,
 } from "@lib/utils";
-import { Box, Button } from "@jjasonn.stone/design-system";
+import { Box } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { parseEther } from "ethers/lib/utils";
 import {
@@ -119,8 +120,8 @@ const Footer = ({
         <Button
           size="4"
           disabled={true}
-          variant="green"
-          css={{ bc:"$green4", color: "$green11", fontSize: "$4", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+          color="green"
+          css={{ width: "100%" }}
         >
           {action === "delegate" ? "Delegate" : "Undelegate"}
         </Button>

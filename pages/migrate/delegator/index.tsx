@@ -2,7 +2,6 @@ import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import {
   Box,
-  Button,
   Card,
   Container,
   Flex,
@@ -13,6 +12,7 @@ import {
   TextField,
   useSnackbar
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
@@ -58,7 +58,10 @@ const initialState = {
       <Button
         size="4"
         disabled={true}
-        css={{ bc: "$green4", fontSize: "$4", color: "$green11", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+        color="green"
+        css={{ width: "100%",
+            cursor: "not-allowed",
+         }}
       >
         Migrate Undelegated Stake
       </Button>

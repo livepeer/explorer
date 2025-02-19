@@ -1,5 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Button, Flex, Skeleton, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Skeleton, Text } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -287,16 +288,15 @@ const ExplorerChart = ({
           <Button
             onClick={() => onToggleGrouping?.("day")}
             size="1"
-            ghost
-            css={{ ...baseButtonStyle, ...(grouping === "day" ? activeStyle : inactiveStyle) }}
+            color={grouping === "day" ? "green" : "gray"}
           >
             D
           </Button>
           <Button
             onClick={() => onToggleGrouping?.("week")}
             size="1"
-            ghost
-            css={{ ...baseButtonStyle, ...(grouping === "week" ? activeStyle : inactiveStyle), ml: "$1" }}
+            color={grouping === "week" ? "green" : "gray"}
+            css={{ ml: "$1" }}
           >
             W
           </Button>
@@ -422,9 +422,5 @@ const ExplorerChart = ({
     </Box>
   );
 };
-
-const baseButtonStyle = { br: "$2", "&:hover": { br: "$2" } }
-const activeStyle = { color: "$green11", bc: "$green3", "&:hover": { bc: "$green4", color: "$green11" } }
-const inactiveStyle = { bc: "$gray4", color: "$gray11", "&:hover": { bc: "$gray5", color: "$gray11" } }
 
 export default ExplorerChart;

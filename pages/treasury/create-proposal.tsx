@@ -8,7 +8,6 @@ import {
 import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
-  Button,
   Container,
   Flex,
   Heading,
@@ -18,6 +17,7 @@ import {
   styled,
   Card,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import {
   useAccountAddress,
   useAccountBalanceData,
@@ -378,7 +378,11 @@ const CreateProposal = () => {
                   size="3"
                   disabled={!sufficientStake || status !== "idle" || !txEnabled}
                   type="submit"
-                  css={{ bc:"$green4", br:"$3",ml: "$3", fontSize:"$3", color:"$green11", alignSelf: "flex-end", "&:hover":{ bc:"$green5", color:"$green11" } }}
+                  color="green"
+                  css={{ml: "$3", cursor:" pointer",
+                    "&:disabled": {
+                      cursor: "not-allowed"
+                  }}}
                 >
                   Create Proposal{" "}
                   {status === "loading" && <Spinner css={{ ml: "$2" }} />}

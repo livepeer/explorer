@@ -5,12 +5,13 @@ import {
   Heading,
   Box,
   Flex,
-  Button,
   Text,
   Link as A,
   DialogTrigger,
   DialogClose,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
+import { DialogOverlay } from "@reach/dialog";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 
 const Index = () => {
@@ -19,26 +20,30 @@ const Index = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button 
-            css={{ 
-              color: "$green11",
-              mt: "2px", 
-              ml: "$3",
-              fontSize: "$1",
-              br: "$2",
-              bc: "$green4",
-              "&:hover": {
-                bc: "$green6",
-                opacity: 0.7
-              }
-            }} 
             size="1"
+            color="green"
+            css={{ mt: "3px", ml: "$3", px: "$2", br: "$2" }}
           >
             Edit Profile
           </Button>
         </DialogTrigger>
-        <DialogContent
-          css={{ overflow: "scroll" }}
-        >
+
+        <DialogContent css={{ 
+          maxWidth: "900px",
+          width: "90vw",
+        }}>
+          <DialogOverlay style={{
+            background: 'rgba(150, 150, 150, 0.1)',
+            backdropFilter: 'blur(8px)',
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}></DialogOverlay>
           <DialogTitle asChild>
             <Heading
               size="2"
@@ -51,7 +56,7 @@ const Index = () => {
             Profile content is automatically pulled from publicly available
             information provided through Ethereum Name Service (ENS). Connect to
             the{" "}
-            <A css={{ color: "$green11" }} href="https://ens.domains">
+            <A  css={{ color: "$green11" }} href="https://ens.domains">
               ENS Manager
             </A>{" "}
             to register a .eth name and profile information such as a
@@ -70,24 +75,14 @@ const Index = () => {
           </Text>
           <Flex align="center" justify="end">
             <DialogClose asChild>
-              <Button size="4" ghost css={{ color: "$gray11", fontSize: "$4", mr: "$2",
-                "&:hover": {
-                  opacity: 0.7
-                } }}>
+              <Button size="4" ghost color="secondary" css={{ mr: "$2", }}>
                 Dismiss
               </Button>
             </DialogClose>
             <Button
               size="4"
+              color="green"
               css={{
-                color: "$green11",
-                br: "$4",
-                fontSize: "$4",
-                bc: "$green4",
-                "&:hover": {
-                  bc: "$green6",
-                  opacity: 0.7
-                },
                 alignItems: "center",
                 display: "flex",
                 textDecoration: "none"

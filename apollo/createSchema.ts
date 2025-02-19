@@ -1,6 +1,7 @@
 import { introspectSchema, wrapSchema } from "@graphql-tools/wrap";
 import { print } from "graphql";
 import fetch from "isomorphic-unfetch";
+
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
 const createSchema = async () => {

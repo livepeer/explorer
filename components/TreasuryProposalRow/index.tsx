@@ -24,12 +24,14 @@ export const BadgeVariantByState = {
 } as const;
 
 type Props = {
+  key: string;
   proposal: ParsedProposal;
   currentRound: CurrentRoundInfo;
   protocol: ProtocolQuery["protocol"];
 };
 
 const TreasuryProposalRow = ({
+  key: string,
   proposal: parsedProposal,
   currentRound,
   protocol,

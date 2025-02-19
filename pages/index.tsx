@@ -7,7 +7,7 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
-  Link as A, 
+  Link as A,
   Box,
   Button,
   Container,
@@ -15,7 +15,7 @@ import {
   Heading,
 } from "@jjasonn.stone/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import NextLink from "next/link"; // Import next/link as NextLink to differentiate
+import Link from "next/link";
 
 import { useMemo, useState } from "react";
 import {
@@ -347,7 +347,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
                   <Button
                     ghost
-                    as={NextLink}
+                    as={Link}
                     href="/leaderboard" // Moved href here
                     css={{ color: "$hiContrast", fontSize: "$2", br:"$2", mr: "$2", cursor: "pointer" }}
                   >
@@ -356,7 +356,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 )}
                 <Button
                   ghost
-                  as={NextLink}
+                  as={Link}
                   href="/orchestrators" // Moved href here
                   css={{ color: "$hiContrast", fontSize: "$2", br:"$2", cursor: "pointer" }}
                 >
@@ -408,7 +408,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 <Button
                   ghost
-                  as={NextLink}
+                  as={Link}
                   href="/transactions" // Moved href here
                   css={{ color: "$hiContrast", fontSize: "$2", br:"$2", cursor:"pointer" }}
                 >

@@ -2,7 +2,6 @@ import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import {
   Box,
-  Button,
   Card,
   Container,
   Flex,
@@ -13,6 +12,7 @@ import {
   TextField,
   useSnackbar,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
@@ -60,7 +60,11 @@ const initialState = {
       <Button
         size="4"
         disabled={true}
-        css={{ bc: "$green4", width: "100%", fontSize: "17px", color: "$green11", br: "$4", fontwidth: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+        color="green"
+        css={{ width: "100%",
+          "&:disabled": {
+           cursor: "not-allowed" }}
+          }
       >
         Migrate Orchestrator
       </Button>
@@ -770,23 +774,25 @@ const MigrateOrchestrator = () => {
           }}
         >
           <Button
-            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20, color: "$gray10", "&:hover":{ bc: "$gray3", color: "$gray10" } }}
+            color="gray"
             as="a"
             href="https://docs.livepeer.org/video-miners/how-to-guides/l2-migration"
             target="_blank"
             size="3"
             ghost
+            css={{ cursor: "pointer" }}
           >
             Migration Guide
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
           </Button>
           <Button
-            css={{ br: "$3", fontSize: "$3", cursor: "pointer", bottom: 20, right: 20, color: "$gray10" , "&:hover":{ bc: "$gray3", color: "$gray10" } }}
+            color="gray"
             as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
             ghost
+            css = {{ cursor: "pointer" }}
           >
             Discord Support Channel{" "}
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />

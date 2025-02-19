@@ -41,14 +41,14 @@ import {
 } from "@lib/roi";
 import {
   ArrowTopRightIcon,
-  // ExclamationTriangleIcon,
 } from "@modulz/radix-icons";
+import { BsExclamationCircle } from "react-icons/bs";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import { useContractRead } from "wagmi";
 import { HelpCircle } from "react-feather";
-import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "dayjs";
 
 dayjs.extend(relativeTime);
 
@@ -114,7 +114,7 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -307,7 +307,7 @@ const OrchestratorList = ({
                             fontSize: "$3",
                           }}
                         >
-                          {textTruncate(identity.name, 20, "…")}
+                          {textTruncate(identity.name, 15, "…")}
                         </Box>
                         <Badge size="2" css={{ fontSize: "$2" }}>
                           {row.values.id.substring(0, 6)}
@@ -318,7 +318,7 @@ const OrchestratorList = ({
                         {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
                     )}
-                    {/* {(row?.original?.daysSinceChangeParams ??
+                    {(row?.original?.daysSinceChangeParams ??
                       Number.MAX_VALUE) < 30 && (
                       <ExplorerTooltip
                         multiline
@@ -326,12 +326,12 @@ const OrchestratorList = ({
                       >
                         <Box>
                           <Box
-                            as={ExclamationTriangleIcon}
-                            css={{ ml: "$2", color: "$neutral11" }}
+                            as={BsExclamationCircle}
+                            css={{ ml: "$2", color: "$red11" }}
                           />
                         </Box>
                       </ExplorerTooltip>
-                    )} */}
+                    )}
                   </Flex>
                 </Flex>
               </A>

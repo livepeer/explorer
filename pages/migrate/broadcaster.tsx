@@ -2,7 +2,6 @@ import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import {
   Box,
-  Button,
   Card,
   Container,
   Flex,
@@ -13,6 +12,7 @@ import {
   TextField,
   useSnackbar
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
@@ -60,8 +60,15 @@ const initialState = {
     <Flex align="center" direction="column">
       <Button
         size="4"
+        color="green"
         disabled={true}
-        css={{ bc: "$green4", fontSize: "$4", color: "$green11", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+        css={{
+          width: "100%",
+          "&:disabled": {
+           cursor: "not-allowed" }
+          }
+        }
+        
       >
         Migrate Broadcaster
       </Button>
@@ -791,12 +798,13 @@ const MigrateBroadcaster = () => {
           }}
         >
           <Button
-            css={{ br: "$3", color: "$gray10", fontSize: "$3", bottom: 20, right: 20, "&:hover":{ bc: "$gray3", color: "$gray10" } }}
+            color="gray"
             as="a"
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
             ghost
+            css={{ cursor: "pointer" }}
           >
             Discord Support Channel{" "}
             <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />

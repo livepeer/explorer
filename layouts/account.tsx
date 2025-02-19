@@ -13,7 +13,6 @@ import OrchestratingView from "@components/OrchestratingView";
 import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
-  Button,
   Container,
   Flex,
   Link as A,
@@ -21,6 +20,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -30,6 +30,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
+import css from "styled-jsx/css";
 
 export interface TabType {
   name: string;
@@ -178,18 +179,9 @@ const AccountLayout = ({
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
-                    css={{
-                      bc: "$green4",
-                      color: "$green11",
-                      br: "$4",
-                      mr: "$3",
-                      fontSize: "$4",
-                      "&:hover": {
-                        bc: "$green5",
-                        color: "$green11",
-                      },
-                    }}
+                    color="green"
                     size="4"
+                    css={{mr: "$3"}}
                     onClick={(event) => {
                       event.stopPropagation();
                       setSelectedStakingAction("delegate");
@@ -220,18 +212,11 @@ const AccountLayout = ({
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button
-                      css={{
-                        bc: "$red4",
-                        color: "$red11",
-                        br: "$4",
-                        mr: "$3",
-                        fontSize: "$4",
-                        "&:hover": {
-                          bc: "$red5",
-                          color: "$red11",
-                        },
-                      }}
+                      color="danger"
                       size="4"
+                      css={{
+                        width: "auto",
+                      }}
                       onClick={(event) => {
                         event.stopPropagation();
                         setSelectedStakingAction("undelegate");

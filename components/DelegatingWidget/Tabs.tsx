@@ -33,7 +33,7 @@ export const Tab = (props) => (
       textAlign: "center",
       color: props.isSelected
         ? props.children === "Delegate"
-          ? "$green11"
+          ? "$green10"
           : "$red10"
         : "$neutral10",
       py: "10px",
@@ -45,7 +45,7 @@ export const Tab = (props) => (
       bc: "transparent",
       borderColor: props.isSelected
         ? props.children === "Delegate"
-          ? "$green11"
+          ? "$green10"
           : "$red10"
         : "transparent",
     }}

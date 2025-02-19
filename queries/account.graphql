@@ -21,25 +21,8 @@ query account($account: ID!) {
     delegate {
       id
       active
-      feeShare
-      rewardCut
       status
       totalStake
-      totalVolumeETH
-      activationTimestamp
-      activationRound
-      deactivationRound
-      thirtyDayVolumeETH
-      ninetyDayVolumeETH
-      lastRewardRound {
-        id
-      }
-      pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
-        rewardTokens
-      }
-      delegators(first: 1000) {
-        id
-      }
     }
   }
   transcoder(id: $account) {
@@ -48,6 +31,7 @@ query account($account: ID!) {
     feeShare
     rewardCut
     status
+    active
     totalStake
     totalVolumeETH
     activationTimestamp

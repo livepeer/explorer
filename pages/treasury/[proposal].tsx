@@ -10,7 +10,6 @@ import Stat from "@components/Stat";
 import {
   Badge,
   Box,
-  Button,
   Card,
   Container,
   Flex,
@@ -18,6 +17,7 @@ import {
   Link as A,
   Text,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import dayjs from "dayjs";
 import Head from "next/head";
 import { useMemo } from "react";
@@ -225,22 +225,9 @@ const Proposal = () => {
               {proposal.state === "Active" && (
                 <Button
                   size="4"
-                  css={{
-                    br: "$4",
-                    bc: "$green4",
-                    color: "$green11",
-                    fontSize: "$4",
-                    display: "flex",
-                    mt: "$3",
-                    mr: "$3",
-                    "@bp3": {
-                      display: "none",
-                    },
-                    "&:hover": {
-                      bc: "$green5",
-                      color: "$green11",
-                    },
-                  }}
+                  color="green"
+                  css={{ mt: "$3",
+                     "@bp3": { display: "none" }}}
                   onClick={() => setBottomDrawerOpen(true)}
                 >
                   Vote

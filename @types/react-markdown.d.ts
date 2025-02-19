@@ -21,3 +21,4 @@ declare module 'react-markdown' {
     declare const ReactMarkdown: ComponentType<Options>;
     export default ReactMarkdown;
   }
+  

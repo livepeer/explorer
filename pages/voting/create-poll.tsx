@@ -4,7 +4,6 @@ import { getPollCreatorAddress } from "@lib/api/contracts";
 import { fromWei } from "@lib/utils";
 import {
   Box,
-  Button,
   Container,
   styled,
   Flex,
@@ -13,6 +12,7 @@ import {
   RadioCard,
   RadioCardGroup,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
@@ -232,7 +232,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
                     <Button
                       size="3"
-                      variant="primary"
+                      color="green"
                       disabled={
                         !sufficientStake ||
                         !selectedProposal ||
@@ -241,7 +241,11 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         isCreatePollLoading
                       }
                       type="submit"
-                      css={{ bc: "$green4", br: "$3", fontSize: "$3", color: "$green11", ml: "$3", alignSelf: "flex-end", "&:hover":{ bc: "$green5", color: "$green11" } }}
+                      css={{ ml: "$3",
+                        "&:disabled": {
+                          cursor: "not-allowed"
+                        }
+                      }}
                     >
                       Create Poll{" "}
                       {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}

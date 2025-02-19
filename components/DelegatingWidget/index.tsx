@@ -10,6 +10,7 @@ import Header from "./Header";
 import InputBox from "./InputBox";
 import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
+import css from "styled-jsx/css";
 
 interface Props {
   transcoders: NonNullable<
@@ -83,6 +84,7 @@ const Index = ({
               isSelected={selectedStakingAction === "undelegate"}
             >
               Undelegate
+              
             </Tab>
           </TabList>
         </Tabs>

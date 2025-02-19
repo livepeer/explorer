@@ -107,7 +107,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
             ))}
             <Account />
           </Box>
-          <Box css={{ mb: "$4" }}>
+          <Box css={{ mb: "$5" }}>
             <Box
               css={{
                 pb: "$4",
@@ -122,23 +122,16 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 Livepeer.org
               </A>
               {IS_L2 && (
-                <Link
+                <A
                   href="/migrate"
-                  className="link"
-                  style={{
-                    fontSize: "var(--fontSizes-2)",
-                    marginBottom: "8px",
-                    display: "block",
-                    color: "inherit",
-                    textDecoration: "none"
-                  }}
+                  css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 >
                   L2 Migration Tool
-                </Link>
+                </A>
               )}
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://livepeer.org/docs"
+                href="https://docs.livepeer.org/developers/introduction"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -146,33 +139,31 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               </A>
 
               <UniswapModal
+                showCloseButton={false}
                 trigger={
-                  <Text
+                  <A
+                    as={Text}
                     css={{
                       cursor: "pointer",
                       fontSize: "$2",
                       mb: "$2",
                       display: "block",
-                      color: "hiContrast",
-                      "&:hover": {
-                        opacity:0.8
-                      }
                     }}
                   >
                     Get LPT
-                  </Text>
+                  </A>
                 }
               >
-                <Box
-                  as="iframe"
-                  css={{
-                    backgroundColor: "$panel",
-                    width: "100%",
-                    height: "100%",
-                    border: "0",
-                  }}
-                  src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
-                />
+                  <Box
+                    as="iframe"
+                    css={{
+                      backgroundColor: "$panel",
+                      width: "100%",
+                      height: "100%",
+                      border: "0",
+                    }}
+                    src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
+                  />
               </UniswapModal>
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
@@ -183,19 +174,12 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 Discord
               </A>
 
-              <Link
+              <A
                 href="/whats-new"
-                className="link"
-                style={{
-                  fontSize: "var(--fontSizes-2)",
-                  marginBottom: "8px",
-                  display: "block",
-                  color: "inherit",
-                  textDecoration: "none"
-                }}
+                css={{ fontSize: "$2", mb: "$2", display: "block" }}
               >
                 What&apos;s New
-              </Link>
+              </A>
             </Box>
           </Box>
         </Flex>

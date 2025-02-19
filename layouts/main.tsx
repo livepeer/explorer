@@ -407,6 +407,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 ml: "$4",
                                 br: "$3",
                                 fontSize: "$3",
+                                fontWeight: 600,
                                 bc:
                                   asPath === "/"
                                     ? "hsla(0,100%,100%,.05)"
@@ -433,6 +434,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 ml: "$2",
                                 br: "$3",
                                 fontSize: "$3",
+                                fontWeight: 600,
                                 bc:
                                   !asPath.includes(accountAddress ?? "") &&
                                   (asPath.includes("/accounts") ||
@@ -461,6 +463,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 ml: "$2",
                                 br: "$3",
                                 fontSize: "$3",
+                                fontWeight: 600,
                                 bc: asPath.includes("/voting")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -497,6 +500,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 ml: "$2",
                                 br: "$3",
                                 fontSize: "$3",
+                                fontWeight: 600,
                                 bc: asPath.includes("/treasury")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -534,6 +538,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   ml: "$2",
                                   br: "$3",
                                   fontSize: "$3",
+                                  fontWeight: 600,
                                   bc: asPath.includes(accountAddress)
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
@@ -577,6 +582,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   ml: "$2",
                                   br: "$3",
                                   fontSize: "$3",
+                                  fontWeight: 600,
                                   bc: "transparent",
                                   color: "white",
                                   "&:hover": {

@@ -1,9 +1,10 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
-import { Box, Button } from "@jjasonn.stone/design-system";
+import { Box } from "@jjasonn.stone/design-system";
 import { parseEther } from "ethers/lib/utils";
 import { useHandleTransaction } from "hooks";
+import { Button } from "@components/Button";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
@@ -146,7 +147,7 @@ const Delegate = ({
 
   if (!amountIsNonEmpty && !isTransferStake) {
     return (
-      <Button size="4" disabled variant="neutral" css={{ bc: "$gray4", color: "$gray11", width: "100%" , fontSize: "$4" }}>
+      <Button size="4" disabled color="gray" css={{ width: "100%", fontSize: "$4", cursor: "not-allowed" }}>
         Enter an Amount
       </Button>
     );
@@ -154,7 +155,7 @@ const Delegate = ({
 
   if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
     return (
-      <Button size="4" disabled variant="neutral" css={{ bc: "$gray4", color: "$gray11", width: "100%" , fontSize: "$4" }}>
+      <Button size="4" disabled color="gray" css={{ width: "100%", fontSize: "$4", cursor: "not-allowed" }}>
         Insufficient Balance
       </Button>
     );
@@ -168,7 +169,7 @@ const Delegate = ({
         >
           <Button
             size="4"
-            variant="green"
+            color="green"
             disabled={sufficientTransferAllowance}
             onClick={onApprove}
             css={{ width: "100%" }}
@@ -178,7 +179,7 @@ const Delegate = ({
           <Button
             size="4"
             disabled={!sufficientTransferAllowance}
-            variant="primary"
+            color="green"
             onClick={onDelegate}
             css={{ width: "100%" }}
           >
@@ -197,7 +198,8 @@ const Delegate = ({
     <Button
       size="4"
       onClick={onDelegate}
-      css={{ bc: "$green4", color: "$green11", fontSize: "$4", br: "$4", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+      color="green"
+      css={{ width: "100%" }}
     >
       {+amount >= 0 && isTransferStake ? "Move Delegated Stake" : "Delegate"}
     </Button>

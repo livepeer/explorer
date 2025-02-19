@@ -1,7 +1,6 @@
 import { PollExtended } from "@lib/api/polls";
 import {
   Box,
-  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -11,6 +10,7 @@ import {
   Text,
   useSnackbar,
 } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";
 import dayjs from "dayjs";
@@ -301,8 +301,8 @@ const Index = ({ data }: { data: Props }) => {
               <Button
                 size="4"
                 disabled={true}
-                variant="green"
-                css={{ br: "$4", fontSize: "$4", bc: "$green4", color: "$green11", width: "100%", "&:hover":{ bc: "$green5", color: "$green11" } }}
+                color="green"
+                css={{ width: "100%" }}
               >
                 Vote
               </Button>
@@ -310,7 +310,7 @@ const Index = ({ data }: { data: Props }) => {
                 size="2"
                 css={{ mt: "$1", fontWeight: 600, color: "$red11" }}
               >
-                Connect your wallet to vote.
+                Connect your wallet to vote biach.
               </Text>
             </Flex>
           )}

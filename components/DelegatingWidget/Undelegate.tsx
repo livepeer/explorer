@@ -1,5 +1,5 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@jjasonn.stone/design-system";
+import { Button } from "@components/Button";
 
 import { parseEther } from "ethers/lib/utils";
 import { useAccountAddress, useHandleTransaction } from "hooks";
@@ -36,20 +36,9 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
     <>
       <Button
         size="4"
-        ghost
         disabled={disabled}
-        css={{
-          bc: "$red5",
-          color: "$red11",
-          width: "100%",
-          br: "$4",
-          fontSize: "$4",
-
-          "&:hover": {
-            bc: "$red6",
-            color: "$red11",
-          },
-        }}
+        color="danger"
+        css={{ bc: "$red4"}}
         onClick={write}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
