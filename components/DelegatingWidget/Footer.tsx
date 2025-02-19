@@ -121,7 +121,10 @@ const Footer = ({
           size="4"
           disabled={true}
           color="green"
-          css={{ width: "100%" }}
+          css={{ width: "100%", 
+            "&:disabled": {
+              cursor: "not-allowed" }
+           }}
         >
           {action === "delegate" ? "Delegate" : "Undelegate"}
         </Button>
