@@ -147,7 +147,10 @@ const Delegate = ({
 
   if (!amountIsNonEmpty && !isTransferStake) {
     return (
-      <Button size="4" disabled color="gray" css={{ width: "100%", fontSize: "$4", cursor: "not-allowed" }}>
+      <Button size="4" disabled color="gray" css={{ width: "100%",
+        "&:disabled": {
+          cursor: "not-allowed" }
+        }}>
         Enter an Amount
       </Button>
     );
@@ -155,7 +158,10 @@ const Delegate = ({
 
   if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
     return (
-      <Button size="4" disabled color="gray" css={{ width: "100%", fontSize: "$4", cursor: "not-allowed" }}>
+      <Button size="4" disabled color="gray" css={{ width: "100%",
+        "&:disabled": {
+          cursor: "not-allowed" }
+      }}>
         Insufficient Balance
       </Button>
     );
@@ -172,7 +178,9 @@ const Delegate = ({
             color="green"
             disabled={sufficientTransferAllowance}
             onClick={onApprove}
-            css={{ width: "100%" }}
+            css={{ width: "100%" , "&:disabled": {
+              cursor: "not-allowed" }
+            }}
           >
             Approve
           </Button>
@@ -181,7 +189,9 @@ const Delegate = ({
             disabled={!sufficientTransferAllowance}
             color="green"
             onClick={onDelegate}
-            css={{ width: "100%" }}
+            css={{ width: "100%", "&:disabled": {
+              cursor: "not-allowed" }
+            }}
           >
             {+amount >= 0 && isTransferStake ? "Switch" : "Delegate"}
           </Button>

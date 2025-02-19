@@ -38,7 +38,10 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
         size="4"
         disabled={disabled}
         color="danger"
-        css={{ bc: "$red4"}}
+        css={{ bc: "$red4",
+            "&:disabled": { 
+            cursor: "not-allowed"
+          } }}
         onClick={write}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
