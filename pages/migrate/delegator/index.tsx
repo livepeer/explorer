@@ -60,8 +60,9 @@ const initialState = {
         disabled={true}
         color="green"
         css={{ width: "100%",
+          "&:disabled": {
             cursor: "not-allowed",
-         }}
+         }}}
       >
         Migrate Undelegated Stake
       </Button>
