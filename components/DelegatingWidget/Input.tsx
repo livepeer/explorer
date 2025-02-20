@@ -3,6 +3,7 @@ import { Box } from "@jjasonn.stone/design-system";
 import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
+import { sanitizeNumericInput, handleNumericInputChange } from "@lib/utils";
 
 const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) => {
   const { width } = useWindowSize();
@@ -16,7 +17,19 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
     [pools]
   );
 
-  const principle = useMemo(() => Number(value || 0), [value]);
+  // Sanitize input using the new utility function
+  const sanitizedPrinciple = useMemo(() => 
+    sanitizeNumericInput(value), 
+    [value]
+  );
+
+  const principle = useMemo(() => {
+    try {
+      return sanitizedPrinciple ? Number((sanitizedPrinciple).toString()) : 0;
+    } catch {
+      return 0;
+    }
+  }, [sanitizedPrinciple]);
 
   const roi = useMemo(
     () =>
@@ -59,6 +72,10 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
     });
   }, [setYieldResults, principle, roi.delegator]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleNumericInputChange(e, onChange);
+  };
+
   return (
     <Box
       css={{
@@ -72,12 +89,12 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
       <Box
         as="input"
         placeholder="0.0"
-        type="number"
+        type="text"  // Changed from number to text for better control
         min="0"
         step="any"
         autoFocus={width > 1020}
-        value={value}
-        onChange={onChange}
+        value={sanitizedPrinciple}
+        onChange={handleChange}
         css={{
           backgroundColor: "transparent",
           borderTop: 0,

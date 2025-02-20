@@ -78,6 +78,9 @@ export const getDelegatorStatus = (
   }
 };
 
+export const MAX_ALLOWED_INPUT = 1_000_000_000_000_000;
+export const MAX_DECIMAL_PLACES = 16;
+
 export const MAXIMUM_VALUE_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
@@ -424,3 +427,81 @@ export const fromWei = (wei: BigNumberish) => formatEther(wei);
 
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();
+
+/**
+ * Sanitizes and validates numeric input for blockchain transactions
+ * @param value Input value as string or number
+ * @returns Sanitized input value as string
+ */
+export const sanitizeNumericInput = (value: string | number | undefined): string => {
+  if (!value) return '';
+  
+  // Convert to string and remove non-numeric characters except decimal point
+  const stringValue = String(value).replace(/[^0-9.]/g, '');
+  
+  // Ensure only one decimal point
+  const decimalPointCount = (stringValue.match(/\./g) || []).length;
+  if (decimalPointCount > 1) {
+    return stringValue.slice(0, -1);
+  }
+  
+  // Split into integer and decimal parts
+  const [integerPart, decimalPart] = stringValue.split('.');
+  
+  // Convert integer part to number
+  const integerNum = Number(integerPart || 0);
+  
+  // If integer part exceeds max, truncate
+  if (integerNum > MAX_ALLOWED_INPUT) {
+    const truncatedInt = MAX_ALLOWED_INPUT.toString();
+    return decimalPart 
+      ? `${truncatedInt}.${decimalPart.slice(0, MAX_DECIMAL_PLACES)}` 
+      : truncatedInt;
+  }
+  
+  // If decimal part is too long, truncate
+  if (decimalPart && decimalPart.length > MAX_DECIMAL_PLACES) {
+    return `${integerPart}.${decimalPart.slice(0, MAX_DECIMAL_PLACES)}`;
+  }
+  
+  return stringValue;
+};
+
+/**
+ * Validates input change for numeric fields
+ * @param e React change event
+ * @param onChange Original onChange handler
+ * @returns void
+ */
+export const handleNumericInputChange = (
+  e: React.ChangeEvent<HTMLInputElement>, 
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+) => {
+  const inputValue = e.target.value;
+  
+  // Prevent multiple decimal points
+  const decimalPointCount = (inputValue.match(/\./g) || []).length;
+  if (decimalPointCount > 1) {
+    return;
+  }
+
+  // Prevent non-numeric input except decimal point
+  if (inputValue && !/^\d*\.?\d*$/.test(inputValue)) {
+    return;
+  }
+
+  const numValue = Number(inputValue);
+
+  if (numValue > MAX_ALLOWED_INPUT) {
+    onChange({ 
+      ...e, 
+      target: { 
+        ...e.target, 
+        value: MAX_ALLOWED_INPUT.toString() 
+      } 
+    });
+    return;
+  }
+
+  onChange(e);
+};

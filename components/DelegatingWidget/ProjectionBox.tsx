@@ -120,7 +120,14 @@ const ProjectionBox = ({ action }) => {
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numeral(yieldResults.roiFees).format("0.000")} ETH
+              {(() => {
+                try {
+                  const formattedValue = numeral(yieldResults.roiFees).format("0.000");
+                  return formattedValue === 'NaN' ? '0.000' : formattedValue;
+                } catch {
+                  return '0.000';
+                }
+              })()} ETH
             </Text>
           </Flex>
         </Box>
