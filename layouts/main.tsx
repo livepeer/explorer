@@ -29,7 +29,7 @@ import {
   SnackbarProvider,
   Text,
   getThemes,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
   ChevronDownIcon,

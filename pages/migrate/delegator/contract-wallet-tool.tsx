@@ -11,7 +11,7 @@ import {
   styled,
   Text,
   TextField,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ethers } from "ethers";
 import {
 

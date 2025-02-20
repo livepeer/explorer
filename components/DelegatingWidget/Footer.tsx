@@ -4,7 +4,7 @@ import {
   getHint,
   simulateNewActiveSetOrder,
 } from "@lib/utils";
-import { Box } from "@jjasonn.stone/design-system";
+import { Box } from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { parseEther } from "ethers/lib/utils";

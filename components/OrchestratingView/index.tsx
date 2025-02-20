@@ -1,5 +1,5 @@
 import Stat from "@components/Stat";
-import { Box, Flex } from "@jjasonn.stone/design-system";
+import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";

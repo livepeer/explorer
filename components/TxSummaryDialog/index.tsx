@@ -6,7 +6,7 @@ import {
   Flex,
   keyframes,
   Text,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";

@@ -1,5 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Card, Flex, Text } from "@jjasonn.stone/design-system";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useExplorerStore } from "hooks";
 import numeral from "numeral";

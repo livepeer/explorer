@@ -9,7 +9,7 @@ import {
   Flex,
   Heading,
   Link as A,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import {

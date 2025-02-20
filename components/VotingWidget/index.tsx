@@ -9,7 +9,7 @@ import {
   Heading,
   Text,
   useSnackbar,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";

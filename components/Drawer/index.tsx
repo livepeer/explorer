@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import UniswapModal from "../UniswapModal";
 import Account from "../Account";
-import { Box, Flex, Text, Link as A } from "@jjasonn.stone/design-system";
+import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {

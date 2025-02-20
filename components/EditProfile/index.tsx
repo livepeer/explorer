@@ -9,7 +9,7 @@ import {
   Link as A,
   DialogTrigger,
   DialogClose,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { DialogOverlay } from "@reach/dialog";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";

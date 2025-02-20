@@ -1,4 +1,4 @@
-import { styled } from "@jjasonn.stone/design-system";
+import { styled } from "@livepeer/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import React from "react";
@@ -139,4 +139,4 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ children, ...props 
 };
 MarkdownRenderer.displayName = 'MarkdownRenderer';
 
-export default React.memo(MarkdownRenderer);
+

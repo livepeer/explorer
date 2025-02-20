@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Card, Container, Flex, Heading, Link as A, styled, Text } from "@jjasonn.stone/design-system";
+import { Badge, Box, Card, Container, Flex, Heading, Link as A, styled, Text } from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";

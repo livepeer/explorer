@@ -13,7 +13,7 @@ import {
   Container,
   Flex,
   Heading,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
 

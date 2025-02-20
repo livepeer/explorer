@@ -1,4 +1,4 @@
-import { Box, styled, Text } from "@jjasonn.stone/design-system";
+import { Box, styled, Text } from "@livepeer/design-system";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import React from "react";
 

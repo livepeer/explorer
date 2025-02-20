@@ -9,7 +9,7 @@ import {
   Link as A,
   Text,
   TextField
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
 import { useAllEnsData } from "hooks";

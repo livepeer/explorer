@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Heading, Text } from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";

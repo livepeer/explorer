@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { Box, Flex, Text, getThemes } from "@jjasonn.stone/design-system";
+import { Box, Flex, Text, getThemes } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,

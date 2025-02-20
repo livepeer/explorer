@@ -1,4 +1,4 @@
-import { Box, keyframes } from "@jjasonn.stone/design-system";
+import { Box, keyframes } from "@livepeer/design-system";
 
 const face = "#4a524e";
 const lowLight = "#111";

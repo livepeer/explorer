@@ -5,7 +5,7 @@ import {
   Flex,
   Link as A,
   styled,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { useTransactionsQuery } from "apollo";
 import dayjs from "dayjs";

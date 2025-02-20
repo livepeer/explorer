@@ -16,7 +16,7 @@ import {
   Heading,
   Link as A,
   Text,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import dayjs from "dayjs";
 import Head from "next/head";

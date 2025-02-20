@@ -1,4 +1,4 @@
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@jjasonn.stone/design-system";
+import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useMemo } from "react";

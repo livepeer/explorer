@@ -1,4 +1,4 @@
-import { Box, Link as A } from "@jjasonn.stone/design-system";
+import { Box, Link as A } from "@livepeer/design-system";
 import { ChevronRightIcon } from "@modulz/radix-icons";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {

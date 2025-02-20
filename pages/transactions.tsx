@@ -5,7 +5,7 @@ import TransactionsList, {
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getEvents } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { Box, Container, Flex, Heading } from "@jjasonn.stone/design-system";
+import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import Head from "next/head";
 import { useMemo } from "react";
 import { EventsQueryResult, getApollo } from "../apollo";

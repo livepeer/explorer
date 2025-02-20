@@ -1,7 +1,7 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
-import { Box } from "@jjasonn.stone/design-system";
+import { Box } from "@livepeer/design-system";
 import { parseEther } from "ethers/lib/utils";
 import { useHandleTransaction } from "hooks";
 import { Button } from "@components/Button";

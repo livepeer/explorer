@@ -1,6 +1,6 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Flex, Heading, Link as A, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   CopyIcon,

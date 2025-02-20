@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import { Box, Flex, Link as A } from "@jjasonn.stone/design-system";
+import { Box, Flex, Link as A } from "@livepeer/design-system";
 import { TransactionStatus } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { txMessages } from "../../lib/utils";

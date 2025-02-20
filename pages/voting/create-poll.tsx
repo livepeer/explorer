@@ -11,7 +11,7 @@ import {
   Link as A,
   RadioCard,
   RadioCardGroup,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";

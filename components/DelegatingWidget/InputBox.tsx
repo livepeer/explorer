@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import Input from "./Input";
-import { Box, Flex, Card } from "@jjasonn.stone/design-system";
+import { Box, Flex, Card } from "@livepeer/design-system";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AccountQueryResult } from "apollo";

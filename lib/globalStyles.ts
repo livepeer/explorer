@@ -1,4 +1,4 @@
-import { globalCss } from "@jjasonn.stone/design-system";
+import { globalCss } from "@livepeer/design-system";
 
 export const globalStyles = globalCss({
   "*, *::before, *::after": {

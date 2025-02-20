@@ -1,4 +1,4 @@
-import { Button as BaseButton, styled } from "@jjasonn.stone/design-system";
+import { Button as BaseButton, styled } from "@livepeer/design-system";
 import type { ComponentProps } from "react";
 
 // Export button styles for reuse

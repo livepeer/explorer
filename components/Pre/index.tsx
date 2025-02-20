@@ -1,4 +1,4 @@
-import { styled } from "@jjasonn.stone/design-system";
+import { styled } from "@livepeer/design-system";
 
 export const Pre = styled("pre", {
   length: {},

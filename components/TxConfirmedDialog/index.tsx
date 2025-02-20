@@ -13,7 +13,7 @@ import {
   Link as A,
   Badge,
   Heading,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";

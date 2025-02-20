@@ -1,5 +1,5 @@
 import { calculateROI } from "@lib/roi";
-import { Box } from "@jjasonn.stone/design-system";
+import { Box } from "@livepeer/design-system";
 import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";

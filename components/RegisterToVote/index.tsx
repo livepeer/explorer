@@ -1,6 +1,6 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
+import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import {
   useAccountAddress,
   useHandleTransaction,

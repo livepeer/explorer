@@ -12,7 +12,7 @@ import {
   Heading,
   Badge,
   Link as A,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 

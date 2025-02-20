@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
   Text,
   TextField,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,

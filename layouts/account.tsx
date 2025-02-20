@@ -19,7 +19,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import {
   AccountQueryResult,

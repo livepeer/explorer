@@ -1,5 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Flex, Skeleton, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { Button } from "@components/Button";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";

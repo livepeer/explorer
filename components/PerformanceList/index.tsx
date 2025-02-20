@@ -1,6 +1,6 @@
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
-import { Badge, Box, Flex, Link as A, Skeleton } from "@jjasonn.stone/design-system";
+import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { useMemo } from "react";

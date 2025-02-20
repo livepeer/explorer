@@ -3,7 +3,7 @@ import Stat from "@components/Stat";
 import { Button } from "@components/Button";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
-import { Box, Flex, Link as A, Text } from "@jjasonn.stone/design-system";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
