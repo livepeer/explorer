@@ -25,14 +25,17 @@ import {
 } from "../apollo";
 import OrchestratorVotingList from "@components/OrchestratorVotingList";
 import { OrchestratorTabs } from "@lib/orchestrartor";
+import { getOrchestratorsVotingHistory } from "cube/queryGenrator";
+import { CUBE_TYPE, getCubeData } from "cube/cube-client";
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
   protocol: ProtocolQueryResult["data"];
   fallback: { [key: string]: EnsIdentity };
+  initialVoterData:any
 };
 
-const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
+const OrchestratorsPage = ({ orchestrators, protocol , initialVoterData}: PageProps) => {
   return (
     <>
       <Head>
@@ -100,10 +103,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
             </TabsContent>
             <TabsContent value={OrchestratorTabs["Voting History"]}>
               <Box>
-                <OrchestratorVotingList
-                  data={orchestrators?.transcoders}
-                  pageSize={20}
-                />
+                <OrchestratorVotingList initialVoterData={initialVoterData}/>
               </Box>
             </TabsContent>
           </Tabs>
@@ -113,8 +113,90 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
   );
 };
 
+type VoteProposal = {
+  "LivepeerVoteProposals.date": string;
+  "LivepeerVoteProposals.voter": string;
+  "LivepeerVoteProposals.eventTxnsHash": string;
+  "LivepeerVoteProposals.voteType": string;
+  "LivepeerVoteProposals.count": string;
+  "LivepeerVoteProposals.numOfProposals": string;
+  "LivepeerVoteProposals.numOfVoteCasted": string;
+};
+
+type VoterSummary = {
+  id: string;
+  noOfProposalsVotedOn: number;
+  noOfVotesCasted: number;
+  mostRecentVotes: (string | null)[];
+  votingTurnout: number;
+};
+
+
+// Function to get unique voter IDs
+const getUniqueVoters = (data: VoteProposal[]): string[] => {
+  const voterSet = new Set(data.map(proposal => proposal["LivepeerVoteProposals.voter"]));
+  return Array.from(voterSet);
+};
+
+// Function to group data by voter
+const groupByVoter = (data: VoteProposal[], voterId: string): VoteProposal[] => {
+  return data.filter(proposal => proposal["LivepeerVoteProposals.voter"] === voterId);
+};
+
+// Function to process vote proposals and generate voter summary
+const processVoteProposals = (proposals: VoteProposal[]): VoterSummary => {
+  const sortedVotes = proposals.sort((a, b) =>
+    new Date(b["LivepeerVoteProposals.date"]).getTime() - new Date(a["LivepeerVoteProposals.date"]).getTime()
+  );
+
+  const mostRecentVotes = sortedVotes.slice(0, 5).map(vote => vote["LivepeerVoteProposals.voteType"] || null);
+
+  const noOfProposalsVotedOn = proposals.length;
+  const noOfVotesCasted = proposals.reduce((acc, vote) => acc + parseInt(vote["LivepeerVoteProposals.numOfVoteCasted"], 10), 0);
+
+  const votingTurnout = noOfProposalsVotedOn ? noOfVotesCasted / noOfProposalsVotedOn : 0;
+
+  return {
+    id: proposals[0]["LivepeerVoteProposals.voter"],
+    noOfProposalsVotedOn,
+    noOfVotesCasted,
+    mostRecentVotes,
+    votingTurnout,
+  };
+};
+
+// Function to get voter summaries for all unique voters
+const getVoterSummaries = (data: VoteProposal[]): VoterSummary[] => {
+  const uniqueVoters = getUniqueVoters(data);
+  return uniqueVoters.map(voterId => {
+    const groupedProposals = groupByVoter(data, voterId);
+    return processVoteProposals(groupedProposals);
+  });
+};
+
+
+
 export const getStaticProps = async () => {
   try {
+
+    const query = getOrchestratorsVotingHistory();
+    const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
+    
+    // Log the response to check the structure of the data
+  
+    if (!response || !response[0] || !response[0].data) {
+      return {
+        props: {
+          initialVoterData: [],
+        },
+      };
+    }
+  
+    const data = response[0].data;
+  
+    const voterSummaries = getVoterSummaries(data);
+  
+  
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
     const protocol = await getProtocol(client);
@@ -123,10 +205,12 @@ export const getStaticProps = async () => {
       return null;
     }
 
+    
     const props: PageProps = {
       orchestrators: orchestrators.data,
       protocol: protocol.data,
       fallback,
+      initialVoterData:voterSummaries
     };
 
     return {

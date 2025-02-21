@@ -1,67 +1,25 @@
-import Spinner from "@components/Spinner";
 import {
-  Box,
   Card as CardBase,
-  Flex,
   Link as A,
   styled,
+  Flex,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useTransactionsQuery } from "apollo";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
-import dayjs from "dayjs";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { getAccountVotingHistory } from "cube/queryGenrator";
 import { useRouter } from "next/router";
-import numeral from "numeral";
-import { useMemo } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { useEffect, useState } from "react";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import Spinner from "@components/Spinner";
 
-const Card = styled(CardBase, {
-  length: {},
-  border: "1px solid $neutral3",
-  mb: "$2",
-  p: "$4",
-});
 
 const Index = () => {
   const router = useRouter();
   const query = router.query;
   const account = query.account as string;
 
-  const firstData = [
-    {
-      title: "Proposals voted on",
-      data: "45",
-    },
-    {
-      title: "Voting turnout",
-      data: "72.18 %",
-    }
-  ]
-
-
-
-  const SecondData = [
-    {
-      title: "Livepeer LLM SPE",
-      dateAndTime: "08/27/2024 9:32:40 am - Round #3497",
-      status: "Active",
-      orchestratorId: "0xf4e8ef0763bcb2b1af693f5970a00050a6ac7e1b"
-    },
-    {
-      title: "Livepeer LLM SPE",
-      dateAndTime: "08/27/2024 9:32:40 am - Round #3497",
-      status: "Defeated",
-      orchestratorId: "0xf4e8ef0763bcb2b1af693f5970a00050a6ac7e1b"
-    },
-    {
-      title: "Livepeer LLM SPE",
-      dateAndTime: "08/27/2024 9:32:40 am - Round #3497",
-      status: "Executed",
-      orchestratorId: "0xf4e8ef0763bcb2b1af693f5970a00050a6ac7e1b"
-    },
-  ]
-
+  const [votingTurnOut, setVotingTurnOut] = useState();
+  const [votingData, setVotingData] = useState()
+  const [isLoading, setIsLoading] = useState(false);
   const getBackgroundColorByStatus = (status: string) => {
     let bgColor = "#212322";
     switch (status) {
@@ -80,66 +38,120 @@ const Index = () => {
     return bgColor;
   }
 
-  function shortenAddress(address:string) {
+  function shortenAddress(address: string) {
     if (address.length < 10) return address; // Handle short addresses
 
     const first = address.slice(0, 6); // Get the '0x' + first 4 characters
     const last = address.slice(-4);    // Get last 4 characters
 
     return `${first}...${last}`;        // Return formatted string
-}
+  }
 
 
-const fetchingData = async()=>{
-  const response = await getCubeData({
-    "measures": [
-        "IcpSystemParameters.count"
-    ],
-    "timeDimensions": [
-        {
-            "dimension": "IcpSystemParameters.date"
-        }
-    ],
-    "order": {
-        "IcpSystemParameters.count": "desc"
-    },
-    "dimensions": [
-        "IcpSystemParameters.canister_id"
-    ]
-}, { type: CUBE_TYPE.SERVER })
-const CUBE_BASE_URL = process.env.CUBE_BASE_URL!;
-console.log('response from cube CUBE_BASE_URL', response,CUBE_BASE_URL);
-}
 
+  const fetchingData = async () => {
+    setIsLoading(true);
+    try {
+      const query = getAccountVotingHistory(account);
+      const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
+      const data = response[0].data;
+      if (data.length > 0) {
+        setVotingTurnOut(data[0]['LivepeerVoteType.votingTurnout']);
+        setVotingData(data);
+      }
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchingData();
+  }, [])
+
+  const getDateTimeAndRound = (date: string, round: string): string => {
+    // Parse the date string to a Date object
+    const dateObj = new Date(date);
+
+    // Function to format the date to "MM/DD/YYYY h:mm:ss a"
+    const formatDate = (date: Date): string => {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const seconds = date.getSeconds();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      const formattedTime = `${month} ${day}, ${year} ${hours % 12 || 12}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds} ${ampm}`;
+
+      return formattedTime;
+    };
+
+    // Round logic (In case the round value needs transformation, it's done here)
+    const roundNumber = round.split("-")[0]; // Assuming round is in the format "3466-01-01T00:00:00.000", just using the first part
+
+    // Format date
+    const formattedDate = formatDate(dateObj);
+
+    // Return the final output in the required format
+    return `${formattedDate} - Round #${roundNumber}`;
+  }
+
+  if (isLoading) {
+    return (
+      <Flex
+        css={{
+          pt: "$5",
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Spinner />
+      </Flex>
+    )
+  }
   return (
     <div>
       <div style={{ display: 'flex', flexDirection: 'row', marginTop: 20 }}>
-        <button onClick={()=>fetchingData()}>
-          get Data
-        </button>
-        {firstData.map(el => {
-          return (
-            <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
-              <div style={{color:"#66736D", fontSize:13}}>{el.title.toUpperCase()}</div>
-              <div style={{fontSize:27}}>{el.data}</div>
-            </div>
 
-          )
-        })}
+        <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
+          <div style={{ display: "flex", flexDirection: 'row' }}>
+            <div style={{ color: "#66736D", fontSize: 13, }}>PROPOSALS VOTED ON</div>
+            <div style={{ height: 14, width: 14, marginLeft: 10 }}>
+              <QuestionMarkCircledIcon style={{ color: "#66736D" }} />
+            </div>
+          </div>
+          <div style={{ fontSize: 27, marginTop: 6 }}>5</div>
+        </div>
+
+        <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
+          <div style={{ display: "flex", flexDirection: 'row' }}>
+            <div style={{ color: "#66736D", fontSize: 13, }}>VOTING TURNOUT</div>
+            <div style={{ height: 14, width: 14, marginLeft: 10 }}>
+              <QuestionMarkCircledIcon style={{ color: "#66736D" }} />
+            </div>
+          </div>
+          <div style={{ fontSize: 27, marginTop: 6 }}>{votingTurnOut}</div>
+        </div>
+
       </div>
-      <div style={{marginTop: 20 }}>
-        {SecondData.map(el => {
-          return (
-            <div style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el.status), width: 945, marginTop: 15, borderRadius: 8 }}>
-              <div>{el.title}</div>
-              <div>{el.dateAndTime}</div>
-              <div>Proposed by <a style={{ color:'inherit'}} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
-              <div>{el.status}</div>
-              <div><a style={{textDecoration:'none', color:'inherit'}} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>{shortenAddress(el.orchestratorId)}</a></div>
-            </div>
-
-          )
-        })}
+      <div style={{ marginTop: 20 }}>
+        {votingData &&
+          // @ts-ignore
+          votingData.map(el => {
+            return (
+              <div style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el.status), marginTop: 15, borderRadius: 8 }}>
+                <div style={{ fontSize: 16, marginBottom: 12 }}>{el['LivepeerVoteType.nameOfProposal']}</div>
+                <div style={{ fontSize: 12, marginBottom: 12 }}>{getDateTimeAndRound(el['LivepeerVoteType.date'], el['LivepeerVoteType.round'])}</div>
+                <div style={{ fontSize: 12, marginBottom: 12 }}>Proposed by <a style={{ color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
+                {/* <div>{el.status}</div> */}
+                <div><a style={{ textDecoration: 'none', color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el['LivepeerVoteType.voter']}/delegating`}>{shortenAddress(el['LivepeerVoteType.voter'])}</a></div>
+              </div>
+            )
+          })}
       </div>
     </div>
   )
