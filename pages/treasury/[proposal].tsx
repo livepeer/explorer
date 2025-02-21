@@ -1,6 +1,5 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
-import remarkGfm from "remark-gfm";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 
 import MarkdownRenderer from "@components/MarkdownRenderer";
@@ -447,7 +446,9 @@ const Proposal = () => {
                               }}
                               size="2"
                             >
-                              {action.lptTransfer.receiver}
+                              {width <= 768
+                                ? shortenAddress(action.lptTransfer.receiver)
+                                : action.lptTransfer.receiver}
                             </Text>
                           </Link>
                         </Flex>
@@ -573,22 +574,7 @@ const Proposal = () => {
                   p: "$4",
                   border: "1px solid $neutral4",
                   mb: "$3",
-                  h2: {
-                    fontWeight: 600,
-                    "&:first-of-type": { mt: 0 },
-                    mt: "$3",
-                  },
-                  h3: { fontWeight: 600, mt: "$3" },
-                  h4: { fontWeight: 600, mt: "$3" },
-                  h5: { fontWeight: 600, mt: "$3" },
-                  lineHeight: 1.5,
-                  a: {
-                    color: "$primary11",
-                  },
-                  pre: {
-                    whiteSpace: "pre-wrap",
-                  },
-                }}
+                              }}
               >
                 <Heading
                   css={{
@@ -601,7 +587,7 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <MarkdownRenderer remarkPlugins={[remarkGfm]}>
+                <MarkdownRenderer>
                   {proposal.description}
                 </MarkdownRenderer>
               </Card>
