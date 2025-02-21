@@ -1,12 +1,12 @@
-import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
-import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
-import { EnsIdentity } from "@lib/api/types/get-ens";
+import AccountLayout from "@layouts/account";
 import {
   AccountQueryResult,
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
+import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 
 type PageProps = {
   account: AccountQueryResult["data"];

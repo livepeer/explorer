@@ -10,45 +10,18 @@ import { useMemo } from "react";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { useEnsData } from "hooks";
 
-const OrchestratorVotingList = ({
-  data,
-  pageSize = 10,
-}: {
-  pageSize: number;
-  data: any;
-}) => {
-  data = [
-    {
-      id: "0x75fbf65a3dfe93545c9768f163e59a02daf08d36",
-      noOfProposalsVotedOn: 200,
-      noOfVotesCasted: 100,
-      mostRecentVotes: [true, false, false, true, null],
-      votingTurnout: 0.5,
-    },
-    {
-      id: "0x75fbf65a3dfe93545c9768f163e59a02daf08d36",
-      noOfProposalsVotedOn: 200,
-      noOfVotesCasted: 100,
-      mostRecentVotes: [true, false, false, true, null],
-      votingTurnout: 0.5,
-    },
-    {
-      id: "0x75fbf65a3dfe93545c9768f163e59a02daf08d36",
-      noOfProposalsVotedOn: 200,
-      noOfVotesCasted: 100,
-      mostRecentVotes: [true, false, false, true, null],
-      votingTurnout: 0.5,
-    },
-  ];
-  pageSize = 2;
 
-  const mappedData = useMemo(() => {
-    return data?.map((row) => {
-      return {
-        ...row,
-      };
-    });
-  }, [data]);
+
+type VoterSummary = {
+  id: string;
+  noOfProposalsVotedOn: number;
+  noOfVotesCasted: number;
+  mostRecentVotes: (string | null)[];
+  votingTurnout: number;
+};
+
+const OrchestratorVotingList = ({ initialVoterData }: { initialVoterData?: VoterSummary[] }) => {
+  const pageSize = 10;
 
   const columns = useMemo(
     () => [
@@ -157,20 +130,6 @@ const OrchestratorVotingList = ({
                         {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                       </Box>
                     )}
-                    {/* {(row?.original?.daysSinceChangeParams ??
-                      Number.MAX_VALUE) < 30 && (
-                      <ExplorerTooltip
-                        multiline
-                        content={`This orchestrator changed their fee or reward cut ${row?.original?.daysSinceChangeParamsFormatted}.`}
-                      >
-                        <Box>
-                          <Box
-                            as={ExclamationTriangleIcon}
-                            css={{ ml: "$2", color: "$neutral11" }}
-                          />
-                        </Box>
-                      </ExplorerTooltip>
-                    )} */}
                   </Flex>
                 </Flex>
               </A>
@@ -180,10 +139,6 @@ const OrchestratorVotingList = ({
       },
       {
         Header: (
-          // <ExplorerTooltip
-          //   multiline
-          //   content={<Box>{/* tooltip content here */}</Box>}
-          // >
           <Box
             css={{
               height: 20,
@@ -193,7 +148,6 @@ const OrchestratorVotingList = ({
           >
             Number of Proposals Voted On
           </Box>
-          // </ExplorerTooltip>
         ),
         accessor: "noOfProposalsVotedOn",
         Cell: ({ row }) => (
@@ -213,10 +167,6 @@ const OrchestratorVotingList = ({
       },
       {
         Header: (
-          // <ExplorerTooltip
-          //   multiline
-          //   content={<Box>{/* tooltip content here */}</Box>}
-          // >
           <Box
             css={{
               height: 20,
@@ -226,7 +176,6 @@ const OrchestratorVotingList = ({
           >
             Number of Votes Casted
           </Box>
-          // </ExplorerTooltip>
         ),
         accessor: "noOfVotesCasted",
         Cell: ({ row }) => (
@@ -246,10 +195,6 @@ const OrchestratorVotingList = ({
       },
       {
         Header: (
-          // <ExplorerTooltip
-          //   multiline
-          //   content={<Box>{/* tooltip content here */}</Box>}
-          // >
           <Box
             css={{
               height: 20,
@@ -266,12 +211,13 @@ const OrchestratorVotingList = ({
           <Box>
             <Flex css={{ alignItems: "center", gap: "$2" }}>
               {row.values.mostRecentVotes?.map((mostRecentVote, index) => {
+
                 let icon =
-                  mostRecentVote === true ? (
+                  mostRecentVote == "for" ? (
                     <CheckIcon style={{ color: "#1E1E1E" }} />
-                  ) : mostRecentVote === false ? (
+                  ) : mostRecentVote == "against" ? (
                     <Cross2Icon style={{ color: "#1E1E1E" }} />
-                  ) : mostRecentVote === null ? (
+                  ) : mostRecentVote == "abstain" ? (
                     <MinusIcon style={{ color: "#1E1E1E" }} />
                   ) : null;
 
@@ -279,13 +225,13 @@ const OrchestratorVotingList = ({
                   <Box
                     css={{
                       backgroundColor:
-                        mostRecentVote === true
+                        mostRecentVote == "for"
                           ? "#357052"
-                          : mostRecentVote === false
-                          ? "#884140"
-                          : mostRecentVote === null
-                          ? "#5F5F5F"
-                          : "",
+                          : mostRecentVote == "against"
+                            ? "#884140"
+                            : mostRecentVote == "abstain"
+                              ? "#5F5F5F"
+                              : "",
                       borderRadius: 1000,
                       width: 24,
                       height: 24,
@@ -307,10 +253,6 @@ const OrchestratorVotingList = ({
       },
       {
         Header: (
-          // <ExplorerTooltip
-          //   multiline
-          //   content={<Box>{/* tooltip content here */}</Box>}
-          // >
           <Box
             css={{
               height: 20,
@@ -320,7 +262,6 @@ const OrchestratorVotingList = ({
           >
             Voting Turnout
           </Box>
-          // </ExplorerTooltip>
         ),
         accessor: "votingTurnout",
         Cell: ({ row }) => (
@@ -341,16 +282,21 @@ const OrchestratorVotingList = ({
     ],
     []
   );
-
-  return (
-    <Table
-      data={mappedData as any}
-      columns={columns as any}
-      initialState={{
-        pageSize,
-      }}
-    />
-  );
+  if (initialVoterData) {
+    return (
+      <Table
+        data={initialVoterData as any}
+        columns={columns as any}
+        initialState={{
+          pageSize,
+        }}
+      />
+    );
+  } else {
+    return null;
+  }
 };
+
+
 
 export default OrchestratorVotingList;
