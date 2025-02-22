@@ -12,7 +12,7 @@ import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
 
 // Define a type for either a Transcoder or a Delegate.
-type TranscoderOrDelegateType =
+export type TranscoderOrDelegateType =
   | NonNullable<AccountQueryResult["data"]>["transcoder"]
   | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
 

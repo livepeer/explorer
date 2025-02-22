@@ -11,16 +11,12 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
+import {TranscoderOrDelegateType} from "@components/DelegatingWidget";
 import { ConsoleView } from "react-device-detect";
 
 interface Treasury {
   treasuryRewardCutRate: number;
 }
-
-// Define a type for either a Transcoder or a Delegate.
-type TranscoderOrDelegateType =
-  | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
 
 interface Props {
   transcoder: TranscoderOrDelegateType;

@@ -17,11 +17,7 @@ import { useMemo } from "react";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
-
-// Define a type for either a Transcoder or a Delegate.
-type TranscoderOrDelegateType =
-  | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 
 type FooterData = {
   isTransferStake: boolean;
