@@ -1,5 +1,5 @@
 overwrite: true
-schema: https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one
+schema: https://gateway.thegraph.com/api/${NEXT_PUBLIC_SUBGRAPH_API_KEY}/subgraphs/id/${NEXT_PUBLIC_SUBGRAPH_ID}
 documents: ./queries/**/*.graphql
 generates:
   ./apollo/subgraph.ts:
@@ -19,4 +19,4 @@ config:
 
 hooks:
   afterAllFileWrite:
-    - yarn -T run prettier --write
+    - yarn prettier --write ./apollo/subgraph.ts

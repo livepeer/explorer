@@ -17,6 +17,7 @@ import { useMemo } from "react";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 
 type FooterData = {
   isTransferStake: boolean;
@@ -33,7 +34,7 @@ type FooterData = {
   transcoders: NonNullable<
     OrchestratorsSortedQueryResult["data"]
   >["transcoders"] | undefined;
-  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   account: EnsIdentity;
 };

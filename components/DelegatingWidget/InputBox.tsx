@@ -11,6 +11,7 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ConsoleView } from "react-device-detect";
 
 interface Treasury {
@@ -18,7 +19,7 @@ interface Treasury {
 }
 
 interface Props {
-  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"];
   treasury: Treasury;
