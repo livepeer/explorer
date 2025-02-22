@@ -66,11 +66,11 @@ export function ExplorerTooltip({
         </Text>
         <Box css={{ color: "$neutral4" }}>
           <TooltipPrimitive.Arrow
-            offset={5}
             width={11}
             height={5}
             style={{
               fill: "currentColor",
+              transform: "translateX(5px)"
             }}
           />
         </Box>
