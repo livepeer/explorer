@@ -153,7 +153,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`,
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID || "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`,
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated
@@ -187,10 +187,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph:
-      `https://gateway-arbitrum.network.thegraph.com/api/${
-            SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/${SUBGRAPH_ID ||"FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`,
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID || "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumGoerli.id]: {

@@ -11,7 +11,7 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
-import {TranscoderOrDelegateType} from "@components/DelegatingWidget";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ConsoleView } from "react-device-detect";
 
 interface Treasury {
