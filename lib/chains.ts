@@ -27,6 +27,9 @@ if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
 }
+if (typeof SUBGRAPH_KEY === "undefined") {
+  throw new Error(`NEXT_PUBLIC_SUBGRAPH_API_KEY must be defined environment variables`);
+}
 
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
@@ -150,12 +153,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph:
-      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-        ? `https://gateway.thegraph.com/api/${
-            SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`
-        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`,
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated
