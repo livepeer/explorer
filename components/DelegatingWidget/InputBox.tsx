@@ -17,8 +17,13 @@ interface Treasury {
   treasuryRewardCutRate: number;
 }
 
+// Define a type for either a Transcoder or a Delegate.
+type TranscoderOrDelegateType =
+  | NonNullable<AccountQueryResult["data"]>["transcoder"]
+  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+
 interface Props {
-  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"];
   treasury: Treasury;

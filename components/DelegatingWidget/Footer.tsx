@@ -18,6 +18,11 @@ import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
 
+// Define a type for either a Transcoder or a Delegate.
+type TranscoderOrDelegateType =
+  | NonNullable<AccountQueryResult["data"]>["transcoder"]
+  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+
 type FooterData = {
   isTransferStake: boolean;
   isMyTranscoder: boolean;
@@ -33,7 +38,7 @@ type FooterData = {
   transcoders: NonNullable<
     OrchestratorsSortedQueryResult["data"]
   >["transcoders"] | undefined;
-  transcoder: NonNullable<AccountQueryResult["data"]>["transcoder"];
+  transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   account: EnsIdentity;
 };
