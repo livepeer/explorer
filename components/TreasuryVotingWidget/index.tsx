@@ -4,7 +4,7 @@ import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
 import { useMemo } from "react";
-import { abbreviateNumber, fromWei } from "../../lib/utils";
+import { abbreviateNumber, fromWei, shortenAddress} from "@lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
@@ -18,9 +18,6 @@ type Props = {
 };
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
-
-const shortenAddress = (address: string) =>
-  address?.replace(address.slice(5, 39), "…") ?? "";
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? 0), 4);

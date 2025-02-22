@@ -424,3 +424,20 @@ export const fromWei = (wei: BigNumberish) => formatEther(wei);
 
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();
+
+/** 
+ * Check if a URL is an image URL.
+ * @param url - The URL to check
+ * @returns Whether the URL is an image URL.
+ **/
+export const isImageUrl = (url: string): boolean => {
+  return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+};
+
+/**
+ * Shorten an Ethereum address for display.
+ * @param address - The address to shorten.
+ * @returns The shortened address.
+ */
+export const shortenAddress = (address: string) =>
+  address?.replace(address.slice(5, 39), "…") ?? "";
