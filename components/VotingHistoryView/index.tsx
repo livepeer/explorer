@@ -141,9 +141,9 @@ const Index = () => {
       <div style={{ marginTop: 20 }}>
         {votingData &&
           // @ts-ignore
-          votingData.map(el => {
+          votingData.map((el, index) => {
             return (
-              <div style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el.status), marginTop: 15, borderRadius: 8 }}>
+              <div key={index} style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el.status), marginTop: 15, borderRadius: 8 }}>
                 <div style={{ fontSize: 16, marginBottom: 12 }}>{el['LivepeerVoteType.nameOfProposal']}</div>
                 <div style={{ fontSize: 12, marginBottom: 12 }}>{getDateTimeAndRound(el['LivepeerVoteType.date'], el['LivepeerVoteType.round'])}</div>
                 <div style={{ fontSize: 12, marginBottom: 12 }}>Proposed by <a style={{ color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
@@ -158,4 +158,3 @@ const Index = () => {
 };
 
 export default Index;
-
