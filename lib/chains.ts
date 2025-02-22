@@ -18,11 +18,10 @@ export const WALLET_CONNECT_PROJECT_ID =
 
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
-
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 const SUBGRAPH_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ID;
 
-if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
+if (typeof INFURA_KEY === "undefined" && typeof NETWORK === "undefined") {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
