@@ -41,7 +41,7 @@ export function ExplorerTooltip({
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
     >
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+      <TooltipPrimitive.Trigger><span>{children}</span></TooltipPrimitive.Trigger>
 
       <Content
         side="top"
