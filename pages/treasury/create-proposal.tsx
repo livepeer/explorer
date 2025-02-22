@@ -31,7 +31,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
-import remarkImages from "remark-images";
 
 const StyledTab = styled(Tab, {
   position: "relative",
