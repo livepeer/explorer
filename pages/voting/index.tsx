@@ -7,10 +7,10 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   styled,
   Text,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
@@ -115,7 +115,7 @@ const Voting = () => {
               <Link
                 href="/voting/create-poll"
                 as="/voting/create-poll"
-                passHref
+                legacyBehavior
               >
                 <Button size="3" variant="primary">
                   Create Poll
@@ -145,9 +145,9 @@ const Voting = () => {
                     key={poll.id}
                     href="/voting/[poll]"
                     as={`/voting/${poll.id}`}
-                    passHref
+                    legacyBehavior
                   >
-                    <A
+                    <LivepeerLink
                       css={{
                         cursor: "pointer",
                         display: "block",
@@ -217,7 +217,7 @@ const Voting = () => {
                           </Badge>
                         </Flex>
                       </Card>
-                    </A>
+                    </LivepeerLink>
                   </Link>
                 ))}
             </Box>

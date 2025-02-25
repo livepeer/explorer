@@ -1,4 +1,4 @@
-import { styled, Flex } from "@livepeer/design-system";
+import { styled, Flex } from "@jjasonn.stone/design-system";
 
 const Circle = styled("div", {
   length: {},

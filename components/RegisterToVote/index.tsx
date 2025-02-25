@@ -1,6 +1,6 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
 import {
   useAccountAddress,
   useHandleTransaction,
@@ -9,7 +9,8 @@ import {
 import { useBondingManagerAddress } from "hooks/useContracts";
 
 import { useMemo, useState } from "react";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
+import { type Address } from "viem";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
   bondingManagerAddress: Address | undefined;
@@ -28,20 +29,29 @@ const CheckpointButton = ({
   ...props
 }: ButtonProps) => {
   disabled ||= !Boolean(bondingManagerAddress && targetAddress);
-  const { config } = usePrepareContractWrite({
-    enabled: !disabled,
+  
+  const { data: simulateData } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "checkpointBondingState",
     args: [targetAddress!],
+    query: {
+      enabled: !disabled
+    },
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+
+  const { writeContract, data, isPending, error, isSuccess } = useWriteContract();
+
+  const handleWrite = () => {
+    if (!simulateData) return;
+    writeContract(simulateData.request);
+  };
 
   useHandleTransaction(
     "checkpoint",
-    data,
+    data ? { hash: data } : undefined,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     { targetAddress, isOrchestrator },
     onSuccess
@@ -51,10 +61,10 @@ const CheckpointButton = ({
     <Button
       {...props}
       size="3"
-      variant="transparentBlack"
+      variant="gray"
       ghost
       disabled={disabled}
-      onClick={write}
+      onClick={handleWrite}
     >
       {children}
     </Button>
@@ -147,7 +157,7 @@ const RegisterToVote = () => {
                 targetAddress={voteState.delegate?.address}
                 isOrchestrator={true}
                 css={{ mt: "$2", mr: "$2" }}
-                variant="transparentBlack"
+                variant="gray"
                 ghost
                 disabled={hasRegisteredOrch}
                 onSuccess={() => setHasRegisteredOrch(true)}
@@ -163,7 +173,7 @@ const RegisterToVote = () => {
                 isOrchestrator={false}
                 size="3"
                 css={{ mt: "$2" }}
-                variant="transparentBlack"
+                variant="gray"
                 ghost
                 disabled={hasRegisteredSelf || uiState.orchestrator.pending} // orchestrator should be checkpointed first
                 onSuccess={() => setHasRegisteredSelf(true)}

@@ -1,8 +1,8 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
-import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
+import { checkAddressEquality, toWei } from "@lib/utils";
+import { Box, Button, Flex, Link as A, Text } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -15,9 +15,15 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import numeral from "numeral";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import Masonry from "react-masonry-css";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { type Address } from "viem";
+import { 
+  useWriteContract,
+  useSimulateContract,
+  type UseSimulateContractReturnType,
+  type BaseError 
+} from "wagmi";
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -52,19 +58,30 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(bondingManagerAddress && recipient),
+
+  const { data: simulateData, error: simulateError } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawFees",
     args: [recipient ?? "0x", BigInt(amount)],
-  });
-  const { data, isLoading, write, isSuccess, error } = useContractWrite(config);
+  }) as { data: UseSimulateContractReturnType; error: BaseError | null };
 
-  useHandleTransaction("withdrawFees", data, error, isLoading, isSuccess, {
-    recipient,
-    amount,
-  });
+  const { writeContract, data: writeData, isPending } = useWriteContract();
+
+  useHandleTransaction(
+    "withdrawFees",
+    simulateData ? { hash: writeData } : undefined,
+    simulateError as Error | null,
+    isPending,
+    true,
+    [recipient, amount]
+  );
+
+  useEffect(() => {
+    if (simulateError) {
+      console.error("Withdraw fees failed:", simulateError);
+    }
+  }, [simulateError]);
 
   const isMyAccount = checkAddressEquality(
     accountAddress ?? "",
@@ -109,8 +126,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
-          <Link href="/orchestrators" passHref>
-            <Button size="3" variant="primary">
+          <Link href="/orchestrators" passHref legacyBehavior>
+            <Button size="3" variant="primary" >
               <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>
@@ -149,6 +166,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
+            legacyBehavior
           >
             <A
               className="masonry-grid_item"
@@ -171,7 +189,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                         )}
                   </Box>
                 }
-              />{" "}
+              />
             </A>
           </Link>
         )}
@@ -341,7 +359,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     mt: "$3",
                     width: "100%",
                   }}
-                  onClick={write}
+                  onClick={() => 
+                    simulateData && writeContract({
+                      address: bondingManagerAddress as Address,
+                      abi: bondingManager,
+                      functionName: "withdrawFees",
+                      args: [recipient ?? "0x", toWei(amount)],
+                    })
+                  }
                 >
                   Withdraw Pending Fees
                 </Button>

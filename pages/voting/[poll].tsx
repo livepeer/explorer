@@ -16,7 +16,7 @@ import {
   Flex,
   Heading,
   Text,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";

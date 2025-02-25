@@ -1,26 +1,24 @@
-import {
-  ethers,
-  BigNumber,
-  ContractTransaction,
-  providers,
-  utils,
-} from "ethers";
+import { ethers } from "ethers";
 import InboxABI from "./Inbox.json";
 
 export async function waitForTx(
-  tx: ContractTransaction | Promise<ContractTransaction>,
+  tx: ethers.ContractTransactionResponse | Promise<ethers.ContractTransactionResponse>,
   _confirmations?: number
-): Promise<providers.TransactionReceipt> {
+): Promise<ethers.ContractTransactionReceipt> {
   const resolvedTx = await tx;
   const confirmations =
     _confirmations ??
-    chainIdToConfirmationsNeededForFinalization(resolvedTx.chainId);
+    chainIdToConfirmationsNeededForFinalization(Number(resolvedTx.chainId));
 
   // we retry / wait if it fails the first time
   try {
-    return await resolvedTx.wait(confirmations);
+    const receipt = await resolvedTx.wait(confirmations);
+    if (!receipt) throw new Error('No receipt');
+    return receipt;
   } catch (e) {}
-  return await resolvedTx.wait(confirmations);
+  const receipt = await resolvedTx.wait(confirmations);
+  if (!receipt) throw new Error('No receipt');
+  return receipt;
 }
 
 function chainIdToConfirmationsNeededForFinalization(chainId: number): number {
@@ -36,10 +34,10 @@ function chainIdToConfirmationsNeededForFinalization(chainId: number): number {
 }
 
 export async function waitToRelayTxsToL2(
-  inProgressL1Tx: Promise<providers.TransactionReceipt>,
+  inProgressL1Tx: Promise<ethers.ContractTransactionReceipt>,
   inboxAddress: string,
-  l1: ethers.providers.BaseProvider,
-  l2: ethers.providers.BaseProvider
+  l1: ethers.Provider,
+  l2: ethers.Provider
 ) {
   const l1Tx = await inProgressL1Tx;
   const seqNums = await getInboxSeqNumFromContractTransaction(
@@ -52,15 +50,15 @@ export async function waitToRelayTxsToL2(
     throw new Error("Seq num not found");
   }
   const retryableTicket = await calculateL2TransactionHash(seqNum, l2);
-  const autoRedeem = calculateRetryableAutoRedeemTxnHash(retryableTicket);
-  const redeemTransaction =
-    calculateL2RetryableTransactionHash(retryableTicket);
+  const retryableTicketHex = ethers.toBeHex(retryableTicket);
+  const autoRedeem = calculateRetryableAutoRedeemTxnHash(retryableTicketHex);
+  const redeemTransaction = calculateL2RetryableTransactionHash(retryableTicketHex);
 
   console.log("autoRedeem", autoRedeem);
 
   console.log(
     // eslint-disable-next-line
-    `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.transactionHash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`
+    `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.hash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`
   );
 
   const retryableTicketReceipt = await l2.waitForTransaction(
@@ -91,21 +89,25 @@ export async function waitToRelayTxsToL2(
 }
 
 async function getInboxSeqNumFromContractTransaction(
-  l1Transaction: providers.TransactionReceipt,
+  l1Transaction: ethers.ContractTransactionReceipt,
   inboxAddress: string,
-  provider: ethers.providers.BaseProvider
+  provider: ethers.Provider
 ) {
   const contract = new ethers.Contract(inboxAddress, InboxABI, provider);
   const iface = contract.interface;
-  const messageDelivered = iface.getEvent("InboxMessageDelivered");
-  const messageDeliveredFromOrigin = iface.getEvent(
-    "InboxMessageDeliveredFromOrigin"
-  );
+  const messageDelivered = iface.getEvent("InboxMessageDelivered") ?? 
+    iface.getEvent("event InboxMessageDelivered");
+  const messageDeliveredFromOrigin = iface.getEvent("InboxMessageDeliveredFromOrigin") ?? 
+    iface.getEvent("event InboxMessageDeliveredFromOrigin");
+  
+  if (!messageDelivered || !messageDeliveredFromOrigin) {
+    throw new Error("Required events not found in interface");
+  }
 
   const eventTopics = {
-    InboxMessageDelivered: iface.getEventTopic(messageDelivered),
-    InboxMessageDeliveredFromOrigin: iface.getEventTopic(
-      messageDeliveredFromOrigin
+    InboxMessageDelivered: ethers.id(messageDelivered.format()),
+    InboxMessageDeliveredFromOrigin: ethers.id(
+      messageDeliveredFromOrigin.format()
     ),
   };
 
@@ -116,41 +118,41 @@ async function getInboxSeqNumFromContractTransaction(
   );
 
   if (logs.length === 0) return undefined;
-  return logs.map((log) => BigNumber.from(log.topics[1]));
+  return logs.map((log) => BigInt(log.topics[1]));
 }
 
 async function calculateL2TransactionHash(
-  inboxSequenceNumber: BigNumber,
-  provider: ethers.providers.BaseProvider
+  inboxSequenceNumber: bigint,
+  provider: ethers.Provider
 ) {
-  const l2ChainId = BigNumber.from((await provider.getNetwork()).chainId);
+  const l2ChainId = BigInt((await provider.getNetwork()).chainId);
 
-  return utils.keccak256(
-    utils.concat([
-      utils.zeroPad(l2ChainId.toHexString(), 32),
-      utils.zeroPad(bitFlipSeqNum(inboxSequenceNumber).toHexString(), 32),
+  return ethers.keccak256(
+    ethers.concat([
+      ethers.zeroPadValue(ethers.toBeHex(l2ChainId), 32),
+      ethers.zeroPadValue(ethers.toBeHex(bitFlipSeqNum(inboxSequenceNumber)), 32),
     ])
   );
 }
 
-function bitFlipSeqNum(seqNum: BigNumber) {
-  return seqNum.or(BigNumber.from(1).shl(255));
+function bitFlipSeqNum(seqNum: bigint) {
+  return seqNum | (BigInt(1) << BigInt(255));
 }
 
 function calculateRetryableAutoRedeemTxnHash(requestID: string) {
-  return utils.keccak256(
-    utils.concat([
-      utils.zeroPad(requestID, 32),
-      utils.zeroPad(BigNumber.from(1).toHexString(), 32),
+  return ethers.keccak256(
+    ethers.concat([
+      ethers.zeroPadValue(requestID, 32),
+      ethers.zeroPadValue(ethers.toBeHex(BigInt(1)), 32),
     ])
   );
 }
 
 function calculateL2RetryableTransactionHash(requestID: string) {
-  return utils.keccak256(
-    utils.concat([
-      utils.zeroPad(requestID, 32),
-      utils.zeroPad(BigNumber.from(0).toHexString(), 32),
+  return ethers.keccak256(
+    ethers.concat([
+      ethers.zeroPadValue(requestID, 32),
+      ethers.zeroPadValue(ethers.toBeHex(BigInt(0)), 32),
     ])
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import UniswapModal from "../UniswapModal";
 import Account from "../Account";
-import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import { Box, Flex, Text, Link as LivepeerLink } from "@jjasonn.stone/design-system";
 import { IS_L2 } from "lib/chains";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
@@ -64,22 +64,22 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
           <Logo isDark id="drawer" />
           <Box css={{ mb: "auto" }}>
             {items.map((item, i) => (
-              <Link key={i} href={item.href} as={item.as} passHref>
-                <A
+              <Link
+                key={i}
+                href={item.href}
+                as={item.as}
+                legacyBehavior
+              >
+                <LivepeerLink
                   variant="subtle"
                   css={{
-                    color:
-                      asPath.split("?")[0] === item.as
-                        ? "$hiContrast"
-                        : "$neutral11",
-                    lineHeight: "initial",
+                    color: asPath.split("?")[0] === item.as ? "$hiContrast" : "$neutral11",
                     display: "flex",
                     fontSize: "$3",
                     fontWeight: 500,
                     cursor: "pointer",
                     alignItems: "center",
                     py: "$2",
-                    borderRadius: 5,
                     transition: "color .3s",
                     "&:hover": {
                       textDecoration: "none",
@@ -90,17 +90,19 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 >
                   <Flex
                     css={{
-                      alignItems: "center",
-                      justifyContent: "center",
                       width: 18,
                       height: 18,
                       mr: "$2",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <item.icon />
                   </Flex>
-                  {item.name}
-                </A>
+                  <Box>
+                    {item.name}
+                  </Box>
+                </LivepeerLink>
               </Link>
             ))}
             <Account />
@@ -111,43 +113,54 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 pb: "$4",
               }}
             >
-              <A
+              <LivepeerLink
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Livepeer.org
-              </A>
+              </LivepeerLink>
               {IS_L2 && (
-                <Link href="/migrate" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    L2 Migration Tool
-                  </A>
+                <Link
+                  href="/migrate"
+                  className="link"
+                  style={{
+                    fontSize: "var(--fontSizes-2)",
+                    marginBottom: "8px",
+                    display: "block",
+                    color: "inherit",
+                    textDecoration: "none"
+                  }}
+                >
+                  L2 Migration Tool
                 </Link>
               )}
-              <A
+              <LivepeerLink
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://livepeer.org/docs"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Docs
-              </A>
+              </LivepeerLink>
 
               <UniswapModal
                 trigger={
-                  <A
-                    as={Text}
+                  <Text
                     css={{
                       cursor: "pointer",
                       fontSize: "$2",
                       mb: "$2",
                       display: "block",
+                      color: "hiContrast",
+                      "&:hover": {
+                        opacity:0.8
+                      }
                     }}
                   >
                     Get LPT
-                  </A>
+                  </Text>
                 }
               >
                 <Box
@@ -161,22 +174,28 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                   src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
                 />
               </UniswapModal>
-              <A
+              <LivepeerLink
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
                 href="https://discord.gg/uaPhtyrWsF"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Discord
-              </A>
+              </LivepeerLink>
 
-              <Box>
-                <Link href="/whats-new" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    What&apos;s New
-                  </A>
-                </Link>
-              </Box>
+              <Link
+                href="/whats-new"
+                className="link"
+                style={{
+                  fontSize: "var(--fontSizes-2)",
+                  marginBottom: "8px",
+                  display: "block",
+                  color: "inherit",
+                  textDecoration: "none"
+                }}
+              >
+                What&apos;s New
+              </Link>
             </Box>
           </Box>
         </Flex>

@@ -1,27 +1,33 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@livepeer/design-system";
+import { Button } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
   const accountAddress = useAccountAddress();
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
+  const { data: simulateData } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondFromUnbondedWithHint",
     args: [delegate, unbondingLockId, newPosPrev, newPosNext],
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+
+  const { writeContract, data, isPending, error, isSuccess } = useWriteContract();
+
+  const handleWrite = () => {
+    if (!simulateData) return;
+    writeContract(simulateData.request);
+  };
 
   useHandleTransaction(
     "rebondFromUnbonded",
-    data,
+    data ? { hash: data } : undefined,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     {
       delegate,
@@ -37,7 +43,7 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
 
   return (
     <>
-      <Button variant="primary" size="3" onClick={write} css={{ mr: "$3" }}>
+      <Button variant="primary" size="3" onClick={handleWrite} css={{ mr: "$3" }}>
         Redelegate
       </Button>
     </>

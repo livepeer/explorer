@@ -1,531 +1,533 @@
-export const l1Migrator = [
+import { type JsonFragment } from 'ethers';
+
+export const l1Migrator: JsonFragment[] = [
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_inbox",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_bondingManagerAddr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_ticketBrokerAddr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_l2MigratorAddr",
-        type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
-    anonymous: false,
+    stateMutability: "nonpayable",
     inputs: [
       {
-        indexed: true,
-        internalType: "uint256",
-        name: "seqNo",
-        type: "uint256",
+        type: "address",
+        name: "_inbox",
+        internalType: "address"
       },
       {
-        components: [
-          {
-            internalType: "address",
-            name: "l1Addr",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "l2Addr",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "stake",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "delegatedStake",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "fees",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "delegate",
-            type: "address",
-          },
-        ],
-        indexed: false,
-        internalType: "struct IMigrator.MigrateDelegatorParams",
-        name: "params",
-        type: "tuple",
+        type: "address",
+        name: "_bondingManagerAddr",
+        internalType: "address"
       },
-    ],
+      {
+        type: "address",
+        name: "_ticketBrokerAddr",
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "_l2MigratorAddr",
+        internalType: "address"
+      }
+    ]
+  },
+  {
+    type: "event",
     name: "MigrateDelegatorInitiated",
-    type: "event",
-  },
-  {
-    anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "uint256",
+        type: "uint256",
         name: "seqNo",
-        type: "uint256",
+        indexed: true,
+        internalType: "uint256"
       },
       {
-        components: [
-          {
-            internalType: "address",
-            name: "l1Addr",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "l2Addr",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "deposit",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "reserve",
-            type: "uint256",
-          },
-        ],
-        indexed: false,
-        internalType: "struct IMigrator.MigrateSenderParams",
-        name: "params",
         type: "tuple",
-      },
-    ],
-    name: "MigrateSenderInitiated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "seqNo",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "l1Addr",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "l2Addr",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "total",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256[]",
-            name: "unbondingLockIds",
-            type: "uint256[]",
-          },
-        ],
-        indexed: false,
-        internalType: "struct IMigrator.MigrateUnbondingLocksParams",
         name: "params",
-        type: "tuple",
-      },
-    ],
-    name: "MigrateUnbondingLocksInitiated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "seqNum",
-        type: "uint256",
-      },
-      {
         indexed: false,
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "TxToL2",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "bondingManagerAddr",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_l1Addr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_l2Addr",
-        type: "address",
-      },
-    ],
-    name: "getMigrateDelegatorParams",
-    outputs: [
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "l1Addr",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "l2Addr",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "stake",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "delegatedStake",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "fees",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "delegate",
-            type: "address",
-          },
-        ],
         internalType: "struct IMigrator.MigrateDelegatorParams",
-        name: "params",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_l1Addr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_l2Addr",
-        type: "address",
-      },
-    ],
-    name: "getMigrateSenderParams",
-    outputs: [
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-      {
         components: [
           {
-            internalType: "address",
+            type: "address",
             name: "l1Addr",
-            type: "address",
+            internalType: "address"
           },
           {
-            internalType: "address",
+            type: "address",
             name: "l2Addr",
+            internalType: "address"
+          },
+          {
+            type: "uint256",
+            name: "stake",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256",
+            name: "delegatedStake",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256",
+            name: "fees",
+            internalType: "uint256"
+          },
+          {
             type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "deposit",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "reserve",
-            type: "uint256",
-          },
-        ],
+            name: "delegate",
+            internalType: "address"
+          }
+        ]
+      }
+    ],
+    anonymous: false
+  },
+  {
+    type: "event",
+    name: "MigrateSenderInitiated",
+    inputs: [
+      {
+        type: "uint256",
+        name: "seqNo",
+        indexed: true,
+        internalType: "uint256"
+      },
+      {
+        type: "tuple",
+        name: "params",
+        indexed: false,
         internalType: "struct IMigrator.MigrateSenderParams",
-        name: "params",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_l1Addr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_l2Addr",
-        type: "address",
-      },
-      {
-        internalType: "uint256[]",
-        name: "_unbondingLockIds",
-        type: "uint256[]",
-      },
-    ],
-    name: "getMigrateUnbondingLocksParams",
-    outputs: [
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-      {
         components: [
           {
-            internalType: "address",
+            type: "address",
             name: "l1Addr",
-            type: "address",
+            internalType: "address"
           },
           {
-            internalType: "address",
+            type: "address",
             name: "l2Addr",
-            type: "address",
+            internalType: "address"
           },
           {
-            internalType: "uint256",
-            name: "total",
             type: "uint256",
+            name: "deposit",
+            internalType: "uint256"
           },
           {
-            internalType: "uint256[]",
-            name: "unbondingLockIds",
-            type: "uint256[]",
-          },
-        ],
-        internalType: "struct IMigrator.MigrateUnbondingLocksParams",
-        name: "params",
+            type: "uint256",
+            name: "reserve",
+            internalType: "uint256"
+          }
+        ]
+      }
+    ],
+    anonymous: false
+  },
+  {
+    type: "event",
+    name: "MigrateUnbondingLocksInitiated",
+    inputs: [
+      {
+        type: "uint256",
+        name: "seqNo",
+        indexed: true,
+        internalType: "uint256"
+      },
+      {
         type: "tuple",
-      },
+        name: "params",
+        indexed: false,
+        internalType: "struct IMigrator.MigrateUnbondingLocksParams",
+        components: [
+          {
+            type: "address",
+            name: "l1Addr",
+            internalType: "address"
+          },
+          {
+            type: "address",
+            name: "l2Addr",
+            internalType: "address"
+          },
+          {
+            type: "uint256",
+            name: "total",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256[]",
+            name: "unbondingLockIds",
+            internalType: "uint256[]"
+          }
+        ]
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    anonymous: false
   },
   {
+    type: "event",
+    name: "TxToL2",
+    inputs: [
+      {
+        type: "address",
+        name: "from",
+        indexed: true,
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "to",
+        indexed: true,
+        internalType: "address"
+      },
+      {
+        type: "uint256",
+        name: "seqNum",
+        indexed: true,
+        internalType: "uint256"
+      },
+      {
+        type: "bytes",
+        name: "data",
+        indexed: false,
+        internalType: "bytes"
+      }
+    ],
+    anonymous: false
+  },
+  {
+    type: "function",
+    name: "bondingManagerAddr",
+    stateMutability: "view",
     inputs: [],
-    name: "inbox",
     outputs: [
       {
-        internalType: "contract IInbox",
-        name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+        name: "",
+        internalType: "address"
+      }
+    ]
   },
   {
-    inputs: [],
-    name: "l2MigratorAddr",
+    type: "function",
+    name: "getMigrateDelegatorParams",
+    stateMutability: "view",
+    inputs: [
+      {
+        type: "address",
+        name: "_l1Addr",
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "_l2Addr",
+        internalType: "address"
+      }
+    ],
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        type: "bytes",
+        name: "data",
+        internalType: "bytes"
       },
-    ],
+      {
+        type: "tuple",
+        name: "params",
+        internalType: "struct IMigrator.MigrateDelegatorParams",
+        components: [
+          {
+            type: "address",
+            name: "l1Addr",
+            internalType: "address"
+          },
+          {
+            type: "address",
+            name: "l2Addr",
+            internalType: "address"
+          },
+          {
+            type: "uint256",
+            name: "stake",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256",
+            name: "delegatedStake",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256",
+            name: "fees",
+            internalType: "uint256"
+          },
+          {
+            type: "address",
+            name: "delegate",
+            internalType: "address"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    type: "function",
+    name: "getMigrateSenderParams",
     stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
-        internalType: "address",
+        type: "address",
         name: "_l1Addr",
-        type: "address",
+        internalType: "address"
       },
       {
-        internalType: "address",
+        type: "address",
         name: "_l2Addr",
-        type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "_sig",
-        type: "bytes",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPriceBid",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxSubmissionCost",
-        type: "uint256",
-      },
+        internalType: "address"
+      }
     ],
-    name: "migrateDelegator",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
+    outputs: [
       {
-        internalType: "address",
-        name: "_l1Addr",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_l2Addr",
-        type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "_sig",
         type: "bytes",
+        name: "data",
+        internalType: "bytes"
       },
       {
-        internalType: "uint256",
-        name: "_maxGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPriceBid",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxSubmissionCost",
-        type: "uint256",
-      },
-    ],
-    name: "migrateSender",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
+        type: "tuple",
+        name: "params",
+        internalType: "struct IMigrator.MigrateSenderParams",
+        components: [
+          {
+            type: "address",
+            name: "l1Addr",
+            internalType: "address"
+          },
+          {
+            type: "address",
+            name: "l2Addr",
+            internalType: "address"
+          },
+          {
+            type: "uint256",
+            name: "deposit",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256",
+            name: "reserve",
+            internalType: "uint256"
+          }
+        ]
+      }
+    ]
   },
   {
+    type: "function",
+    name: "getMigrateUnbondingLocksParams",
+    stateMutability: "view",
     inputs: [
       {
-        internalType: "address",
+        type: "address",
         name: "_l1Addr",
-        type: "address",
+        internalType: "address"
       },
       {
-        internalType: "address",
+        type: "address",
         name: "_l2Addr",
-        type: "address",
+        internalType: "address"
       },
       {
-        internalType: "uint256[]",
-        name: "_unbondingLockIds",
         type: "uint256[]",
-      },
-      {
-        internalType: "bytes",
-        name: "_sig",
-        type: "bytes",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPriceBid",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_maxSubmissionCost",
-        type: "uint256",
-      },
+        name: "_unbondingLockIds",
+        internalType: "uint256[]"
+      }
     ],
-    name: "migrateUnbondingLocks",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "ticketBrokerAddr",
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        type: "bytes",
+        name: "data",
+        internalType: "bytes"
       },
-    ],
-    stateMutability: "view",
-    type: "function",
+      {
+        type: "tuple",
+        name: "params",
+        internalType: "struct IMigrator.MigrateUnbondingLocksParams",
+        components: [
+          {
+            type: "address",
+            name: "l1Addr",
+            internalType: "address"
+          },
+          {
+            type: "address",
+            name: "l2Addr",
+            internalType: "address"
+          },
+          {
+            type: "uint256",
+            name: "total",
+            internalType: "uint256"
+          },
+          {
+            type: "uint256[]",
+            name: "unbondingLockIds",
+            internalType: "uint256[]"
+          }
+        ]
+      }
+    ]
   },
-] as const;
+  {
+    type: "function",
+    name: "inbox",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        type: "address",
+        name: "",
+        internalType: "contract IInbox"
+      }
+    ]
+  },
+  {
+    type: "function",
+    name: "l2MigratorAddr",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        type: "address",
+        name: "",
+        internalType: "address"
+      }
+    ]
+  },
+  {
+    type: "function",
+    name: "migrateDelegator",
+    stateMutability: "payable",
+    inputs: [
+      {
+        type: "address",
+        name: "_l1Addr",
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "_refundAddr",
+        internalType: "address"
+      },
+      {
+        type: "bytes",
+        name: "_sig",
+        internalType: "bytes"
+      },
+      {
+        type: "uint256",
+        name: "_maxGas",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_gasPriceBid",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_maxSubmissionCost",
+        internalType: "uint256"
+      }
+    ],
+    outputs: []
+  },
+  {
+    type: "function",
+    name: "migrateSender",
+    stateMutability: "payable",
+    inputs: [
+      {
+        type: "address",
+        name: "_l1Addr",
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "_l2Addr",
+        internalType: "address"
+      },
+      {
+        type: "bytes",
+        name: "_sig",
+        internalType: "bytes"
+      },
+      {
+        type: "uint256",
+        name: "_maxGas",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_gasPriceBid",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_maxSubmissionCost",
+        internalType: "uint256"
+      }
+    ],
+    outputs: []
+  },
+  {
+    type: "function",
+    name: "migrateUnbondingLocks",
+    stateMutability: "payable",
+    inputs: [
+      {
+        type: "address",
+        name: "_l1Addr",
+        internalType: "address"
+      },
+      {
+        type: "address",
+        name: "_l2Addr",
+        internalType: "address"
+      },
+      {
+        type: "uint256[]",
+        name: "_unbondingLockIds",
+        internalType: "uint256[]"
+      },
+      {
+        type: "bytes",
+        name: "_sig",
+        internalType: "bytes"
+      },
+      {
+        type: "uint256",
+        name: "_maxGas",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_gasPriceBid",
+        internalType: "uint256"
+      },
+      {
+        type: "uint256",
+        name: "_maxSubmissionCost",
+        internalType: "uint256"
+      }
+    ],
+    outputs: []
+  },
+  {
+    type: "function",
+    name: "ticketBrokerAddr",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      {
+        type: "address",
+        name: "",
+        internalType: "address"
+      }
+    ]
+  }
+];

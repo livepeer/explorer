@@ -1,5 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Skeleton, Text } from "@jjasonn.stone/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -202,7 +202,7 @@ const ExplorerChart = ({
                   {`The estimation methodology was updated on 8/21/23. `}
                   <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
                     Read more about the changes
-                  </a>
+                  </a>  
                   {"."}
                 </div>
               </>

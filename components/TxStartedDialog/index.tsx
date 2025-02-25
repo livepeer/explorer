@@ -11,8 +11,8 @@ import {
   DialogContent,
   Heading,
   Badge,
-  Link as A,
-} from "@livepeer/design-system";
+  Link as LivepeerLink,
+} from "@jjasonn.stone/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 
@@ -208,7 +208,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
       <Box css={{ fontWeight: 700, fontSize: "$5" }}>
         {txMessages[tx?.name ?? ""]?.pending}
       </Box>
-      <A
+      <LivepeerLink
         variant="primary"
         css={{ display: "flex", ai: "center" }}
         target="_blank"
@@ -217,7 +217,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
       >
         Details{" "}
         <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />
-      </A>
+      </LivepeerLink>
     </Flex>
   );
 }

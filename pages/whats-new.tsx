@@ -6,7 +6,7 @@ import {
   Container,
   Flex,
   Heading,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useChangefeedData } from "hooks";

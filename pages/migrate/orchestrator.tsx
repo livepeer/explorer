@@ -7,12 +7,12 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   styled,
   Text,
   TextField,
   useSnackbar,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
@@ -22,10 +22,10 @@ import {
   getL1MigratorAddress,
   getNodeInterfaceAddress,
 } from "@lib/api/contracts";
-import { isL2ChainId, l1PublicClient } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { ethers } from "ethers";
+import { TypedDataEncoder, verifyTypedData, formatEther, FeeData } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import {
   CHAIN_INFO,
@@ -34,7 +34,7 @@ import {
   l2Provider,
 } from "lib/chains";
 import { useRouter } from "next/router";
-import useForm from "react-hook-form";
+import  useForm  from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../utils/stepperStyles";
@@ -206,7 +206,12 @@ const MigrateOrchestrator = () => {
   const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const { register, watch } = useForm();
+  interface FormInputs {
+    signerAddress: string;
+    signature: string;
+  }
+
+  const { register, watch } = useForm<FormInputs>();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
   const time = new Date();
@@ -251,7 +256,7 @@ const MigrateOrchestrator = () => {
         type: "initiate",
       });
 
-      const gasPriceBid = await l2Provider.getGasPrice();
+      const { gasPrice: gasPriceBid } = await l2PublicClient.estimateFeesPerGas();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
@@ -349,7 +354,7 @@ const MigrateOrchestrator = () => {
       //           passHref
       //         >
       //           <Button
-      //             as="A"
+      //             as="LivepeerLink"
       //             variant="primary"
       //             size="4"
       //             css={{
@@ -379,8 +384,8 @@ const MigrateOrchestrator = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        // fetch calldata to be submitted for calling L2 function
-        const [data, params] = await l1PublicClient.readContract({
+
+        const [data, params] = (await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateDelegatorParams",
@@ -388,7 +393,14 @@ const MigrateOrchestrator = () => {
             state.signer ? state.signer : accountAddress,
             state.signer ? state.signer : accountAddress,
           ],
-        });
+        })) as [string, {
+          delegate: string;
+          l1Addr: string;
+          l2Addr: string;
+          stake: number;
+          delegatedStake: number;
+          fees: number;
+        }];
 
         dispatch({
           type: "initialize",
@@ -522,7 +534,7 @@ const MigrateOrchestrator = () => {
           l2Addr: state.signer,
         };
 
-        const payload = ethers.utils._TypedDataEncoder.getPayload(
+        const payload = TypedDataEncoder.getPayload(
           domain,
           types,
           value
@@ -531,7 +543,7 @@ const MigrateOrchestrator = () => {
 
         if (signature) {
           try {
-            signer = ethers.utils.verifyTypedData(
+            signer = verifyTypedData(
               domain,
               types,
               value,
@@ -823,19 +835,19 @@ function MigrationFields({ migrationParams, css = {} }) {
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Self stake</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.stake)} LPT</Box>
+        <Box>{formatEther(migrationParams.stake)} LPT</Box>
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>
           Delegated Stake
         </Box>
         <Box>
-          {ethers.utils.formatEther(migrationParams.delegatedStake)} LPT
+          {formatEther(migrationParams.delegatedStake)} LPT
         </Box>
       </ReadOnlyCard>
       <ReadOnlyCard>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Earned fees</Box>
-        <Box>{ethers.utils.formatEther(migrationParams.fees)} ETH</Box>
+        <Box>{formatEther(migrationParams.fees)} ETH</Box>
       </ReadOnlyCard>
     </Box>
   );
@@ -855,7 +867,7 @@ function ReceiptLink({ label, hash, chainId }) {
       }}
     >
       <Text variant="neutral">{label}:</Text>
-      <A
+      <LivepeerLink
         css={{ ml: "$2", display: "flex", ai: "center" }}
         variant="primary"
         target="_blank"
@@ -864,7 +876,7 @@ function ReceiptLink({ label, hash, chainId }) {
       >
         {hash.replace(hash.slice(6, 62), "…")}
         <Box as={ArrowTopRightIcon} />
-      </A>
+      </LivepeerLink>
     </Box>
   );
 }

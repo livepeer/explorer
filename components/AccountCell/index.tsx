@@ -1,6 +1,6 @@
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { textTruncate } from "@lib/utils";
-import { Box, Flex } from "@livepeer/design-system";
+import { Box, Flex } from "@jjasonn.stone/design-system";
 import { useEnsData } from "hooks";
 
 const ActiveCircle = ({ css = {}, active }) => {
@@ -35,7 +35,6 @@ const Index = ({ active, address }) => {
           <Box
             as="img"
             css={{
-              objectFit: "cover",
               borderRadius: 1000,
               width: 30,
               height: 30,
@@ -46,7 +45,7 @@ const Index = ({ active, address }) => {
             src={identity.avatar}
           />
         ) : (
-          <QRCode
+          <QRCodeSVG
             style={{
               borderRadius: 1000,
               width: 24,

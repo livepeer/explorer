@@ -7,19 +7,19 @@ import {
   Container,
   Flex,
   Heading,
-  Link as A,
+  Link as LivepeerLink,
   styled,
   Text,
   TextField,
   useSnackbar
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { isL2ChainId } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { ethers } from "ethers";
+import { ethers, TypedDataEncoder, verifyTypedData } from "ethers";
 import {
   useAccountAddress,
   useActiveChain,
@@ -352,7 +352,7 @@ const MigrateUndelegatedStake = () => {
   //               passHref
   //             >
   //               <Button
-  //                 as="A"
+  //                 as="LivepeerLink"
   //                 variant="primary"
   //                 size="4"
   //                 css={{
@@ -526,7 +526,7 @@ const MigrateUndelegatedStake = () => {
           unbondingLockIds: state.migrationParams.unbondingLockIds,
         };
 
-        const payload = ethers.utils._TypedDataEncoder.getPayload(
+        const payload = TypedDataEncoder.getPayload(
           domain,
           types,
           value
@@ -535,7 +535,7 @@ const MigrateUndelegatedStake = () => {
 
         if (signature) {
           try {
-            signer = ethers.utils.verifyTypedData(
+            signer = verifyTypedData(
               domain,
               types,
               value,
@@ -821,7 +821,7 @@ function MigrationFields({ migrationParams, css = {} }) {
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>
           Total Undelegated
         </Box>
-        <Box>{ethers.utils.formatEther(migrationParams.total)} LPT</Box>
+        <Box>{ethers.formatEther(migrationParams.total)} LPT</Box>
       </ReadOnlyCard>
     </Box>
   );
@@ -841,7 +841,7 @@ function ReceiptLink({ label, hash, chainId }) {
       }}
     >
       <Text variant="neutral">{label}:</Text>
-      <A
+      <LivepeerLink
         css={{ ml: "$2", display: "flex", ai: "center" }}
         variant="primary"
         target="_blank"
@@ -850,7 +850,7 @@ function ReceiptLink({ label, hash, chainId }) {
       >
         {hash.replace(hash.slice(6, 62), "…")}
         <Box as={ArrowTopRightIcon} />
-      </A>
+      </LivepeerLink>
     </Box>
   );
 }

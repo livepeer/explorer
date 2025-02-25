@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Heading, Text } from "@jjasonn.stone/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
@@ -8,6 +8,7 @@ import { abbreviateNumber, fromWei, shortenAddress} from "@lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
+import { formatEther } from "viem";
 import QueueExecuteButton from "@components/QueueExecuteButton";
 
 dayjs.extend(duration);
@@ -20,7 +21,7 @@ type Props = {
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? 0), 4);
+  abbreviateNumber(Number(formatEther(BigInt(lpt ?? "0"))), 4);
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();

@@ -1,4 +1,4 @@
-import { styled } from "@livepeer/design-system";
+import { styled } from "@jjasonn.stone/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import React from "react";
@@ -17,6 +17,18 @@ const StyledTable = styled("table", {
     fontSize: "$2",
     whiteSpace: "nowrap",
   },
+  img: {
+    maxWidth: "100%",
+    height: "auto",
+    maxHeight: "400px"
+  },
+  // Handle long URLs
+  a: {
+    wordBreak: "break-word",
+    overflowWrap: "break-word",
+    display: "inline-block",
+    maxWidth: "100%",
+  }
 });
 
 const StyledTh = styled("th", {

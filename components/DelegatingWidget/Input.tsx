@@ -1,10 +1,10 @@
 import { calculateROI } from "@lib/roi";
-import { Box } from "@livepeer/design-system";
+import { Box } from "@jjasonn.stone/design-system";
 import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
 
-const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) => {
+const Input = ({ transcoder, value, onChange, protocol, treasury, treasuryRewardCut, ...props }) => {
   const { width } = useWindowSize();
 
   const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);
@@ -45,7 +45,7 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
           treasuryRewardCut: treasury.treasuryRewardCutRate,
         },
       }),
-    [protocol, transcoder, principle, rewardCallRatio]
+    [protocol, transcoder, principle, rewardCallRatio, treasury.treasuryRewardCutRate]
   );
 
   const { setYieldResults } = useExplorerStore();

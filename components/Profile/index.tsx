@@ -1,6 +1,6 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
+import { Box, Flex, Heading, Link as LivepeerLink, Text } from "@jjasonn.stone/design-system";
 import {
   CheckIcon,
   CopyIcon,
@@ -8,7 +8,7 @@ import {
   TwitterLogoIcon,
   GitHubLogoIcon,
 } from "@modulz/radix-icons";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
@@ -55,7 +55,6 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             <Box
               as="img"
               css={{
-                objectFit: "cover",
                 border: "1px solid",
                 borderColor: "$hiContrast",
                 borderRadius: 1000,
@@ -65,8 +64,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
               src={identity.avatar}
             />
           ) : (
-            <Box
-              as={QRCode}
+            <QRCodeSVG
               style={{
                 border: "1px solid",
                 padding: "4px",
@@ -141,7 +139,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </Flex>
           <Flex align="center" css={{ flexWrap: 'wrap' }}>
             {identity?.url && (
-              <A
+              <LivepeerLink
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={identity.url}
@@ -152,11 +150,11 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   <Box as={GlobeIcon} css={{ mr: "$1" }} />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </Flex>
-              </A>
+              </LivepeerLink>
             )}
 
             {identity?.twitter && (
-              <A
+              <LivepeerLink
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://twitter.com/${identity.twitter}`}
@@ -175,11 +173,11 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                     @{identity.twitter}
                   </Box>
                 </Flex>
-              </A>
+              </LivepeerLink>
             )}
 
             {identity?.github && (
-              <A
+              <LivepeerLink
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://github.com/${identity.github}`}
@@ -198,7 +196,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                     {identity.github}
                   </Box>
                 </Flex>
-              </A>
+              </LivepeerLink>
             )}
           </Flex>
         </Flex>

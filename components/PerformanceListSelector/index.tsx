@@ -1,4 +1,4 @@
-import { Box, Skeleton } from "@livepeer/design-system";
+import { Box, Skeleton } from "@jjasonn.stone/design-system";
 import { useAvailableInferencePipelinesData } from "hooks";
 import { ChevronDownIcon } from "@modulz/radix-icons";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";

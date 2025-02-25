@@ -1,5 +1,5 @@
 import LivepeerLogo from "@components/Logo";
-import { Box, Flex } from "@livepeer/design-system";
+import { Box, Flex } from "@jjasonn.stone/design-system";
 
 function Error() {
   return (

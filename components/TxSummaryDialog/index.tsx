@@ -7,7 +7,7 @@ import {
   Flex,
   keyframes,
   Text,
-} from "@livepeer/design-system";
+} from "@jjasonn.stone/design-system";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
 

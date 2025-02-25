@@ -1,16 +1,13 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
-import { getLivepeerGovernorAddress } from "@lib/api/contracts";
-import { Button } from "@livepeer/design-system";
+import { Button } from "@jjasonn.stone/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import {
-  Address,
-  UsePrepareContractWriteConfig,
-  useContractWrite,
-  usePrepareContractWrite,
+  useSimulateContract,
+  useWriteContract,
 } from "wagmi";
-
-import { useMemo } from "react";
+import { useState } from "react";
+import { type Address } from "viem";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 
 type Props = React.ComponentProps<typeof Button> & {
@@ -29,49 +26,72 @@ const Index = ({
   const accountAddress = useAccountAddress();
   const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
-  const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
-    if (proposalId) {
-      return {
-        enabled: Boolean(
-          livepeerGovernorAddress && accountAddress && proposalId
-        ),
-        address: livepeerGovernorAddress,
-        abi: livepeerGovernor,
-        functionName: "castVote",
-        args: [BigInt(proposalId), choiceId],
-      };
+  const { data: governorSimulateData } = useSimulateContract({
+    address: livepeerGovernorAddress,
+    abi: livepeerGovernor,
+    functionName: "castVote",
+    args: [BigInt(proposalId || "0"), Number(choiceId)],
+    query: {
+      enabled: Boolean(livepeerGovernorAddress && accountAddress && proposalId)
     }
-    return {
-      enabled: Boolean(pollAddress && accountAddress),
-      address: pollAddress,
-      abi: poll,
-      functionName: "vote",
-      args: [BigInt(choiceId)],
-    };
-  }, [
-    livepeerGovernorAddress,
-    proposalId,
-    pollAddress,
-    choiceId,
-    accountAddress,
-  ]);
-
-  const { config } = usePrepareContractWrite(preparedWriteConfig);
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
-
-  useHandleTransaction("vote", data, error, isLoading, isSuccess, {
-    choiceId,
-    choiceName: proposalId
-      ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
-      : { 0: "No", 1: "Yes" }[choiceId],
   });
+
+  const { data: pollSimulateData } = useSimulateContract({
+    address: pollAddress,
+    abi: poll,
+    functionName: "vote",
+    args: [BigInt(choiceId)],
+    query: {
+      enabled: Boolean(pollAddress && accountAddress && !proposalId)
+    }
+  });
+
+  const { writeContract, isPending, data: writeData } = useWriteContract();
+  const [txError, setTxError] = useState<Error | null>(null);
+
+  useHandleTransaction(
+    "vote",
+    { hash: writeData },
+    txError,
+    isPending,
+    Boolean(writeData),
+    {
+      choiceId,
+      choiceName: proposalId
+        ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
+        : { 0: "No", 1: "Yes" }[choiceId],
+    }
+  );
+
+  const handleClick = async () => {
+    try {
+      if (proposalId && governorSimulateData?.request) {
+        writeContract(governorSimulateData.request);
+        setTxError(null);
+      } else if (!proposalId && pollSimulateData?.request) {
+        writeContract(pollSimulateData.request);
+        setTxError(null);
+      }
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      setTxError(error as Error);
+    }
+  };
 
   if (!accountAddress) {
     return null;
   }
 
+  const canSubmit = proposalId 
+    ? Boolean(governorSimulateData?.request)
+    : Boolean(pollSimulateData?.request);
+
   return (
-    <Button onClick={write} {...props}>
+    <Button
+      {...props}
+      disabled={Boolean(!canSubmit || isPending)}
+      onClick={handleClick}
+    >
       {children}
     </Button>
   );
