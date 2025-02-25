@@ -2,7 +2,6 @@ import Spinner from "@components/Spinner";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import { toNumber } from "@lib/utils";
 import {
   getLivepeerTokenAddress,
 } from "@lib/api/contracts";
@@ -18,7 +17,7 @@ import {
   Text,
   styled,
   Card,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import {
   useAccountAddress,
   useAccountBalanceData,
@@ -30,7 +29,7 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 
 const StyledTab = styled(Tab, {
@@ -66,7 +65,7 @@ type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
 };
 
-const formatLPT = (lpt: string | number) => abbreviateNumber(toNumber(lpt), 6);
+const formatLPT = (lpt: string) => abbreviateNumber(lpt, 6);
 
 const CreateProposal = () => {
   const accountAddress = useAccountAddress();
@@ -131,7 +130,8 @@ const CreateProposal = () => {
       transferTokenFunctionData &&
       description
   );
-  const { data: simulateData } = useSimulateContract({
+  const { config } = usePrepareContractWrite({
+    enabled: txEnabled,
     address: contractAddresses.LivepeerGovernor?.address,
     abi: livepeerGovernor,
     functionName: "propose",
@@ -141,14 +141,17 @@ const CreateProposal = () => {
       [transferTokenFunctionData!],
       description!,
     ],
-    query: {
-      enabled: txEnabled
-    }
   });
+  const {
+    data: proposeResult,
+    status,
+    isLoading,
+    write,
+    error,
+    isSuccess,
+  } = useContractWrite(config);
 
-  const { writeContract, data: proposeResult, isPending: isLoading, isSuccess, error } = useWriteContract();
-
-  useHandleTransaction("propose", proposeResult ? { hash: proposeResult } : undefined, error, isLoading, isSuccess, {
+  useHandleTransaction("propose", proposeResult, error, isLoading, isSuccess, {
     proposal: description,
   });
 
@@ -187,9 +190,7 @@ const CreateProposal = () => {
             e.preventDefault();
             try {
               console.log("submitting!");
-              if (simulateData?.request) {
-                writeContract(simulateData.request);
-              }
+              write?.();
             } catch (err: any) {
               console.error(err);
               return {

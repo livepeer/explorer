@@ -5,7 +5,7 @@ import {
   DialogClose,
   DialogTrigger,
   DialogContent,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 
 const Index = ({ trigger, children }) => {
   return (

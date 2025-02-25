@@ -1,31 +1,23 @@
 import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } from "apollo";
-import { ethers } from "ethers";
-import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
+import { BigNumber, BigNumberish, ethers } from "ethers";
+import { formatEther, parseUnits } from "ethers/lib/utils";
+import { StakingAction } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
-import { StakingAction } from './types';
 
-const rpcUrl = INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID];
-if (!rpcUrl) {
-  throw new Error(`No RPC URL found for chain ID ${DEFAULT_CHAIN_ID}`);
-}
+export const provider = new ethers.providers.JsonRpcProvider(
+  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
+);
 
-// Update provider configuration for ethers v6
-export const provider = new ethers.JsonRpcProvider(rpcUrl, undefined, {
-  staticNetwork: true,
-  polling: true,
-  batchMaxCount: 1, // Prevent array batch requests that might cause 521 errors,
-  cacheTimeout: -1, // Disable cache to prevent stale data
-});
-
-export function avg(obj: any, key: string) {
+export function avg(obj, key) {
   const arr = Object.values(obj);
-  const sum = (prev: any, cur: any) => ({ [key]: prev[key] + cur[key] });
+  const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
   return (arr.reduce(sum)?.[key] ?? 0) / arr.length;
 }
 
-export const EMPTY_ADDRESS = ethers.ZeroAddress;
+export const EMPTY_ADDRESS = ethers.constants.AddressZero;
 
-export const abbreviateNumber = (value: number, precision = 3) => {
+export const abbreviateNumber = (value, precision = 3) => {
   let newValue = value;
   const suffixes = ["", "K", "M", "B", "T"];
   let suffixNum = 0;
@@ -34,15 +26,17 @@ export const abbreviateNumber = (value: number, precision = 3) => {
     suffixNum++;
   }
 
-  const formattedValue = Number.parseFloat(newValue.toString()).toPrecision(precision);
-  return formattedValue + suffixes[suffixNum];
+  newValue = Number.parseFloat(newValue).toPrecision(precision);
+  newValue += suffixes[suffixNum];
+
+  return newValue;
 };
 
-export const numberWithCommas = (x: number | string) => {
+export const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-export const getDelegationStatusColor = (status: string) => {
+export const getDelegationStatusColor = (status) => {
   if (status === "Bonded") {
     return "$primary";
   } else if (status === "Unbonding") {
@@ -87,7 +81,7 @@ export const getDelegatorStatus = (
 export const MAXIMUM_VALUE_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
-export const textTruncate = (str: string, length: number, ending: string) => {
+export const textTruncate = (str, length, ending) => {
   if (length === null) {
     length = 100;
   }
@@ -171,15 +165,15 @@ export const txMessages = {
   },
 } as const;
 
-export const getBlockByNumber = async (number: number) => {
+export const getBlockByNumber = async (number) => {
   const blockDataResponse = await fetch(
-    `${INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
   );
   const { result } = await blockDataResponse.json();
   return result;
 };
 
-export const getHint = (id: string, transcoders: any[]) => {
+export const getHint = (id, transcoders) => {
   const hint = {
     newPosPrev: EMPTY_ADDRESS,
     newPosNext: EMPTY_ADDRESS,
@@ -220,7 +214,7 @@ export const simulateNewActiveSetOrder = ({
   transcoders: NonNullable<
     OrchestratorsSortedQueryResult["data"]
   >["transcoders"];
-  amount: string;
+  amount: BigNumber;
   newDelegate: string;
   oldDelegate?: string;
 }) => {
@@ -262,12 +256,13 @@ export const simulateNewActiveSetOrder = ({
   return transcoders.sort((a, b) => +a.totalStake - +b.totalStake);
 };
 
-export const isAddress = (address: string): boolean => {
+export const isAddress = (address: string) => {
   try {
-    return ethers.isAddress(address);
-  } catch {
+    ethers.utils.getAddress(address);
+  } catch (e) {
     return false;
   }
+  return true;
 };
 
 export const priceFormatter = new Intl.NumberFormat("en-US", {
@@ -276,7 +271,7 @@ export const priceFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
 });
 
-export const toK = (num: number) => {
+export const toK = (num) => {
   return Numeral(num).format("0.[00]a");
 };
 
@@ -311,7 +306,7 @@ export const getTwoPeriodPercentChange = (
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export const getBlocksFromTimestamps = async (timestamps: number[], retry = 0) => {
+export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
   if (!timestamps?.length) {
     return [];
   }
@@ -320,7 +315,7 @@ export const getBlocksFromTimestamps = async (timestamps: number[], retry = 0) =
     for (const timestamp of timestamps) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const blockDataResponse = await fetch(
-        `${INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+        `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
       );
       const { result } = await blockDataResponse.json();
       blocks.push(+(result ?? 0));
@@ -341,12 +336,11 @@ export const getBlocksFromTimestamps = async (timestamps: number[], retry = 0) =
  * @param {*} valueNow
  * @param {*} value24HoursAgo
  */
-export const getPercentChange = (valueNow: number, value24HoursAgo: number) => {
-  if (value24HoursAgo === 0) return 0;
-  
+export const getPercentChange = (valueNow, value24HoursAgo) => {
   const adjustedPercentChange =
-    ((valueNow - value24HoursAgo) / value24HoursAgo) * 100;
-
+    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) /
+      parseFloat(value24HoursAgo)) *
+    100;
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return 0;
   }
@@ -398,37 +392,35 @@ export const getTotalFeeDerivedMinutes = ({
   return feeDerivedMinutes;
 };
 
-export const scientificToDecimal = (x: number) => {
-  const str = x.toString();
+export const scientificToDecimal = (x) => {
   if (Math.abs(x) < 1.0) {
-    const e = parseInt(str.split("e-")[1]);
+    const e = parseInt(x.toString().split("e-")[1]);
     if (e) {
-      const result = x * Math.pow(10, e - 1);
-      return result.toString().replace(".", "");
+      x *= Math.pow(10, e - 1);
+      x = "0." + new Array(e).join("0") + x.toString().substring(2);
     }
   } else {
-    const e = parseInt(str.split("+")[1]);
+    let e = parseInt(x.toString().split("+")[1]);
     if (e > 20) {
-      const result = x / Math.pow(10, e);
-      return result.toString().replace(".", "") + "0".repeat(e);
+      e -= 20;
+      x /= Math.pow(10, e);
+      x += new Array(e + 1).join("0");
     }
   }
-  return str;
+  return x;
 };
 
-export function roundToTwo(num: number) {
+export function roundToTwo(num) {
   return Math.round(num * 100 + Number.EPSILON) / 100;
 }
 
-export function toTitleCase(str: string) {
+export function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
-};
+}
 
-export const fromWei = (wei: string | bigint): string => {
-  return ethers.formatEther(wei);
-};
+export const fromWei = (wei: BigNumberish) => formatEther(wei);
 
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();

@@ -13,9 +13,9 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link,
   Text,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
 import { useMemo } from "react";
@@ -40,7 +40,7 @@ import { getProposalExtended } from "@lib/api/treasury";
 import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { toNumber } from "ethers";
+import { BigNumber } from "ethers";
 
 dayjs.extend(relativeTime);
 
@@ -113,7 +113,7 @@ const Proposal = () => {
         abi: livepeerToken,
         data: calldata,
       });
-      if (functionName === "transfer" && Number(value) === Number(0)) {
+      if (functionName === "transfer" && BigNumber.from(value).isZero()) {
         return {
           lptTransfer: {
             receiver: args[0],
@@ -195,9 +195,9 @@ const Proposal = () => {
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 Proposed by{" "}
-                <LivepeerLink href={`/accounts/${proposal.proposer.id}`}>
+                <Link href={`/accounts/${proposal.proposer.id}`}>
                   {proposerId?.name ?? shortenAddress(proposal.proposer.id)}
-                </LivepeerLink>
+                </Link>
               </Text>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 {proposal.state === "Pending" ? (
@@ -424,7 +424,7 @@ const Proposal = () => {
                           <Text variant="neutral" size="3">
                             Receiver:
                           </Text>
-                          <LivepeerLink
+                          <Link
                             css={{
                               marginLeft: "auto",
                             }}
@@ -438,8 +438,6 @@ const Proposal = () => {
                                 display: "block",
                                 fontWeight: 600,
                                 color: "$white",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
                               }}
                               size="2"
                             >
@@ -447,7 +445,7 @@ const Proposal = () => {
                                 ? shortenAddress(action.lptTransfer.receiver)
                                 : action.lptTransfer.receiver}
                             </Text>
-                          </LivepeerLink>
+                          </Link>
                         </Flex>
                         <Flex css={{ pl: "$2", mb: "0.2em" }}>
                           <Text variant="neutral" size="3">
@@ -475,7 +473,7 @@ const Proposal = () => {
                           <Text variant="neutral" size="3">
                             Target:
                           </Text>
-                          <LivepeerLink
+                          <Link
                             css={{
                               marginLeft: "auto",
                             }}
@@ -499,7 +497,7 @@ const Proposal = () => {
                                   )})`
                                 : action.target}
                             </Text>
-                          </LivepeerLink>
+                          </Link>
                         </Flex>
                         <Flex css={{ pl: "$2", mb: "0.2em" }}>
                           <Text variant="neutral" size="3">

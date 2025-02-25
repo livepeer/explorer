@@ -1,5 +1,5 @@
 import Stat from "@components/Stat";
-import { Box, Flex } from "@jjasonn.stone/design-system";
+import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
@@ -59,7 +59,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           ai: scores?.topAIScore,
         }
       },
-    [scores, knownRegions?.regions]
+    [scores]
   );
 
   const maxScoreOutput = useMemo(() => {
@@ -81,7 +81,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
     return outputAI?
       {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
   }
-  , [maxScore, knownRegions?.regions]);
+  , [maxScore]);
 
   return (
     <Box

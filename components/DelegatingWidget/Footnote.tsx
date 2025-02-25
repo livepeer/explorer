@@ -1,4 +1,4 @@
-import { Box } from "@jjasonn.stone/design-system";
+import { Box } from "@livepeer/design-system";
 
 const Footnote = ({ children }) => {
   return (

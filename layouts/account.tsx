@@ -4,8 +4,7 @@ import Profile from "@components/Profile";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useReadContract } from "wagmi";
-import { toNumber } from "ethers";
+import { useContractRead } from "wagmi";
 
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
@@ -17,11 +16,11 @@ import {
   Button,
   Container,
   Flex,
-  Link as LivepeerLink,
+  Link as A,
   Sheet,
   SheetContent,
   SheetTrigger,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -81,13 +80,11 @@ const AccountLayout = ({
   });
 
   const { data: bondingManagerAddress } = useBondingManagerAddress(); 
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
+    enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
-    query: {
-      enabled: Boolean(bondingManagerAddress)
-    }
   });
   const treasury = {
     treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
@@ -253,14 +250,8 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link
-                scroll={false}
-                key={i}
-                href={tab.href}
-                passHref
-                legacyBehavior
-              >
-                <LivepeerLink
+              <Link scroll={false} key={i} href={tab.href} passHref>
+                <A
                   variant="subtle"
                   css={{
                     color: tab.isActive ? "$hiContrast" : "$neutral11",
@@ -276,7 +267,7 @@ const AccountLayout = ({
                   }}
                 >
                   {tab.name}
-                </LivepeerLink>
+                </A>
               </Link>
             ))}
           </Box>

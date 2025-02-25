@@ -58,10 +58,10 @@ const handler = async (
           address: bondingVotesAddress,
           abi: bondingVotes,
           ...(snapshot < now
-            ? { functionName: "getPastVotes" as const, args: [address, snapshot] }
-            : { functionName: "getVotes" as const, args: [address] }),
+            ? { functionName: "getPastVotes", args: [address, snapshot] }
+            : { functionName: "getVotes", args: [address] }),
         })
-        .then((votes: bigint) => votes.toString());
+        .then((bn) => bn.toString());
       const hasVotedProm = l2PublicClient.readContract({
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,

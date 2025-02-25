@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { parseArweaveTxId, parseCid } from "@livepeer/core/utils";
+import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { l1PublicClient } from "@lib/chains";
 import { normalize } from "viem/ens";
 

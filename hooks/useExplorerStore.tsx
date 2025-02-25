@@ -1,7 +1,7 @@
-import { create } from "zustand";
+import create from "zustand";
 import { txMessages } from "lib/utils";
 
-import { StakingAction } from "lib/types";
+export type StakingAction = "undelegate" | "delegate" | null;
 export type YieldResults = {
   roiFees: number;
   roiFeesLpt: number;

@@ -22,9 +22,7 @@
     "jsx": "preserve",
     "downlevelIteration": true,
     "incremental": true,
-    "baseUrl": ".",
-    "typeRoots": ["./node_modules/@types", "./@types"],
-    "types": ["react", "node"]
+    "baseUrl": "."
   },
   "exclude": ["node_modules"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]

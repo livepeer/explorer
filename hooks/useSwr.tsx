@@ -10,13 +10,13 @@ import { AllPerformanceMetrics, PerformanceMetrics } from "@lib/api/types/get-pe
 import { AvailablePipelines, Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Regions } from "@lib/api/types/get-regions";
 import {
+  ProposalState,
   ProposalVotingPower,
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
 import useSWR from "swr";
 import { Address } from "viem";
-import { type ProposalState } from "@lib/api/types/get-treasury-proposal";
 
 export const useRegionsData = (): Regions => {
   const { data } = useSWR<Regions>(`/regions`);

@@ -1,57 +1,25 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@jjasonn.stone/design-system";
+import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import {
-  useSimulateContract,
-  useWriteContract,
-} from "wagmi";
-import { useState } from "react";
-import { type Address } from "viem";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
-type Props = {
-  unbondingLockId: number;
-};
-
-const Index = ({ unbondingLockId }: Props) => {
+const Index = ({ unbondingLockId }: any) => {
   const accountAddress = useAccountAddress();
-  const { data: bondingManagerAddress } = useBondingManagerAddress();
-  const [txError, setTxError] = useState<Error | null>(null);
 
-  const { data: simulateData } = useSimulateContract({
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+
+  const { config } = usePrepareContractWrite({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawStake",
-    args: [BigInt(unbondingLockId)],
-    query: {
-      enabled: Boolean(bondingManagerAddress && accountAddress)
-    }
+    args: [unbondingLockId],
   });
+  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
-  const { writeContract, isPending, data: writeData } = useWriteContract();
-
-  useHandleTransaction(
-    "withdrawStake",
-    { hash: writeData },
-    txError,
-    isPending,
-    Boolean(writeData),
-    {
-      unbondingLockId,
-    }
-  );
-
-  const handleClick = async () => {
-    try {
-      if (simulateData?.request) {
-        writeContract(simulateData.request);
-        setTxError(null);
-      }
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      setTxError(error as Error);
-    }
-  };
+  useHandleTransaction("withdrawStake", data, error, isLoading, isSuccess, {
+    unbondingLockId,
+  });
 
   if (!accountAddress) {
     return null;
@@ -62,8 +30,7 @@ const Index = ({ unbondingLockId }: Props) => {
       <Button
         variant="primary"
         size="3"
-        onClick={handleClick}
-        disabled={!simulateData?.request || isPending}
+        onClick={write}
         css={{ py: "$2", mr: "$3" }}
       >
         Withdraw

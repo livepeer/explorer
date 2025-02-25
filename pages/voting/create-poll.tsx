@@ -8,14 +8,14 @@ import {
   Container,
   Flex,
   Heading,
-  Link as LivepeerLink,
+  Link as A,
   RadioCard,
   RadioCardGroup,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
-import { hexlify, toUtf8Bytes } from "ethers";
+import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
 import {
   useAccountAddress,
@@ -27,8 +27,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { useSimulateContract, useWriteContract } from "wagmi";
-import { Address } from "viem";
+import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
@@ -66,21 +65,25 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
 
-  const { data: simulateData } = useSimulateContract({
+  const { config } = usePrepareContractWrite({
+    enabled: Boolean(pollCreatorAddress && hash),
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
     args: [hash ? hexlify(toUtf8Bytes(hash)) as `0x${string}` : "0x"],
-    query: {
-      enabled: Boolean(pollCreatorAddress && hash)
-    }
   });
-
-  const { writeContract, data: createPollResult, isPending: isLoading, isSuccess, error } = useWriteContract();
+  const {
+    data: createPollResult,
+    status,
+    isLoading,
+    write,
+    error,
+    isSuccess,
+  } = useContractWrite(config);
 
   useHandleTransaction(
     "createPoll",
-    createPollResult ? { hash: createPollResult } : undefined,
+    createPollResult,
     error,
     isLoading,
     isSuccess,
@@ -90,10 +93,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   );
 
   useEffect(() => {
-    if (hash && simulateData?.request) {
-      writeContract(simulateData.request);
+    if (hash && status === "idle") {
+      write?.();
     }
-  }, [hash, writeContract, simulateData]);
+  }, [hash, write, status]);
 
   return (
     <>
@@ -162,7 +165,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
-                    <LivepeerLink
+                    <A
                       variant="primary"
                       css={{
                         display: "flex",
@@ -175,7 +178,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                     >
                       View Proposal
                       <ArrowTopRightIcon />
-                    </LivepeerLink>
+                    </A>
                   </RadioCard>
                 ))}
               </RadioCardGroup>

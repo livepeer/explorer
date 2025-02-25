@@ -9,7 +9,7 @@ import {
 import dayjs from "dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { type Address } from "viem";
+import { Address } from "wagmi";
 
 export type Fm = {
   title: string;

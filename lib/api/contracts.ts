@@ -1,5 +1,5 @@
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, l2PublicClient } from "@lib/chains";
-import { keccak256, toUtf8Bytes } from "ethers";
+import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { Address } from "viem";
 import { controller } from "./abis/main/Controller";
 

@@ -12,20 +12,22 @@ import {
   DropdownMenuTrigger,
   Flex,
   IconButton,
-  Link as LivepeerLink,
+  Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
   Text,
   TextField,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
+import dayjs from "dayjs";
+import Link from "next/link";
 import numeral from "numeral";
-import { QRCodeCanvas } from "qrcode.react";
+import QRCode from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
@@ -44,11 +46,9 @@ import {
   // ExclamationTriangleIcon,
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
-import { useEnsData } from "hooks";
-import { useReadContract } from "wagmi";
-import { HelpCircle } from "react-feather";
-import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useEnsData } from "hooks";
+import { useContractRead } from "wagmi";
 
 dayjs.extend(relativeTime);
 
@@ -114,14 +114,12 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress();
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
+    enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
-    query: {
-      enabled: Boolean(bondingManagerAddress)
-    }
   });
 
   const mappedData = useMemo(() => {
@@ -170,7 +168,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate) / 1e18,
+            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -217,38 +215,30 @@ const OrchestratorList = ({
     () => [
       {
         Header: (
-          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
-            <Box>Orchestrator</Box>
-            <ExplorerTooltip
+          <ExplorerTooltip
             multiline
-              content={
-                <Box>
-                  The account which is actively coordinating transcoders and
-                  receiving fees/rewards.
-                </Box>
-              }
-            >
-              <Box css={{ display: "flex", alignItems: "center" }}>
-                <HelpCircle size={14} />
+            content={
+              <Box>
+                The account which is actively coordinating transcoders and
+                receiving fees/rewards.
               </Box>
-            </ExplorerTooltip>
-          </Box>
+            }
+          >
+            <Box>Orchestrator</Box>
+          </ExplorerTooltip>
         ),
         accessor: "id",
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
 
           return (
-            <Box css={{
-              width: 350,
-              display: "block",
-            }}>
-              <LivepeerLink // Using LivepeerLink directly - Option 1
-                href={`/accounts/${row.values.id}/orchestrating`}
+            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+              <A
                 css={{
+                  width: 350,
+                  display: "block",
                   textDecoration: "none",
-                  display: "block", // Make LivepeerLink block to fill the Box
-                  "&:hover": { textDecoration: "none" }
+                  "&:hover": { textDecoration: "none" },
                 }}
               >
                 <Flex css={{ alignItems: "center" }}>
@@ -288,7 +278,7 @@ const OrchestratorList = ({
                       />
                     ) : (
                       <Box
-                        as={QRCodeCanvas}
+                        as={QRCode}
                         css={{
                           mr: "$2",
                           borderRadius: 1000,
@@ -336,17 +326,20 @@ const OrchestratorList = ({
                     )} */}
                   </Flex>
                 </Flex>
-              </LivepeerLink>
-            </Box>
+              </A>
+            </Link>
           );
         },
       },
       {
+        Header: "Identity",
+        accessor: "identity",
+      },
+      {
         Header: (
-          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
-            <Box>Forecasted Yield</Box>
+          <Flex css={{ flexDirection: "row", alignItems: "center" }}>
             <ExplorerTooltip
-            multiline
+              multiline
               content={
                 <Box>
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
@@ -356,11 +349,9 @@ const OrchestratorList = ({
                 </Box>
               }
             >
-              <Box css={{ display: "flex", alignItems: "center" }}>
-                <HelpCircle size={14} />
-              </Box>
+              <Box>Forecasted Yield</Box>
             </ExplorerTooltip>
-          </Box>
+          </Flex>
         ),
         accessor: (row) => row.earningsComputed,
         id: "earnings",
@@ -507,29 +498,32 @@ const OrchestratorList = ({
                           </Text>
                         </Flex>
                       )}
-                      <LivepeerLink // Using LivepeerLink directly - Fix for nested link
+                      <Link
+                        passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <Flex
-                          css={{
-                            mt: "$2",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Text
-                            css={{ whiteSpace: "nowrap" }}
-                            variant="neutral"
-                            size="1"
+                        <A>
+                          <Flex
+                            css={{
+                              mt: "$2",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
                           >
-                            Learn how this calculation is performed
-                          </Text>
-                          <Box
-                            css={{ ml: "$1", width: 15, height: 15 }}
-                            as={ArrowTopRightIcon}
-                          />
-                        </Flex>
-                      </LivepeerLink>
+                            <Text
+                              css={{ whiteSpace: "nowrap" }}
+                              variant="neutral"
+                              size="1"
+                            >
+                              Learn how this calculation is performed
+                            </Text>
+                            <Box
+                              css={{ ml: "$1", width: 15, height: 15 }}
+                              as={ArrowTopRightIcon}
+                            />
+                          </Flex>
+                        </A>
+                      </Link>
                     </Box>
 
                     <Box
@@ -812,8 +806,6 @@ const OrchestratorList = ({
       },
       {
         Header: (
-          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
-            <Box>Delegated Stake</Box>
           <ExplorerTooltip
             multiline
             content={
@@ -823,11 +815,8 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box css={{ display: "flex", alignItems: "center" }}>
-                <HelpCircle size={14} />
-              </Box>
+            <Box>Delegated Stake</Box>
           </ExplorerTooltip>
-          </Box>
         ),
         accessor: "totalStake",
         Cell: ({ row }) => (
@@ -847,8 +836,6 @@ const OrchestratorList = ({
       },
       {
         Header: (
-          <Box css={{ display: "flex", alignItems: "center", gap: "$1" }}>
-          <Box>Trailing 90D Fees</Box>
           <ExplorerTooltip
             multiline
             content={
@@ -858,11 +845,8 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box css={{ display: "flex", alignItems: "center" }}>
-            <HelpCircle size={14} />
-              </Box> 
+            <Box>Trailing 90D Fees</Box>
           </ExplorerTooltip>
-          </Box>
         ),
         accessor: "ninetyDayVolumeETH",
         Cell: ({ row }) => (

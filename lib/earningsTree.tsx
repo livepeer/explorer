@@ -1,27 +1,17 @@
 // https://github.com/livepeer/merkle-earnings-cli/blob/master/src/tree/index.ts
-import { ethers, solidityPacked, keccak256, AbiCoder, hexlify } from "ethers";
-import { type Address } from "viem";
+
+const { keccak256, bufferToHex } = require("ethereumjs-util");
+import { utils } from "ethers";
 
 export interface IMerkleTree {
-  elements: Buffer[];
-  layers: Buffer[][];
-}
-
-export interface IDelegator {
-  delegator: Address;
-  pendingStake: bigint;
-  pendingFees: bigint;
+  elements: Array<any>;
+  layers: Array<any>;
 }
 
 export class MerkleTree implements IMerkleTree {
-  elements: Buffer[];
-  layers: Buffer[][];
-
-  constructor(elements: string[]) {
+  constructor(elements) {
     // Filter empty strings and hash elements
-    this.elements = elements
-      .filter((el) => el)
-      .map((el) => Buffer.from(keccak256(el).slice(2), "hex"));
+    this.elements = elements.filter((el) => el).map((el) => keccak256(el));
 
     // Deduplicate elements
     this.elements = this.bufDedup(this.elements);
@@ -32,12 +22,15 @@ export class MerkleTree implements IMerkleTree {
     this.layers = this.getLayers(this.elements);
   }
 
-  getLayers(elements: Buffer[]): Buffer[][] {
+  elements: any[];
+  layers: any[];
+
+  getLayers(elements) {
     if (elements.length === 0) {
-      return [[Buffer.from("")]];
+      return [[""]];
     }
 
-    const layers: Buffer[][] = [];
+    const layers: Array<any> = [];
     layers.push(elements);
 
     // Get next layer until we reach the root
@@ -48,17 +41,18 @@ export class MerkleTree implements IMerkleTree {
     return layers;
   }
 
-  getNextLayer(elements: Buffer[]): Buffer[] {
-    return elements.reduce<Buffer[]>((layer, el, idx, arr) => {
+  getNextLayer(elements) {
+    return elements.reduce((layer, el, idx, arr) => {
       if (idx % 2 === 0) {
         // Hash the current element with its pair element
         layer.push(this.combinedHash(el, arr[idx + 1]));
       }
+
       return layer;
     }, []);
   }
 
-  combinedHash(first: Buffer, second: Buffer): Buffer {
+  combinedHash(first, second) {
     if (!first) {
       return second;
     }
@@ -66,29 +60,25 @@ export class MerkleTree implements IMerkleTree {
       return first;
     }
 
-    return Buffer.from(
-      keccak256(this.sortAndConcat(first, second)).slice(2),
-      "hex"
-    );
+    return keccak256(this.sortAndConcat(first, second));
   }
 
-  getRoot(): Buffer {
+  getRoot() {
     return this.layers[this.layers.length - 1][0];
   }
 
-  getHexRoot(): string {
-    return "0x" + this.getRoot().toString("hex");
+  getHexRoot() {
+    return bufferToHex(this.getRoot());
   }
 
-  getProof(el: string): Buffer[] {
-    const element = Buffer.from(keccak256(el).slice(2), "hex");
-    let idx = this.bufIndexOf(element, this.elements);
+  getProof(el) {
+    let idx = this.bufIndexOf(el, this.elements);
 
     if (idx === -1) {
       throw new Error("Element does not exist in Merkle tree");
     }
 
-    return this.layers.reduce<Buffer[]>((proof, layer) => {
+    return this.layers.reduce((proof, layer) => {
       const pairElement = this.getPairElement(idx, layer);
 
       if (pairElement) {
@@ -101,12 +91,13 @@ export class MerkleTree implements IMerkleTree {
     }, []);
   }
 
-  getHexProof(el: string): string[] {
+  getHexProof(el) {
     const proof = this.getProof(el);
+
     return this.bufArrToHexArr(proof);
   }
 
-  getPairElement(idx: number, layer: Buffer[]): Buffer | null {
+  getPairElement(idx, layer) {
     const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
 
     if (pairIdx < layer.length) {
@@ -116,12 +107,12 @@ export class MerkleTree implements IMerkleTree {
     }
   }
 
-  bufIndexOf(el: Buffer, arr: Buffer[]): number {
-    let hash: Buffer;
+  bufIndexOf(el, arr) {
+    let hash;
 
     // Convert element to 32 byte hash if it is not one already
     if (el.length !== 32 || !Buffer.isBuffer(el)) {
-      hash = Buffer.from(keccak256(el).slice(2), "hex");
+      hash = keccak256(el);
     } else {
       hash = el;
     }
@@ -135,13 +126,13 @@ export class MerkleTree implements IMerkleTree {
     return -1;
   }
 
-  bufDedup(elements: Buffer[]): Buffer[] {
+  bufDedup(elements) {
     return elements.filter((el, idx) => {
       return this.bufIndexOf(el, elements) === idx;
     });
   }
 
-  bufArrToHexArr(arr: Buffer[]): string[] {
+  bufArrToHexArr(arr) {
     if (arr.some((el) => !Buffer.isBuffer(el))) {
       throw new Error("Array is not an array of buffers");
     }
@@ -149,21 +140,19 @@ export class MerkleTree implements IMerkleTree {
     return arr.map((el) => "0x" + el.toString("hex"));
   }
 
-  sortAndConcat(...args: Buffer[]): Buffer {
+  sortAndConcat(...args) {
     return Buffer.concat([...args].sort(Buffer.compare));
   }
 }
 
-export interface IEarningsTree extends IMerkleTree {
-  leaves: string[];
+export interface IEarningsTree extends MerkleTree {
+  leaves: Array<string>;
 }
 
 export class EarningsTree extends MerkleTree implements IEarningsTree {
-  leaves: string[];
-
-  constructor(delegators: IDelegator[]) {
+  constructor(delegators) {
     const leaves = delegators.map((d) =>
-      solidityPacked(
+      utils.solidityPack(
         ["address", "uint256", "uint256"],
         [d.delegator, d.pendingStake, d.pendingFees]
       )
@@ -172,33 +161,26 @@ export class EarningsTree extends MerkleTree implements IEarningsTree {
     this.leaves = leaves;
   }
 
-  static fromJSON(json: string): EarningsTree {
-    const data = JSON.parse(json);
-    const leaves = Array.isArray(data) ? data : data.delegators;
-    
-    // Create a new instance with the parsed delegators
-    const delegators = leaves.map((leaf: any) => ({
-      delegator: leaf.delegator as Address,
-      pendingStake: BigInt(leaf.pendingStake),
-      pendingFees: BigInt(leaf.pendingFees),
-    }));
-    
-    return new EarningsTree(delegators);
+  leaves: string[];
+
+  static fromJSON(json: string) {
+    const leaves = JSON.parse(json);
+    const thisClass = Object.create(this.prototype);
+    // Filter empty strings and hash elements
+    let elements = leaves.filter((el) => el).map((el) => keccak256(el));
+
+    // Deduplicate elements
+    elements = thisClass.bufDedup(elements);
+    // Sort elements
+    thisClass.elements = elements.sort(Buffer.compare);
+
+    // Create layers
+    thisClass.layers = thisClass.getLayers(elements);
+
+    return thisClass;
   }
 
-  toJSON(): string {
-    return JSON.stringify({
-      delegators: this.leaves.map((leaf) => {
-        const [delegator, pendingStake, pendingFees] = new AbiCoder().decode(
-          ["address", "uint256", "uint256"],
-          hexlify(leaf)
-        );
-        return { 
-          delegator, 
-          pendingStake: pendingStake.toString(),
-          pendingFees: pendingFees.toString()
-        };
-      }),
-    });
+  toJSON() {
+    return JSON.stringify(this.leaves);
   }
 }

@@ -1,16 +1,17 @@
 import React, { useMemo } from "react";
 import Input from "./Input";
-import { Box, Flex, Card } from "@jjasonn.stone/design-system";
+import { Box, Flex, Card } from "@livepeer/design-system";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AccountQueryResult } from "apollo";
 import {
+  StakingAction,
   useAccountAddress,
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { fromWei } from "@lib/utils";
-import { StakingAction } from "@lib/types";
+import { ConsoleView } from "react-device-detect";
 
 interface Treasury {
   treasuryRewardCutRate: number;
@@ -116,7 +117,6 @@ const InputBox = ({
               }}
               protocol={protocol}
               treasury={treasury}
-              treasuryRewardCut={treasury.treasuryRewardCutRate}
             />
           </Flex>
         </Box>

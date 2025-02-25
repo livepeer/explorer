@@ -85,11 +85,11 @@ export const getProposalExtended = (
   const proposal =
     "attributes" in proposalArg ? proposalArg : parseProposalText(proposalArg);
 
-  const totalVoteSupply = +fromWei(state.totalVoteSupply ? state.totalVoteSupply : BigInt(0));
+  const totalVoteSupply = +fromWei(state.totalVoteSupply || 0);
 
-  const againstVotes = +fromWei(state.votes.against ? state.votes.against : BigInt(0));
-  const forVotes = +fromWei(state.votes.for ? state.votes.for : BigInt(0));
-  const abstainVotes = +fromWei(state.votes.abstain ? state.votes.abstain : BigInt(0));
+  const againstVotes = +fromWei(state.votes.against || 0);
+  const forVotes = +fromWei(state.votes.for || 0);
+  const abstainVotes = +fromWei(state.votes.abstain || 0);
   const totalVotes = againstVotes + forVotes + abstainVotes;
   const quotaTotalVotes = againstVotes + forVotes;
 

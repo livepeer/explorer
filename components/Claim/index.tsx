@@ -1,10 +1,10 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
-import { getL2MigratorAddress } from "@lib/api/contracts";
-import { useCallback } from 'react';
-import { Box, Button, Container, Flex, Text } from "@jjasonn.stone/design-system";
+import { getL1MigratorAddress, getL2MigratorAddress } from "@lib/api/contracts";
+import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { ethers } from "ethers";
+import { constants, ethers } from "ethers";
 import {
   useAccountAddress,
   useHandleTransaction,
@@ -13,16 +13,17 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
 import {
-  useSimulateContract,
-  useWriteContract,
-  useReadContract,
+  Address,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
 } from "wagmi";
-import { Address as ViemAddress } from "viem";
 
-const l2MigratorAddress = getL2MigratorAddress() as `0x${string}`;
+const l2MigratorAddress = getL2MigratorAddress();
 
 const Claim = () => {
   const accountAddress = useAccountAddress();
+
   const l1Delegator = useL1DelegatorData(accountAddress);
 
   const [proof, setProof] = useState<any>(null);
@@ -30,8 +31,8 @@ const Claim = () => {
   const [isDelegator, setIsDelegator] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Simulate contract interaction
-  const { data: simulateData } = useSimulateContract({
+  const { config } = usePrepareContractWrite({
+    enabled: Boolean(migrationParams && l2MigratorAddress),
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStake",
@@ -40,76 +41,48 @@ const Claim = () => {
       migrationParams?.stake,
       migrationParams?.fees,
       proof,
-      ethers.ZeroAddress as `0x${string}`,
+      constants.AddressZero,
     ],
   });
 
-  // Read contract state
-  const { data: isClaimEnabled } = useReadContract({
+  const { data, isIdle, isLoading, write, isSuccess, error } =
+    useContractWrite(config);
+
+  useEffect(() => {
+    if (proof && isIdle) {
+      write?.();
+    }
+  }, [proof, write, isIdle]);
+
+  const { data: claimStakeEnabled } = useContractRead({
+    enabled: Boolean(l2MigratorAddress),
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStakeEnabled",
   });
 
-  const { data: migratedDelegators } = useReadContract({
+  const { data: isMigrated, refetch } = useContractRead({
+    enabled: Boolean(accountAddress),
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "migratedDelegators",
-    args: [accountAddress as `0x${string}`],
+    args: [accountAddress ?? "0x"],
   });
-
-  // Write contract interaction
-  const { writeContract, data: writeData, isPending, isSuccess, error } = useWriteContract();
-
-  // Handle the write operation
-  const handleClaim = useCallback(async () => {
-    if (simulateData) {
-      writeContract({...simulateData.request});
-    }
-  }, [simulateData, writeContract]);
-
-  useEffect(() => {
-    const fetchProof = async () => {
-      try {
-        const response = await fetch(
-          `/api/l1-delegator/${accountAddress}`
-        );
-        const data = await response.json();
-        setProof(data.proof);
-        setMigrationParams(data.migrationParams);
-        setIsDelegator(data.isDelegator);
-      } catch (err) {
-        console.error("Error fetching proof:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (accountAddress) {
-      fetchProof();
-    }
-  }, [accountAddress]);
-
-  useEffect(() => {
-    if (proof && !isPending) {
-      handleClaim();
-    }
-  }, [proof, handleClaim, isPending]);
 
   useHandleTransaction(
     "claimStake",
-    writeData ? { hash: writeData } : undefined,
+    data,
     error,
-    isPending,
+    isLoading,
     isSuccess,
     {
       delegate: migrationParams?.delegate,
       stake: migrationParams?.stake,
       fees: migrationParams?.fees,
-      newDelegate: ethers.ZeroAddress,
+      newDelegate: constants.AddressZero,
     },
     () => {
-      // refetch();
+      refetch();
     }
   );
 
@@ -141,7 +114,7 @@ const Claim = () => {
     init();
   }, [accountAddress, l1Delegator]);
 
-  return loading || !isDelegator || migratedDelegators ? null : (
+  return loading || !isDelegator || isMigrated ? null : (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
       <Box
         css={{
@@ -177,7 +150,7 @@ const Claim = () => {
                 letterSpacing: "-.4px",
               }}
             >
-              {ethers.formatEther(migrationParams?.stake)} LPT
+              {ethers.utils.formatEther(migrationParams?.stake)} LPT
             </Box>
             and
             <Box
@@ -191,10 +164,10 @@ const Claim = () => {
                 letterSpacing: "-.4px",
               }}
             >
-              {ethers.formatEther(migrationParams.fees)} ETH
+              {ethers.utils.formatEther(migrationParams.fees)} ETH
             </Box>
             in earned fees{" "}
-            {isClaimEnabled
+            {claimStakeEnabled
               ? `is available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}.`
               : `will be available to claim on ${CHAIN_INFO[DEFAULT_CHAIN_ID].label} upon deployment of the delegator
           state snapshot.`}
@@ -233,7 +206,7 @@ const Claim = () => {
           </Box>
         </Box>
         <Flex css={{ mt: "$3", alignItems: "center" }}>
-          {isClaimEnabled && (
+          {claimStakeEnabled && (
             <Button
               onClick={async () => {
                 try {
@@ -258,7 +231,7 @@ const Claim = () => {
                 }
               }}
               size="3"
-              variant="neutral"
+              variant="transparentWhite"
               css={{ mr: "$2" }}
             >
               Claim Stake & Fees
@@ -269,7 +242,7 @@ const Claim = () => {
             href="https://discord.gg/XYJ7aVNqkS"
             target="_blank"
             size="3"
-            variant="neutral"
+            variant="transparentWhite"
             ghost
           >
             Discord Support Channel{" "}

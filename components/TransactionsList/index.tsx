@@ -1,5 +1,5 @@
 import Table from "@components/Table";
-import { Badge, Box, Flex, Text, Link as LivepeerLink } from "@jjasonn.stone/design-system";
+import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
@@ -56,7 +56,7 @@ const EthAddress = (props: { value: string | undefined }) => {
 
 const Transaction = (props: { id: string | undefined }) => {
   return (
-    <LivepeerLink
+    <A
       target="_blank"
       rel="noopener noreferrer"
       variant="primary"
@@ -68,7 +68,7 @@ const Transaction = (props: { id: string | undefined }) => {
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
         <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
       </Badge>
-    </LivepeerLink>
+    </A>
   );
 };
 

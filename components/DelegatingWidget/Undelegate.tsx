@@ -1,13 +1,14 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@jjasonn.stone/design-system";
+import { Button } from "@livepeer/design-system";
 
-import { parseEther } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useWriteContract, useSimulateContract } from "wagmi";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
 const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
   const accountAddress = useAccountAddress();
+
   const args = {
     amount: parseEther(amount ? amount.toString() : "0"),
     newPosPrev,
@@ -16,36 +17,16 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { data: simulateData } = useSimulateContract({
-    address: bondingManagerAddress ,
+  const { config } = usePrepareContractWrite({
+    enabled: Boolean(bondingManagerAddress),
+    address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "unbondWithHint",
     args: [BigInt(args.amount.toString()), newPosPrev, newPosNext],
-    query: {
-      enabled: Boolean(bondingManagerAddress)
-    }
   });
+  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
 
-  const { writeContract, data: writeData, isPending, error } = useWriteContract();
-
-  useHandleTransaction(
-    "unbond",
-    writeData ? { hash: writeData } : undefined,
-    error,
-    isPending,
-    Boolean(writeData),
-    { amount, newPosPrev, newPosNext }
-  );
-
-  const handleUnbond = async () => {
-    if (simulateData?.request) {
-      try {
-        await writeContract(simulateData.request);
-      } catch (err) {
-        console.error("Unbond failed:", err);
-      }
-    }
-  };
+  useHandleTransaction("unbond", data, error, isLoading, isSuccess, args);
 
   if (!accountAddress) {
     return null;
@@ -57,11 +38,10 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
         size="4"
         variant="red"
         disabled={disabled}
-        onClick={handleUnbond}
         css={{
           width: "100%",
         }}
-
+        onClick={write}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
       </Button>

@@ -1,4 +1,5 @@
 import sanitizeHtml from "sanitize-html";
+
 import { l1Provider } from "@lib/chains";
 import { EnsIdentity } from "./types/get-ens";
 
@@ -30,6 +31,7 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   allowedAttributes: {
     a: ["href"],
   },
+  // Lots of these won't come up by default because we don't allow them
   selfClosing: [
     "img",
     "br",
@@ -41,6 +43,7 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
     "link",
     "meta",
   ],
+  // URL schemes we permit
   allowedSchemes: ["https", "mailto", "tel"],
   allowedSchemesByTag: {},
   allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
@@ -55,21 +58,13 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
 
   if (name) {
     const resolver = await l1Provider.getResolver(name);
-    const [description, url, twitter, github] = await Promise.all([
+    const [description, url, twitter, github, avatar] = await Promise.all([
       resolver?.getText("description"),
       resolver?.getText("url"),
       resolver?.getText("com.twitter"),
       resolver?.getText("com.github"),
+      resolver?.getAvatar(),
     ]);
-
-    let avatar: string | null | undefined;
-    try {
-      const resolvedAvatar = await resolver?.getText("avatar");
-      avatar = resolvedAvatar ? `/api/ens-data/image/${name}` : undefined;
-    } catch (error) {
-      console.error("Error fetching ENS avatar:", error);
-      avatar = undefined;
-    }
 
     const ens: EnsIdentity = {
       id: address ?? "",
@@ -79,7 +74,7 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       url,
       twitter,
       github,
-      avatar,
+      avatar: avatar?.url ? `/api/ens-data/image/${name}` : null,
     };
 
     return ens;

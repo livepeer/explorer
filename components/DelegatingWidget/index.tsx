@@ -1,5 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { Box, Card, Flex, Text } from "@jjasonn.stone/design-system";
+import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { useEnsData, useExplorerStore } from "hooks";
 import numeral from "numeral";

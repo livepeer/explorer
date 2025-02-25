@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { fromWei, txMessages } from "../../lib/utils";
-import { MdCheckCircle } from "@react-icons/all-files/md/MdCheckCircle";
+import { MdReceipt } from "react-icons/md";
 import Router, { useRouter } from "next/router";
 import {
   Box,
@@ -10,10 +10,10 @@ import {
   DialogTitle,
   DialogClose,
   DialogContent,
-  Link as LivepeerLink,
+  Link as A,
   Badge,
   Heading,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";
@@ -403,7 +403,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         <Box css={{ mr: "10px" }}>🎉</Box>
         {txMessages[tx?.name ?? ""]?.confirmed}
       </Flex>
-      <LivepeerLink
+      <A
         variant="primary"
         css={{ display: "flex", alignItems: "center" }}
         target="_blank"
@@ -412,9 +412,9 @@ function Header({ tx }: { tx: TransactionStatus }) {
       >
         Transfer Receipt{" "}
         <Box css={{ ml: "6px", color: "$primary10" }}>
-          <MdCheckCircle />
+          <MdReceipt />
         </Box>
-      </LivepeerLink>
+      </A>
     </Flex>
   );
 }

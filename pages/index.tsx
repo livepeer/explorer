@@ -7,15 +7,15 @@ import TransactionsList, {
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import {
-  Link as LivepeerLink, // Renamed to avoid confusion with next/link
+  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import NextLink from "next/link"; // Import next/link as NextLink to differentiate
+import Link from "next/link";
 
 import { useMemo, useState } from "react";
 import {
@@ -345,24 +345,26 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+                  <Link href="/leaderboard" passHref>
+                    <Button
+                      ghost
+                      as={A}
+                      css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                    >
+                      Performance Leaderboard
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/orchestrators" passHref>
                   <Button
                     ghost
-                    as={NextLink}
-                    href="/leaderboard" // Moved href here
-                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2", cursor: "pointer" }}
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2" }}
                   >
-                    Performance Leaderboard
+                    View All
+                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
                   </Button>
-                )}
-                <Button
-                  ghost
-                  as={NextLink}
-                  href="/orchestrators" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2", cursor: "pointer" }}
-                >
-                  View All
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                </Button>
+                </Link>
               </Flex>
             </Flex>
 
@@ -406,15 +408,16 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Button
-                  ghost
-                  as={NextLink}
-                  href="/transactions" // Moved href here
-                  css={{ color: "$hiContrast", fontSize: "$2", cursor:"pointer" }}
-                >
-                  View All
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                </Button>
+                <Link href="/transactions" passHref>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2" }}
+                  >
+                    View All
+                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  </Button>
+                </Link>
               </Flex>
             </Flex>
 

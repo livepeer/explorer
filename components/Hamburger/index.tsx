@@ -1,4 +1,4 @@
-import { Box, Flex } from "@jjasonn.stone/design-system";
+import { Box, Flex } from "@livepeer/design-system";
 
 const Index = ({ ...props }) => {
   return (

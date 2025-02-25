@@ -1,4 +1,4 @@
-import { Container, Card, Heading, Text, Box } from "@jjasonn.stone/design-system";
+import { Container, Card, Heading, Text, Box } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
 import { useEffect } from "react";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";

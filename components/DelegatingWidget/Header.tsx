@@ -1,5 +1,5 @@
-import { QRCodeSVG } from "qrcode.react";
-import { Heading, Box, Flex } from "@jjasonn.stone/design-system";
+import QRCode from "qrcode.react";
+import { Heading, Box, Flex } from "@livepeer/design-system";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 
 const Header = ({
@@ -27,6 +27,7 @@ const Header = ({
           <Box
             as="img"
             css={{
+              objectFit: "cover",
               borderRadius: 1000,
               width: 40,
               height: 40,
@@ -34,7 +35,7 @@ const Header = ({
             src={delegateProfile.avatar}
           />
         ) : (
-          <QRCodeSVG
+          <QRCode
             style={{
               borderRadius: 1000,
               width: 40,

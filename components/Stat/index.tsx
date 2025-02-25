@@ -6,7 +6,7 @@ import {
   Box,
   Flex,
   Skeleton,
-} from "@jjasonn.stone/design-system";
+} from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ReactNode } from "react";
 
