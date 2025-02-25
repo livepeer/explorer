@@ -6,7 +6,14 @@ import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
+import { 
+  DEFAULT_CHAIN, 
+  WALLET_CONNECT_PROJECT_ID, 
+  INFURA_KEY, 
+  L1_CHAIN,
+  INFURA_NETWORK_URLS,
+  PUBLIC_RPC_URLS
+} from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -16,6 +23,7 @@ import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { useApollo } from "../apollo";
+import { ConfiguredChain } from "lib/chains";
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
@@ -25,10 +33,37 @@ function App({ Component, pageProps, fallback = null }) {
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
   const { config, chains, layoutKey } = useMemo(() => {
-    const { chains, publicClient } = configureChains(
-      [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ apiKey: INFURA_KEY ?? "" }), publicProvider()]
-    );
+    // Get RPC URLs from environment variables with fallbacks
+    const l1RpcUrl = process.env.NEXT_PUBLIC_L1_RPC_URL;
+    const l2RpcUrl = process.env.NEXT_PUBLIC_L2_RPC_URL;
+
+    // Create custom chain configurations with environment variable URLs
+    const configuredChains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN].map(
+      (chain) => ({
+        ...chain,
+        rpcUrls: {
+          default: {
+            http: [
+              chain.id === L1_CHAIN.id
+                ? l1RpcUrl
+                : chain.id === DEFAULT_CHAIN.id
+                ? l2RpcUrl
+                : INFURA_NETWORK_URLS[chain.id],
+            ].filter(Boolean),
+          },
+          public: {
+            http: [PUBLIC_RPC_URLS[chain.id]],
+          },
+        },
+      })
+    ) as ConfiguredChain[];
+
+    // Configure providers with custom chains
+    const providers = INFURA_KEY
+      ? [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()]
+      : [publicProvider()];
+
+    const { chains, publicClient } = configureChains(configuredChains, providers);
 
     const { connectors } = getDefaultWallets({
       appName: "Livepeer Explorer",

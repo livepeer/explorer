@@ -3,6 +3,7 @@ import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 
 import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
+import { Chain } from "@wagmi/core";
 import {
   Address,
   Client,
@@ -12,6 +13,17 @@ import {
   createPublicClient,
   http,
 } from "viem";
+
+export type ConfiguredChain = Chain & {
+  rpcUrls: {
+    default: {
+      http: string[];
+    };
+    public: {
+      http: string[];
+    };
+  };
+};
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -123,10 +135,30 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
  * configured in the environment variables.
  */
+export const PUBLIC_RPC_URLS = {
+  [chain.mainnet.id]: "https://eth.llamarpc.com",
+  [chain.arbitrum.id]: "https://arb1.arbitrum.io/rpc",
+};
+
 export const INFURA_NETWORK_URLS = {
-  [chain.mainnet.id]: process.env.NEXT_PUBLIC_L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.mainnet.id]: 
+    // 1. Check for environment variable first
+    process.env.NEXT_PUBLIC_L1_RPC_URL || 
+    // 2. Use Infura if API key exists
+    (INFURA_KEY ? `https://mainnet.infura.io/v3/${INFURA_KEY}` : 
+    // 3. Fallback to public RPC
+    PUBLIC_RPC_URLS[chain.mainnet.id]),
+    
   // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [chain.arbitrum.id]: process.env.NEXT_PUBLIC_L2_RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
+  
+  [chain.arbitrum.id]: 
+    // 1. Check for environment variable first  
+    process.env.NEXT_PUBLIC_L2_RPC_URL || 
+    // 2. Use Infura if API key exists
+    (INFURA_KEY ? `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}` : 
+    // 3. Fallback to public RPC
+    PUBLIC_RPC_URLS[chain.arbitrum.id]),
+    
   // [chain.arbitrumGoerli
   //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
 };
@@ -186,7 +218,7 @@ export const CHAIN_INFO = {
     logoUrl: arbitrumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-      rpcUrl: "https://arb1.arbitrum.io/rpc",
+      rpcUrl: INFURA_NETWORK_URLS[chain.arbitrum.id],
     },
     subgraph:
       `https://gateway-arbitrum.network.thegraph.com/api/${
