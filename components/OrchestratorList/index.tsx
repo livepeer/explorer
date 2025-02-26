@@ -232,7 +232,7 @@ const OrchestratorList = ({
           const identity = useEnsData(row.values.id);
 
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+            (<Link href={`/accounts/${row.values.id}/orchestrating`} passHref legacyBehavior>
               <A
                 css={{
                   width: 350,
@@ -327,7 +327,7 @@ const OrchestratorList = ({
                   </Flex>
                 </Flex>
               </A>
-            </Link>
+            </Link>)
           );
         },
       },
@@ -386,7 +386,7 @@ const OrchestratorList = ({
           );
 
           return (
-            <Popover>
+            (<Popover>
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
                   size="2"
@@ -501,7 +501,7 @@ const OrchestratorList = ({
                       <Link
                         passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
-                      >
+                        legacyBehavior>
                         <A>
                           <Flex
                             css={{
@@ -788,7 +788,7 @@ const OrchestratorList = ({
                   </Box>
                 </PopoverContent>
               )}
-            </Popover>
+            </Popover>)
           );
         },
         sortType: (rowA, rowB) => {

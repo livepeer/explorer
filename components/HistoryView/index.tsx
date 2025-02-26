@@ -457,7 +457,7 @@ function renderSwitch(event: any, i: number) {
       );
     case "TranscoderUpdateEvent":
       return (
-        <Card
+        (<Card
           as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
@@ -518,7 +518,7 @@ function renderSwitch(event: any, i: number) {
               </Box>
             </Box>
           </Flex>
-        </Card>
+        </Card>)
       );
     case "WithdrawStakeEvent":
       return (

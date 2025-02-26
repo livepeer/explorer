@@ -104,17 +104,17 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
       return (
-        <Box css={{ pt: "$4" }}>
+        (<Box css={{ pt: "$4" }}>
           <Box css={{ mr: "$3", mb: "$3" }}>
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
-          <Link href="/orchestrators" passHref>
+          <Link href="/orchestrators" passHref legacyBehavior>
             <Button size="3" variant="primary">
               <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>
-        </Box>
+        </Box>)
       );
     } else {
       return <Box css={{ pt: "$4" }}>Nothing here.</Box>;
@@ -122,7 +122,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   }
 
   return (
-    <Box
+    (<Box
       css={{
         pt: "$4",
         ".masonry-grid": {
@@ -149,7 +149,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
-          >
+            legacyBehavior>
             <A
               className="masonry-grid_item"
               css={{
@@ -442,7 +442,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         currentRound={currentRound}
         isMyAccount={isMyAccount}
       />
-    </Box>
+    </Box>)
   );
 };
 

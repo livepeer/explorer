@@ -26,91 +26,89 @@ const Voting = () => {
 
   const isLoading = !proposals || !protocol?.data || !currentRound;
 
-  return (
-    <>
-      <Head>
-        <title>Livepeer Explorer - Treasury</title>
-      </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
-        {isLoading ? (
+  return (<>
+    <Head>
+      <title>Livepeer Explorer - Treasury</title>
+    </Head>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      {isLoading ? (
+        <Flex
+          css={{
+            height: "calc(100vh - 100px)",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            "@bp3": {
+              height: "100vh",
+            },
+          }}
+        >
+          <Spinner />
+        </Flex>
+      ) : (
+        <Flex
+          css={{
+            width: "100%",
+            flexDirection: "column",
+          }}
+        >
           <Flex
             css={{
-              height: "calc(100vh - 100px)",
-              width: "100%",
-              justifyContent: "center",
               alignItems: "center",
-              "@bp3": {
-                height: "100vh",
-              },
+              justifyContent: "space-between",
+              mb: "$5",
             }}
           >
-            <Spinner />
-          </Flex>
-        ) : (
-          <Flex
-            css={{
-              width: "100%",
-              flexDirection: "column",
-            }}
-          >
-            <Flex
+            <Heading
+              size="2"
               css={{
+                fontWeight: 700,
+                m: 0,
+                display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                mb: "$5",
               }}
             >
-              <Heading
-                size="2"
-                css={{
-                  fontWeight: 700,
-                  m: 0,
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                Voting
-              </Heading>
-              <Link
-                href="/treasury/create-proposal"
-                as="/treasury/create-proposal"
-                passHref
-              >
-                <Button size="3" variant="primary">
-                  Create Proposal
-                </Button>
-              </Link>
-            </Flex>
-            {!proposals?.length && (
-              <Flex
-                justify="center"
-                css={{
-                  borderRadius: "$4",
-                  p: "$6",
-                  border: "1px dashed $neutral5",
-                  mt: "$4",
-                }}
-              >
-                <Text size="3" variant="neutral">
-                  No proposals found.
-                </Text>
-              </Flex>
-            )}
-            <Box>
-              {proposals?.map((prop) => (
-                <TreasuryProposalRow
-                  key={prop.id}
-                  proposal={prop}
-                  currentRound={currentRound}
-                  protocol={protocol.data?.protocol}
-                />
-              ))}
-            </Box>
+              Voting
+            </Heading>
+            <Link
+              href="/treasury/create-proposal"
+              as="/treasury/create-proposal"
+              passHref
+              legacyBehavior>
+              <Button size="3" variant="primary">
+                Create Proposal
+              </Button>
+            </Link>
           </Flex>
-        )}
-      </Container>
-    </>
-  );
+          {!proposals?.length && (
+            <Flex
+              justify="center"
+              css={{
+                borderRadius: "$4",
+                p: "$6",
+                border: "1px dashed $neutral5",
+                mt: "$4",
+              }}
+            >
+              <Text size="3" variant="neutral">
+                No proposals found.
+              </Text>
+            </Flex>
+          )}
+          <Box>
+            {proposals?.map((prop) => (
+              <TreasuryProposalRow
+                key={prop.id}
+                proposal={prop}
+                currentRound={currentRound}
+                protocol={protocol.data?.protocol}
+              />
+            ))}
+          </Box>
+        </Flex>
+      )}
+    </Container>
+  </>);
 };
 
 Voting.getLayout = getLayout;

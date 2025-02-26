@@ -34,7 +34,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
   }, [copied]);
 
   return (
-    <Box css={{ mb: "$3" }}>
+    (<Box css={{ mb: "$3" }}>
       <Flex css={{ alignItems: "center" }}>
         <Box
           css={{
@@ -203,7 +203,6 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </Flex>
         </Flex>
       </Flex>
-
       {identity?.description && (
         <Text css={{ my: "$4" }}>
           <ShowMoreText
@@ -228,7 +227,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </ShowMoreText>
         </Text>
       )}
-    </Box>
+    </Box>)
   );
 };
 

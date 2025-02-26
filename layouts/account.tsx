@@ -135,7 +135,7 @@ const AccountLayout = ({
   }, [setSelectedStakingAction]);
 
   return (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+    (<Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
       <Flex>
         <Flex
           css={{
@@ -250,7 +250,7 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link scroll={false} key={i} href={tab.href} passHref>
+              <Link scroll={false} key={i} href={tab.href} passHref legacyBehavior>
                 <A
                   variant="subtle"
                   css={{
@@ -335,7 +335,7 @@ const AccountLayout = ({
             </BottomDrawer>
           ))}
       </Flex>
-    </Container>
+    </Container>)
   );
 };
 

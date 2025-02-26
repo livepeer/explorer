@@ -178,9 +178,9 @@ const LivepeerLogo = ({
 
   if (!isLink) return markup;
   return (
-    <Link href="/" passHref>
-      <a>{markup}</a>
-    </Link>
+    (<Link href="/" passHref>
+      {markup}
+    </Link>)
   );
 };
 

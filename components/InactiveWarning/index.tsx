@@ -31,7 +31,7 @@ const InactiveWarning = () => {
   }
 
   return (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    (<Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
       <Box
         css={{
           mt: "$5",
@@ -56,7 +56,7 @@ const InactiveWarning = () => {
             You are delegated to an inactive orchestrator, which means that you
             will not receive LPT rewards or ETH fees.
           </Text>
-          <Link href="/orchestrators" passHref>
+          <Link href="/orchestrators" passHref legacyBehavior>
             <Button
               as="a"
               size="3"
@@ -69,7 +69,7 @@ const InactiveWarning = () => {
           </Link>
         </Box>
       </Box>
-    </Container>
+    </Container>)
   );
 };
 

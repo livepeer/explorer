@@ -16,7 +16,7 @@ const Account = () => {
   return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
-        <Link href={`/accounts/${accountAddress}/delegating`} passHref>
+        <Link href={`/accounts/${accountAddress}/delegating`} passHref legacyBehavior>
           <A
             variant="subtle"
             css={{

@@ -26,51 +26,49 @@ type PageProps = {
 };
 
 const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
-  return (
-    <>
-      <Head>
-        <title>Livepeer Explorer - Orchestrators</title>
-      </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+  return (<>
+    <Head>
+      <title>Livepeer Explorer - Orchestrators</title>
+    </Head>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+      <Flex
+        css={{
+          flexDirection: "column",
+          mt: "$5",
+          width: "100%",
+        }}
+      >
         <Flex
-          css={{
-            flexDirection: "column",
-            mt: "$5",
-            width: "100%",
-          }}
+          align="center"
+          css={{ mb: "$3", justifyContent: "space-between" }}
         >
-          <Flex
-            align="center"
-            css={{ mb: "$3", justifyContent: "space-between" }}
-          >
-            <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
-              Orchestrators
-            </Heading>
-            {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
-              process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <Link href="/leaderboard" passHref>
-                <Button
-                  ghost
-                  as={A}
-                  css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
-                >
-                  Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                </Button>
-              </Link>
-            )}
-          </Flex>
-          <Box css={{ mb: "$5" }}>
-            <OrchestratorList
-              data={orchestrators?.transcoders}
-              pageSize={20}
-              protocolData={protocol?.protocol}
-            />
-          </Box>
+          <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
+            Orchestrators
+          </Heading>
+          {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+            process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+            <Link href="/leaderboard" passHref legacyBehavior>
+              <Button
+                ghost
+                as={A}
+                css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+              >
+                Performance Leaderboard
+                <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+              </Button>
+            </Link>
+          )}
         </Flex>
-      </Container>
-    </>
-  );
+        <Box css={{ mb: "$5" }}>
+          <OrchestratorList
+            data={orchestrators?.transcoders}
+            pageSize={20}
+            protocolData={protocol?.protocol}
+          />
+        </Box>
+      </Flex>
+    </Container>
+  </>);
 };
 
 export const getStaticProps = async () => {

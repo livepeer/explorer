@@ -245,190 +245,188 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 
   const chartData = useChartData();
 
-  return (
-    <>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
-        <Flex
+  return (<>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+      <Flex
+        css={{
+          flexDirection: "column",
+          mt: "$3",
+          width: "100%",
+          "@bp3": {
+            mt: "$6",
+          },
+        }}
+      >
+        <Heading
+          as="h1"
           css={{
-            flexDirection: "column",
-            mt: "$3",
-            width: "100%",
+            color: "$hiContrast",
+            fontSize: "$3",
+            fontWeight: 600,
+            mb: "$5",
+            display: "none",
+            alignItems: "center",
+            "@bp2": {
+              fontSize: "$7",
+            },
             "@bp3": {
-              mt: "$6",
+              display: "flex",
+              fontSize: "$7",
             },
           }}
         >
-          <Heading
-            as="h1"
-            css={{
-              color: "$hiContrast",
-              fontSize: "$3",
-              fontWeight: 600,
-              mb: "$5",
-              display: "none",
-              alignItems: "center",
-              "@bp2": {
-                fontSize: "$7",
-              },
-              "@bp3": {
-                display: "flex",
-                fontSize: "$7",
-              },
-            }}
-          >
-            Overview
-          </Heading>
+          Overview
+        </Heading>
+        <Flex
+          css={{
+            mb: "$7",
+          }}
+        >
           <Flex
             css={{
-              mb: "$7",
+              bc: "$panel",
+              borderRadius: "$4",
+              border: "1px solid $colors$neutral4",
+              overflow: "hidden",
+              mx: "auto",
+              overflowX: "auto",
+            }}
+          >
+            <Flex>
+              <Box
+                css={{
+                  width: "100%",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                }}
+              >
+                <Charts chartData={chartData} />
+              </Box>
+            </Flex>
+            <Flex
+              css={{
+                justifyContent: "center",
+                width: "100%",
+                height: "100%",
+                p: "24px",
+                flex: 1,
+              }}
+            >
+              <RoundStatus protocol={protocol?.protocol} />
+            </Flex>
+          </Flex>
+        </Flex>
+        <Box css={{ mb: "$3" }}>
+          <Flex
+            css={{
+              flexDirection: "column",
+              justifyContent: "space-between",
+              mb: "$4",
+              alignItems: "center",
+              "@bp1": {
+                flexDirection: "row",
+              },
             }}
           >
             <Flex
               css={{
-                bc: "$panel",
-                borderRadius: "$4",
-                border: "1px solid $colors$neutral4",
-                overflow: "hidden",
-                mx: "auto",
-                overflowX: "auto",
+                flexDirection: "column",
+                "@bp1": {
+                  flexDirection: "row",
+                },
               }}
+              align="center"
             >
-              <Flex>
-                <Box
-                  css={{
-                    width: "100%",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                  }}
+              <Heading size="2" css={{ fontWeight: 600 }}>
+                Orchestrators
+              </Heading>
+            </Flex>
+            <Flex align="center">
+              {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+                process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+                <Link href="/leaderboard" passHref legacyBehavior>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                  >
+                    Performance Leaderboard
+                  </Button>
+                </Link>
+              )}
+              <Link href="/orchestrators" passHref legacyBehavior>
+                <Button
+                  ghost
+                  as={A}
+                  css={{ color: "$hiContrast", fontSize: "$2" }}
                 >
-                  <Charts chartData={chartData} />
-                </Box>
-              </Flex>
-              <Flex
-                css={{
-                  justifyContent: "center",
-                  width: "100%",
-                  height: "100%",
-                  p: "24px",
-                  flex: 1,
-                }}
-              >
-                <RoundStatus protocol={protocol?.protocol} />
-              </Flex>
+                  View All
+                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                </Button>
+              </Link>
             </Flex>
           </Flex>
-          <Box css={{ mb: "$3" }}>
-            <Flex
-              css={{
-                flexDirection: "column",
-                justifyContent: "space-between",
-                mb: "$4",
-                alignItems: "center",
-                "@bp1": {
-                  flexDirection: "row",
-                },
-              }}
-            >
-              <Flex
-                css={{
-                  flexDirection: "column",
-                  "@bp1": {
-                    flexDirection: "row",
-                  },
-                }}
-                align="center"
-              >
-                <Heading size="2" css={{ fontWeight: 600 }}>
-                  Orchestrators
-                </Heading>
-              </Flex>
-              <Flex align="center">
-                {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
-                  process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-                  <Link href="/leaderboard" passHref>
-                    <Button
-                      ghost
-                      as={A}
-                      css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
-                    >
-                      Performance Leaderboard
-                    </Button>
-                  </Link>
-                )}
-                <Link href="/orchestrators" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
-                    View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                  </Button>
-                </Link>
-              </Flex>
+
+          {!orchestrators?.transcoders || !protocol?.protocol ? (
+            <Flex align="center" justify="center">
+              <Spinner />
             </Flex>
-
-            {!orchestrators?.transcoders || !protocol?.protocol ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Box>
-                <OrchestratorList
-                  data={orchestrators?.transcoders}
-                  pageSize={10}
-                  protocolData={protocol?.protocol}
-                />
-              </Box>
-            )}
-
-            <Flex
-              css={{
-                flexDirection: "column",
-                justifyContent: "space-between",
-                mb: "$4",
-                mt: "$7",
-                alignItems: "center",
-                "@bp1": {
-                  flexDirection: "row",
-                },
-              }}
-            >
-              <Flex
-                css={{
-                  flexDirection: "column",
-                  "@bp1": {
-                    flexDirection: "row",
-                  },
-                }}
-                align="center"
-              >
-                <Heading size="2" css={{ fontWeight: 600 }}>
-                  Transactions
-                </Heading>
-              </Flex>
-              <Flex align="center">
-                <Link href="/transactions" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
-                    View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                  </Button>
-                </Link>
-              </Flex>
-            </Flex>
-
+          ) : (
             <Box>
-              <TransactionsList events={allEvents as any} pageSize={10} />
+              <OrchestratorList
+                data={orchestrators?.transcoders}
+                pageSize={10}
+                protocolData={protocol?.protocol}
+              />
             </Box>
+          )}
+
+          <Flex
+            css={{
+              flexDirection: "column",
+              justifyContent: "space-between",
+              mb: "$4",
+              mt: "$7",
+              alignItems: "center",
+              "@bp1": {
+                flexDirection: "row",
+              },
+            }}
+          >
+            <Flex
+              css={{
+                flexDirection: "column",
+                "@bp1": {
+                  flexDirection: "row",
+                },
+              }}
+              align="center"
+            >
+              <Heading size="2" css={{ fontWeight: 600 }}>
+                Transactions
+              </Heading>
+            </Flex>
+            <Flex align="center">
+              <Link href="/transactions" passHref legacyBehavior>
+                <Button
+                  ghost
+                  as={A}
+                  css={{ color: "$hiContrast", fontSize: "$2" }}
+                >
+                  View All
+                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                </Button>
+              </Link>
+            </Flex>
+          </Flex>
+
+          <Box>
+            <TransactionsList events={allEvents as any} pageSize={10} />
           </Box>
-        </Flex>
-      </Container>
-    </>
-  );
+        </Box>
+      </Flex>
+    </Container>
+  </>);
 };
 
 export const getStaticProps = async () => {

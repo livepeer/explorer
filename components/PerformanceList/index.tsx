@@ -89,7 +89,7 @@ const PerformanceList = ({
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
+            (<Link href={`/accounts/${row.values.id}/orchestrating`} passHref legacyBehavior>
               <A
                 css={{
                   width: 300,
@@ -170,7 +170,7 @@ const PerformanceList = ({
                   : null}
                 </Flex>
               </A>
-            </Link>
+            </Link>)
           );
         },
       },

@@ -242,7 +242,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   globalStyles();
 
   return (
-    <DesignSystemProviderTyped>
+    (<DesignSystemProviderTyped>
       <ThemeProvider
         disableTransitionOnChange
         attribute="class"
@@ -400,7 +400,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         <Logo isDark id="main" />
 
                         <Box css={{}}>
-                          <Link passHref href="/">
+                          <Link passHref href="/" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -424,7 +424,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Overview
                             </Button>
                           </Link>
-                          <Link passHref href="/orchestrators">
+                          <Link passHref href="/orchestrators" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -450,7 +450,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Orchestrators
                             </Button>
                           </Link>
-                          <Link passHref href="/voting">
+                          <Link passHref href="/voting" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -484,7 +484,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               )}
                             </Button>
                           </Link>
-                          <Link passHref href="/treasury">
+                          <Link passHref href="/treasury" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -519,7 +519,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link passHref href={`/accounts/${accountAddress}`} legacyBehavior>
                               <Button
                                 size="3"
                                 css={{
@@ -700,7 +700,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
           </Box>
         </SnackbarProvider>
       </ThemeProvider>
-    </DesignSystemProviderTyped>
+    </DesignSystemProviderTyped>)
   );
 };
 
@@ -710,7 +710,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
   const contractAddresses = useContractInfoData(isOpen);
 
   return (
-    <Popover onOpenChange={setIsOpen}>
+    (<Popover onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Flex
           align="center"
@@ -849,7 +849,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             <Link
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
-            >
+              legacyBehavior>
               <A>
                 <Flex
                   css={{
@@ -879,7 +879,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           </Box>
         </Box>
       </PopoverContent>
-    </Popover>
+    </Popover>)
   );
 };
 

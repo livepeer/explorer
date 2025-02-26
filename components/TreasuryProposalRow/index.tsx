@@ -49,14 +49,14 @@ const TreasuryProposalRow = ({
   }, [currentRound, protocol, parsedProposal, state]);
 
   return (
-    <Link
+    (<Link
       {...props}
       href="/treasury/[proposal]"
       as={`/treasury/${proposal.id}`}
       passHref
       // disable clicking if there's no state (i.e. details page would just hang)
       {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
-    >
+      legacyBehavior>
       <A
         css={{
           cursor: "pointer",
@@ -122,7 +122,7 @@ const TreasuryProposalRow = ({
           </Flex>
         </Card>
       </A>
-    </Link>
+    </Link>)
   );
 };
 
