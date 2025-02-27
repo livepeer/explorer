@@ -30,18 +30,19 @@ const PerformanceList = ({
     "id"
   >[];
 }) => {
-  const {isValidating, data: allScores} = useAllScoreData(pipeline, model);
+  const { isValidating, data: allScores } = useAllScoreData(pipeline, model);
   const isAIData = pipeline !== null && model !== null;
-  const scoreAccessor = `scores.${region}`;//total score
-  const successRateAccessor = `successRates.${region}`;//success rate
-  const roundTripScoreAccessor = `roundTripScores.${region}`;//latency score
+  const scoreAccessor = `scores.${region}`; //total score
+  const successRateAccessor = `successRates.${region}`; //success rate
+  const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
 
   const initialState = {
     pageSize: pageSize,
-    sortBy: [{
-        id: 'scores',
+    sortBy: [
+      {
+        id: "scores",
         desc: true,
-      }
+      },
     ],
     hiddenColumns: [
       "activationRound",
@@ -54,20 +55,23 @@ const PerformanceList = ({
 
   const mergedData = useMemo(
     () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
-    [allScores, data]
+    [allScores, data],
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
-  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always 
-  //sort double values correctly.  As such, we use a custom sort function to place 0 values after 
+  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always
+  //sort double values correctly.  As such, we use a custom sort function to place 0 values after
   //non-zero's and before null/undefined values.
-  const sortTypeFn = useMemo(() => (rowA: any, rowB: any, columnId: string) => {
-    const a = rowA.values[columnId];
-    const b = rowB.values[columnId];
-    if (a === null || a === undefined) return -1;
-    if (b === null || b === undefined) return 1;
-    return a === b ? 0 : a > b ? 1 : -1;
-  }, []);
+  const sortTypeFn = useMemo(
+    () => (rowA: any, rowB: any, columnId: string) => {
+      const a = rowA.values[columnId];
+      const b = rowB.values[columnId];
+      if (a === null || a === undefined) return -1;
+      if (b === null || b === undefined) return 1;
+      return a === b ? 0 : a > b ? 1 : -1;
+    },
+    [],
+  );
 
   const columns: any = useMemo(
     () => [
@@ -75,21 +79,28 @@ const PerformanceList = ({
         Header: "Rank",
         disableSortBy: true,
         Cell: ({ row, flatRows }) => {
-          return (
-            <Box>
-              {flatRows.indexOf(row) + 1}
-            </Box>
-          );
+          return <Box>{flatRows.indexOf(row) + 1}</Box>;
         },
-      },  
+      },
       {
-        Header: () => (<>Orchestrator <Box css={{pl:"3px","@bp1": {display: "none",pl: "0"}}}>(Score)</Box></>),
+        Header: () => (
+          <>
+            Orchestrator{" "}
+            <Box css={{ pl: "3px", "@bp1": { display: "none", pl: "0" } }}>
+              (Score)
+            </Box>
+          </>
+        ),
         accessor: "id",
         disableSortBy: true,
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
           return (
-            (<Link href={`/accounts/${row.values.id}/orchestrating`} passHref legacyBehavior>
+            <Link
+              href={`/accounts/${row.values.id}/orchestrating`}
+              passHref
+              legacyBehavior
+            >
               <A
                 css={{
                   width: 300,
@@ -138,10 +149,16 @@ const PerformanceList = ({
                       >
                         {textTruncate(identity.name, 20, "…")}
                       </Box>
-                      <Badge size="2" css={{ fontSize: "$2", display: "none",
-                      "@bp1": {
-                        display: "inherit",
-                      }}}>
+                      <Badge
+                        size="2"
+                        css={{
+                          fontSize: "$2",
+                          display: "none",
+                          "@bp1": {
+                            display: "inherit",
+                          },
+                        }}
+                      >
                         {row.values.id.substring(0, 6)}
                       </Badge>
                     </Flex>
@@ -150,8 +167,11 @@ const PerformanceList = ({
                       {row.values.id.replace(row.values.id.slice(7, 37), "…")}
                     </Box>
                   )}
-                  {typeof row.values.scores != "undefined" && row.values.scores != null ? 
-                    <Badge size="2" variant="green"
+                  {typeof row.values.scores != "undefined" &&
+                  row.values.scores != null ? (
+                    <Badge
+                      size="2"
+                      variant="green"
                       css={{
                         mr: "$2",
                         fontSize: "$1",
@@ -160,17 +180,12 @@ const PerformanceList = ({
                         },
                       }}
                     >
-                      {
-                      
-                      numeral(row.values.scores)
-                        .divide(10)
-                        .format("0.00")
-                      }
-                  </Badge>
-                  : null}
+                      {numeral(row.values.scores).divide(10).format("0.00")}
+                    </Badge>
+                  ) : null}
                 </Flex>
               </A>
-            </Link>)
+            </Link>
           );
         },
       },
@@ -191,63 +206,68 @@ const PerformanceList = ({
         accessor: "delegator",
       },
       {
-        Header: () => (<>Total Score (0-10) <ExplorerTooltip
-          multiline
-          content={
-            <Box>
-              {isAIData ? 
-                "The AI Total Score combines the Orchestrator's Latency Score and average Success Rate, with a higher emphasis on Success Rate." :
-                "The Transcoding Total Score is based on the Orchestrator's Latency Score and Success Rate."
+        Header: () => (
+          <>
+            Total Score (0-10){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  {isAIData
+                    ? "The AI Total Score combines the Orchestrator's Latency Score and average Success Rate, with a higher emphasis on Success Rate."
+                    : "The Transcoding Total Score is based on the Orchestrator's Latency Score and Success Rate."}
+                </Box>
               }
-            </Box>
-          }
-        >
-          <Flex css={{ ml: "$1" }}>
-            <Box
-              as={QuestionMarkCircledIcon}
-              css={{ color: "$neutral11" }}
-            />
-          </Flex>
-        </ExplorerTooltip></>),
-        id: 'scores',
+            >
+              <Flex css={{ ml: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
+        id: "scores",
         accessor: `${scoreAccessor}`,
         sortDescFirst: true,
         defaultCanSort: true,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (
-            isValidating
-          ) {
+          if (isValidating) {
             return <EmptyData />;
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(10)
-                  .format("0.00")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(10).format("0.00")}
             </Box>
           );
         },
       },
       {
-        Header: () => (<>Success Rate (%) <ExplorerTooltip
-        multiline
-        content={
-          <Box>
-            The rate at which the Orchestrator successfully completed a job.
-          </Box>
-        }
-      >
-        <Flex css={{ ml: "$1" }}>
-          <Box
-            as={QuestionMarkCircledIcon}
-            css={{ color: "$neutral11" }}
-          />
-        </Flex>
-      </ExplorerTooltip></>),
+        Header: () => (
+          <>
+            Success Rate (%){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  The rate at which the Orchestrator successfully completed a
+                  job.
+                </Box>
+              }
+            >
+              <Flex css={{ ml: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
         accessor: `${successRateAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
@@ -256,33 +276,36 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(100)
-                  .format("0%")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(100).format("0%")}
             </Box>
           );
         },
       },
       {
-        Header: () => (<>Latency Score (0-10) <ExplorerTooltip
-        multiline
-        content={
-          <Box>
-            {isAIData? "AI Latency Score represents the Orchestrator's average round trip time (RTT) compared to the median RTT of successful jobs.":
-            "The Transcoding Latency Score represents the average test segment duration compared to the round trip time of the request."}
-          </Box>
-        }
-      >
-        <Flex css={{ ml: "$1" }}>
-          <Box
-            as={QuestionMarkCircledIcon}
-            css={{ color: "$neutral11" }}
-          />
-        </Flex>
-      </ExplorerTooltip></>),
+        Header: () => (
+          <>
+            Latency Score (0-10){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  {isAIData
+                    ? "AI Latency Score represents the Orchestrator's average round trip time (RTT) compared to the median RTT of successful jobs."
+                    : "The Transcoding Latency Score represents the average test segment duration compared to the round trip time of the request."}
+                </Box>
+              }
+            >
+              <Flex css={{ ml: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
         accessor: `${roundTripScoreAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
@@ -291,18 +314,22 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(10)
-                  .format("0.00")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(10).format("0.00")}
             </Box>
           );
         },
       },
     ],
-    [isValidating, isAIData, roundTripScoreAccessor, scoreAccessor, sortTypeFn, successRateAccessor ]
+    [
+      isValidating,
+      isAIData,
+      roundTripScoreAccessor,
+      scoreAccessor,
+      sortTypeFn,
+      successRateAccessor,
+    ],
   );
   return (
     <Table data={mergedData} columns={columns} initialState={initialState} />

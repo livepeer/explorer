@@ -28,7 +28,7 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
       unbondingLockId,
       newPosPrev,
       newPosNext,
-    }
+    },
   );
 
   if (!accountAddress) {

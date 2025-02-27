@@ -83,7 +83,7 @@ const Claim = () => {
     },
     () => {
       refetch();
-    }
+    },
   );
 
   useEffect(() => {
@@ -201,7 +201,7 @@ const Claim = () => {
           >
             {migrationParams.delegate.replace(
               migrationParams.delegate.slice(6, 38),
-              "…"
+              "…",
             )}
           </Box>
         </Box>

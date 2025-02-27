@@ -12,6 +12,7 @@ import QRCode from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
+
 import EditProfile from "../EditProfile";
 
 interface Props {
@@ -34,7 +35,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
   }, [copied]);
 
   return (
-    (<Box css={{ mb: "$3" }}>
+    <Box css={{ mb: "$3" }}>
       <Flex css={{ alignItems: "center" }}>
         <Box
           css={{
@@ -139,7 +140,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             </CopyToClipboard>
             {isMyAccount && <EditProfile />}
           </Flex>
-          <Flex align="center" css={{ flexWrap: 'wrap' }}>
+          <Flex align="center" css={{ flexWrap: "wrap" }}>
             {identity?.url && (
               <A
                 variant="contrast"
@@ -227,7 +228,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
           </ShowMoreText>
         </Text>
       )}
-    </Box>)
+    </Box>
   );
 };
 

@@ -34,7 +34,7 @@ export type ExplorerState = {
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: any,
   ) => void;
   setLatestTransactionConfirmed: () => void;
   setLatestTransactionSummary: () => void;
@@ -63,7 +63,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: any,
   ) =>
     set(() => ({
       latestTransaction: {

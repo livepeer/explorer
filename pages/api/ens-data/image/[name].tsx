@@ -1,6 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
 import { NextApiRequest, NextApiResponse } from "next";
-
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { l1PublicClient } from "@lib/chains";
 import { normalize } from "viem/ens";
@@ -9,7 +8,7 @@ const blacklist = ["salty-minning.eth"];
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<ArrayBuffer | null>
+  res: NextApiResponse<ArrayBuffer | null>,
 ) => {
   try {
     const method = req.method;
@@ -34,10 +33,10 @@ const handler = async (
           const imageUrl = cid?.id
             ? `https://dweb.link/ipfs/${cid.id}`
             : arweaveId?.id
-            ? arweaveId.url
-            : avatar?.startsWith("https://")
-            ? avatar
-            : `https://metadata.ens.domains/mainnet/avatar/${name}`;
+              ? arweaveId.url
+              : avatar?.startsWith("https://")
+                ? avatar
+                : `https://metadata.ens.domains/mainnet/avatar/${name}`;
 
           const response = await fetch(imageUrl);
 

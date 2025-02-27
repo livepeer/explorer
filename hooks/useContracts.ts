@@ -35,6 +35,5 @@ export const useServiceRegistryAddress = () =>
 export const useTicketBrokerAddress = () => useContractAddress("TicketBroker");
 export const useLivepeerGovernorAddress = () =>
   useContractAddress("LivepeerGovernor");
-export const useTreasuryAddress = () =>
-  useContractAddress("Treasury");
+export const useTreasuryAddress = () => useContractAddress("Treasury");
 export const useBondingVotesAddress = () => useContractAddress("BondingVotes");

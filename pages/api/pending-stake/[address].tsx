@@ -7,7 +7,6 @@ import {
   getBondingManagerAddress,
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
-
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { BigNumber } from "ethers";
@@ -16,7 +15,7 @@ import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<PendingFeesAndStake | null>
+  res: NextApiResponse<PendingFeesAndStake | null>,
 ) => {
   try {
     const method = req.method;

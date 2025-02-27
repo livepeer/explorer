@@ -30,9 +30,6 @@ import numeral from "numeral";
 import QRCode from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
-
-import YieldChartIcon from "../../public/img/yield-chart.svg";
-
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import {
@@ -50,27 +47,29 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
 import { useContractRead } from "wagmi";
 
+import YieldChartIcon from "../../public/img/yield-chart.svg";
+
 dayjs.extend(relativeTime);
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"
     ? `1Y`
     : timeHorizon === "half-year"
-    ? `6M`
-    : timeHorizon === "three-years"
-    ? `3Y`
-    : timeHorizon === "two-years"
-    ? `2Y`
-    : timeHorizon === "four-years"
-    ? `4Y`
-    : "N/A";
+      ? `6M`
+      : timeHorizon === "three-years"
+        ? `3Y`
+        : timeHorizon === "two-years"
+          ? `2Y`
+          : timeHorizon === "four-years"
+            ? `4Y`
+            : "N/A";
 
 const formatFactors = (factors: ROIFactors) =>
   factors === "lpt+eth"
     ? `LPT + ETH`
     : factors === "lpt"
-    ? `LPT Only`
-    : `ETH Only`;
+      ? `LPT Only`
+      : `ETH Only`;
 
 const OrchestratorList = ({
   data,
@@ -89,16 +88,16 @@ const OrchestratorList = ({
     (change: ROIInflationChange) =>
       change === "none"
         ? `Fixed at ${numeral(
-            Number(protocolData?.inflation) / 1000000000
+            Number(protocolData?.inflation) / 1000000000,
           ).format("0.000%")}`
         : change === "positive"
-        ? `+${numeral(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`
-        : `-${numeral(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`,
-    [protocolData?.inflation, protocolData?.inflationChange]
+          ? `+${numeral(
+              Number(protocolData?.inflationChange) / 1000000000,
+            ).format("0.00000%")} per round`
+          : `-${numeral(
+              Number(protocolData?.inflationChange) / 1000000000,
+            ).format("0.00000%")} per round`,
+    [protocolData?.inflation, protocolData?.inflationChange],
   );
 
   const [principle, setPrinciple] = useState<number>(150);
@@ -108,13 +107,13 @@ const OrchestratorList = ({
   const [timeHorizon, setTimeHorizon] = useState<ROITimeHorizon>("one-year");
   const maxSupplyTokens = useMemo(
     () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
-    [protocolData]
+    [protocolData],
   );
   const formattedPrinciple = useMemo(
     () => numeral(Number(principle) || 150).format("0a"),
-    [principle]
+    [principle],
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -136,11 +135,11 @@ const OrchestratorList = ({
 
         const feeShareDaysSinceChange = dayjs().diff(
           dayjs.unix(row.feeShareUpdateTimestamp),
-          "days"
+          "days",
         );
         const rewardCutDaysSinceChange = dayjs().diff(
           dayjs.unix(row.rewardCutUpdateTimestamp),
-          "days"
+          "days",
         );
 
         const roi = calculateROI({
@@ -168,7 +167,8 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut:
+              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -201,15 +201,23 @@ const OrchestratorList = ({
         a.earningsComputed.isNewlyActive
           ? 1
           : b.earningsComputed.isNewlyActive
-          ? -1
-          : a.earningsComputed.roi.delegatorPercent.fees +
-              a.earningsComputed.roi.delegatorPercent.rewards >
-            b.earningsComputed.roi.delegatorPercent.fees +
-              b.earningsComputed.roi.delegatorPercent.rewards
-          ? -1
-          : 1
+            ? -1
+            : a.earningsComputed.roi.delegatorPercent.fees +
+                  a.earningsComputed.roi.delegatorPercent.rewards >
+                b.earningsComputed.roi.delegatorPercent.fees +
+                  b.earningsComputed.roi.delegatorPercent.rewards
+              ? -1
+              : 1,
       );
-  }, [data, inflationChange, protocolData, principle, timeHorizon, factors, treasuryRewardCutRate]);
+  }, [
+    data,
+    inflationChange,
+    protocolData,
+    principle,
+    timeHorizon,
+    factors,
+    treasuryRewardCutRate,
+  ]);
 
   const columns = useMemo(
     () => [
@@ -232,7 +240,11 @@ const OrchestratorList = ({
           const identity = useEnsData(row.values.id);
 
           return (
-            (<Link href={`/accounts/${row.values.id}/orchestrating`} passHref legacyBehavior>
+            <Link
+              href={`/accounts/${row.values.id}/orchestrating`}
+              passHref
+              legacyBehavior
+            >
               <A
                 css={{
                   width: 350,
@@ -327,7 +339,7 @@ const OrchestratorList = ({
                   </Flex>
                 </Flex>
               </A>
-            </Link>)
+            </Link>
           );
         },
       },
@@ -358,21 +370,21 @@ const OrchestratorList = ({
         Cell: ({ row }) => {
           const isNewlyActive = useMemo(
             () => row.values.earnings.isNewlyActive,
-            [row.values?.earnings?.isNewlyActive]
+            [row.values?.earnings?.isNewlyActive],
           );
           const feeCut = useMemo(
             () =>
               numeral(
-                1 - Number(row.values.earnings.feeShare) / 1000000
+                1 - Number(row.values.earnings.feeShare) / 1000000,
               ).format("0%"),
-            [row.values.earnings.feeShare]
+            [row.values.earnings.feeShare],
           );
           const rewardCut = useMemo(
             () =>
               numeral(Number(row.values.earnings.rewardCut) / 1000000).format(
-                "0%"
+                "0%",
               ),
-            [row.values.earnings.rewardCut]
+            [row.values.earnings.rewardCut],
           );
           const rewardCalls = useMemo(
             () =>
@@ -382,11 +394,11 @@ const OrchestratorList = ({
             [
               row.values.earnings.rewardCalls,
               row.values.earnings.rewardCallLength,
-            ]
+            ],
           );
 
           return (
-            (<Popover>
+            <Popover>
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
                   size="2"
@@ -403,7 +415,7 @@ const OrchestratorList = ({
                       <Box>
                         {numeral(
                           row.values.earnings.roi.delegatorPercent.fees +
-                            row.values.earnings.roi.delegatorPercent.rewards
+                            row.values.earnings.roi.delegatorPercent.rewards,
                         ).format("0.0%")}
                       </Box>
                       <Box css={{ ml: "$1" }}>
@@ -445,7 +457,7 @@ const OrchestratorList = ({
                           >
                             Rewards (
                             {numeral(
-                              row.values.earnings.roi.delegatorPercent.rewards
+                              row.values.earnings.roi.delegatorPercent.rewards,
                             ).format("0.0%")}
                             ):
                           </Text>
@@ -460,7 +472,7 @@ const OrchestratorList = ({
                             size="2"
                           >
                             {numeral(
-                              row.values.earnings.roi.delegator.rewards
+                              row.values.earnings.roi.delegator.rewards,
                             ).format("0.0")}
                             {" LPT"}
                           </Text>
@@ -477,7 +489,7 @@ const OrchestratorList = ({
                           >
                             Fees (
                             {numeral(
-                              row.values.earnings.roi.delegatorPercent.fees
+                              row.values.earnings.roi.delegatorPercent.fees,
                             ).format("0.0%")}
                             ):
                           </Text>
@@ -492,7 +504,7 @@ const OrchestratorList = ({
                             size="2"
                           >
                             {numeral(
-                              row.values.earnings.roi.delegator.fees
+                              row.values.earnings.roi.delegator.fees,
                             ).format("0.000")}
                             {" ETH"}
                           </Text>
@@ -501,7 +513,8 @@ const OrchestratorList = ({
                       <Link
                         passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
-                        legacyBehavior>
+                        legacyBehavior
+                      >
                         <A>
                           <Flex
                             css={{
@@ -634,7 +647,7 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {numeral(
-                            row.values.earnings.ninetyDayVolumeETH
+                            row.values.earnings.ninetyDayVolumeETH,
                           ).format("0.000a")}
                           {" ETH"}
                         </Text>
@@ -660,7 +673,7 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {numeral(row.values.earnings.totalStake).format(
-                            "0.0a"
+                            "0.0a",
                           )}
                           {" LPT"}
                         </Text>
@@ -753,7 +766,7 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {numeral(
-                            row.values.earnings.roi.params.roundsCount
+                            row.values.earnings.roi.params.roundsCount,
                           ).format("0")}
                           {" rounds"}
                         </Text>
@@ -779,7 +792,7 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {numeral(row.values.earnings.totalActiveStake).format(
-                            "0.0a"
+                            "0.0a",
                           )}
                           {" LPT"}
                         </Text>
@@ -788,20 +801,20 @@ const OrchestratorList = ({
                   </Box>
                 </PopoverContent>
               )}
-            </Popover>)
+            </Popover>
           );
         },
         sortType: (rowA, rowB) => {
           return rowA.values.earnings.isNewlyActive
             ? -1
             : rowB.values.earnings.isNewlyActive
-            ? 1
-            : rowA.values.earnings.roi.delegatorPercent.fees +
-                rowA.values.earnings.roi.delegatorPercent.rewards >
-              rowB.values.earnings.roi.delegatorPercent.fees +
-                rowB.values.earnings.roi.delegatorPercent.rewards
-            ? 1
-            : -1;
+              ? 1
+              : rowA.values.earnings.roi.delegatorPercent.fees +
+                    rowA.values.earnings.roi.delegatorPercent.rewards >
+                  rowB.values.earnings.roi.delegatorPercent.fees +
+                    rowB.values.earnings.roi.delegatorPercent.rewards
+                ? 1
+                : -1;
         },
       },
       {
@@ -959,7 +972,7 @@ const OrchestratorList = ({
         ),
       },
     ],
-    [formattedPrinciple, timeHorizon, factors]
+    [formattedPrinciple, timeHorizon, factors],
   );
 
   return (
@@ -1148,12 +1161,12 @@ const OrchestratorList = ({
                           setPrinciple(
                             Number(e.target.value) > maxSupplyTokens
                               ? maxSupplyTokens
-                              : Number(e.target.value)
+                              : Number(e.target.value),
                           );
                         }}
                         min="1"
                         max={`${Number(
-                          protocolData?.totalSupply || 1e7
+                          protocolData?.totalSupply || 1e7,
                         ).toFixed(0)}`}
                       />
                       <Text

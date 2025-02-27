@@ -1,4 +1,11 @@
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Link as A,
+} from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -38,7 +45,7 @@ const TreasuryProposalRow = ({
   ...props
 }: Props) => {
   const { data: state, error: stateFetchErr } = useTreasuryProposalState(
-    parsedProposal.id
+    parsedProposal.id,
   );
   const isLoadingState = !state && !stateFetchErr;
 
@@ -49,14 +56,15 @@ const TreasuryProposalRow = ({
   }, [currentRound, protocol, parsedProposal, state]);
 
   return (
-    (<Link
+    <Link
       {...props}
       href="/treasury/[proposal]"
       as={`/treasury/${proposal.id}`}
       passHref
       // disable clicking if there's no state (i.e. details page would just hang)
       {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
-      legacyBehavior>
+      legacyBehavior
+    >
       <A
         css={{
           cursor: "pointer",
@@ -116,13 +124,13 @@ const TreasuryProposalRow = ({
               }}
             >
               {sentenceCase(
-                isLoadingState ? "Loading" : state?.state ?? "Unknown"
+                isLoadingState ? "Loading" : (state?.state ?? "Unknown"),
               )}
             </Badge>
           </Flex>
         </Card>
       </A>
-    </Link>)
+    </Link>
   );
 };
 

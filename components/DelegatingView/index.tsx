@@ -18,6 +18,7 @@ import numeral from "numeral";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -68,43 +69,43 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const isMyAccount = checkAddressEquality(
     accountAddress ?? "",
-    query?.account?.toString() ?? ""
+    query?.account?.toString() ?? "",
   );
 
   const pendingStake = useMemo(
     () => Number(pendingFeesAndStake?.pendingStake || 0) / 10 ** 18,
-    [pendingFeesAndStake?.pendingStake]
+    [pendingFeesAndStake?.pendingStake],
   );
   const pendingFees = useMemo(
     () => Number(pendingFeesAndStake?.pendingFees || 0) / 10 ** 18,
-    [pendingFeesAndStake?.pendingFees]
+    [pendingFeesAndStake?.pendingFees],
   );
   const unbonded = useMemo(
     () => Math.abs(+(delegator?.unbonded ?? 0) || 0),
-    [delegator]
+    [delegator],
   );
 
   const rewards = useMemo(
     () => pendingStake + unbonded - Math.abs(+(delegator?.principal ?? 0)),
-    [unbonded, pendingStake, delegator]
+    [unbonded, pendingStake, delegator],
   );
   const totalActiveStake = useMemo(
     () => Math.abs(+(protocol?.totalActiveStake ?? 0)),
-    [protocol]
+    [protocol],
   );
   const lifetimeEarnings = useMemo(
     () => Math.abs(pendingFees) + Math.abs(+(delegator?.withdrawnFees ?? 0)),
-    [delegator, pendingFees]
+    [delegator, pendingFees],
   );
   const withdrawButtonDisabled = useMemo(
     () => pendingFees === 0,
-    [pendingFees]
+    [pendingFees],
   );
 
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
       return (
-        (<Box css={{ pt: "$4" }}>
+        <Box css={{ pt: "$4" }}>
           <Box css={{ mr: "$3", mb: "$3" }}>
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
@@ -114,7 +115,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               <A variant="primary">View Orchestrators</A>
             </Button>
           </Link>
-        </Box>)
+        </Box>
       );
     } else {
       return <Box css={{ pt: "$4" }}>Nothing here.</Box>;
@@ -122,7 +123,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   }
 
   return (
-    (<Box
+    <Box
       css={{
         pt: "$4",
         ".masonry-grid": {
@@ -149,7 +150,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
           <Link
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
-            legacyBehavior>
+            legacyBehavior
+          >
             <A
               className="masonry-grid_item"
               css={{
@@ -167,7 +169,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       ? delegateIdentity?.name
                       : delegator?.delegate?.id.replace(
                           delegator?.delegate?.id.slice(7, 37),
-                          "…"
+                          "…",
                         )}
                   </Box>
                 }
@@ -378,10 +380,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   totalActiveStake === 0
                     ? 0
                     : delegator.delegate.id === delegator.id
-                    ? (Math.abs(+delegator.delegate.totalStake) +
-                        pendingStake) /
-                      totalActiveStake
-                    : pendingStake / totalActiveStake
+                      ? (Math.abs(+delegator.delegate.totalStake) +
+                          pendingStake) /
+                        totalActiveStake
+                      : pendingStake / totalActiveStake,
                 ).format("0.000%")}
               </Box>
             }
@@ -399,7 +401,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     {numeral(
                       totalActiveStake === 0
                         ? 0
-                        : pendingStake / totalActiveStake
+                        : pendingStake / totalActiveStake,
                     ).format("0.00%")}
                     )
                   </Box>
@@ -420,13 +422,13 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       totalActiveStake === 0
                         ? 0
                         : Math.abs(+delegator.delegate.totalStake) /
-                            totalActiveStake
+                            totalActiveStake,
                     ).format("0.00%")}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
                     {numeral(Math.abs(+delegator.delegate.totalStake)).format(
-                      "0.00a"
+                      "0.00a",
                     )}{" "}
                     LPT
                   </Text>
@@ -442,7 +444,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         currentRound={currentRound}
         isMyAccount={isMyAccount}
       />
-    </Box>)
+    </Box>
   );
 };
 

@@ -11,7 +11,7 @@ import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<L1Delegator | null>
+  res: NextApiResponse<L1Delegator | null>,
 ) => {
   try {
     const method = req.method;
@@ -23,7 +23,7 @@ const handler = async (
 
       if (isValidAddress(address)) {
         const bondingManagerHash = keccak256(
-          toUtf8Bytes("BondingManager")
+          toUtf8Bytes("BondingManager"),
         ) as Address;
         const bondingManagerAddress = await l1PublicClient.readContract({
           address: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
@@ -33,7 +33,7 @@ const handler = async (
         });
 
         const roundsManagerHash = keccak256(
-          toUtf8Bytes("RoundsManager")
+          toUtf8Bytes("RoundsManager"),
         ) as Address;
         const roundsManagerAddress = await l1PublicClient.readContract({
           address: CHAIN_INFO[L1_CHAIN_ID].contracts.controller,
@@ -107,7 +107,7 @@ const handler = async (
           pendingFees: pendingFees.toString(),
           unbondingLocks,
           activeLocks: unbondingLocks.filter(
-            (lock) => lock.withdrawRound != "0"
+            (lock) => lock.withdrawRound != "0",
           ),
         };
 

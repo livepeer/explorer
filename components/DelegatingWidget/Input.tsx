@@ -4,7 +4,14 @@ import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
 
-const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) => {
+const Input = ({
+  transcoder,
+  value,
+  onChange,
+  protocol,
+  treasury,
+  ...props
+}) => {
   const { width } = useWindowSize();
 
   const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);
@@ -13,7 +20,7 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
       pools.length > 0
         ? pools.filter((r) => r?.rewardTokens).length / pools.length
         : 0,
-    [pools]
+    [pools],
   );
 
   const principle = useMemo(() => Number(value || 0), [value]);
@@ -45,7 +52,13 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
           treasuryRewardCut: treasury.treasuryRewardCutRate,
         },
       }),
-    [protocol, transcoder, principle, rewardCallRatio, treasury.treasuryRewardCutRate]
+    [
+      protocol,
+      transcoder,
+      principle,
+      rewardCallRatio,
+      treasury.treasuryRewardCutRate,
+    ],
   );
 
   const { setYieldResults } = useExplorerStore();

@@ -1,5 +1,4 @@
 import { CircularProgressbar } from "react-circular-progressbar";
-
 import { Box, Flex } from "@livepeer/design-system";
 
 const Index = (props) => {

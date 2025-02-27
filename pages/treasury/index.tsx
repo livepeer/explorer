@@ -1,5 +1,12 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Button, Card, Container, Flex, Heading, Link as A, styled, Text } from "@livepeer/design-system";
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+} from "@livepeer/design-system";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
@@ -21,94 +28,97 @@ const Voting = () => {
 
   const proposals = useMemo(
     () => data?.treasuryProposals.map((p) => parseProposalText(p)),
-    [data?.treasuryProposals]
+    [data?.treasuryProposals],
   );
 
   const isLoading = !proposals || !protocol?.data || !currentRound;
 
-  return (<>
-    <Head>
-      <title>Livepeer Explorer - Treasury</title>
-    </Head>
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
-      {isLoading ? (
-        <Flex
-          css={{
-            height: "calc(100vh - 100px)",
-            width: "100%",
-            justifyContent: "center",
-            alignItems: "center",
-            "@bp3": {
-              height: "100vh",
-            },
-          }}
-        >
-          <Spinner />
-        </Flex>
-      ) : (
-        <Flex
-          css={{
-            width: "100%",
-            flexDirection: "column",
-          }}
-        >
+  return (
+    <>
+      <Head>
+        <title>Livepeer Explorer - Treasury</title>
+      </Head>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+        {isLoading ? (
           <Flex
             css={{
+              height: "calc(100vh - 100px)",
+              width: "100%",
+              justifyContent: "center",
               alignItems: "center",
-              justifyContent: "space-between",
-              mb: "$5",
+              "@bp3": {
+                height: "100vh",
+              },
             }}
           >
-            <Heading
-              size="2"
-              css={{
-                fontWeight: 700,
-                m: 0,
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              Voting
-            </Heading>
-            <Link
-              href="/treasury/create-proposal"
-              as="/treasury/create-proposal"
-              passHref
-              legacyBehavior>
-              <Button size="3" variant="primary">
-                Create Proposal
-              </Button>
-            </Link>
+            <Spinner />
           </Flex>
-          {!proposals?.length && (
+        ) : (
+          <Flex
+            css={{
+              width: "100%",
+              flexDirection: "column",
+            }}
+          >
             <Flex
-              justify="center"
               css={{
-                borderRadius: "$4",
-                p: "$6",
-                border: "1px dashed $neutral5",
-                mt: "$4",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: "$5",
               }}
             >
-              <Text size="3" variant="neutral">
-                No proposals found.
-              </Text>
+              <Heading
+                size="2"
+                css={{
+                  fontWeight: 700,
+                  m: 0,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                Voting
+              </Heading>
+              <Link
+                href="/treasury/create-proposal"
+                as="/treasury/create-proposal"
+                passHref
+                legacyBehavior
+              >
+                <Button size="3" variant="primary">
+                  Create Proposal
+                </Button>
+              </Link>
             </Flex>
-          )}
-          <Box>
-            {proposals?.map((prop) => (
-              <TreasuryProposalRow
-                key={prop.id}
-                proposal={prop}
-                currentRound={currentRound}
-                protocol={protocol.data?.protocol}
-              />
-            ))}
-          </Box>
-        </Flex>
-      )}
-    </Container>
-  </>);
+            {!proposals?.length && (
+              <Flex
+                justify="center"
+                css={{
+                  borderRadius: "$4",
+                  p: "$6",
+                  border: "1px dashed $neutral5",
+                  mt: "$4",
+                }}
+              >
+                <Text size="3" variant="neutral">
+                  No proposals found.
+                </Text>
+              </Flex>
+            )}
+            <Box>
+              {proposals?.map((prop) => (
+                <TreasuryProposalRow
+                  key={prop.id}
+                  proposal={prop}
+                  currentRound={currentRound}
+                  protocol={protocol.data?.protocol}
+                />
+              ))}
+            </Box>
+          </Flex>
+        )}
+      </Container>
+    </>
+  );
 };
 
 Voting.getLayout = getLayout;

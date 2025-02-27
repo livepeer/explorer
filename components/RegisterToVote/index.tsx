@@ -7,7 +7,6 @@ import {
   useTreasuryRegisteredToVoteData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-
 import { useMemo, useState } from "react";
 import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
 
@@ -27,7 +26,7 @@ const CheckpointButton = ({
   children,
   ...props
 }: ButtonProps) => {
-  disabled ||= !Boolean(bondingManagerAddress && targetAddress);
+  disabled ||= !(bondingManagerAddress && targetAddress);
   const { config } = usePrepareContractWrite({
     enabled: !disabled,
     address: bondingManagerAddress,
@@ -44,7 +43,7 @@ const CheckpointButton = ({
     isLoading,
     isSuccess,
     { targetAddress, isOrchestrator },
-    onSuccess
+    onSuccess,
   );
 
   return (
@@ -69,7 +68,7 @@ const RegisterToVote = () => {
   const [hasRegisteredSelf, setHasRegisteredSelf] = useState(false);
 
   const voteState = useTreasuryRegisteredToVoteData(
-    accountAddress?.toLowerCase() ?? ""
+    accountAddress?.toLowerCase() ?? "",
   );
 
   const uiState = useMemo(
@@ -89,7 +88,7 @@ const RegisterToVote = () => {
                 !voteState.delegate.registered,
             },
           },
-    [voteState, accountAddress, hasRegisteredOrch, hasRegisteredSelf]
+    [voteState, accountAddress, hasRegisteredOrch, hasRegisteredSelf],
   );
 
   const showBanner =

@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<AddIpfs | null>
+  res: NextApiResponse<AddIpfs | null>,
 ) => {
   try {
     const method = req.method;
@@ -18,7 +18,7 @@ const handler = async (
             Authorization: `Bearer ${process.env.PINATA_JWT}`,
           },
           body: JSON.stringify(req.body),
-        }
+        },
       );
       const result = await fetchResult.json();
 

@@ -2,8 +2,6 @@ import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import MarkdownRenderer from "@components/MarkdownRenderer";
-import { abbreviateNumber } from "../../lib/utils";
-
 import BottomDrawer from "@components/BottomDrawer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
@@ -21,18 +19,19 @@ import dayjs from "dayjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
-import {
-  useAccountAddress,
-  useCurrentRoundData,
-  useExplorerStore,
-} from "../../hooks";
-import FourZeroFour from "../404";
-
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
+
+import FourZeroFour from "../404";
+import {
+  useAccountAddress,
+  useCurrentRoundData,
+  useExplorerStore,
+} from "../../hooks";
+import { abbreviateNumber } from "../../lib/utils";
 dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
@@ -90,7 +89,7 @@ const Poll = () => {
       if (data && currentRound?.currentL1Block) {
         const response = await getPollExtended(
           data.poll,
-          currentRound.currentL1Block
+          currentRound.currentL1Block,
         );
         setPollData(response);
       }
@@ -158,10 +157,10 @@ const Poll = () => {
                     pollData.status === "rejected"
                       ? "red"
                       : pollData.status === "active"
-                      ? "blue"
-                      : pollData.status === "passed"
-                      ? "primary"
-                      : "neutral"
+                        ? "blue"
+                        : pollData.status === "passed"
+                          ? "primary"
+                          : "neutral"
                   }
                   css={{ textTransform: "capitalize", fontWeight: 700 }}
                 >
@@ -314,7 +313,7 @@ const Poll = () => {
                   mb: "$3",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
-                                }}
+                }}
               >
                 <MarkdownRenderer>
                   {pollData.attributes?.text ?? ""}

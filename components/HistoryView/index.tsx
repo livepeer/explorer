@@ -35,25 +35,25 @@ const Index = () => {
         skip: 0,
       },
       notifyOnNetworkStatusChange: true,
-    }
+    },
   );
 
   const events = useMemo(
     () =>
       data?.transactions?.reduce(
         (res, { events: e }) => res.concat(e as any),
-        []
+        [],
       ) ?? [],
-    [data]
+    [data],
   );
 
   const lastEventTimestamp = useMemo(
     () =>
       Number(
         (events?.[(events?.length || 0) - 1] as any)?.transaction?.timestamp ??
-          0
+          0,
       ),
-    [events]
+    [events],
   );
 
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
@@ -62,16 +62,16 @@ const Index = () => {
     () =>
       [
         ...events.filter(
-          (e) => (e as any)?.__typename !== "WinningTicketRedeemedEvent"
+          (e) => (e as any)?.__typename !== "WinningTicketRedeemedEvent",
         ),
         ...(data?.winningTicketRedeemedEvents?.filter(
-          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp,
         ) ?? []),
       ].sort(
         (a, b) =>
-          (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
+          (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0),
       ),
-    [events, data, lastEventTimestamp]
+    [events, data, lastEventTimestamp],
   );
 
   if (error) {
@@ -184,7 +184,7 @@ function renderSwitch(event: any, i: number) {
                 Delegated with{" "}
                 {event.newDelegate.id.replace(
                   event.newDelegate.id.slice(7, 37),
-                  "…"
+                  "…",
                 )}
               </Box>
               <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
@@ -204,7 +204,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -261,7 +261,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -320,7 +320,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -380,7 +380,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -439,7 +439,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -457,7 +457,7 @@ function renderSwitch(event: any, i: number) {
       );
     case "TranscoderUpdateEvent":
       return (
-        (<Card
+        <Card
           as={A}
           key={i}
           href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
@@ -496,7 +496,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -518,7 +518,7 @@ function renderSwitch(event: any, i: number) {
               </Box>
             </Box>
           </Flex>
-        </Card>)
+        </Card>
       );
     case "WithdrawStakeEvent":
       return (
@@ -561,7 +561,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -618,7 +618,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -675,7 +675,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -732,7 +732,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />
@@ -794,7 +794,7 @@ function renderSwitch(event: any, i: number) {
                 <Box css={{ mr: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
-                    "…"
+                    "…",
                   )}
                 </Box>
                 <ExternalLinkIcon />

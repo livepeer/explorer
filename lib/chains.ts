@@ -1,17 +1,9 @@
-import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
-import ethereumLogoUrl from "../public/img/logos/ethereum.png";
-
 import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
-import {
-  Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
-  createPublicClient,
-  http,
-} from "viem";
+import { Address, createPublicClient, http } from "viem";
+
+import ethereumLogoUrl from "../public/img/logos/ethereum.png";
+import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -21,10 +13,9 @@ const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 const SUBGRAPH_ID =
-  process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
-  "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
+  process.env.NEXT_PUBLIC_SUBGRAPH_ID || "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
 
-// Check for required environment variables. 
+// Check for required environment variables.
 if (!INFURA_KEY && !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
@@ -92,7 +83,7 @@ export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumGoerli] as const;
 
 export const L1_CHAIN_IDS = [chain.mainnet, chain.goerli] as const;
 
-export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
+export type SupportedL2ChainId = (typeof L2_CHAIN_IDS)[number];
 
 export const TESTNET_CHAIN_IDS = [chain.goerli, chain.arbitrumGoerli] as const;
 
@@ -100,12 +91,12 @@ export const DEFAULT_CHAIN =
   NETWORK === "ARBITRUM_ONE"
     ? chain.arbitrum
     : NETWORK === "ARBITRUM_GOERLI"
-    ? chain.arbitrumGoerli
-    : NETWORK === "MAINNET"
-    ? chain.mainnet
-    : NETWORK === "GOERLI"
-    ? chain.goerli
-    : chain.arbitrum;
+      ? chain.arbitrumGoerli
+      : NETWORK === "MAINNET"
+        ? chain.mainnet
+        : NETWORK === "GOERLI"
+          ? chain.goerli
+          : chain.arbitrum;
 
 export const DEFAULT_CHAIN_ID = DEFAULT_CHAIN.id;
 
@@ -115,9 +106,6 @@ export const IS_TESTNET = Boolean(
 
 export const IS_L2 = Boolean(
   L2_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
-);
-export const IS_L1 = Boolean(
-  L1_CHAIN_IDS.find((chain) => chain.id === DEFAULT_CHAIN.id)
 );
 
 /**
@@ -134,14 +122,15 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  */
 export const INFURA_NETWORK_URLS = {
   [chain.mainnet.id]:
-    process.env.NEXT_PUBLIC_L1_RPC_URL ||
-    `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-  // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+    process.env.NEXT_PUBLIC_L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.goerli.id]:
+    process.env.NEXT_PUBLIC_L1_RPC_URL || `https://goerli.infura.io/v3/${INFURA_KEY}`,
   [chain.arbitrum.id]:
     process.env.NEXT_PUBLIC_L2_RPC_URL ||
     `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
-  // [chain.arbitrumGoerli
-  //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
+  [chain.arbitrumGoerli.id]:
+    process.env.NEXT_PUBLIC_L2_RPC_URL ||
+    `https://arbitrum-goerli.infura.io/v3/${INFURA_KEY}`,
 };
 
 export enum NetworkType {
@@ -165,17 +154,16 @@ export const CHAIN_INFO = {
     subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: MAINNET_CONTRACTS,
   },
-  // TODO this needs to be updated
   [chain.goerli.id]: {
     networkType: NetworkType.L1,
     l1: chain.goerli,
-    explorer: "https://rinkeby.etherscan.io/",
-    explorerAPI: "https://api-rinkeby.etherscan.io/api",
+    explorer: "https://goerli.etherscan.io/",
+    explorerAPI: "https://api-goerli.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
-    label: "Rinkeby",
+    label: "Goerli",
     logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
-      nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
+      nativeCurrency: { name: "Goerli Ether", symbol: "gETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.goerli.id],
     },
     subgraph:
@@ -204,7 +192,7 @@ export const CHAIN_INFO = {
     l1: chain.goerli,
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
-    explorer: "https://testnet.arbiscan.io/",
+    explorer: "https://goerli.arbiscan.io/",
     explorerAPI: "https://api-testnet.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum Goerli",

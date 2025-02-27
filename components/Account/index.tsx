@@ -1,10 +1,10 @@
 import Link from "next/link";
-import AccountIcon from "../../public/img/account.svg";
 import { useRef } from "react";
 import { useRouter } from "next/router";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
-
 import { useAccountAddress, useEnsData } from "hooks";
+
+import AccountIcon from "../../public/img/account.svg";
 
 const Account = () => {
   const router = useRouter();
@@ -16,7 +16,11 @@ const Account = () => {
   return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
-        <Link href={`/accounts/${accountAddress}/delegating`} passHref legacyBehavior>
+        <Link
+          href={`/accounts/${accountAddress}/delegating`}
+          passHref
+          legacyBehavior
+        >
           <A
             variant="subtle"
             css={{

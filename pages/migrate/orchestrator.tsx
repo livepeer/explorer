@@ -14,7 +14,6 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { useEffect, useReducer, useState } from "react";
-
 import { CodeBlock } from "@components/CodeBlock";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import {
@@ -37,6 +36,7 @@ import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { isValidAddress } from "utils/validAddress";
+
 import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
@@ -251,7 +251,7 @@ const MigrateOrchestrator = () => {
         type: "initiate",
       });
 
-      const gasPriceBid = await l2Provider.getGasPrice();
+      // const gasPriceBid = await l2Provider.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
@@ -525,7 +525,7 @@ const MigrateOrchestrator = () => {
         const payload = ethers.utils._TypedDataEncoder.getPayload(
           domain,
           types,
-          value
+          value,
         );
         let signer = "";
 
@@ -535,7 +535,7 @@ const MigrateOrchestrator = () => {
               domain,
               types,
               value,
-              signature
+              signature,
             );
           } catch (e) {
             console.log(e);
@@ -817,7 +817,7 @@ function MigrationFields({ migrationParams, css = {} }) {
         <Box>
           {migrationParams.delegate.replace(
             migrationParams.delegate.slice(6, 38),
-            "…"
+            "…",
           )}
         </Box>
       </ReadOnlyCard>

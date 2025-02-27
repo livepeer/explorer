@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { fromWei, txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
 import Router, { useRouter } from "next/router";
 import {
@@ -18,6 +17,8 @@ import { CheckIcon } from "@modulz/radix-icons";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";
 import QueueExecuteButton from "@components/QueueExecuteButton";
+
+import { fromWei, txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();
@@ -170,7 +171,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               {tx.inputData &&
                 tx.inputData.delegate.replace(
                   tx.inputData.delegate.slice(7, 37),
-                  "…"
+                  "…",
                 )}
             </Box>
           </Table>
@@ -193,7 +194,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
                 ? "your stake"
                 : `your orchestrator (${targetAddress.replace(
                     targetAddress.slice(7, 37),
-                    "…"
+                    "…",
                   )}) stake!`}
             </Box>
           </Table>

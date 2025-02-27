@@ -11,7 +11,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<ContractInfo | null>
+  res: NextApiResponse<ContractInfo | null>,
 ) => {
   try {
     const method = req.method;

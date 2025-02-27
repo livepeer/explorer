@@ -10,7 +10,7 @@ const timeout = <T,>(prom: Promise<T>, time: number) =>
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<EnsIdentity[] | null>
+  res: NextApiResponse<EnsIdentity[] | null>,
 ) => {
   try {
     const method = req.method;
@@ -54,7 +54,7 @@ const handler = async (
             } catch (e) {}
 
             return null;
-          })
+          }),
         )
       )
         .filter((e) => e)

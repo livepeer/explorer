@@ -1,6 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
 import fetch from "isomorphic-unfetch";
-
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const query = `

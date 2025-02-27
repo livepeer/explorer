@@ -19,7 +19,9 @@ export type Fm = {
   text: string;
 };
 
-export type PollExtended = NonNullable<PollsQueryResult["data"]>["polls"][number] & {
+export type PollExtended = NonNullable<
+  PollsQueryResult["data"]
+>["polls"][number] & {
   id: Address;
   attributes?: Fm | null;
   estimatedEndTime: number;
@@ -43,8 +45,11 @@ export type PollExtended = NonNullable<PollsQueryResult["data"]>["polls"][number
 };
 
 export const getPollExtended = async (
-  poll: NonNullable<PollsQueryResult["data"]>["polls"][number] | null | undefined,
-  l1BlockNumber: number
+  poll:
+    | NonNullable<PollsQueryResult["data"]>["polls"][number]
+    | null
+    | undefined,
+  l1BlockNumber: number,
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
@@ -74,26 +79,33 @@ export const getPollExtended = async (
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
   const totalStakeString = await getTotalStake(
     // TODO fix endblock to query for l2 block corresponding to end of poll
-    isActive ? undefined : +(poll?.endBlock ?? 0)
+    isActive ? undefined : +(poll?.endBlock ?? 0),
   );
 
   const totalStake = +(totalStakeString ?? 0);
   const noVoteStake = +(poll?.tally?.no || 0);
   const yesVoteStake = +(poll?.tally?.yes || 0);
   const totalVoteStake = noVoteStake + yesVoteStake;
-  const totalYesVotePercent = isNaN(yesVoteStake / totalVoteStake) ? 0 : yesVoteStake / totalVoteStake;
-  const totalNoVotePercent = isNaN(noVoteStake / totalVoteStake) ? 0 : noVoteStake / totalVoteStake;
+  const totalYesVotePercent = isNaN(yesVoteStake / totalVoteStake)
+    ? 0
+    : yesVoteStake / totalVoteStake;
+  const totalNoVotePercent = isNaN(noVoteStake / totalVoteStake)
+    ? 0
+    : noVoteStake / totalVoteStake;
   const totalParticipationPercent = totalVoteStake / totalStake;
 
   const status = isActive
     ? "active"
     : totalParticipationPercent > +(poll?.quorum ?? 0) / 1000000
-    ? totalYesVotePercent > +(poll?.quota ?? 0) / 1000000
-      ? "passed"
-      : "rejected"
-    : "quorum-not-met";
+      ? totalYesVotePercent > +(poll?.quota ?? 0) / 1000000
+        ? "passed"
+        : "rejected"
+      : "quorum-not-met";
 
-  const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(+(poll?.endBlock ?? 0), l1BlockNumber);
+  const estimatedEndTime = await getEstimatedEndTimeByBlockNumber(
+    +(poll?.endBlock ?? 0),
+    l1BlockNumber,
+  );
 
   const totalNonVoteStake = totalStake - totalVoteStake;
   const nonVotersPercent = totalNonVoteStake / totalStake;
@@ -135,7 +147,10 @@ const absolutizeLinks = (markdown: string, baseUrl: string) => {
   });
 };
 
-const getEstimatedEndTimeByBlockNumber = async (requestedBlock: number, currentBlock: number) => {
+const getEstimatedEndTimeByBlockNumber = async (
+  requestedBlock: number,
+  currentBlock: number,
+) => {
   // we don't need to make requests to the etherscan, since we can rely on consistent L1 block times
   return dayjs()
     .add((requestedBlock - currentBlock) * AVERAGE_L1_BLOCK_TIME, "s")
@@ -145,7 +160,10 @@ const getEstimatedEndTimeByBlockNumber = async (requestedBlock: number, currentB
 const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   const client = getApollo();
 
-  const protocolResponse = await client.query<ProtocolByBlockQuery, ProtocolByBlockQueryVariables>({
+  const protocolResponse = await client.query<
+    ProtocolByBlockQuery,
+    ProtocolByBlockQueryVariables
+  >({
     query: ProtocolByBlockDocument,
     variables: l2BlockNumber
       ? {

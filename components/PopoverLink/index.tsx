@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {
   return (
-    (<Link href={href} passHref legacyBehavior>
+    <Link href={href} passHref legacyBehavior>
       <A
         {...(newWindow
           ? {
@@ -42,7 +42,7 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
         {children}
         <Box as={ChevronRightIcon} css={{ ml: "$2", width: 16, height: 16 }} />
       </A>
-    </Link>)
+    </Link>
   );
 };
 

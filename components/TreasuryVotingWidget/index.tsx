@@ -4,11 +4,12 @@ import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
 import { useMemo } from "react";
-import { abbreviateNumber, fromWei, shortenAddress} from "@lib/utils";
-import VoteButton from "../VoteButton";
+import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
 import QueueExecuteButton from "@components/QueueExecuteButton";
+
+import VoteButton from "../VoteButton";
 
 dayjs.extend(duration);
 
@@ -265,37 +266,40 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </Flex>
                 )}
               </Box>
-              {proposal?.state === "Active" && vote?.self.hasVoted === false && (
-                <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="red"
-                    size="4"
-                    choiceId={0}
-                    proposalId={proposal?.id}
+              {proposal?.state === "Active" &&
+                vote?.self.hasVoted === false && (
+                  <Box
+                    css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}
                   >
-                    Against
-                  </VoteButton>
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="primary"
-                    choiceId={1}
-                    size="4"
-                    proposalId={proposal?.id}
-                  >
-                    For
-                  </VoteButton>
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="gray"
-                    size="4"
-                    choiceId={2}
-                    proposalId={proposal?.id}
-                  >
-                    Abstain
-                  </VoteButton>
-                </Box>
-              )}
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="red"
+                      size="4"
+                      choiceId={0}
+                      proposalId={proposal?.id}
+                    >
+                      Against
+                    </VoteButton>
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="primary"
+                      choiceId={1}
+                      size="4"
+                      proposalId={proposal?.id}
+                    >
+                      For
+                    </VoteButton>
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="gray"
+                      size="4"
+                      choiceId={2}
+                      proposalId={proposal?.id}
+                    >
+                      Abstain
+                    </VoteButton>
+                  </Box>
+                )}
               {["Succeeded", "Queued"].includes(proposal?.state) && (
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <QueueExecuteButton

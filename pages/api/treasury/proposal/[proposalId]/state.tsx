@@ -22,7 +22,7 @@ const ProposalStateEnum = {
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<ProposalState | null>
+  res: NextApiResponse<ProposalState | null>,
 ) => {
   try {
     const { method } = req;

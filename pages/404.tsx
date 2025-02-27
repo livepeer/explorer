@@ -11,7 +11,7 @@ function Error() {
         bc: "$loContrast",
         height: "90vh",
         flexDirection: "column",
-        px: "$2"
+        px: "$2",
       }}
     >
       <Box>
@@ -35,9 +35,7 @@ function Error() {
           color: "$neutral11",
         }}
       >
-        {
-          "We are actively working on a fix. Please check back soon."
-        }
+        {"We are actively working on a fix. Please check back soon."}
       </Box>
     </Flex>
   );

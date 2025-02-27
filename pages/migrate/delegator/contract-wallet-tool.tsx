@@ -13,11 +13,7 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import { ethers } from "ethers";
-import {
-
-  useL1DelegatorData,
-
-} from "hooks";
+import { useL1DelegatorData } from "hooks";
 import {
   CHAIN_INFO,
   DEFAULT_CHAIN_ID,
@@ -212,7 +208,7 @@ const ContractWalletTool = () => {
                     {params.migrateUnbondingLockParams[keyName]}
                   </Box>
                 </ReadOnlyCard>
-              )
+              ),
             )}
           </Box>
         )}

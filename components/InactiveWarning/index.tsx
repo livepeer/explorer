@@ -2,7 +2,6 @@ import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Button, Container, Text } from "@livepeer/design-system";
 import { useAccountInactiveQuery } from "apollo";
 import { useAccountAddress } from "hooks";
-
 import Link from "next/link";
 
 const InactiveWarning = () => {
@@ -31,7 +30,7 @@ const InactiveWarning = () => {
   }
 
   return (
-    (<Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
       <Box
         css={{
           mt: "$5",
@@ -69,7 +68,7 @@ const InactiveWarning = () => {
           </Link>
         </Box>
       </Box>
-    </Container>)
+    </Container>
   );
 };
 

@@ -5,7 +5,6 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useContractRead } from "wagmi";
-
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
 import HistoryView from "@components/HistoryView";
@@ -29,6 +28,7 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
+
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
@@ -54,21 +54,21 @@ const AccountLayout = ({
   const { query, asPath } = router;
   const view = useMemo(
     () => ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v),
-    [asPath]
+    [asPath],
   );
 
   const { setSelectedStakingAction, latestTransaction } = useExplorerStore();
 
   const accountId = useMemo(
     () => query?.account?.toString().toLowerCase(),
-    [query]
+    [query],
   );
 
   const identity = useEnsData(accountId);
   const myIdentity = useEnsData(accountAddress);
 
   const [pollInterval, setPollInterval] = useState<number | undefined>(
-    undefined
+    undefined,
   );
 
   const { data: dataMyAccount } = useAccountQuery({
@@ -79,7 +79,7 @@ const AccountLayout = ({
     pollInterval,
   });
 
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -99,24 +99,24 @@ const AccountLayout = ({
 
   const isActive = useMemo(
     () => Boolean(account?.transcoder?.active),
-    [account?.transcoder]
+    [account?.transcoder],
   );
 
   const isMyAccount = useMemo(
     () => checkAddressEquality(accountAddress ?? "", accountId ?? ""),
-    [accountAddress, accountId]
+    [accountAddress, accountId],
   );
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
-    [accountId, dataMyAccount]
+    [accountId, dataMyAccount],
   );
 
   const isDelegatingAndIsMyAccountView = useMemo(
     () =>
       dataMyAccount?.delegator?.bondedAmount !== "0" &&
       accountId === dataMyAccount?.delegator?.id.toLowerCase(),
-    [accountId, dataMyAccount]
+    [accountId, dataMyAccount],
   );
 
   const tabs: Array<TabType> = useMemo(
@@ -125,9 +125,9 @@ const AccountLayout = ({
         isOrchestrator,
         accountId ?? "",
         view ?? "delegating",
-        isMyDelegate
+        isMyDelegate,
       ),
-    [isOrchestrator, accountId, view, isMyDelegate]
+    [isOrchestrator, accountId, view, isMyDelegate],
   );
 
   useEffect(() => {
@@ -135,7 +135,7 @@ const AccountLayout = ({
   }, [setSelectedStakingAction]);
 
   return (
-    (<Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
       <Flex>
         <Flex
           css={{
@@ -250,7 +250,13 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link scroll={false} key={i} href={tab.href} passHref legacyBehavior>
+              <Link
+                scroll={false}
+                key={i}
+                href={tab.href}
+                passHref
+                legacyBehavior
+              >
                 <A
                   variant="subtle"
                   css={{
@@ -335,7 +341,7 @@ const AccountLayout = ({
             </BottomDrawer>
           ))}
       </Flex>
-    </Container>)
+    </Container>
   );
 };
 
@@ -347,7 +353,7 @@ function getTabs(
   isOrchestrator: boolean,
   account: string,
   view: TabTypeEnum,
-  isMyDelegate: boolean
+  isMyDelegate: boolean,
 ): Array<TabType> {
   const tabs: Array<TabType> = [
     {

@@ -1,12 +1,20 @@
+import rainbowTheme from "constants/rainbowTheme";
+
 import { fetcher } from "@lib/axios";
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+
 import "@rainbow-me/rainbowkit/styles.css";
-import rainbowTheme from "constants/rainbowTheme";
+
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
+import {
+  DEFAULT_CHAIN,
+  WALLET_CONNECT_PROJECT_ID,
+  INFURA_KEY,
+  L1_CHAIN,
+} from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -16,6 +24,7 @@ import { Chain, configureChains, createConfig, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+
 import { useApollo } from "../apollo";
 
 function App({ Component, pageProps, fallback = null }) {
@@ -27,10 +36,10 @@ function App({ Component, pageProps, fallback = null }) {
 
   const { config, chains, layoutKey } = useMemo(() => {
     const currentChain = isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN;
-    
+
     // Custom RPC first (chain-specific)
-    const customRpcUrl = isMigrateRoute 
-      ? process.env.NEXT_PUBLIC_L1_RPC_URL 
+    const customRpcUrl = isMigrateRoute
+      ? process.env.NEXT_PUBLIC_L1_RPC_URL
       : process.env.NEXT_PUBLIC_L2_RPC_URL;
 
     const providers = [
@@ -51,7 +60,7 @@ function App({ Component, pageProps, fallback = null }) {
 
     const { chains, publicClient } = configureChains(
       [currentChain as Chain],
-      providers
+      providers,
     );
 
     const { connectors } = getDefaultWallets({

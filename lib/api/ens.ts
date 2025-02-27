@@ -1,6 +1,6 @@
 import sanitizeHtml from "sanitize-html";
-
 import { l1Provider } from "@lib/chains";
+
 import { EnsIdentity } from "./types/get-ens";
 
 const sanitizeOptions: sanitizeHtml.IOptions = {
@@ -97,6 +97,6 @@ export const nl2br = (str, is_xhtml = true) => {
     is_xhtml || typeof is_xhtml === "undefined" ? "<br />" : "<br>";
   return (str + "").replace(
     /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g,
-    "$1" + breakTag + "$2"
+    "$1" + breakTag + "$2",
   );
 };

@@ -20,16 +20,6 @@ import dayjs from "dayjs";
 import Head from "next/head";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
-import {
-  useAccountAddress,
-  useContractInfoData,
-  useCurrentRoundData,
-  useEnsData,
-  useExplorerStore,
-  useProposalVotingPowerData,
-  useTreasuryProposalState,
-} from "../../hooks";
-import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -41,6 +31,17 @@ import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
+
+import FourZeroFour from "../404";
+import {
+  useAccountAddress,
+  useContractInfoData,
+  useCurrentRoundData,
+  useEnsData,
+  useExplorerStore,
+  useProposalVotingPowerData,
+  useTreasuryProposalState,
+} from "../../hooks";
 
 dayjs.extend(relativeTime);
 
@@ -88,7 +89,7 @@ const Proposal = () => {
       proposalQuery.treasuryProposal!,
       state,
       currentRound,
-      protocolQuery.protocol
+      protocolQuery.protocol,
     );
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
@@ -103,7 +104,7 @@ const Proposal = () => {
       const [value, calldata] = [proposal.values[idx], proposal.calldatas[idx]];
 
       const contract = Object.values(contractAddresses).find(
-        (ctr) => ctr?.address?.toLowerCase() === target.toLowerCase()
+        (ctr) => ctr?.address?.toLowerCase() === target.toLowerCase(),
       );
       if (contract !== contractAddresses?.LivepeerToken) {
         return { target, contract, value, calldata };
@@ -259,7 +260,7 @@ const Proposal = () => {
                     <Box>
                       {formatPercent(
                         proposal.votes.total.for /
-                          proposal.votes.total.quotaVoters
+                          proposal.votes.total.quotaVoters,
                       )}
                     </Box>
                   }
@@ -329,7 +330,7 @@ const Proposal = () => {
                     <Box>
                       Total Participation (
                       {formatPercent(
-                        +proposal.quorum / +proposal.totalVoteSupply
+                        +proposal.quorum / +proposal.totalVoteSupply,
                       )}
                       needed)
                     </Box>
@@ -373,7 +374,7 @@ const Proposal = () => {
                           <Box as="span">
                             {abbreviateNumber(
                               proposal.votes.total.nonVoters,
-                              4
+                              4,
                             )}{" "}
                             LPT
                           </Box>
@@ -429,7 +430,7 @@ const Proposal = () => {
                               marginLeft: "auto",
                             }}
                             href={blockExplorerLink(
-                              action.lptTransfer.receiver
+                              action.lptTransfer.receiver,
                             )}
                             target="_blank"
                           >
@@ -493,7 +494,7 @@ const Proposal = () => {
                             >
                               {action.contract
                                 ? `${action.contract?.name} (${shortenAddress(
-                                    action.target
+                                    action.target,
                                   )})`
                                 : action.target}
                             </Text>
@@ -582,9 +583,7 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <MarkdownRenderer>
-                  {proposal.description}
-                </MarkdownRenderer>
+                <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
             </Box>
           </Flex>

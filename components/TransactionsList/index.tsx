@@ -46,11 +46,11 @@ const EthAddress = (props: { value: string | undefined }) => {
   const ensName = useEnsData(props.value);
 
   return (
-    (<Link passHref href={`/accounts/${props.value}/delegating`} legacyBehavior>
+    <Link passHref href={`/accounts/${props.value}/delegating`} legacyBehavior>
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
+        {ensName?.name ? ensName?.name : (ensName?.idShort ?? "")}
       </Badge>
-    </Link>)
+    </Link>
   );
 };
 
@@ -91,7 +91,7 @@ const TransactionsList = ({
     (
       event: NonNullable<
         NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
-      >[number]
+      >[number],
     ) => {
       switch (event.__typename) {
         case "BondEvent":
@@ -180,14 +180,14 @@ const TransactionsList = ({
           return <Box>{`Error fetching event information.`}</Box>;
       }
     },
-    []
+    [],
   );
 
   const getDescriptionForRow = useCallback(
     (
       event: NonNullable<
         NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
-      >[number]
+      >[number],
     ) => {
       switch (event.__typename) {
         case "BondEvent":
@@ -373,7 +373,7 @@ const TransactionsList = ({
               {`Poll `}
               <EthAddress value={event?.poll?.id} />
               {` has been created and will end on block ${getRound(
-                event?.endBlock
+                event?.endBlock,
               )}`}
             </Box>
           );
@@ -409,7 +409,7 @@ const TransactionsList = ({
           return <Box>{`Error fetching event information.`}</Box>;
       }
     },
-    []
+    [],
   );
 
   const columns = useMemo(
@@ -460,8 +460,8 @@ const TransactionsList = ({
                 : sentenceCase(
                     String(row?.values?.event ?? "Not applicable").replace(
                       "Event",
-                      ""
-                    )
+                      "",
+                    ),
                   )}
             </Text>
           </Box>
@@ -529,7 +529,7 @@ const TransactionsList = ({
         ),
       },
     ],
-    [getDescriptionForRow, getAccountForRow]
+    [getDescriptionForRow, getAccountForRow],
   );
 
   return (

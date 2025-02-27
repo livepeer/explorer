@@ -1,3 +1,7 @@
+import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
+import { parseEther } from "ethers/lib/utils";
+import { UnbondingLock } from "apollo";
+
 import {
   abbreviateNumber,
   getHint,
@@ -6,22 +10,19 @@ import {
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
-import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
-import { parseEther } from "ethers/lib/utils";
-import { UnbondingLock } from "apollo";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
   const pendingStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
         item.withdrawRound &&
-        +item.withdrawRound > parseInt(currentRound.id, 10)
+        +item.withdrawRound > parseInt(currentRound.id, 10),
     );
   const completedStakeTransactions: Array<UnbondingLock> =
     delegator.unbondingLocks.filter(
       (item: UnbondingLock) =>
         item.withdrawRound &&
-        +item.withdrawRound <= parseInt(currentRound.id, 10)
+        +item.withdrawRound <= parseInt(currentRound.id, 10),
     );
   const isBonded = !!delegator.delegate;
 
@@ -41,7 +42,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
             });
             const { newPosPrev, newPosNext } = getHint(
               isBonded ? delegator.delegate.id : lock.delegate.id,
-              newActiveSetOrder
+              newActiveSetOrder,
             );
             return (
               <Card
@@ -64,7 +65,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                       Undelegating from{" "}
                       {lock.delegate.id.replace(
                         lock.delegate.id.slice(7, 37),
-                        "…"
+                        "…",
                       )}
                     </Box>
                     <Text variant="neutral" size="1">
@@ -117,7 +118,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
             });
             const { newPosPrev, newPosNext } = getHint(
               isBonded ? delegator.delegate.id : lock.delegate.id,
-              newActiveSetOrder
+              newActiveSetOrder,
             );
             return (
               <Card
@@ -139,7 +140,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                     Undelegated from{" "}
                     {lock.delegate.id.replace(
                       lock.delegate.id.slice(7, 37),
-                      "…"
+                      "…",
                     )}
                   </Box>
 

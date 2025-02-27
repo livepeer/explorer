@@ -63,7 +63,7 @@ const Migrate = () => {
 
 function CardLink({ href, heading, text }) {
   return (
-    (<Link href={href} passHref legacyBehavior>
+    <Link href={href} passHref legacyBehavior>
       <Card
         as="a"
         css={{
@@ -86,7 +86,7 @@ function CardLink({ href, heading, text }) {
         </Heading>
         <Text variant="neutral">{text}</Text>
       </Card>
-    </Link>)
+    </Link>
   );
 }
 Migrate.getLayout = getLayout;

@@ -11,7 +11,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<RegisteredToVote | null>
+  res: NextApiResponse<RegisteredToVote | null>,
 ) => {
   try {
     const { method } = req;
@@ -37,7 +37,7 @@ const handler = async (
         abi: bondingManager,
         functionName: "getDelegator",
         args: [address],
-      }
+      },
     );
     const isBonded = bondedAmount > 0;
     if (!isBonded) {
@@ -72,8 +72,8 @@ const handler = async (
     res.setHeader(
       "Cache-Control",
       getCacheControlHeader(
-        registered && delegateRegistered ? "week" : "revalidate"
-      )
+        registered && delegateRegistered ? "week" : "revalidate",
+      ),
     );
 
     return res.status(200).json({

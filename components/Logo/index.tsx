@@ -173,14 +173,14 @@ const LivepeerLogo = ({
         />
       </Box>
     ),
-    [isDark, disableHover, id]
+    [isDark, disableHover, id],
   );
 
   if (!isLink) return markup;
   return (
-    (<Link href="/" passHref>
+    <Link href="/" passHref>
       {markup}
-    </Link>)
+    </Link>
   );
 };
 

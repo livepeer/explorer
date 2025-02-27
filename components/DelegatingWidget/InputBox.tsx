@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import Input from "./Input";
 import { Box, Flex, Card } from "@livepeer/design-system";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -13,6 +12,8 @@ import {
 import { fromWei } from "@lib/utils";
 import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ConsoleView } from "react-device-detect";
+
+import Input from "./Input";
 
 interface Treasury {
   treasuryRewardCutRate: number;
@@ -43,20 +44,20 @@ const InputBox = ({
 }: Props) => {
   const walletAddress = useAccountAddress();
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
-    delegator?.id
+    delegator?.id,
   );
   const accountBalance = useAccountBalanceData(account?.id);
 
   const tokenBalance = useMemo(
     () => accountBalance && fromWei(accountBalance.balance.toString()),
-    [accountBalance]
+    [accountBalance],
   );
   const stake = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
         ? fromWei(delegatorPendingStakeAndFees.pendingStake)
         : "0",
-    [delegatorPendingStakeAndFees]
+    [delegatorPendingStakeAndFees],
   );
 
   return (

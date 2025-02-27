@@ -10,7 +10,7 @@ const ProjectionBox = ({ action }) => {
 
   const formattedPrinciple = useMemo(
     () => numeral(Number(yieldResults?.principle) || 0).format("0a"),
-    [yieldResults]
+    [yieldResults],
   );
 
   return (
@@ -69,7 +69,7 @@ const ProjectionBox = ({ action }) => {
                   yieldResults.principle
                     ? (yieldResults.roiFeesLpt + yieldResults.roiRewards) /
                         +yieldResults.principle
-                    : 0
+                    : 0,
                 ).format("0.0%")}
               </Box>
             )}

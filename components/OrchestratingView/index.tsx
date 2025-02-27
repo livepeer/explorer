@@ -4,7 +4,6 @@ import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import dayjs from "dayjs";
 import numeral from "numeral";
 import Masonry from "react-masonry-css";
-
 import { AccountQueryResult } from "apollo";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useScoreData } from "hooks";
@@ -31,57 +30,66 @@ interface Props {
 const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
-    [transcoder?.pools]
+    [transcoder?.pools],
   );
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const maxScore = useMemo(
-    () =>
-      {
-        const topTransData = Object.keys(scores?.scores ?? {}).reduce(
-          (prev, curr) => {
-            const score = scores?.scores[curr];
-            const region = knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
-            if (score && score >= prev.score && !region.toLowerCase().startsWith("global")) {
-              return {
-                region: region,
-                score: scores?.scores[curr],
-              };
-            }
-            return prev;
-          },
-          { region: "N/A", score: 0 }
-        );
-        return {
-          transcoding: topTransData,
-          ai: scores?.topAIScore,
+  const maxScore = useMemo(() => {
+    const topTransData = Object.keys(scores?.scores ?? {}).reduce(
+      (prev, curr) => {
+        const score = scores?.scores[curr];
+        const region =
+          knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
+        if (
+          score &&
+          score >= prev.score &&
+          !region.toLowerCase().startsWith("global")
+        ) {
+          return {
+            region: region,
+            score: scores?.scores[curr],
+          };
         }
+        return prev;
       },
-    [scores, knownRegions?.regions]
-  );
+      { region: "N/A", score: 0 },
+    );
+    return {
+      transcoding: topTransData,
+      ai: scores?.topAIScore,
+    };
+  }, [scores, knownRegions?.regions]);
 
   const maxScoreOutput = useMemo(() => {
-    const outputTrans = maxScore.transcoding?.score && maxScore.transcoding?.score > 0
-    const transcodingInfo
-      = outputTrans
-        ? `${numeral(maxScore.transcoding?.score).divide(100).format("0.0%")} - ${maxScore.transcoding.region}`
-        : "";
-    return outputTrans? transcodingInfo: "N/A";
-  }
-  , [maxScore]);
+    const outputTrans =
+      maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
+    const transcodingInfo = outputTrans
+      ? `${numeral(maxScore.transcoding?.score).divide(100).format("0.0%")} - ${maxScore.transcoding.region}`
+      : "";
+    return outputTrans ? transcodingInfo : "N/A";
+  }, [maxScore]);
 
   const maxAIScoreOutput = useMemo(() => {
-    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0
-    const region = knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ?? "N/A";
-    const aiInfo = outputAI
-      ? (<>{numeral(maxScore.ai?.value).format("0.0%")} - {region}</>)
-      : "";
-    return outputAI?
-      {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
-  }
-  , [maxScore, knownRegions?.regions]);
+    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
+    const region =
+      knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ??
+      "N/A";
+    const aiInfo = outputAI ? (
+      <>
+        {numeral(maxScore.ai?.value).format("0.0%")} - {region}
+      </>
+    ) : (
+      ""
+    );
+    return outputAI
+      ? {
+          score: aiInfo,
+          modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
+        }
+      : { score: "N/A", modelText: "" };
+  }, [maxScore, knownRegions?.regions]);
 
   return (
     <Box
@@ -123,23 +131,25 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Status"
           tooltip={`The status of the orchestrator on the network.`}
-          value={isActive ? `Active ${transcoder?.activationTimestamp ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true) : ""}` : "Inactive"}
+          value={
+            isActive
+              ? `Active ${transcoder?.activationTimestamp ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true) : ""}`
+              : "Inactive"
+          }
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top Transcoding Regional Score"
           tooltip={`The Orchestrator's score for its best operational transcodingregion in the past 24 hours.`}
-          value={
-            maxScoreOutput
-          }
+          value={maxScoreOutput}
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top AI Regional Score"
           tooltip={`The Orchestrator's score for its best operational AI region in the past 24 hours${maxAIScoreOutput.modelText}.`}
-          value={
-            maxAIScoreOutput.score
-          }
+          value={maxAIScoreOutput.score}
         />
         <Stat
           className="masonry-grid_item"
@@ -148,7 +158,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
           value={`${numeral(transcoder?.totalVolumeETH || 0).format(
-            "0.00a"
+            "0.00a",
           )} ETH`}
         />
         <Stat
@@ -158,7 +168,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           value={
             scores
               ? `${numeral(
-                  (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
+                  (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel,
                 ).format("0,0")} WEI`
               : "N/A"
           }
@@ -179,7 +189,11 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.feeShare? numeral(1 - (+(transcoder?.feeShare || 0)) / 1000000).format("0%"):"N/A"}
+          value={
+            transcoder?.feeShare
+              ? numeral(1 - +(transcoder?.feeShare || 0) / 1000000).format("0%")
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -187,7 +201,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.rewardCut? numeral(transcoder?.rewardCut || 0).divide(1000000).format("0%"): "N/A"}
+          value={
+            transcoder?.rewardCut
+              ? numeral(transcoder?.rewardCut || 0)
+                  .divide(1000000)
+                  .format("0%")
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -196,7 +216,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
           value={
-            transcoder ? `${callsMade}/${transcoder?.pools?.length ?? 0}` : "N/A"
+            transcoder
+              ? `${callsMade}/${transcoder?.pools?.length ?? 0}`
+              : "N/A"
           }
         />
         {transcoder?.lastRewardRound?.id && (

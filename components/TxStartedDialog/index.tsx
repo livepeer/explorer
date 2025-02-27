@@ -1,5 +1,4 @@
 import { fromWei, txMessages } from "@lib/utils";
-import Spinner from "../Spinner";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
   Box,
@@ -15,6 +14,8 @@ import {
 } from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
+
+import Spinner from "../Spinner";
 
 const Index = () => {
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();

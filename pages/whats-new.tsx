@@ -12,6 +12,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useChangefeedData } from "hooks";
 import Markdown from "markdown-to-jsx";
 import Head from "next/head";
+
 import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
 
 dayjs.extend(localizedFormat);
@@ -156,14 +157,14 @@ const WhatsNew = () => {
                                         {change.content}
                                       </Box>
                                     </Box>
-                                  )
+                                  ),
                                 )}
                               </Box>
                             );
-                          }
+                          },
                         )}
                       </Card>
-                    )
+                    ),
                 )}
               </Box>
             </Flex>

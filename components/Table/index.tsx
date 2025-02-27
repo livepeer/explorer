@@ -55,7 +55,7 @@ function DataTable<T extends object>({
       initialState,
     },
     useSortBy,
-    usePagination
+    usePagination,
   );
 
   return (
@@ -107,9 +107,8 @@ function DataTable<T extends object>({
                       <Th
                         key={i}
                         {...column.getHeaderProps(
-                          column.getSortByToggleProps({ title: undefined })
+                          column.getSortByToggleProps({ title: undefined }),
                         )}
-
                         css={{
                           px: i === 0 ? "$2" : "auto",
                           width: i === 0 ? "40px" : "auto",

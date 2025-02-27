@@ -23,7 +23,7 @@ const Index = () => {
   }
 
   return (
-    <Dialog 
+    <Dialog
       open={true}
       onOpenChange={(open) => {
         if (!open) {
@@ -79,11 +79,7 @@ const Index = () => {
                   : "Error with transaction, please check your inputs and try again."}
               </Text>
               <DialogClose asChild>
-                <Button
-                 size="4"
-                 variant="primary"
-                 css={{ width: "100%" }}>
-
+                <Button size="4" variant="primary" css={{ width: "100%" }}>
                   Close
                 </Button>
               </DialogClose>
