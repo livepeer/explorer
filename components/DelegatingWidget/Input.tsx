@@ -45,7 +45,7 @@ const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) =>
           treasuryRewardCut: treasury.treasuryRewardCutRate,
         },
       }),
-    [protocol, transcoder, principle, rewardCallRatio]
+    [protocol, transcoder, principle, rewardCallRatio, treasury.treasuryRewardCutRate]
   );
 
   const { setYieldResults } = useExplorerStore();

@@ -25,7 +25,7 @@ const SUBGRAPH_ID =
   "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
 
 // Check for required environment variables. 
-if (!INFURA_KEY || !NETWORK) {
+if (!INFURA_KEY && !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
