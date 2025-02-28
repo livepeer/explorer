@@ -417,7 +417,7 @@ const Home = ({ orchestrators, events, protocol, initialVoterData }: PageProps) 
               </TabsContent>
               <TabsContent value={OrchestratorTabs["Voting History"]}>
                 <Box>
-                  <OrchestratorVotingList initialVoterData={initialVoterData}/>
+                  <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={10}/>
                 </Box>
               </TabsContent>
             </Tabs>

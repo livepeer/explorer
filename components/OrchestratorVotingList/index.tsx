@@ -20,8 +20,7 @@ type VoterSummary = {
   votingTurnout: number;
 };
 
-const OrchestratorVotingList = ({ initialVoterData }: { initialVoterData?: VoterSummary[] }) => {
-  const pageSize = 10;
+const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initialVoterData?: VoterSummary[] , pageSize:number}) => {
 
   const columns = useMemo(
     () => [
