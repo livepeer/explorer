@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.8",
-    "@cubejs-client/core": "^1.2.4",
+    "@cubejs-client/core": "^1.2.9",
     "@cubejs-client/react": "^1.2.4",
     "@graphql-tools/delegate": "8.8.0",
     "@graphql-tools/links": "^8.3.0",

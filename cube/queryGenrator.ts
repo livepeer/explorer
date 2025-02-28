@@ -2,22 +2,26 @@ export const getAccountVotingHistory =(id:string) =>{
   
   return `{
   "measures": [
-    "LivepeerVoteType.count",
-    "LivepeerVoteType.votingTurnout"
+    "LivepeerProposalStatus.count",
+    "LivepeerProposalStatus.votingTurnout",
+    "LivepeerProposalStatus.proposalVotedOn"
   ],
   "order": {
-    "LivepeerVoteType.count": "desc"
+    "LivepeerProposalStatus.count": "desc"
   },
   "dimensions": [
-    "LivepeerVoteType.date",
-    "LivepeerVoteType.voter",
-    "LivepeerVoteType.nameOfProposal",
-    "LivepeerVoteType.voteType",
-    "LivepeerVoteType.round"
+    "LivepeerProposalStatus.date",
+    "LivepeerProposalStatus.round",
+    "LivepeerProposalStatus.eventTxnHash",
+    "LivepeerProposalStatus.nameOfProposal",
+    "LivepeerProposalStatus.voteType",
+    "LivepeerProposalStatus.status",
+    "LivepeerProposalStatus.proposedBy",
+    "LivepeerProposalStatus.voter"
   ],
   "filters": [
     {
-      "member": "LivepeerVoteType.voter",
+      "member": "LivepeerProposalStatus.voter",
       "operator": "equals",
       "values": [
         "${id}"

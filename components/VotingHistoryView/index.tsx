@@ -10,6 +10,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import Spinner from "@components/Spinner";
+import Image from "next/image";
+
 
 
 const Index = () => {
@@ -17,9 +19,11 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
+  const [proposalVotedOn, setProposalVotedOn] = useState();
   const [votingTurnOut, setVotingTurnOut] = useState();
   const [votingData, setVotingData] = useState()
   const [isLoading, setIsLoading] = useState(false);
+
   const getBackgroundColorByStatus = (status: string) => {
     let bgColor = "#212322";
     switch (status) {
@@ -37,6 +41,39 @@ const Index = () => {
     }
     return bgColor;
   }
+
+  const getTextStyleByStatus = (status: string) => {
+    const stylesMap: Record<string, React.CSSProperties> = {
+      Active: {
+        color: "#51A7FD",
+        backgroundColor: "#11233E",
+        maxWidth: 80,
+        justifyContent: 'center',
+        display: 'flex',
+        borderRadius: 8
+      },
+      Defeated: {
+        color: "#FF6468",
+        backgroundColor: "#3C181A",
+        maxWidth: 80,
+        justifyContent: 'center',
+        display: 'flex',
+        borderRadius: 8
+      },
+      Executed: {
+        color: "#4ABF87",
+        backgroundColor: "#10291E",
+        maxWidth: 80,
+        justifyContent: 'center',
+        display: 'flex',
+        borderRadius: 8
+      },
+    };
+
+    return stylesMap[status] || {}; // Returns styles if status is found, otherwise returns an empty object
+  };
+
+
 
   function shortenAddress(address: string) {
     if (address.length < 10) return address; // Handle short addresses
@@ -56,7 +93,8 @@ const Index = () => {
       const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
       const data = response[0].data;
       if (data.length > 0) {
-        setVotingTurnOut(data[0]['LivepeerVoteType.votingTurnout']);
+        setVotingTurnOut(data[0]['LivepeerProposalStatus.votingTurnout']);
+        setProposalVotedOn(data[0]["LivepeerProposalStatus.proposalVotedOn"]);
         setVotingData(data);
       }
       setIsLoading(false)
@@ -124,7 +162,7 @@ const Index = () => {
               <QuestionMarkCircledIcon style={{ color: "#66736D" }} />
             </div>
           </div>
-          <div style={{ fontSize: 27, marginTop: 6 }}>5</div>
+          <div style={{ fontSize: 27, marginTop: 6 }}>{proposalVotedOn}</div>
         </div>
 
         <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
@@ -141,14 +179,28 @@ const Index = () => {
       <div style={{ marginTop: 20 }}>
         {votingData &&
           // @ts-ignore
-          votingData.map(el => {
+          votingData.map((el, index) => {
             return (
-              <div style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el.status), marginTop: 15, borderRadius: 8 }}>
-                <div style={{ fontSize: 16, marginBottom: 12 }}>{el['LivepeerVoteType.nameOfProposal']}</div>
-                <div style={{ fontSize: 12, marginBottom: 12 }}>{getDateTimeAndRound(el['LivepeerVoteType.date'], el['LivepeerVoteType.round'])}</div>
-                <div style={{ fontSize: 12, marginBottom: 12 }}>Proposed by <a style={{ color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
-                {/* <div>{el.status}</div> */}
-                <div><a style={{ textDecoration: 'none', color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el['LivepeerVoteType.voter']}/delegating`}>{shortenAddress(el['LivepeerVoteType.voter'])}</a></div>
+              <div key={index} style={{ padding: 20, backgroundColor: getBackgroundColorByStatus(el["LivepeerProposalStatus.status"]), marginTop: 15, borderRadius: 8 }}>
+                <div style={{ fontSize: 16, marginBottom: 12, fontWeight: '500' }}>{el['LivepeerProposalStatus.nameOfProposal']}</div>
+                <div style={{ fontSize: 12, marginBottom: 12, color: '#696d6b' }}>{getDateTimeAndRound(el['LivepeerProposalStatus.date'], el['LivepeerProposalStatus.round'])}</div>
+                <div style={{ fontSize: 12, marginBottom: 12, color: '#696d6b' }}>Proposed by <a style={{ color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
+                <div style={getTextStyleByStatus(el["LivepeerProposalStatus.status"])}>{el["LivepeerProposalStatus.status"]}</div>
+                <div>
+                  <a style={{ textDecoration: 'none', fontSize: 12, color: '#696d6b', display:'flex', flexDirection:'row', marginTop:12,}} href={`https://explorer.livepeer.org/accounts/${el['LivepeerProposalStatus.voter']}/delegating`}>
+                  <div style={{marginRight:8, }}> 
+                  {shortenAddress(el['LivepeerProposalStatus.voter'])}
+                  </div>
+                  <Image
+                    src="/img/Vector.png"
+                    alt="Next.js logo"
+                    width={14}
+                    height={11}
+                    priority
+                  />
+                
+                  </a>
+                 </div>
               </div>
             )
           })}
