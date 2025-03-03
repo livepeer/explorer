@@ -31,7 +31,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
-import remarkGfm from "remark-gfm";
 
 const StyledTab = styled(Tab, {
   position: "relative",
@@ -247,24 +246,9 @@ const CreateProposal = () => {
                     p: "$4",
                     // border: "1px solid $neutral4",
                     // mb: "$3",
-                    h2: {
-                      fontWeight: 600,
-                      "&:first-of-type": { mt: 0 },
-                      mt: "$3",
-                    },
-                    h3: { fontWeight: 600, mt: "$3" },
-                    h4: { fontWeight: 600, mt: "$3" },
-                    h5: { fontWeight: 600, mt: "$3" },
-                    lineHeight: 1.5,
-                    a: {
-                      color: "$primary11",
-                    },
-                    pre: {
-                      whiteSpace: "pre-wrap",
-                    },
-                  }}
+                                    }}
                 >
-                  <MarkdownRenderer remarkPlugins={[remarkGfm]}>
+                  <MarkdownRenderer>
                     {`# ${formTitle}\n${formDescription}`}
                   </MarkdownRenderer>
                 </Card>
