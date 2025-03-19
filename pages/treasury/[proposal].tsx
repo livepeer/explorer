@@ -249,7 +249,7 @@ const Proposal = () => {
               >
                 <Stat
                   css={{ flex: 1, mb: 0 }}
-                  tooltip="Total support is calculated as the stake of 'for' votes divided by the sum of 'for' and 'against' votes. Abstain votes are excluded."
+                  tooltip="Total support is calculated as the 'for' votes divided by the sum of 'for' and 'against' votes. Abstain votes are excluded."
                   label={
                     <Box>
                       Total Support ({formatPercent(+proposal.quota / 1000000)}
