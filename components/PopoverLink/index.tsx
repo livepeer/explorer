@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {
   return (
-    <Link href={href} passHref>
+    <Link href={href} passHref legacyBehavior>
       <A
         {...(newWindow
           ? {

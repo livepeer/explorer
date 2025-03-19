@@ -11,17 +11,16 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
 import { useEffect, useReducer, useState } from "react";
-
 import { CodeBlock } from "@components/CodeBlock";
 import { inbox } from "@lib/api/abis/bridge/Inbox";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import {
   getInboxAddress,
   getL1MigratorAddress,
-  getNodeInterfaceAddress
+  getNodeInterfaceAddress,
 } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
@@ -30,13 +29,15 @@ import { BigNumber, ethers } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
 import {
   CHAIN_INFO,
-  DEFAULT_CHAIN_ID, L1_CHAIN_ID,
-  l2Provider
+  DEFAULT_CHAIN_ID,
+  L1_CHAIN_ID,
+  l2Provider,
 } from "lib/chains";
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { isValidAddress } from "utils/validAddress";
+
 import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
@@ -420,8 +421,10 @@ const MigrateBroadcaster = () => {
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
-          args: [ state.signer ? state.signer : accountAddress,
-            state.signer ? state.signer : accountAddress],
+          args: [
+            state.signer ? state.signer : accountAddress,
+            state.signer ? state.signer : accountAddress,
+          ],
         });
 
         dispatch({
@@ -545,7 +548,7 @@ const MigrateBroadcaster = () => {
         const payload = ethers.utils._TypedDataEncoder.getPayload(
           domain,
           types,
-          value
+          value,
         );
         let signer = "";
 
@@ -555,7 +558,7 @@ const MigrateBroadcaster = () => {
               domain,
               types,
               value,
-              signature
+              signature,
             );
           } catch (e) {
             console.log(e);
@@ -827,7 +830,7 @@ function MigrationFields({ migrationParams, css = {} }) {
         <Box>
           {migrationParams.l1Addr.replace(
             migrationParams.l1Addr.slice(6, 38),
-            "…"
+            "…",
           )}
         </Box>
       </ReadOnlyCard>

@@ -5,11 +5,12 @@ import {
   providers,
   utils,
 } from "ethers";
+
 import InboxABI from "./Inbox.json";
 
 export async function waitForTx(
   tx: ContractTransaction | Promise<ContractTransaction>,
-  _confirmations?: number
+  _confirmations?: number,
 ): Promise<providers.TransactionReceipt> {
   const resolvedTx = await tx;
   const confirmations =
@@ -39,13 +40,13 @@ export async function waitToRelayTxsToL2(
   inProgressL1Tx: Promise<providers.TransactionReceipt>,
   inboxAddress: string,
   l1: ethers.providers.BaseProvider,
-  l2: ethers.providers.BaseProvider
+  l2: ethers.providers.BaseProvider,
 ) {
   const l1Tx = await inProgressL1Tx;
   const seqNums = await getInboxSeqNumFromContractTransaction(
     l1Tx,
     inboxAddress,
-    l1
+    l1,
   );
   const seqNum = seqNums && seqNums[0];
   if (!seqNum) {
@@ -59,14 +60,13 @@ export async function waitToRelayTxsToL2(
   console.log("autoRedeem", autoRedeem);
 
   console.log(
-    // eslint-disable-next-line
-    `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.transactionHash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`
+    `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.transactionHash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`,
   );
 
   const retryableTicketReceipt = await l2.waitForTransaction(
     retryableTicket,
     undefined,
-    1000 * 60 * 15
+    1000 * 60 * 15,
   );
   console.log(retryableTicketReceipt);
 
@@ -75,7 +75,7 @@ export async function waitToRelayTxsToL2(
   const autoRedeemReceipt = await l2.waitForTransaction(
     autoRedeem,
     undefined,
-    1000 * 60
+    1000 * 60,
   );
   console.log(autoRedeemReceipt);
 
@@ -93,26 +93,26 @@ export async function waitToRelayTxsToL2(
 async function getInboxSeqNumFromContractTransaction(
   l1Transaction: providers.TransactionReceipt,
   inboxAddress: string,
-  provider: ethers.providers.BaseProvider
+  provider: ethers.providers.BaseProvider,
 ) {
   const contract = new ethers.Contract(inboxAddress, InboxABI, provider);
   const iface = contract.interface;
   const messageDelivered = iface.getEvent("InboxMessageDelivered");
   const messageDeliveredFromOrigin = iface.getEvent(
-    "InboxMessageDeliveredFromOrigin"
+    "InboxMessageDeliveredFromOrigin",
   );
 
   const eventTopics = {
     InboxMessageDelivered: iface.getEventTopic(messageDelivered),
     InboxMessageDeliveredFromOrigin: iface.getEventTopic(
-      messageDeliveredFromOrigin
+      messageDeliveredFromOrigin,
     ),
   };
 
   const logs = l1Transaction.logs.filter(
     (log) =>
       log.topics[0] === eventTopics.InboxMessageDelivered ||
-      log.topics[0] === eventTopics.InboxMessageDeliveredFromOrigin
+      log.topics[0] === eventTopics.InboxMessageDeliveredFromOrigin,
   );
 
   if (logs.length === 0) return undefined;
@@ -121,7 +121,7 @@ async function getInboxSeqNumFromContractTransaction(
 
 async function calculateL2TransactionHash(
   inboxSequenceNumber: BigNumber,
-  provider: ethers.providers.BaseProvider
+  provider: ethers.providers.BaseProvider,
 ) {
   const l2ChainId = BigNumber.from((await provider.getNetwork()).chainId);
 
@@ -129,7 +129,7 @@ async function calculateL2TransactionHash(
     utils.concat([
       utils.zeroPad(l2ChainId.toHexString(), 32),
       utils.zeroPad(bitFlipSeqNum(inboxSequenceNumber).toHexString(), 32),
-    ])
+    ]),
   );
 }
 
@@ -142,7 +142,7 @@ function calculateRetryableAutoRedeemTxnHash(requestID: string) {
     utils.concat([
       utils.zeroPad(requestID, 32),
       utils.zeroPad(BigNumber.from(1).toHexString(), 32),
-    ])
+    ]),
   );
 }
 
@@ -151,6 +151,6 @@ function calculateL2RetryableTransactionHash(requestID: string) {
     utils.concat([
       utils.zeroPad(requestID, 32),
       utils.zeroPad(BigNumber.from(0).toHexString(), 32),
-    ])
+    ]),
   );
 }

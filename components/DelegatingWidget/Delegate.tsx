@@ -10,6 +10,7 @@ import {
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
+
 import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({
@@ -54,7 +55,7 @@ const Delegate = ({
     {
       type: "bond",
       amount: MAXIMUM_VALUE_UINT256,
-    }
+    },
   );
 
   const bondWithHintArgs = {
@@ -94,7 +95,7 @@ const Delegate = ({
     bondError,
     bondIsLoading,
     bondIsSuccess,
-    bondWithHintArgs
+    bondWithHintArgs,
   );
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
@@ -105,14 +106,14 @@ const Delegate = ({
       amountIsNonEmpty &&
       parseFloat(amount) > 0 &&
       Number(tokenBalance) >= amount,
-    [amount, amountIsNonEmpty, tokenBalance]
+    [amount, amountIsNonEmpty, tokenBalance],
   );
   const sufficientTransferAllowance = useMemo(
     () =>
       amountIsNonEmpty &&
       Number(transferAllowance) > 0 &&
       Number(transferAllowance) >= amount,
-    [amount, amountIsNonEmpty, transferAllowance]
+    [amount, amountIsNonEmpty, transferAllowance],
   );
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
@@ -120,7 +121,7 @@ const Delegate = ({
     () =>
       (amountIsNonEmpty && +amount >= 0 && !sufficientTransferAllowance) ||
       (approvalSubmitted && sufficientTransferAllowance),
-    [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted]
+    [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted],
   );
 
   const onApprove = async () => {

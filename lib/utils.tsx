@@ -1,4 +1,8 @@
-import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } from "apollo";
+import {
+  AccountQueryResult,
+  OrchestratorsSortedQueryResult,
+  UnbondingLock,
+} from "apollo";
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
@@ -6,7 +10,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
 
 export const provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
+  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID],
 );
 
 export function avg(obj, key) {
@@ -54,7 +58,7 @@ export const getDelegatorStatus = (
     | NonNullable<
         NonNullable<AccountQueryResult["data"]>["protocol"]
       >["currentRound"]
-    | undefined
+    | undefined,
 ): string => {
   if (!+(delegator?.bondedAmount ?? 0)) {
     return "Unbonded";
@@ -62,7 +66,7 @@ export const getDelegatorStatus = (
     (delegator?.unbondingLocks?.filter(
       (lock) =>
         lock?.withdrawRound &&
-        +(lock.withdrawRound ?? 0) > +(currentRound?.id ?? 0)
+        +(lock.withdrawRound ?? 0) > +(currentRound?.id ?? 0),
     )?.length ?? 0) > 0
   ) {
     return "Unbonding";
@@ -167,7 +171,7 @@ export const txMessages = {
 
 export const getBlockByNumber = async (number) => {
   const blockDataResponse = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`,
   );
   const { result } = await blockDataResponse.json();
   return result;
@@ -184,7 +188,7 @@ export const getHint = (id, transcoders) => {
   }
 
   const index = transcoders.findIndex(
-    (t) => t.id.toLowerCase() === id.toLowerCase()
+    (t) => t.id.toLowerCase() === id.toLowerCase(),
   );
 
   // if transcoder is not in active set return
@@ -219,7 +223,7 @@ export const simulateNewActiveSetOrder = ({
   oldDelegate?: string;
 }) => {
   const index = transcoders.findIndex(
-    (t) => t.id.toLowerCase() === newDelegate.toLowerCase()
+    (t) => t.id.toLowerCase() === newDelegate.toLowerCase(),
   );
 
   if (index < 0) {
@@ -238,7 +242,7 @@ export const simulateNewActiveSetOrder = ({
       oldDelegate.toLowerCase() !== EMPTY_ADDRESS
     ) {
       const oldDelegateIndex = transcoders.findIndex(
-        (t) => t.id.toLowerCase() === oldDelegate.toLowerCase()
+        (t) => t.id.toLowerCase() === oldDelegate.toLowerCase(),
       );
       if (oldDelegateIndex !== -1) {
         transcoders[oldDelegateIndex].totalStake = (
@@ -284,7 +288,7 @@ export const toK = (num) => {
 export const getTwoPeriodPercentChange = (
   valueNow: number,
   valueAsOfPeriodOne: number,
-  valueAsOfPeriodTwo: number
+  valueAsOfPeriodTwo: number,
 ) => {
   // get volume info for both 24 hour periods
   const currentChange = valueNow - valueAsOfPeriodOne;
@@ -315,7 +319,7 @@ export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
     for (const timestamp of timestamps) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const blockDataResponse = await fetch(
-        `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+        `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`,
       );
       const { result } = await blockDataResponse.json();
       blocks.push(+(result ?? 0));
@@ -353,7 +357,7 @@ type LivepeerComUsageParams = {
 };
 
 export const getLivepeerComUsageData = async (
-  params?: LivepeerComUsageParams
+  params?: LivepeerComUsageParams,
 ) => {
   try {
     const endpoint = `https://livepeer.com/api/usage${
@@ -425,7 +429,7 @@ export const fromWei = (wei: BigNumberish) => formatEther(wei);
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();
 
-/** 
+/**
  * Check if a URL is an image URL.
  * @param url - The URL to check
  * @returns Whether the URL is an image URL.

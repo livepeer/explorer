@@ -19,6 +19,7 @@ import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
@@ -59,14 +60,14 @@ const Index = ({ data }: { data: Props }) => {
 
   useEffect(() => {
     if (copied) {
-      setTimeout(() => {
+      window.setTimeout(() => {
         setCopied(false);
       }, 5000);
     }
   }, [copied]);
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(
-    data?.myAccount?.delegator?.id
+    data?.myAccount?.delegator?.id,
   );
 
   const votingPower = useMemo(
@@ -77,9 +78,9 @@ const Index = ({ data }: { data: Props }) => {
         data?.vote,
         pendingFeesAndStake?.pendingStake
           ? pendingFeesAndStake?.pendingStake
-          : "0"
+          : "0",
       ),
-    [accountAddress, data, pendingFeesAndStake]
+    [accountAddress, data, pendingFeesAndStake],
   );
 
   let delegate: any = null;
@@ -210,7 +211,7 @@ const Index = ({ data }: { data: Props }) => {
                 : dayjs
                     .duration(
                       dayjs().unix() - data.poll.estimatedEndTime,
-                      "seconds"
+                      "seconds",
                     )
                     .humanize() + " left"}
             </Box>
@@ -231,7 +232,7 @@ const Index = ({ data }: { data: Props }) => {
                     {delegate &&
                       `(${delegate?.id?.replace(
                         delegate?.id?.slice(5, 39),
-                        "…"
+                        "…",
                       )})`}
                   </Box>
                   <Box as="span" css={{ fontWeight: 500, color: "white" }}>
@@ -293,7 +294,7 @@ const Index = ({ data }: { data: Props }) => {
                   data?.myAccount,
                   data?.vote,
                   data?.poll,
-                  pendingFeesAndStake?.pendingStake ?? ""
+                  pendingFeesAndStake?.pendingStake ?? "",
                 )}
             </>
           ) : (
@@ -456,7 +457,7 @@ function renderVoteButton(
   myAccount: Props["myAccount"],
   vote: Props["vote"],
   poll: Props["poll"],
-  pendingStake: string
+  pendingStake: string,
 ) {
   switch (vote?.choiceID) {
     case "Yes":
@@ -515,7 +516,7 @@ function getVotingPower(
   accountAddress: string,
   myAccount: Props["myAccount"],
   vote: Props["vote"],
-  pendingStake?: string
+  pendingStake?: string,
 ) {
   // if account is a delegate its voting power is its total stake minus its delegators' vote stake (nonVoteStake)
   if (accountAddress === myAccount?.delegator?.delegate?.id) {

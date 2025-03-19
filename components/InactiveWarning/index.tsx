@@ -2,7 +2,6 @@ import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { Box, Button, Container, Text } from "@livepeer/design-system";
 import { useAccountInactiveQuery } from "apollo";
 import { useAccountAddress } from "hooks";
-
 import Link from "next/link";
 
 const InactiveWarning = () => {
@@ -56,7 +55,7 @@ const InactiveWarning = () => {
             You are delegated to an inactive orchestrator, which means that you
             will not receive LPT rewards or ETH fees.
           </Text>
-          <Link href="/orchestrators" passHref>
+          <Link href="/orchestrators" passHref legacyBehavior>
             <Button
               as="a"
               size="3"

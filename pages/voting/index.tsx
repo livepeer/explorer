@@ -56,9 +56,9 @@ const Voting = () => {
         setPolls(
           await Promise.all(
             (data?.polls ?? []).map((p) =>
-              getPollExtended(p, currentRound.currentL1Block)
-            )
-          )
+              getPollExtended(p, currentRound.currentL1Block),
+            ),
+          ),
         );
 
         setLoading(false);
@@ -116,6 +116,7 @@ const Voting = () => {
                 href="/voting/create-poll"
                 as="/voting/create-poll"
                 passHref
+                legacyBehavior
               >
                 <Button size="3" variant="primary">
                   Create Poll
@@ -146,6 +147,7 @@ const Voting = () => {
                     href="/voting/[poll]"
                     as={`/voting/${poll.id}`}
                     passHref
+                    legacyBehavior
                   >
                     <A
                       css={{
@@ -176,8 +178,8 @@ const Voting = () => {
                         >
                           <Box>
                             <Heading size="1" css={{ mb: "$1" }}>
-                              {poll.attributes?.title} (LIP {poll.attributes?.lip}
-                              )
+                              {poll.attributes?.title} (LIP{" "}
+                              {poll.attributes?.lip})
                             </Heading>
                             <Box css={{ fontSize: "$1", color: "$neutral10" }}>
                               {poll.status !== "active" ? (
@@ -203,10 +205,10 @@ const Voting = () => {
                               poll.status === "rejected"
                                 ? "red"
                                 : poll.status === "active"
-                                ? "blue"
-                                : poll.status === "passed"
-                                ? "primary"
-                                : "neutral"
+                                  ? "blue"
+                                  : poll.status === "passed"
+                                    ? "primary"
+                                    : "neutral"
                             }
                             css={{
                               textTransform: "capitalize",

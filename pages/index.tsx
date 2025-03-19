@@ -16,19 +16,18 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
-
 import { useMemo, useState } from "react";
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { useChartData } from "hooks";
+
+import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
 import {
   EventsQueryResult,
   getApollo,
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
-import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
-
-import { HomeChartData } from "@lib/api/types/get-chart-data";
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import { useChartData } from "hooks";
 import "react-circular-progressbar/dist/styles.css";
 
 const Panel = ({ children }) => (
@@ -52,7 +51,7 @@ const Panel = ({ children }) => (
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "week"
+    "week",
   );
   const feesPaidData = useMemo(
     () =>
@@ -65,7 +64,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
             x: Number(week.date),
             y: Number(week.weeklyVolumeUsd),
           }))) ?? [],
-    [feesPaidGrouping, chartData]
+    [feesPaidGrouping, chartData],
   );
 
   const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
@@ -80,7 +79,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
             x: Number(week.date),
             y: Number(week.weeklyUsageMinutes),
           }))) ?? [],
-    [usageGrouping, chartData]
+    [usageGrouping, chartData],
   );
 
   const participationRateData = useMemo(
@@ -89,7 +88,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         x: Number(day.dateS),
         y: Number(day.participationRate),
       })) ?? [],
-    [chartData]
+    [chartData],
   );
   const inflationRateData = useMemo(
     () =>
@@ -97,7 +96,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         x: Number(day.dateS),
         y: Number(day?.inflation ?? 0) / 1000000000,
       })) ?? [],
-    [chartData]
+    [chartData],
   );
   const delegatorsCountData = useMemo(
     () =>
@@ -105,7 +104,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         x: Number(day.dateS),
         y: Number(day.delegatorsCount),
       })) ?? [],
-    [chartData]
+    [chartData],
   );
   const activeTranscoderCountData = useMemo(
     () =>
@@ -113,7 +112,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         x: Number(day.dateS),
         y: Number(day.activeTranscoderCount),
       })) ?? [],
-    [chartData]
+    [chartData],
   );
 
   return (
@@ -131,12 +130,12 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           base={Number(
             (feesPaidGrouping === "day"
               ? chartData?.oneDayVolumeUSD
-              : chartData?.oneWeekVolumeUSD) ?? 0
+              : chartData?.oneWeekVolumeUSD) ?? 0,
           )}
           basePercentChange={Number(
             (feesPaidGrouping === "day"
               ? chartData?.volumeChangeUSD
-              : chartData?.weeklyVolumeChangeUSD) ?? 0
+              : chartData?.weeklyVolumeChangeUSD) ?? 0,
           )}
           title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
@@ -180,12 +179,12 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           base={Number(
             (usageGrouping === "day"
               ? chartData?.oneDayUsage
-              : chartData?.oneWeekUsage) ?? 0
+              : chartData?.oneWeekUsage) ?? 0,
           )}
           basePercentChange={Number(
             (usageGrouping === "day"
               ? chartData?.dailyUsageChange
-              : chartData?.weeklyUsageChange) ?? 0
+              : chartData?.weeklyUsageChange) ?? 0,
           )}
           title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="minutes"
@@ -211,7 +210,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           data={activeTranscoderCountData}
           base={Number(chartData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.activeTranscoderCountChange ?? 0
+            chartData?.activeTranscoderCountChange ?? 0,
           )}
           title="Orchestrators"
           unit="none"
@@ -237,10 +236,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
         ?.filter((e) =>
           e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
-            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? "")
+            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? ""),
         )
         ?.slice(0, 100) ?? [],
-    [events]
+    [events],
   );
 
   const chartData = useChartData();
@@ -345,7 +344,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-                  <Link href="/leaderboard" passHref>
+                  <Link href="/leaderboard" passHref legacyBehavior>
                     <Button
                       ghost
                       as={A}
@@ -355,7 +354,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                     </Button>
                   </Link>
                 )}
-                <Link href="/orchestrators" passHref>
+                <Link href="/orchestrators" passHref legacyBehavior>
                   <Button
                     ghost
                     as={A}
@@ -408,7 +407,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Link href="/transactions" passHref>
+                <Link href="/transactions" passHref legacyBehavior>
                   <Button
                     ghost
                     as={A}

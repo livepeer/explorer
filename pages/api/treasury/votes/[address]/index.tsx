@@ -12,7 +12,7 @@ import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<VotingPower | null>
+  res: NextApiResponse<VotingPower | null>,
 ) => {
   try {
     const { method } = req;

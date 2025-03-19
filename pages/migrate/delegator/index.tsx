@@ -11,29 +11,21 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
 import { useEffect, useReducer, useState } from "react";
-
 import { CodeBlock } from "@components/CodeBlock";
 import { isL2ChainId } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import {
-  useAccountAddress,
-  useActiveChain,
-
-  useL1DelegatorData
-} from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID, L1_CHAIN_ID
-} from "lib/chains";
+import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { isValidAddress } from "utils/validAddress";
+
 import { stepperStyles } from "../../../utils/stepperStyles";
 
 const signingSteps = [
@@ -213,7 +205,7 @@ const MigrateUndelegatedStake = () => {
 
   const l1Delegator = useL1DelegatorData(accountAddress);
   const l1SignerOrAddress = useL1DelegatorData(
-    state.signer ? state.signer : accountAddress
+    state.signer ? state.signer : accountAddress,
   );
 
   const { seconds, minutes, start, restart } = useTimer({
@@ -529,7 +521,7 @@ const MigrateUndelegatedStake = () => {
         const payload = ethers.utils._TypedDataEncoder.getPayload(
           domain,
           types,
-          value
+          value,
         );
         let signer = "";
 
@@ -539,7 +531,7 @@ const MigrateUndelegatedStake = () => {
               domain,
               types,
               value,
-              signature
+              signature,
             );
           } catch (e) {
             console.log(e);
@@ -813,7 +805,7 @@ function MigrationFields({ migrationParams, css = {} }) {
         <Box>
           {migrationParams.l1Addr.replace(
             migrationParams.l1Addr.slice(6, 38),
-            "…"
+            "…",
           )}
         </Box>
       </ReadOnlyCard>

@@ -46,13 +46,13 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
   });
 
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
-    data?.delegator?.id
+    data?.delegator?.id,
   );
 
   useEffect(() => {
     if (delegatorPendingStakeAndFees?.pendingStake) {
       const lptPendingStake = parseFloat(
-        fromWei(delegatorPendingStakeAndFees.pendingStake)
+        fromWei(delegatorPendingStakeAndFees.pendingStake),
       );
 
       if (lptPendingStake >= 100) {
@@ -70,7 +70,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
-    args: [hash ? hexlify(toUtf8Bytes(hash)) as `0x${string}` : "0x"],
+    args: [hash ? (hexlify(toUtf8Bytes(hash)) as `0x${string}`) : "0x"],
   });
   const {
     data: createPollResult,
@@ -89,7 +89,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     isSuccess,
     {
       proposal: hash,
-    }
+    },
   );
 
   useEffect(() => {
@@ -287,9 +287,8 @@ export async function getStaticProps() {
       if (!options.headers) {
         options.headers = {}; // Create the headers object if needed.
       }
-      options.headers[
-        "authorization"
-      ] = `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
+      options.headers["authorization"] =
+        `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
 
       next();
     });
@@ -312,7 +311,7 @@ export async function getStaticProps() {
             const transformedProposal = fm(obj.text) as any;
             createdPolls.push(transformedProposal.attributes.lip);
           }
-        })
+        }),
       );
     }
 
@@ -331,7 +330,7 @@ export async function getStaticProps() {
       }
     } else {
       console.log(
-        `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`
+        `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`,
       );
     }
 
@@ -343,7 +342,7 @@ export async function getStaticProps() {
           ? result.data.repository.defaultBranchRef.target.oid
           : null,
         lips: lips.sort((a, b) =>
-          a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
+          a?.attributes?.lip < b?.attributes?.lip ? 1 : -1,
         ),
       },
       revalidate: 300,

@@ -2,6 +2,7 @@ import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { WriteContractResult } from "@wagmi/core";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
+
 import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
 
 export const useHandleTransaction = (
@@ -11,7 +12,7 @@ export const useHandleTransaction = (
   isLoading: boolean,
   isSuccess: boolean,
   args: any,
-  onSuccess?: ((result: WriteContractResult) => Promise<void> | void) | null
+  onSuccess?: ((result: WriteContractResult) => Promise<void> | void) | null,
 ) => {
   const {
     setLatestTransactionError,

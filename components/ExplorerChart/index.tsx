@@ -83,7 +83,7 @@ const ExplorerChart = ({
             .add(1, "day")
             .endOf("week")
             .format("MMM D")}`,
-    [grouping]
+    [grouping],
   );
   const formatSubtitle = useCallback(
     (value: number) =>
@@ -91,25 +91,25 @@ const ExplorerChart = ({
         unit === "usd"
           ? "$0,0"
           : unit === "eth"
-          ? "0,0.0"
-          : unit === "percent"
-          ? "0.0%"
-          : unit === "small-percent"
-          ? "0.00000%"
-          : "0,0"
+            ? "0,0.0"
+            : unit === "percent"
+              ? "0.0%"
+              : unit === "small-percent"
+                ? "0.00000%"
+                : "0,0",
       )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
-    [unit]
+    [unit],
   );
   const defaultSubtitle = useMemo<string>(
     () => formatSubtitle(base),
-    [base, formatSubtitle]
+    [base, formatSubtitle],
   );
   const defaultPercentChange = useMemo<string>(
     () =>
       basePercentChange !== 0
         ? numeral(basePercentChange / 100).format("+0.00%")
         : "",
-    [basePercentChange]
+    [basePercentChange],
   );
   const [barSelected, setBarSelected] = useState<{
     amount: string;
@@ -151,14 +151,14 @@ const ExplorerChart = ({
             unit === "usd"
               ? "$0a"
               : unit === "eth"
-              ? "0.0"
-              : unit === "percent"
-              ? "0%"
-              : unit === "small-percent"
-              ? "0.00%"
-              : unit === "small-unitless"
-              ? "0.0a"
-              : "0a"
+                ? "0.0"
+                : unit === "percent"
+                  ? "0%"
+                  : unit === "small-percent"
+                    ? "0.00%"
+                    : unit === "small-unitless"
+                      ? "0.0a"
+                      : "0a",
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>
@@ -171,15 +171,15 @@ const ExplorerChart = ({
       unit === "small-percent"
         ? 45
         : unit === "percent"
-        ? 35
-        : unit === "minutes"
-        ? 35
-        : unit === "eth"
-        ? 35
-        : unit === "usd"
-        ? 36
-        : 30,
-    [unit]
+          ? 35
+          : unit === "minutes"
+            ? 35
+            : unit === "eth"
+              ? 35
+              : unit === "usd"
+                ? 36
+                : 30,
+    [unit],
   );
 
   return (
@@ -319,10 +319,10 @@ const ExplorerChart = ({
                 if (e?.activePayload?.[0]) {
                   setBarSelected({
                     amount: formatSubtitle(
-                      Number(e?.activePayload?.[0]?.payload?.y)
+                      Number(e?.activePayload?.[0]?.payload?.y),
                     ),
                     date: formatDateSubtitle(
-                      Number(e?.activePayload?.[0]?.payload?.x)
+                      Number(e?.activePayload?.[0]?.payload?.x),
                     ),
                     activeIndex: null,
                     percentChange: null,
@@ -367,10 +367,10 @@ const ExplorerChart = ({
                 if (e?.activePayload?.[0]) {
                   setBarSelected({
                     amount: formatSubtitle(
-                      Number(e?.activePayload?.[0]?.payload?.y)
+                      Number(e?.activePayload?.[0]?.payload?.y),
                     ),
                     date: formatDateSubtitle(
-                      Number(e?.activePayload?.[0]?.payload?.x)
+                      Number(e?.activePayload?.[0]?.payload?.x),
                     ),
                     activeIndex: null,
                     percentChange: null,

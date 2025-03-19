@@ -1,5 +1,5 @@
 import PerformanceList from "@components/PerformanceList";
-import PerformanceListSelector from '@components/PerformanceListSelector';
+import PerformanceListSelector from "@components/PerformanceListSelector";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -7,10 +7,11 @@ import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import { useState } from "react";
-import { getApollo, OrchestratorsQueryResult } from "../apollo";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { useRegionsData } from "hooks/useSwr";
 import { Region } from "@lib/api/types/get-regions";
+
+import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
 type PageProps = {
   orchestratorIds: Pick<
@@ -21,7 +22,9 @@ type PageProps = {
 };
 
 const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
-  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline["id"] | null>(null);
+  const [selectedPipeline, setSelectedPipeline] = useState<
+    Pipeline["id"] | null
+  >(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");
@@ -39,8 +42,9 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
             width: "100%",
           }}
         >
-          <Flex justify="between" 
-            css={{ 
+          <Flex
+            justify="between"
+            css={{
               width: "100%",
               flexDirection: "column", // Default to column for mobile
               mb: "0",
@@ -86,34 +90,39 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
                 }}
               >
                 <Flex css={{ mr: "$2" }}>Region:</Flex>
-                  <Box
-                    as="select"
-                    onChange={(e) => {
-                      setRegion(e.target.value as Region["id"]);
-                    }}
-                    css={{
-                      py: "$1",
-                      pl: "$2",
-                      border: "none",
-                      bc: "$panel",
-                      appearance: "none",
-                    }}
-                  >
-                    {knownRegions?.regions
-                    .filter((r) => r.type === (selectedPipeline?"ai":"transcoding"))
+                <Box
+                  as="select"
+                  onChange={(e) => {
+                    setRegion(e.target.value as Region["id"]);
+                  }}
+                  css={{
+                    py: "$1",
+                    pl: "$2",
+                    border: "none",
+                    bc: "$panel",
+                    appearance: "none",
+                  }}
+                >
+                  {knownRegions?.regions
+                    .filter(
+                      (r) =>
+                        r.type === (selectedPipeline ? "ai" : "transcoding"),
+                    )
                     .map((region) => {
-                      return (<Box as="option" key={region.id} value={region.id}>
-                        {region.name}
-                      </Box>)
+                      return (
+                        <Box as="option" key={region.id} value={region.id}>
+                          {region.name}
+                        </Box>
+                      );
                     })}
-                  </Box>
-                  <Box
-                    as={ChevronDownIcon}
-                    css={{
-                      pointerEvents: "none",
-                      }}
-                  />
-                </Flex>
+                </Box>
+                <Box
+                  as={ChevronDownIcon}
+                  css={{
+                    pointerEvents: "none",
+                  }}
+                />
+              </Flex>
               <Flex
                 css={{
                   flexDirection: "row", // Align title and dropdown horizontally

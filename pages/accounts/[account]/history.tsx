@@ -37,7 +37,7 @@ export const getStaticProps = async (context) => {
     const client = getApollo();
     const { account, fallback } = await getAccount(
       client,
-      context.params?.account?.toString().toLowerCase()
+      context.params?.account?.toString().toLowerCase(),
     );
 
     const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =

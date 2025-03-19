@@ -1,6 +1,5 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
-import { getLivepeerGovernorAddress } from "@lib/api/contracts";
 import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import {
@@ -9,7 +8,6 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from "wagmi";
-
 import { useMemo } from "react";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 
@@ -33,7 +31,7 @@ const Index = ({
     if (proposalId) {
       return {
         enabled: Boolean(
-          livepeerGovernorAddress && accountAddress && proposalId
+          livepeerGovernorAddress && accountAddress && proposalId,
         ),
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
