@@ -41,6 +41,7 @@ import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
+import VoteTable from "@components/Votes/voteTable";
 
 dayjs.extend(relativeTime);
 
@@ -586,7 +587,9 @@ const Proposal = () => {
                   {proposal.description}
                 </MarkdownRenderer>
               </Card>
+              <VoteTable proposalId={""} proposalTitle={""} votes={[]} />
             </Box>
+            
           </Flex>
 
           {width > 1200 ? (
