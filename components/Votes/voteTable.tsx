@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 // import Image from "next/image";
 import { ethers } from "ethers";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 import ArbitrumIcon from "../../public/img/logos/arbitrum.svg";
 import VoterPopover from "./voterPopover";
 
@@ -14,18 +14,13 @@ import {
   contractInterface,
 } from "./contracts";
 
-import {
-  ENS_QUERY
-} from "./queries"; 
+import { ENS_QUERY } from "./queries"; 
 
 const createEnsApolloClient = () =>
   new ApolloClient({
     uri: process.env.NEXT_PUBLIC_ENS_API_URI,
     cache: new InMemoryCache(),
   });
-
- 
-  
 
 interface Vote {
   transactionHash?: string;
@@ -180,19 +175,23 @@ const VoteTable: React.FC<VoteTableProps> = ({
     );
   }
 
+  // Count votes by support
   const yesCount = votes.filter((v) => v.choiceID === "1").length;
   const noCount = votes.filter((v) => v.choiceID === "0").length;
   const abstainCount = votes.filter((v) => v.choiceID === "2").length;
+
+  const totalVotes = yesCount + noCount + abstainCount;
 
   return (
     <>
       {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
-        <h2 className="text-md font-bold text-white mb-4 mt-4 text-left">
-          <span className="text-green-400">Yes ({yesCount})</span> |{" "}
-          <span className="text-red-400">No ({noCount})</span> |{" "}
-          <span className="text-yellow-400">Abstain ({abstainCount})</span>
-        </h2>
+      <div className="text-center text-white font-bold text-md mb-4 text-xl">
+        <p>Total: {totalVotes}</p>
+        <span className="text-green-400">Yes ({yesCount})</span> |{" "}
+        <span className="text-red-400">No ({noCount})</span> |{" "}
+        <span className="text-yellow-400">Abstain ({abstainCount})</span>
+        </div>
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="bg-gray-700">
             <tr>
@@ -264,13 +263,13 @@ const VoteTable: React.FC<VoteTableProps> = ({
                         className="inline-flex items-center text-blue-400 underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {/* <Image
+                        {/* Uncomment and use Image if needed
+                        <Image
                           src={ArbitrumIcon}
                           alt="Tx"
                           width={20}
                           height={20}
                         /> */}
-                        
                       </a>
                     ) : (
                       <span className="text-gray-500">N/A</span>
@@ -285,6 +284,14 @@ const VoteTable: React.FC<VoteTableProps> = ({
 
       {/* Mobile Version */}
       <div className="block md:hidden">
+        
+        <div className="text-center text-white font-bold text-md mb-4 text-lg">
+        <p>Total: {totalVotes}</p>
+        <br />
+        <span className="text-green-400">Yes ({yesCount})</span> |{" "}
+        <span className="text-red-400">No ({noCount})</span> |{" "}
+        <span className="text-yellow-400">Abstain ({abstainCount})</span>
+        </div>
         {votes.map((vote, index) => {
           const supportText =
             vote.choiceID === "1"
@@ -299,7 +306,7 @@ const VoteTable: React.FC<VoteTableProps> = ({
               onClick={() => setSelectedVoter(vote.voter)}
             >
               <div className="break-all inline-block w-full overflow-x-auto">
-              <p className="text-gray-300 flex flex-wrap items-center gap-2 mb-2">
+                <p className="text-gray-300 flex flex-wrap items-center gap-2 mb-2">
                   <strong>Voter:</strong>
                   <a
                     href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
@@ -319,34 +326,33 @@ const VoteTable: React.FC<VoteTableProps> = ({
                 </span>
               </p>
               <p className="text-gray-300">
-                <strong>Weight:</strong> {formatStake(parseFloat(vote.weight))}
-                {" ("}
+                <strong>Weight:</strong> {formatStake(parseFloat(vote.weight))} (
                 {calculateVotePercentage(vote.weight)}%)
               </p>
               <p className="text-gray-300">
                 <strong>Reason:</strong> {vote.reason}
               </p>
-             
               <p className="mt-2">
-              {vote.transactionHash ? (
-                   <a
-                   href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="inline-flex items-center"
-                   onClick={(e) => e.stopPropagation()}
-                 >
-                   {/* <Image
-                     src={ArbitrumIcon}
-                     alt="Txn"
-                     width={20}
-                     height={20}
-                     className="inline-block"
-                   /> */}
-                 </a>                 
-                  ) : (
-                    <span>N/A</span>
-                  )}
+                {vote.transactionHash ? (
+                  <a
+                    href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Uncomment and use Image if needed
+                    <Image
+                      src={ArbitrumIcon}
+                      alt="Txn"
+                      width={20}
+                      height={20}
+                      className="inline-block"
+                    /> */}
+                  </a>
+                ) : (
+                  <span>N/A</span>
+                )}
               </p>
             </div>
           );

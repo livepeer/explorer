@@ -164,11 +164,14 @@ const Proposal = () => {
       setLoadingVotes(true);
       try {
         const fetchedVotes = await fetchVotesFromInfura(proposal.id);
-        setVotes(fetchedVotes);
-        setVoteCount(fetchedVotes.length);
-
-        const cache = {};
-        for (const vote of fetchedVotes) {
+        const validVotes = fetchedVotes.filter(vote =>
+          ["0", "1", "2"].includes(vote.choiceID)
+        );
+        setVotes(validVotes);
+        setVoteCount(validVotes.length);
+  
+        const cache: { [key: string]: null } = {};
+        for (const vote of validVotes) {
           if (vote.voter && !cache[vote.voter]) {
             cache[vote.voter] = null; 
           }
@@ -183,6 +186,7 @@ const Proposal = () => {
   
     fetchVotes();
   }, [proposal?.id]);
+  
   
   const formatStake = (stake: number) =>
     `${numeral(parseFloat(fromWei(stake.toString()))).format("0,0.[00]")} LPT`;
@@ -658,10 +662,8 @@ const Proposal = () => {
             onClick={() => setVotesOpen(!votesOpen)}
           >
            <h3 className="text-green-600 font-bold text-xl">
-  Votes ({loadingVotes ? "Loading..." : voteCount ?? "0"})
-</h3>
-
-            <span className="text-white text-xl">{votesOpen ? "–" : "+"}</span>
+  View Votes <span className="text-white text-xl ml-2">{votesOpen ? "–" : "+"}</span>
+</h3>       
           </div>
           {votesOpen && (
           <VoteList

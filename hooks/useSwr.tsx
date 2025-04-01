@@ -81,7 +81,10 @@ export const useScoreData = (address: string | undefined | null) => {
 
 export const useCurrentRoundData = () => {
   const { data } = useSWR<CurrentRoundInfo>(`/current-round`, {
-    refreshInterval: 10000,
+    // refreshInterval: 10000,
+    refreshInterval: 120000, 
+    revalidateOnFocus: false, 
+    dedupingInterval: 120000, 
   });
 
   return data ?? null;

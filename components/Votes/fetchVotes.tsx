@@ -18,12 +18,14 @@ const ensClient = new ApolloClient({
 
 export const fetchVotesFromInfura = async (proposalId: string) => {
   try {
-    const logs = await provider.getLogs({
-      address: CONTRACT_ADDRESS,
-      fromBlock: "earliest",
-      toBlock: "latest",
-      topics: [VOTECAST_TOPIC0],
-    });
+const currentBlock = await provider.getBlockNumber();
+const logs = await provider.getLogs({
+  address: CONTRACT_ADDRESS,
+  fromBlock: currentBlock - 10000,
+  toBlock: "latest",
+  topics: [VOTECAST_TOPIC0],
+});
+
 
     const votes = logs
       .map((log) => {
