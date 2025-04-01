@@ -1,10 +1,12 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import { fetchVotesFromInfura } from "@components/Votes/fetchVotes"; 
 import {
   Badge,
   Box,
@@ -35,13 +37,30 @@ import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
+import VoteList from "@components/Votes/voteTable"; 
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 import { getProposalExtended } from "@lib/api/treasury";
 import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
-import VoteTable from "@components/Votes/voteTable";
+
+
+interface Proposal {
+  id: string;
+  description: string;
+  voteStart: number;
+  voteEnd: number;
+  proposer: { id: string };
+  votes?: { weight: string; choiceID: string; voter?: string }[];
+  targets: string[];
+  calldatas: string[];
+}
+interface Vote {
+  weight: string;
+  choiceID: string;
+  voter?: string;
+}
 
 dayjs.extend(relativeTime);
 
@@ -80,6 +99,14 @@ const Proposal = () => {
   const votingPower = useProposalVotingPowerData(proposalId, accountAddress);
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
+
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [voteCount, setVoteCount] = useState(0);
+  const [loadingVotes, setLoadingVotes] = useState(true);
+  const [ensCache, setEnsCache] = useState({});
+  const [votesOpen, setVotesOpen] = useState(false);
+
+ 
 
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -129,6 +156,39 @@ const Proposal = () => {
   if (stateError || proposalError) {
     return <FourZeroFour />;
   }
+
+  useEffect(() => {
+    async function fetchVotes() {
+      if (!proposal?.id) return;
+  
+      setLoadingVotes(true);
+      try {
+        const fetchedVotes = await fetchVotesFromInfura(proposal.id);
+        setVotes(fetchedVotes);
+        setVoteCount(fetchedVotes.length);
+
+        const cache = {};
+        for (const vote of fetchedVotes) {
+          if (vote.voter && !cache[vote.voter]) {
+            cache[vote.voter] = null; 
+          }
+        }
+        setEnsCache(cache);
+      } catch (err) {
+        console.error("Error fetching votes", err);
+      } finally {
+        setLoadingVotes(false);
+      }
+    }
+  
+    fetchVotes();
+  }, [proposal?.id]);
+  
+  const formatStake = (stake: number) =>
+    `${numeral(parseFloat(fromWei(stake.toString()))).format("0,0.[00]")} LPT`;
+  
+
+  
 
   if (!proposal) {
     return (
@@ -587,7 +647,39 @@ const Proposal = () => {
                   {proposal.description}
                 </MarkdownRenderer>
               </Card>
-              <VoteTable proposalId={""} proposalTitle={""} votes={[]} />
+             
+              <Card
+                css={{
+                  p: "$4",
+                  border: "1px solid $neutral4",
+                }}>
+                  <div
+            className="flex items-center justify-between mt-6 cursor-pointer"
+            onClick={() => setVotesOpen(!votesOpen)}
+          >
+           <h3 className="text-green-600 font-bold text-xl">
+  Votes ({loadingVotes ? "Loading..." : voteCount ?? "0"})
+</h3>
+
+            <span className="text-white text-xl">{votesOpen ? "–" : "+"}</span>
+          </div>
+          {votesOpen && (
+          <VoteList
+          ensCache={ensCache}
+          formatStake={formatStake}
+          proposalId={proposal.id}
+          proposalTitle={proposal.description.split("\n")[0].replace(/^#\s*/, "")}
+          votes={votes.map((vote) => ({
+            voter: vote.voter || "Unknown",
+            weight: vote.weight,
+            choiceID: vote.choiceID,
+          }))}
+        />
+        
+         
+          )}
+      
+                </Card>
             </Box>
             
           </Flex>

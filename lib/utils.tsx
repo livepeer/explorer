@@ -420,7 +420,19 @@ export function toTitleCase(str) {
   });
 }
 
-export const fromWei = (wei: BigNumberish) => formatEther(wei);
+export const fromWei = (wei: BigNumberish) => {
+  try {
+    const valueStr =
+      typeof wei === "number" || wei instanceof Number
+        ? wei.toString()
+        : wei;
+
+    return formatEther(BigNumber.from(valueStr));
+  } catch (e) {
+    console.error("fromWei error:", e, "input was:", wei);
+    return "0";
+  }
+};
 
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();

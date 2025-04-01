@@ -3,7 +3,7 @@
 import React, { useState, useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { utils } from "ethers";
-import Image from "next/image";
+// import Image from "next/image";
 import ArbitrumIcon from "../../public/img/logos/arbitrum.svg";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
@@ -283,13 +283,13 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
                                  className="inline-flex items-center"
                                  onClick={(e) => e.stopPropagation()}
                                >
-                                 <Image
+                                 {/* <Image
                                    src={ArbitrumIcon}
                                    alt="Txn"
                                    width={20}
                                    height={20}
                                    className="inline-block"
-                                 />
+                                 /> */}
                                </a>                 
                                 ) : (
                                   <span>N/A</span>

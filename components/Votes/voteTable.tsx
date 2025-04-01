@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+// import Image from "next/image";
 import { ethers } from "ethers";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import ArbitrumIcon from "../../public/img/logos/arbitrum.svg";
@@ -264,12 +264,13 @@ const VoteTable: React.FC<VoteTableProps> = ({
                         className="inline-flex items-center text-blue-400 underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Image
+                        {/* <Image
                           src={ArbitrumIcon}
                           alt="Tx"
                           width={20}
                           height={20}
-                        />
+                        /> */}
+                        
                       </a>
                     ) : (
                       <span className="text-gray-500">N/A</span>
@@ -335,13 +336,13 @@ const VoteTable: React.FC<VoteTableProps> = ({
                    className="inline-flex items-center"
                    onClick={(e) => e.stopPropagation()}
                  >
-                   <Image
+                   {/* <Image
                      src={ArbitrumIcon}
                      alt="Txn"
                      width={20}
                      height={20}
                      className="inline-block"
-                   />
+                   /> */}
                  </a>                 
                   ) : (
                     <span>N/A</span>
