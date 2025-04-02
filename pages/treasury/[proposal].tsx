@@ -106,8 +106,6 @@ const Proposal = () => {
   const [ensCache, setEnsCache] = useState({});
   const [votesOpen, setVotesOpen] = useState(false);
 
- 
-
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -653,35 +651,57 @@ const Proposal = () => {
               </Card>
              
               <Card
-                css={{
-                  p: "$4",
-                  border: "1px solid $neutral4",
-                }}>
-                  <div
-            className="flex items-center justify-between mt-6 cursor-pointer"
-            onClick={() => setVotesOpen(!votesOpen)}
-          >
-           <h3 className="text-green-600 font-bold text-xl">
-  View Votes <span className="text-white text-xl ml-2">{votesOpen ? "–" : "+"}</span>
-</h3>       
-          </div>
-          {votesOpen && (
-          <VoteList
-          ensCache={ensCache}
-          formatStake={formatStake}
-          proposalId={proposal.id}
-          proposalTitle={proposal.description.split("\n")[0].replace(/^#\s*/, "")}
-          votes={votes.map((vote) => ({
-            voter: vote.voter || "Unknown",
-            weight: vote.weight,
-            choiceID: vote.choiceID,
-          }))}
-        />
-        
-         
-          )}
-      
-                </Card>
+  css={{
+    padding: "$4",
+    border: "1px solid $neutral4",
+    cursor: "pointer",
+  }}
+  onClick={() => setVotesOpen(!votesOpen)}
+>
+  <Flex
+    css={{
+      marginTop: "$1",
+      alignItems: "center",
+    }}
+  >
+    <Heading
+  as="h3"
+  css={{
+    fontWeight: 700,
+    fontSize: "$5",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+  <span>View Votes</span>
+  <Text
+    as="span"
+    css={{
+      color: votesOpen ? "$red9" : "$green9",
+      fontSize: "$3",
+      marginLeft: "$2",
+    }}
+  >
+    {votesOpen ? "–" : "+"}
+  </Text>
+</Heading>
+
+  </Flex>
+  {votesOpen && (
+    <VoteList
+      ensCache={ensCache}
+      formatStake={formatStake}
+      proposalId={proposal.id}
+      proposalTitle={proposal.description.split("\n")[0].replace(/^#\s*/, "")}
+      votes={votes.map((vote) => ({
+        voter: vote.voter || "Unknown",
+        weight: vote.weight,
+        choiceID: vote.choiceID,
+      }))}
+    />
+  )}
+</Card>
+
             </Box>
             
           </Flex>
