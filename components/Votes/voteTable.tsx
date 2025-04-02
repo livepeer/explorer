@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { ethers } from "ethers";
+import ArbitrumIcon from "../../public/img/logos/arbitrum.png";
+import Image from "next/image";
 import {
   Box,
   Card,
@@ -187,7 +188,6 @@ const VoteTable: React.FC<VoteTableProps> = ({
     );
   }
 
-  // Count votes by support
   const yesCount = votes.filter((v) => v.choiceID === "1").length;
   const noCount = votes.filter((v) => v.choiceID === "0").length;
   const abstainCount = votes.filter((v) => v.choiceID === "2").length;
@@ -211,6 +211,8 @@ const renderDesktopTable = () => (
         color: "$white",
       }}
     >
+      <Text css={{ color: "$white" }}>Total: {totalVotes}</Text>
+      <br></br>
       <Text css={{ marginRight: "$1", color: "$green9" }}>Yes ({yesCount})</Text>
       <Text>|</Text>
       <Text css={{ marginLeft: "$1", marginRight: "$1", color: "$red9" }}>No ({noCount})</Text>
@@ -275,7 +277,7 @@ const renderDesktopTable = () => (
           position: "relative",
           zIndex: 10,
           "&:hover": { backgroundColor: "$neutral4" },
-          "& > td": { padding: "$2" }, // Added padding to each cell in the row
+          "& > td": { padding: "$2" }, 
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -319,7 +321,7 @@ const renderDesktopTable = () => (
             textAlign: "center",
             color: "$white",
             borderBottom: "1px solid $neutral5",
-            width: "15%", // Adjusted width for Weight
+            width: "15%", 
           }}
         >
           {new Intl.NumberFormat("en-US", {
@@ -334,31 +336,32 @@ const renderDesktopTable = () => (
             textAlign: "center",
             color: "$neutral9",
             borderBottom: "1px solid $neutral5",
-            width: "35%", // Adjusted width for Reason
+            width: "35%", 
           }}
         >
           {vote.reason}
         </Box>
+
         <Box
-          as="td"
-          css={{
-            textAlign: "center",
-            borderBottom: "1px solid $neutral5",
-          }}
-        >
-          {vote.transactionHash ? (
-            <Link
-              href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
-              target="_blank"
-              css={{ color: "$blue9", textDecoration: "underline" }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              Txn
-            </Link>
-          ) : (
-            <Text css={{ color: "$neutral9" }}>N/A</Text>
-          )}
-        </Box>
+  as="td"
+  css={{
+    textAlign: "center",
+    borderBottom: "1px solid $neutral5",
+  }}
+>
+  {vote.transactionHash ? (
+    <Link
+      href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
+      target="_blank"
+      onClick={(e) => e.stopPropagation()}
+    >
+          <Image src={ArbitrumIcon} alt="Arbitrum Icon" width={32} height={32} />
+    </Link>
+  ) : (
+    <Text css={{ color: "$neutral9" }}>N/A</Text>
+  )}
+</Box>
+
       </Box>
     );
   })}
@@ -385,14 +388,15 @@ const renderDesktopTable = () => (
           color: "$white",
         }}
       >
-        <Text>Total: {totalVotes}</Text>
-        <Text css={{ color: "$green10" }}>Yes ({yesCount})</Text>
-        <Text>|</Text>
-        <Text css={{ color: "$red10" }}>No ({noCount})</Text>
-        <Text>|</Text>
-        <Text css={{ color: "$yellow10" }}>
-          Abstain ({abstainCount})
-        </Text>
+         <Text css={{ color: "$white" }}>Total: {totalVotes}</Text>
+         <br></br>
+        <Text css={{ marginRight: "$1", color: "$green9" }}>Yes ({yesCount})</Text>
+      <Text>|</Text>
+      <Text css={{ marginLeft: "$1", marginRight: "$1", color: "$red9" }}>No ({noCount})</Text>
+      <Text>|</Text>
+      <Text css={{ marginLeft: "$1", color: "$yellow9" }}>
+        Abstain ({abstainCount})
+      </Text>
       </Flex>
       {votes.map((vote, index) => {
   const supportText =
@@ -446,8 +450,7 @@ const renderDesktopTable = () => (
             target="_blank"
             css={{ color: "$blue9", textDecoration: "underline" }}
             onClick={(e) => e.stopPropagation()}
-          >
-            Txn
+           >Txn
           </Link>
         ) : (
           <Text css={{ color: "$neutral9" }}>N/A</Text>
