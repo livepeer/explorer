@@ -191,7 +191,6 @@ const VoteTable: React.FC<VoteTableProps> = ({
   const yesCount = votes.filter((v) => v.choiceID === "1").length;
   const noCount = votes.filter((v) => v.choiceID === "0").length;
   const abstainCount = votes.filter((v) => v.choiceID === "2").length;
-  const totalVotes = yesCount + noCount + abstainCount;
 
   // Desktop Layout (Table-like)
 const renderDesktopTable = () => (
@@ -211,8 +210,6 @@ const renderDesktopTable = () => (
         color: "$white",
       }}
     >
-      <Text css={{ color: "$white" }}>Total: {totalVotes}</Text>
-      <br></br>
       <Text css={{ marginRight: "$1", color: "$green9" }}>Yes ({yesCount})</Text>
       <Text>|</Text>
       <Text css={{ marginLeft: "$1", marginRight: "$1", color: "$red9" }}>No ({noCount})</Text>
@@ -269,21 +266,22 @@ const renderDesktopTable = () => (
         : "No";
     return (
       <Box
-        as="tr"
-        key={index}
-        css={{
-          backgroundColor: "$neutral3",
-          cursor: "pointer",
-          position: "relative",
-          zIndex: 10,
-          "&:hover": { backgroundColor: "$neutral4" },
-          "& > td": { padding: "$2" }, 
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedVoter(vote.voter);
-        }}
-      >
+      as="tr"
+      key={index}
+      css={{
+        backgroundColor: "$neutral3",
+        cursor: "pointer",
+        position: "relative",
+        zIndex: 10,
+        "&:hover": { backgroundColor: "$neutral4" },
+        "& > td": { padding: "$2" },
+      }}
+      onClickCapture={(e) => {
+        e.stopPropagation(); 
+        console.log("Card clicked:", vote.voter);
+        setSelectedVoter(vote.voter);
+      }}
+    >
         <Box
           as="td"
           css={{
@@ -386,10 +384,10 @@ const renderDesktopTable = () => (
           fontWeight: 700,
           fontSize: "$3",
           color: "$white",
+          marginTop: "$2",
+          marginBottom: "$2",
         }}
       >
-         <Text css={{ color: "$white" }}>Total: {totalVotes}</Text>
-         <br></br>
         <Text css={{ marginRight: "$1", color: "$green9" }}>Yes ({yesCount})</Text>
       <Text>|</Text>
       <Text css={{ marginLeft: "$1", marginRight: "$1", color: "$red9" }}>No ({noCount})</Text>
@@ -407,35 +405,43 @@ const renderDesktopTable = () => (
       : "No";
   return (
     <Card
-      key={index}
-      css={{
-        padding: "$4",
-        marginBottom: "$3",
-        cursor: "pointer",
-        position: "relative",
-        zIndex: 10,
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        setSelectedVoter(vote.voter);
-      }}
-    >
-      <Heading as="h4" css={{ fontSize: "$2", mb: "$2", color: "$white" }}>
-        {vote.ensName || formatAddress(vote.voter)}
+  key={index}
+  css={{
+    padding: "$4",
+    marginBottom: "$3",
+    cursor: "pointer",
+    position: "relative",
+    zIndex: 5,
+    backgroundColor: "$neutral3",
+    "&:hover": { backgroundColor: "$neutral4" },
+  }}
+  onClickCapture={(e) => {
+    e.stopPropagation();
+    console.log("Card clicked:", vote.voter);
+    setSelectedVoter(vote.voter);
+  }}
+>
+      <Heading as="h4" css={{ fontSize: "$3", mb: "$2", color: "$green11" }}>
+      {formatAddress(vote.ensName ?? "") || formatAddress(vote.voter)}
       </Heading>
-      <Text css={{ marginBottom: "$1" }}>
-        <Text as="span" css={{ fontWeight: 600 }}>
-          Support:
-        </Text>{" "}
-        <Text as="span" css={getSupportStyles(vote.choiceID)}>
-          {supportText}
-        </Text>
-      </Text>
+      <Text css={{ display: "flex", alignItems: "center", marginBottom: "$1" }}>
+  <Text as="span" css={{ fontWeight: 600, marginRight: "$2" }}>
+    Support:
+  </Text>
+  <Text as="span" css={getSupportStyles(vote.choiceID)}>
+    {supportText}
+  </Text>
+</Text>
+
       <Text css={{ marginBottom: "$1", color: "$white" }}>
         <Text as="span" css={{ fontWeight: 600 }}>
           Weight:
         </Text>{" "}
-        {formatStake(parseFloat(vote.weight))} LPT ({calculateVotePercentage(vote.weight)}%)
+          {new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(parseFloat(vote.weight) / 1e18)}{" "}
+          LPT ({calculateVotePercentage(vote.weight)}%)
       </Text>
       <Text css={{ marginBottom: "$1", color: "$neutral9" }}>
         <Text as="span" css={{ fontWeight: 600 }}>
@@ -450,7 +456,8 @@ const renderDesktopTable = () => (
             target="_blank"
             css={{ color: "$blue9", textDecoration: "underline" }}
             onClick={(e) => e.stopPropagation()}
-           >Txn
+           >
+          <Image src={ArbitrumIcon} alt="Arbitrum Icon" width={24} height={24} />
           </Link>
         ) : (
           <Text css={{ color: "$neutral9" }}>N/A</Text>

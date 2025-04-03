@@ -189,7 +189,10 @@ const Proposal = () => {
   const formatStake = (stake: number) =>
     `${numeral(parseFloat(fromWei(stake.toString()))).format("0,0.[00]")} LPT`;
   
-
+  const totalVotes = votes.filter(vote =>
+    ["0", "1", "2"].includes(vote.choiceID)
+  ).length;
+  
   
 
   if (!proposal) {

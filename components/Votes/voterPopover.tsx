@@ -2,21 +2,23 @@
 
 import React, { useState, useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { utils } from "ethers";
-// import Image from "next/image";
-import ArbitrumIcon from "../../public/img/logos/arbitrum.svg";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
-import { GET_PROPOSALS_BY_IDS, GET_PROPOSALS_VOTES } from "./queries";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Text,
+} from "@livepeer/design-system";
+import { GET_PROPOSALS_BY_IDS, GET_PROPOSALS_VOTES } from "./queries";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,
   provider,
   contractInterface,
 } from "./contracts";
-
-
 
 interface Vote {
   endVote: number;
@@ -182,7 +184,6 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
     return rawVotes
       .map((v) => {
         const subgraphData = proposalsMap.get(v.proposalId);
-
         const description = subgraphData?.description || "No description available.";
         const endVote = subgraphData?.voteEnd || 0;
         const title = description.split("\n")[0].replace(/^#\s*/, "") || "Unknown Proposal";
@@ -204,112 +205,109 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
 
   const isLoading = logsLoading || proposalsLoading;
 
-  const getSupportClasses = (choiceID: string) => {
+  // Replace Tailwind-based support styling with Livepeer design tokens.
+  const getSupportStyles = (choiceID: string) => {
     switch (choiceID) {
       case "1":
-        return "text-green-500 font-semibold";
+        return { color: "$green9", fontWeight: 600 };
       case "0":
-        return "text-red-500 font-semibold";
+        return { color: "$red9", fontWeight: 600 };
       default:
-        return "text-yellow-500 font-semibold";
+        return { color: "$yellow9", fontWeight: 600 };
     }
   };
 
+  // Helper to format addresses.
   const formatAddress = (addr: string): string => {
     if (!addr) return "";
- 
     if (addr.endsWith(".xyz")) {
       return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
     }
-
     if (addr.endsWith(".eth")) {
       return addr;
     }
-    
     return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
   };
 
   const popoverContent = (
-    <div className="pt-10 pb-10 fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-    <div className="relative bg-gray-800 p-4 pt-6 rounded-lg z-10 max-h-full overflow-y-auto w-11/12 md:w-1/2">
-  <button
-    className="absolute top-2 right-2 text-white hover:text-red-500 transition-colors"
-    onClick={onClose}
-  >
-    Close
-  </button>
-
+    <Box css={{
+      position: "fixed",
+      inset: 0,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      backdropFilter: "blur(4px)",
+    }}>
+      <Box css={{
+        position: "relative",
+        backgroundColor: "$neutral3",
+        padding: "$4",
+        paddingTop: "$6",
+        borderRadius: "$2",
+        maxHeight: "100%",
+        overflowY: "auto",
+        width: "90%",
+        "@bp2": { width: "50%" },
+        zIndex: 10,
+      }}>
+        <Button variant="gray" css={{
+          position: "absolute",
+          top: "$2",
+          right: "$2",
+        }} onClick={onClose}>
+          Close
+        </Button>
         {isLoading ? (
-          <div className="flex justify-center items-center">
-            <div className="w-6 h-6 border-2 border-green-400 border-dashed rounded-full animate-spin"></div>
-          </div>
+          <Flex css={{ justifyContent: "center", alignItems: "center" }}>
+            <Text>Loading votes...</Text>
+          </Flex>
         ) : votes.length > 0 ? (
           votes.map((vote, index) => (
-            <div key={index} className="bg-gray-700 p-4 rounded-lg mt-2">
-              <h2 className="text-white font-bold sml:text-md md:text-lg">
+            <Box key={index} css={{
+              backgroundColor: "$neutral4",
+              padding: "$4",
+              borderRadius: "$2",
+              marginTop: "$2",
+            }}>
+              <Heading as="h2" css={{ fontSize: "$3", mb: "$2", color: "$white" }}>
                 {vote.proposalTitle}
-              </h2>
-              <p>
-                <strong className="text-sm text-gray-300">Proposal ID: </strong>
-                <span className="text-sm text-gray-300 break-all md:break-normal inline-block w-full overflow-x-auto">
-                  {formatAddress(vote.proposalId)}
-                </span>
-              </p>
-              <p>
-                <strong className="text-gray-300">Support: </strong>
-                <span className={getSupportClasses(vote.choiceID)}>
+              </Heading>
+              <Text css={{ color: "$neutral11", marginBottom: "$1" }}>
+                <strong>Proposal ID:</strong> {formatAddress(vote.proposalId)}
+              </Text>
+              <Text css={{ color: "$neutral11", marginBottom: "$1" }}>
+                <strong>Support:</strong>{" "}
+                <Text as="span" css={getSupportStyles(vote.choiceID)}>
                   {vote.choiceID === "1" ? "Yes" : vote.choiceID === "2" ? "Abstain" : "No"}
-                </span>
-              </p>
-              <p className="text-gray-300">
-                <strong>Weight: </strong>
+                </Text>
+              </Text>
+              <Text css={{ color: "$neutral11", marginBottom: "$1" }}>
+                <strong>Weight:</strong>{" "}
                 {new Intl.NumberFormat("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
-                }).format(parseFloat(vote.weight) / 10 ** 18)}{" "}
+                }).format(parseFloat(vote.weight) / 1e18)}{" "}
                 LPT
-              </p>
-              <p className="text-gray-300">
-                <strong>Reason: </strong>
-                {vote.reason || "No reason provided"}
-              </p>
-
-              <p className="mt-2">
-               {vote.transactionHash ? (
-                                 <a
-                                 href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
-                                 target="_blank"
-                                 rel="noopener noreferrer"
-                                 className="inline-flex items-center"
-                                 onClick={(e) => e.stopPropagation()}
-                               >
-                                 {/* <Image
-                                   src={ArbitrumIcon}
-                                   alt="Txn"
-                                   width={20}
-                                   height={20}
-                                   className="inline-block"
-                                 /> */}
-                               </a>                 
-                                ) : (
-                                  <span>N/A</span>
-                                )}
-                                </p>
-            </div>
+              </Text>
+              <Text css={{ color: "$neutral11", marginBottom: "$1" }}>
+                <strong>Reason:</strong> {vote.reason || "No reason provided"}
+              </Text>
+            </Box>
           ))
         ) : (
-          <p className="text-gray-300">No votes found for this voter.</p>
+          <Text css={{ color: "$neutral11" }}>No votes found for this voter.</Text>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 
-  
   return createPortal(popoverContent, document.body);
 };
 
 export default VoterPopover;
+
 function zeroPadValue(voter: string, length: number): string {
   return ethers.utils.hexlify(ethers.utils.zeroPad(voter, length));
 }
-
