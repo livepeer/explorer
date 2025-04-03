@@ -256,7 +256,10 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
           position: "absolute",
           top: "$2",
           right: "$2",
-        }} onClick={onClose}>
+        }}  onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}>
           Close
         </Button>
         {isLoading ? (

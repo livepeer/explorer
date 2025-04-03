@@ -272,7 +272,7 @@ const renderDesktopTable = () => (
         backgroundColor: "$neutral3",
         cursor: "pointer",
         position: "relative",
-        zIndex: 10,
+        zIndex: 2,
         "&:hover": { backgroundColor: "$neutral4" },
         "& > td": { padding: "$2" },
       }}
@@ -411,7 +411,7 @@ const renderDesktopTable = () => (
     marginBottom: "$3",
     cursor: "pointer",
     position: "relative",
-    zIndex: 5,
+    zIndex: 2,
     backgroundColor: "$neutral3",
     "&:hover": { backgroundColor: "$neutral4" },
   }}
