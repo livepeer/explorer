@@ -20,7 +20,7 @@ type VoterSummary = {
   votingTurnout: number;
 };
 
-const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initialVoterData?: VoterSummary[] , pageSize:number}) => {
+const OrchestratorVotingList = ({ initialVoterData, pageSize = 10 }: { initialVoterData?: VoterSummary[], pageSize: number }) => {
 
   const columns = useMemo(
     () => [
@@ -138,15 +138,19 @@ const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initial
       },
       {
         Header: (
-          <Box
-            css={{
-              height: 20,
-              display: "flex",
-              alignItems: "center",
-            }}
+          <ExplorerTooltip
+            multiline
+            content={
+              <Box>
+                 The total number of governance proposals this orchestrator has participated in by casting a vote.
+              </Box>
+            }
           >
-            Number of Proposals Voted On
-          </Box>
+            <Box>
+              Number of Proposals Voted On
+            </Box>
+          </ExplorerTooltip>
+
         ),
         accessor: "noOfProposalsVotedOn",
         Cell: ({ row }) => (
@@ -166,15 +170,18 @@ const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initial
       },
       {
         Header: (
-          <Box
-            css={{
-              height: 20,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            Number of Votes Casted
+          <ExplorerTooltip
+          multiline
+          content={
+            <Box>
+              The total count of individual votes submitted by this orchestrator across all proposals.
+            </Box>
+          }
+        >
+          <Box>
+          Number of Votes Casted
           </Box>
+        </ExplorerTooltip>
         ),
         accessor: "noOfVotesCasted",
         Cell: ({ row }) => (
@@ -194,16 +201,18 @@ const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initial
       },
       {
         Header: (
-          <Box
-            css={{
-              height: 20,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            Most Recent Votes
+          <ExplorerTooltip
+          multiline
+          content={
+            <Box>
+               A list of up to 5 of the orchestrator’s most recent votes, marked as [✓] for For, [✗] for Against, and [–] for Abstain.
+            </Box>
+          }
+        >
+          <Box>
+          Most Recent Votes
           </Box>
-          // </ExplorerTooltip>
+        </ExplorerTooltip>
         ),
         accessor: "mostRecentVotes",
         Cell: ({ row }) => (
@@ -252,15 +261,19 @@ const OrchestratorVotingList = ({ initialVoterData ,   pageSize = 10}: { initial
       },
       {
         Header: (
-          <Box
-            css={{
-              height: 20,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            Voting Turnout
+          <ExplorerTooltip
+          multiline
+          content={
+            <Box>
+              The percentage of total governance proposals this orchestrator voted on, showing how actively they participate in protocol decisions.
+            </Box>
+          }
+        >
+          <Box>
+          Voting Turnout
           </Box>
+        </ExplorerTooltip>
+         
         ),
         accessor: "votingTurnout",
         Cell: ({ row }) => (

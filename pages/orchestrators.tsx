@@ -9,10 +9,6 @@ import {
   Container,
   Flex,
   Heading,
-  TabsTrigger,
-  Tabs,
-  TabsList,
-  TabsContent,
   Text,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
@@ -27,15 +23,22 @@ import OrchestratorVotingList from "@components/OrchestratorVotingList";
 import { OrchestratorTabs } from "@lib/orchestrartor";
 import { getOrchestratorsVotingHistory } from "cube/queryGenrator";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@reach/tabs";
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
   protocol: ProtocolQueryResult["data"];
   fallback: { [key: string]: EnsIdentity };
-  initialVoterData:any
+  initialVoterData: any
 };
 
-const OrchestratorsPage = ({ orchestrators, protocol , initialVoterData}: PageProps) => {
+const OrchestratorsPage = ({ orchestrators, protocol, initialVoterData }: PageProps) => {
   return (
     <>
       <Head>
@@ -58,54 +61,62 @@ const OrchestratorsPage = ({ orchestrators, protocol , initialVoterData}: PagePr
             </Heading>
             {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
               process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <Link href="/leaderboard" passHref>
-                <Button
-                  ghost
-                  as={A}
-                  css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
-                >
-                  Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
-                </Button>
-              </Link>
-            )}
+                <Link href="/leaderboard" passHref>
+                  <Button
+                    ghost
+                    as={A}
+                    css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                  >
+                    Performance Leaderboard
+                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  </Button>
+                </Link>
+              )}
           </Flex>
           <Tabs
             defaultValue={OrchestratorTabs["Yield Overview"]}
-            css={{ mb: "$5" }}
           >
-            <TabsList>
-              <TabsTrigger
-                css={{
-                  height: 40,
-                }}
-                value={OrchestratorTabs["Yield Overview"]}
-              >
-                <Text size="3">Yield Overview</Text>
-              </TabsTrigger>
-              <TabsTrigger
-                css={{
-                  height: 40,
-                }}
-                value={OrchestratorTabs["Voting History"]}
-              >
-                <Text size="3">Voting History</Text>
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value={OrchestratorTabs["Yield Overview"]}>
-              <Box>
-                <OrchestratorList
-                  data={orchestrators?.transcoders}
-                  pageSize={20}
-                  protocolData={protocol?.protocol}
-                />
-              </Box>
-            </TabsContent>
-            <TabsContent value={OrchestratorTabs["Voting History"]}>
-              <Box>
-                <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={20}/>
-              </Box>
-            </TabsContent>
+            {({ selectedIndex, focusedIndex }) => {
+              let getTabStyle = (index) => ({
+                borderBottom: `4px solid ${selectedIndex === index
+                    ? "#6ec08d"
+                    : focusedIndex === index
+                      ? "#141716"
+                      : "#141716"
+                  }`
+                  ,
+                  backgroundColor: '#141716', borderWidth: 0, borderBottomWidth: 1 ,
+                  paddingBottom:12
+              });
+              return (
+                <>
+                  <TabList>
+                    <Tab style={getTabStyle(0)}>
+                      Yield Overview
+                    </Tab>
+                    <Tab style={getTabStyle(1)}>
+                      Voting History
+                    </Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <Box>
+                        <OrchestratorList
+                          data={orchestrators?.transcoders}
+                          pageSize={20}
+                          protocolData={protocol?.protocol}
+                        />
+                      </Box>
+                    </TabPanel>
+                    <TabPanel>
+                      <Box>
+                        <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={20} />
+                      </Box>
+                    </TabPanel>
+                  </TabPanels>
+                </>
+              );
+            }}
           </Tabs>
         </Flex>
       </Container>
@@ -181,9 +192,9 @@ export const getStaticProps = async () => {
 
     const query = getOrchestratorsVotingHistory();
     const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
-    
+
     // Log the response to check the structure of the data
-  
+
     if (!response || !response[0] || !response[0].data) {
       return {
         props: {
@@ -191,12 +202,12 @@ export const getStaticProps = async () => {
         },
       };
     }
-  
+
     const data = response[0].data;
-  
+
     const voterSummaries = getVoterSummaries(data);
-  
-  
+
+
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
     const protocol = await getProtocol(client);
@@ -205,12 +216,12 @@ export const getStaticProps = async () => {
       return null;
     }
 
-    
+
     const props: PageProps = {
       orchestrators: orchestrators.data,
       protocol: protocol.data,
       fallback,
-      initialVoterData:voterSummaries
+      initialVoterData: voterSummaries
     };
 
     return {
