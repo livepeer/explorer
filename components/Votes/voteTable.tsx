@@ -92,7 +92,6 @@ const fetchVotesFromInfura = async (proposalId: string): Promise<Vote[]> => {
       })
       .filter((vote) => vote.proposalId === proposalId);
 
-    // Fetch ENS names for unique voters
     const uniqueVoters = Array.from(new Set(decodedVotes.map((v) => v.voter)));
     const localEnsCache: { [address: string]: string } = {};
 
@@ -277,8 +276,10 @@ const renderDesktopTable = () => (
         "& > td": { padding: "$2" },
       }}
       onClickCapture={(e) => {
-        e.stopPropagation(); 
-        console.log("Card clicked:", vote.voter);
+        const target = e.target as HTMLElement;
+        if (target.closest("a")) return;
+        
+        e.stopPropagation();
         setSelectedVoter(vote.voter);
       }}
     >
@@ -351,7 +352,13 @@ const renderDesktopTable = () => (
     <Link
       href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
       target="_blank"
-      onClick={(e) => e.stopPropagation()}
+      onClickCapture={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a")) return;
+        
+        e.stopPropagation();
+        setSelectedVoter(vote.voter);
+      }}
     >
           <Image src={ArbitrumIcon} alt="Arbitrum Icon" width={32} height={32} />
     </Link>
@@ -416,8 +423,10 @@ const renderDesktopTable = () => (
     "&:hover": { backgroundColor: "$neutral4" },
   }}
   onClickCapture={(e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a")) return;
+    
     e.stopPropagation();
-    console.log("Card clicked:", vote.voter);
     setSelectedVoter(vote.voter);
   }}
 >

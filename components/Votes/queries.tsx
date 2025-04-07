@@ -47,8 +47,8 @@ export const GET_PROTOCOL_STATS = gql`
 export const ENS_QUERY = gql`
   query getENS($address: String!) {
   domains(where: { resolvedAddress: $address }
-     orderBy: createdAt
-    orderDirection: desc) {
+    orderBy: createdAt
+    orderDirection: asc) {
     name
     resolvedAddress {
       id
