@@ -20,11 +20,19 @@ export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
-const SUBGRAPH_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ID;
+const SUBGRAPH_ID =
+  process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
+  "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
 
-if (typeof INFURA_KEY === "undefined" || typeof NETWORK === "undefined") {
+// Check for required environment variables. 
+if (!INFURA_KEY || !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
+  );
+}
+if (!SUBGRAPH_KEY) {
+  throw new Error(
+    `NEXT_PUBLIC_SUBGRAPH_API_KEY must be defined environment variables`
   );
 }
 
@@ -125,9 +133,13 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  * configured in the environment variables.
  */
 export const INFURA_NETWORK_URLS = {
-  [chain.mainnet.id]: process.env.NEXT_PUBLIC_L1_RPC_URL || `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.mainnet.id]:
+    process.env.NEXT_PUBLIC_L1_RPC_URL ||
+    `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [chain.arbitrum.id]: process.env.NEXT_PUBLIC_L2_RPC_URL || `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
+  [chain.arbitrum.id]:
+    process.env.NEXT_PUBLIC_L2_RPC_URL ||
+    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
   // [chain.arbitrumGoerli
   //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
 };
@@ -150,12 +162,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph:
-      process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-        ? `https://gateway.thegraph.com/api/${
-            SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/${SUBGRAPH_ID || "FDD65maya4xVfPnCjSgDRBz6UBWKAcmGtgY6BmUueJCg"}`
-        : "https://api.thegraph.com/subgraphs/name/livepeer/livepeer",
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated
@@ -189,10 +196,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph:
-      `https://gateway-arbitrum.network.thegraph.com/api/${
-            SUBGRAPH_KEY ?? "none"
-          }/subgraphs/id/${SUBGRAPH_ID ||"FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC"}`,
+    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumGoerli.id]: {

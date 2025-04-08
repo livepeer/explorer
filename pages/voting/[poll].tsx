@@ -2,7 +2,6 @@ import VotingWidget from "@components/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import MarkdownRenderer from "@components/MarkdownRenderer";
-import remarkGfm from "remark-gfm";
 import { abbreviateNumber } from "../../lib/utils";
 
 import BottomDrawer from "@components/BottomDrawer";
@@ -137,7 +136,7 @@ const Poll = () => {
             css={{
               flexDirection: "column",
               mb: "$6",
-              pr: 0,
+              pr: "0px",
               pt: "$2",
               width: "100%",
               "@bp3": {
@@ -313,24 +312,11 @@ const Poll = () => {
                   p: "$4",
                   border: "1px solid $neutral4",
                   mb: "$3",
-                  h2: {
-                    fontWeight: 600,
-                    "&:first-of-type": { mt: 0 },
-                    mt: "$3",
-                  },
-                  h3: { fontWeight: 600, mt: "$3" },
-                  h4: { fontWeight: 600, mt: "$3" },
-                  h5: { fontWeight: 600, mt: "$3" },
-                  lineHeight: 1.5,
-                  a: {
-                    color: "$primary11",
-                  },
-                  pre: {
-                    whiteSpace: "pre-wrap",
-                  },
-                }}
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                                }}
               >
-                <MarkdownRenderer remarkPlugins={[remarkGfm]}>
+                <MarkdownRenderer>
                   {pollData.attributes?.text ?? ""}
                 </MarkdownRenderer>
               </Card>
