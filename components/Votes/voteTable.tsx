@@ -191,7 +191,7 @@ const VoteTable: React.FC<VoteTableProps> = ({
   const noCount = votes.filter((v) => v.choiceID === "0").length;
   const abstainCount = votes.filter((v) => v.choiceID === "2").length;
 
-  // Desktop Layout (Table-like)
+  // Desktop Layout (Table-based)
 const renderDesktopTable = () => (
   <Box
     css={{
@@ -346,6 +346,8 @@ const renderDesktopTable = () => (
   css={{
     textAlign: "center",
     borderBottom: "1px solid $neutral5",
+    position: "relative", 
+    zIndex: 5,
   }}
 >
   {vote.transactionHash ? (
@@ -353,19 +355,31 @@ const renderDesktopTable = () => (
       href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
       target="_blank"
       onClickCapture={(e) => {
-        const target = e.target as HTMLElement;
-        if (target.closest("a")) return;
-        
-        e.stopPropagation();
-        setSelectedVoter(vote.voter);
+        e.stopPropagation(); 
+      }}
+      css={{
+        display: "inline-block",
+        transition: "transform 0.2s ease",
+        zIndex: 9999,
+        position: "relative",
+        "&:hover": {
+          transform: "scale(1.3)",
+          zIndex: 9999,
+        },
       }}
     >
-          <Image src={ArbitrumIcon} alt="Arbitrum Icon" width={32} height={32} />
+      <Image
+        src={ArbitrumIcon}
+        alt="Arbitrum Icon"
+        width={42}
+        height={42}
+      />
     </Link>
   ) : (
     <Text css={{ color: "$neutral9" }}>N/A</Text>
   )}
 </Box>
+
 
       </Box>
     );
@@ -376,7 +390,7 @@ const renderDesktopTable = () => (
   );
 
 
-  // Mobile Layout (Card-based)
+  // Mobile Layout (Card-based for better UI/UX)
   const renderMobileCards = () => (
     <Box
       css={{
