@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import ArbitrumIcon from "../../public/img/logos/arbitrum.png";
+import Spinner from "@components/Spinner";
 import Image from "next/image";
 import {
   Box,
@@ -51,7 +52,7 @@ const formatAddress = (addr: string): string => {
   if (addr.endsWith(".xyz")) {
     return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
   }
-  if (addr.endsWith(".eth")) {
+  if (addr.endsWith(".eth") && addr.length < 21) {
     return addr;
   }
   return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
@@ -168,7 +169,7 @@ const VoteTable: React.FC<VoteTableProps> = ({
           height: "150px",
         }}
       >
-        <Text css={{ color: "$neutral11" }}>Loading votes...</Text>
+          <Spinner />
       </Flex>
     );
   }
@@ -371,8 +372,8 @@ const renderDesktopTable = () => (
       <Image
         src={ArbitrumIcon}
         alt="Arbitrum Icon"
-        width={42}
-        height={42}
+        width={32}
+        height={32}
       />
     </Link>
   ) : (

@@ -4,6 +4,7 @@ import React, { useState, useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
+import Spinner from "@components/Spinner";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import {
   Box,
@@ -246,11 +247,12 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
         padding: "$4",
         paddingTop: "$6",
         borderRadius: "$2",
-        maxHeight: "100%",
+        maxHeight: "90%",
         overflowY: "auto",
         width: "90%",
         "@bp2": { width: "50%" },
         zIndex: 10,
+        marginTop: "$6",
       }}>
         <Button variant="gray" css={{
           position: "absolute",
@@ -264,7 +266,7 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
         </Button>
         {isLoading ? (
           <Flex css={{ justifyContent: "center", alignItems: "center" }}>
-            <Text>Loading votes...</Text>
+             <Spinner />
           </Flex>
         ) : votes.length > 0 ? (
           votes.map((vote, index) => (
