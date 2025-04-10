@@ -37,8 +37,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
             border: "1px solid $neutral4",
             borderRadius: "$4",
             backgroundColor: "$panel",
-            px: "$4",
-            py: "$3",
+            paddingX: "$4",
+            paddingY: "$3",
           }}
         >
           <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
@@ -51,12 +51,12 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
           <Box
             css={{
-              mb: "$3",
-              pb: "$3",
+              marginBottom: "$3",
+              paddingBottom: "$3",
               borderBottom: "1px solid $neutral4",
             }}
           >
-            <Box css={{ mb: "$3" }}>
+            <Box css={{ marginBottom: "$3" }}>
               <Flex
                 css={{
                   alignItems: "center",
@@ -64,7 +64,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   position: "relative",
                   height: 24,
                   width: "100%",
-                  mb: "8px",
+                  marginBottom: "8px",
                 }}
               >
                 <Box
@@ -84,7 +84,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pl: "$2",
+                    paddingLeft: "$2",
                     fontWeight: 500,
                     fontSize: "$2",
                   }}
@@ -94,7 +94,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pr: "$2",
+                    paddingRight: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -108,7 +108,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   position: "relative",
                   width: "100%",
                   height: 24,
-                  mb: "8px",
+                  marginBottom: "8px",
                 }}
               >
                 <Box
@@ -129,7 +129,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   css={{
                     lineHeight: 1,
                     fontWeight: 500,
-                    pl: "$2",
+                    paddingLeft: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -138,7 +138,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pr: "$2",
+                    paddingRight: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -171,7 +171,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pl: "$2",
+                    paddingLeft: "$2",
                     fontWeight: 500,
                     fontSize: "$2",
                   }}
@@ -181,7 +181,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pr: "$2",
+                    paddingRight: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -205,7 +205,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Flex
                     css={{
                       fontSize: "$2",
-                      mb: "$2",
+                      marginBottom: "$2",
                       justifyContent: "space-between",
                     }}
                   >
@@ -251,7 +251,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 {!vote?.self.hasVoted && proposal.state === "Active" && (
                   <Flex
                     css={{
-                      mt: "$2",
+                      marginTop: "$2",
                       fontSize: "$2",
                       justifyContent: "space-between",
                     }}
@@ -273,7 +273,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
 
               {proposal?.state === "Active" && vote?.self.hasVoted === false && (
-                <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
+                <Box css={{ marginTop: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <VoteButton
                     disabled={!(parseFloat(vote.self.votes) > 0)}
                     variant="red"
@@ -327,7 +327,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
 
               {["Succeeded", "Queued"].includes(proposal?.state) && (
-                <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
+                <Box css={{ marginTop: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <QueueExecuteButton
                     variant="primary"
                     size="4"
@@ -349,7 +349,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               </Button>
               <Text
                 size="2"
-                css={{ mt: "$1", fontWeight: 600, color: "$red11" }}
+                css={{ marginTop: "$1", fontWeight: 600, color: "$red11" }}
               >
                 Connect your wallet to vote.
               </Text>
