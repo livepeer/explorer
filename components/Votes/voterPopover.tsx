@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
+import { formatAddress } from "./formatAddress";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import {
   Box,
@@ -20,6 +21,8 @@ import {
   provider,
   contractInterface,
 } from "./contracts";
+
+
 
 interface Vote {
   endVote: number;
@@ -216,18 +219,6 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
       default:
         return { color: "$yellow9", fontWeight: 600 };
     }
-  };
-
-  // Helper to format addresses.
-  const formatAddress = (addr: string): string => {
-    if (!addr) return "";
-    if (addr.endsWith(".xyz")) {
-      return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
-    }
-    if (addr.endsWith(".eth")) {
-      return addr;
-    }
-    return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
   };
 
   const popoverContent = (

@@ -22,6 +22,7 @@ import {
   contractInterface,
 } from "./contracts";
 import { ENS_QUERY } from "./queries";
+import { formatAddress } from "./formatAddress";
 
 const createEnsApolloClient = () =>
   new ApolloClient({
@@ -47,16 +48,6 @@ interface VoteTableProps {
   formatStake?: (stake: number) => string;
 }
 
-const formatAddress = (addr: string): string => {
-  if (!addr) return "";
-  if (addr.endsWith(".xyz")) {
-    return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
-  }
-  if (addr.endsWith(".eth") && addr.length < 21) {
-    return addr;
-  }
-  return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
-};
 
 const getSupportStyles = (choiceID: string) => {
   switch (choiceID) {
