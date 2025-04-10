@@ -1,9 +1,9 @@
-import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Heading, Text, TextArea } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { abbreviateNumber, fromWei, shortenAddress} from "@lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
@@ -24,6 +24,9 @@ const formatLPT = (lpt: string | undefined) =>
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();
+
+
+  const [reason, setReason] = useState("");
 
   return (
     <Box css={{ width: "100%" }} {...props}>
@@ -265,6 +268,10 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   </Flex>
                 )}
               </Box>
+
+
+
+
               {proposal?.state === "Active" && vote?.self.hasVoted === false && (
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <VoteButton
@@ -273,6 +280,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     size="4"
                     choiceId={0}
                     proposalId={proposal?.id}
+                    reason={reason} 
                   >
                     Against
                   </VoteButton>
@@ -282,6 +290,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     choiceId={1}
                     size="4"
                     proposalId={proposal?.id}
+                    reason={reason} 
                   >
                     For
                   </VoteButton>
@@ -291,11 +300,32 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     size="4"
                     choiceId={2}
                     proposalId={proposal?.id}
+                    reason={reason} 
                   >
                     Abstain
                   </VoteButton>
+
+                   <Text size="2" css={{ fontWeight: 600, marginBottom: "$1" }}>
+                      Reason (optional)
+                    </Text>
+                    <TextArea
+                      css={{
+                        borderRadius: "$2",
+                        fontSize: "$2",
+                        paddingRight: "$3",
+                        paddingLeft: "$3",
+                        width: "100%",
+                      }}
+                      placeholder="Please provide reasoning behind your vote..."
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      rows={3}
+                    />
                 </Box>
               )}
+
+
+
               {["Succeeded", "Queued"].includes(proposal?.state) && (
                 <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
                   <QueueExecuteButton

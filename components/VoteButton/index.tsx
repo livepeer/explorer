@@ -17,12 +17,14 @@ type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;
   proposalId?: string;
   choiceId: number;
+  reason?: string;
 };
 
 const Index = ({
   pollAddress,
   proposalId,
   choiceId,
+  reason,
   children,
   ...props
 }: Props) => {
@@ -37,15 +39,15 @@ const Index = ({
         ),
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
-        functionName: "castVote",
-        args: [BigInt(proposalId), choiceId],
+        functionName: "castVoteWithReason",
+        args: [BigInt(proposalId), choiceId, reason ?? ""],
       };
     }
     return {
       enabled: Boolean(pollAddress && accountAddress),
       address: pollAddress,
       abi: poll,
-      functionName: "vote",
+      functionName: "voteWithReason",
       args: [BigInt(choiceId)],
     };
   }, [
@@ -54,6 +56,7 @@ const Index = ({
     pollAddress,
     choiceId,
     accountAddress,
+    reason,
   ]);
 
   const { config } = usePrepareContractWrite(preparedWriteConfig);
@@ -64,6 +67,7 @@ const Index = ({
     choiceName: proposalId
       ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
       : { 0: "No", 1: "Yes" }[choiceId],
+      reason,
   });
 
   if (!accountAddress) {
