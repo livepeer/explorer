@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
 import { formatAddress } from "./formatAddress";
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import {
   Box,
   Button,
@@ -14,15 +13,13 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import { GET_PROPOSALS_BY_IDS, GET_PROPOSALS_VOTES } from "./queries";
+import { GET_PROPOSALS_BY_IDS } from "./queries";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,
   provider,
   contractInterface,
 } from "./contracts";
-
-
 
 interface Vote {
   endVote: number;
@@ -34,102 +31,22 @@ interface Vote {
   proposalId: string;
   reason: string;
   proposalTitle: string;
-  [x: string]: ReactNode;
 }
 
 interface VoterPopoverProps {
   voter: string;
-  proposalId: string;
   onClose: () => void;
 }
 
-const clientInstance = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
-  cache: new InMemoryCache(),
-});
-
-const fetchProposalByIdGraphQL = async (
-  proposalId: string
-): Promise<{ title: string; endVote: number; description: string }> => {
-  try {
-    const { data } = await clientInstance.query({ query: GET_PROPOSALS_VOTES });
-    const proposal = data.treasuryProposals.find((p: any) => p.id === proposalId);
-
-    if (!proposal || !proposal.description || !proposal.voteEnd) {
-      console.error(`Proposal data missing for ID: ${proposalId}`, proposal);
-      return {
-        title: "Unknown Proposal",
-        endVote: 0,
-        description: "No description available.",
-      };
-    }
-
-    const title = proposal.description.split("\n")[0].replace(/^#\s*/, "");
-    return {
-      title,
-      endVote: proposal.voteEnd,
-      description: proposal.description,
-    };
-  } catch (error) {
-    console.error(`Error fetching proposal ${proposalId}:`, error);
-    return { title: "Unknown Proposal", endVote: 0, description: "No description available." };
-  }
-};
-
-const fetchVotesByVoter = async (voter: string, proposalId: string): Promise<Vote[]> => {
-  try {
-    const voterTopic = ethers.utils.zeroPad(voter, 32);
-    const logs = await provider.getLogs({
-      address: CONTRACT_ADDRESS,
-      fromBlock: "earliest",
-      toBlock: "latest",
-      topics: [VOTECAST_TOPIC0, ethers.utils.hexlify(voterTopic)],
-    });
-
-    const proposalsMap = new Map<string, { title: string; endVote: number; description: string }>();
-
-    const votesWithDetails = await Promise.all(
-      logs.map(async (log) => {
-        const decoded = contractInterface.parseLog(log);
-        const proposalIdFromLog = decoded?.args.proposalId.toString();
-
-        if (!proposalsMap.has(proposalIdFromLog)) {
-          const proposal = await fetchProposalByIdGraphQL(proposalIdFromLog);
-          proposalsMap.set(proposalIdFromLog, proposal);
-        }
-
-        const proposal = proposalsMap.get(proposalIdFromLog);
-
-        return {
-          transactionHash: log.transactionHash,
-          voter: decoded?.args.voter,
-          choiceID: decoded?.args.support.toString(),
-          proposalId: proposalIdFromLog,
-          weight: decoded?.args.weight.toString(),
-          reason: decoded?.args.reason,
-          endVote: proposal?.endVote || 0,
-          description: proposal?.description || "No description available.",
-          proposalTitle: proposal?.title || "Unknown Proposal",
-        };
-      })
-    );
-
-    return votesWithDetails.sort((a, b) => a.endVote - b.endVote);
-  } catch (error) {
-    console.error("Error fetching votes for voter:", error);
-    return [];
-  }
-};
-
-const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose }) => {
+const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
   const [logsLoading, setLogsLoading] = useState(true);
   const [proposalIds, setProposalIds] = useState<string[]>([]);
   const [rawVotes, setRawVotes] = useState<any[]>([]); 
  
   useEffect(() => {
     const fetchLogsForVoter = async () => {
+      setLogsLoading(true);
       try {
-        setLogsLoading(true);
         const voterTopic = ethers.utils.zeroPad(voter, 32);
         const logs = await provider.getLogs({
           address: CONTRACT_ADDRESS,
@@ -138,34 +55,34 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
           topics: [VOTECAST_TOPIC0, ethers.utils.hexlify(voterTopic)],
         });
 
-        const decodedVotes = logs.map((log) => {
+        const decodedVotes: any[] = [];
+        const proposalIdsSet = new Set<string>();
+
+        logs.forEach((log) => {
           const decoded = contractInterface.parseLog(log);
-          return {
+          const proposalId = decoded?.args.proposalId.toString();
+          decodedVotes.push({
             transactionHash: log.transactionHash,
             voter: decoded?.args.voter,
-            proposalId: decoded?.args.proposalId.toString(),
+            proposalId,
             choiceID: decoded?.args.support.toString(),
             weight: decoded?.args.weight.toString(),
             reason: decoded?.args.reason,
-          };
+          });
+          proposalIdsSet.add(proposalId);
         });
 
         setRawVotes(decodedVotes);
-
-        const uniqueProposalIds = Array.from(
-          new Set(decodedVotes.map((v) => v.proposalId))
-        );
-
-        setProposalIds(uniqueProposalIds);
-        setLogsLoading(false);
+        setProposalIds(Array.from(proposalIdsSet));
       } catch (error) {
         console.error("Error fetching logs for voter:", error);
+      } finally {
         setLogsLoading(false);
       }
     };
 
     fetchLogsForVoter();
-  }, [voter, proposalId]);
+  }, [voter]);
 
   const { data, loading: proposalsLoading } = useQuery(GET_PROPOSALS_BY_IDS, {
     variables: { ids: proposalIds },
@@ -173,7 +90,7 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
   });
 
   const votes: Vote[] = React.useMemo(() => {
-    if (logsLoading || proposalsLoading || !rawVotes) return [];
+    if (logsLoading || proposalsLoading) return [];
 
     const proposalsMap = new Map<string, { description: string; voteEnd: number }>();
     if (data?.treasuryProposals) {
@@ -209,7 +126,6 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
 
   const isLoading = logsLoading || proposalsLoading;
 
-  // Replace Tailwind-based support styling with Livepeer design tokens.
   const getSupportStyles = (choiceID: string) => {
     switch (choiceID) {
       case "1":
@@ -255,6 +171,17 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
         }}>
           Close
         </Button>
+        <Heading
+          as="h3"
+          css={{
+            color: "$white",
+            mb: "$4",
+            textAlign: "center",
+          }}
+        >
+          {/* Add ENS for address */}
+          Voting History for {formatAddress(voter)}
+        </Heading>
         {isLoading ? (
           <Flex css={{ justifyContent: "center", alignItems: "center" }}>
              <Spinner />
@@ -303,7 +230,3 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, proposalId, onClose 
 };
 
 export default VoterPopover;
-
-function zeroPadValue(voter: string, length: number): string {
-  return ethers.utils.hexlify(ethers.utils.zeroPad(voter, length));
-}

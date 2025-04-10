@@ -492,7 +492,6 @@ const renderDesktopTable = () => (
       {selectedVoter && (
         <VoterPopover
           voter={selectedVoter}
-          proposalId={proposalId}
           onClose={() => setSelectedVoter(null)}
         />
       )}
