@@ -3,6 +3,7 @@ import {
   Link as A,
   styled,
   Flex,
+  Box,
 } from "@livepeer/design-system";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
 import { getAccountVotingHistory } from "cube/queryGenrator";
@@ -11,6 +12,7 @@ import { useEffect, useState } from "react";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import Spinner from "@components/Spinner";
 import Image from "next/image";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 
 
 
@@ -158,9 +160,21 @@ const Index = () => {
         <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
           <div style={{ display: "flex", flexDirection: 'row' }}>
             <div style={{ color: "#66736D", fontSize: 13, }}>PROPOSALS VOTED ON</div>
-            <div style={{ height: 14, width: 14, marginLeft: 10 }}>
-              <QuestionMarkCircledIcon style={{ color: "#66736D" }} />
-            </div>
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  The total number of governance proposals this orchestrator has participated in by casting a vote.
+                </Box>
+              }
+            >
+              <Flex css={{ ml: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
           </div>
           <div style={{ fontSize: 27, marginTop: 6 }}>{proposalVotedOn}</div>
         </div>
@@ -168,11 +182,23 @@ const Index = () => {
         <div style={{ padding: 20, backgroundColor: "#191D1B", width: 300, marginRight: 15, borderRadius: 8 }}>
           <div style={{ display: "flex", flexDirection: 'row' }}>
             <div style={{ color: "#66736D", fontSize: 13, }}>VOTING TURNOUT</div>
-            <div style={{ height: 14, width: 14, marginLeft: 10 }}>
-              <QuestionMarkCircledIcon style={{ color: "#66736D" }} />
-            </div>
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  The percentage of total governance proposals this orchestrator voted on, showing how actively they participate in protocol decisions.
+                </Box>
+              }
+            >
+              <Flex css={{ ml: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
           </div>
-          <div style={{ fontSize: 27, marginTop: 6 }}>{votingTurnOut}</div>
+          <div style={{ fontSize: 27, marginTop: 6 }}>{votingTurnOut}%</div>
         </div>
 
       </div>
@@ -187,20 +213,20 @@ const Index = () => {
                 <div style={{ fontSize: 12, marginBottom: 12, color: '#696d6b' }}>Proposed by <a style={{ color: 'inherit' }} href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}>livepeer.eth</a></div>
                 <div style={getTextStyleByStatus(el["LivepeerProposalStatus.status"])}>{el["LivepeerProposalStatus.status"]}</div>
                 <div>
-                  <a style={{ textDecoration: 'none', fontSize: 12, color: '#696d6b', display:'flex', flexDirection:'row', marginTop:12,}} href={`https://explorer.livepeer.org/accounts/${el['LivepeerProposalStatus.voter']}/delegating`}>
-                  <div style={{marginRight:8, }}> 
-                  {shortenAddress(el['LivepeerProposalStatus.voter'])}
-                  </div>
-                  <Image
-                    src="/img/Vector.png"
-                    alt="Next.js logo"
-                    width={14}
-                    height={11}
-                    priority
-                  />
-                
+                  <a style={{ textDecoration: 'none', fontSize: 12, color: '#696d6b', display: 'flex', flexDirection: 'row', marginTop: 12, }} href={`https://explorer.livepeer.org/accounts/${el['LivepeerProposalStatus.voter']}/delegating`}>
+                    <div style={{ marginRight: 8, }}>
+                      {shortenAddress(el['LivepeerProposalStatus.voter'])}
+                    </div>
+                    <Image
+                      src="/img/Vector.png"
+                      alt="Next.js logo"
+                      width={14}
+                      height={11}
+                      priority
+                    />
+
                   </a>
-                 </div>
+                </div>
               </div>
             )
           })}

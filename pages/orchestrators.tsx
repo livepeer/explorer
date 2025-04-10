@@ -79,14 +79,14 @@ const OrchestratorsPage = ({ orchestrators, protocol, initialVoterData }: PagePr
             {({ selectedIndex, focusedIndex }) => {
               let getTabStyle = (index) => ({
                 borderBottom: `4px solid ${selectedIndex === index
-                    ? "#6ec08d"
-                    : focusedIndex === index
-                      ? "#141716"
-                      : "#141716"
+                  ? "#6ec08d"
+                  : focusedIndex === index
+                    ? "#141716"
+                    : "#141716"
                   }`
-                  ,
-                  backgroundColor: '#141716', borderWidth: 0, borderBottomWidth: 1 ,
-                  paddingBottom:12
+                ,
+                backgroundColor: '#141716', borderWidth: 0, borderBottomWidth: 1,
+                paddingBottom: 12
               });
               return (
                 <>
@@ -162,9 +162,8 @@ const processVoteProposals = (proposals: VoteProposal[]): VoterSummary => {
 
   const mostRecentVotes = sortedVotes.slice(0, 5).map(vote => vote["LivepeerVoteProposals.voteType"] || null);
 
-  const noOfProposalsVotedOn = proposals.length;
-  const noOfVotesCasted = proposals.reduce((acc, vote) => acc + parseInt(vote["LivepeerVoteProposals.numOfVoteCasted"], 10), 0);
-
+  const noOfProposalsVotedOn =Number(proposals[0]['LivepeerVoteProposals.numOfProposals'] || 0);
+  const noOfVotesCasted = Number(proposals[0]['LivepeerVoteProposals.numOfVoteCasted']|| 0);
   const votingTurnout = noOfProposalsVotedOn ? noOfVotesCasted / noOfProposalsVotedOn : 0;
 
   return {

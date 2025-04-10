@@ -13,10 +13,6 @@ import {
   Container,
   Flex,
   Heading,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   Text,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
@@ -39,6 +35,14 @@ import OrchestratorVotingList from "@components/OrchestratorVotingList";
 import { OrchestratorTabs } from "@lib/orchestrartor";
 import { getOrchestratorsVotingHistory } from "cube/queryGenrator";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
+
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@reach/tabs";
 
 const Panel = ({ children }) => (
   <Flex
@@ -379,6 +383,52 @@ const Home = ({ orchestrators, events, protocol, initialVoterData }: PageProps) 
             </Flex>
 
             <Tabs
+            defaultValue={OrchestratorTabs["Yield Overview"]}
+          >
+            {({ selectedIndex, focusedIndex }) => {
+              let getTabStyle = (index) => ({
+                borderBottom: `4px solid ${selectedIndex === index
+                    ? "#6ec08d"
+                    : focusedIndex === index
+                      ? "#141716"
+                      : "#141716"
+                  }`
+                  ,
+                  backgroundColor: '#141716', borderWidth: 0, borderBottomWidth: 1 ,
+                  paddingBottom:12
+              });
+              return (
+                <>
+                  <TabList>
+                    <Tab style={getTabStyle(0)}>
+                      Yield Overview
+                    </Tab>
+                    <Tab style={getTabStyle(1)}>
+                      Voting History
+                    </Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <Box>
+                        <OrchestratorList
+                          data={orchestrators?.transcoders}
+                          pageSize={20}
+                          protocolData={protocol?.protocol}
+                        />
+                      </Box>
+                    </TabPanel>
+                    <TabPanel>
+                      <Box>
+                        <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={20} />
+                      </Box>
+                    </TabPanel>
+                  </TabPanels>
+                </>
+              );
+            }}
+          </Tabs>
+
+            {/* <Tabs
               defaultValue={OrchestratorTabs["Yield Overview"]}
               css={{ mb: "$5" }}
             >
@@ -420,7 +470,7 @@ const Home = ({ orchestrators, events, protocol, initialVoterData }: PageProps) 
                   <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={10}/>
                 </Box>
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
 
             <Flex
               css={{
@@ -509,8 +559,8 @@ const processVoteProposals = (proposals: VoteProposal[]): VoterSummary => {
 
   const mostRecentVotes = sortedVotes.slice(0, 5).map(vote => vote["LivepeerVoteProposals.voteType"] || null);
 
-  const noOfProposalsVotedOn = proposals.length;
-  const noOfVotesCasted = proposals.reduce((acc, vote) => acc + parseInt(vote["LivepeerVoteProposals.numOfVoteCasted"], 10), 0);
+  const noOfProposalsVotedOn =Number(proposals[0]['LivepeerVoteProposals.numOfProposals'] || 0);
+  const noOfVotesCasted = Number(proposals[0]['LivepeerVoteProposals.numOfVoteCasted']|| 0);
 
   const votingTurnout = noOfProposalsVotedOn ? noOfVotesCasted / noOfProposalsVotedOn : 0;
 
