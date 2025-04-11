@@ -47,7 +47,7 @@ const Index = ({
       enabled: Boolean(pollAddress && accountAddress),
       address: pollAddress,
       abi: poll,
-      functionName: "voteWithReason",
+      functionName: "vote",
       args: [BigInt(choiceId)],
     };
   }, [
