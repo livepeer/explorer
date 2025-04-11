@@ -171,17 +171,6 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
         }}>
           Close
         </Button>
-        <Heading
-          as="h3"
-          css={{
-            color: "$white",
-            mb: "$4",
-            textAlign: "center",
-          }}
-        >
-          {/* Add ENS for address */}
-          Voting History for {formatAddress(voter)}
-        </Heading>
         {isLoading ? (
           <Flex css={{ justifyContent: "center", alignItems: "center" }}>
              <Spinner />
