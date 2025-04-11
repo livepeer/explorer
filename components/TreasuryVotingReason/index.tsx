@@ -2,7 +2,7 @@
 import { Text, TextArea } from "@livepeer/design-system";
 
 const MAX_INPUT_LENGTH = 256;
-const MIN_INPUT_LENGTH = 1;
+const MIN_INPUT_LENGTH = 3;
 
 /**
  * 
@@ -25,10 +25,11 @@ const Index = ({
   setReason: (reason: string) => void;
 }) => {
 
+  const charsLeft = MAX_INPUT_LENGTH - reason.length;
 
   return (
     <>
-      <Text size="2" css={{ fontWeight: 600, marginBottom: "$1" }}>
+      <Text size="2" css={{ fontWeight: 600 }}>
         Reason (optional)
       </Text>
       <TextArea
@@ -48,6 +49,9 @@ const Index = ({
         onChange={(e) => setReason(e.target.value)}
         rows={3}
       />
+       <Text css={{ fontSize: "$1", paddingTop: "$1", paddingBottom: "$1", paddingLeft: "$1", color: "$gray" }}>
+        {charsLeft} characters left
+      </Text>
      </>
   );
 };
