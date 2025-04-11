@@ -4,7 +4,6 @@ import {
   Flex,
   Heading,
   Text,
-  TextArea,
 } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -31,8 +30,6 @@ const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? 0), 4);
-
-
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();
