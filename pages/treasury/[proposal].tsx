@@ -6,7 +6,7 @@ import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import { fetchVotesFromInfura } from "@components/Votes/fetchVotes"; 
+import { fetchVotesFromInfura } from "../../hooks/fetchVotes"; 
 import {
   Badge,
   Box,

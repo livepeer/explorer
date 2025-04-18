@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { ethers } from "ethers";
 import { useQuery } from "@apollo/client";
 import Spinner from "@components/Spinner";
-import { formatAddress } from "./formatAddress";
+import { formatAddress } from "../../utils/formatAddress";
 import {
   Box,
   Button,
@@ -13,13 +13,13 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import { GET_PROPOSALS_BY_IDS } from "./queries";
+import { GET_PROPOSALS_BY_IDS } from "../../queries/TreasuryProposals";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,
   provider,
   contractInterface,
-} from "./contracts";
+} from "@lib/chains";
 
 interface Vote {
   endVote: number;

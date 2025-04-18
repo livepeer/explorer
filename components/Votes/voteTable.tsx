@@ -20,9 +20,9 @@ import {
   VOTECAST_TOPIC0,
   provider,
   contractInterface,
-} from "./contracts";
-import { ENS_QUERY } from "./queries";
-import { formatAddress } from "./formatAddress";
+} from "@lib/chains";;
+import { ENS_QUERY } from "../../queries/TreasuryProposals";
+import { formatAddress } from "../../utils/formatAddress";
 
 const createEnsApolloClient = () =>
   new ApolloClient({

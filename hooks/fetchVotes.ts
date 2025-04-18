@@ -5,11 +5,11 @@ import {
   VOTECAST_TOPIC0,
   provider,
   contractInterface,
-} from "./contracts";
+} from "@lib/chains";
 
 import {
   ENS_QUERY
-} from "./queries"; 
+} from "../queries/TreasuryProposals"; 
 
 const ensClient = new ApolloClient({
   uri: process.env.NEXT_PUBLIC_ENS_API_URI,
