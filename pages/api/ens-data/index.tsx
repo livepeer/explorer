@@ -50,7 +50,7 @@ const handler = async (
         await Promise.all(
           addresses.map(async (address) => {
             try {
-              return getEnsForAddress(address as Address);
+              return await getEnsForAddress(address as Address);
             } catch (e) {}
 
             return null;
