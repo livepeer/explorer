@@ -13,7 +13,7 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import { GET_PROPOSALS_BY_IDS } from "../../queries/TreasuryProposals";
+import { GET_PROPOSALS_BY_IDS } from "../../queries/treasuryProposals";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,

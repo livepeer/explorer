@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
-import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { formatAddress } from "../utils/formatAddress";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,
@@ -9,60 +9,73 @@ import {
 
 import {
   ENS_QUERY
-} from "../queries/TreasuryProposals"; 
+} from "../queries/treasuryProposals"; 
 
-const ensClient = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_ENS_API_URI,
-  cache: new InMemoryCache(),
-});
+interface Vote {
+  transactionHash?: string;
+  weight: string;
+  voter: string;
+  choiceID: string;
+  proposalId: string;
+  reason: string;
+  ensName?: string;
+}
 
-export const fetchVotesFromInfura = async (proposalId: string) => {
+const createEnsApolloClient = () =>
+  new ApolloClient({
+    uri: process.env.NEXT_PUBLIC_ENS_API_URI,
+    cache: new InMemoryCache(),
+  });
+
+export const fetchVotesFromInfura = async (proposalId: string): Promise<Vote[]> => {
+  const ensClient = createEnsApolloClient();
   try {
-const currentBlock = await provider.getBlockNumber();
-const logs = await provider.getLogs({
-  address: CONTRACT_ADDRESS,
-  fromBlock: currentBlock - 10000,
-  toBlock: "latest",
-  topics: [VOTECAST_TOPIC0],
-});
+    const logs = await provider.getLogs({
+      address: CONTRACT_ADDRESS,
+      fromBlock: "earliest",
+      toBlock: "latest",
+      topics: [VOTECAST_TOPIC0],
+    });
 
-
-    const votes = logs
+    const decodedVotes = logs
       .map((log) => {
         const decoded = contractInterface.parseLog(log);
         return {
           transactionHash: log.transactionHash,
-          voter: decoded?.args.voter.toLowerCase() || "", 
+          voter: decoded?.args.voter.toLowerCase() || "",
           choiceID: decoded?.args.support.toString() || "",
           proposalId: decoded?.args.proposalId.toString() || "",
-          weight: ethers.utils.formatUnits(decoded?.args.weight.toString() || "0", 18),
+          weight: decoded?.args.weight.toString() || "0",
           reason: decoded?.args.reason || "No reason provided",
         };
       })
       .filter((vote) => vote.proposalId === proposalId);
 
-    if (votes.length === 0) return votes;
+    const uniqueVoters = Array.from(new Set(decodedVotes.map((v) => v.voter)));
+    const localEnsCache: { [address: string]: string } = {};
 
-    const uniqueVoters = Array.from(new Set(votes.map((vote) => vote.voter)));
+    await Promise.all(
+      uniqueVoters.map(async (address) => {
+        try {
+          const { data } = await ensClient.query({
+            query: ENS_QUERY,
+            variables: { address },
+          });
+          if (data?.domains?.length > 0) {
+            localEnsCache[address] = data.domains[0].name;
+          }
+        } catch (e) {
+          console.warn(`Failed to fetch ENS for ${address}`, e);
+        }
+      })
+    );
 
-    const { data } = await ensClient.query({
-      query: ENS_QUERY,
-      variables: { addresses: uniqueVoters },
-    });
-
-    const ensMap: { [key: string]: string } = {};
-    if (data?.domains) {
-      data.domains.forEach((domain: { resolvedAddress: { id: string }; name: string }) => {
-        ensMap[domain.resolvedAddress.id.toLowerCase()] = domain.name;
-      });
-    }
-
-    return votes.map((vote) => ({
+    return decodedVotes.map((vote) => ({
       ...vote,
-      voter: ensMap[vote.voter] || vote.voter,
+      ensName: localEnsCache[vote.voter] || formatAddress(vote.voter),
     }));
   } catch (error) {
-    console.log("Error fetching logs from Infura:", error);
+    console.error("Error fetching logs from Infura:", error);
     return [];
   }
 };
