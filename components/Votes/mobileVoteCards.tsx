@@ -31,7 +31,15 @@ export const MobileVoteCards: React.FC<MobileVoteCardsProps> = ({ votes, counts,
           onClickCapture={e => { if ((e.target as HTMLElement).closest('a')) return; e.stopPropagation(); onSelect(vote.voter); }}
         >
           <Heading as="h4" css={{ fontSize: '$3', mb: '$2', color: '$green11' }}>
-            {formatAddress(vote.ensName ?? '') || formatAddress(vote.voter)}
+             <Link
+                              href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
+                              target="_blank"
+                              css={{ color: '$green11', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                              onClick={e => e.stopPropagation()}
+                            >
+                              {formatAddress(vote.ensName ?? '') || formatAddress(vote.voter)}
+                            </Link>
+            
           </Heading>
           <Text css={{ display: 'flex', alignItems: 'center', mb: '$1' }}>
             <Text as="span" css={{ fontWeight: 600, mr: '$2' }}>Support:</Text>
@@ -40,7 +48,7 @@ export const MobileVoteCards: React.FC<MobileVoteCardsProps> = ({ votes, counts,
           <Text css={{ mb: '$1', color: '$white' }}>
             <Text as="span" css={{ fontWeight: 600 }}>Weight:</Text> {formatWeight(vote.weight)}
           </Text>
-          <Text css={{ mb: '$1', color: '$neutral9' }}>
+          <Text css={{ mb: '$1', color: '$neutral11' }}>
             <Text as="span" css={{ fontWeight: 600 }}>Reason:</Text> {vote.reason}
           </Text>
           <Box>
@@ -48,7 +56,7 @@ export const MobileVoteCards: React.FC<MobileVoteCardsProps> = ({ votes, counts,
               <Link
                 href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
                 target="_blank"
-                css={{ color: '$blue9', textDecoration: 'underline' }}
+                css={{ display: 'inline-block', transition: 'transform 0.2s ease', zIndex: 9999, position: 'relative', '&:hover': { transform: 'scale(1.3)', zIndex: 9999 } }}
                 onClick={e => e.stopPropagation()}
               >
                 <Image src={ArbitrumIcon} alt="Arbitrum Icon" width={24} height={24} />
