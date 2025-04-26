@@ -15,6 +15,9 @@ interface DesktopVoteTableProps {
 
 export const DesktopVoteTable: React.FC<DesktopVoteTableProps> = ({ votes, counts, formatWeight, onSelect }) => (
   <Box css={{ display: 'none', '@bp2': { display: 'block' }, overflowX: 'auto' }}>
+    <Text css={{ textAlign: 'center', fontSize: '$4', fontWeight: 500, color: '$white', mb: '$2' }}>
+      Vote Results
+    </Text>
     <Flex css={{ justifyContent: 'center', mb: '$4', fontWeight: 700, fontSize: '$3', color: '$white' }}>
       <Text css={{ mr: '$1', color: '$green9' }}>Yes ({counts.yes})</Text>
       <Text>|</Text>
@@ -22,6 +25,10 @@ export const DesktopVoteTable: React.FC<DesktopVoteTableProps> = ({ votes, count
       <Text>|</Text>
       <Text css={{ ml: '$1', color: '$yellow9' }}>Abstain ({counts.abstain})</Text>
     </Flex>
+
+    <Text css={{ textAlign: 'center', fontSize: '$2', color: '$neutral11', mb: '$2' }}>
+    Click on a vote to view a voter's proposal voting history.
+    </Text>
     <Box as="table" css={{ width: '100%', borderCollapse: 'collapse' }}>
       <Box as="thead">
         <Box as="tr" css={{ backgroundColor: '$neutral4' }}>

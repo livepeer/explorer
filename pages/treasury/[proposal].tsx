@@ -1,12 +1,11 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import { fetchVotesFromInfura } from "../../hooks/fetchVotes"; 
 import {
   Badge,
   Box,
@@ -20,7 +19,6 @@ import {
 } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import {
   useAccountAddress,
@@ -31,6 +29,7 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
+import { useVotes } from '../../hooks/useVotes';
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
@@ -44,23 +43,6 @@ import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
-
-
-interface Proposal {
-  id: string;
-  description: string;
-  voteStart: number;
-  voteEnd: number;
-  proposer: { id: string };
-  votes?: { weight: string; choiceID: string; voter?: string }[];
-  targets: string[];
-  calldatas: string[];
-}
-interface Vote {
-  weight: string;
-  choiceID: string;
-  voter?: string;
-}
 
 dayjs.extend(relativeTime);
 
@@ -100,12 +82,15 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [voteCount, setVoteCount] = useState(0);
-  const [loadingVotes, setLoadingVotes] = useState(true);
-  const [ensCache, setEnsCache] = useState({});
+  const { votes, loading: votesLoading } = useVotes(proposalId ?? "");
   const [votesOpen, setVotesOpen] = useState(false);
 
+  function votesContent() {
+    if (votesLoading) return <Spinner />;
+    if (votes.length === 0) return <Text>No votes yet.</Text>;
+    return proposal ? <VoteList proposalId={proposal.id} /> : null;
+  }
+  
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -154,46 +139,6 @@ const Proposal = () => {
   if (stateError || proposalError) {
     return <FourZeroFour />;
   }
-
-  useEffect(() => {
-    async function fetchVotes() {
-      if (!proposal?.id) return;
-  
-      setLoadingVotes(true);
-      try {
-        const fetchedVotes = await fetchVotesFromInfura(proposal.id);
-        const validVotes = fetchedVotes.filter(vote =>
-          ["0", "1", "2"].includes(vote.choiceID)
-        );
-        setVotes(validVotes);
-        setVoteCount(validVotes.length);
-  
-        const cache: { [key: string]: null } = {};
-        for (const vote of validVotes) {
-          if (vote.voter && !cache[vote.voter]) {
-            cache[vote.voter] = null; 
-          }
-        }
-        setEnsCache(cache);
-      } catch (err) {
-        console.error("Error fetching votes", err);
-      } finally {
-        setLoadingVotes(false);
-      }
-    }
-  
-    fetchVotes();
-  }, [proposal?.id]);
-  
-  
-  const formatStake = (stake: number) =>
-    `${numeral(parseFloat(fromWei(stake.toString()))).format("0,0.[00]")} LPT`;
-  
-  const totalVotes = votes.filter(vote =>
-    ["0", "1", "2"].includes(vote.choiceID)
-  ).length;
-  
-  
 
   if (!proposal) {
     return (
@@ -676,7 +621,10 @@ const Proposal = () => {
     alignItems: "center",
   }}
 >
-  <span>View Votes</span>
+<Box css={{ display: "flex", alignItems: "center" }} as="span">
+{votesLoading ? "Loading votes…" : `View Votes (${votes.length})`}
+</Box>
+
   <Text
     as="span"
     css={{
@@ -690,19 +638,7 @@ const Proposal = () => {
 </Heading>
 
   </Flex>
-  {votesOpen && (
-    <VoteList
-      ensCache={ensCache}
-      formatStake={formatStake}
-      proposalId={proposal.id}
-      proposalTitle={proposal.description.split("\n")[0].replace(/^#\s*/, "")}
-      votes={votes.map((vote) => ({
-        voter: vote.voter || "Unknown",
-        weight: vote.weight,
-        choiceID: vote.choiceID,
-      }))}
-    />
-  )}
+  {votesOpen && <Box css={{ padding: "$3" }}>{votesContent()}</Box>}
 </Card>
 
             </Box>
