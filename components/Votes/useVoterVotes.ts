@@ -1,4 +1,3 @@
-// votes/useVoterVotes.ts
 import { useState, useEffect, useMemo } from 'react'
 import { provider, VOTECAST_TOPIC0, contractInterface, CONTRACT_ADDRESS } from '@lib/chains'
 import { useQuery } from '@apollo/client'

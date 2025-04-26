@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { useWindowSize } from 'react-use';
 import Spinner from '@components/Spinner';
 import { useVotes } from '../../hooks/useVotes';
 import { DesktopVoteTable } from './desktopVoteTable';
@@ -19,6 +20,9 @@ const lptFormatter = new Intl.NumberFormat('en-US', {
 
 export const VoteTable: React.FC<VoteTableProps> = ({ proposalId }) => {
   const { votes, loading } = useVotes(proposalId);
+  const { width } = useWindowSize();          
+  const isDesktop = width >= 768;  
+
   const [selectedVoter, setSelectedVoter] = useState<string | null>(null);
 
   const counts = {
@@ -52,10 +56,16 @@ export const VoteTable: React.FC<VoteTableProps> = ({ proposalId }) => {
     </Text>
   );
 
+  const VoteListView = isDesktop ? DesktopVoteTable : MobileVoteCards;
+
   return (
     <>
-      <DesktopVoteTable votes={votes} counts={counts} formatWeight={formatWeight} onSelect={setSelectedVoter} />
-      <MobileVoteCards  votes={votes} counts={counts} formatWeight={formatWeight} onSelect={setSelectedVoter} />
+       <VoteListView
+        votes={votes}
+        counts={counts}
+        formatWeight={formatWeight}
+        onSelect={setSelectedVoter}
+      />
       {selectedVoter && <VoterPopover voter={selectedVoter} onClose={() => setSelectedVoter(null)} />}
     </>
   );

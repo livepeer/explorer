@@ -10,16 +10,7 @@ import {
 import {
   ENS_QUERY
 } from "../queries/treasuryProposals"; 
-
-interface Vote {
-  transactionHash?: string;
-  weight: string;
-  voter: string;
-  choiceID: string;
-  proposalId: string;
-  reason: string;
-  ensName?: string;
-}
+import { Vote } from '../components/Votes/types';
 
 const createEnsApolloClient = () =>
   new ApolloClient({

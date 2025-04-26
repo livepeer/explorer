@@ -1,6 +1,6 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
@@ -84,12 +84,6 @@ const Proposal = () => {
 
   const { votes, loading: votesLoading } = useVotes(proposalId ?? "");
   const [votesOpen, setVotesOpen] = useState(false);
-
-  function votesContent() {
-    if (votesLoading) return <Spinner />;
-    if (votes.length === 0) return <Text>No votes yet.</Text>;
-    return proposal ? <VoteList proposalId={proposal.id} /> : null;
-  }
   
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -104,6 +98,12 @@ const Proposal = () => {
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
   const proposerId = useEnsData(proposal?.proposer.id);
+
+  const votesContent = useCallback(() => {
+    if (votesLoading) return <Spinner />;
+    if (votes.length === 0) return <Text>No votes yet.</Text>;
+    return <VoteList proposalId={proposal!.id} />;
+  }, [votesLoading, votes.length, proposal?.id]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
