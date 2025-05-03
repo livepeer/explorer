@@ -1,6 +1,6 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
@@ -29,7 +29,7 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
-import { useVotes } from '../../hooks/useVotes';
+import { useVotes } from '../../hooks/TreasuryVotes/useVotes';
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
@@ -63,6 +63,7 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -139,6 +140,10 @@ const Proposal = () => {
   if (stateError || proposalError) {
     return <FourZeroFour />;
   }
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
 
   if (!proposal) {
     return (
@@ -645,7 +650,7 @@ const Proposal = () => {
             
           </Flex>
 
-          {width > 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",

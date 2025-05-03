@@ -3,7 +3,7 @@ import { provider, VOTECAST_TOPIC0, contractInterface, CONTRACT_ADDRESS } from '
 import { useQuery } from '@apollo/client'
 import { ethers } from "ethers";
 import { GET_PROPOSALS_BY_IDS } from '../../queries/treasuryProposals'
-import { Vote } from './types'
+import { Vote } from '../../@types/votes'
 
 export function useVoterVotes(voter: string) {
   const [logsLoading, setLogsLoading] = useState(true)

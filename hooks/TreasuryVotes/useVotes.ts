@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchVotesFromInfura } from './fetchVotes';
-import { Vote } from '../components/Votes/types';
+import { Vote } from '../../@types/votes';
 
 export function useVotes(proposalId: string) {
   const [votes, setVotes] = useState<Vote[]>([]);

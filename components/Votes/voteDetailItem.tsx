@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Box, Heading, Text, Link } from '@livepeer/design-system';
 import ArbitrumIcon from '../../public/img/logos/arbitrum.png';
-import { SUPPORT, Vote } from './types';
+import { SUPPORT, Vote } from '../../@types/votes';
 import { formatAddress } from '../../utils/formatAddress';
 
 const lptFormatter = new Intl.NumberFormat('en-US', {

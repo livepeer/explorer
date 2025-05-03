@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useWindowSize } from 'react-use';
 import Spinner from '@components/Spinner';
-import { useVotes } from '../../hooks/useVotes';
+import { useVotes } from '../../hooks/TreasuryVotes/useVotes';
 import { DesktopVoteTable } from './desktopVoteTable';
 import { MobileVoteCards } from './mobileVoteCards';
 import VoterPopover from './voterPopover';
@@ -36,15 +36,12 @@ export const VoteTable: React.FC<VoteTableProps> = ({ proposalId }) => {
     0
   );
 
-  const formatWeight = useCallback(
-    (w: string) =>
-      `${lptFormatter.format(parseFloat(w) / 1e18)} LPT (${
-        totalWeight > 0
-          ? ((parseFloat(w) / totalWeight) * 100).toFixed(2)
-          : '0'
-      }%)`,
-    [totalWeight] 
-  );
+  const formatWeight = (w: string) =>
+    `${lptFormatter.format(parseFloat(w) / 1e18)} LPT (${
+      totalWeight > 0
+        ? ((parseFloat(w) / totalWeight) * 100).toFixed(2)
+        : '0'
+    }%)`;
 
   if (loading) return (
     <Flex css={{ justifyContent: 'center', alignItems: 'center', height: '150px' }}><Spinner /></Flex>

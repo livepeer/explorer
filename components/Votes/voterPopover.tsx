@@ -5,7 +5,7 @@ import Spinner from '@components/Spinner';
 import { Flex, Text } from '@livepeer/design-system';
 import { VoteModal } from './voteModal';
 import { VoteDetailItem } from './voteDetailItem';
-import { useVoterVotes } from './useVoterVotes';
+import { useVoterVotes } from '../../hooks/TreasuryVotes/useVoterVotes';
 
 interface VoterPopoverProps {
   voter: string;

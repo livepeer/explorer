@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Box, Flex, Text, Link } from '@livepeer/design-system';
 import ArbitrumIcon from '../../public/img/logos/arbitrum.png';
 import { formatAddress } from '../../utils/formatAddress';
-import { Vote, SUPPORT } from './types';
+import { Vote, SUPPORT } from '../../@types/votes';
 
 interface DesktopVoteTableProps {
   votes: Vote[];

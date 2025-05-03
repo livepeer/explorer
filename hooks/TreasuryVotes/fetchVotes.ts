@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { formatAddress } from "../utils/formatAddress";
+import { formatAddress } from "../../utils/formatAddress";
 import {
   CONTRACT_ADDRESS,
   VOTECAST_TOPIC0,
@@ -9,8 +9,8 @@ import {
 
 import {
   ENS_QUERY
-} from "../queries/treasuryProposals"; 
-import { Vote } from '../components/Votes/types';
+} from "../../queries/treasuryProposals"; 
+import { Vote } from '../../@types/votes';
 
 const createEnsApolloClient = () =>
   new ApolloClient({
