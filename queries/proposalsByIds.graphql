@@ -1,0 +1,8 @@
+query getProposalsByIds($ids: [String!]!) {
+     treasuryProposals(where: { id_in: $ids }) {
+       id
+       description
+       voteStart
+       voteEnd
+     }
+   }

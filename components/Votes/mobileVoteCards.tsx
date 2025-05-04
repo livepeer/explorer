@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Card, Flex, Heading, Link, Text, Box } from '@livepeer/design-system';
 import ArbitrumIcon from '../../public/img/logos/arbitrum.png';
 import { formatAddress } from '../../utils/formatAddress';
-import { Vote, SUPPORT } from '../../@types/votes';
+import { Vote, SUPPORT } from '../../lib/api/types/votes';
 
 interface MobileVoteCardsProps {
   votes: Vote[];

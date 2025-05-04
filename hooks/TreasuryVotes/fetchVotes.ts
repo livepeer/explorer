@@ -7,10 +7,8 @@ import {
   contractInterface,
 } from "@lib/chains";
 
-import {
-  ENS_QUERY
-} from "../../queries/treasuryProposals"; 
-import { Vote } from '../../@types/votes';
+import ENS_QUERY from "../../queries/ens.graphql";
+import { Vote } from '../../lib/api/types/votes';
 
 const createEnsApolloClient = () =>
   new ApolloClient({

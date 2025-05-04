@@ -1,0 +1,12 @@
+ query getENS($address: String!) {
+     domains(where: { resolvedAddress: $address }
+       orderBy: registration__registrationDate
+       orderDirection: desc
+     ) {
+       name
+       resolvedAddress {
+         id
+       }
+       createdAt
+     }
+   }
