@@ -2,9 +2,7 @@ import Spinner from "@components/Spinner";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import {
-  getLivepeerTokenAddress,
-} from "@lib/api/contracts";
+import { getLivepeerTokenAddress } from "@lib/api/contracts";
 import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
@@ -71,13 +69,13 @@ const CreateProposal = () => {
   const accountAddress = useAccountAddress();
   const contractAddresses = useContractInfoData();
   const treasuryAccountBalanceData = useAccountBalanceData(
-    contractAddresses.Treasury?.address
+    contractAddresses.Treasury?.address,
   );
   const treasuryBalance = useMemo(
     () =>
       treasuryAccountBalanceData &&
       fromWei(treasuryAccountBalanceData?.balance),
-    [treasuryAccountBalanceData]
+    [treasuryAccountBalanceData],
   );
 
   const votingPower = useTreasuryVotingPowerData(accountAddress);
@@ -128,7 +126,7 @@ const CreateProposal = () => {
     contractAddresses.LivepeerGovernor?.address &&
       livepeerTokenAddress &&
       transferTokenFunctionData &&
-      description
+      description,
   );
   const { config } = usePrepareContractWrite({
     enabled: txEnabled,
@@ -246,7 +244,7 @@ const CreateProposal = () => {
                     p: "$4",
                     // border: "1px solid $neutral4",
                     // mb: "$3",
-                                    }}
+                  }}
                 >
                   <MarkdownRenderer>
                     {`# ${formTitle}\n${formDescription}`}

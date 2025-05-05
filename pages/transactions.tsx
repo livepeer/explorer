@@ -8,6 +8,7 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import Head from "next/head";
 import { useMemo } from "react";
+
 import { EventsQueryResult, getApollo } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;
@@ -28,10 +29,10 @@ const TransactionsPage = ({ events }: PageProps) => {
         ?.filter((e) =>
           e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
-            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? "")
+            : !FILTERED_EVENT_TYPENAMES.includes(e?.__typename ?? ""),
         )
         ?.slice(0, numberTransactions) ?? [],
-    [events]
+    [events],
   );
 
   return (

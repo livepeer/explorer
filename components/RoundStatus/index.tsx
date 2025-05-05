@@ -15,6 +15,7 @@ import { useTheme } from "next-themes";
 import numeral from "numeral";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
+
 import CircularProgressbar from "../CircularProgressBar";
 
 dayjs.extend(relativeTime);
@@ -40,11 +41,11 @@ const Index = ({
           (+Number(currentRoundInfo.currentL1Block) -
             +Number(currentRoundInfo.startBlock))
         : 0,
-    [protocol, currentRoundInfo]
+    [protocol, currentRoundInfo],
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
-    [blocksRemaining]
+    [blocksRemaining],
   );
   const blocksSinceCurrentRoundStart = useMemo(
     () =>
@@ -52,7 +53,7 @@ const Index = ({
         ? +Number(currentRoundInfo.currentL1Block) -
           +Number(currentRoundInfo.startBlock)
         : 0,
-    [currentRoundInfo]
+    [currentRoundInfo],
   );
 
   const percentage = useMemo(
@@ -60,7 +61,7 @@ const Index = ({
       protocol
         ? (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100
         : 0,
-    [blocksSinceCurrentRoundStart, protocol]
+    [blocksSinceCurrentRoundStart, protocol],
   );
 
   const isRoundLocked = useMemo(
@@ -68,16 +69,16 @@ const Index = ({
       protocol && currentRoundInfo
         ? blocksRemaining <= Number(protocol?.lockPeriod)
         : false,
-    [protocol, blocksRemaining, currentRoundInfo]
+    [protocol, blocksRemaining, currentRoundInfo],
   );
 
   const rewardTokensClaimed = useMemo(
     () =>
       protocol?.currentRound?.pools?.reduce(
         (prev, pool) => prev + Number(pool?.rewardTokens || 0),
-        0
+        0,
       ) || 0,
-    [protocol]
+    [protocol],
   );
 
   return (
@@ -239,7 +240,7 @@ const Index = ({
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
                   {numeral(protocol?.currentRound?.volumeUSD || 0).format(
-                    "$0,0k"
+                    "$0,0k",
                   )}{" "}
                   at recent prices of ETH.
                 </Box>
@@ -280,7 +281,7 @@ const Index = ({
                   }}
                 >
                   {numeral(protocol?.currentRound?.volumeETH || 0).format(
-                    "0.00a"
+                    "0.00a",
                   )}{" "}
                   ETH
                 </Text>
@@ -331,7 +332,7 @@ const Index = ({
                 >
                   {numeral(rewardTokensClaimed).format("0")}/
                   {numeral(protocol?.currentRound?.mintableTokens || 0).format(
-                    "0"
+                    "0",
                   )}{" "}
                   LPT
                 </Text>

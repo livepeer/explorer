@@ -97,7 +97,7 @@ const MarkdownImage = React.memo(
         {...imgProps}
       />
     );
-  }
+  },
 );
 MarkdownImage.displayName = "MarkdownImage";
 
@@ -164,7 +164,7 @@ const MarkdownRenderer = ({
         );
       },
     }),
-    []
+    [],
   );
 
   if (!safeChildren) {

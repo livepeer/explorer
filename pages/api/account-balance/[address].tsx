@@ -12,7 +12,7 @@ import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<AccountBalance | null>
+  res: NextApiResponse<AccountBalance | null>,
 ) => {
   try {
     const method = req.method;

@@ -8,7 +8,7 @@ import {
   IconButton,
   Link as A,
   Text,
-  TextField
+  TextField,
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
@@ -43,12 +43,12 @@ const Index = ({ css = {}, ...props }) => {
           },
         ],
       }),
-    [accounts]
+    [accounts],
   );
 
   const searchMapping = useMemo(
     () => (search ? fuse.search(search, { limit: 15 }) : []),
-    [fuse, search]
+    [fuse, search],
   );
 
   return (
@@ -176,11 +176,11 @@ const Index = ({ css = {}, ...props }) => {
                         {result.item.name
                           ? `${result.item.name} (${result.item.id.replace(
                               result.item.id.slice(5, 39),
-                              "…"
+                              "…",
                             )})`
                           : result.item.id.replace(
                               result.item.id.slice(7, 37),
-                              "…"
+                              "…",
                             )}
                       </Text>
                     </Flex>

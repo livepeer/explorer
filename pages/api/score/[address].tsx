@@ -1,5 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
+import {
+  PerformanceMetrics,
+  RegionalValues,
+} from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,11 +14,11 @@ type Metric = {
 };
 
 export type MetricsResponse = {
-  [key: string]: 
-      | {
+  [key: string]:
+    | {
         [key: string]: Metric;
-    }
-  | undefined;
+      }
+    | undefined;
 };
 
 type ScoreResponse = {
@@ -52,7 +55,7 @@ export function avg(obj, key) {
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<PerformanceMetrics | null>
+  res: NextApiResponse<PerformanceMetrics | null>,
 ) => {
   try {
     const method = req.method;
@@ -65,52 +68,70 @@ const handler = async (
       if (isValidAddress(address)) {
         const transcoderId = address.toLowerCase();
         const topScoreResponse = await fetch(
-           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
+          `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`,
         );
         const topAIScore: ScoreResponse = await topScoreResponse.json();
 
         const metricsResponse = await fetch(
-           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
+          `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`,
         );
         const metrics: MetricsResponse = await metricsResponse.json();
 
         const response = await fetch(
-          `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`
+          `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`,
         );
         const transcodersWithPrice: PriceResponse = await response.json();
         const transcoderWithPrice = transcodersWithPrice.find((t) =>
-          checkAddressEquality(t.Address, transcoderId)
+          checkAddressEquality(t.Address, transcoderId),
         );
         const uniqueRegions = (() => {
           const keys = new Set<string>();
-          Object.values(metrics).forEach(metric => {
+          Object.values(metrics).forEach((metric) => {
             if (metric) {
-              Object.keys(metric).forEach(key => keys.add(key));
+              Object.keys(metric).forEach((key) => keys.add(key));
             }
           });
           return Array.from(keys);
         })();
-        const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse): RegionalValues => {
-          const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
-            const val = metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
-            if(val !== null && val !== "") 
-              acc[metricsRegionKey] = (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ?? 0) * 100 || 0;
-            return acc;
-          }, {} as RegionalValues);
-          
+        const createMetricsObject = (
+          metricKey: string,
+          transcoderId: string,
+          metrics: MetricsResponse,
+        ): RegionalValues => {
+          const metricsObject: RegionalValues = uniqueRegions.reduce(
+            (acc, metricsRegionKey) => {
+              const val =
+                metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
+              if (val !== null && val !== "")
+                acc[metricsRegionKey] =
+                  (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ??
+                    0) * 100 || 0;
+              return acc;
+            },
+            {} as RegionalValues,
+          );
+
           // Define a global key that is the average of the other keys
           const globalValue = avg(metrics[transcoderId], metricKey) * 100;
           const finalMetricsObject: RegionalValues = {
             ...metricsObject,
-            GLOBAL: globalValue
+            GLOBAL: globalValue,
           };
           return finalMetricsObject;
         };
 
         const combined: PerformanceMetrics = {
           pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
-          successRates: createMetricsObject("success_rate", transcoderId, metrics),
-          roundTripScores: createMetricsObject("round_trip_score", transcoderId, metrics),
+          successRates: createMetricsObject(
+            "success_rate",
+            transcoderId,
+            metrics,
+          ),
+          roundTripScores: createMetricsObject(
+            "round_trip_score",
+            transcoderId,
+            metrics,
+          ),
           scores: createMetricsObject("score", transcoderId, metrics),
           topAIScore: topAIScore,
         };

@@ -22,7 +22,8 @@
     "jsx": "preserve",
     "downlevelIteration": true,
     "incremental": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["node", "node-fetch"]
   },
   "exclude": ["node_modules"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]

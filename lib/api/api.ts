@@ -28,10 +28,10 @@ const cacheControlValues = {
 } as const;
 
 export const getCacheControlHeader = (
-  type: keyof typeof cacheControlValues
+  type: keyof typeof cacheControlValues,
 ) => {
   const randomJitterValue = Number(
-    (Math.random() * (type === "day" ? 3600 : 600)).toFixed(0)
+    (Math.random() * (type === "day" ? 3600 : 600)).toFixed(0),
   );
 
   return `public, s-maxage=${
@@ -41,5 +41,8 @@ export const getCacheControlHeader = (
 };
 
 export const isValidAddress = (
-  address: string | string[] | null | undefined
-): address is Address => typeof address === "string" && address.length === 42 && address.startsWith("0x");
+  address: string | string[] | null | undefined,
+): address is Address =>
+  typeof address === "string" &&
+  address.length === 42 &&
+  address.startsWith("0x");

@@ -32,7 +32,7 @@ export type ROIParams = {
     totalSupply: number;
     totalActiveStake: number;
     roundLength: number;
-    
+
     rewardCallRatio: number;
     rewardCut: number;
     treasuryRewardCut: number;
@@ -43,14 +43,14 @@ export const getMonthsForTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"
     ? 12
     : timeHorizon === "half-year"
-    ? 6
-    : timeHorizon === "two-years"
-    ? 24
-    : timeHorizon === "three-years"
-    ? 36
-    : timeHorizon === "four-years"
-    ? 48
-    : 12;
+      ? 6
+      : timeHorizon === "two-years"
+        ? 24
+        : timeHorizon === "three-years"
+          ? 36
+          : timeHorizon === "four-years"
+            ? 48
+            : 12;
 
 export function calculateROI({
   inputs: {
@@ -83,9 +83,9 @@ export function calculateROI({
 
   const averageSecondsPerRound = roundLength * AVERAGE_L1_BLOCK_TIME;
   const roundsCount = Math.round(
-    (monthsForTimeHorizon * SECONDS_IN_A_MONTH) / averageSecondsPerRound
+    (monthsForTimeHorizon * SECONDS_IN_A_MONTH) / averageSecondsPerRound,
   );
-  
+
   // Subtract treasury reward cut from the inflation.
   inflation = inflation * (1 - treasuryRewardCut);
 

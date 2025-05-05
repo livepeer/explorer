@@ -5,12 +5,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
 
 const blacklist = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"].map((a) =>
-  a.toLowerCase()
+  a.toLowerCase(),
 );
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<EnsIdentity | null>
+  res: NextApiResponse<EnsIdentity | null>,
 ) => {
   try {
     const method = req.method;

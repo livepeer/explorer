@@ -10878,21 +10878,24 @@ export const AccountDocument = gql`
  * });
  */
 export function useAccountQuery(
-  baseOptions: Apollo.QueryHookOptions<AccountQuery, AccountQueryVariables>
+  baseOptions: Apollo.QueryHookOptions<AccountQuery, AccountQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<AccountQuery, AccountQueryVariables>(
     AccountDocument,
-    options
+    options,
   );
 }
 export function useAccountLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<AccountQuery, AccountQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    AccountQuery,
+    AccountQueryVariables
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<AccountQuery, AccountQueryVariables>(
     AccountDocument,
-    options
+    options,
   );
 }
 export type AccountQueryHookResult = ReturnType<typeof useAccountQuery>;
@@ -10939,19 +10942,19 @@ export function useAccountInactiveQuery(
   baseOptions: Apollo.QueryHookOptions<
     AccountInactiveQuery,
     AccountInactiveQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<AccountInactiveQuery, AccountInactiveQueryVariables>(
     AccountInactiveDocument,
-    options
+    options,
   );
 }
 export function useAccountInactiveLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     AccountInactiveQuery,
     AccountInactiveQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
@@ -10999,24 +11002,24 @@ export function useCurrentRoundQuery(
   baseOptions?: Apollo.QueryHookOptions<
     CurrentRoundQuery,
     CurrentRoundQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<CurrentRoundQuery, CurrentRoundQueryVariables>(
     CurrentRoundDocument,
-    options
+    options,
   );
 }
 export function useCurrentRoundLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     CurrentRoundQuery,
     CurrentRoundQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<CurrentRoundQuery, CurrentRoundQueryVariables>(
     CurrentRoundDocument,
-    options
+    options,
   );
 }
 export type CurrentRoundQueryHookResult = ReturnType<
@@ -11066,18 +11069,18 @@ export const DaysDocument = gql`
  * });
  */
 export function useDaysQuery(
-  baseOptions?: Apollo.QueryHookOptions<DaysQuery, DaysQueryVariables>
+  baseOptions?: Apollo.QueryHookOptions<DaysQuery, DaysQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<DaysQuery, DaysQueryVariables>(DaysDocument, options);
 }
 export function useDaysLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<DaysQuery, DaysQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<DaysQuery, DaysQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<DaysQuery, DaysQueryVariables>(
     DaysDocument,
-    options
+    options,
   );
 }
 export type DaysQueryHookResult = ReturnType<typeof useDaysQuery>;
@@ -11272,21 +11275,21 @@ export const EventsDocument = gql`
  * });
  */
 export function useEventsQuery(
-  baseOptions?: Apollo.QueryHookOptions<EventsQuery, EventsQueryVariables>
+  baseOptions?: Apollo.QueryHookOptions<EventsQuery, EventsQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<EventsQuery, EventsQueryVariables>(
     EventsDocument,
-    options
+    options,
   );
 }
 export function useEventsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<EventsQuery, EventsQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<EventsQuery, EventsQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(
     EventsDocument,
-    options
+    options,
   );
 }
 export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
@@ -11376,24 +11379,24 @@ export function useOrchestratorsQuery(
   baseOptions?: Apollo.QueryHookOptions<
     OrchestratorsQuery,
     OrchestratorsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<OrchestratorsQuery, OrchestratorsQueryVariables>(
     OrchestratorsDocument,
-    options
+    options,
   );
 }
 export function useOrchestratorsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     OrchestratorsQuery,
     OrchestratorsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<OrchestratorsQuery, OrchestratorsQueryVariables>(
     OrchestratorsDocument,
-    options
+    options,
   );
 }
 export type OrchestratorsQueryHookResult = ReturnType<
@@ -11438,7 +11441,7 @@ export function useOrchestratorsSortedQuery(
   baseOptions?: Apollo.QueryHookOptions<
     OrchestratorsSortedQuery,
     OrchestratorsSortedQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
@@ -11450,7 +11453,7 @@ export function useOrchestratorsSortedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     OrchestratorsSortedQuery,
     OrchestratorsSortedQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
@@ -11504,18 +11507,18 @@ export const PollDocument = gql`
  * });
  */
 export function usePollQuery(
-  baseOptions: Apollo.QueryHookOptions<PollQuery, PollQueryVariables>
+  baseOptions: Apollo.QueryHookOptions<PollQuery, PollQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<PollQuery, PollQueryVariables>(PollDocument, options);
 }
 export function usePollLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<PollQuery, PollQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<PollQuery, PollQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<PollQuery, PollQueryVariables>(
     PollDocument,
-    options
+    options,
   );
 }
 export type PollQueryHookResult = ReturnType<typeof usePollQuery>;
@@ -11556,21 +11559,21 @@ export const PollsDocument = gql`
  * });
  */
 export function usePollsQuery(
-  baseOptions?: Apollo.QueryHookOptions<PollsQuery, PollsQueryVariables>
+  baseOptions?: Apollo.QueryHookOptions<PollsQuery, PollsQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<PollsQuery, PollsQueryVariables>(
     PollsDocument,
-    options
+    options,
   );
 }
 export function usePollsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<PollsQuery, PollsQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<PollsQuery, PollsQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<PollsQuery, PollsQueryVariables>(
     PollsDocument,
-    options
+    options,
   );
 }
 export type PollsQueryHookResult = ReturnType<typeof usePollsQuery>;
@@ -11625,24 +11628,24 @@ export const ProtocolDocument = gql`
  * });
  */
 export function useProtocolQuery(
-  baseOptions?: Apollo.QueryHookOptions<ProtocolQuery, ProtocolQueryVariables>
+  baseOptions?: Apollo.QueryHookOptions<ProtocolQuery, ProtocolQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<ProtocolQuery, ProtocolQueryVariables>(
     ProtocolDocument,
-    options
+    options,
   );
 }
 export function useProtocolLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     ProtocolQuery,
     ProtocolQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<ProtocolQuery, ProtocolQueryVariables>(
     ProtocolDocument,
-    options
+    options,
   );
 }
 export type ProtocolQueryHookResult = ReturnType<typeof useProtocolQuery>;
@@ -11689,19 +11692,19 @@ export function useProtocolByBlockQuery(
   baseOptions?: Apollo.QueryHookOptions<
     ProtocolByBlockQuery,
     ProtocolByBlockQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<ProtocolByBlockQuery, ProtocolByBlockQueryVariables>(
     ProtocolByBlockDocument,
-    options
+    options,
   );
 }
 export function useProtocolByBlockLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     ProtocolByBlockQuery,
     ProtocolByBlockQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
@@ -11832,24 +11835,24 @@ export function useTransactionsQuery(
   baseOptions: Apollo.QueryHookOptions<
     TransactionsQuery,
     TransactionsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<TransactionsQuery, TransactionsQueryVariables>(
     TransactionsDocument,
-    options
+    options,
   );
 }
 export function useTransactionsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     TransactionsQuery,
     TransactionsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<TransactionsQuery, TransactionsQueryVariables>(
     TransactionsDocument,
-    options
+    options,
   );
 }
 export type TransactionsQueryHookResult = ReturnType<
@@ -11899,19 +11902,19 @@ export function useTreasuryProposalQuery(
   baseOptions: Apollo.QueryHookOptions<
     TreasuryProposalQuery,
     TreasuryProposalQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<TreasuryProposalQuery, TreasuryProposalQueryVariables>(
     TreasuryProposalDocument,
-    options
+    options,
   );
 }
 export function useTreasuryProposalLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     TreasuryProposalQuery,
     TreasuryProposalQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
@@ -11965,7 +11968,7 @@ export function useTreasuryProposalsQuery(
   baseOptions?: Apollo.QueryHookOptions<
     TreasuryProposalsQuery,
     TreasuryProposalsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
@@ -11977,7 +11980,7 @@ export function useTreasuryProposalsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
     TreasuryProposalsQuery,
     TreasuryProposalsQueryVariables
-  >
+  >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
@@ -12022,18 +12025,18 @@ export const VoteDocument = gql`
  * });
  */
 export function useVoteQuery(
-  baseOptions: Apollo.QueryHookOptions<VoteQuery, VoteQueryVariables>
+  baseOptions: Apollo.QueryHookOptions<VoteQuery, VoteQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<VoteQuery, VoteQueryVariables>(VoteDocument, options);
 }
 export function useVoteLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<VoteQuery, VoteQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<VoteQuery, VoteQueryVariables>,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<VoteQuery, VoteQueryVariables>(
     VoteDocument,
-    options
+    options,
   );
 }
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;

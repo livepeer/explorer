@@ -63,7 +63,7 @@ const Migrate = () => {
 
 function CardLink({ href, heading, text }) {
   return (
-    <Link href={href} passHref>
+    <Link href={href} passHref legacyBehavior>
       <Card
         as="a"
         css={{

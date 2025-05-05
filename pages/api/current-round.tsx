@@ -7,7 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<CurrentRoundInfo | null>
+  res: NextApiResponse<CurrentRoundInfo | null>,
 ) => {
   try {
     const method = req.method;

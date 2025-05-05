@@ -31,7 +31,7 @@ const genTypedData = (domain, types, value: Value) => {
   const payload = ethers.utils._TypedDataEncoder.getPayload(
     domain,
     types,
-    value
+    value,
   );
   return payload;
 };
