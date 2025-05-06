@@ -7,7 +7,7 @@ import {
   contractInterface,
 } from "@lib/chains";
 
-import ENS_QUERY from "../../queries/ens.graphql";
+import { ENS_QUERY } from "../../apollo/treasuryProposals";
 import { Vote } from '../../lib/api/types/votes';
 
 const createEnsApolloClient = () =>

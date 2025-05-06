@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { provider, VOTECAST_TOPIC0, contractInterface, CONTRACT_ADDRESS } from '@lib/chains'
 import { useQuery } from '@apollo/client'
 import { ethers } from "ethers";
-import GET_PROPOSALS_BY_IDS from "../../queries/proposalsByIds.graphql";
+import { GET_PROPOSALS_BY_IDS } from "../../apollo/treasuryProposals";
 import { Vote } from '../../lib/api/types/votes'
 
 export function useVoterVotes(voter: string) {
