@@ -3,12 +3,11 @@
 import React, { useState } from 'react';
 import { useWindowSize } from 'react-use';
 import Spinner from '@components/Spinner';
-import { useVotes } from '../../hooks/TreasuryVotes/useVotes';
 import { DesktopVoteTable } from './desktopVoteTable';
 import { MobileVoteCards } from './mobileVoteCards';
 import VoterPopover from './voterPopover';
 import { Text, Flex } from '@livepeer/design-system';
-
+import { useFetchVotes } from '../../hooks/TreasuryVotes/useFetchVotes';
 interface VoteTableProps {
   proposalId: string;
 }
@@ -19,7 +18,7 @@ const lptFormatter = new Intl.NumberFormat('en-US', {
 });
 
 export const VoteTable: React.FC<VoteTableProps> = ({ proposalId }) => {
-  const { votes, loading } = useVotes(proposalId);
+  const { votes, loading, error } = useFetchVotes(proposalId);
   const { width } = useWindowSize();          
   const isDesktop = width >= 768;  
 
@@ -45,6 +44,12 @@ export const VoteTable: React.FC<VoteTableProps> = ({ proposalId }) => {
 
   if (loading) return (
     <Flex css={{ justifyContent: 'center', alignItems: 'center', height: '150px' }}><Spinner /></Flex>
+  );
+
+  if (error) return (
+    <Text css={{ textAlign: 'center', color: '$red9', mt: '$4' }}>
+      Error loading votes: {error}
+    </Text>
   );
 
   if (!votes.length) return (

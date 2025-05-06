@@ -29,7 +29,7 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
-import { useVotes } from '../../hooks/TreasuryVotes/useVotes';
+import { useFetchVotes } from '../../hooks/TreasuryVotes/useFetchVotes';
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
@@ -83,7 +83,7 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
-  const { votes, loading: votesLoading } = useVotes(proposalId ?? "");
+  const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
   const [votesOpen, setVotesOpen] = useState(false);
   
   const proposal = useMemo(() => {
