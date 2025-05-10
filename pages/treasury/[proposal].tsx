@@ -101,7 +101,20 @@ const Proposal = () => {
   const proposerId = useEnsData(proposal?.proposer.id);
 
   const votesContent = useCallback(() => {
-    if (votesLoading) return <Spinner />;
+    if (votesLoading) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "$4",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      );
+    }
     if (votes.length === 0) return <Text>No votes yet.</Text>;
     return <VoteList proposalId={proposal!.id} />;
   }, [votesLoading, votes.length, proposal?.id]);

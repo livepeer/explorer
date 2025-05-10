@@ -2,7 +2,6 @@ import React from 'react';
 import Image from 'next/image';
 import { Card, Flex, Heading, Link, Text, Box } from '@livepeer/design-system';
 import ArbitrumIcon from '../../public/img/logos/arbitrum.png';
-import { formatAddress } from '../../utils/formatAddress';
 import { Vote, SUPPORT } from '../../lib/api/types/votes';
 
 interface MobileVoteCardsProps {
@@ -45,7 +44,7 @@ export const MobileVoteCards: React.FC<MobileVoteCardsProps> = ({ votes, counts,
                               css={{ color: '$green11', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
                               onClick={e => e.stopPropagation()}
                             >
-                              {formatAddress(vote.ensName ?? '') || formatAddress(vote.voter)}
+                              {vote.ensName}
                             </Link>
             
           </Heading>

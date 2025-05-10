@@ -2,7 +2,6 @@ import React from 'react';
 import Image from 'next/image';
 import { Box, Flex, Text, Link } from '@livepeer/design-system';
 import ArbitrumIcon from '../../public/img/logos/arbitrum.png';
-import { formatAddress } from '../../utils/formatAddress';
 import { Vote, SUPPORT } from '../../lib/api/types/votes';
 
 interface DesktopVoteTableProps {
@@ -56,7 +55,7 @@ export const DesktopVoteTable: React.FC<DesktopVoteTableProps> = ({ votes, count
                   css={{ color: '$green11', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
                   onClick={e => e.stopPropagation()}
                 >
-                  {formatAddress(vote.ensName ?? '') || formatAddress(vote.voter)}
+                  {vote.ensName}
                 </Link>
               </Box>
               <Box as="td" css={{ textAlign: 'center', ...support.style, borderBottom: '1px solid $neutral5' }}>

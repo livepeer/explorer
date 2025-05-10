@@ -7,7 +7,7 @@ import {
 } from "@lib/chains";
 
 import { Vote } from "../../lib/api/types/votes";
-import { getEnsForAddress } from "@lib/api/ens";
+import { getEnsForVotes } from "@lib/api/ens";
 import { useEffect, useState } from "react";
 
 export const useFetchVotes = (proposalId: string) => {
@@ -58,7 +58,7 @@ export const useFetchVotes = (proposalId: string) => {
               if (localEnsCache[address]) {
                 return;
               }
-              const ensAddress = await getEnsForAddress(address);
+              const ensAddress = await getEnsForVotes(address);
 
               if (ensAddress && ensAddress.name) {
                 localEnsCache[address] = ensAddress.name;
@@ -74,7 +74,7 @@ export const useFetchVotes = (proposalId: string) => {
         setVotes(
           decodedVotes.map((vote) => ({
             ...vote,
-            ensName: localEnsCache[vote.voter] || formatAddress(vote.voter),
+            ensName: localEnsCache[vote.voter],
           }))
         );
       } catch (error) {
