@@ -3,16 +3,16 @@
 import React from 'react';
 import Spinner from '@components/Spinner';
 import { Flex, Text } from '@livepeer/design-system';
-import { VoteModal } from './voteModal';
+import VoteModal from '../VoteModal';
 import { VoteDetailItem } from './voteDetailItem';
-import { useVoterVotes } from '../../hooks/TreasuryVotes/useVoterVotes';
+import { useVoterVotes } from '../../../hooks/TreasuryVotes/useVoterVotes';
 
 interface VoterPopoverProps {
   voter: string;
   onClose: () => void;
 }
 
-const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
+const Index: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
   const { votes, isLoading } = useVoterVotes(voter);
 
   return (
@@ -34,4 +34,4 @@ const VoterPopover: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
   );
 };
 
-export default VoterPopover;
+export default Index;

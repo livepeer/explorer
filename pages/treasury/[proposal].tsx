@@ -36,7 +36,7 @@ import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
-import VoteList from "@components/Votes/voteTable"; 
+import VoteList from "@components/Votes/VoteTable"; 
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 import { getProposalExtended } from "@lib/api/treasury";
 import { decodeFunctionData } from "viem";
