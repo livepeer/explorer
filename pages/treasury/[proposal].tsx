@@ -249,6 +249,10 @@ const Proposal = () => {
               >
                 <Stat
                   css={{ flex: 1, mb: 0 }}
+                  tooltip={`
+                    Total Support = (For votes) ÷ (For votes + Against votes).
+                    Abstentions are not included in the Total Support calculation.
+                  `}
                   label={
                     <Box>
                       Total Support ({formatPercent(+proposal.quota / 1000000)}
@@ -325,6 +329,10 @@ const Proposal = () => {
 
                 <Stat
                   css={{ flex: 1, mb: 0 }}
+                  tooltip={`
+                    Total Participation = (For votes + Against votes + Abstain votes) ÷
+                    (Voters + Nonvoters).
+                  `}
                   label={
                     <Box>
                       Total Participation (
@@ -582,9 +590,7 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <MarkdownRenderer>
-                  {proposal.description}
-                </MarkdownRenderer>
+                <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
             </Box>
           </Flex>
