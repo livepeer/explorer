@@ -32,7 +32,7 @@ const Index = ({
   const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
   const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
-    if (proposalId) {
+    if (proposalId && typeof reason === "string" && reason.length > 3) {
       return {
         enabled: Boolean(
           livepeerGovernorAddress && accountAddress && proposalId

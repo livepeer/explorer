@@ -1,20 +1,15 @@
-
 import { Text, TextArea } from "@livepeer/design-system";
 
 const MAX_INPUT_LENGTH = 256;
 const MIN_INPUT_LENGTH = 3;
 
 /**
- * 
+ * Renders an input for the reason of the vote
  * @param reason {@link string} The reason for the vote
  * @param setReason {@link function} The function to set the reason
  * @param disabled {@link boolean} Whether the input is disabled
- * @returns  {@link JSX.Element} The input for the reason
- * @description A component that renders an input for the reason of the vote
- * @example
- * <TreasuryVotingReason reason={reason} setReason={setReason} disabled={false} />
+ * @example <TreasuryVotingReason reason={reason} setReason={setReason} disabled={false} />
  */
-
 const Index = ({
   reason,
   setReason,
@@ -24,7 +19,6 @@ const Index = ({
   reason: string;
   setReason: (reason: string) => void;
 }) => {
-
   const charsLeft = MAX_INPUT_LENGTH - reason.length;
 
   return (
@@ -49,10 +43,18 @@ const Index = ({
         onChange={(e) => setReason(e.target.value)}
         rows={3}
       />
-       <Text css={{ fontSize: "$1", paddingTop: "$1", paddingBottom: "$1", paddingLeft: "$1", color: "$gray" }}>
+      <Text
+        css={{
+          fontSize: "$1",
+          paddingTop: "$1",
+          paddingBottom: "$1",
+          paddingLeft: "$1",
+          color: "$gray",
+        }}
+      >
         {charsLeft} characters left
       </Text>
-     </>
+    </>
   );
 };
 
