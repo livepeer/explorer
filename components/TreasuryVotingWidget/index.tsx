@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Text,
-} from "@livepeer/design-system";
+import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useAccountAddress } from "hooks";
@@ -18,8 +12,6 @@ import QueueExecuteButton from "@components/QueueExecuteButton";
 import TreasuryVotingReason from "@components/TreasuryVotingReason";
 
 dayjs.extend(duration);
-
-
 
 type Props = {
   proposal: ProposalExtended;
