@@ -1,13 +1,18 @@
 import { Signer } from "ethers";
-import { useEffect, useMemo, useState } from "react";
-import { useAccount, useDisconnect, useNetwork, usePublicClient, useWalletClient } from "wagmi";
+import { useMemo, useState } from "react";
+import {
+  useAccount,
+  useDisconnect,
+  useNetwork,
+  useWalletClient,
+} from "wagmi";
 
 const useIsChainSupported = () => {
   const activeChain = useActiveChain();
 
   return useMemo(
     () => (activeChain ? !activeChain.unsupported : false),
-    [activeChain]
+    [activeChain],
   );
 };
 
@@ -20,25 +25,9 @@ export const useAccountAddress = () => {
 };
 
 export const useAccountSigner = () => {
-  const walletClient = useWalletClient();
-
   const isChainSupported = useIsChainSupported();
 
-  const [signer, setSigner] = useState<Signer | null>(null);
-
-  // useEffect(() => {
-  //   async function getSigner() {
-  //     if (walletClient.) {
-  //       try {
-  //         const signer = await account?.connector?.getSigner?.();
-  //         setSigner(signer ?? null);
-  //       } catch (e) {
-  //         console.log(e);
-  //       }
-  //     }
-  //   }
-  //   getSigner();
-  // }, [account.status]);
+  const [signer, _setSigner] = useState<Signer | null>(null);
 
   return isChainSupported ? signer : null;
 };

@@ -35,7 +35,11 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
+import {
+  usePollsQuery,
+  useProtocolQuery,
+  useTreasuryProposalsQuery,
+} from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
@@ -49,6 +53,8 @@ import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
 import { Chain } from "wagmi";
+import RegisterToVote from "@components/RegisterToVote";
+
 import {
   useAccountAddress,
   useActiveChain,
@@ -60,7 +66,6 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
-import RegisterToVote from "@components/RegisterToVote";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -108,9 +113,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       pollData?.polls.filter(
         (p) =>
           (currentRound?.currentL1Block ?? Number.MAX_VALUE) <=
-          parseInt(p.endBlock)
+          parseInt(p.endBlock),
       ).length,
-    [currentRound?.currentL1Block, pollData]
+    [currentRound?.currentL1Block, pollData],
   );
 
   const totalActiveTreasuryProposals = useMemo(() => {
@@ -123,7 +128,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   const hasPendingFees = useMemo(
     () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
-    [pendingFeesAndStake?.pendingFees]
+    [pendingFeesAndStake?.pendingFees],
   );
 
   useEffect(() => {
@@ -153,8 +158,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       customBrowserType: !isMobile
         ? "desktop"
         : window["web3"] || window["ethereum"]
-        ? "mobileWeb3"
-        : "mobileRegular",
+          ? "mobileWeb3"
+          : "mobileRegular",
     });
     ReactGA.pageview(window.location.pathname + window.location.search);
   }, []);
@@ -221,7 +226,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   ];
 
   Router.events.on("routeChangeComplete", () =>
-    document.body.removeAttribute("style")
+    document.body.removeAttribute("style"),
   );
 
   const onDrawerOpen = () => {
@@ -324,12 +329,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       storage.push(uniqueBannerID);
                       window.localStorage.setItem(
                         `bannersDismissed`,
-                        JSON.stringify(storage)
+                        JSON.stringify(storage),
                       );
                     } else {
                       window.localStorage.setItem(
                         `bannersDismissed`,
-                        JSON.stringify([uniqueBannerID])
+                        JSON.stringify([uniqueBannerID]),
                       );
                     }
                   }}
@@ -400,7 +405,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         <Logo isDark id="main" />
 
                         <Box css={{}}>
-                          <Link passHref href="/">
+                          <Link passHref href="/" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -424,7 +429,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Overview
                             </Button>
                           </Link>
-                          <Link passHref href="/orchestrators">
+                          <Link passHref href="/orchestrators" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -450,7 +455,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Orchestrators
                             </Button>
                           </Link>
-                          <Link passHref href="/voting">
+                          <Link passHref href="/voting" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -484,7 +489,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               )}
                             </Button>
                           </Link>
-                          <Link passHref href="/treasury">
+                          <Link passHref href="/treasury" legacyBehavior>
                             <Button
                               size="3"
                               css={{
@@ -519,7 +524,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link
+                              passHref
+                              href={`/accounts/${accountAddress}`}
+                              legacyBehavior
+                            >
                               <Button
                                 size="3"
                                 css={{
@@ -782,7 +791,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
             {Object.keys(contractAddresses ?? {})
               .filter(
-                (key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS
+                (key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS,
               )
               .map((key) => (
                 <Flex key={key}>
@@ -826,7 +835,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                             contractAddresses?.[
                               key as keyof typeof contractAddresses
                             ]?.address?.slice(7, 37) ?? "",
-                            "…"
+                            "…",
                           )}
                         </Text>
                       </A>
@@ -849,6 +858,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             <Link
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
+              legacyBehavior
             >
               <A>
                 <Flex

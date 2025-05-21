@@ -8,7 +8,6 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from "wagmi";
-
 import { useMemo } from "react";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { ProposalExtended } from "@lib/api/treasury";
@@ -24,7 +23,7 @@ const keccak256 = (input: string) =>
   ethers.utils.solidityKeccak256(["string"], [input ?? ""]);
 
 const QueueExecuteButton = (
-  allProps: Props & React.ComponentProps<typeof Button>
+  allProps: Props & React.ComponentProps<typeof Button>,
 ) => {
   const { action, proposal, onClick, ...props } = allProps as Props;
   const accountAddress = useAccountAddress();
@@ -58,7 +57,7 @@ const QueueExecuteButton = (
         keccak256(proposal?.description),
       ],
     }),
-    [action, enabled, livepeerGovernorAddress, proposal]
+    [action, enabled, livepeerGovernorAddress, proposal],
   );
   const { config } = usePrepareContractWrite(preparedWriteConfig);
   const { data, isLoading, write, error, isSuccess } = useContractWrite(config);

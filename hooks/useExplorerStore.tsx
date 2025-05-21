@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { txMessages } from "lib/utils";
 
 export type StakingAction = "undelegate" | "delegate" | null;
@@ -34,7 +34,7 @@ export type ExplorerState = {
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: any,
   ) => void;
   setLatestTransactionConfirmed: () => void;
   setLatestTransactionSummary: () => void;
@@ -63,7 +63,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: any,
   ) =>
     set(() => ({
       latestTransaction: {

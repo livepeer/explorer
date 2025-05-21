@@ -1,10 +1,11 @@
-import Logo from "../Logo";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import UniswapModal from "../UniswapModal";
-import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
+
+import UniswapModal from "../UniswapModal";
+import Account from "../Account";
+import Logo from "../Logo";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
   const router = useRouter();
@@ -64,7 +65,13 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
           <Logo isDark id="drawer" />
           <Box css={{ mb: "auto" }}>
             {items.map((item, i) => (
-              <Link key={i} href={item.href} as={item.as} passHref>
+              <Link
+                key={i}
+                href={item.href}
+                as={item.as}
+                passHref
+                legacyBehavior
+              >
                 <A
                   variant="subtle"
                   css={{
@@ -120,7 +127,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 Livepeer.org
               </A>
               {IS_L2 && (
-                <Link href="/migrate" passHref>
+                <Link href="/migrate" passHref legacyBehavior>
                   <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
                     L2 Migration Tool
                   </A>
@@ -171,7 +178,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               </A>
 
               <Box>
-                <Link href="/whats-new" passHref>
+                <Link href="/whats-new" passHref legacyBehavior>
                   <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
                     What&apos;s New
                   </A>

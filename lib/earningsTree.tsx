@@ -1,7 +1,8 @@
 // https://github.com/livepeer/merkle-earnings-cli/blob/master/src/tree/index.ts
 
-const { keccak256, bufferToHex } = require("ethereumjs-util");
 import { utils } from "ethers";
+
+const { keccak256, bufferToHex } = require("ethereumjs-util");
 
 export interface IMerkleTree {
   elements: Array<any>;
@@ -154,8 +155,8 @@ export class EarningsTree extends MerkleTree implements IEarningsTree {
     const leaves = delegators.map((d) =>
       utils.solidityPack(
         ["address", "uint256", "uint256"],
-        [d.delegator, d.pendingStake, d.pendingFees]
-      )
+        [d.delegator, d.pendingStake, d.pendingFees],
+      ),
     );
     super(leaves);
     this.leaves = leaves;

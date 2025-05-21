@@ -2,9 +2,10 @@ import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
 import dayjs from "dayjs";
 import fm from "front-matter";
+import { fromWei } from "@lib/utils";
+
 import { ProposalState } from "./types/get-treasury-proposal";
 import { CurrentRoundInfo } from "./types/get-current-round";
-import { fromWei } from "@lib/utils";
 
 export type Proposal = NonNullable<TreasuryProposalQuery["treasuryProposal"]>;
 
@@ -52,7 +53,7 @@ const zeroIfNaN = (value: number) => (isNaN(value) ? 0 : value);
 
 export const parseProposalText = (proposal: Proposal): ParsedProposal => {
   const transformedProposal = fm<ProposalTextAttributes>(
-    proposal.description ?? ""
+    proposal.description ?? "",
   );
 
   const attributes = {
@@ -80,7 +81,7 @@ export const getProposalExtended = (
   proposalArg: Proposal | ParsedProposal,
   state: ProposalState,
   currentRound: CurrentRoundInfo,
-  protocol: ProtocolQuery["protocol"]
+  protocol: ProtocolQuery["protocol"],
 ): ProposalExtended => {
   const proposal =
     "attributes" in proposalArg ? proposalArg : parseProposalText(proposalArg);
@@ -96,12 +97,12 @@ export const getProposalExtended = (
   const voteStartTime = estimateRoundStartTime(
     +proposal.voteStart + 1,
     currentRound,
-    protocol
+    protocol,
   );
   const voteEndTime = estimateRoundStartTime(
     +proposal.voteEnd + 1,
     currentRound,
-    protocol
+    protocol,
   );
 
   const missingVotes = totalVoteSupply - totalVotes;
@@ -139,7 +140,7 @@ export const getProposalExtended = (
 const estimateRoundStartTime = (
   requestedRound: number,
   currentRound: CurrentRoundInfo,
-  protocol: ProtocolQuery["protocol"]
+  protocol: ProtocolQuery["protocol"],
 ) => {
   const roundLength = +(protocol?.roundLength ?? 1);
   const requestedStartBlock =

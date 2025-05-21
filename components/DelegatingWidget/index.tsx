@@ -4,6 +4,7 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { useEnsData, useExplorerStore } from "hooks";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
+
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
 import Header from "./Header";
@@ -14,12 +15,14 @@ import { Tab, TabList, Tabs } from "./Tabs";
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
   | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+  | NonNullable<
+      NonNullable<AccountQueryResult["data"]>["delegator"]
+    >["delegate"];
 
 interface Props {
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType | undefined;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;
@@ -43,18 +46,18 @@ const Index = ({
 
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
-    [delegator, transcoder]
+    [delegator, transcoder],
   );
 
   const delegateEns = useEnsData(delegator?.delegate?.id);
 
   const isDelegated = useMemo(
     () => delegator?.bondedAmount && delegator?.bondedAmount !== "0",
-    [delegator]
+    [delegator],
   );
   const isTransferStake = useMemo(
     () => !isMyTranscoder && isDelegated,
-    [isMyTranscoder, isDelegated]
+    [isMyTranscoder, isDelegated],
   );
 
   return (
@@ -120,7 +123,7 @@ const Index = ({
                     <Box as="span" css={{ fontWeight: 700 }}>
                       {delegateEns.name
                         ? delegateEns.name
-                        : delegateEns.idShort ?? ""}
+                        : (delegateEns.idShort ?? "")}
                     </Box>
                     {" to "}
                     <Box as="span" css={{ fontWeight: 700 }}>

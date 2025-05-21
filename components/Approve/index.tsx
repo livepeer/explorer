@@ -5,6 +5,7 @@ import {
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
+
 import { MAXIMUM_VALUE_UINT256 } from "../../lib/utils";
 import Button from "../Button";
 

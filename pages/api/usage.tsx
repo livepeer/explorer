@@ -6,7 +6,6 @@ import {
 import { getPercentChange } from "@lib/utils";
 import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
-
 import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
 import utc from "dayjs/plugin/utc";
@@ -18,7 +17,7 @@ dayjs.extend(weekOfYear);
 
 const chartDataHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse<HomeChartData | null>
+  res: NextApiResponse<HomeChartData | null>,
 ) => {
   try {
     const method = req.method;
@@ -33,7 +32,7 @@ const chartDataHandler = async (
           headers: {
             Authorization: `Bearer ${process.env.LIVEPEER_COM_API_ADMIN_TOKEN}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -96,49 +95,49 @@ const chartDataHandler = async (
 
         const dailyUsageChange = getPercentChange(
           currentDayData.feeDerivedMinutes,
-          oneDayBackData.feeDerivedMinutes
+          oneDayBackData.feeDerivedMinutes,
         );
 
         const dailyVolumeEthChange = getPercentChange(
           currentDayData.volumeEth,
-          oneDayBackData.volumeEth
+          oneDayBackData.volumeEth,
         );
 
         const dailyVolumeUsdChange = getPercentChange(
           currentDayData.volumeUsd,
-          oneDayBackData.volumeUsd
+          oneDayBackData.volumeUsd,
         );
 
         const weeklyVolumeUsdChange = getPercentChange(
           oneWeekBackData?.weeklyVolumeUsd ?? 0,
-          twoWeekBackData?.weeklyVolumeUsd ?? 0
+          twoWeekBackData?.weeklyVolumeUsd ?? 0,
         );
 
         const weeklyVolumeEthChange = getPercentChange(
           oneWeekBackData?.weeklyVolumeEth ?? 0,
-          twoWeekBackData?.weeklyVolumeEth ?? 0
+          twoWeekBackData?.weeklyVolumeEth ?? 0,
         );
 
         const weeklyUsageChange = getPercentChange(
           oneWeekBackData?.weeklyUsageMinutes ?? 0,
-          twoWeekBackData?.weeklyUsageMinutes ?? 0
+          twoWeekBackData?.weeklyUsageMinutes ?? 0,
         );
 
         const participationRateChange = getPercentChange(
           currentDayData?.participationRate,
-          oneDayBackData?.participationRate
+          oneDayBackData?.participationRate,
         );
         const inflationChange = getPercentChange(
           currentDayData?.inflation,
-          oneDayBackData?.inflation
+          oneDayBackData?.inflation,
         );
         const activeTranscoderCountChange = getPercentChange(
           currentDayData?.activeTranscoderCount,
-          oneDayBackData?.activeTranscoderCount
+          oneDayBackData?.activeTranscoderCount,
         );
         const delegatorsCountChange = getPercentChange(
           currentDayData?.delegatorsCount,
-          oneDayBackData?.delegatorsCount
+          oneDayBackData?.delegatorsCount,
         );
 
         const data: HomeChartData = {
@@ -173,7 +172,7 @@ const chartDataHandler = async (
         if (
           Number(
             data?.dayData?.[(data?.dayData?.length ?? 1) - 1]
-              ?.activeTranscoderCount
+              ?.activeTranscoderCount,
           ) <= 0
         ) {
           data.dayData = data.dayData.slice(0, -1);

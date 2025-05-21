@@ -13,6 +13,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import Link from "next/link";
+
 import {
   getApollo,
   OrchestratorsQueryResult,
@@ -48,7 +49,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
             </Heading>
             {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
               process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <Link href="/leaderboard" passHref>
+              <Link href="/leaderboard" passHref legacyBehavior>
                 <Button
                   ghost
                   as={A}

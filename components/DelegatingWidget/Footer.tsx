@@ -14,10 +14,11 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo } from "react";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
+
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
-import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 
 type FooterData = {
   isTransferStake: boolean;
@@ -27,13 +28,15 @@ type FooterData = {
   action: StakingAction;
   amount: string;
 
-  currentRound: NonNullable<
-    NonNullable<AccountQueryResult["data"]>["protocol"]
-  >["currentRound"] | undefined;
+  currentRound:
+    | NonNullable<
+        NonNullable<AccountQueryResult["data"]>["protocol"]
+      >["currentRound"]
+    | undefined;
 
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   account: EnsIdentity;
@@ -63,33 +66,33 @@ const Footer = ({
   const accountAddress = useAccountAddress();
 
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
-    delegator?.id
+    delegator?.id,
   );
   const accountBalance = useAccountBalanceData(accountAddress);
 
   const tokenBalance = useMemo(() => accountBalance?.balance, [accountBalance]);
   const transferAllowance = useMemo(
     () => accountBalance?.allowance,
-    [accountBalance]
+    [accountBalance],
   );
   const delegatorStatus = useMemo(
     () => getDelegatorStatus(delegator, currentRound),
-    [currentRound, delegator]
+    [currentRound, delegator],
   );
   const stake = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
         ? +delegatorPendingStakeAndFees?.pendingStake
         : 0,
-    [delegatorPendingStakeAndFees]
+    [delegatorPendingStakeAndFees],
   );
   const sufficientStake = useMemo(
     () => delegator && amount && parseFloat(amount) <= stake,
-    [delegator, amount, stake]
+    [delegator, amount, stake],
   );
   const canUndelegate = useMemo(
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
-    [isMyTranscoder, isDelegated, amount]
+    [isMyTranscoder, isDelegated, amount],
   );
   const newActiveSetOrder = useMemo(
     () =>
@@ -100,18 +103,18 @@ const Footer = ({
         newDelegate: transcoder?.id ?? "",
         oldDelegate: delegator?.delegate?.id,
       }),
-    [action, transcoders, amount, transcoder, delegator]
+    [action, transcoders, amount, transcoder, delegator],
   );
   const { newPosPrev, newPosNext } = useMemo(
     () => getHint(delegator?.delegate?.id, newActiveSetOrder),
-    [delegator, newActiveSetOrder]
+    [delegator, newActiveSetOrder],
   );
   const {
     newPosPrev: currDelegateNewPosPrev,
     newPosNext: currDelegateNewPosNext,
   } = useMemo(
     () => getHint(transcoder?.id, newActiveSetOrder),
-    [newActiveSetOrder, transcoder]
+    [newActiveSetOrder, transcoder],
   );
 
   if (!accountAddress) {
@@ -166,7 +169,7 @@ const Footer = ({
         delegatorStatus,
         isDelegated,
         sufficientStake,
-        isMyTranscoder
+        isMyTranscoder,
       )}
     </Box>
   );
@@ -179,7 +182,7 @@ function renderUnstakeWarnings(
   delegatorStatus,
   isDelegated,
   sufficientStake,
-  isMyTranscoder
+  isMyTranscoder,
 ) {
   if (delegatorStatus === "Pending") {
     return (
