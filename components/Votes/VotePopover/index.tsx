@@ -4,8 +4,8 @@ import React from 'react';
 import Spinner from '@components/Spinner';
 import { Flex, Text } from '@livepeer/design-system';
 import VoteModal from '../VoteModal';
-import  VoteDetail from '../VoteDetail';
-import { useVoterVotes } from '../../../hooks/TreasuryVotes/useVoterVotes';
+import VoteDetail from '../VoteDetail';
+import { useInfuraVoterVotes } from '../../../hooks/TreasuryVotes/useInfuraVoterVotes';
 
 interface VoterPopoverProps {
   voter: string;
@@ -13,7 +13,7 @@ interface VoterPopoverProps {
 }
 
 const Index: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
-  const { votes, isLoading } = useVoterVotes(voter);
+  const { votes, isLoading } = useInfuraVoterVotes(voter);
 
   return (
     <VoteModal onClose={onClose}>
