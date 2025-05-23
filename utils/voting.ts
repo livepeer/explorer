@@ -25,6 +25,8 @@ export type VotingResponse = {
   myAccount: AccountQuery;
 };
 
+
+
 export const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 
 

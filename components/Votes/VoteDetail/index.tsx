@@ -3,25 +3,17 @@
 import React from "react";
 import Image from "next/image";
 import { Box, Heading, Text, Link } from "@livepeer/design-system";
-import ArbitrumIcon from "../../public/img/logos/arbitrum.png";
-import { SUPPORT, Vote } from "@lib/api/types/votes";
+import ArbitrumIcon from "../../../public/img/logos/arbitrum.png";
+import { VOTING_SUPPORT, Vote } from "@lib/api/types/votes";
 import { formatAddress } from "utils/formatAddress";
-
-const lptFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-function formatLpt(w: string) {
-  return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
-}
+import { formatLpt } from "@lib/utils";
 
 interface VoteDetailItemProps {
   vote: Vote;
 }
 
 const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
-  const support = SUPPORT[vote.choiceID] || SUPPORT["2"];
+  const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
   return (
     <Box
       css={{

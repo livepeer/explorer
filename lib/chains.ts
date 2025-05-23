@@ -5,10 +5,6 @@ import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
 import {
   Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
   createPublicClient,
   http,
 } from "viem";

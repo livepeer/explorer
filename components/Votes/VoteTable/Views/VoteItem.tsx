@@ -1,5 +1,5 @@
-import ArbitrumIcon from "../../public/img/logos/arbitrum.png";
-import { Vote, SUPPORT } from "../../../../lib/api/types/votes";
+import ArbitrumIcon from "../../../../public/img/logos/arbitrum.png";
+import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
 import { Card, Heading, Link, Text, Box } from "@livepeer/design-system";
 import Image from "next/image";
 
@@ -28,11 +28,11 @@ interface VoteViewProps {
   }
   
   function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
-    const support = SUPPORT[vote.choiceID] || SUPPORT["2"];
+    const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
     return (
       <Card
         css={{
-          p: "$4"
+          p: "$4",
           mb: "$3",
           cursor: "pointer",
           position: "relative",
@@ -110,7 +110,7 @@ interface VoteViewProps {
   }
   
   function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
-    const support = SUPPORT[vote.choiceID] || SUPPORT["2"];
+    const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
     return (
       <Box
         key={vote.transactionHash || vote.voter}

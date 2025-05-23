@@ -5,6 +5,15 @@ import { StakingAction } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import Numeral from "numeral";
 
+export const lptFormatter = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export const  formatLpt = (w: string) => {
+  return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
+}
+
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );

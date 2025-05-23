@@ -9,17 +9,11 @@ import { MobileVoteCards } from "./Views/MobileVoteTable";
 import { Text, Flex } from "@livepeer/design-system";
 import { useFetchVotes } from "../../../hooks/TreasuryVotes/useFetchVotes";
 import { Vote } from "@lib/api/types/votes";
+import { lptFormatter } from "@lib/utils";
 
 interface VoteTableProps {
   proposalId: string;
 }
-
-const lptFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-
 
 const countVotes = (votes : Vote[]) => {
   return {
@@ -43,7 +37,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
       totalWeight > 0 ? ((parseFloat(w) / totalWeight) * 100).toFixed(2) : "0"
     }%)`;
 
-  if (loading)
+  if (loading){
     return (
       <Flex
         css={{
@@ -55,7 +49,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
         <Spinner />
       </Flex>
     );
-
+  }
   if (error)
     return (
       <Text css={{ textAlign: "center", color: "$red9", mt: "$4" }}>
