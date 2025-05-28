@@ -1,11 +1,11 @@
 
 export interface Vote {
-  transactionHash?: string;
+  transactionHash: string;
   voter: string;
   choiceID: string;
   proposalId: string;
   weight: string;
-  reason: string;
+  reason?: string;
   ensName?: string;
   endVote?: number;
   description?: string;

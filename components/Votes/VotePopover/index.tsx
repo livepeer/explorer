@@ -23,7 +23,7 @@ const Index: React.FC<VoterPopoverProps> = ({ voter, onClose }) => {
         </Flex>
       ) : votes.length > 0 ? (
         votes.map((vote, idx) => (
-          <VoteDetail key={vote.id ?? idx} vote={vote} />
+          <VoteDetail key={vote.transactionHash ?? idx} vote={vote} />
         ))
       ) : (
         <Text css={{ color: '$neutral11', textAlign: 'center', mt: '$4' }}>

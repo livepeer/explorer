@@ -18,7 +18,7 @@ export function useInfuraVoterVotes(voter: string) {
         const topic = ethers.utils.zeroPad(voter, 32)
         const logs = await provider.getLogs({ address: CONTRACT_ADDRESS, fromBlock:'earliest', toBlock:'latest', topics: [VOTECAST_TOPIC0, ethers.utils.hexlify(topic)] })
         if (cancelled) return
-        const decoded = logs.map(log => {
+        const transactions = logs.map(log => {
           const args = contractInterface.parseLog(log).args
           return {
             
@@ -27,10 +27,10 @@ export function useInfuraVoterVotes(voter: string) {
             choiceID:        args.support.toString(),
             proposalId:      args.proposalId.toString(),
             weight:          args.weight.toString(),
-            reason:          args.reason || '',
+            reason:          args.reason ?? "",
           }
         })
-        setRawVotes(decoded)
+        setRawVotes(transactions)
       } catch(e) {
         console.error(e)
       } finally {

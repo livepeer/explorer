@@ -2,8 +2,7 @@ import { default as defaultAxios } from "axios";
 
 export const axiosClient = defaultAxios.create({
   baseURL: "/api",
-  // timeout: 10000,
-  timeout: 120000,
+  timeout: 10000,
 });
 
 
