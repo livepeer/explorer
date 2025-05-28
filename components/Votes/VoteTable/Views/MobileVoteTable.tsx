@@ -51,7 +51,7 @@ export const MobileVoteCards: React.FC<MobileVoteCardsProps> = ({
         mb: "$2",
       }}
     >
-      Click on a vote to view a voter's proposal voting history.
+      Click on a vote to view a voters proposal voting history.
     </Text>
 
     {votes.map((vote) => {

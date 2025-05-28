@@ -85,6 +85,10 @@ const Proposal = () => {
 
   const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
   const [votesOpen, setVotesOpen] = useState(false);
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
   
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -153,10 +157,6 @@ const Proposal = () => {
   if (stateError || proposalError) {
     return <FourZeroFour />;
   }
-
-  useEffect(() => {
-    setIsDesktop(width >= 768);
-  }, [width]);
 
   if (!proposal) {
     return (

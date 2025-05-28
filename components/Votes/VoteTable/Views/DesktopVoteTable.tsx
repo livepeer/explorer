@@ -56,7 +56,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         mb: "$2",
       }}
     >
-      Click on a vote to view a voter's proposal voting history.
+      Click on a vote to view a voters proposal voting history.
     </Text>
     <Box as="table" css={{ width: "100%", borderCollapse: "collapse" }}>
       <Box as="thead">
