@@ -1,4 +1,4 @@
-import VotingWidget from "@components/VotingWidget";
+import VotingWidget from "@components/Votes/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import MarkdownRenderer from "@components/MarkdownRenderer";
