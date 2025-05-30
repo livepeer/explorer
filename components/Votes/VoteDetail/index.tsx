@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { Box, Heading, Text, Link } from "@livepeer/design-system";
-import ArbitrumIcon from "../../../public/img/logos/arbitrum.png";
+import { Box, Heading, Text, Link, Badge } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { VOTING_SUPPORT, Vote } from "@lib/api/types/votes";
 import { formatAddress } from "utils/formatAddress";
 import { formatLpt } from "@lib/utils";
@@ -85,15 +84,16 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
             css={{
               display: "inline-block",
               transition: "transform 0.2s ease",
-              "&:hover": { transform: "scale(1.3)" },
+              "&:hover": { transform: "scale(1.1)" },
             }}
           >
-            <Image
-              src={ArbitrumIcon}
-              alt="Arbitrum Icon"
-              width={24}
-              height={24}
-            />
+            <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+              {formatAddress(vote.transactionHash)}
+              <Box
+                css={{ ml: "$1", width: 15, height: 15 }}
+                as={ArrowTopRightIcon}
+              />
+            </Badge>
           </Link>
         ) : (
           <Text css={{ color: "$neutral9" }}>N/A</Text>

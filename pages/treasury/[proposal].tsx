@@ -640,7 +640,14 @@ const Proposal = () => {
   }}
 >
 <Box css={{ display: "flex", alignItems: "center" }} as="span">
-{votesLoading ? "Loading votes…" : `View Votes (${votes.length})`}
+  <Text
+    css={{
+      color: "$white",
+      fontSize: "$5",
+    }}>
+    {votesLoading ? "Loading votes…" : `View Votes (${votes.length})`}
+  </Text>
+
 </Box>
 
   <Text

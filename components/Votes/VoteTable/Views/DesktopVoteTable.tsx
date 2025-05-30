@@ -22,7 +22,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
     <Text
       css={{
         textAlign: "center",
-        fontSize: "$4",
+        fontSize: "$3",
         fontWeight: 500,
         color: "$white",
         mb: "$2",
@@ -71,6 +71,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 fontSize: "$1",
                 color: "$neutral11",
                 borderBottom: "1px solid $neutral5",
+                padding: "$2 $3",
               }}
             >
               {label}

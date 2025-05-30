@@ -1,7 +1,9 @@
 import ArbitrumIcon from "../../../../public/img/logos/arbitrum.png";
 import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
-import { Card, Heading, Link, Text, Box } from "@livepeer/design-system";
+import { Card, Heading, Link, Text, Box, Badge } from "@livepeer/design-system";
 import Image from "next/image";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { formatAddress } from "utils/formatAddress";
 
 
 interface VoteViewProps {
@@ -83,24 +85,23 @@ interface VoteViewProps {
         <Box>
           {vote.transactionHash ? (
             <Link
-              href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
-              target="_blank"
-              css={{
-                display: "inline-block",
-                transition: "transform 0.2s ease",
-                zIndex: 9999,
-                position: "relative",
-                "&:hover": { transform: "scale(1.3)", zIndex: 9999 },
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={ArbitrumIcon}
-                alt="Arbitrum Icon"
-                width={24}
-                height={24}
-              />
-            </Link>
+                        href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
+                        target="_blank"
+                        onClickCapture={(e) => e.stopPropagation()}
+                        css={{
+                          display: "inline-block",
+                          transition: "transform 0.2s ease",
+                          "&:hover": { transform: "scale(1.1)" },
+                        }}
+                      >
+                        <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+                          {formatAddress(vote.transactionHash)}
+                          <Box
+                            css={{ ml: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Badge>
+                      </Link>
           ) : (
             <Text css={{ color: "$neutral9" }}>N/A</Text>
           )}
@@ -147,18 +148,31 @@ interface VoteViewProps {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {vote.ensName}
+            <Text css={{
+                fontWeight: 600,
+                color: "$green11",
+                whiteSpace: "nowrap",
+              }}
+              size="2">
+                {vote.ensName}
+              </Text>
           </Link>
         </Box>
         <Box
           as="td"
           css={{
             textAlign: "center",
-            ...support.style,
             borderBottom: "1px solid $neutral5",
           }}
         >
-          {support.text}
+          <Text css={{
+                fontWeight: 600,
+                whiteSpace: "nowrap",
+                ...support.style,
+              }}
+              size="2">
+                {support.text}
+              </Text>
         </Box>
         <Box
           as="td"
@@ -168,7 +182,14 @@ interface VoteViewProps {
             borderBottom: "1px solid $neutral5",
           }}
         >
-          {formatWeight(vote.weight)}
+          <Text css={{
+                fontWeight: 600,
+                color: "$white",
+                whiteSpace: "nowrap",
+              }}
+              size="2">
+                {formatWeight(vote.weight)}
+              </Text>
         </Box>
         <Box
           as="td"
@@ -191,24 +212,23 @@ interface VoteViewProps {
         >
           {vote.transactionHash ? (
             <Link
-              href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
-              target="_blank"
-              onClickCapture={(e) => e.stopPropagation()}
-              css={{
-                display: "inline-block",
-                transition: "transform 0.2s ease",
-                zIndex: 9999,
-                position: "relative",
-                "&:hover": { transform: "scale(1.3)", zIndex: 9999 },
-              }}
-            >
-              <Image
-                src={ArbitrumIcon}
-                alt="Arbitrum Icon"
-                width={32}
-                height={32}
-              />
-            </Link>
+                        href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
+                        target="_blank"
+                        onClickCapture={(e) => e.stopPropagation()}
+                        css={{
+                          display: "inline-block",
+                          transition: "transform 0.2s ease",
+                          "&:hover": { transform: "scale(1.1)" },
+                        }}
+                      >
+                        <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+                          {formatAddress(vote.transactionHash)}
+                          <Box
+                            css={{ ml: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Badge>
+                      </Link>
           ) : (
             <Text css={{ color: "$neutral9" }}>N/A</Text>
           )}
