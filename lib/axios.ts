@@ -5,5 +5,6 @@ export const axiosClient = defaultAxios.create({
   timeout: 10000,
 });
 
+
 export const fetcher = <T>(url: string) =>
   axiosClient.get<T>(url).then((res) => res.data);

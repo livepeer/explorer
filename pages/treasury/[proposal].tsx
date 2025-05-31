@@ -1,5 +1,6 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
@@ -18,7 +19,6 @@ import {
 } from "@livepeer/design-system";
 import dayjs from "dayjs";
 import Head from "next/head";
-import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import {
   useAccountAddress,
@@ -29,12 +29,14 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
+import { useFetchVotes } from '../../hooks/TreasuryVotes/useFetchVotes';
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
+import VoteList from "@components/Votes/VoteTable"; 
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 import { getProposalExtended } from "@lib/api/treasury";
 import { decodeFunctionData } from "viem";
@@ -61,6 +63,7 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -80,6 +83,13 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
+  const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
+  const [votesOpen, setVotesOpen] = useState(false);
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
+  
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -93,6 +103,25 @@ const Proposal = () => {
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
   const proposerId = useEnsData(proposal?.proposer.id);
+
+  const votesContent = useCallback(() => {
+    if (votesLoading) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "$4",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      );
+    }
+    if (votes.length === 0) return <Text>No votes yet.</Text>;
+    return <VoteList proposalId={proposal!.id} />;
+  }, [votesLoading, votes.length, proposal?.id]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -157,25 +186,25 @@ const Proposal = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mt: "$4", width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}>
         <Flex>
           <Flex
             css={{
               flexDirection: "column",
-              mb: "$6",
-              pr: 0,
-              pt: "$2",
+              marginBottom: "$6",
+              paddingRight: 0,
+              paddingTop: "$2",
               width: "100%",
               "@bp3": {
                 width: "75%",
-                pr: "$7",
+                paddingRight: "$7",
               },
             }}
           >
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               <Flex
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   alignItems: "center",
                 }}
               >
@@ -222,8 +251,8 @@ const Proposal = () => {
                   variant="primary"
                   css={{
                     display: "flex",
-                    mt: "$3",
-                    mr: "$3",
+                    marginTop: "$3",
+                    marginRight: "$3",
                     "@bp3": {
                       display: "none",
                     },
@@ -241,7 +270,7 @@ const Proposal = () => {
                   display: "grid",
                   gridGap: "$3",
                   gridTemplateColumns: "100%",
-                  mb: "$3",
+                  marginBottom: "$3",
                   "@bp2": {
                     gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
                   },
@@ -268,11 +297,11 @@ const Proposal = () => {
                     </Box>
                   }
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -289,7 +318,7 @@ const Proposal = () => {
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -346,11 +375,11 @@ const Proposal = () => {
                     <Box>{formatPercent(proposal.votes.percent.voters)}</Box>
                   }
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -393,9 +422,9 @@ const Proposal = () => {
               </Box>
               <Card
                 css={{
-                  mb: "$3",
+                  marginBottom: "$3",
                   color: "$neutral9",
-                  p: "$3",
+                  padding: "$3",
                   boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
                 }}
               >
@@ -425,10 +454,10 @@ const Proposal = () => {
                   >
                     {action.lptTransfer ? (
                       <>
-                        <Text css={{ mb: "0.4em" }} variant="neutral" size="3">
+                        <Text css={{ marginBottom: "0.4em" }} variant="neutral" size="3">
                           LPT Transfer:
                         </Text>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                           <Text variant="neutral" size="3">
                             Receiver:
                           </Text>
@@ -455,7 +484,7 @@ const Proposal = () => {
                             </Text>
                           </Link>
                         </Flex>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                           <Text variant="neutral" size="3">
                             Amount:
                           </Text>
@@ -464,7 +493,7 @@ const Proposal = () => {
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              ml: "auto",
+                              marginLeft: "auto",
                             }}
                             size="2"
                           >
@@ -474,10 +503,10 @@ const Proposal = () => {
                       </>
                     ) : (
                       <>
-                        <Text css={{ mb: "0.4em" }} variant="neutral" size="3">
+                        <Text css={{ marginBottom: "0.4em" }} variant="neutral" size="3">
                           Custom:
                         </Text>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                           <Text variant="neutral" size="3">
                             Target:
                           </Text>
@@ -507,7 +536,7 @@ const Proposal = () => {
                             </Text>
                           </Link>
                         </Flex>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                           <Text variant="neutral" size="3">
                             Value:
                           </Text>
@@ -516,7 +545,7 @@ const Proposal = () => {
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              ml: "auto",
+                              marginLeft: "auto",
                             }}
                             size="2"
                           >
@@ -525,7 +554,7 @@ const Proposal = () => {
                           </Text>
                         </Flex>
                         {action.functionName ? (
-                          <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                          <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                             <Text variant="neutral" size="3">
                               Function:
                             </Text>
@@ -534,7 +563,7 @@ const Proposal = () => {
                                 display: "block",
                                 fontWeight: 600,
                                 color: "$white",
-                                ml: "auto",
+                                marginLeft: "auto",
                                 maxWidth: "50%",
                                 textAlign: "right",
                               }}
@@ -546,7 +575,7 @@ const Proposal = () => {
                           </Flex>
                         ) : (
                           <>
-                            <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                            <Flex css={{ paddingLeft: "$2", marginBottom: "0.2em" }}>
                               <Text variant="neutral" size="3">
                                 Calldata:
                               </Text>
@@ -555,7 +584,7 @@ const Proposal = () => {
                                   display: "block",
                                   fontWeight: 600,
                                   color: "$white",
-                                  ml: "auto",
+                                  marginLeft: "auto",
                                   maxWidth: "50%",
                                   wordBreak: "break-all",
                                   textAlign: "right",
@@ -574,9 +603,9 @@ const Proposal = () => {
               </Card>
               <Card
                 css={{
-                  p: "$4",
+                  padding: "$4",
                   border: "1px solid $neutral4",
-                  mb: "$3",
+                  marginBottom: "$3",
                 }}
               >
                 <Heading
@@ -592,10 +621,62 @@ const Proposal = () => {
                 </Heading>
                 <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
+             
+              <Card
+  css={{
+    padding: "$4",
+    border: "1px solid $neutral4",
+    cursor: "pointer",
+  }}
+  onClick={() => setVotesOpen(!votesOpen)}
+>
+  <Flex
+    css={{
+      marginTop: "$1",
+      alignItems: "center",
+    }}
+  >
+    <Heading
+  as="h3"
+  css={{
+    fontWeight: 700,
+    fontSize: "$5",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+<Box css={{ display: "flex", alignItems: "center" }} as="span">
+  <Text
+    css={{
+      color: "$white",
+      fontSize: "$5",
+    }}>
+    {votesLoading ? "Loading votes…" : `View Votes (${votes.length})`}
+  </Text>
+
+</Box>
+
+  <Text
+    as="span"
+    css={{
+      color: votesOpen ? "$red9" : "$green9",
+      fontSize: "$3",
+      marginLeft: "$2",
+    }}
+  >
+    {votesOpen ? "–" : "+"}
+  </Text>
+</Heading>
+
+  </Flex>
+  {votesOpen && <Box css={{ padding: "$3" }}>{votesContent()}</Box>}
+</Card>
+
             </Box>
+            
           </Flex>
 
-          {width > 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",
@@ -603,7 +684,7 @@ const Proposal = () => {
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "25%",
                   display: "flex",
                 },

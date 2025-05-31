@@ -5,7 +5,7 @@ import { useAccountAddress } from "hooks";
 import numeral from "numeral";
 import { useMemo } from "react";
 import { abbreviateNumber, fromWei, shortenAddress} from "@lib/utils";
-import VoteButton from "../VoteButton";
+import VoteButton from "../Votes/VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
 import QueueExecuteButton from "@components/QueueExecuteButton";

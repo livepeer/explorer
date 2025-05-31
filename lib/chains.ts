@@ -5,10 +5,6 @@ import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
 import {
   Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
   createPublicClient,
   http,
 } from "viem";
@@ -254,6 +250,22 @@ export const l1Provider = new ethers.providers.JsonRpcProvider(
 export const l2Provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );
+
+
+// Votecast Constants
+export const INFURA_RPC_URL = `https://arbitrum-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
+export const CONTRACT_ADDRESS = "0xcfe4e2879b786c3aa075813f0e364bb5accb6aa0";
+
+export const VOTECAST_TOPIC0 = ethers.utils.id(
+  "VoteCast(address,uint256,uint8,uint256,string)"
+);
+
+export const provider = new ethers.providers.JsonRpcProvider(INFURA_RPC_URL);
+
+export const contractInterface = new ethers.utils.Interface([
+  "event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason)",
+]);
+
 
 export function isL2ChainId(chainId: number | undefined): boolean {
   return L2_CHAIN_IDS.some((e) => e.id === chainId);

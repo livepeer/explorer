@@ -100,3 +100,15 @@ export const nl2br = (str, is_xhtml = true) => {
     "$1" + breakTag + "$2"
   );
 };
+
+export const getEnsForVotes = async (address: string | null | undefined) => {
+  const idShort = address?.replace(address?.slice(6, 38), "…");
+
+  const name = address ? await l1Provider.lookupAddress(address) : null;
+
+  return {
+    id: address ?? "",
+    idShort: idShort ?? "",
+    name,
+  };
+};
