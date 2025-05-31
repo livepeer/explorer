@@ -66,7 +66,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
               key={label}
               as="th"
               css={{
-                textAlign: "center",
+                textAlign: "left",
                 textTransform: "uppercase",
                 fontSize: "$1",
                 color: "$neutral11",

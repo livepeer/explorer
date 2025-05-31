@@ -1,10 +1,7 @@
-import ArbitrumIcon from "../../../../public/img/logos/arbitrum.png";
 import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
 import { Card, Heading, Link, Text, Box, Badge } from "@livepeer/design-system";
-import Image from "next/image";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { formatAddress } from "utils/formatAddress";
-
 
 interface VoteViewProps {
     vote: Vote;
@@ -62,7 +59,7 @@ interface VoteViewProps {
             {vote.ensName}
           </Link>
         </Heading>
-        <Text css={{ display: "flex", alignItems: "center", mb: "$1" }}>
+        <Text css={{ display: "flex", alignItems: "left", mb: "$1" }}>
           <Text as="span" css={{ fontWeight: 600, mr: "$2" }}>
             Support:
           </Text>
@@ -122,7 +119,7 @@ interface VoteViewProps {
           position: "relative",
           zIndex: 2,
           "&:hover": { backgroundColor: "$neutral4" },
-          "& > td": { padding: "$2" },
+          "& > td": { padding: "$2 $3" },
         }}
         onClickCapture={(e) => {
           if ((e.target as HTMLElement).closest("a")) return;
@@ -133,7 +130,7 @@ interface VoteViewProps {
         <Box
           as="td"
           css={{
-            textAlign: "center",
+            textAlign: "left",
             color: "$white",
             borderBottom: "1px solid $neutral5",
           }}
@@ -161,7 +158,7 @@ interface VoteViewProps {
         <Box
           as="td"
           css={{
-            textAlign: "center",
+            textAlign: "left",
             borderBottom: "1px solid $neutral5",
           }}
         >
@@ -177,7 +174,7 @@ interface VoteViewProps {
         <Box
           as="td"
           css={{
-            textAlign: "center",
+            textAlign: "left",
             color: "$white",
             borderBottom: "1px solid $neutral5",
           }}
@@ -194,7 +191,7 @@ interface VoteViewProps {
         <Box
           as="td"
           css={{
-            textAlign: "center",
+            textAlign: "left",
             color: "$neutral9",
             borderBottom: "1px solid $neutral5",
           }}
@@ -204,7 +201,7 @@ interface VoteViewProps {
         <Box
           as="td"
           css={{
-            textAlign: "center",
+            textAlign: "left",
             borderBottom: "1px solid $neutral5",
             position: "relative",
             zIndex: 5,
