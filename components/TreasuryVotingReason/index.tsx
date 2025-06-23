@@ -42,6 +42,7 @@ const Index = ({
         minLength={MIN_INPUT_LENGTH}
         onChange={(e) => setReason(e.target.value)}
         rows={3}
+        size="3"
       />
       <Text
         css={{
