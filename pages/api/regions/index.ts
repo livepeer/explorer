@@ -12,15 +12,39 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
-      const regionsResponse = await fetch(       
-        `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/regions`
-      );
-      const regions: Regions = await regionsResponse.json();
+      const metricsUrl = process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
+      const aiMetricsUrl = process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL;
 
-      // sort by region name and make sure anything starting with "GLOBAL" appears at the top of the list 
-      // while also being sorted alphabetically
+      const fetchRegions = async (url: string | undefined): Promise<Regions | null> => {
+        if (!url) return null;
+        const response = await fetch(`${url}/api/regions`);
+        return response.ok ? response.json() : null;
+      };
+
+      // Fetch regions in parallel
+      const [metricsRegions, aiMetricsRegions] = await Promise.all([
+        fetchRegions(metricsUrl),
+        fetchRegions(aiMetricsUrl),
+      ]);
+
+      // Merge regions from both sources and keep only unique regions
+      const mergedRegions: Regions = {
+        regions: Array.from(
+          new Map(
+            [
+              ...(metricsRegions?.regions || []),
+              ...(aiMetricsRegions?.regions || []),
+            ].map((region) => [
+              `${region.id}-${region.name}-${region.type}`,
+              region
+            ])
+          ).values()
+        ),
+      };
+
+      // Sort by region name with "Global" appearing at the top
       const globalKey = "Global";
-      regions.regions.sort((a: Region, b: Region) => {
+      mergedRegions.regions.sort((a: Region, b: Region) => {
         if (a.name.startsWith(globalKey) && !b.name.startsWith(globalKey)) {
           return -1;
         } else if (!a.name.startsWith(globalKey) && b.name.startsWith(globalKey)) {
@@ -30,8 +54,9 @@ const handler = async (
         }
       });
 
-      return res.status(200).json(regions);
+      return res.status(200).json(mergedRegions);
     }
+
     res.setHeader("Allow", ["GET"]);
     return res.status(405).end(`Method ${method} Not Allowed`);
   } catch (err) {
