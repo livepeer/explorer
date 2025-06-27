@@ -2,6 +2,22 @@ import { getCacheControlHeader } from "@lib/api";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Regions, Region } from "@lib/api/types/get-regions";
 
+const METRICS_URL = [
+  process.env.NEXT_PUBLIC_METRICS_SERVER_URL,
+  process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
+];
+
+/**
+ * Fetch regions from a given URL.
+ * @param url - The URL to fetch regions from.
+ * @returns Returns a promise that resolves to the regions or null if the fetch fails.
+ */
+const fetchRegions = async (url: string | undefined): Promise<Regions | null> => {
+  if (!url) return null;
+  const response = await fetch(`${url}/api/regions`);
+  return response.ok ? response.json() : null;
+};
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<Regions | null>
@@ -12,37 +28,17 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
-      const metricsUrl = process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
-      const aiMetricsUrl = process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL;
-
-      const fetchRegions = async (url: string | undefined): Promise<Regions | null> => {
-        if (!url) return null;
-        const response = await fetch(`${url}/api/regions`);
-        return response.ok ? response.json() : null;
-      };
-
-      // Fetch regions in parallel
-      const [metricsRegions, aiMetricsRegions] = await Promise.all([
-        fetchRegions(metricsUrl),
-        fetchRegions(aiMetricsUrl),
-      ]);
-
-      // Merge regions from both sources and keep only unique regions
+      const regionsData = await Promise.all(METRICS_URL.map(fetchRegions));
       const mergedRegions: Regions = {
         regions: Array.from(
           new Map(
-            [
-              ...(metricsRegions?.regions || []),
-              ...(aiMetricsRegions?.regions || []),
-            ].map((region) => [
-              `${region.id}-${region.name}-${region.type}`,
-              region
-            ])
+            regionsData
+              .flatMap((data) => data?.regions || [])
+              .map((region) => [`${region.id}-${region.name}-${region.type}`, region])
           ).values()
         ),
       };
 
-      // Sort by region name with "Global" appearing at the top
       const globalKey = "Global";
       mergedRegions.regions.sort((a: Region, b: Region) => {
         if (a.name.startsWith(globalKey) && !b.name.startsWith(globalKey)) {
