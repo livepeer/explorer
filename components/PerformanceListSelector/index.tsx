@@ -61,77 +61,77 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
         as="select"
         value={indexOfSelectedOption}
         onChange={handleSelectChange}
-      css={{
-        py: "$1",
-        pl: "$2",
-        border: "none",
-        bc: "$panel",
-        appearance: "none",
-        pr: "$5",
-        maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
-        "@bp2": {
-          maxWidth: "100%", // Remove margin-bottom for larger screens
-        },
-      }}
-    >
-      <Box as="option" key="-1" value={-1}>
-        Transcoding
-      </Box>
-      {availPipelines?.pipelines.length === 0 ? (
-        <Box as="option" disabled>
-          AI Pipelines Unavailable
+        css={{
+          py: "$1",
+          pl: "$2",
+          border: "none",
+          bc: "$panel",
+          appearance: "none",
+          pr: "$5",
+          maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
+          "@bp2": {
+            maxWidth: "100%", // Remove margin-bottom for larger screens
+          },
+        }}
+      >
+        <Box as="option" key="-1" value={-1}>
+          Transcoding
         </Box>
-      ) : (
-        <>
-          <Box as="option" disabled 
-            css={{
-              py: "$1",
-              pl: "$2",
-              border: "none",
-              bc: "$panel",
-              appearance: "none",
-              pr: "$5",
-            }}>
-            ----------------
+        {availPipelines?.pipelines?.length === 0 ? (
+          <Box as="option" disabled>
+            AI Pipelines Unavailable
           </Box>
-          <Box as="option" disabled 
-            css={{
-              py: "$1",
-              pl: "$2",
-              border: "none",
-              bc: "$panel",
-              appearance: "none",
-              pr: "$5",
-            }}>
-            AI Pipelines
-          </Box>
-          <Box as="option" disabled 
-            css={{
-              py: "$1",
-              pl: "$2",
-              border: "none",
-              bc: "$panel",
-              appearance: "none",
-              pr: "$5",
-            }}>
-            ----------------
-          </Box>
-          {availPipelines?.pipelines.map((p, pindex) => (
-            p.models?.map((m, mindex) => (
-              <Box as="option" key={`${p.id}-${m}`} value={`${pindex},${mindex}`}>
-                {p.id} - {m}
-              </Box>
-            ))
-          ))}
-        </>
-      )}
-    </Box>
-    <Box
-    as={ChevronDownIcon}
-    css={{
-      pointerEvents: "none",
-    }}
-    />
+        ) : (
+          <>
+            <Box as="option" disabled
+              css={{
+                py: "$1",
+                pl: "$2",
+                border: "none",
+                bc: "$panel",
+                appearance: "none",
+                pr: "$5",
+              }}>
+              ----------------
+            </Box>
+            <Box as="option" disabled
+              css={{
+                py: "$1",
+                pl: "$2",
+                border: "none",
+                bc: "$panel",
+                appearance: "none",
+                pr: "$5",
+              }}>
+              AI Pipelines
+            </Box>
+            <Box as="option" disabled
+              css={{
+                py: "$1",
+                pl: "$2",
+                border: "none",
+                bc: "$panel",
+                appearance: "none",
+                pr: "$5",
+              }}>
+              ----------------
+            </Box>
+            {availPipelines?.pipelines?.map((p, pindex) =>
+              p.models?.map((m, mindex) => (
+                <Box as="option" key={`${p.id}-${m}`} value={`${pindex},${mindex}`}>
+                  {p.id} - {m}
+                </Box>
+              ))
+            )}
+          </>
+        )}
+      </Box>
+      <Box
+        as={ChevronDownIcon}
+        css={{
+          pointerEvents: "none",
+        }}
+      />
     </>
   );
 };

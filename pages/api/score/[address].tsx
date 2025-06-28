@@ -64,23 +64,37 @@ const handler = async (
 
       if (isValidAddress(address)) {
         const transcoderId = address.toLowerCase();
+
+        // Fetch the top AI score.
         const topScoreResponse = await fetch(
            `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
         );
+        if (!topScoreResponse.ok) {
+          return res.status(500).end("Failed to fetch top AI score");
+        }
         const topAIScore: ScoreResponse = await topScoreResponse.json();
 
+        // Fetch aggregated metrics.
         const metricsResponse = await fetch(
            `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
         );
+        if (!metricsResponse.ok) {
+          return res.status(500).end("Failed to fetch metrics");
+        }
         const metrics: MetricsResponse = await metricsResponse.json();
 
+        // Fetch Transcoder price.
         const response = await fetch(
           `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`
         );
+        if (!response.ok) {
+          return res.status(500).end("Failed to fetch transcoders with price");
+        }
         const transcodersWithPrice: PriceResponse = await response.json();
         const transcoderWithPrice = transcodersWithPrice.find((t) =>
           checkAddressEquality(t.Address, transcoderId)
         );
+        
         const uniqueRegions = (() => {
           const keys = new Set<string>();
           Object.values(metrics).forEach(metric => {
@@ -90,6 +104,7 @@ const handler = async (
           });
           return Array.from(keys);
         })();
+
         const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse): RegionalValues => {
           const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
             const val = metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
