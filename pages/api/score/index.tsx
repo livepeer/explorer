@@ -14,14 +14,18 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-
       const { pipeline, model } = req.query;
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
-      const metricsResponse = await fetch(       
-        `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats${pipeline? `?pipeline=${pipeline}${model? `&model=${model}` : ""}` : ""}`
+      const baseUrl = pipeline
+        ? process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
+        : process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
+
+      const metricsResponse = await fetch(
+        `${baseUrl}/api/aggregated_stats${pipeline ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}` : ""}`
       ).then((res) => res.json());
+
       const metrics: MetricsResponse = await metricsResponse;
       const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
       const transcodersWithPrice: PriceResponse = await response.json();
@@ -29,28 +33,32 @@ const handler = async (
       const allTranscoderIds = Object.keys(metrics);
       const uniqueRegions = (() => {
         const keys = new Set<string>();
-        Object.values(metrics).forEach(metric => {
+        Object.values(metrics).forEach((metric) => {
           if (metric) {
-            Object.keys(metric).forEach(key => keys.add(key));
+            Object.keys(metric).forEach((key) => keys.add(key));
           }
         });
         return Array.from(keys);
       })();
 
-      const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse) => {
+      const createMetricsObject = (
+        metricKey: string,
+        transcoderId: string,
+        metrics: MetricsResponse
+      ) => {
         const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
-            const metricsParentField = metrics[transcoderId]?.[metricsRegionKey] ?? {};
-            const val = metricsParentField?.[metricKey];
-            if(val !== null && val !== "") 
-              acc[metricsRegionKey] = (metricsParentField?.[metricKey] ?? 0) * 100;
-            return acc;
-          }, {} as RegionalValues);
-      
+          const metricsParentField = metrics[transcoderId]?.[metricsRegionKey] ?? {};
+          const val = metricsParentField?.[metricKey];
+          if (val !== null && val !== "")
+            acc[metricsRegionKey] = (metricsParentField?.[metricKey] ?? 0) * 100;
+          return acc;
+        }, {} as RegionalValues);
+
         // Define a global key that is the average of the other keys
         const globalValue = avg(metrics[transcoderId], metricKey) * 100;
         const finalMetricsObject: RegionalValues = {
           ...metricsObject,
-          GLOBAL: globalValue
+          GLOBAL: globalValue,
         };
         return finalMetricsObject;
       };
