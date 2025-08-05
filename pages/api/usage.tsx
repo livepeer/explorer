@@ -37,6 +37,11 @@ const chartDataHandler = async (
       );
 
       if (!response.ok) {
+        const errorBody = await response
+          .text()
+          .catch(() => "Could not read error body");
+        console.error("API request failed:", response.status, errorBody);
+
         return res.status(500).json(null);
       }
 
