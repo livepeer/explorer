@@ -19,6 +19,7 @@ import {
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
+import { ADiv } from "@components/ADiv"
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
@@ -53,7 +54,7 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
                 <Button
                   ghost
                   // TODO: Remove this after fix design-system Link incompatibility.
-                  as={styled("div", A.defaultVariants, A.variants)}
+                  as={ADiv}
                   css={{
                     color: "$hiContrast",
                     fontSize: "$2",

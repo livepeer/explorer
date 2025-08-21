@@ -13,10 +13,10 @@ import {
   Container,
   Flex,
   Heading,
-  styled,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
+import { ADiv } from "@components/ADiv"
 
 import { useMemo, useState } from "react";
 import {
@@ -351,7 +351,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                     <Button
                       ghost
                       // TODO: Remove this after fix design-system Link incompatibility.
-                      as={styled("div", A.defaultVariants, A.variants)} 
+                      as={ADiv} 
                       css={{
                         color: "$hiContrast",
                         fontSize: "$2",
@@ -366,7 +366,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   <Button
                     ghost
                     // TODO: Remove this after fix design-system Link incompatibility.
-                    as={styled("div", A.defaultVariants, A.variants)}
+                    as={ADiv}
                     css={{ color: "$hiContrast", fontSize: "$2" }}
                   >
                     View All
@@ -420,7 +420,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   <Button
                     ghost
                     // TODO: Remove this after fix design-system Link incompatibility.
-                    as={styled("div", A.defaultVariants, A.variants)}  
+                    as={ADiv}  
                     css={{ color: "$hiContrast", fontSize: "$2" }}
                   >
                     View All
