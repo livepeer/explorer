@@ -44,5 +44,6 @@ yarn-error.log*
 .env.production.local
 
 # IDE
-.vscode
+.vscode/*
+!.vscode/settings.json
 *.code-workspace
