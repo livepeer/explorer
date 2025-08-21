@@ -424,7 +424,11 @@ const OrchestratorList = ({
               </PopoverTrigger>
               {!isNewlyActive && (
                 <PopoverContent
-                  css={{ minWidth: 300, borderRadius: "$4", backgroundColor: "$neutral4" }}
+                  css={{
+                    minWidth: 300,
+                    borderRadius: "$4",
+                    backgroundColor: "$neutral4",
+                  }}
                 >
                   <Box
                     css={{
@@ -1139,7 +1143,11 @@ const OrchestratorList = ({
                   </Badge>
                 </PopoverTrigger>
                 <PopoverContent
-                  css={{ width: 300, borderRadius: "$4", backgroundColor: "$neutral4" }}
+                  css={{
+                    width: 300,
+                    borderRadius: "$4",
+                    backgroundColor: "$neutral4",
+                  }}
                 >
                   <Box
                     css={{
