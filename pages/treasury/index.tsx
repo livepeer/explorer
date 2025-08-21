@@ -1,5 +1,16 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Button, Card, Container, Flex, Heading, Link as A, styled, Text } from "@livepeer/design-system";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Heading,
+  Link as A,
+  styled,
+  Text,
+} from "@livepeer/design-system";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
@@ -71,15 +82,14 @@ const Voting = () => {
               >
                 Voting
               </Heading>
-              <Link
+              <Button
+                size="3"
+                variant="primary"
+                as={Link}
                 href="/treasury/create-proposal"
-                as="/treasury/create-proposal"
-                passHref
               >
-                <Button size="3" variant="primary">
-                  Create Proposal
-                </Button>
-              </Link>
+                Create Proposal
+              </Button>
             </Flex>
             {!proposals?.length && (
               <Flex

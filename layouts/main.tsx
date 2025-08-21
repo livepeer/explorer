@@ -35,7 +35,11 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
+import {
+  usePollsQuery,
+  useProtocolQuery,
+  useTreasuryProposalsQuery,
+} from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { ThemeProvider } from "next-themes";
@@ -400,159 +404,159 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         <Logo isDark id="main" />
 
                         <Box css={{}}>
-                          <Link passHref href="/">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$4",
-                                bc:
-                                  asPath === "/"
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Overview
-                            </Button>
-                          </Link>
-                          <Link passHref href="/orchestrators">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc:
-                                  !asPath.includes(accountAddress ?? "") &&
-                                  (asPath.includes("/accounts") ||
-                                    asPath.includes("/orchestrators"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Orchestrators
-                            </Button>
-                          </Link>
-                          <Link passHref href="/voting">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc: asPath.includes("/voting")
+                          <Button
+                            size="3"
+                            css={{
+                              ml: "$4",
+                              bc:
+                                asPath === "/"
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Governance{" "}
-                              {(totalActivePolls ?? 0) > 0 && (
-                                <Badge
-                                  size="2"
-                                  variant="green"
-                                  css={{
-                                    ml: "6px",
-                                  }}
-                                >
-                                  {totalActivePolls}
-                                </Badge>
-                              )}
-                            </Button>
-                          </Link>
-                          <Link passHref href="/treasury">
-                            <Button
-                              size="3"
-                              css={{
-                                ml: "$2",
-                                bc: asPath.includes("/treasury")
+                              color: "white",
+                              "&:hover": {
+                                bc: "hsla(0,100%,100%,.1)",
+                              },
+                              "&:active": {
+                                bc: "hsla(0,100%,100%,.15)",
+                              },
+                              "&:disabled": {
+                                opacity: 0.5,
+                              },
+                            }}
+                            as={Link}
+                            href="/"
+                          >
+                            Overview
+                          </Button>
+                          <Button
+                            size="3"
+                            css={{
+                              ml: "$2",
+                              bc:
+                                !asPath.includes(accountAddress ?? "") &&
+                                (asPath.includes("/accounts") ||
+                                  asPath.includes("/orchestrators"))
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
-                                color: "white",
-                                "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
-                                },
-                                "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
-                                },
-                                "&:disabled": {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            >
-                              Treasury{" "}
-                              {(totalActiveTreasuryProposals ?? 0) > 0 && (
-                                <Badge
-                                  size="2"
-                                  variant="green"
-                                  css={{
-                                    ml: "6px",
-                                  }}
-                                >
-                                  {totalActiveTreasuryProposals}
-                                </Badge>
-                              )}
-                            </Button>
-                          </Link>
-                          {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
-                              <Button
-                                size="3"
+                              color: "white",
+                              "&:hover": {
+                                bc: "hsla(0,100%,100%,.1)",
+                              },
+                              "&:active": {
+                                bc: "hsla(0,100%,100%,.15)",
+                              },
+                              "&:disabled": {
+                                opacity: 0.5,
+                              },
+                            }}
+                            as={Link}
+                            href="/orchestrators"
+                          >
+                            Orchestrators
+                          </Button>
+                          <Button
+                            size="3"
+                            css={{
+                              ml: "$2",
+                              bc: asPath.includes("/voting")
+                                ? "hsla(0,100%,100%,.05)"
+                                : "transparent",
+                              color: "white",
+                              "&:hover": {
+                                bc: "hsla(0,100%,100%,.1)",
+                              },
+                              "&:active": {
+                                bc: "hsla(0,100%,100%,.15)",
+                              },
+                              "&:disabled": {
+                                opacity: 0.5,
+                              },
+                            }}
+                            as={Link}
+                            href="/voting"
+                          >
+                            Governance{" "}
+                            {(totalActivePolls ?? 0) > 0 && (
+                              <Badge
+                                size="2"
+                                variant="green"
                                 css={{
-                                  ml: "$2",
-                                  bc: asPath.includes(accountAddress)
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
-                                  color: "white",
-                                  "&:hover": {
-                                    bc: "hsla(0,100%,100%,.1)",
-                                  },
-                                  "&:active": {
-                                    bc: "hsla(0,100%,100%,.15)",
-                                  },
-                                  "&:disabled": {
-                                    opacity: 0.5,
-                                  },
+                                  ml: "6px",
                                 }}
                               >
-                                My Account{" "}
-                                {hasPendingFees && (
-                                  <Badge
-                                    size="2"
-                                    variant="green"
-                                    css={{
-                                      ml: "6px",
-                                    }}
-                                  >
-                                    1
-                                  </Badge>
-                                )}
-                              </Button>
-                            </Link>
+                                {totalActivePolls}
+                              </Badge>
+                            )}
+                          </Button>
+                          <Button
+                            size="3"
+                            css={{
+                              ml: "$2",
+                              bc: asPath.includes("/treasury")
+                                ? "hsla(0,100%,100%,.05)"
+                                : "transparent",
+                              color: "white",
+                              "&:hover": {
+                                bc: "hsla(0,100%,100%,.1)",
+                              },
+                              "&:active": {
+                                bc: "hsla(0,100%,100%,.15)",
+                              },
+                              "&:disabled": {
+                                opacity: 0.5,
+                              },
+                            }}
+                            as={Link}
+                            href="/treasury"
+                          >
+                            Treasury{" "}
+                            {(totalActiveTreasuryProposals ?? 0) > 0 && (
+                              <Badge
+                                size="2"
+                                variant="green"
+                                css={{
+                                  ml: "6px",
+                                }}
+                              >
+                                {totalActiveTreasuryProposals}
+                              </Badge>
+                            )}
+                          </Button>
+                          {accountAddress && (
+                            <Button
+                              size="3"
+                              css={{
+                                ml: "$2",
+                                bc: asPath.includes(accountAddress)
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  bc: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  bc: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                              as={Link}
+                              href={`/accounts/${accountAddress}`}
+                            >
+                              My Account{" "}
+                              {hasPendingFees && (
+                                <Badge
+                                  size="2"
+                                  variant="green"
+                                  css={{
+                                    ml: "6px",
+                                  }}
+                                >
+                                  1
+                                </Badge>
+                              )}
+                            </Button>
                           )}
                           <Popover>
                             <PopoverTrigger
@@ -846,36 +850,30 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 </Flex>
               ))}
 
-            <Link
-              passHref
+            <A
+              as={Link}
               href="https://docs.livepeer.org/references/contract-addresses"
             >
-              <A>
-                <Flex
+              <Flex
+                css={{
+                  mt: "$2",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text css={{ whiteSpace: "nowrap" }} variant="neutral" size="1">
+                  Learn more about these contracts
+                </Text>
+                <Box
                   css={{
-                    mt: "$2",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    ml: "$1",
+                    width: 15,
+                    height: 15,
                   }}
-                >
-                  <Text
-                    css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
-                    size="1"
-                  >
-                    Learn more about these contracts
-                  </Text>
-                  <Box
-                    css={{
-                      ml: "$1",
-                      width: 15,
-                      height: 15,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Flex>
-              </A>
-            </Link>
+                  as={ArrowTopRightIcon}
+                />
+              </Flex>
+            </A>
           </Box>
         </Box>
       </PopoverContent>

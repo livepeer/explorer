@@ -79,7 +79,7 @@ const AccountLayout = ({
     pollInterval,
   });
 
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -250,25 +250,27 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link scroll={false} key={i} href={tab.href} passHref>
-                <A
-                  variant="subtle"
-                  css={{
-                    color: tab.isActive ? "$hiContrast" : "$neutral11",
-                    mr: "$4",
-                    pb: "$2",
-                    fontSize: "$3",
-                    fontWeight: 500,
-                    borderBottom: "2px solid",
-                    borderColor: tab.isActive ? "$primary11" : "transparent",
-                    "&:hover": {
-                      textDecoration: "none",
-                    },
-                  }}
-                >
-                  {tab.name}
-                </A>
-              </Link>
+              <A
+                variant="subtle"
+                css={{
+                  color: tab.isActive ? "$hiContrast" : "$neutral11",
+                  mr: "$4",
+                  pb: "$2",
+                  fontSize: "$3",
+                  fontWeight: 500,
+                  borderBottom: "2px solid",
+                  borderColor: tab.isActive ? "$primary11" : "transparent",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+                as={Link}
+                scroll={false}
+                key={i}
+                href={tab.href}
+              >
+                {tab.name}
+              </A>
             ))}
           </Box>
           {view === "orchestrating" && (

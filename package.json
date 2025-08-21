@@ -22,7 +22,7 @@
     "@graphql-codegen/typescript-react-apollo": "^3.3.2",
     "@typechain/ethers-v5": "^10.1.0",
     "@types/change-case": "^2.3.1",
-    "@types/node": "^18.0.6",
+    "@types/node": "^20.5.0",
     "@types/numeral": "^2.0.2",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
@@ -34,7 +34,7 @@
     "eslint": "8.20.0",
     "eslint-config-next": "12.2.2",
     "typechain": "^8.1.0",
-    "typescript": "5.1.6"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@apollo/client": "^3.13.1",
@@ -80,7 +80,7 @@
     "markdown-to-jsx": "^7.1.7",
     "match-sorter": "^6.3.1",
     "micro-cors": "^0.1.1",
-    "next": "12.2.2",
+    "next": "^15.5.0",
     "next-themes": "^0.2.0",
     "numeral": "^2.0.6",
     "parse-domain": "^7.0.1",
@@ -114,6 +114,9 @@
     "viem": "^1.2.12",
     "wagmi": "^1.4.12",
     "zustand": "^4.0.0-rc.2"
+  },
+  "engines": {
+    "node": ">=v20.0.0"
   },
   "main": "package.json",
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"

@@ -46,11 +46,15 @@ const EthAddress = (props: { value: string | undefined }) => {
   const ensName = useEnsData(props.value);
 
   return (
-    <Link passHref href={`/accounts/${props.value}/delegating`}>
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
-      </Badge>
-    </Link>
+    <Badge
+      css={{ cursor: "pointer" }}
+      variant="primary"
+      size="1"
+      as={Link}
+      href={`/accounts/${props.value}/delegating`}
+    >
+      {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
+    </Badge>
   );
 };
 

@@ -112,15 +112,14 @@ const Voting = () => {
               >
                 Voting
               </Heading>
-              <Link
+              <Button
+                size="3"
+                variant="primary"
+                as={Link}
                 href="/voting/create-poll"
-                as="/voting/create-poll"
-                passHref
               >
-                <Button size="3" variant="primary">
-                  Create Poll
-                </Button>
-              </Link>
+                Create Poll
+              </Button>
             </Flex>
             {!polls.length && (
               <Flex
@@ -176,8 +175,8 @@ const Voting = () => {
                         >
                           <Box>
                             <Heading size="1" css={{ mb: "$1" }}>
-                              {poll.attributes?.title} (LIP {poll.attributes?.lip}
-                              )
+                              {poll.attributes?.title} (LIP{" "}
+                              {poll.attributes?.lip})
                             </Heading>
                             <Box css={{ fontSize: "$1", color: "$neutral10" }}>
                               {poll.status !== "active" ? (

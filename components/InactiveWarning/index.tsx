@@ -56,17 +56,16 @@ const InactiveWarning = () => {
             You are delegated to an inactive orchestrator, which means that you
             will not receive LPT rewards or ETH fees.
           </Text>
-          <Link href="/orchestrators" passHref>
             <Button
-              as="a"
               size="3"
               css={{ mt: "$2" }}
               variant="transparentBlack"
               ghost
+              as={Link}
+              href="/orchestrators"
             >
               View Active Orchestrators
             </Button>
-          </Link>
         </Box>
       </Box>
     </Container>

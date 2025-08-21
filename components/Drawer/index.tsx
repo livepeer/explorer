@@ -120,11 +120,13 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 Livepeer.org
               </A>
               {IS_L2 && (
-                <Link href="/migrate" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    L2 Migration Tool
-                  </A>
-                </Link>
+                <A
+                  css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                  as={Link}
+                  href="/migrate"
+                >
+                  L2 Migration Tool
+                </A>
               )}
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
@@ -171,11 +173,13 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               </A>
 
               <Box>
-                <Link href="/whats-new" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    What&apos;s New
-                  </A>
-                </Link>
+                <A
+                  css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                  as={Link}
+                  href="/whats-new"
+                >
+                  What&apos;s New
+                </A>
               </Box>
             </Box>
           </Box>

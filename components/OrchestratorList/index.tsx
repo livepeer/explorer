@@ -114,7 +114,7 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -168,7 +168,8 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut:
+              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -209,7 +210,15 @@ const OrchestratorList = ({
           ? -1
           : 1
       );
-  }, [data, inflationChange, protocolData, principle, timeHorizon, factors, treasuryRewardCutRate]);
+  }, [
+    data,
+    inflationChange,
+    protocolData,
+    principle,
+    timeHorizon,
+    factors,
+    treasuryRewardCutRate,
+  ]);
 
   const columns = useMemo(
     () => [
@@ -232,85 +241,86 @@ const OrchestratorList = ({
           const identity = useEnsData(row.values.id);
 
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-              <A
-                css={{
-                  width: 350,
-                  display: "block",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "none" },
-                }}
-              >
-                <Flex css={{ alignItems: "center" }}>
-                  <Box
-                    css={{
-                      mr: "$2",
-                      backgroundColor: "$neutral4",
-                      borderRadius: 1000,
-                      color: "$neutral11",
-                      fontWeight: 700,
-                      width: 24,
-                      height: 24,
-                      minWidth: 24,
-                      minHeight: 24,
-                      fontSize: 11,
-                      justifyContent: "center",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {+row.id + 1}
-                  </Box>
+            <A
+              css={{
+                width: 350,
+                display: "block",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "none" },
+              }}
+              as={Link}
+              href={`/accounts/${row.values.id}/orchestrating`}
+            >
+              <Flex css={{ alignItems: "center" }}>
+                <Box
+                  css={{
+                    mr: "$2",
+                    backgroundColor: "$neutral4",
+                    borderRadius: 1000,
+                    color: "$neutral11",
+                    fontWeight: 700,
+                    width: 24,
+                    height: 24,
+                    minWidth: 24,
+                    minHeight: 24,
+                    fontSize: 11,
+                    justifyContent: "center",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {+row.id + 1}
+                </Box>
 
-                  <Flex css={{ mr: "$2", alignItems: "center" }}>
-                    {identity?.avatar ? (
+                <Flex css={{ mr: "$2", alignItems: "center" }}>
+                  {identity?.avatar ? (
+                    <Box
+                      as="img"
+                      css={{
+                        mr: "$2",
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                        borderRadius: 1000,
+                      }}
+                      src={identity.avatar}
+                    />
+                  ) : (
+                    <Box
+                      as={QRCode}
+                      css={{
+                        mr: "$2",
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                      }}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      value={row.values.id}
+                    />
+                  )}
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, ai: "center" }}>
                       <Box
-                        as="img"
                         css={{
                           mr: "$2",
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                          borderRadius: 1000,
+                          fontSize: "$3",
                         }}
-                        src={identity.avatar}
-                      />
-                    ) : (
-                      <Box
-                        as={QRCode}
-                        css={{
-                          mr: "$2",
-                          borderRadius: 1000,
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                        }}
-                        fgColor={`#${row.values.id.substr(2, 6)}`}
-                        value={row.values.id}
-                      />
-                    )}
-                    {identity?.name ? (
-                      <Flex css={{ fontWeight: 600, ai: "center" }}>
-                        <Box
-                          css={{
-                            mr: "$2",
-                            fontSize: "$3",
-                          }}
-                        >
-                          {textTruncate(identity.name, 20, "…")}
-                        </Box>
-                        <Badge size="2" css={{ fontSize: "$2" }}>
-                          {row.values.id.substring(0, 6)}
-                        </Badge>
-                      </Flex>
-                    ) : (
-                      <Box css={{ fontWeight: 600 }}>
-                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
                       </Box>
-                    )}
-                    {/* {(row?.original?.daysSinceChangeParams ??
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    </Box>
+                  )}
+                  {/* {(row?.original?.daysSinceChangeParams ??
                       Number.MAX_VALUE) < 30 && (
                       <ExplorerTooltip
                         multiline
@@ -324,10 +334,9 @@ const OrchestratorList = ({
                         </Box>
                       </ExplorerTooltip>
                     )} */}
-                  </Flex>
                 </Flex>
-              </A>
-            </Link>
+              </Flex>
+            </A>
           );
         },
       },
@@ -498,32 +507,30 @@ const OrchestratorList = ({
                           </Text>
                         </Flex>
                       )}
-                      <Link
-                        passHref
+                      <A
+                        as={Link}
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <A>
-                          <Flex
-                            css={{
-                              mt: "$2",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
+                        <Flex
+                          css={{
+                            mt: "$2",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text
+                            css={{ whiteSpace: "nowrap" }}
+                            variant="neutral"
+                            size="1"
                           >
-                            <Text
-                              css={{ whiteSpace: "nowrap" }}
-                              variant="neutral"
-                              size="1"
-                            >
-                              Learn how this calculation is performed
-                            </Text>
-                            <Box
-                              css={{ ml: "$1", width: 15, height: 15 }}
-                              as={ArrowTopRightIcon}
-                            />
-                          </Flex>
-                        </A>
-                      </Link>
+                            Learn how this calculation is performed
+                          </Text>
+                          <Box
+                            css={{ ml: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Flex>
+                      </A>
                     </Box>
 
                     <Box

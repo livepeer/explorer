@@ -109,11 +109,9 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
-          <Link href="/orchestrators" passHref>
-            <Button size="3" variant="primary">
-              <A variant="primary">View Orchestrators</A>
-            </Button>
-          </Link>
+          <Button size="3" variant="primary" as={Link} href="/orchestrators">
+            <A variant="primary">View Orchestrators</A>
+          </Button>
         </Box>
       );
     } else {
@@ -146,34 +144,31 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         columnClassName="masonry-grid_column"
       >
         {delegator?.delegate && (
-          <Link
+          <A
+            className="masonry-grid_item"
+            css={{
+              display: "block",
+              textDecoration: "none",
+              "&:hover": { textDecoration: "none" },
+            }}
+            as={Link}
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
-            passHref
           >
-            <A
-              className="masonry-grid_item"
-              css={{
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Stat
-                label="Delegated with"
-                variant="interactive"
-                value={
-                  <Box>
-                    {delegateIdentity?.name
-                      ? delegateIdentity?.name
-                      : delegator?.delegate?.id.replace(
-                          delegator?.delegate?.id.slice(7, 37),
-                          "…"
-                        )}
-                  </Box>
-                }
-              />{" "}
-            </A>
-          </Link>
+            <Stat
+              label="Delegated with"
+              variant="interactive"
+              value={
+                <Box>
+                  {delegateIdentity?.name
+                    ? delegateIdentity?.name
+                    : delegator?.delegate?.id.replace(
+                        delegator?.delegate?.id.slice(7, 37),
+                        "…"
+                      )}
+                </Box>
+              }
+            />{" "}
+          </A>
         )}
 
         <Stat

@@ -63,30 +63,29 @@ const Migrate = () => {
 
 function CardLink({ href, heading, text }) {
   return (
-    <Link href={href} passHref>
-      <Card
-        as="a"
-        css={{
-          p: "$5",
-          borderRadius: "$4",
-          backgroundColor: "$panel",
-          border: "1px solid $neutral5",
-          mb: "$4",
+    <Card
+      css={{
+        p: "$5",
+        borderRadius: "$4",
+        backgroundColor: "$panel",
+        border: "1px solid $neutral5",
+        mb: "$4",
+        textDecoration: "none",
+        transition: ".15s background-color",
+        "&:hover": {
           textDecoration: "none",
+          bc: "$neutral3",
           transition: ".15s background-color",
-          "&:hover": {
-            textDecoration: "none",
-            bc: "$neutral3",
-            transition: ".15s background-color",
-          },
-        }}
-      >
-        <Heading as="h3" css={{ mb: "$1" }}>
-          {heading}
-        </Heading>
-        <Text variant="neutral">{text}</Text>
-      </Card>
-    </Link>
+        },
+      }}
+      as={Link}
+      href={href}
+    >
+      <Heading as="h3" css={{ mb: "$1" }}>
+        {heading}
+      </Heading>
+      <Text variant="neutral">{text}</Text>
+    </Card>
   );
 }
 Migrate.getLayout = getLayout;
