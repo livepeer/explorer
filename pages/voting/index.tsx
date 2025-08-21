@@ -23,6 +23,7 @@ import { useCurrentRoundData } from "hooks";
 import { sentenceCase } from "change-case";
 dayjs.extend(relativeTime);
 
+
 export const Status = styled("div", {
   length: {},
   variants: {
@@ -144,9 +145,15 @@ const Voting = () => {
                     key={poll.id}
                     href="/voting/[poll]"
                     as={`/voting/${poll.id}`}
-                    passHref
+                    // TODO: Remove this after fix design-system Link incompatibility.
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit"
+                    }}
                   >
                     <A
+                      as="div"
+                      // TODO: Remove this after fix design-system Link incompatibility.
                       css={{
                         cursor: "pointer",
                         display: "block",

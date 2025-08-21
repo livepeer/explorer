@@ -13,6 +13,7 @@ import {
   Container,
   Flex,
   Heading,
+  styled,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Link from "next/link";
@@ -349,8 +350,13 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   <Link href="/leaderboard" passHref>
                     <Button
                       ghost
-                      as={A}
-                      css={{ color: "$hiContrast", fontSize: "$2", marginRight: "$2" }}
+                      // TODO: Remove this after fix design-system Link incompatibility.
+                      as={styled("div", A.defaultVariants, A.variants)} 
+                      css={{
+                        color: "$hiContrast",
+                        fontSize: "$2",
+                        marginRight: "$2",
+                      }}
                     >
                       Performance Leaderboard
                     </Button>
@@ -359,7 +365,8 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 <Link href="/orchestrators" passHref>
                   <Button
                     ghost
-                    as={A}
+                    // TODO: Remove this after fix design-system Link incompatibility.
+                    as={styled("div", A.defaultVariants, A.variants)}
                     css={{ color: "$hiContrast", fontSize: "$2" }}
                   >
                     View All
@@ -412,7 +419,8 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 <Link href="/transactions" passHref>
                   <Button
                     ghost
-                    as={A}
+                    // TODO: Remove this after fix design-system Link incompatibility.
+                    as={styled("div", A.defaultVariants, A.variants)}  
                     css={{ color: "$hiContrast", fontSize: "$2" }}
                   >
                     View All

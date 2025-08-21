@@ -9,6 +9,7 @@ import {
   Container,
   Flex,
   Heading,
+  styled,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
@@ -51,8 +52,13 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
               <Link href="/leaderboard" passHref>
                 <Button
                   ghost
-                  as={A}
-                  css={{ color: "$hiContrast", fontSize: "$2", marginRight: "$2" }}
+                  // TODO: Remove this after fix design-system Link incompatibility.
+                  as={styled("div", A.defaultVariants, A.variants)}
+                  css={{
+                    color: "$hiContrast",
+                    fontSize: "$2",
+                    marginRight: "$2",
+                  }}
                 >
                   Performance Leaderboard
                   <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />

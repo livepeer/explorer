@@ -65,8 +65,18 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
           <Logo isDark id="drawer" />
           <Box css={{ marginBottom: "auto" }}>
             {items.map((item, i) => (
-              <Link key={i} href={item.href} as={item.as} passHref>
+              <Link
+                key={i}
+                href={item.href}
+                as={item.as}
+                style={{
+                  // TODO: Remove this after fix design-system Link incompatibility.
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
                 <A
+                  as="div" // TODO: Remove this after fix design-system Link incompatibility.
                   variant="subtle"
                   css={{
                     color:
