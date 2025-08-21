@@ -1,8 +1,6 @@
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
-import remarkGfm from "remark-gfm";
-import { abbreviateNumber, fromWei } from "../../lib/utils";
-
+import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
 import Spinner from "@components/Spinner";
@@ -32,7 +30,6 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
-
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -48,9 +45,6 @@ import { BigNumber } from "ethers";
 dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
-
-const shortenAddress = (address: string) =>
-  address?.replace(address.slice(5, 39), "…") ?? "";
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
@@ -255,6 +249,10 @@ const Proposal = () => {
               >
                 <Stat
                   css={{ flex: 1, mb: 0 }}
+                  tooltip={`
+                    Total Support = (For votes) ÷ (For votes + Against votes).
+                    Abstentions are not included in the Total Support calculation.
+                  `}
                   label={
                     <Box>
                       Total Support ({formatPercent(+proposal.quota / 1000000)}
@@ -331,6 +329,10 @@ const Proposal = () => {
 
                 <Stat
                   css={{ flex: 1, mb: 0 }}
+                  tooltip={`
+                    Total Participation = (For votes + Against votes + Abstain votes) ÷
+                    (Voters + Nonvoters).
+                  `}
                   label={
                     <Box>
                       Total Participation (
@@ -447,7 +449,9 @@ const Proposal = () => {
                               }}
                               size="2"
                             >
-                              {action.lptTransfer.receiver}
+                              {width <= 640
+                                ? shortenAddress(action.lptTransfer.receiver)
+                                : action.lptTransfer.receiver}
                             </Text>
                           </Link>
                         </Flex>
@@ -573,21 +577,6 @@ const Proposal = () => {
                   p: "$4",
                   border: "1px solid $neutral4",
                   mb: "$3",
-                  h2: {
-                    fontWeight: 600,
-                    "&:first-of-type": { mt: 0 },
-                    mt: "$3",
-                  },
-                  h3: { fontWeight: 600, mt: "$3" },
-                  h4: { fontWeight: 600, mt: "$3" },
-                  h5: { fontWeight: 600, mt: "$3" },
-                  lineHeight: 1.5,
-                  a: {
-                    color: "$primary11",
-                  },
-                  pre: {
-                    whiteSpace: "pre-wrap",
-                  },
                 }}
               >
                 <Heading
@@ -601,9 +590,7 @@ const Proposal = () => {
                 >
                   Description
                 </Heading>
-                <MarkdownRenderer remarkPlugins={[remarkGfm]}>
-                  {proposal.description}
-                </MarkdownRenderer>
+                <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
             </Box>
           </Flex>

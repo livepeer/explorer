@@ -17,12 +17,15 @@ type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;
   proposalId?: string;
   choiceId: number;
+  reason?: string;
 };
+
 
 const Index = ({
   pollAddress,
   proposalId,
   choiceId,
+  reason,
   children,
   ...props
 }: Props) => {
@@ -31,14 +34,15 @@ const Index = ({
 
   const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
     if (proposalId) {
+      const hasReason = typeof reason === "string" && reason.length > 3;
       return {
-        enabled: Boolean(
-          livepeerGovernorAddress && accountAddress && proposalId
-        ),
+        enabled: Boolean(accountAddress && livepeerGovernorAddress),
         address: livepeerGovernorAddress,
         abi: livepeerGovernor,
-        functionName: "castVote",
-        args: [BigInt(proposalId), choiceId],
+        functionName: hasReason ? "castVoteWithReason" : "castVote",
+        args: hasReason
+          ? [BigInt(proposalId), choiceId, reason]
+          : [BigInt(proposalId), choiceId],
       };
     }
     return {
@@ -54,6 +58,7 @@ const Index = ({
     pollAddress,
     choiceId,
     accountAddress,
+    reason,
   ]);
 
   const { config } = usePrepareContractWrite(preparedWriteConfig);
@@ -64,6 +69,7 @@ const Index = ({
     choiceName: proposalId
       ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
       : { 0: "No", 1: "Yes" }[choiceId],
+    reason,
   });
 
   if (!accountAddress) {

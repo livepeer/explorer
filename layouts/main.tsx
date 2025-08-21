@@ -618,7 +618,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://livepeer.org/docs`}
+                                  href={`https://docs.livepeer.org`}
                                 >
                                   Docs
                                 </PopoverLink>
@@ -630,7 +630,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://discord.gg/uaPhtyrWsF`}
+                                  href={`https://discord.gg/livepeer`}
                                 >
                                   Discord
                                 </PopoverLink>

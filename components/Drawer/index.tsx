@@ -128,7 +128,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               )}
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://livepeer.org/docs"
+                href="https://docs.livepeer.org"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -163,7 +163,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               </UniswapModal>
               <A
                 css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://discord.gg/uaPhtyrWsF"
+                href="https://discord.gg/livepeer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
