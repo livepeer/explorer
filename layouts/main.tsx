@@ -416,10 +416,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   : "transparent",
                               color: "white",
                               "&:hover": {
-                                bc: "hsla(0,100%,100%,.1)",
+                                backgroundColor: "hsla(0,100%,100%,.1)",
                               },
                               "&:active": {
-                                bc: "hsla(0,100%,100%,.15)",
+                                backgroundColor: "hsla(0,100%,100%,.15)",
                               },
                               "&:disabled": {
                                 opacity: 0.5,
@@ -442,10 +442,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   : "transparent",
                               color: "white",
                               "&:hover": {
-                                bc: "hsla(0,100%,100%,.1)",
+                                backgroundColor: "hsla(0,100%,100%,.1)",
                               },
                               "&:active": {
-                                bc: "hsla(0,100%,100%,.15)",
+                                backgroundColor: "hsla(0,100%,100%,.15)",
                               },
                               "&:disabled": {
                                 opacity: 0.5,
@@ -499,10 +499,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 : "transparent",
                               color: "white",
                               "&:hover": {
-                                bc: "hsla(0,100%,100%,.1)",
+                                backgroundColor: "hsla(0,100%,100%,.1)",
                               },
                               "&:active": {
-                                bc: "hsla(0,100%,100%,.15)",
+                                backgroundColor: "hsla(0,100%,100%,.15)",
                               },
                               "&:disabled": {
                                 opacity: 0.5,
@@ -534,10 +534,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   : "transparent",
                                 color: "white",
                                 "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
                                 },
                                 "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
                                 },
                                 "&:disabled": {
                                   opacity: 0.5,
@@ -595,7 +595,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              css={{ borderRadius: "$4", bc: "$neutral4" }}
+                              css={{ borderRadius: "$4", backgroundColor: "$neutral4" }}
                             >
                               <Flex
                                 css={{
@@ -778,7 +778,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
         css={{
           minWidth: 350,
           borderRadius: "$4",
-          bc: "$neutral4",
+          backgroundColor: "$neutral4",
         }}
       >
         <Box

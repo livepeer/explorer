@@ -36,13 +36,14 @@ export const Tab = (props) => (
           ? "$primary11"
           : "$red11"
         : "$neutral10",
-      py: "10px",
+      paddingTop: "10px",
+      paddingBottom: "10px",
       width: "50%",
       fontSize: "$3",
       borderRadius: "$4",
       fontWeight: 600,
       border: "2px solid",
-      bc: "transparent",
+      backgroundColor: "transparent",
       borderColor: props.isSelected
         ? props.children === "Delegate"
           ? "$primary11"

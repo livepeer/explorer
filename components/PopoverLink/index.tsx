@@ -32,7 +32,7 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
           transform: "translateX(0px)",
         },
         "&:hover": {
-          bc: "$neutral6",
+          backgroundColor: "$neutral6",
           svg: {
             transition: ".2s transform",
             transform: "translateX(6px)",

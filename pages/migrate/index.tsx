@@ -74,7 +74,7 @@ function CardLink({ href, heading, text }) {
         transition: ".15s background-color",
         "&:hover": {
           textDecoration: "none",
-          bc: "$neutral3",
+          backgroundColor: "$neutral3",
           transition: ".15s background-color",
         },
       }}

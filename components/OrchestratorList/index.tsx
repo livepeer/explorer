@@ -424,7 +424,7 @@ const OrchestratorList = ({
               </PopoverTrigger>
               {!isNewlyActive && (
                 <PopoverContent
-                  css={{ minWidth: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  css={{ minWidth: 300, borderRadius: "$4", backgroundColor: "$neutral4" }}
                 >
                   <Box
                     css={{
@@ -891,7 +891,7 @@ const OrchestratorList = ({
                     opacity: 1,
                     transition: "background-color .3s",
                     "&:hover": {
-                      bc: "$primary5",
+                      backgroundColor: "$primary5",
                       transition: "background-color .3s",
                     },
                   }}
@@ -904,7 +904,7 @@ const OrchestratorList = ({
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              css={{ borderRadius: "$4", bc: "$neutral4" }}
+              css={{ borderRadius: "$4", backgroundColor: "$neutral4" }}
             >
               <Box
                 css={{
@@ -1050,7 +1050,7 @@ const OrchestratorList = ({
                   marginTop: "$1",
                   boxShadow:
                     "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                  bc: "$neutral4",
+                  backgroundColor: "$neutral4",
                 }}
                 align="center"
               >
@@ -1139,7 +1139,7 @@ const OrchestratorList = ({
                   </Badge>
                 </PopoverTrigger>
                 <PopoverContent
-                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  css={{ width: 300, borderRadius: "$4", backgroundColor: "$neutral4" }}
                 >
                   <Box
                     css={{
@@ -1228,7 +1228,7 @@ const OrchestratorList = ({
                     marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
+                    backgroundColor: "$neutral4",
                   }}
                   align="center"
                 >
@@ -1307,7 +1307,7 @@ const OrchestratorList = ({
                     marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
+                    backgroundColor: "$neutral4",
                   }}
                   align="center"
                 >

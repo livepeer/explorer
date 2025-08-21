@@ -170,7 +170,7 @@ const Index = ({ css = {}, ...props }) => {
                         fontSize: "$3",
                       },
                       "&:hover": {
-                        bc: "$neutral4",
+                        backgroundColor: "$neutral4",
                       },
                     }}
                   >

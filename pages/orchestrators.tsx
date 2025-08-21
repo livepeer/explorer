@@ -3,13 +3,11 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
-  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
-  styled,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";

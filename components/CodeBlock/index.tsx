@@ -80,7 +80,7 @@ export function CodeBlock({
           opacity: 1,
           transition: "background-color .3s",
           "&:hover": {
-            bc: "$primary5",
+            backgroundColor: "$primary5",
             transition: "background-color .3s",
           },
         }}
