@@ -59,7 +59,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           ai: scores?.topAIScore,
         }
       },
-    [scores]
+    [scores, knownRegions?.regions]
   );
 
   const maxScoreOutput = useMemo(() => {
@@ -81,7 +81,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
     return outputAI?
       {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
   }
-  , [maxScore]);
+  , [maxScore, knownRegions?.regions]);
 
   return (
     <Box
