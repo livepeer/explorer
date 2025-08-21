@@ -585,7 +585,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 }}
                               >
                                 More
-                                <Box css={{ marginLeft: "$1" }} as={ChevronDownIcon} />
+                                <Box
+                                  css={{ marginLeft: "$1" }}
+                                  as={ChevronDownIcon}
+                                />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
@@ -737,9 +740,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           }}
         >
           <Image
-            objectFit="contain"
-            width={18}
-            height={18}
             alt={
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -752,6 +752,12 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 CHAIN_INFO[DEFAULT_CHAIN_ID]
               ).logoUrl
             }
+            style={{
+              width: "18px",
+              maxWidth: "100%",
+              height: "auto",
+              objectFit: "contain",
+            }}
           />
           <Box css={{ marginLeft: "8px" }}>
             {
@@ -762,7 +768,10 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             }
           </Box>
 
-          <Box as={ChevronDownIcon} css={{ color: "$neutral11", marginLeft: "$1" }} />
+          <Box
+            as={ChevronDownIcon}
+            css={{ color: "$neutral11", marginLeft: "$1" }}
+          />
         </Flex>
       </PopoverTrigger>
       <PopoverContent

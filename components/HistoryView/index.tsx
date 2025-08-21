@@ -130,7 +130,14 @@ const Index = () => {
       }}
       hasMore={true}
     >
-      <Box css={{ marginTop: "$3", marginBottom: "$5", paddingBottom: "$4", position: "relative" }}>
+      <Box
+        css={{
+          marginTop: "$3",
+          marginBottom: "$5",
+          paddingBottom: "$4",
+          position: "relative",
+        }}
+      >
         <Box css={{ paddingBottom: "$3" }}>
           {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
         </Box>
@@ -187,7 +194,9 @@ function renderSwitch(event: any, i: number) {
                   "…"
                 )}
               </Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -244,7 +253,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Initialized round</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -303,7 +314,9 @@ function renderSwitch(event: any, i: number) {
                 Redelegated with{" "}
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -363,7 +376,9 @@ function renderSwitch(event: any, i: number) {
                 Undelegated from{" "}
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -422,7 +437,9 @@ function renderSwitch(event: any, i: number) {
               <Box css={{ fontWeight: 500 }}>
                 Claimed inflationary token reward
               </Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -479,7 +496,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Updated orchestrator cut</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -544,7 +563,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew undelegated tokens</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -601,7 +622,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew earned fees</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -658,7 +681,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Redeemed winning ticket</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -715,7 +740,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Deposit funded</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -777,7 +804,9 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Reserve funded</Box>
-              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
