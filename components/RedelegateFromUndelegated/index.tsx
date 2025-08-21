@@ -37,7 +37,7 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
 
   return (
     <>
-      <Button variant="primary" size="3" onClick={write} css={{ mr: "$3" }}>
+      <Button variant="primary" size="3" onClick={write} css={{ marginRight: "$3" }}>
         Redelegate
       </Button>
     </>

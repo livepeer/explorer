@@ -51,7 +51,7 @@ const Index = () => {
           <Heading
             size="1"
             css={{
-              mb: "$4",
+              marginBottom: "$4",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -64,7 +64,7 @@ const Index = () => {
               css={{ display: "flex", alignItems: "center" }}
             >
               <CheckIcon />
-              <Box css={{ px: "$1" }}>Success</Box>
+              <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
         </DialogTitle>
@@ -81,9 +81,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "bond":
       return (
         <Box>
-          <Table css={{ mb: "$3" }}>
+          <Table css={{ marginBottom: "$3" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               <Box>
                 {Number(tx.inputData.amount) <= 0
                   ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
@@ -105,9 +105,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "unbond":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               <Box>
                 You&apos;ve successfully undelegated{" "}
                 {fromWei(tx.inputData.amount)} LPT. The unbonding period is ~7
@@ -126,9 +126,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "approve":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               {tx.inputData.type === "createPoll" ? (
                 <Box>Nice one! You may now proceed with creating a poll.</Box>
               ) : (
@@ -149,9 +149,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "rebond":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>Successfully redelegated.</Box>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>Successfully redelegated.</Box>
           </Table>
           <DialogClose asChild>
             <Button size="4" variant="primary" css={{ width: "100%" }}>
@@ -163,9 +163,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "rebondFromUnbonded":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully redelegated to orchestrator{" "}
               {tx.inputData &&
                 tx.inputData.delegate.replace(
@@ -185,9 +185,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
       const { targetAddress, isOrchestrator } = tx.inputData ?? {};
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully checkpointed{" "}
               {!isOrchestrator
                 ? "your stake"
@@ -207,9 +207,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "propose":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully made a treasury proposal!
             </Box>
           </Table>
@@ -223,9 +223,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "vote":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully casted a vote
               {` "${tx.inputData?.choiceName}"`}
             </Box>
@@ -240,9 +240,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "queue":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully enqueued the proposal for execution!
               {"\n\n"}
               You may also execute the proposal below if available.
@@ -253,7 +253,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               action="execute"
               size="4"
               variant="primary"
-              css={{ mr: "$2", flex: 1 }}
+              css={{ marginRight: "$2", flex: 1 }}
               proposal={tx.inputData?.proposal}
               onClick={onDismiss}
             />
@@ -268,9 +268,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "execute":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               You&apos;ve successfully executed the treasury proposal!
             </Box>
           </Table>
@@ -284,9 +284,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "batchClaimEarnings":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               Successfully claimed {tx.inputData && tx.inputData.totalRounds}{" "}
               rounds
             </Box>
@@ -301,9 +301,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "createPoll":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               Nice one! You&apos;ve successfully created a poll. Head on over to
               the Governance page to view your newly created poll.
             </Box>
@@ -318,9 +318,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "withdrawStake":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               Successfully withdrawn stake.
             </Box>
           </Table>
@@ -334,9 +334,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "withdrawFees":
       return (
         <Box>
-          <Table css={{ mb: "$4" }}>
+          <Table css={{ marginBottom: "$4" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>Successfully withdrawn fees.</Box>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>Successfully withdrawn fees.</Box>
           </Table>
           <DialogClose asChild>
             <Button size="4" variant="primary" css={{ width: "100%" }}>
@@ -348,9 +348,9 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     case "claimStake":
       return (
         <Box>
-          <Table css={{ mb: "$3" }}>
+          <Table css={{ marginBottom: "$3" }}>
             <Header tx={tx} />
-            <Box css={{ px: "$3", py: "$4" }}>
+            <Box css={{ paddingLeft: "$3", paddingRight: "$3", paddingTop: "$4", paddingBottom: "$4" }}>
               <Box>
                 Congrats! You&apos;ve successfully claimed your stake and fees
                 on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}. Your account page will
@@ -396,11 +396,11 @@ function Header({ tx }: { tx: TransactionStatus }) {
         borderBottom: "1px solid $neutral5",
         alignItems: "center",
         justifyContent: "space-between",
-        p: "$3",
+        padding: "$3",
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
-        <Box css={{ mr: "10px" }}>🎉</Box>
+        <Box css={{ marginRight: "10px" }}>🎉</Box>
         {txMessages[tx?.name ?? ""]?.confirmed}
       </Flex>
       <A
@@ -411,7 +411,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Transfer Receipt{" "}
-        <Box css={{ ml: "6px", color: "$primary10" }}>
+        <Box css={{ marginLeft: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>
       </A>

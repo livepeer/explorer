@@ -254,7 +254,7 @@ const OrchestratorList = ({
               <Flex css={{ alignItems: "center" }}>
                 <Box
                   css={{
-                    mr: "$2",
+                    marginRight: "$2",
                     backgroundColor: "$neutral4",
                     borderRadius: 1000,
                     color: "$neutral11",
@@ -272,12 +272,12 @@ const OrchestratorList = ({
                   {+row.id + 1}
                 </Box>
 
-                <Flex css={{ mr: "$2", alignItems: "center" }}>
+                <Flex css={{ marginRight: "$2", alignItems: "center" }}>
                   {identity?.avatar ? (
                     <Box
                       as="img"
                       css={{
-                        mr: "$2",
+                        marginRight: "$2",
                         width: 24,
                         height: 24,
                         maxWidth: 24,
@@ -290,7 +290,7 @@ const OrchestratorList = ({
                     <Box
                       as={QRCode}
                       css={{
-                        mr: "$2",
+                        marginRight: "$2",
                         borderRadius: 1000,
                         width: 24,
                         height: 24,
@@ -302,10 +302,10 @@ const OrchestratorList = ({
                     />
                   )}
                   {identity?.name ? (
-                    <Flex css={{ fontWeight: 600, ai: "center" }}>
+                    <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                       <Box
                         css={{
-                          mr: "$2",
+                          marginRight: "$2",
                           fontSize: "$3",
                         }}
                       >
@@ -329,7 +329,7 @@ const OrchestratorList = ({
                         <Box>
                           <Box
                             as={ExclamationTriangleIcon}
-                            css={{ ml: "$2", color: "$neutral11" }}
+                            css={{ marginLeft: "$2", color: "$neutral11" }}
                           />
                         </Box>
                       </ExplorerTooltip>
@@ -415,7 +415,7 @@ const OrchestratorList = ({
                             row.values.earnings.roi.delegatorPercent.rewards
                         ).format("0.0%")}
                       </Box>
-                      <Box css={{ ml: "$1" }}>
+                      <Box css={{ marginLeft: "$1" }}>
                         <ChevronDownIcon />
                       </Box>
                     </>
@@ -435,7 +435,7 @@ const OrchestratorList = ({
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -448,7 +448,7 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -464,7 +464,7 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -480,7 +480,7 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -496,7 +496,7 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -513,7 +513,7 @@ const OrchestratorList = ({
                       >
                         <Flex
                           css={{
-                            mt: "$2",
+                            marginTop: "$2",
                             alignItems: "center",
                             justifyContent: "center",
                           }}
@@ -526,7 +526,7 @@ const OrchestratorList = ({
                             Learn how this calculation is performed
                           </Text>
                           <Box
-                            css={{ ml: "$1", width: 15, height: 15 }}
+                            css={{ marginLeft: "$1", width: 15, height: 15 }}
                             as={ArrowTopRightIcon}
                           />
                         </Flex>
@@ -535,15 +535,15 @@ const OrchestratorList = ({
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -555,7 +555,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -567,7 +567,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -578,7 +578,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -590,7 +590,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -601,7 +601,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -613,7 +613,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -624,7 +624,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -636,7 +636,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -650,7 +650,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -662,7 +662,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -676,7 +676,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -688,7 +688,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -699,15 +699,15 @@ const OrchestratorList = ({
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -719,7 +719,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -731,7 +731,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -743,7 +743,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -755,7 +755,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -769,7 +769,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -781,7 +781,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -882,12 +882,12 @@ const OrchestratorList = ({
               }}
               asChild
             >
-              <Flex css={{ ai: "center" }}>
+              <Flex css={{ alignItems: "center" }}>
                 <IconButton
                   aria-label="Orchestrator actions"
                   css={{
                     cursor: "pointer",
-                    ml: "$1",
+                    marginLeft: "$1",
                     opacity: 1,
                     transition: "background-color .3s",
                     "&:hover": {
@@ -909,17 +909,19 @@ const OrchestratorList = ({
               <Box
                 css={{
                   borderBottom: "1px solid $neutral6",
-                  px: "$1",
-                  pt: "$1",
-                  pb: "$2",
+                  paddingLeft: "$1",
+                  paddingRight: "$1",
+                  paddingTop: "$1",
+                  paddingBottom: "$2",
                 }}
               >
                 <Text
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -934,7 +936,7 @@ const OrchestratorList = ({
               <Flex
                 css={{
                   flexDirection: "column",
-                  p: "$1",
+                  padding: "$1",
                   borderBottom: "1px solid $neutral6",
                 }}
               >
@@ -942,8 +944,9 @@ const OrchestratorList = ({
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -984,16 +987,16 @@ const OrchestratorList = ({
         ],
       }}
       input={
-        <Box css={{ mb: "$2" }}>
-          <Flex css={{ alignItems: "center", mb: "$2" }}>
-            <Box css={{ mr: "$1", color: "$neutral11" }}>
+        <Box css={{ marginBottom: "$2" }}>
+          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+            <Box css={{ marginRight: "$1", color: "$neutral11" }}>
               <YieldChartIcon />
             </Box>
             <Text
               variant="neutral"
               size="1"
               css={{
-                ml: "$1",
+                marginLeft: "$1",
                 textTransform: "uppercase",
                 fontWeight: 600,
               }}
@@ -1017,7 +1020,7 @@ const OrchestratorList = ({
                     fontSize: "$2",
                   }}
                 >
-                  <Box css={{ mr: "$1" }}>
+                  <Box css={{ marginRight: "$1" }}>
                     <Pencil1Icon />
                   </Box>
 
@@ -1025,7 +1028,7 @@ const OrchestratorList = ({
                     variant="neutral"
                     size="1"
                     css={{
-                      mr: 3,
+                      marginRight: 3,
                     }}
                   >
                     {"Time horizon:"}
@@ -1044,7 +1047,7 @@ const OrchestratorList = ({
               <DropdownMenuContent
                 css={{
                   width: "200px",
-                  mt: "$1",
+                  marginTop: "$1",
                   boxShadow:
                     "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
                   bc: "$neutral4",
@@ -1095,7 +1098,7 @@ const OrchestratorList = ({
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <Popover>
                 <PopoverTrigger
                   onClick={(e) => {
@@ -1111,14 +1114,14 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
                     <Text
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Delegation:"}
@@ -1141,7 +1144,7 @@ const OrchestratorList = ({
                   <Box
                     css={{
                       borderBottom: "1px solid $neutral6",
-                      p: "$3",
+                      padding: "$3",
                     }}
                   >
                     <Flex align="center">
@@ -1167,7 +1170,7 @@ const OrchestratorList = ({
                         variant="neutral"
                         size="3"
                         css={{
-                          ml: "$2",
+                          marginLeft: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -1179,7 +1182,7 @@ const OrchestratorList = ({
                 </PopoverContent>
               </Popover>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1195,7 +1198,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1203,7 +1206,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Factors:"}
@@ -1222,7 +1225,7 @@ const OrchestratorList = ({
                 <DropdownMenuContent
                   css={{
                     width: "200px",
-                    mt: "$1",
+                    marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
                     bc: "$neutral4",
@@ -1258,7 +1261,7 @@ const OrchestratorList = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1274,7 +1277,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1282,7 +1285,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Inflation change:"}
@@ -1301,7 +1304,7 @@ const OrchestratorList = ({
                 <DropdownMenuContent
                   css={{
                     width: "200px",
-                    mt: "$1",
+                    marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
                     bc: "$neutral4",

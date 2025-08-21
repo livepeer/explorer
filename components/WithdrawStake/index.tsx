@@ -31,7 +31,7 @@ const Index = ({ unbondingLockId }: any) => {
         variant="primary"
         size="3"
         onClick={write}
-        css={{ py: "$2", mr: "$3" }}
+        css={{ paddingTop: "$2", paddingBottom: "$2", marginRight: "$3" }}
       >
         Withdraw
       </Button>

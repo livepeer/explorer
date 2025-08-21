@@ -130,25 +130,25 @@ const Poll = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mt: "$4", width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}>
         <Flex>
           <Flex
             css={{
               flexDirection: "column",
-              mb: "$6",
-              pr: "0px",
-              pt: "$2",
+              marginBottom: "$6",
+              paddingRight: "0px",
+              paddingTop: "$2",
               width: "100%",
               "@bp3": {
                 width: "75%",
-                pr: "$7",
+                paddingRight: "$7",
               },
             }}
           >
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               <Flex
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   alignItems: "center",
                 }}
               >
@@ -168,7 +168,7 @@ const Poll = () => {
                   {sentenceCase(pollData.status)}
                 </Badge>
               </Flex>
-              <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
+              <Heading size="2" css={{ marginBottom: "$2", fontWeight: 600 }}>
                 {pollData.attributes?.title} (LIP-{pollData.attributes?.lip})
               </Heading>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
@@ -193,8 +193,8 @@ const Poll = () => {
                   variant="primary"
                   css={{
                     display: "flex",
-                    mt: "$3",
-                    mr: "$3",
+                    marginTop: "$3",
+                    marginRight: "$3",
                     "@bp3": {
                       display: "none",
                     },
@@ -212,24 +212,24 @@ const Poll = () => {
                   display: "grid",
                   gridGap: "$3",
                   gridTemplateColumns: "100%",
-                  mb: "$3",
+                  marginBottom: "$3",
                   "@bp2": {
                     gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
                   },
                 }}
               >
                 <Stat
-                  css={{ flex: 1, mb: 0 }}
+                  css={{ flex: 1, marginBottom: 0 }}
                   label={
                     <Box>Total Support ({+pollData.quota / 10000}% needed)</Box>
                   }
                   value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -260,7 +260,7 @@ const Poll = () => {
                 />
 
                 <Stat
-                  css={{ flex: 1, mb: 0 }}
+                  css={{ flex: 1, marginBottom: 0 }}
                   label={
                     <Box>
                       Total Participation ({+pollData.quorum / 10000}% needed)
@@ -268,11 +268,11 @@ const Poll = () => {
                   }
                   value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -309,9 +309,9 @@ const Poll = () => {
               </Box>
               <Card
                 css={{
-                  p: "$4",
+                  padding: "$4",
                   border: "1px solid $neutral4",
-                  mb: "$3",
+                  marginBottom: "$3",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
                                 }}
@@ -331,7 +331,7 @@ const Poll = () => {
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "25%",
                   display: "flex",
                 },

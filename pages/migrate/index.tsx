@@ -21,7 +21,7 @@ const Migrate = () => {
       size="2"
       css={{
         maxWidth: 650,
-        mt: "$8",
+        marginTop: "$8",
         width: "100%",
         "@bp3": {
           width: 650,
@@ -31,7 +31,7 @@ const Migrate = () => {
       <Heading
         size="2"
         as="h1"
-        css={{ mb: "$6", textAlign: "center", fontWeight: "bold" }}
+        css={{ marginBottom: "$6", textAlign: "center", fontWeight: "bold" }}
       >
         L2 Migration Tool
       </Heading>
@@ -65,11 +65,11 @@ function CardLink({ href, heading, text }) {
   return (
     <Card
       css={{
-        p: "$5",
+        padding: "$5",
         borderRadius: "$4",
         backgroundColor: "$panel",
         border: "1px solid $neutral5",
-        mb: "$4",
+        marginBottom: "$4",
         textDecoration: "none",
         transition: ".15s background-color",
         "&:hover": {
@@ -81,7 +81,7 @@ function CardLink({ href, heading, text }) {
       as={Link}
       href={href}
     >
-      <Heading as="h3" css={{ mb: "$1" }}>
+      <Heading as="h3" css={{ marginBottom: "$1" }}>
         {heading}
       </Heading>
       <Text variant="neutral">{text}</Text>

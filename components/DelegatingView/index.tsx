@@ -104,8 +104,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
       return (
-        <Box css={{ pt: "$4" }}>
-          <Box css={{ mr: "$3", mb: "$3" }}>
+        <Box css={{ paddingTop: "$4" }}>
+          <Box css={{ marginRight: "$3", marginBottom: "$3" }}>
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
@@ -115,14 +115,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         </Box>
       );
     } else {
-      return <Box css={{ pt: "$4" }}>Nothing here.</Box>;
+      return <Box css={{ paddingTop: "$4" }}>Nothing here.</Box>;
     }
   }
 
   return (
     <Box
       css={{
-        pt: "$4",
+        paddingTop: "$4",
         ".masonry-grid": {
           display: "flex",
           marginLeft: "-$3",
@@ -178,7 +178,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             pendingFeesAndStake?.pendingStake ? (
               <Box
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   fontSize: 26,
                 }}
               >
@@ -191,7 +191,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               <Flex
                 css={{
                   fontSize: "$2",
-                  mb: "$1",
+                  marginBottom: "$1",
                   justifyContent: "space-between",
                 }}
               >
@@ -206,7 +206,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -237,7 +237,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -259,7 +259,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             pendingFeesAndStake ? (
               <Box
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   fontSize: 26,
                 }}
               >
@@ -271,7 +271,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             <Box>
               <Flex
                 css={{
-                  mb: "$1",
+                  marginBottom: "$1",
                   fontSize: "$2",
                   justifyContent: "space-between",
                 }}
@@ -287,7 +287,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -316,7 +316,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -333,7 +333,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   variant="primary"
                   size="4"
                   css={{
-                    mt: "$3",
+                    marginTop: "$3",
                     width: "100%",
                   }}
                   onClick={write}
@@ -358,7 +358,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     </Box>
                   }
                 >
-                  <Flex css={{ ml: "$1" }}>
+                  <Flex css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -381,11 +381,11 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               </Box>
             }
             meta={
-              <Box css={{ mt: "$4" }}>
+              <Box css={{ marginTop: "$4" }}>
                 <Flex
                   css={{
                     fontSize: "$2",
-                    mb: "$1",
+                    marginBottom: "$1",
                     justifyContent: "space-between",
                   }}
                 >
@@ -405,7 +405,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Flex
                   css={{
                     fontSize: "$2",
-                    mb: "$1",
+                    marginBottom: "$1",
                     justifyContent: "space-between",
                   }}
                 >

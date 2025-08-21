@@ -13,14 +13,14 @@ function Error({ statusCode }) {
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        bc: "$loContrast",
+        backgroundColor: "$loContrast",
       }}
     >
       <Box
         css={{
           fontSize: "$5",
-          pr: "$4",
-          mr: "$4",
+          paddingRight: "$4",
+          marginRight: "$4",
           borderRight: "1px solid",
           borderColor: "$hiContrast",
         }}

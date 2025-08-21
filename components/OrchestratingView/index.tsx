@@ -86,7 +86,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   return (
     <Box
       css={{
-        pt: "$4",
+        paddingTop: "$4",
         ".masonry-grid": {
           display: "flex",
           marginLeft: "-$3",
@@ -214,12 +214,12 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     {transcoder.lastRewardRound.id === currentRound?.id ? (
                       <Box
                         as={CheckIcon}
-                        css={{ fontSize: "$3", color: "$green11", ml: "$2" }}
+                        css={{ fontSize: "$3", color: "$green11", marginLeft: "$2" }}
                       />
                     ) : (
                       <Box
                         as={Cross1Icon}
-                        css={{ fontSize: "$2", color: "$red11", ml: "$2" }}
+                        css={{ fontSize: "$2", color: "$red11", marginLeft: "$2" }}
                       />
                     )}
                   </Flex>

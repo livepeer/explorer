@@ -68,8 +68,8 @@ const TreasuryProposalRow = ({
         <Card
           variant="interactive"
           css={{
-            p: "$4",
-            mb: "$3",
+            padding: "$4",
+            marginBottom: "$3",
             border: "1px solid $neutral4",
           }}
         >
@@ -85,7 +85,7 @@ const TreasuryProposalRow = ({
             }}
           >
             <Box>
-              <Heading size="1" css={{ mb: "$1" }}>
+              <Heading size="1" css={{ marginBottom: "$1" }}>
                 {proposal.attributes.title}
                 {!proposal.attributes.lip
                   ? ""

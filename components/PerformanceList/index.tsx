@@ -86,7 +86,7 @@ const PerformanceList = ({
         Header: () => (
           <>
             Orchestrator{" "}
-            <Box css={{ pl: "3px", "@bp1": { display: "none", pl: "0" } }}>
+            <Box css={{ paddingLeft: "3px", "@bp1": { display: "none", paddingLeft: "0" } }}>
               (Score)
             </Box>
           </>
@@ -112,7 +112,7 @@ const PerformanceList = ({
                     key={row.values.id}
                     as="img"
                     css={{
-                      mr: "$2",
+                      marginRight: "$2",
                       width: 24,
                       height: 24,
                       maxWidth: 24,
@@ -125,7 +125,7 @@ const PerformanceList = ({
                   <Box
                     as={QRCode}
                     css={{
-                      mr: "$2",
+                      marginRight: "$2",
                       borderRadius: 1000,
                       width: 24,
                       height: 24,
@@ -137,10 +137,10 @@ const PerformanceList = ({
                   />
                 )}
                 {identity?.name ? (
-                  <Flex css={{ fontWeight: 600, ai: "center" }}>
+                  <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                     <Box
                       css={{
-                        mr: "$2",
+                        marginRight: "$2",
                         fontSize: "$3",
                       }}
                     >
@@ -170,7 +170,7 @@ const PerformanceList = ({
                     size="2"
                     variant="green"
                     css={{
-                      mr: "$2",
+                      marginRight: "$2",
                       fontSize: "$1",
                       "@bp1": {
                         display: "none",
@@ -215,7 +215,7 @@ const PerformanceList = ({
                 </Box>
               }
             >
-              <Flex css={{ ml: "$1" }}>
+              <Flex css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}
@@ -255,7 +255,7 @@ const PerformanceList = ({
                 </Box>
               }
             >
-              <Flex css={{ ml: "$1" }}>
+              <Flex css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}
@@ -293,7 +293,7 @@ const PerformanceList = ({
                 </Box>
               }
             >
-              <Flex css={{ ml: "$1" }}>
+              <Flex css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}

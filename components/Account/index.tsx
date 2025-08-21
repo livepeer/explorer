@@ -28,7 +28,8 @@ const Account = () => {
             fontWeight: 500,
             cursor: "pointer",
             alignItems: "center",
-            py: "$2",
+            paddingTop: "$2",
+            paddingBottom: "$2",
             transition: "color .3s",
             "&:hover": {
               textDecoration: "none",
@@ -43,7 +44,7 @@ const Account = () => {
             css={{
               width: 18,
               height: 18,
-              mr: "$2",
+              marginRight: "$2",
               alignItems: "center",
               justifyContent: "center",
             }}

@@ -34,7 +34,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
   }, [copied]);
 
   return (
-    <Box css={{ mb: "$3" }}>
+    <Box css={{ marginBottom: "$3" }}>
       <Flex css={{ alignItems: "center" }}>
         <Box
           css={{
@@ -82,7 +82,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
         <Flex
           justify="center"
           direction="column"
-          css={{ height: "100%", ml: "$3" }}
+          css={{ height: "100%", marginLeft: "$3" }}
         >
           <Flex css={{ alignItems: "center" }}>
             <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
@@ -102,11 +102,11 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 >
                   <Flex
                     css={{
-                      ml: "$3",
-                      mt: "3px",
+                      marginLeft: "$3",
+                      marginTop: "3px",
                       cursor: "pointer",
                       borderRadius: 1000,
-                      bc: "$neutral3",
+                      backgroundColor: "$neutral3",
                       border: "1px solid $neutral6",
                       width: 28,
                       height: 28,
@@ -148,8 +148,8 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
-                  <Box as={GlobeIcon} css={{ mr: "$1" }} />
+                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                  <Box as={GlobeIcon} css={{ marginRight: "$1" }} />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </Flex>
               </A>
@@ -163,8 +163,8 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
-                  <Box as={TwitterLogoIcon} css={{ mr: "$1" }} />
+                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                  <Box as={TwitterLogoIcon} css={{ marginRight: "$1" }} />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
@@ -186,8 +186,8 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ mt: "$2", mr: "$3" }}>
-                  <Box as={GitHubLogoIcon} css={{ mr: "$1" }} />
+                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                  <Box as={GitHubLogoIcon} css={{ marginRight: "$1" }} />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
@@ -205,7 +205,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
       </Flex>
 
       {identity?.description && (
-        <Text css={{ my: "$4" }}>
+        <Text css={{ marginTop: "$4", marginBottom: "$4" }}>
           <ShowMoreText
             lines={3}
             more={

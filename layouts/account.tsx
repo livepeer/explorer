@@ -140,13 +140,13 @@ const AccountLayout = ({
         <Flex
           css={{
             flexDirection: "column",
-            mb: "$6",
-            pr: 0,
-            pt: "$4",
+            marginBottom: "$6",
+            paddingRight: 0,
+            paddingTop: "$4",
             width: "100%",
             "@bp3": {
-              pt: "$6",
-              pr: "$7",
+              paddingTop: "$6",
+              paddingRight: "$7",
             },
           }}
         >
@@ -159,7 +159,7 @@ const AccountLayout = ({
           <Flex
             css={{
               display: "flex",
-              mb: "$4",
+              marginBottom: "$4",
               "@bp3": {
                 display: "none",
               },
@@ -179,7 +179,7 @@ const AccountLayout = ({
                 <SheetTrigger asChild>
                   <Button
                     variant="primary"
-                    css={{ mr: "$3" }}
+                    css={{ marginRight: "$3" }}
                     size="4"
                     onClick={(event) => {
                       event.stopPropagation();
@@ -254,8 +254,8 @@ const AccountLayout = ({
                 variant="subtle"
                 css={{
                   color: tab.isActive ? "$hiContrast" : "$neutral11",
-                  mr: "$4",
-                  pb: "$2",
+                  marginRight: "$4",
+                  paddingBottom: "$2",
                   fontSize: "$3",
                   fontWeight: 500,
                   borderBottom: "2px solid",
@@ -299,7 +299,7 @@ const AccountLayout = ({
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "40%",
                   display: "flex",
                 },

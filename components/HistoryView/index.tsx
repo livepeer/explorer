@@ -18,7 +18,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 const Card = styled(CardBase, {
   length: {},
   border: "1px solid $neutral3",
-  mb: "$2",
+  marginBottom: "$2",
   p: "$4",
 });
 
@@ -82,7 +82,7 @@ const Index = () => {
     return (
       <Flex
         css={{
-          pt: "$5",
+          paddingTop: "$5",
           width: "100%",
           justifyContent: "center",
           alignItems: "center",
@@ -94,7 +94,7 @@ const Index = () => {
   }
 
   if (!data?.transactions?.length) {
-    return <Box css={{ pt: "$3" }}>No history</Box>;
+    return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
 
   return (
@@ -130,8 +130,8 @@ const Index = () => {
       }}
       hasMore={true}
     >
-      <Box css={{ mt: "$3", mb: "$5", pb: "$4", position: "relative" }}>
-        <Box css={{ pb: "$3" }}>
+      <Box css={{ marginTop: "$3", marginBottom: "$5", paddingBottom: "$4", position: "relative" }}>
+        <Box css={{ paddingBottom: "$3" }}>
           {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
         </Box>
         {loading && data.transactions.length >= 10 && (
@@ -187,7 +187,7 @@ function renderSwitch(event: any, i: number) {
                   "…"
                 )}
               </Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -195,13 +195,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -210,7 +210,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.additionalAmount).format("0.0a")}
@@ -244,7 +244,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Initialized round</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -252,13 +252,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -267,7 +267,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               Round #
               <Box as="span" css={{ fontWeight: 600 }}>
                 {event.round.id}
@@ -303,7 +303,7 @@ function renderSwitch(event: any, i: number) {
                 Redelegated with{" "}
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -311,13 +311,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -326,7 +326,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.amount).format("0.0a")}
@@ -363,7 +363,7 @@ function renderSwitch(event: any, i: number) {
                 Undelegated from{" "}
                 {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
               </Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -371,13 +371,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -386,7 +386,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 -{numeral(event.amount).format("0.0a")}
@@ -422,7 +422,7 @@ function renderSwitch(event: any, i: number) {
               <Box css={{ fontWeight: 500 }}>
                 Claimed inflationary token reward
               </Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -430,13 +430,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -445,7 +445,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.rewardTokens).format("0.00a")}
@@ -479,7 +479,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Updated orchestrator cut</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -487,13 +487,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -502,7 +502,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ textAlign: "right", fontSize: "$2", ml: "$4" }}>
+            <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
                 <Box as="span" css={{ fontWeight: 600 }}>
                   {event.rewardCut / 10000}% R
@@ -544,7 +544,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew undelegated tokens</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -552,13 +552,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -567,7 +567,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 {numeral(event.amount).format("0.00a")}
@@ -601,7 +601,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Withdrew earned fees</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -609,13 +609,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -624,7 +624,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 {numeral(event.amount).format("0.000a")}
@@ -658,7 +658,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Redeemed winning ticket</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -666,13 +666,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -681,7 +681,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.faceValue).format("0.000a")}
@@ -715,7 +715,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Deposit funded</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -723,13 +723,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -738,7 +738,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.amount).format("0.00a")}
@@ -777,7 +777,7 @@ function renderSwitch(event: any, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>Reserve funded</Box>
-              <Box css={{ mt: "$2", fontSize: "$1", color: "$neutral11" }}>
+              <Box css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}>
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
@@ -785,13 +785,13 @@ function renderSwitch(event: any, i: number) {
               </Box>
               <Flex
                 css={{
-                  ai: "center",
-                  mt: "$2",
+                  alignItems: "center",
+                  marginTop: "$2",
                   fontSize: "$1",
                   color: "$neutral11",
                 }}
               >
-                <Box css={{ mr: "$1" }}>
+                <Box css={{ marginRight: "$1" }}>
                   {event.transaction.id.replace(
                     event.transaction.id.slice(6, 62),
                     "…"
@@ -800,7 +800,7 @@ function renderSwitch(event: any, i: number) {
                 <ExternalLinkIcon />
               </Flex>
             </Box>
-            <Box css={{ fontSize: "$3", ml: "$4" }}>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numeral(event.amount).format("0.00a")}

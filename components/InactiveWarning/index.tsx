@@ -31,20 +31,20 @@ const InactiveWarning = () => {
   }
 
   return (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginBottom: "$5" }}>
       <Box
         css={{
-          mt: "$5",
+          marginTop: "$5",
           borderRadius: 10,
           width: "100%",
           padding: "$4",
           color: "$loContrast",
-          bc: "$amber11",
+          backgroundColor: "$amber11",
         }}
       >
         <Box
           css={{
-            mb: "$2",
+            marginBottom: "$2",
             fontSize: "$6",
             fontWeight: 600,
           }}
@@ -58,7 +58,7 @@ const InactiveWarning = () => {
           </Text>
             <Button
               size="3"
-              css={{ mt: "$2" }}
+              css={{ marginTop: "$2" }}
               variant="transparentBlack"
               ghost
               as={Link}

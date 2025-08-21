@@ -29,8 +29,9 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
           position: "fixed",
           flexDirection: "column",
           height: "100vh",
-          pt: "$4",
-          px: 24,
+          paddingTop: "$4",
+          paddingLeft: 24,
+          paddingRight: 24,
           borderRight: "1px solid $colors$neutral4",
           alignItems: "center",
           justifyContent: "space-between",
@@ -44,7 +45,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
             width: "100%",
           },
           "@bp2": {
-            pt: "$4",
+            paddingTop: "$4",
           },
           "@bp3": {
             boxShadow: "none",
@@ -62,7 +63,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
           }}
         >
           <Logo isDark id="drawer" />
-          <Box css={{ mb: "auto" }}>
+          <Box css={{ marginBottom: "auto" }}>
             {items.map((item, i) => (
               <Link key={i} href={item.href} as={item.as} passHref>
                 <A
@@ -78,7 +79,8 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                     fontWeight: 500,
                     cursor: "pointer",
                     alignItems: "center",
-                    py: "$2",
+                    paddingTop: "$2",
+                    paddingBottom: "$2",
                     borderRadius: 5,
                     transition: "color .3s",
                     "&:hover": {
@@ -94,7 +96,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                       justifyContent: "center",
                       width: 18,
                       height: 18,
-                      mr: "$2",
+                      marginRight: "$2",
                     }}
                   >
                     <item.icon />
@@ -105,14 +107,14 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
             ))}
             <Account />
           </Box>
-          <Box css={{ mb: "$4" }}>
+          <Box css={{ marginBottom: "$4" }}>
             <Box
               css={{
-                pb: "$4",
+                paddingBottom: "$4",
               }}
             >
               <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
                 href="https://livepeer.org"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -121,7 +123,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
               </A>
               {IS_L2 && (
                 <A
-                  css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                  css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
                   as={Link}
                   href="/migrate"
                 >
@@ -129,7 +131,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 </A>
               )}
               <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
                 href="https://docs.livepeer.org"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -144,7 +146,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                     css={{
                       cursor: "pointer",
                       fontSize: "$2",
-                      mb: "$2",
+                      marginBottom: "$2",
                       display: "block",
                     }}
                   >
@@ -164,7 +166,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
                 />
               </UniswapModal>
               <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
                 href="https://discord.gg/livepeer"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -174,7 +176,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
 
               <Box>
                 <A
-                  css={{ fontSize: "$2", mb: "$2", display: "block" }}
+                  css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
                   as={Link}
                   href="/whats-new"
                 >

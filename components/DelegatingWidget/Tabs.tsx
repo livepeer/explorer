@@ -17,7 +17,7 @@ export const TabList = (props) => (
       width: "100%",
       position: "relative",
       borderRadius: "$4",
-      mb: "$3",
+      marginBottom: "$3",
     }}
     {...props}
   />

@@ -13,17 +13,19 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
         : {})}
       css={{
         display: "flex",
-        ai: "center",
-        jc: "space-between",
+        alignItems: "center",
+        justifyContent: "space-between",
         textDecoration: "none",
         borderRadius: "$2",
         cursor: "pointer",
-        mb: "$1",
-        px: "$3",
-        py: "$1",
+        marginBottom: "$1",
+        paddingLeft: "$3",
+        paddingRight: "$3",
+        paddingTop: "$1",
+        paddingBottom: "$1",
         transition: ".2s transform",
         "&:last-child": {
-          mb: 0,
+          marginBottom: 0,
         },
         svg: {
           transition: ".2s transform",
@@ -41,7 +43,7 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
       href={href}
     >
       {children}
-      <Box as={ChevronRightIcon} css={{ ml: "$2", width: 16, height: 16 }} />
+      <Box as={ChevronRightIcon} css={{ marginLeft: "$2", width: 16, height: 16 }} />
     </A>
   );
 };

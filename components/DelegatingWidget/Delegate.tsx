@@ -187,7 +187,7 @@ const Delegate = ({
         </Box>
         <ProgressSteps
           steps={[sufficientTransferAllowance]}
-          css={{ mt: "$3" }}
+          css={{ marginTop: "$3" }}
         />
       </Box>
     );

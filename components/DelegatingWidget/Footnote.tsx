@@ -4,7 +4,7 @@ const Footnote = ({ children }) => {
   return (
     <Box
       css={{
-        pt: "$3",
+        paddingTop: "$3",
         color: "gray",
         textAlign: "center",
         fontSize: "$1",

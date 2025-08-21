@@ -16,7 +16,7 @@ const Index = ({ css = {}, open = true, label, button }: Props) =>
         border: "1px solid",
         borderColor: "$border",
         width: "100%",
-        p: "$3",
+        padding: "$3",
         fontSize: "$2",
         ...css,
       }}

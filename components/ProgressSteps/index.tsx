@@ -61,7 +61,7 @@ interface ProgressCirclesProps {
  */
 const ProgressSteps = ({ steps, css = {}, ...props }: ProgressCirclesProps) => {
   return (
-    <Flex css={{ px: "$5", justifyContent: "center", ...css }} {...props}>
+    <Flex css={{ paddingLeft: "$5", paddingRight: "$5", justifyContent: "center", ...css }} {...props}>
       {steps.map((step, i) => {
         return (
           <CircleRow key={i}>

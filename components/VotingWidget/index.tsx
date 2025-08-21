@@ -96,22 +96,24 @@ const Index = ({ data }: { data: Props }) => {
             border: "1px solid $neutral4",
             borderRadius: "$4",
             backgroundColor: "$panel",
-            px: "$4",
-            py: "$3",
+            paddingLeft: "$4",
+            paddingRight: "$4",
+            paddingTop: "$3",
+            paddingBottom: "$3",
           }}
         >
-          <Heading size="1" css={{ fontWeight: "bold", mb: "$3" }}>
+          <Heading size="1" css={{ fontWeight: "bold", marginBottom: "$3" }}>
             Do you support LIP-{data?.poll?.attributes?.lip ?? "ERR"}?
           </Heading>
 
           <Box
             css={{
-              mb: "$3",
-              pb: "$3",
+              marginBottom: "$3",
+              paddingBottom: "$3",
               borderBottom: "1px solid $neutral4",
             }}
           >
-            <Box css={{ mb: "$3" }}>
+            <Box css={{ marginBottom: "$3" }}>
               <Flex
                 css={{
                   alignItems: "center",
@@ -119,7 +121,7 @@ const Index = ({ data }: { data: Props }) => {
                   position: "relative",
                   width: "100%",
                   height: 24,
-                  mb: "8px",
+                  marginBottom: "8px",
                 }}
               >
                 <Box
@@ -139,7 +141,7 @@ const Index = ({ data }: { data: Props }) => {
                   css={{
                     lineHeight: 1,
                     fontWeight: 500,
-                    pl: data.poll.percent.yes ? "$2" : 0,
+                    paddingLeft: data.poll.percent.yes ? "$2" : 0,
                     fontSize: "$2",
                   }}
                 >
@@ -148,7 +150,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pr: "$2",
+                    paddingRight: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -179,7 +181,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pl: data.poll.percent.no ? "$2" : 0,
+                    paddingLeft: data.poll.percent.no ? "$2" : 0,
                     fontWeight: 500,
                     fontSize: "$2",
                   }}
@@ -189,7 +191,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Box
                   css={{
                     lineHeight: 1,
-                    pr: "$2",
+                    paddingRight: "$2",
                     fontSize: "$2",
                   }}
                 >
@@ -222,7 +224,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Flex
                   css={{
                     fontSize: "$2",
-                    mb: "$2",
+                    marginBottom: "$2",
                     justifyContent: "space-between",
                   }}
                 >
@@ -261,7 +263,7 @@ const Index = ({ data }: { data: Props }) => {
                   data?.vote?.choiceID) && (
                   <Flex
                     css={{
-                      mt: "$2",
+                      marginTop: "$2",
                       fontSize: "$2",
                       justifyContent: "space-between",
                     }}
@@ -308,7 +310,7 @@ const Index = ({ data }: { data: Props }) => {
               </Button>
               <Text
                 size="2"
-                css={{ mt: "$1", fontWeight: 600, color: "$red11" }}
+                css={{ marginTop: "$1", fontWeight: 600, color: "$red11" }}
               >
                 Connect your wallet to vote.
               </Text>
@@ -320,11 +322,11 @@ const Index = ({ data }: { data: Props }) => {
         <Box
           css={{
             display: "none",
-            mt: "$3",
+            marginTop: "$3",
             fontSize: "$1",
             borderRadius: "$4",
             border: "1px solid $neutral4",
-            p: "$3",
+            padding: "$3",
             "@bp3": {
               display: "block",
             },
@@ -349,7 +351,7 @@ const Index = ({ data }: { data: Props }) => {
             css={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: "$4",
+              marginBottom: "$4",
             }}
           >
             <DialogTitle asChild>
@@ -371,17 +373,17 @@ const Index = ({ data }: { data: Props }) => {
             </DialogClose>
           </Flex>
 
-          <Box as="ol" css={{ pl: 15 }}>
-            <Box as="li" css={{ mb: "$4" }}>
-              <Box css={{ mb: "$3" }}>
+          <Box as="ol" css={{ paddingLeft: 15 }}>
+            <Box as="li" css={{ marginBottom: "$4" }}>
+              <Box css={{ marginBottom: "$3" }}>
                 Run the Livepeer CLI and select the option to &quot;Vote on a
                 poll&quot;. When prompted for a contract address, copy and paste
                 this poll&apos;s contract address:
               </Box>
               <Box
                 css={{
-                  p: "$3",
-                  mb: "$2",
+                  padding: "$3",
+                  marginBottom: "$2",
                   position: "relative",
                   color: "$primary11",
                   backgroundColor: "$primary4",
@@ -399,8 +401,8 @@ const Index = ({ data }: { data: Props }) => {
                 >
                   <Flex
                     css={{
-                      ml: "$2",
-                      mt: "3px",
+                      marginLeft: "$2",
+                      marginTop: "3px",
                       position: "absolute",
                       right: 12,
                       top: 10,
@@ -431,14 +433,14 @@ const Index = ({ data }: { data: Props }) => {
                 </CopyToClipboard>
               </Box>
             </Box>
-            <Box as="li" css={{ mb: "$4" }}>
-              <Box css={{ mb: "$3" }}>
+            <Box as="li" css={{ marginBottom: "$4" }}>
+              <Box css={{ marginBottom: "$3" }}>
                 The Livepeer CLI will prompt you for your vote. Enter 0 to vote
                 &quot;Yes&quot; or 1 to vote &quot;No&quot;.
               </Box>
             </Box>
-            <Box as="li" css={{ mb: 0 }}>
-              <Box css={{ mb: "$3" }}>
+            <Box as="li" css={{ marginBottom: 0 }}>
+              <Box css={{ marginBottom: "$3" }}>
                 Once your vote is confirmed, check back here to see it reflected
                 in the UI.
               </Box>
@@ -463,7 +465,7 @@ function renderVoteButton(
       return (
         <VoteButton
           disabled={!(parseFloat(pendingStake) > 0)}
-          css={{ mt: "$4", width: "100%" }}
+          css={{ marginTop: "$4", width: "100%" }}
           variant="red"
           size="4"
           choiceId={1}
@@ -476,7 +478,7 @@ function renderVoteButton(
       return (
         <VoteButton
           disabled={!(parseFloat(pendingStake) > 0)}
-          css={{ mt: "$4", width: "100%" }}
+          css={{ marginTop: "$4", width: "100%" }}
           size="4"
           variant="primary"
           choiceId={0}
@@ -487,7 +489,7 @@ function renderVoteButton(
       );
     default:
       return (
-        <Box css={{ mt: "$4", display: "grid", gap: "$2", columns: 2 }}>
+        <Box css={{ marginTop: "$4", display: "grid", gap: "$2", columns: 2 }}>
           <VoteButton
             disabled={!(parseFloat(pendingStake) > 0)}
             variant="primary"

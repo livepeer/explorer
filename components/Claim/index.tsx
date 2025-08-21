@@ -115,10 +115,10 @@ const Claim = () => {
   }, [accountAddress, l1Delegator]);
 
   return loading || !isDelegator || isMigrated ? null : (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginBottom: "$5" }}>
       <Box
         css={{
-          mt: "$5",
+          marginTop: "$5",
           borderRadius: 10,
           width: "100%",
           padding: "$4",
@@ -129,7 +129,7 @@ const Claim = () => {
         <Box>
           <Box
             css={{
-              mb: "$2",
+              marginBottom: "$2",
               fontSize: "$6",
               fontWeight: 600,
             }}
@@ -146,7 +146,8 @@ const Claim = () => {
                 borderBottom: "1px dashed $neutral11",
                 fontSize: "$3",
                 color: "$hiContrast",
-                mx: "$1",
+                marginLeft: "$1",
+                marginRight: "$1",
                 letterSpacing: "-.4px",
               }}
             >
@@ -160,7 +161,8 @@ const Claim = () => {
                 fontSize: "$3",
                 color: "$hiContrast",
                 borderBottom: "1px dashed $neutral11",
-                mx: "$1",
+                marginLeft: "$1",
+                marginRight: "$1",
                 letterSpacing: "-.4px",
               }}
             >
@@ -175,8 +177,8 @@ const Claim = () => {
         </Box>
         <Box
           css={{
-            mt: "$3",
-            mb: "$5",
+            marginTop: "$3",
+            marginBottom: "$5",
             maxWidth: 350,
           }}
         >
@@ -195,7 +197,7 @@ const Claim = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              pb: "$1",
+              paddingBottom: "$1",
               borderBottom: "1px solid rgba(255,255,255, .2)",
             }}
           >
@@ -205,7 +207,7 @@ const Claim = () => {
             )}
           </Box>
         </Box>
-        <Flex css={{ mt: "$3", alignItems: "center" }}>
+        <Flex css={{ marginTop: "$3", alignItems: "center" }}>
           {claimStakeEnabled && (
             <Button
               onClick={async () => {
@@ -232,7 +234,7 @@ const Claim = () => {
               }}
               size="3"
               variant="transparentWhite"
-              css={{ mr: "$2" }}
+              css={{ marginRight: "$2" }}
             >
               Claim Stake & Fees
             </Button>
@@ -246,7 +248,7 @@ const Claim = () => {
             ghost
           >
             Discord Support Channel{" "}
-            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+            <Box css={{ marginLeft: "$1" }} as={ArrowTopRightIcon} />
           </Button>
         </Flex>
       </Box>

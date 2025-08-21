@@ -81,7 +81,7 @@ const LivepeerLogo = ({
       <Box
         as="svg"
         viewBox="0 0 123 34"
-        css={{ height: "34px", width: 110, mb: "$4" }}
+        css={{ height: "34px", width: 110, marginBottom: "$4" }}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         ref={svgRef as any}

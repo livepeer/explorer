@@ -42,7 +42,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}>
         {isLoading ? (
           <Flex
             css={{
@@ -68,7 +68,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -96,9 +96,9 @@ const Voting = () => {
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">

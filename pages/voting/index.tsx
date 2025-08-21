@@ -72,7 +72,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}>
         {loading ? (
           <Flex
             css={{
@@ -98,7 +98,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -126,9 +126,9 @@ const Voting = () => {
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">
@@ -157,8 +157,8 @@ const Voting = () => {
                       <Card
                         variant="interactive"
                         css={{
-                          p: "$4",
-                          mb: "$3",
+                          padding: "$4",
+                          marginBottom: "$3",
                           border: "1px solid $neutral4",
                         }}
                       >
@@ -174,7 +174,7 @@ const Voting = () => {
                           }}
                         >
                           <Box>
-                            <Heading size="1" css={{ mb: "$1" }}>
+                            <Heading size="1" css={{ marginBottom: "$1" }}>
                               {poll.attributes?.title} (LIP{" "}
                               {poll.attributes?.lip})
                             </Heading>

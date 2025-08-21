@@ -187,7 +187,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               size="2"
               variant="green"
               css={{
-                ml: "6px",
+                marginLeft: "6px",
               }}
             >
               {totalActivePolls}
@@ -209,7 +209,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               size="2"
               variant="green"
               css={{
-                ml: "6px",
+                marginLeft: "6px",
               }}
             >
               {totalActiveTreasuryProposals}
@@ -270,13 +270,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
             {protocolData?.protocol?.paused && (
               <Flex
                 css={{
-                  py: "$2",
-                  px: "$2",
+                  padding: "$2",
                   width: "100%",
                   alignItems: "center",
                   color: "$hiContrast",
                   justifyContent: "center",
-                  bc: "amber11",
+                  backgroundColor: "amber11",
                   fontWeight: 500,
                   fontSize: "$3",
                 }}
@@ -287,12 +286,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
             {bannerActive && (
               <Flex
                 css={{
-                  py: 10,
+                  paddingTop: 10,
+                  paddingBottom: 10,
                   display: "none",
-                  px: "$2",
+                  paddingLeft: "$2",
+                  paddingRight: "$2",
                   width: "100%",
                   alignItems: "center",
-                  bc: "$neutral4",
+                  backgroundColor: "$neutral4",
                   justifyContent: "center",
                   fontSize: "$2",
                   borderBottom: "1px solid $neutral5",
@@ -308,8 +309,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                 <Box
                   as="span"
                   css={{
-                    mr: "$3",
-                    pr: "$3",
+                    marginRight: "$3",
+                    paddingRight: "$3",
                   }}
                 >
                   <Box as="span">
@@ -382,7 +383,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       <Box
                         css={{
                           "@bp3": {
-                            py: "$3",
+                            paddingTop: "$3",
+                            paddingBottom: "$3",
                             display: "none",
                           },
                         }}
@@ -396,8 +398,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             height: "100%",
                             justifyContent: "center",
                             display: "flex",
-                            mr: "$3",
-                            mt: "$2",
+                            marginRight: "$3",
+                            marginTop: "$2",
                           },
                         }}
                       >
@@ -407,8 +409,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Button
                             size="3"
                             css={{
-                              ml: "$4",
-                              bc:
+                              marginLeft: "$4",
+                              backgroundColor:
                                 asPath === "/"
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -431,8 +433,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Button
                             size="3"
                             css={{
-                              ml: "$2",
-                              bc:
+                              marginLeft: "$2",
+                              backgroundColor:
                                 !asPath.includes(accountAddress ?? "") &&
                                 (asPath.includes("/accounts") ||
                                   asPath.includes("/orchestrators"))
@@ -457,16 +459,16 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Button
                             size="3"
                             css={{
-                              ml: "$2",
-                              bc: asPath.includes("/voting")
+                              marginLeft: "$2",
+                              backgroundColor: asPath.includes("/voting")
                                 ? "hsla(0,100%,100%,.05)"
                                 : "transparent",
                               color: "white",
                               "&:hover": {
-                                bc: "hsla(0,100%,100%,.1)",
+                                backgroundColor: "hsla(0,100%,100%,.1)",
                               },
                               "&:active": {
-                                bc: "hsla(0,100%,100%,.15)",
+                                backgroundColor: "hsla(0,100%,100%,.15)",
                               },
                               "&:disabled": {
                                 opacity: 0.5,
@@ -481,7 +483,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 size="2"
                                 variant="green"
                                 css={{
-                                  ml: "6px",
+                                  marginLeft: "6px",
                                 }}
                               >
                                 {totalActivePolls}
@@ -491,8 +493,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Button
                             size="3"
                             css={{
-                              ml: "$2",
-                              bc: asPath.includes("/treasury")
+                              marginLeft: "$2",
+                              backgroundColor: asPath.includes("/treasury")
                                 ? "hsla(0,100%,100%,.05)"
                                 : "transparent",
                               color: "white",
@@ -515,7 +517,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 size="2"
                                 variant="green"
                                 css={{
-                                  ml: "6px",
+                                  marginLeft: "6px",
                                 }}
                               >
                                 {totalActiveTreasuryProposals}
@@ -526,8 +528,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                ml: "$2",
-                                bc: asPath.includes(accountAddress)
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes(accountAddress)
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
                                 color: "white",
@@ -550,7 +552,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   size="2"
                                   variant="green"
                                   css={{
-                                    ml: "6px",
+                                    marginLeft: "6px",
                                   }}
                                 >
                                   1
@@ -568,14 +570,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  ml: "$2",
-                                  bc: "transparent",
+                                  marginLeft: "$2",
+                                  backgroundColor: "transparent",
                                   color: "white",
                                   "&:hover": {
-                                    bc: "hsla(0,100%,100%,.1)",
+                                    backgroundColor: "hsla(0,100%,100%,.1)",
                                   },
                                   "&:active": {
-                                    bc: "hsla(0,100%,100%,.15)",
+                                    backgroundColor: "hsla(0,100%,100%,.15)",
                                   },
                                   "&:disabled": {
                                     opacity: 0.5,
@@ -583,7 +585,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 }}
                               >
                                 More
-                                <Box css={{ ml: "$1" }} as={ChevronDownIcon} />
+                                <Box css={{ marginLeft: "$1" }} as={ChevronDownIcon} />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
@@ -595,8 +597,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Flex
                                 css={{
                                   flexDirection: "column",
-                                  py: "$3",
-                                  px: "$2",
+                                  paddingTop: "$3",
+                                  paddingBottom: "$3",
+                                  paddingLeft: "$2",
+                                  paddingRight: "$2",
                                   borderBottom: "1px solid $neutral6",
                                 }}
                               >
@@ -644,9 +648,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         </Box>
                       </Flex>
 
-                      <Flex css={{ ml: "auto" }}>
+                      <Flex css={{ marginLeft: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
-                        <Flex css={{ ai: "center", ml: "8px" }}>
+                        <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
                           <ConnectButton showBalance={false} />
                         </Flex>
                         <Search />
@@ -683,7 +687,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               <Box
                 css={{
                   position: "fixed",
-                  bc: "$panel",
+                  backgroundColor: "$panel",
                   borderTop: "1px solid $neutral4",
                   bottom: 0,
                   width: "100%",
@@ -721,11 +725,12 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           css={{
             cursor: "pointer",
             fontWeight: 600,
-            px: "$2",
+            paddingLeft: "$2",
+            paddingRight: "$2",
             fontSize: "$2",
             display: "none",
-            ai: "center",
-            mr: "$2",
+            alignItems: "center",
+            marginRight: "$2",
             "@bp1": {
               display: "flex",
             },
@@ -748,7 +753,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).logoUrl
             }
           />
-          <Box css={{ ml: "8px" }}>
+          <Box css={{ marginLeft: "8px" }}>
             {
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -757,7 +762,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             }
           </Box>
 
-          <Box as={ChevronDownIcon} css={{ color: "$neutral11", ml: "$1" }} />
+          <Box as={ChevronDownIcon} css={{ color: "$neutral11", marginLeft: "$1" }} />
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -776,7 +781,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             <Text
               size="1"
               css={{
-                mb: "$2",
+                marginBottom: "$2",
                 fontWeight: 600,
                 textTransform: "uppercase",
               }}
@@ -795,7 +800,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                       <Text
                         variant="neutral"
                         css={{
-                          mb: "$1",
+                          marginBottom: "$1",
                         }}
                         size="2"
                       >
@@ -807,7 +812,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                         css={{
                           marginLeft: "auto",
 
-                          mb: "$1",
+                          marginBottom: "$1",
                         }}
                         target="_blank"
                         href={
@@ -838,7 +843,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   ) : (
                     <Skeleton
                       css={{
-                        mb: "$1",
+                        marginBottom: "$1",
 
                         marginLeft: "auto",
                         maxWidth: "100%",
@@ -856,7 +861,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             >
               <Flex
                 css={{
-                  mt: "$2",
+                  marginTop: "$2",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -866,7 +871,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 </Text>
                 <Box
                   css={{
-                    ml: "$1",
+                    marginLeft: "$1",
                     width: 15,
                     height: 15,
                   }}

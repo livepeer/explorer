@@ -62,16 +62,16 @@ const InputBox = ({
   return (
     <Card
       css={{
-        bc: "$neutral3",
+        backgroundColor: "$neutral3",
         boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
         width: "100%",
         borderRadius: "$4",
       }}
     >
-      <Box css={{ px: "$3", py: "$3" }}>
+      <Box css={{ padding: "$3" }}>
         <Box>
           <Flex
-            css={{ fontSize: "$1", mb: "$3", justifyContent: "space-between" }}
+            css={{ fontSize: "$1", marginBottom: "$3", justifyContent: "space-between" }}
           >
             <Box css={{ color: "$muted" }}>Input</Box>
 
