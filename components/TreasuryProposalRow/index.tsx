@@ -38,7 +38,6 @@ type Props = {
 };
 
 const TreasuryProposalRow = ({
-  key,
   proposal: parsedProposal,
   currentRound,
   protocol,
