@@ -13,7 +13,7 @@ import {
   TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState, useMemo, useCallback } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
@@ -40,10 +40,10 @@ import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
-  "Enter orchestrator Ethereum Address",
-  "Sign message",
-  "Approve migration",
-];
+  { id: "intro", label: "Enter orchestrator Ethereum Address" },
+  { id: "sign", label: "Sign message" },
+  { id: "approve", label: "Approve migration" },
+] as const;
 
 const initialState = {
   title: `Migrate Orchestrator to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
@@ -209,14 +209,22 @@ const MigrateOrchestrator = () => {
   const { register, watch } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
-  const time = new Date();
-  time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+  
+  /** Returns a Date object set to 10 minutes from now. */
+  const createExpiryTimestamp = useCallback(() => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 600);  // 10 minutes timer
+    return time;
+  }, []);
+
+  // Memoize initial expiry to avoid subtle hydration timing diffs.  
+  const expiryTimestamp = useMemo(() => createExpiryTimestamp(), [createExpiryTimestamp]);
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
   const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
-    expiryTimestamp: time,
+    expiryTimestamp,
     onExpire: () => console.warn("onExpire called"),
   });
 
@@ -450,12 +458,8 @@ const MigrateOrchestrator = () => {
   };
 
   const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-    });
+    restart(createExpiryTimestamp(), false); // restart timer
+    dispatch({ type: "reset" });
   };
 
   if (!render) {
@@ -555,7 +559,6 @@ const MigrateOrchestrator = () => {
             </Text>
 
             <CodeBlock
-              key={Math.random()}
               css={{ marginBottom: "$4" }}
               showLineNumbers={false}
               id="message"
@@ -681,25 +684,28 @@ const MigrateOrchestrator = () => {
             >
               <Box css={stepperStyles}>
                 <Stepper activeStep={activeStep} orientation="vertical">
-                  {signingSteps.map((step, index) => (
-                    <Step key={`step-${index}`}>
+                  {signingSteps.map((step, index, arr) => {
+                    const isLast = index === arr.length - 1;
+                    return (
+                    <Step key={step.id}>
                       <Box
                         as={StepLabel}
                         optional={
-                          index === 2 ? (
+                          isLast ? (
                             <Text variant="neutral" size="1">
                               Last step
                             </Text>
                           ) : null
                         }
                       >
-                        {step}
+                        {step.label}
                       </Box>
                       <StepContent TransitionProps={{ unmountOnExit: false }}>
                         {getSigningStepContent(index)}
                       </StepContent>
                     </Step>
-                  ))}
+                    );
+                  })}
                 </Stepper>
               </Box>
             </Box>
