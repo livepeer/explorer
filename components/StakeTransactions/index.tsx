@@ -26,10 +26,10 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
   const isBonded = !!delegator.delegate;
 
   return (
-    <Box css={{ mt: "$6" }}>
+    <Box css={{ marginTop: "$6" }}>
       {!!pendingStakeTransactions.length && (
-        <Box css={{ mb: "$6" }}>
-          <Heading size="1" css={{ mb: "$4" }}>
+        <Box css={{ marginBottom: "$6" }}>
+          <Heading size="1" css={{ marginBottom: "$4" }}>
             Pending Transactions
           </Heading>
           {pendingStakeTransactions.map((lock) => {
@@ -48,8 +48,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                 key={lock.id}
                 css={{
                   border: "1px solid $neutral4",
-                  p: "$4",
-                  mb: "$2",
+                  padding: "$4",
+                  marginBottom: "$2",
                 }}
               >
                 <Flex
@@ -60,7 +60,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                   }}
                 >
                   <Box>
-                    <Box css={{ mb: "$1" }}>
+                    <Box css={{ marginBottom: "$1" }}>
                       Undelegating from{" "}
                       {lock.delegate.id.replace(
                         lock.delegate.id.slice(7, 37),
@@ -89,7 +89,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                           newPosNext={newPosNext}
                         />
                       ))}
-                    <Box css={{ ml: "$4" }}>
+                    <Box css={{ marginLeft: "$4" }}>
                       {" "}
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
                         {abbreviateNumber(lock.amount, 4)}
@@ -105,7 +105,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
       )}
       {!!completedStakeTransactions.length && (
         <Box>
-          <Heading size="1" css={{ mb: "$4" }}>
+          <Heading size="1" css={{ marginBottom: "$4" }}>
             Available for Withdrawal
           </Heading>
           {completedStakeTransactions.map((lock) => {
@@ -124,8 +124,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                 key={lock.id}
                 css={{
                   border: "1px solid $neutral4",
-                  p: "$4",
-                  mb: "$2",
+                  padding: "$4",
+                  marginBottom: "$2",
                 }}
               >
                 <Flex
@@ -163,7 +163,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }: any) => {
                         <WithdrawStake unbondingLockId={lock.unbondingLockId} />
                       </>
                     )}
-                    <Box css={{ ml: "$4" }}>
+                    <Box css={{ marginLeft: "$4" }}>
                       {" "}
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
                         {abbreviateNumber(lock.amount, 3)}

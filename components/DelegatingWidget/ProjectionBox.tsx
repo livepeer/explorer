@@ -16,25 +16,25 @@ const ProjectionBox = ({ action }) => {
   return (
     <Card
       css={{
-        bc: "$neutral3",
+        backgroundColor: "$neutral3",
         boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
         width: "100%",
         borderRadius: "$4",
-        mb: "$3",
+        marginBottom: "$3",
       }}
     >
-      <Box css={{ px: "$3", py: "$3" }}>
+      <Box css={{ padding: "$3" }}>
         <Box>
           <Flex
             css={{
               fontSize: "$1",
-              mb: "$2",
-              ai: "center",
+              marginBottom: "$2",
+              alignItems: "center",
               justifyContent: "space-between",
             }}
           >
             <Box css={{ color: "$neutral11" }}>
-              <Flex css={{ ai: "center" }}>
+              <Flex css={{ alignItems: "center" }}>
                 <Box>
                   {action === "delegate"
                     ? "Forecasted Yield (1Y)"
@@ -54,7 +54,7 @@ const ProjectionBox = ({ action }) => {
                     </Box>
                   }
                 >
-                  <Flex css={{ ml: "$1" }}>
+                  <Flex css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -76,7 +76,7 @@ const ProjectionBox = ({ action }) => {
           </Flex>
 
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-            <Flex css={{ ai: "center" }}>
+            <Flex css={{ alignItems: "center" }}>
               <Text css={{ fontSize: "$2" }}>Inflationary Rewards</Text>
               <ExplorerTooltip
                 multiline
@@ -87,7 +87,7 @@ const ProjectionBox = ({ action }) => {
                   </Box>
                 }
               >
-                <Flex css={{ ml: "$1" }}>
+                <Flex css={{ marginLeft: "$1" }}>
                   <Box
                     as={QuestionMarkCircledIcon}
                     css={{ color: "$neutral11" }}
@@ -100,7 +100,7 @@ const ProjectionBox = ({ action }) => {
             </Text>
           </Flex>
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-            <Flex css={{ ai: "center" }}>
+            <Flex css={{ alignItems: "center" }}>
               <Text css={{ fontSize: "$2" }}>Fee Share</Text>
               <ExplorerTooltip
                 multiline
@@ -111,7 +111,7 @@ const ProjectionBox = ({ action }) => {
                   </Box>
                 }
               >
-                <Flex css={{ ml: "$1" }}>
+                <Flex css={{ marginLeft: "$1" }}>
                   <Box
                     as={QuestionMarkCircledIcon}
                     css={{ color: "$neutral11" }}

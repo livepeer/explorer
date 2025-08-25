@@ -7,17 +7,17 @@ const Index = ({ ...props }) => {
         cursor: "pointer",
         flexDirection: "column",
         justifyContent: "center",
-        mr: "$3",
+        marginRight: "$3",
       }}
       {...props}
     >
       <Box
-        css={{ mb: "5px", bc: "$hiContrast", height: "1px", width: "20px" }}
+        css={{ marginBottom: "5px", backgroundColor: "$hiContrast", height: "1px", width: "20px" }}
       />
       <Box
-        css={{ mb: "5px", bc: "$hiContrast", height: "1px", width: "16px" }}
+        css={{ marginBottom: "5px", backgroundColor: "$hiContrast", height: "1px", width: "16px" }}
       />
-      <Box css={{ bc: "$hiContrast", height: "1px", width: "20px" }} />
+      <Box css={{ backgroundColor: "$hiContrast", height: "1px", width: "20px" }} />
     </Flex>
   );
 };

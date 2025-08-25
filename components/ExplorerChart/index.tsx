@@ -226,7 +226,7 @@ const ExplorerChart = ({
               {title}
             </Text>
             {tooltip && (
-              <Box css={{ ml: "$1" }}>
+              <Box css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}
@@ -237,7 +237,7 @@ const ExplorerChart = ({
         </ExplorerTooltip>
         <Flex>
           {(data?.length || 0) <= 0 ? (
-            <Skeleton css={{ mt: "$1", width: "100%", height: 20 }} />
+            <Skeleton css={{ marginTop: "$1", width: "100%", height: 20 }} />
           ) : (
             <>
               <Text
@@ -252,7 +252,7 @@ const ExplorerChart = ({
               {barSelected.percentChange && (
                 <Text
                   css={{
-                    ml: "$2",
+                    marginLeft: "$2",
                     fontSize: "$3",
                     color:
                       (numeral(barSelected.percentChange).value() ?? 0) < 0
@@ -295,7 +295,7 @@ const ExplorerChart = ({
             onClick={() => onToggleGrouping?.("week")}
             size="1"
             variant={grouping === "week" ? "primary" : "neutral"}
-            css={{ ml: "$1" }}
+            css={{ marginLeft: "$1" }}
           >
             W
           </Button>
@@ -303,7 +303,7 @@ const ExplorerChart = ({
       )}
       <Box
         css={{
-          pt: 57,
+          paddingTop: 57,
           width: "100%",
           height: "100%",
         }}

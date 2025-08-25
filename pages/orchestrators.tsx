@@ -3,7 +3,6 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
-  Link as A,
   Box,
   Button,
   Container,
@@ -18,6 +17,7 @@ import {
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
+import { ADiv } from "@components/ADiv"
 
 type PageProps = {
   orchestrators: OrchestratorsQueryResult["data"];
@@ -35,13 +35,13 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$5",
+            marginTop: "$5",
             width: "100%",
           }}
         >
           <Flex
             align="center"
-            css={{ mb: "$3", justifyContent: "space-between" }}
+            css={{ marginBottom: "$3", justifyContent: "space-between" }}
           >
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
@@ -51,16 +51,21 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
               <Link href="/leaderboard" passHref>
                 <Button
                   ghost
-                  as={A}
-                  css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                  // TODO: Remove this after fix design-system Link incompatibility.
+                  as={ADiv}
+                  css={{
+                    color: "$hiContrast",
+                    fontSize: "$2",
+                    marginRight: "$2",
+                  }}
                 >
                   Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                 </Button>
               </Link>
             )}
           </Flex>
-          <Box css={{ mb: "$5" }}>
+          <Box css={{ marginBottom: "$5" }}>
             <OrchestratorList
               data={orchestrators?.transcoders}
               pageSize={20}

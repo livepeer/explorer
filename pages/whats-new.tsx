@@ -63,12 +63,12 @@ const WhatsNew = () => {
           <>
             <Flex
               css={{
-                mt: "$3",
-                mb: "$4",
+                marginTop: "$3",
+                marginBottom: "$4",
                 width: "100%",
                 flexDirection: "column",
                 "@bp3": {
-                  mt: "$5",
+                  marginTop: "$5",
                 },
               }}
             >
@@ -78,19 +78,19 @@ const WhatsNew = () => {
                 css={{
                   fontWeight: 700,
                   fontSize: "$3",
-                  mb: "$4",
+                  marginBottom: "$4",
                   display: "flex",
                   alignItems: "center",
                   "@bp2": {
                     fontSize: "$5",
                   },
                   "@bp3": {
-                    mb: "$4",
+                    marginBottom: "$4",
                     fontSize: 26,
                   },
                 }}
               >
-                <Box as="span" css={{ mr: "$2" }}>
+                <Box as="span" css={{ marginRight: "$2" }}>
                   🌟
                 </Box>{" "}
                 What&apos;s New
@@ -104,8 +104,8 @@ const WhatsNew = () => {
                         css={{
                           border: "1px solid $neutral4",
                           flex: 1,
-                          mb: "$5",
-                          p: "$4",
+                          marginBottom: "$5",
+                          padding: "$4",
                         }}
                       >
                         <Heading size="1" css={{ fontWeight: 600 }}>
@@ -114,7 +114,7 @@ const WhatsNew = () => {
                         <Box
                           css={{
                             lineHeight: 2,
-                            mb: "$3",
+                            marginBottom: "$3",
                             fontSize: "$2",
                             color: "$neutral11",
                           }}
@@ -124,8 +124,8 @@ const WhatsNew = () => {
                         <Box
                           css={{
                             borderBottom: "1px solid $neutral5",
-                            pb: "$4",
-                            mb: "$4",
+                            paddingBottom: "$4",
+                            marginBottom: "$4",
                             lineHeight: 1.5,
                             a: { color: "$primary11" },
                           }}
@@ -135,7 +135,7 @@ const WhatsNew = () => {
                         {Object.keys(groupByType(node.changes)).map(
                           (key, index2) => {
                             return (
-                              <Box key={index2} css={{ mb: "$3" }}>
+                              <Box key={index2} css={{ marginBottom: "$3" }}>
                                 <Badge
                                   variant={getBadgeColor(key)}
                                   css={{ fontWeight: 600 }}
@@ -147,11 +147,11 @@ const WhatsNew = () => {
                                     <Box
                                       as="ul"
                                       key={index3}
-                                      css={{ pl: 20, alignSelf: "flexStart" }}
+                                      css={{ paddingLeft: 20, alignSelf: "flexStart" }}
                                     >
                                       <Box
                                         as="li"
-                                        css={{ mb: "$3", lineHeight: 1.5 }}
+                                        css={{ marginBottom: "$3", lineHeight: 1.5 }}
                                       >
                                         {change.content}
                                       </Box>

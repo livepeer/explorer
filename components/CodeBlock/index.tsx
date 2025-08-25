@@ -44,11 +44,13 @@ export function CodeBlock({
           overflow: "auto",
           borderRadius: "$3",
           backgroundColor: "$primary3",
-          py: "$4",
+          paddingTop: "$4",
+          paddingBottom: "$4",
           "& > pre": {
             backgroundColor: "transparent",
             overflow: "visible",
-            py: 0,
+            paddingTop: 0,
+            paddingBottom: 0,
             float: "left",
             minWidth: "100%",
             $$outline: "none",
@@ -78,7 +80,7 @@ export function CodeBlock({
           opacity: 1,
           transition: "background-color .3s",
           "&:hover": {
-            bc: "$primary5",
+            backgroundColor: "$primary5",
             transition: "background-color .3s",
           },
         }}

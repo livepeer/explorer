@@ -46,11 +46,15 @@ const EthAddress = (props: { value: string | undefined }) => {
   const ensName = useEnsData(props.value);
 
   return (
-    <Link passHref href={`/accounts/${props.value}/delegating`}>
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
-      </Badge>
-    </Link>
+    <Badge
+      css={{ cursor: "pointer" }}
+      variant="primary"
+      size="1"
+      as={Link}
+      href={`/accounts/${props.value}/delegating`}
+    >
+      {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
+    </Badge>
   );
 };
 
@@ -66,14 +70,14 @@ const Transaction = (props: { id: string | undefined }) => {
     >
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
-        <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
+        <Box css={{ marginLeft: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
       </Badge>
     </A>
   );
 };
 
 const renderEmoji = (emoji: string) => (
-  <Box as="span" css={{ ml: 6 }}>
+  <Box as="span" css={{ marginLeft: 6 }}>
     {emoji}
   </Box>
 );

@@ -114,7 +114,7 @@ const OrchestratorList = ({
     () => numeral(Number(principle) || 150).format("0a"),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
     enabled: Boolean(bondingManagerAddress),
     address: bondingManagerAddress,
@@ -168,7 +168,8 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut:
+              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -209,7 +210,15 @@ const OrchestratorList = ({
           ? -1
           : 1
       );
-  }, [data, inflationChange, protocolData, principle, timeHorizon, factors, treasuryRewardCutRate]);
+  }, [
+    data,
+    inflationChange,
+    protocolData,
+    principle,
+    timeHorizon,
+    factors,
+    treasuryRewardCutRate,
+  ]);
 
   const columns = useMemo(
     () => [
@@ -232,85 +241,86 @@ const OrchestratorList = ({
           const identity = useEnsData(row.values.id);
 
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-              <A
-                css={{
-                  width: 350,
-                  display: "block",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "none" },
-                }}
-              >
-                <Flex css={{ alignItems: "center" }}>
-                  <Box
-                    css={{
-                      mr: "$2",
-                      backgroundColor: "$neutral4",
-                      borderRadius: 1000,
-                      color: "$neutral11",
-                      fontWeight: 700,
-                      width: 24,
-                      height: 24,
-                      minWidth: 24,
-                      minHeight: 24,
-                      fontSize: 11,
-                      justifyContent: "center",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {+row.id + 1}
-                  </Box>
+            <A
+              css={{
+                width: 350,
+                display: "block",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "none" },
+              }}
+              as={Link}
+              href={`/accounts/${row.values.id}/orchestrating`}
+            >
+              <Flex css={{ alignItems: "center" }}>
+                <Box
+                  css={{
+                    marginRight: "$2",
+                    backgroundColor: "$neutral4",
+                    borderRadius: 1000,
+                    color: "$neutral11",
+                    fontWeight: 700,
+                    width: 24,
+                    height: 24,
+                    minWidth: 24,
+                    minHeight: 24,
+                    fontSize: 11,
+                    justifyContent: "center",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {+row.id + 1}
+                </Box>
 
-                  <Flex css={{ mr: "$2", alignItems: "center" }}>
-                    {identity?.avatar ? (
+                <Flex css={{ marginRight: "$2", alignItems: "center" }}>
+                  {identity?.avatar ? (
+                    <Box
+                      as="img"
+                      css={{
+                        marginRight: "$2",
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                        borderRadius: 1000,
+                      }}
+                      src={identity.avatar}
+                    />
+                  ) : (
+                    <Box
+                      as={QRCode}
+                      css={{
+                        marginRight: "$2",
+                        borderRadius: 1000,
+                        width: 24,
+                        height: 24,
+                        maxWidth: 24,
+                        maxHeight: 24,
+                      }}
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      value={row.values.id}
+                    />
+                  )}
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                       <Box
-                        as="img"
                         css={{
-                          mr: "$2",
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                          borderRadius: 1000,
+                          marginRight: "$2",
+                          fontSize: "$3",
                         }}
-                        src={identity.avatar}
-                      />
-                    ) : (
-                      <Box
-                        as={QRCode}
-                        css={{
-                          mr: "$2",
-                          borderRadius: 1000,
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                        }}
-                        fgColor={`#${row.values.id.substr(2, 6)}`}
-                        value={row.values.id}
-                      />
-                    )}
-                    {identity?.name ? (
-                      <Flex css={{ fontWeight: 600, ai: "center" }}>
-                        <Box
-                          css={{
-                            mr: "$2",
-                            fontSize: "$3",
-                          }}
-                        >
-                          {textTruncate(identity.name, 20, "…")}
-                        </Box>
-                        <Badge size="2" css={{ fontSize: "$2" }}>
-                          {row.values.id.substring(0, 6)}
-                        </Badge>
-                      </Flex>
-                    ) : (
-                      <Box css={{ fontWeight: 600 }}>
-                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
                       </Box>
-                    )}
-                    {/* {(row?.original?.daysSinceChangeParams ??
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    </Box>
+                  )}
+                  {/* {(row?.original?.daysSinceChangeParams ??
                       Number.MAX_VALUE) < 30 && (
                       <ExplorerTooltip
                         multiline
@@ -319,15 +329,14 @@ const OrchestratorList = ({
                         <Box>
                           <Box
                             as={ExclamationTriangleIcon}
-                            css={{ ml: "$2", color: "$neutral11" }}
+                            css={{ marginLeft: "$2", color: "$neutral11" }}
                           />
                         </Box>
                       </ExplorerTooltip>
                     )} */}
-                  </Flex>
                 </Flex>
-              </A>
-            </Link>
+              </Flex>
+            </A>
           );
         },
       },
@@ -406,7 +415,7 @@ const OrchestratorList = ({
                             row.values.earnings.roi.delegatorPercent.rewards
                         ).format("0.0%")}
                       </Box>
-                      <Box css={{ ml: "$1" }}>
+                      <Box css={{ marginLeft: "$1" }}>
                         <ChevronDownIcon />
                       </Box>
                     </>
@@ -415,7 +424,11 @@ const OrchestratorList = ({
               </PopoverTrigger>
               {!isNewlyActive && (
                 <PopoverContent
-                  css={{ minWidth: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  css={{
+                    minWidth: 300,
+                    borderRadius: "$4",
+                    backgroundColor: "$neutral4",
+                  }}
                 >
                   <Box
                     css={{
@@ -426,7 +439,7 @@ const OrchestratorList = ({
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -439,7 +452,7 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -455,7 +468,7 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -471,7 +484,7 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -487,7 +500,7 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
@@ -498,45 +511,43 @@ const OrchestratorList = ({
                           </Text>
                         </Flex>
                       )}
-                      <Link
-                        passHref
+                      <A
+                        as={Link}
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <A>
-                          <Flex
-                            css={{
-                              mt: "$2",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
+                        <Flex
+                          css={{
+                            marginTop: "$2",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text
+                            css={{ whiteSpace: "nowrap" }}
+                            variant="neutral"
+                            size="1"
                           >
-                            <Text
-                              css={{ whiteSpace: "nowrap" }}
-                              variant="neutral"
-                              size="1"
-                            >
-                              Learn how this calculation is performed
-                            </Text>
-                            <Box
-                              css={{ ml: "$1", width: 15, height: 15 }}
-                              as={ArrowTopRightIcon}
-                            />
-                          </Flex>
-                        </A>
-                      </Link>
+                            Learn how this calculation is performed
+                          </Text>
+                          <Box
+                            css={{ marginLeft: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Flex>
+                      </A>
                     </Box>
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -548,7 +559,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -560,7 +571,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -571,7 +582,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -583,7 +594,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -594,7 +605,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -606,7 +617,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -617,7 +628,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -629,7 +640,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -643,7 +654,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -655,7 +666,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -669,7 +680,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -681,7 +692,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -692,15 +703,15 @@ const OrchestratorList = ({
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -712,7 +723,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -724,7 +735,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -736,7 +747,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -748,7 +759,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -762,7 +773,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -774,7 +785,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -875,16 +886,16 @@ const OrchestratorList = ({
               }}
               asChild
             >
-              <Flex css={{ ai: "center" }}>
+              <Flex css={{ alignItems: "center" }}>
                 <IconButton
                   aria-label="Orchestrator actions"
                   css={{
                     cursor: "pointer",
-                    ml: "$1",
+                    marginLeft: "$1",
                     opacity: 1,
                     transition: "background-color .3s",
                     "&:hover": {
-                      bc: "$primary5",
+                      backgroundColor: "$primary5",
                       transition: "background-color .3s",
                     },
                   }}
@@ -897,22 +908,24 @@ const OrchestratorList = ({
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              css={{ borderRadius: "$4", bc: "$neutral4" }}
+              css={{ borderRadius: "$4", backgroundColor: "$neutral4" }}
             >
               <Box
                 css={{
                   borderBottom: "1px solid $neutral6",
-                  px: "$1",
-                  pt: "$1",
-                  pb: "$2",
+                  paddingLeft: "$1",
+                  paddingRight: "$1",
+                  paddingTop: "$1",
+                  paddingBottom: "$2",
                 }}
               >
                 <Text
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -927,7 +940,7 @@ const OrchestratorList = ({
               <Flex
                 css={{
                   flexDirection: "column",
-                  p: "$1",
+                  padding: "$1",
                   borderBottom: "1px solid $neutral6",
                 }}
               >
@@ -935,8 +948,9 @@ const OrchestratorList = ({
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -977,16 +991,16 @@ const OrchestratorList = ({
         ],
       }}
       input={
-        <Box css={{ mb: "$2" }}>
-          <Flex css={{ alignItems: "center", mb: "$2" }}>
-            <Box css={{ mr: "$1", color: "$neutral11" }}>
+        <Box css={{ marginBottom: "$2" }}>
+          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+            <Box css={{ marginRight: "$1", color: "$neutral11" }}>
               <YieldChartIcon />
             </Box>
             <Text
               variant="neutral"
               size="1"
               css={{
-                ml: "$1",
+                marginLeft: "$1",
                 textTransform: "uppercase",
                 fontWeight: 600,
               }}
@@ -1010,7 +1024,7 @@ const OrchestratorList = ({
                     fontSize: "$2",
                   }}
                 >
-                  <Box css={{ mr: "$1" }}>
+                  <Box css={{ marginRight: "$1" }}>
                     <Pencil1Icon />
                   </Box>
 
@@ -1018,7 +1032,7 @@ const OrchestratorList = ({
                     variant="neutral"
                     size="1"
                     css={{
-                      mr: 3,
+                      marginRight: 3,
                     }}
                   >
                     {"Time horizon:"}
@@ -1037,10 +1051,10 @@ const OrchestratorList = ({
               <DropdownMenuContent
                 css={{
                   width: "200px",
-                  mt: "$1",
+                  marginTop: "$1",
                   boxShadow:
                     "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                  bc: "$neutral4",
+                  backgroundColor: "$neutral4",
                 }}
                 align="center"
               >
@@ -1088,7 +1102,7 @@ const OrchestratorList = ({
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <Popover>
                 <PopoverTrigger
                   onClick={(e) => {
@@ -1104,14 +1118,14 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
                     <Text
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Delegation:"}
@@ -1129,12 +1143,16 @@ const OrchestratorList = ({
                   </Badge>
                 </PopoverTrigger>
                 <PopoverContent
-                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  css={{
+                    width: 300,
+                    borderRadius: "$4",
+                    backgroundColor: "$neutral4",
+                  }}
                 >
                   <Box
                     css={{
                       borderBottom: "1px solid $neutral6",
-                      p: "$3",
+                      padding: "$3",
                     }}
                   >
                     <Flex align="center">
@@ -1160,7 +1178,7 @@ const OrchestratorList = ({
                         variant="neutral"
                         size="3"
                         css={{
-                          ml: "$2",
+                          marginLeft: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -1172,7 +1190,7 @@ const OrchestratorList = ({
                 </PopoverContent>
               </Popover>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1188,7 +1206,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1196,7 +1214,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Factors:"}
@@ -1215,10 +1233,10 @@ const OrchestratorList = ({
                 <DropdownMenuContent
                   css={{
                     width: "200px",
-                    mt: "$1",
+                    marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
+                    backgroundColor: "$neutral4",
                   }}
                   align="center"
                 >
@@ -1251,7 +1269,7 @@ const OrchestratorList = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1267,7 +1285,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1275,7 +1293,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Inflation change:"}
@@ -1294,10 +1312,10 @@ const OrchestratorList = ({
                 <DropdownMenuContent
                   css={{
                     width: "200px",
-                    mt: "$1",
+                    marginTop: "$1",
                     boxShadow:
                       "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
+                    backgroundColor: "$neutral4",
                   }}
                   align="center"
                 >

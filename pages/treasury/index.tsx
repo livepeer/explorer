@@ -1,5 +1,16 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Button, Card, Container, Flex, Heading, Link as A, styled, Text } from "@livepeer/design-system";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Heading,
+  Link as A,
+  styled,
+  Text,
+} from "@livepeer/design-system";
 import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
@@ -31,7 +42,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}>
         {isLoading ? (
           <Flex
             css={{
@@ -57,7 +68,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -71,24 +82,23 @@ const Voting = () => {
               >
                 Voting
               </Heading>
-              <Link
+              <Button
+                size="3"
+                variant="primary"
+                as={Link}
                 href="/treasury/create-proposal"
-                as="/treasury/create-proposal"
-                passHref
               >
-                <Button size="3" variant="primary">
-                  Create Proposal
-                </Button>
-              </Link>
+                Create Proposal
+              </Button>
             </Flex>
             {!proposals?.length && (
               <Flex
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">

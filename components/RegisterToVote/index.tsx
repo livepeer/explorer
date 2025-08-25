@@ -104,20 +104,20 @@ const RegisterToVote = () => {
   const showOrchUi = uiState.orchestrator.pending || hasRegisteredOrch;
 
   return (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginBottom: "$5" }}>
       <Box
         css={{
-          mt: "$5",
+          marginTop: "$5",
           borderRadius: 10,
           width: "100%",
           padding: "$4",
           color: "$loContrast",
-          bc: "$amber11",
+          backgroundColor: "$amber11",
         }}
       >
         <Box
           css={{
-            mb: "$2",
+            marginBottom: "$2",
             fontSize: "$6",
             fontWeight: 600,
           }}
@@ -133,7 +133,7 @@ const RegisterToVote = () => {
           </Text>
 
           {showOrchUi && (
-            <Text css={{ color: "$loContrast", mt: "$2" }}>
+            <Text css={{ color: "$loContrast", marginTop: "$2" }}>
               Notice that your orchestrator also needs to be checkpointed to
               have your voting power registered. You can checkpoint their stake
               before your own below.
@@ -146,7 +146,7 @@ const RegisterToVote = () => {
                 bondingManagerAddress={bondingManagerAddress}
                 targetAddress={voteState.delegate?.address}
                 isOrchestrator={true}
-                css={{ mt: "$2", mr: "$2" }}
+                css={{ marginTop: "$2", marginRight: "$2" }}
                 variant="transparentBlack"
                 ghost
                 disabled={hasRegisteredOrch}
@@ -162,7 +162,7 @@ const RegisterToVote = () => {
                 targetAddress={accountAddress}
                 isOrchestrator={false}
                 size="3"
-                css={{ mt: "$2" }}
+                css={{ marginTop: "$2" }}
                 variant="transparentBlack"
                 ghost
                 disabled={hasRegisteredSelf || uiState.orchestrator.pending} // orchestrator should be checkpointed first

@@ -51,8 +51,8 @@ const Index = () => {
         ) : (
           <Flex
             css={{
-              pt: "$2",
-              pb: "$5",
+              paddingTop: "$2",
+              paddingBottom: "$5",
               flexDirection: "column",
               justifyContent: "flex-start",
               width: "100%",
@@ -84,10 +84,10 @@ const Index = () => {
             {!latestTransaction?.error ? "Waiting for confirmation" : "Error"}
           </Box>
         </Box>
-        <Box css={{ textAlign: "center", mt: "$2", fontSize: "$2" }}>
+        <Box css={{ textAlign: "center", marginTop: "$2", fontSize: "$2" }}>
           {latestTransaction?.error ? (
             <>
-              <Text css={{ mb: "$3", maxWidth: 350 }}>
+              <Text css={{ marginBottom: "$3", maxWidth: 350 }}>
                 {latestTransaction?.error.length < 50
                   ? `${sentenceCase(latestTransaction?.error)}.`
                   : "Error with transaction, please check your inputs and try again."}

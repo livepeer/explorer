@@ -83,8 +83,10 @@ export const Pre = styled("pre", {
 
   ".token.deleted:not(.prefix), .token.inserted:not(.prefix)": {
     display: "block",
-    px: "$4",
-    mx: "-20px",
+    paddingLeft: "$4",
+    paddingRight: "$4",
+    marginLeft: "-20px",
+    marginRight: "-20px",
   },
 
   ".token.deleted:not(.prefix)": {
@@ -177,8 +179,10 @@ export const Pre = styled("pre", {
   // data-invert-line-highlight
   // Styles for inverted line highlighting
   "&[data-invert-line-highlight=true] .highlight-line": {
-    mx: "-$5",
-    px: "$5",
+    marginLeft: "-$5",
+    marginRight: "-$5",
+    paddingLeft: "$5",
+    paddingRight: "$5",
     "&[data-highlighted=true]": {
       backgroundColor: "$$highlightedLineBg",
     },

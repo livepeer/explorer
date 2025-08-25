@@ -23,6 +23,7 @@ import { useCurrentRoundData } from "hooks";
 import { sentenceCase } from "change-case";
 dayjs.extend(relativeTime);
 
+
 export const Status = styled("div", {
   length: {},
   variants: {
@@ -72,7 +73,7 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}>
         {loading ? (
           <Flex
             css={{
@@ -98,7 +99,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -112,24 +113,23 @@ const Voting = () => {
               >
                 Voting
               </Heading>
-              <Link
+              <Button
+                size="3"
+                variant="primary"
+                as={Link}
                 href="/voting/create-poll"
-                as="/voting/create-poll"
-                passHref
               >
-                <Button size="3" variant="primary">
-                  Create Poll
-                </Button>
-              </Link>
+                Create Poll
+              </Button>
             </Flex>
             {!polls.length && (
               <Flex
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">
@@ -145,9 +145,15 @@ const Voting = () => {
                     key={poll.id}
                     href="/voting/[poll]"
                     as={`/voting/${poll.id}`}
-                    passHref
+                    // TODO: Remove this after fix design-system Link incompatibility.
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit"
+                    }}
                   >
                     <A
+                      as="div"
+                      // TODO: Remove this after fix design-system Link incompatibility.
                       css={{
                         cursor: "pointer",
                         display: "block",
@@ -158,8 +164,8 @@ const Voting = () => {
                       <Card
                         variant="interactive"
                         css={{
-                          p: "$4",
-                          mb: "$3",
+                          padding: "$4",
+                          marginBottom: "$3",
                           border: "1px solid $neutral4",
                         }}
                       >
@@ -175,9 +181,9 @@ const Voting = () => {
                           }}
                         >
                           <Box>
-                            <Heading size="1" css={{ mb: "$1" }}>
-                              {poll.attributes?.title} (LIP {poll.attributes?.lip}
-                              )
+                            <Heading size="1" css={{ marginBottom: "$1" }}>
+                              {poll.attributes?.title} (LIP{" "}
+                              {poll.attributes?.lip})
                             </Heading>
                             <Box css={{ fontSize: "$1", color: "$neutral10" }}>
                               {poll.status !== "active" ? (

@@ -12,16 +12,17 @@ const Header = ({
   return (
     <Box
       css={{
-        pt: "$3",
-        pb: "$2",
-        px: "$3",
+        paddingTop: "$3",
+        paddingBottom: "$2",
+        paddingLeft: "$3",
+        paddingRight: "$3",
         display: "flex",
         alignItems: "center",
         fontWeight: "bold",
       }}
     >
       <Flex
-        css={{ minWidth: 40, minHeight: 40, position: "relative", mr: "$2" }}
+        css={{ minWidth: 40, minHeight: 40, position: "relative", marginRight: "$2" }}
       >
         {delegateProfile?.avatar ? (
           <Box

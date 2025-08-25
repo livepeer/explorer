@@ -106,8 +106,8 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
-            mt: "$6",
-            mb: "$4",
+            marginTop: "$6",
+            marginBottom: "$4",
           }}
         >
           <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
@@ -155,13 +155,13 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       justifyContent: "space-between",
                       alignItems: "center",
                       p: "$4",
-                      mb: "$4",
+                      marginBottom: "$4",
                       display: "flex",
                       borderRadius: "$4",
                     }}
                   >
                     <Flex css={{ alignItems: "center", width: "100%" }}>
-                      <Box css={{ ml: "$3", width: "100%" }}>
+                      <Box css={{ marginLeft: "$3", width: "100%" }}>
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
@@ -169,7 +169,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       variant="primary"
                       css={{
                         display: "flex",
-                        ml: "$2",
+                        marginLeft: "$2",
                         minWidth: 108,
                       }}
                       target="_blank"
@@ -184,14 +184,14 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
               </RadioCardGroup>
               <Flex
                 css={{
-                  mt: "$5",
+                  marginTop: "$5",
                   alignItems: "center",
                   justifyContent: "flex-end",
                 }}
               >
                 {loading ? (
                   <>
-                    <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
+                    <Box css={{ marginRight: "$3" }}>Loading Staked LPT Balance</Box>
                     <Spinner />
                   </>
                 ) : (
@@ -220,10 +220,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         isCreatePollLoading
                       }
                       type="submit"
-                      css={{ ml: "$3", alignSelf: "flex-end" }}
+                      css={{ marginLeft: "$3", alignSelf: "flex-end" }}
                     >
                       Create Poll{" "}
-                      {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}
+                      {isCreatePollLoading && <Spinner css={{ marginLeft: "$2" }} />}
                     </Button>
                   </>
                 )}

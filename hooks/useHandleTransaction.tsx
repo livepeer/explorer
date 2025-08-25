@@ -25,7 +25,7 @@ export const useHandleTransaction = (
     if (isLoading) {
       setLatestTransactionSummary();
     }
-  }, [isLoading]);
+  }, [isLoading, setLatestTransactionSummary]);
 
   useEffect(() => {
     if (data) {
@@ -34,7 +34,7 @@ export const useHandleTransaction = (
         description: capitalCase(id),
       });
     }
-  }, [data]);
+  }, [data, addRecentTransaction, id]);
 
   useEffect(() => {
     if (data) {
@@ -44,18 +44,18 @@ export const useHandleTransaction = (
         onSuccess(data);
       }
     }
-  }, [data]);
+  }, [data, setLatestTransactionDetails, id, args, onSuccess]);
 
   useEffect(() => {
     if (isSuccess) {
       setLatestTransactionConfirmed();
     }
-  }, [isSuccess]);
+  }, [isSuccess, setLatestTransactionConfirmed]);
 
   useEffect(() => {
     if (error) {
       console.error(error);
       setLatestTransactionError(error.message.replace("GraphQL error: ", ""));
     }
-  }, [error]);
+  }, [error, setLatestTransactionError]);
 };

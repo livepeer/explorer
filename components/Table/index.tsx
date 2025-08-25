@@ -61,7 +61,7 @@ function DataTable<T extends object>({
   return (
     <>
       {heading && (
-        <Flex align="center" css={{ jc: "space-between" }}>
+        <Flex align="center" css={{ justifyContent: "space-between" }}>
           {heading}
         </Flex>
       )}
@@ -81,8 +81,8 @@ function DataTable<T extends object>({
             {input && (
               <Box
                 css={{
-                  mt: "$4",
-                  ml: "$5",
+                  marginTop: "$4",
+                  marginLeft: "$5",
                 }}
               >
                 {input}
@@ -123,7 +123,7 @@ function DataTable<T extends object>({
                             fontSize: 11,
                             color: "$neutral10",
                             display: "flex",
-                            pt: "$2",
+                            paddingTop: "$2",
                             alignItems: "center",
                             textTransform: "uppercase",
                             fontWeight: 700,
@@ -151,7 +151,7 @@ function DataTable<T extends object>({
                           {column?.sortIconAlignment === "start" && (
                             <Box
                               css={{
-                                ml: "$1",
+                                marginLeft: "$1",
                               }}
                             >
                               {column.render("Header")}
@@ -193,7 +193,8 @@ function DataTable<T extends object>({
           </Box>
           <Flex
             css={{
-              py: "$4",
+              paddingTop: "$4",
+              paddingBottom: "$4",
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -211,7 +212,7 @@ function DataTable<T extends object>({
                 }
               }}
             />
-            <Box css={{ fontSize: "$2", mx: "$3" }}>
+            <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
               Page <Box as="span">{pageIndex + 1}</Box> of{" "}
               <Box as="span">{pageCount}</Box>
             </Box>

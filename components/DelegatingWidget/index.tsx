@@ -72,7 +72,7 @@ const Index = ({
       }}
     >
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
-      <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
+      <Box css={{ paddingTop: "$2", paddingBottom: "$3", paddingLeft: "$3", paddingRight: "$3" }}>
         <Tabs
           index={selectedStakingAction === "delegate" ? 0 : 1}
           onChange={(index: number) => {
@@ -96,14 +96,14 @@ const Index = ({
           <>
             <Card
               css={{
-                bc: "$neutral3",
+                backgroundColor: "$neutral3",
                 boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
                 width: "100%",
                 borderRadius: "$4",
-                mb: "$3",
+                marginBottom: "$3",
               }}
             >
-              <Box css={{ px: "$3", py: "$3" }}>
+              <Box css={{ padding: "$3" }}>
                 <Flex
                   css={{
                     fontSize: "$1",

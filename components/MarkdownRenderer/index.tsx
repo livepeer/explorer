@@ -63,12 +63,12 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
   },
   h2: {
     fontWeight: 600,
-    "&:first-of-type": { mt: 0 },
-    mt: "$3",
+    "&:first-of-type": { marginTop: 0 },
+    marginTop: "$3",
   },
-  h3: { fontWeight: 600, mt: "$3" },
-  h4: { fontWeight: 600, mt: "$3" },
-  h5: { fontWeight: 600, mt: "$3" },
+  h3: { fontWeight: 600, marginTop: "$3" },
+  h4: { fontWeight: 600, marginTop: "$3" },
+  h5: { fontWeight: 600, marginTop: "$3" },
   lineHeight: 1.5,
   a: {
     color: "$primary11",
