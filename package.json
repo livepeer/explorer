@@ -19,6 +19,7 @@
     "@graphql-codegen/typescript": "^2.7.2",
     "@graphql-codegen/typescript-operations": "^2.5.2",
     "@graphql-codegen/typescript-react-apollo": "^3.3.2",
+    "@next/swc-wasm-nodejs": "12.2.2",
     "@typechain/ethers-v5": "^10.1.0",
     "@types/change-case": "^2.3.1",
     "@types/node": "^18.0.6",
@@ -115,6 +116,8 @@
     "zustand": "^4.0.0-rc.2"
   },
   "main": "package.json",
-  "engines": { "node": ">=20 <21" },
+  "engines": {
+    "node": ">=20 <21"
+  },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
