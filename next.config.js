@@ -1,4 +1,8 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
+  // TODO: TEMP for Node 20 on Next 12: use Babel + Terser instead of SWC, remove in future.
+  swcMinify: false,
+
   async redirects() {
     return [
       {
