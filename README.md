@@ -1,11 +1,17 @@
 # Livepeer Explorer
 
+![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen) 
+![Yarn](https://img.shields.io/badge/yarn-%3E%3D1.22.0-blue)
+
 ## Prerequisites
 
 Before getting started, ensure you have the following installed on your system:
 
-- [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-- [Yarn](https://yarnpkg.com/getting-started/install) - enabling corepack should be sufficient
+- [Node.js 20.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
+- [Yarn v1.22.x](https://yarnpkg.com/getting-started/install) - enabling corepack should be sufficient
+
+> [!TIP]
+> Use `nvm install` or `asdf install` to automatically switch to the correct versions.
 
 ## Getting Started
 

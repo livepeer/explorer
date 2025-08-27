@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // TODO: TEMP for Node 20 on Next 12: use Babel + Terser instead of SWC, remove in future.
+  // TODO: TEMP for Node 20 on Next 12: SWC binary incompatibility forces fallback to Babel + Terser.
+  // See .babelrc "next/babel" preset. Remove when upgrading to Next.js 13+ with Node 20 support.
+  swcMinify: false,
   swcMinify: false,
 
   async redirects() {
