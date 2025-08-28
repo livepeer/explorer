@@ -1,4 +1,4 @@
-FROM node:16 as builder
+FROM node:20 as builder
 WORKDIR /app
 
 ARG CHANGEFEED_ACCESS_TOKEN
@@ -41,7 +41,7 @@ RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
 COPY . .
 RUN yarn && yarn run build
 
-FROM node:16
+FROM node:20
 WORKDIR /app
 ENV NODE_ENV production
 
