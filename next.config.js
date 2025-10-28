@@ -1,8 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // TODO: TEMP for Node 20 on Next 12: SWC binary incompatibility forces fallback to Babel + Terser.
-  // See .babelrc "next/babel" preset. Remove when upgrading to Next.js 13+ with Node 20 support.
   swcMinify: false,
+
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don’t try to polyfill Node core modules in the browser
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        fs: false,
+        net: false,
+        tls: false,
+      };
+      // Prevent bundling native ws speedups and the loader in the browser
+      config.resolve.alias = {
+        ...(config.resolve.alias || {}),
+        ws: false,
+        bufferutil: false,
+        "utf-8-validate": false,
+        "node-gyp-build": false,
+      };
+    }
+    return config;
+  },
 
   async redirects() {
     return [
