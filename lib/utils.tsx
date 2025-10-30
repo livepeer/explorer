@@ -165,14 +165,6 @@ export const txMessages = {
   },
 } as const;
 
-export const getBlockByNumber = async (number) => {
-  const blockDataResponse = await fetch(
-    `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblockreward&blockno=${number}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-  );
-  const { result } = await blockDataResponse.json();
-  return result;
-};
-
 export const getHint = (id, transcoders) => {
   const hint = {
     newPosPrev: EMPTY_ADDRESS,
@@ -297,38 +289,6 @@ export const getTwoPeriodPercentChange = (
     return [currentChange, 0];
   }
   return [currentChange, adjustedPercentChange];
-};
-
-/**
- * @notice Fetches block objects for an array of timestamps.
- * @dev blocks are returned in chronological order (ASC) regardless of input.
- * @dev blocks are returned at string representations of Int
- * @dev timestamps are returns as they were provided; not the block time.
- * @param {Array} timestamps
- */
-export const getBlocksFromTimestamps = async (timestamps, retry = 0) => {
-  if (!timestamps?.length) {
-    return [];
-  }
-  try {
-    const blocks: number[] = [];
-    for (const timestamp of timestamps) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const blockDataResponse = await fetch(
-        `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorerAPI}?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
-      );
-      const { result } = await blockDataResponse.json();
-      blocks.push(+(result ?? 0));
-    }
-
-    return blocks;
-  } catch (e) {
-    if (retry < 10) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return getBlocksFromTimestamps(timestamps, retry + 1);
-    }
-    throw e;
-  }
 };
 
 /**
