@@ -35,18 +35,19 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$5",
+            marginTop: "$5",
             width: "100%",
           }}
         >
-          <Flex justify="between" 
-            css={{ 
+          <Flex
+            justify="between"
+            css={{
               width: "100%",
               flexDirection: "column", // Default to column for mobile
-              mb: "0",
+              marginBottom: "0",
               "@bp2": {
                 flexDirection: "row", // Change to row for larger screens
-                mb: "$4",
+                marginBottom: "$4",
               },
             }}
           >
@@ -56,9 +57,9 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
               css={{
                 fontWeight: 700,
                 fontSize: 26,
-                mb: "$2",
+                marginBottom: "$2",
                 "@bp3": {
-                  mb: "0",
+                  marginBottom: "0",
                 },
               }}
             >
@@ -77,55 +78,61 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
                 css={{
                   flexDirection: "row", // Stack title and dropdown vertically on mobile
                   alignItems: "center",
-                  mb: "$2", // Add margin-bottom for spacing when stacked
-                  ml: "$2", // Add margin-left for spacing between groups
+                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
+                  marginLeft: "$2", // Add margin-left for spacing between groups
                   "@bp2": {
-                    mb: "0", // Remove margin-bottom for larger screens
-                    mr: "$4", // Add margin-right for spacing between groups
+                    marginBottom: "0", // Remove margin-bottom for larger screens
+                    marginRight: "$4", // Add margin-right for spacing between groups
                   },
                 }}
               >
-                <Flex css={{ mr: "$2" }}>Region:</Flex>
-                  <Box
-                    as="select"
-                    onChange={(e) => {
-                      setRegion(e.target.value as Region["id"]);
-                    }}
-                    css={{
-                      py: "$1",
-                      pl: "$2",
-                      border: "none",
-                      bc: "$panel",
-                      appearance: "none",
-                    }}
-                  >
-                    {knownRegions?.regions
-                    .filter((r) => r.type === (selectedPipeline?"ai":"transcoding"))
+                <Flex css={{ marginRight: "$2" }}>Region:</Flex>
+                <Box
+                  as="select"
+                  onChange={(e) => {
+                    setRegion(e.target.value as Region["id"]);
+                  }}
+                  css={{
+                    paddingTop: "$1",
+                    paddingBottom: "$1",
+                    paddingLeft: "$2",
+                    border: "none",
+                    backgroundColor: "$panel",
+                    appearance: "none",
+                  }}
+                >
+                  {knownRegions?.regions
+                    .filter(
+                      (r) =>
+                        r.type === (selectedPipeline ? "ai" : "transcoding")
+                    )
                     .map((region) => {
-                      return (<Box as="option" key={region.id} value={region.id}>
-                        {region.name}
-                      </Box>)
+                      return (
+                        <Box as="option" key={region.id} value={region.id}>
+                          {region.name}
+                        </Box>
+                      );
                     })}
-                  </Box>
-                  <Box
-                    as={ChevronDownIcon}
-                    css={{
-                      pointerEvents: "none",
-                      }}
-                  />
-                </Flex>
+                </Box>
+                <Box
+                  as={ChevronDownIcon}
+                  css={{
+                    pointerEvents: "none",
+                  }}
+                />
+              </Flex>
               <Flex
                 css={{
                   flexDirection: "row", // Align title and dropdown horizontally
                   alignItems: "center",
-                  mb: "$2", // Add margin-bottom for spacing when stacked
-                  ml: "$2", // Add margin-left for spacing between groups
+                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
+                  marginLeft: "$2", // Add margin-left for spacing between groups
                   "@bp2": {
-                    mb: "0", // Remove margin-bottom for larger screens
+                    marginBottom: "0", // Remove margin-bottom for larger screens
                   },
                 }}
               >
-                <Flex css={{ mr: "$2" }}>Type:</Flex>
+                <Flex css={{ marginRight: "$2" }}>Type:</Flex>
                 <PerformanceListSelector
                   selectedPipeline={selectedPipeline}
                   setSelectedPipeline={setSelectedPipeline}
@@ -135,7 +142,7 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
               </Flex>
             </Flex>
           </Flex>
-          <Box css={{ mb: "$5" }}>
+          <Box css={{ marginBottom: "$5" }}>
             <PerformanceList
               data={orchestratorIds}
               pageSize={20}

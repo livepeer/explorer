@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { txMessages } from "lib/utils";
 
 export type StakingAction = "undelegate" | "delegate" | null;

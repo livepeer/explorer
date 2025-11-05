@@ -2,22 +2,23 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract, useSimulateContract } from "wagmi";
 
 const Index = ({ unbondingLockId }: any) => {
   const accountAddress = useAccountAddress();
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
+  const { data: config } = useSimulateContract({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawStake",
     args: [unbondingLockId],
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+  const { data, isPending, writeContract, error, isSuccess } =
+    useWriteContract();
 
-  useHandleTransaction("withdrawStake", data, error, isLoading, isSuccess, {
+  useHandleTransaction("withdrawStake", data, error, isPending, isSuccess, {
     unbondingLockId,
   });
 
@@ -30,8 +31,8 @@ const Index = ({ unbondingLockId }: any) => {
       <Button
         variant="primary"
         size="3"
-        onClick={write}
-        css={{ py: "$2", mr: "$3" }}
+        onClick={() => writeContract(config!.request)}
+        css={{ paddingTop: "$2", paddingBottom: "$2", marginRight: "$3" }}
       >
         Withdraw
       </Button>

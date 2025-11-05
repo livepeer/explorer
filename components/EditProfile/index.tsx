@@ -18,11 +18,16 @@ const Index = () => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button css={{ mt: "3px", ml: "$3" }} variant="primary" size="1">
+          <Button css={{ marginTop: "3px", marginLeft: "$3" }} variant="primary" size="1">
             Edit Profile
           </Button>
         </DialogTrigger>
-        <DialogContent css={{ overflow: "scroll" }}>
+        <DialogContent
+          css={{ overflow: "scroll" }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+          placeholder={undefined}
+        >
           <DialogTitle asChild>
             <Heading
               size="2"
@@ -31,7 +36,7 @@ const Index = () => {
               Edit Profile
             </Heading>
           </DialogTitle>
-          <Text variant="neutral" css={{ mb: "$3" }}>
+          <Text variant="neutral" css={{ marginBottom: "$3" }}>
             Profile content is automatically pulled from publicly available
             information provided through Ethereum Name Service (ENS). Connect to
             the{" "}
@@ -41,7 +46,7 @@ const Index = () => {
             to register a .eth name and profile information such as a
             description, avatar, website, and more.
           </Text>{" "}
-          <Text variant="neutral" css={{ mb: "$5" }}>
+          <Text variant="neutral" css={{ marginBottom: "$5" }}>
             New to ENS? Check out this{" "}
             <A
               variant="primary"
@@ -54,7 +59,7 @@ const Index = () => {
           </Text>
           <Flex align="center" justify="end">
             <DialogClose asChild>
-              <Button size="4" ghost css={{ mr: "$2" }}>
+              <Button size="4" ghost css={{ marginRight: "$2" }}>
                 Dismiss
               </Button>
             </DialogClose>
@@ -76,7 +81,7 @@ const Index = () => {
               >
                 ENS Manager
               </A>
-              <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+              <Box css={{ marginLeft: "$1" }} as={ArrowTopRightIcon} />
             </Button>
           </Flex>
         </DialogContent>

@@ -36,7 +36,7 @@ const Panel = ({ children }) => (
     css={{
       minHeight: 240,
       height: 240,
-      p: "24px",
+      padding: "24px",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
@@ -251,10 +251,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$3",
+            marginTop: "$3",
             width: "100%",
             "@bp3": {
-              mt: "$6",
+              marginTop: "$6",
             },
           }}
         >
@@ -280,16 +280,17 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
           </Heading>
           <Flex
             css={{
-              mb: "$7",
+              marginBottom: "$7",
             }}
           >
             <Flex
               css={{
-                bc: "$panel",
+                backgroundColor: "$panel",
                 borderRadius: "$4",
                 border: "1px solid $colors$neutral4",
                 overflow: "hidden",
-                mx: "auto",
+                marginLeft: "auto",
+                marginRight: "auto",
                 overflowX: "auto",
               }}
             >
@@ -309,7 +310,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   justifyContent: "center",
                   width: "100%",
                   height: "100%",
-                  p: "24px",
+                  padding: "24px",
                   flex: 1,
                 }}
               >
@@ -317,12 +318,12 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
           </Flex>
-          <Box css={{ mb: "$3" }}>
+          <Box css={{ marginBottom: "$3" }}>
             <Flex
               css={{
                 flexDirection: "column",
                 justifyContent: "space-between",
-                mb: "$4",
+                marginBottom: "$4",
                 alignItems: "center",
                 "@bp1": {
                   flexDirection: "row",
@@ -345,26 +346,25 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-                  <Link href="/leaderboard" passHref>
+                  <A as={Link} href="/leaderboard" passHref>
                     <Button
                       ghost
-                      as={A}
-                      css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                      css={{
+                        color: "$hiContrast",
+                        fontSize: "$2",
+                        marginRight: "$2",
+                      }}
                     >
                       Performance Leaderboard
                     </Button>
-                  </Link>
+                  </A>
                 )}
-                <Link href="/orchestrators" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
+                <A as={Link} href="/orchestrators" passHref>
+                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
                     View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
-                </Link>
+                </A>
               </Flex>
             </Flex>
 
@@ -386,8 +386,8 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               css={{
                 flexDirection: "column",
                 justifyContent: "space-between",
-                mb: "$4",
-                mt: "$7",
+                marginBottom: "$4",
+                marginTop: "$7",
                 alignItems: "center",
                 "@bp1": {
                   flexDirection: "row",
@@ -408,16 +408,12 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Link href="/transactions" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
+                <A as={Link} href="/transactions" passHref>
+                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
                     View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
-                </Link>
+                </A>
               </Flex>
             </Flex>
 

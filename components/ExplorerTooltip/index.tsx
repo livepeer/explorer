@@ -3,7 +3,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import React from "react";
 
 type TooltipProps = React.ComponentProps<typeof TooltipPrimitive.Root> &
-  React.ComponentProps<typeof TooltipPrimitive.Content> & {
+  Omit<React.ComponentProps<typeof TooltipPrimitive.Content>, "content"> & {
     children: React.ReactElement;
     content: React.ReactNode;
     multiline?: boolean;

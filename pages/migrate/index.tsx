@@ -21,7 +21,7 @@ const Migrate = () => {
       size="2"
       css={{
         maxWidth: 650,
-        mt: "$8",
+        marginTop: "$8",
         width: "100%",
         "@bp3": {
           width: 650,
@@ -63,15 +63,14 @@ const Migrate = () => {
 
 function CardLink({ href, heading, text }) {
   return (
-    <Link href={href} passHref>
+    <Link href={href} passHref style={{ textDecoration: "none" }}>
       <Card
-        as="a"
         css={{
-          p: "$5",
+          padding: "$5",
           borderRadius: "$4",
           backgroundColor: "$panel",
           border: "1px solid $neutral5",
-          mb: "$4",
+          marginBottom: "$4",
           textDecoration: "none",
           transition: ".15s background-color",
           "&:hover": {

@@ -1,17 +1,16 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
-import { WriteContractResult } from "@wagmi/core";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
 import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
-  data: WriteContractResult | undefined,
+  data: `0x${string}` | undefined,
   error: Error | null,
   isLoading: boolean,
   isSuccess: boolean,
   args: any,
-  onSuccess?: ((result: WriteContractResult) => Promise<void> | void) | null
+  onSuccess?: ((result: `0x${string}`) => Promise<void> | void) | null
 ) => {
   const {
     setLatestTransactionError,
@@ -30,7 +29,7 @@ export const useHandleTransaction = (
   useEffect(() => {
     if (data) {
       addRecentTransaction({
-        hash: data.hash,
+        hash: data,
         description: capitalCase(id),
       });
     }
@@ -38,7 +37,7 @@ export const useHandleTransaction = (
 
   useEffect(() => {
     if (data) {
-      setLatestTransactionDetails(data.hash, id, args);
+      setLatestTransactionDetails(data, id, args);
 
       if (onSuccess) {
         onSuccess(data);

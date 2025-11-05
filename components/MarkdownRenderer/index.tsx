@@ -1,7 +1,7 @@
 import { styled } from "@livepeer/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import React from "react";
+import React, { JSX } from "react";
 import { isImageUrl } from "@lib/utils";
 
 const StyledTable = styled("table", {
@@ -89,7 +89,7 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
 const MarkdownImage = React.memo(
   ({ src, alt, ...imgProps }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     if (!src) return null;
-    const cleanedSrc = src.replace(/\/+$/, "");
+    const cleanedSrc = (src as string).replace(/\/+$/, "");
     return (
       <StyledImage
         src={cleanedSrc}

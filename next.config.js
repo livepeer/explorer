@@ -1,26 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  swcMinify: false,
-
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Don’t try to polyfill Node core modules in the browser
-      config.resolve.fallback = {
-        ...(config.resolve.fallback || {}),
-        fs: false,
-        net: false,
-        tls: false,
-      };
-      // Prevent bundling native ws speedups and the loader in the browser
-      config.resolve.alias = {
-        ...(config.resolve.alias || {}),
-        ws: false,
-        bufferutil: false,
-        "utf-8-validate": false,
-        "node-gyp-build": false,
-      };
-    }
-    return config;
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
   },
 
   async redirects() {
