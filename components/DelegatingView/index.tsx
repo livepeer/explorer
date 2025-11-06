@@ -341,7 +341,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     marginTop: "$3",
                     width: "100%",
                   }}
-                  onClick={() => writeContract(config!.request)}
+                  onClick={() => config && writeContract(config.request)}
                 >
                   Withdraw Pending Fees
                 </Button>

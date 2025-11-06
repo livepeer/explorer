@@ -77,7 +77,7 @@ const Index = ({
   }
 
   return (
-    <Button onClick={() => writeContract(config!.request)} {...props}>
+    <Button onClick={() => config && writeContract(config.request)} {...props}>
       {children}
     </Button>
   );

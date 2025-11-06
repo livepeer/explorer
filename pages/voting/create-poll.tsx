@@ -95,7 +95,8 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   useEffect(() => {
     if (hash && status === "idle") {
-      writeContract(config!.request);
+      if (!config) return;
+      writeContract(config.request);
     }
   }, [hash, writeContract, status]);
 

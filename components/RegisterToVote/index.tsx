@@ -56,7 +56,7 @@ const CheckpointButton = ({
       variant="transparentBlack"
       ghost
       disabled={disabled}
-      onClick={() => writeContract(config!.request)}
+      onClick={() => config && writeContract(config.request)}
     >
       {children}
     </Button>

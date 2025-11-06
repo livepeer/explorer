@@ -31,7 +31,7 @@ const Index = ({ unbondingLockId }: any) => {
       <Button
         variant="primary"
         size="3"
-        onClick={() => writeContract(config!.request)}
+        onClick={() => config && writeContract(config.request)}
         css={{ paddingTop: "$2", paddingBottom: "$2", marginRight: "$3" }}
       >
         Withdraw

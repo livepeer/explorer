@@ -75,7 +75,8 @@ const QueueExecuteButton = (
   return (
     <Button
       onClick={() => {
-        writeContract(config!.request);
+        if (!config) return;
+        writeContract(config.request);
         onClick?.();
       }}
       disabled={!enabled}

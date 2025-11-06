@@ -125,9 +125,12 @@ const Delegate = ({
 
   const onApprove = async () => {
     try {
+      if (!config) {
+        throw new Error("No config for approve");
+      }
       setApprovalSubmitted(true);
 
-      approveWrite(config!.request);
+      approveWrite(config.request);
     } catch (e) {
       console.log(e);
     }
@@ -135,7 +138,10 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      bondWrite(bondWithHintConfig!.request);
+      if (!bondWithHintConfig) {
+        throw new Error("No config for bond with hint");
+      }
+      bondWrite(bondWithHintConfig.request);
     } catch (e) {
       console.error(e);
     }

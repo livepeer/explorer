@@ -42,7 +42,7 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
         css={{
           width: "100%",
         }}
-        onClick={() => writeContract(config!.request)}
+        onClick={() => config && writeContract(config.request)}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
       </Button>

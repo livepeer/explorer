@@ -189,8 +189,11 @@ const CreateProposal = () => {
           onSubmit={async (e) => {
             e.preventDefault();
             try {
+              if (!config) {
+                throw new Error("No config for proposal");
+              }
               console.log("submitting!");
-              writeContract(config!.request);
+              writeContract(config.request);
             } catch (err: any) {
               console.error(err);
               return {

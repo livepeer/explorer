@@ -45,7 +45,8 @@ const Claim = () => {
 
   useEffect(() => {
     if (proof && isIdle) {
-      writeContract(config!.request);
+      if (!config) return;
+      writeContract(config.request);
     }
   }, [proof, writeContract, isIdle]);
 

@@ -28,7 +28,10 @@ const Index = () => {
   });
 
   return (
-    <Button color="primary" onClick={() => writeContract(config!.request)}>
+    <Button
+      color="primary"
+      onClick={() => config && writeContract(config.request)}
+    >
       Approve
     </Button>
   );
