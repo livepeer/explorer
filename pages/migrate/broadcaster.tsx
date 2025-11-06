@@ -695,8 +695,8 @@ const MigrateBroadcaster = () => {
         <Box css={{ paddingLeft: "$5", paddingRight: "$5" }}>
           <Box
             css={{
-              marginRight: "auto",
               marginLeft: "auto",
+              marginRight: "auto",
               textAlign: "center",
             }}
           >

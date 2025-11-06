@@ -1,14 +1,18 @@
 import { Signer } from "ethers";
 import { useEffect, useMemo, useState } from "react";
-import { arbitrum, mainnet } from "viem/chains";
 import { useAccount, useDisconnect } from "wagmi";
+import { ALL_SUPPORTED_CHAIN_IDS } from "@lib/chains";
 
 const useIsChainSupported = () => {
   const activeChain = useActiveChain();
-  const supportedChains = [mainnet.id, arbitrum.id] as number[];
 
   return useMemo(
-    () => (activeChain ? supportedChains.includes(activeChain.id) : false),
+    () =>
+      activeChain
+        ? ALL_SUPPORTED_CHAIN_IDS.map((chain) => chain.id).includes(
+            activeChain.id
+          )
+        : false,
     [activeChain]
   );
 };
@@ -67,10 +71,9 @@ export const useActiveChain = () => {
     return () => unsub?.();
   }, [connector, status]);
 
-  const chains = [mainnet, arbitrum];
   const activeChain = useMemo(
-    () => chains.find((chain) => chain.id === chainId),
-    [chainId, chains]
+    () => ALL_SUPPORTED_CHAIN_IDS.find((chain) => chain.id === chainId),
+    [chainId]
   );
 
   return activeChain;

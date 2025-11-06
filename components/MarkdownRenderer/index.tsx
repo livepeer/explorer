@@ -89,7 +89,7 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
 const MarkdownImage = React.memo(
   ({ src, alt, ...imgProps }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     if (!src) return null;
-    const cleanedSrc = (src as string).replace(/\/+$/, "");
+    const cleanedSrc = (src as string)?.replace(/\/+$/, "") ?? "";
     return (
       <StyledImage
         src={cleanedSrc}
