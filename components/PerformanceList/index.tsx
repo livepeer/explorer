@@ -125,7 +125,6 @@ const PerformanceList = ({
                   />
                 ) : (
                   <Box
-                    as={QRCode}
                     css={{
                       marginRight: "$2",
                       borderRadius: 1000,
@@ -133,10 +132,15 @@ const PerformanceList = ({
                       height: 24,
                       maxWidth: 24,
                       maxHeight: 24,
+                      overflow: "hidden",
                     }}
-                    fgColor={`#${row.values.id.substr(2, 6)}`}
-                    value={row.values.id}
-                  />
+                  >
+                    <QRCode
+                      fgColor={`#${row.values.id.substr(2, 6)}`}
+                      size={24}
+                      value={row.values.id}
+                    />
+                  </Box>
                 )}
                 {identity?.name ? (
                   <Flex css={{ fontWeight: 600, alignItems: "center" }}>
