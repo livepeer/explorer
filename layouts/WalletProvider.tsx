@@ -15,10 +15,6 @@ export default function WalletProvidersClient({
   projectId,
   locale,
 }: Props) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-
   // Import RainbowKit and your theme ONLY on the client
   const {
     getDefaultConfig,
