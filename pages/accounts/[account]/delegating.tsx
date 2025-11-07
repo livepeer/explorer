@@ -1,22 +1,6 @@
-import AccountLayout from "@layouts/account";
-import { getLayout } from "@layouts/main";
-import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import {
-  AccountQueryResult,
-  getApollo,
-  OrchestratorsSortedQueryResult,
-} from "apollo";
+import { getSortedOrchestrators } from "@lib/api/ssr";
 
-type PageProps = {
-  account: AccountQueryResult["data"] | null;
-  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
-  fallback: { [key: string]: EnsIdentity };
-};
-
-const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
-  <div>Test</div>
-);
+const Delegating = () => <div>Test</div>;
 
 export const getStaticPaths = async () => {
   const { sortedOrchestrators } = await getSortedOrchestrators();
@@ -32,7 +16,6 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps = async (context) => {
   try {
-
     return {
       props: {},
       revalidate: 600,
