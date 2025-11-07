@@ -15,7 +15,7 @@ type PageProps = {
 };
 
 const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
-  <AccountLayout sortedOrchestrators={sortedOrchestrators} account={account} />
+  <div>Test</div>
 );
 
 Delegating.getLayout = getLayout;
