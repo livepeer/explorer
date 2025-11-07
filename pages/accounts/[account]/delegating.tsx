@@ -18,8 +18,6 @@ const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
   <div>Test</div>
 );
 
-Delegating.getLayout = getLayout;
-
 export const getStaticPaths = async () => {
   const { sortedOrchestrators } = await getSortedOrchestrators();
 
