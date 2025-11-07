@@ -1,7 +1,6 @@
 import { fetcher } from "@lib/axios";
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
-import rainbowTheme from "constants/rainbowTheme";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
 import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, L1_CHAIN } from "lib/chains";
@@ -30,7 +29,7 @@ function App({ Component, pageProps, fallback = null }) {
     const chainsArr = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN];
     return {
       chains: chainsArr,
-      layoutKey: chainsArr.map((e) => e.id).join(","), // used to force rerender like before
+      layoutKey: chainsArr.map((e) => e.id).join(","),
     };
   }, [isMigrateRoute]);
 
@@ -42,7 +41,6 @@ function App({ Component, pageProps, fallback = null }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Livepeer Explorer</title>
       </Head>
-
       <ApolloProvider key={layoutKey} client={client}>
         <TooltipPrimitive.Provider>
           <QueryClientProvider client={queryClient}>
@@ -50,7 +48,6 @@ function App({ Component, pageProps, fallback = null }) {
               chains={chains}
               projectId={WALLET_CONNECT_PROJECT_ID ?? ""}
               locale={locale}
-              theme={rainbowTheme}
             >
               <SWRConfig
                 value={{

@@ -1,6 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
-
 import "@rainbow-me/rainbowkit/styles.css";
 
 type Props = {
@@ -8,7 +7,6 @@ type Props = {
   chains: any[];
   projectId: string;
   locale?: string | null;
-  theme: any;
 };
 
 export default function WalletProvidersClient({
@@ -16,10 +14,17 @@ export default function WalletProvidersClient({
   chains,
   projectId,
   locale,
-  theme,
 }: Props) {
-  // require inside to avoid server import during SSR
-  const { getDefaultConfig, RainbowKitProvider } = require("@rainbow-me/rainbowkit");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  // Import RainbowKit and your theme ONLY on the client
+  const {
+    getDefaultConfig,
+    RainbowKitProvider,
+  } = require("@rainbow-me/rainbowkit");
+  const rainbowTheme = require("constants/rainbowTheme").default;
 
   const config = useMemo(
     () =>
@@ -27,7 +32,6 @@ export default function WalletProvidersClient({
         appName: "Livepeer Explorer",
         projectId,
         chains,
-        // explicitly disable SSR path for rainbowkit
         ssr: false,
       }),
     [chains, projectId]
@@ -42,7 +46,7 @@ export default function WalletProvidersClient({
         }}
         locale={locale ?? undefined}
         showRecentTransactions
-        theme={theme}
+        theme={rainbowTheme}
       >
         {children}
       </RainbowKitProvider>
