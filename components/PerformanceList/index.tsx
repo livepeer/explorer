@@ -6,31 +6,35 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Link from "next/link";
 import { useMemo } from "react";
 import QRCode from "qrcode.react";
-import { useAllScoreData, useEnsData } from "hooks";
+import { useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import numeral from "numeral";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
+import { AllPerformanceMetrics } from "@lib/api/types/get-performance";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
 const PerformanceList = ({
-  data,
+  orchestratorIds,
   pageSize = 20,
   region,
   pipeline,
   model,
+  performanceMetrics = null,
+  isLoadingMetrics = false,
 }: {
   pageSize: number;
   region: Region["id"];
   pipeline: Pipeline["id"] | null;
   model: string | null;
-  data: Pick<
+  performanceMetrics?: AllPerformanceMetrics | null;
+  isLoadingMetrics?: boolean;
+  orchestratorIds: Pick<
     NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
     "id"
   >[];
 }) => {
-  const {isValidating, data: allScores} = useAllScoreData(pipeline, model);
   const isAIData = pipeline !== null && model !== null;
   const scoreAccessor = `scores.${region}`;//total score
   const successRateAccessor = `successRates.${region}`;//success rate
@@ -53,8 +57,8 @@ const PerformanceList = ({
   };
 
   const mergedData = useMemo(
-    () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
-    [allScores, data]
+    () => orchestratorIds.map((o) => ({ ...o, ...performanceMetrics?.[o?.id] })),
+    [performanceMetrics, orchestratorIds]
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
@@ -215,11 +219,8 @@ const PerformanceList = ({
         defaultCanSort: true,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (
-            isValidating
-          ) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
+
           return (
             <Box>
               {typeof value === "undefined" || value === null ? 
@@ -251,9 +252,8 @@ const PerformanceList = ({
         accessor: `${successRateAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (isValidating) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
+
           return (
             <Box>
               {typeof value === "undefined" || value === null ? 
@@ -286,9 +286,8 @@ const PerformanceList = ({
         accessor: `${roundTripScoreAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (isValidating) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
+
           return (
             <Box>
               {typeof value === "undefined" || value === null ? 
@@ -302,7 +301,7 @@ const PerformanceList = ({
         },
       },
     ],
-    [region, isValidating]
+    [region, isLoadingMetrics]
   );
   return (
     <Table data={mergedData} columns={columns} initialState={initialState} />
