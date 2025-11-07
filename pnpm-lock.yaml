@@ -292,9 +292,6 @@ importers:
       '@graphql-codegen/typescript-react-apollo':
         specifier: ^3.3.2
         version: 3.3.2(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.5.0))(graphql@16.5.0)
-      '@next/swc-wasm-nodejs':
-        specifier: 12.2.2
-        version: 12.2.2
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.1.6)
@@ -2074,9 +2071,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-
-  '@next/swc-wasm-nodejs@12.2.2':
-    resolution: {integrity: sha512-iV3YISWwMPdO3PCsWCWcEAXxgoV0OFz4Lk6KNxU1p0lugvAz6sppLKiquW6H0MQrUTXQfceP6jYtUvO0zxxTAw==}
 
   '@next/swc-win32-arm64-msvc@16.0.1':
     resolution: {integrity: sha512-cPuBjYP6I699/RdbHJonb3BiRNEDm5CKEBuJ6SD8k3oLam2fDRMKAvmrli4QMDgT2ixyRJ0+DTkiODbIQhRkeQ==}
@@ -12257,8 +12251,6 @@ snapshots:
 
   '@next/swc-linux-x64-musl@16.0.1':
     optional: true
-
-  '@next/swc-wasm-nodejs@12.2.2': {}
 
   '@next/swc-win32-arm64-msvc@16.0.1':
     optional: true

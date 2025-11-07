@@ -21,7 +21,6 @@
     "@graphql-codegen/typescript": "^2.7.2",
     "@graphql-codegen/typescript-operations": "^2.5.2",
     "@graphql-codegen/typescript-react-apollo": "^3.3.2",
-    "@next/swc-wasm-nodejs": "12.2.2",
     "@svgr/webpack": "^8.1.0",
     "@typechain/ethers-v5": "^10.1.0",
     "@types/change-case": "^2.3.1",
