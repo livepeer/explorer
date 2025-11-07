@@ -34,30 +34,9 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps = async (context) => {
   try {
-    const client = getApollo();
-    const { account, fallback } = await getAccount(
-      client,
-      context.params?.account?.toString().toLowerCase()
-    );
-
-    const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =
-      await getSortedOrchestrators(client);
-
-    if (!sortedOrchestrators.data) {
-      return null;
-    }
-
-    const props: PageProps = {
-      account: account.data,
-      sortedOrchestrators: sortedOrchestrators.data,
-      fallback: {
-        ...sortedOrchestratorsFallback,
-        ...fallback,
-      },
-    };
 
     return {
-      props,
+      props: {},
       revalidate: 600,
     };
   } catch (e) {
