@@ -1,5 +1,3 @@
-import { useMemo, useEffect, useState } from "react";
-import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
 type Props = {
@@ -9,29 +7,26 @@ type Props = {
   locale?: string | null;
 };
 
-export default function WalletProvidersClient({
+export default function WalletProviders({
   children,
   chains,
   projectId,
   locale,
 }: Props) {
-  // Import RainbowKit and your theme ONLY on the client
+  // Import RainbowKit + Wagmi + theme ONLY when this module runs (client).
   const {
     getDefaultConfig,
     RainbowKitProvider,
   } = require("@rainbow-me/rainbowkit");
+  const { WagmiProvider } = require("wagmi");
   const rainbowTheme = require("constants/rainbowTheme").default;
 
-  const config = useMemo(
-    () =>
-      getDefaultConfig({
-        appName: "Livepeer Explorer",
-        projectId,
-        chains,
-        ssr: false,
-      }),
-    [chains, projectId]
-  );
+  const config = getDefaultConfig({
+    appName: "Livepeer Explorer",
+    projectId,
+    chains,
+    ssr: false, // be explicit
+  });
 
   return (
     <WagmiProvider config={config}>
