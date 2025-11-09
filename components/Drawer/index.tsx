@@ -18,7 +18,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
     return () => {
       Router.events.off("routeChangeStart", onStart);
     };
-  }, [onDrawerClose]);
+  }, []);
 
   return (
     <>
