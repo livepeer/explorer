@@ -22,6 +22,13 @@ import {
   YAxis,
 } from "recharts";
 
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
+  const isVisible = active && payload && payload.length;
+  return (
+    <div className="custom-tooltip" style={{ visibility: isVisible ? 'visible' : 'hidden' }} />
+  );
+};
+
 export type ChartDatum = { x: number; y: number };
 
 const CustomizedXAxisTick = ({ x, y, payload }) => {
@@ -355,7 +362,7 @@ const ExplorerChart = ({
                 orientation="right"
                 tick={CustomizedYAxisTick}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomTooltip} />
 
               <Bar dataKey="y" cursor="pointer" fill="rgba(0, 235, 136, 0.8)" />
             </ReBarChart>
@@ -404,7 +411,7 @@ const ExplorerChart = ({
                 tick={CustomizedYAxisTick}
                 domain={["auto", "auto"]}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomTooltip} />
 
               <Line
                 dataKey="y"
