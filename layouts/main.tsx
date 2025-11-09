@@ -127,6 +127,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
 
   useEffect(() => {
+    const onComplete = () => document.body.removeAttribute("style");
+    Router.events.on("routeChangeComplete", onComplete);
+    
+    return () => {
+      Router.events.off("routeChangeComplete", onComplete);
+    };
+  }, []);
+
+  useEffect(() => {
     const ls = window.localStorage.getItem(`bannersDismissed`);
     const storage = ls ? JSON.parse(ls) : null;
     if (storage && storage.includes(uniqueBannerID)) {
@@ -219,10 +228,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       className: "treasury",
     },
   ];
-
-  Router.events.on("routeChangeComplete", () =>
-    document.body.removeAttribute("style")
-  );
 
   const onDrawerOpen = () => {
     document.body.style.overflow = "hidden";
