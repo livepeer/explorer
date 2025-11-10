@@ -27,7 +27,8 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract, useSimulateContract } from "wagmi";
+import { Address } from "viem";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
@@ -65,27 +66,27 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(pollCreatorAddress && hash),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(pollCreatorAddress && hash) },
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
-    args: [hash ? hexlify(toUtf8Bytes(hash)) as `0x${string}` : "0x"],
+    args: [hash ? (hexlify(toUtf8Bytes(hash)) as `0x${string}`) : "0x"],
   });
   const {
     data: createPollResult,
     status,
-    isLoading,
-    write,
+    isPending,
+    writeContract,
     error,
     isSuccess,
-  } = useContractWrite(config);
+  } = useWriteContract();
 
   useHandleTransaction(
     "createPoll",
     createPollResult,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     {
       proposal: hash,
@@ -94,9 +95,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   useEffect(() => {
     if (hash && status === "idle") {
-      write?.();
+      if (!config) return;
+      writeContract(config.request);
     }
-  }, [hash, write, status]);
+  }, [hash, writeContract, status]);
 
   return (
     <>
@@ -106,8 +108,8 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
-            mt: "$6",
-            mb: "$4",
+            marginTop: "$6",
+            marginBottom: "$4",
           }}
         >
           <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
@@ -154,14 +156,17 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       width: "100%",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      p: "$4",
-                      mb: "$4",
+                      padding: "$4",
+                      marginBottom: "$4",
                       display: "flex",
                       borderRadius: "$4",
                     }}
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                    placeholder={undefined}
                   >
                     <Flex css={{ alignItems: "center", width: "100%" }}>
-                      <Box css={{ ml: "$3", width: "100%" }}>
+                      <Box css={{ marginLeft: "$3", width: "100%" }}>
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
@@ -169,7 +174,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       variant="primary"
                       css={{
                         display: "flex",
-                        ml: "$2",
+                        marginLeft: "$2",
                         minWidth: 108,
                       }}
                       target="_blank"
@@ -184,14 +189,16 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
               </RadioCardGroup>
               <Flex
                 css={{
-                  mt: "$5",
+                  marginTop: "$5",
                   alignItems: "center",
                   justifyContent: "flex-end",
                 }}
               >
                 {loading ? (
                   <>
-                    <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
+                    <Box css={{ marginRight: "$3" }}>
+                      Loading Staked LPT Balance
+                    </Box>
                     <Spinner />
                   </>
                 ) : (
@@ -220,10 +227,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         isCreatePollLoading
                       }
                       type="submit"
-                      css={{ ml: "$3", alignSelf: "flex-end" }}
+                      css={{ marginLeft: "$3", alignSelf: "flex-end" }}
                     >
                       Create Poll{" "}
-                      {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}
+                      {isCreatePollLoading && (
+                        <Spinner css={{ marginLeft: "$2" }} />
+                      )}
                     </Button>
                   </>
                 )}

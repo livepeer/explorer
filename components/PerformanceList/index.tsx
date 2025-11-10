@@ -75,102 +75,119 @@ const PerformanceList = ({
         Header: "Rank",
         disableSortBy: true,
         Cell: ({ row, flatRows }) => {
-          return (
-            <Box>
-              {flatRows.indexOf(row) + 1}
-            </Box>
-          );
+          return <Box>{flatRows.indexOf(row) + 1}</Box>;
         },
-      },  
+      },
       {
-        Header: () => (<>Orchestrator <Box css={{pl:"3px","@bp1": {display: "none",pl: "0"}}}>(Score)</Box></>),
+        Header: () => (
+          <>
+            Orchestrator{" "}
+            <Box
+              css={{
+                paddingLeft: "3px",
+                "@bp1": { display: "none", paddingLeft: "0" },
+              }}
+            >
+              (Score)
+            </Box>
+          </>
+        ),
         accessor: "id",
         disableSortBy: true,
         Cell: ({ row }) => {
           const identity = useEnsData(row.values.id);
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-              <A
-                css={{
-                  width: 300,
-                  display: "block",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "none" },
-                }}
-              >
-                <Flex css={{ alignItems: "center" }}>
-                  {identity?.avatar ? (
-                    <Box
-                      key={row.values.id}
-                      as="img"
-                      css={{
-                        mr: "$2",
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                        borderRadius: 1000,
-                      }}
-                      src={identity.avatar}
-                    />
-                  ) : (
-                    <Box
-                      as={QRCode}
-                      css={{
-                        mr: "$2",
-                        borderRadius: 1000,
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                      }}
+            <A
+              as={Link}
+              href={`/accounts/${row.values.id}/orchestrating`}
+              passHref
+              css={{
+                width: 300,
+                display: "block",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "none" },
+              }}
+            >
+              <Flex css={{ alignItems: "center" }}>
+                {identity?.avatar ? (
+                  <Box
+                    key={row.values.id}
+                    as="img"
+                    css={{
+                      marginRight: "$2",
+                      width: 24,
+                      height: 24,
+                      maxWidth: 24,
+                      maxHeight: 24,
+                      borderRadius: 1000,
+                    }}
+                    src={identity.avatar}
+                  />
+                ) : (
+                  <Box
+                    css={{
+                      marginRight: "$2",
+                      borderRadius: 1000,
+                      width: 24,
+                      height: 24,
+                      maxWidth: 24,
+                      maxHeight: 24,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <QRCode
                       fgColor={`#${row.values.id.substr(2, 6)}`}
+                      size={24}
                       value={row.values.id}
                     />
-                  )}
-                  {identity?.name ? (
-                    <Flex css={{ fontWeight: 600, ai: "center" }}>
-                      <Box
-                        css={{
-                          mr: "$2",
-                          fontSize: "$3",
-                        }}
-                      >
-                        {textTruncate(identity.name, 20, "…")}
-                      </Box>
-                      <Badge size="2" css={{ fontSize: "$2", display: "none",
-                      "@bp1": {
-                        display: "inherit",
-                      }}}>
-                        {row.values.id.substring(0, 6)}
-                      </Badge>
-                    </Flex>
-                  ) : (
-                    <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
-                    </Box>
-                  )}
-                  {typeof row.values.scores != "undefined" && row.values.scores != null ? 
-                    <Badge size="2" variant="green"
+                  </Box>
+                )}
+                {identity?.name ? (
+                  <Flex css={{ fontWeight: 600, alignItems: "center" }}>
+                    <Box
                       css={{
-                        mr: "$2",
-                        fontSize: "$1",
+                        marginRight: "$2",
+                        fontSize: "$3",
+                      }}
+                    >
+                      {textTruncate(identity.name, 20, "…")}
+                    </Box>
+                    <Badge
+                      size="2"
+                      css={{
+                        fontSize: "$2",
+                        display: "none",
                         "@bp1": {
-                          display: "none",
+                          display: "inherit",
                         },
                       }}
                     >
-                      {
-                      
-                      numeral(row.values.scores)
-                        .divide(10)
-                        .format("0.00")
-                      }
+                      {row.values.id.substring(0, 6)}
+                    </Badge>
+                  </Flex>
+                ) : (
+                  <Box css={{ fontWeight: 600 }}>
+                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                  </Box>
+                )}
+                {typeof row.values.scores != "undefined" &&
+                row.values.scores != null ? (
+                  <Badge
+                    size="2"
+                    variant="green"
+                    css={{
+                      marginRight: "$2",
+                      fontSize: "$1",
+                      "@bp1": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    {numeral(row.values.scores).divide(10).format("0.00")}
                   </Badge>
-                  : null}
-                </Flex>
-              </A>
-            </Link>
+                ) : null}
+              </Flex>
+            </A>
           );
         },
       },
@@ -191,63 +208,68 @@ const PerformanceList = ({
         accessor: "delegator",
       },
       {
-        Header: () => (<>Total Score (0-10) <ExplorerTooltip
-          multiline
-          content={
-            <Box>
-              {isAIData ? 
-                "The AI Total Score combines the Orchestrator's Latency Score and average Success Rate, with a higher emphasis on Success Rate." :
-                "The Transcoding Total Score is based on the Orchestrator's Latency Score and Success Rate."
+        Header: () => (
+          <>
+            Total Score (0-10){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  {isAIData
+                    ? "The AI Total Score combines the Orchestrator's Latency Score and average Success Rate, with a higher emphasis on Success Rate."
+                    : "The Transcoding Total Score is based on the Orchestrator's Latency Score and Success Rate."}
+                </Box>
               }
-            </Box>
-          }
-        >
-          <Flex css={{ ml: "$1" }}>
-            <Box
-              as={QuestionMarkCircledIcon}
-              css={{ color: "$neutral11" }}
-            />
-          </Flex>
-        </ExplorerTooltip></>),
-        id: 'scores',
+            >
+              <Flex css={{ marginLeft: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
+        id: "scores",
         accessor: `${scoreAccessor}`,
         sortDescFirst: true,
         defaultCanSort: true,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (
-            isValidating
-          ) {
+          if (isValidating) {
             return <EmptyData />;
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(10)
-                  .format("0.00")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(10).format("0.00")}
             </Box>
           );
         },
       },
       {
-        Header: () => (<>Success Rate (%) <ExplorerTooltip
-        multiline
-        content={
-          <Box>
-            The rate at which the Orchestrator successfully completed a job.
-          </Box>
-        }
-      >
-        <Flex css={{ ml: "$1" }}>
-          <Box
-            as={QuestionMarkCircledIcon}
-            css={{ color: "$neutral11" }}
-          />
-        </Flex>
-      </ExplorerTooltip></>),
+        Header: () => (
+          <>
+            Success Rate (%){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  The rate at which the Orchestrator successfully completed a
+                  job.
+                </Box>
+              }
+            >
+              <Flex css={{ marginLeft: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
         accessor: `${successRateAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
@@ -256,33 +278,36 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(100)
-                  .format("0%")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(100).format("0%")}
             </Box>
           );
         },
       },
       {
-        Header: () => (<>Latency Score (0-10) <ExplorerTooltip
-        multiline
-        content={
-          <Box>
-            {isAIData? "AI Latency Score represents the Orchestrator's average round trip time (RTT) compared to the median RTT of successful jobs.":
-            "The Transcoding Latency Score represents the average test segment duration compared to the round trip time of the request."}
-          </Box>
-        }
-      >
-        <Flex css={{ ml: "$1" }}>
-          <Box
-            as={QuestionMarkCircledIcon}
-            css={{ color: "$neutral11" }}
-          />
-        </Flex>
-      </ExplorerTooltip></>),
+        Header: () => (
+          <>
+            Latency Score (0-10){" "}
+            <ExplorerTooltip
+              multiline
+              content={
+                <Box>
+                  {isAIData
+                    ? "AI Latency Score represents the Orchestrator's average round trip time (RTT) compared to the median RTT of successful jobs."
+                    : "The Transcoding Latency Score represents the average test segment duration compared to the round trip time of the request."}
+                </Box>
+              }
+            >
+              <Flex css={{ marginLeft: "$1" }}>
+                <Box
+                  as={QuestionMarkCircledIcon}
+                  css={{ color: "$neutral11" }}
+                />
+              </Flex>
+            </ExplorerTooltip>
+          </>
+        ),
         accessor: `${roundTripScoreAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
@@ -291,12 +316,9 @@ const PerformanceList = ({
           }
           return (
             <Box>
-              {typeof value === "undefined" || value === null ? 
-                "---" : 
-                numeral(value)
-                  .divide(10)
-                  .format("0.00")
-              }
+              {typeof value === "undefined" || value === null
+                ? "---"
+                : numeral(value).divide(10).format("0.00")}
             </Box>
           );
         },

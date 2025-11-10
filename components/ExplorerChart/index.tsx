@@ -22,6 +22,15 @@ import {
   YAxis,
 } from "recharts";
 
+// Correctly formatted custom content of tooltip is required to not throw error in console
+// As defined in https://recharts.github.io/en-US/examples/CustomContentOfTooltip
+const CustomContentOfTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
+  const isVisible = active && payload && payload.length;
+  return (
+    <div className="custom-tooltip" style={{ visibility: isVisible ? 'visible' : 'hidden' }} />
+  );
+};
+
 export type ChartDatum = { x: number; y: number };
 
 const CustomizedXAxisTick = ({ x, y, payload }) => {
@@ -226,7 +235,7 @@ const ExplorerChart = ({
               {title}
             </Text>
             {tooltip && (
-              <Box css={{ ml: "$1" }}>
+              <Box css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}
@@ -237,7 +246,7 @@ const ExplorerChart = ({
         </ExplorerTooltip>
         <Flex>
           {(data?.length || 0) <= 0 ? (
-            <Skeleton css={{ mt: "$1", width: "100%", height: 20 }} />
+            <Skeleton css={{ marginTop: "$1", width: "100%", height: 20 }} />
           ) : (
             <>
               <Text
@@ -252,7 +261,7 @@ const ExplorerChart = ({
               {barSelected.percentChange && (
                 <Text
                   css={{
-                    ml: "$2",
+                    marginLeft: "$2",
                     fontSize: "$3",
                     color:
                       (numeral(barSelected.percentChange).value() ?? 0) < 0
@@ -295,7 +304,7 @@ const ExplorerChart = ({
             onClick={() => onToggleGrouping?.("week")}
             size="1"
             variant={grouping === "week" ? "primary" : "neutral"}
-            css={{ ml: "$1" }}
+            css={{ marginLeft: "$1" }}
           >
             W
           </Button>
@@ -303,7 +312,7 @@ const ExplorerChart = ({
       )}
       <Box
         css={{
-          pt: 57,
+          paddingTop: 57,
           width: "100%",
           height: "100%",
         }}
@@ -355,7 +364,7 @@ const ExplorerChart = ({
                 orientation="right"
                 tick={CustomizedYAxisTick}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomContentOfTooltip} />
 
               <Bar dataKey="y" cursor="pointer" fill="rgba(0, 235, 136, 0.8)" />
             </ReBarChart>
@@ -404,7 +413,7 @@ const ExplorerChart = ({
                 tick={CustomizedYAxisTick}
                 domain={["auto", "auto"]}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomContentOfTooltip} />
 
               <Line
                 dataKey="y"

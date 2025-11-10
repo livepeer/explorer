@@ -4,7 +4,7 @@ import { Button } from "@livepeer/design-system";
 import { parseEther } from "ethers/lib/utils";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract, useSimulateContract } from "wagmi";
 
 const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
   const accountAddress = useAccountAddress();
@@ -17,16 +17,17 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(bondingManagerAddress),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(bondingManagerAddress) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "unbondWithHint",
     args: [BigInt(args.amount.toString()), newPosPrev, newPosNext],
   });
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+  const { data, isPending, writeContract, error, isSuccess } =
+    useWriteContract();
 
-  useHandleTransaction("unbond", data, error, isLoading, isSuccess, args);
+  useHandleTransaction("unbond", data, error, isPending, isSuccess, args);
 
   if (!accountAddress) {
     return null;
@@ -37,11 +38,11 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
       <Button
         size="4"
         variant="red"
-        disabled={disabled}
+        disabled={disabled || !config}
         css={{
           width: "100%",
         }}
-        onClick={write}
+        onClick={() => config && writeContract(config.request)}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
       </Button>

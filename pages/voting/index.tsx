@@ -72,7 +72,9 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+      >
         {loading ? (
           <Flex
             css={{
@@ -98,7 +100,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -127,9 +129,9 @@ const Voting = () => {
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">
@@ -141,84 +143,81 @@ const Voting = () => {
               {polls
                 .sort((a, b) => (a.endBlock < b.endBlock ? 1 : -1))
                 .map((poll) => (
-                  <Link
+                  <A
+                    as={Link}
                     key={poll.id}
-                    href="/voting/[poll]"
-                    as={`/voting/${poll.id}`}
+                    href={`/voting/${poll.id}`}
                     passHref
+                    css={{
+                      cursor: "pointer",
+                      display: "block",
+                      textDecoration: "none",
+                      "&:hover": { textDecoration: "none" },
+                    }}
                   >
-                    <A
+                    <Card
+                      variant="interactive"
                       css={{
-                        cursor: "pointer",
-                        display: "block",
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "none" },
+                        padding: "$4",
+                        marginBottom: "$3",
+                        border: "1px solid $neutral4",
                       }}
                     >
-                      <Card
-                        variant="interactive"
+                      <Flex
                         css={{
-                          p: "$4",
-                          mb: "$3",
-                          border: "1px solid $neutral4",
+                          flexDirection: "column-reverse",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          "@bp2": {
+                            flexDirection: "row",
+                            alignItems: "center",
+                          },
                         }}
                       >
-                        <Flex
+                        <Box>
+                          <Heading size="1" css={{ mb: "$1" }}>
+                            {poll.attributes?.title} (LIP {poll.attributes?.lip}
+                            )
+                          </Heading>
+                          <Box css={{ fontSize: "$1", color: "$neutral10" }}>
+                            {poll.status !== "active" ? (
+                              <Box>
+                                Voting ended on{" "}
+                                {dayjs
+                                  .unix(poll.estimatedEndTime)
+                                  .format("MMM D, YYYY")}
+                              </Box>
+                            ) : (
+                              <Box>
+                                Voting ends in ~
+                                {dayjs
+                                  .unix(poll.estimatedEndTime)
+                                  .fromNow(true)}
+                              </Box>
+                            )}
+                          </Box>
+                        </Box>
+                        <Badge
+                          size="2"
+                          variant={
+                            poll.status === "rejected"
+                              ? "red"
+                              : poll.status === "active"
+                              ? "blue"
+                              : poll.status === "passed"
+                              ? "primary"
+                              : "neutral"
+                          }
                           css={{
-                            flexDirection: "column-reverse",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            "@bp2": {
-                              flexDirection: "row",
-                              alignItems: "center",
-                            },
+                            textTransform: "capitalize",
+                            fontWeight: 700,
                           }}
                         >
-                          <Box>
-                            <Heading size="1" css={{ mb: "$1" }}>
-                              {poll.attributes?.title} (LIP {poll.attributes?.lip}
-                              )
-                            </Heading>
-                            <Box css={{ fontSize: "$1", color: "$neutral10" }}>
-                              {poll.status !== "active" ? (
-                                <Box>
-                                  Voting ended on{" "}
-                                  {dayjs
-                                    .unix(poll.estimatedEndTime)
-                                    .format("MMM D, YYYY")}
-                                </Box>
-                              ) : (
-                                <Box>
-                                  Voting ends in ~
-                                  {dayjs
-                                    .unix(poll.estimatedEndTime)
-                                    .fromNow(true)}
-                                </Box>
-                              )}
-                            </Box>
-                          </Box>
-                          <Badge
-                            size="2"
-                            variant={
-                              poll.status === "rejected"
-                                ? "red"
-                                : poll.status === "active"
-                                ? "blue"
-                                : poll.status === "passed"
-                                ? "primary"
-                                : "neutral"
-                            }
-                            css={{
-                              textTransform: "capitalize",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {sentenceCase(poll.status)}
-                          </Badge>
-                        </Flex>
-                      </Card>
-                    </A>
-                  </Link>
+                          {sentenceCase(poll.status)}
+                        </Badge>
+                      </Flex>
+                    </Card>
+                  </A>
                 ))}
             </Box>
           </Flex>

@@ -15,173 +15,181 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
   });
 
   return (
-    <>
+    <Flex
+      onClick={onDrawerOpen}
+      css={{
+        left: 0,
+        top: 0,
+        backgroundColor: "$panel",
+        zIndex: 100,
+        width: 240,
+        transition: ".3s",
+        transform: `translateX(${open ? 0 : "-100%"})`,
+        position: "fixed",
+        flexDirection: "column",
+        height: "100vh",
+        paddingTop: "$4",
+        paddingLeft: 24,
+        paddingRight: 24,
+        borderRight: "1px solid $colors$neutral4",
+        alignItems: "center",
+        justifyContent: "space-between",
+        "&:after": {
+          pointerEvents: "none",
+          content: '""',
+          position: "absolute",
+          height: "550px",
+          top: "0",
+          left: "0",
+          width: "100%",
+        },
+        "@bp2": {
+          paddingTop: "$4",
+        },
+        "@bp3": {
+          boxShadow: "none",
+          transform: "none",
+          position: "sticky",
+        },
+      }}
+    >
       <Flex
-        onClick={onDrawerOpen}
         css={{
-          left: 0,
-          top: 0,
-          backgroundColor: "$panel",
-          zIndex: 100,
-          width: 240,
-          transition: ".3s",
-          transform: `translateX(${open ? 0 : "-100%"})`,
-          position: "fixed",
+          alignSelf: "flex-start",
           flexDirection: "column",
-          height: "100vh",
-          pt: "$4",
-          px: 24,
-          borderRight: "1px solid $colors$neutral4",
-          alignItems: "center",
-          justifyContent: "space-between",
-          "&:after": {
-            pointerEvents: "none",
-            content: '""',
-            position: "absolute",
-            height: "550px",
-            top: "0",
-            left: "0",
-            width: "100%",
-          },
-          "@bp2": {
-            pt: "$4",
-          },
-          "@bp3": {
-            boxShadow: "none",
-            transform: "none",
-            position: "sticky",
-          },
+          width: "100%",
+          height: "100%",
         }}
       >
-        <Flex
-          css={{
-            alignSelf: "flex-start",
-            flexDirection: "column",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Logo isDark id="drawer" />
-          <Box css={{ mb: "auto" }}>
-            {items.map((item, i) => (
-              <Link key={i} href={item.href} as={item.as} passHref>
-                <A
-                  variant="subtle"
-                  css={{
-                    color:
-                      asPath.split("?")[0] === item.as
-                        ? "$hiContrast"
-                        : "$neutral11",
-                    lineHeight: "initial",
-                    display: "flex",
-                    fontSize: "$3",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    alignItems: "center",
-                    py: "$2",
-                    borderRadius: 5,
-                    transition: "color .3s",
-                    "&:hover": {
-                      textDecoration: "none",
-                      color: "$hiContrast",
-                      transition: "color .3s",
-                    },
-                  }}
-                >
-                  <Flex
-                    css={{
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 18,
-                      height: 18,
-                      mr: "$2",
-                    }}
-                  >
-                    <item.icon />
-                  </Flex>
-                  {item.name}
-                </A>
-              </Link>
-            ))}
-            <Account />
-          </Box>
-          <Box css={{ mb: "$4" }}>
-            <Box
+        <Logo isDark id="drawer" />
+        <Box css={{ marginBottom: "auto" }}>
+          {items.map((item, i) => (
+            <A
+              as={Link}
+              key={i}
+              href={item.href}
+              passHref
+              variant="subtle"
               css={{
-                pb: "$4",
+                color:
+                  asPath.split("?")[0] === item.as
+                    ? "$hiContrast"
+                    : "$neutral11",
+                lineHeight: "initial",
+                display: "flex",
+                fontSize: "$3",
+                fontWeight: 500,
+                cursor: "pointer",
+                alignItems: "center",
+                paddingTop: "$2",
+                paddingBottom: "$2",
+                borderRadius: 5,
+                transition: "color .3s",
+                "&:hover": {
+                  textDecoration: "none",
+                  color: "$hiContrast",
+                  transition: "color .3s",
+                },
               }}
             >
-              <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://livepeer.org"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Flex
+                css={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 18,
+                  height: 18,
+                  marginRight: "$2",
+                }}
               >
-                Livepeer.org
-              </A>
-              {IS_L2 && (
-                <Link href="/migrate" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    L2 Migration Tool
-                  </A>
-                </Link>
-              )}
+                <item.icon />
+              </Flex>
+              {item.name}
+            </A>
+          ))}
+          <Account />
+        </Box>
+        <Box css={{ marginBottom: "$4" }}>
+          <Box
+            css={{
+              paddingBottom: "$4",
+            }}
+          >
+            <A
+              css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
+              href="https://livepeer.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Livepeer.org
+            </A>
+            {IS_L2 && (
               <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://docs.livepeer.org"
-                target="_blank"
-                rel="noopener noreferrer"
+                as={Link}
+                href="/migrate"
+                passHref
+                css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
               >
-                Docs
+                L2 Migration Tool
               </A>
+            )}
+            <A
+              css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
+              href="https://docs.livepeer.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Docs
+            </A>
 
-              <UniswapModal
-                trigger={
-                  <A
-                    as={Text}
-                    css={{
-                      cursor: "pointer",
-                      fontSize: "$2",
-                      mb: "$2",
-                      display: "block",
-                    }}
-                  >
-                    Get LPT
-                  </A>
-                }
-              >
-                <Box
-                  as="iframe"
+            <UniswapModal
+              trigger={
+                <A
+                  as={Text}
                   css={{
-                    backgroundColor: "$panel",
-                    width: "100%",
-                    height: "100%",
-                    border: "0",
+                    cursor: "pointer",
+                    fontSize: "$2",
+                    marginBottom: "$2",
+                    display: "block",
                   }}
-                  src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
-                />
-              </UniswapModal>
-              <A
-                css={{ fontSize: "$2", mb: "$2", display: "block" }}
-                href="https://discord.gg/livepeer"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Discord
-              </A>
+                >
+                  Get LPT
+                </A>
+              }
+            >
+              <Box
+                as="iframe"
+                css={{
+                  backgroundColor: "$panel",
+                  width: "100%",
+                  height: "100%",
+                  border: "0",
+                }}
+                src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
+              />
+            </UniswapModal>
+            <A
+              css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
+              href="https://discord.gg/livepeer"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Discord
+            </A>
 
-              <Box>
-                <Link href="/whats-new" passHref>
-                  <A css={{ fontSize: "$2", mb: "$2", display: "block" }}>
-                    What&apos;s New
-                  </A>
-                </Link>
-              </Box>
+            <Box>
+              <A
+                as={Link}
+                href="/whats-new"
+                passHref
+                css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
+              >
+                What&apos;s New
+              </A>
             </Box>
           </Box>
-        </Flex>
+        </Box>
       </Flex>
-    </>
+    </Flex>
   );
 };
 

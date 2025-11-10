@@ -62,12 +62,13 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
         value={indexOfSelectedOption}
         onChange={handleSelectChange}
         css={{
-          py: "$1",
-          pl: "$2",
+          paddingTop: "$1",
+          paddingBottom: "$1",
+          paddingLeft: "$2",
           border: "none",
-          bc: "$panel",
+          backgroundColor: "$panel",
           appearance: "none",
-          pr: "$5",
+          paddingRight: "$5",
           maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
           "@bp2": {
             maxWidth: "100%", // Remove margin-bottom for larger screens
@@ -83,42 +84,58 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           </Box>
         ) : (
           <>
-            <Box as="option" disabled
+            <Box
+              as="option"
+              disabled
               css={{
-                py: "$1",
-                pl: "$2",
+                paddingTop: "$1",
+                paddingBottom: "$1",
+                paddingLeft: "$2",
                 border: "none",
-                bc: "$panel",
+                backgroundColor: "$panel",
                 appearance: "none",
-                pr: "$5",
-              }}>
+                paddingRight: "$5",
+              }}
+            >
               ----------------
             </Box>
-            <Box as="option" disabled
+            <Box
+              as="option"
+              disabled
               css={{
-                py: "$1",
-                pl: "$2",
+                paddingTop: "$1",
+                paddingBottom: "$1",
+                paddingLeft: "$2",
                 border: "none",
-                bc: "$panel",
+                backgroundColor: "$panel",
                 appearance: "none",
-                pr: "$5",
-              }}>
+                paddingRight: "$5",
+              }}
+            >
               AI Pipelines
             </Box>
-            <Box as="option" disabled
+            <Box
+              as="option"
+              disabled
               css={{
-                py: "$1",
-                pl: "$2",
+                paddingTop: "$1",
+                paddingBottom: "$1",
+                paddingLeft: "$2",
                 border: "none",
-                bc: "$panel",
+                backgroundColor: "$panel",
                 appearance: "none",
-                pr: "$5",
-              }}>
+                paddingRight: "$5",
+              }}
+            >
               ----------------
             </Box>
             {availPipelines?.pipelines?.map((p, pindex) =>
               p.models?.map((m, mindex) => (
-                <Box as="option" key={`${p.id}-${m}`} value={`${pindex},${mindex}`}>
+                <Box
+                  as="option"
+                  key={`${p.id}-${m}`}
+                  value={`${pindex},${mindex}`}
+                >
                   {p.id} - {m}
                 </Box>
               ))

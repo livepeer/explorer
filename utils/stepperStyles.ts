@@ -1,12 +1,13 @@
 export const stepperStyles = {
-  mb: "$5",
+  marginBottom: "$5",
   textAlign: "left",
   ".MuiPaper-root": {
     backgroundColor: "$inherit",
     color: "$hiContrast",
     p: 0,
     "@bp3": {
-      px: "$4",
+      paddingLeft: "$4",
+      paddingRight: "$4",
     },
   },
   ".MuiStepIcon-root": {
