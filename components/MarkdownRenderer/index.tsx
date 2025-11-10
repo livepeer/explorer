@@ -89,7 +89,7 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
 const MarkdownImage = React.memo(
   ({ src, alt, ...imgProps }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     if (!src) return null;
-    const cleanedSrc = src.replace(/\/+$/, "");
+    const cleanedSrc = (src as string)?.replace(/\/+$/, "") ?? "";
     return (
       <StyledImage
         src={cleanedSrc}
@@ -113,7 +113,7 @@ type MarkdownRendererProps = {
 const MarkdownRenderer = ({
   children,
   ...props
-}: MarkdownRendererProps): JSX.Element | null => {
+}: MarkdownRendererProps): React.ReactElement | null => {
   const safeChildren = typeof children === "string" ? children : "";
 
   const components: React.ComponentProps<

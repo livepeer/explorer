@@ -2,12 +2,12 @@ import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import {
-  Address,
-  UsePrepareContractWriteConfig,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
+  UseSimulateContractParameters,
+  useReadContract,
+  useWriteContract,
+  useSimulateContract,
 } from "wagmi";
+import { Address } from "viem";
 
 import { useMemo } from "react";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
@@ -30,8 +30,8 @@ const QueueExecuteButton = (
   const accountAddress = useAccountAddress();
   const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
-  const { data: eta } = useContractRead({
-    enabled: Boolean(livepeerGovernorAddress && proposal),
+  const { data: eta } = useReadContract({
+    query: { enabled: Boolean(livepeerGovernorAddress && proposal) },
     address: livepeerGovernorAddress,
     abi: livepeerGovernor,
     functionName: "proposalEta",
@@ -44,7 +44,7 @@ const QueueExecuteButton = (
       ? proposal.state === "Succeeded" // only enable queue if proposal is explicitly in Succeeded state
       : Boolean(eta) && Date.now() >= eta! * 1000n);
 
-  const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(
+  const preparedWriteConfig = useMemo<UseSimulateContractParameters>(
     () => ({
       enabled,
       address: livepeerGovernorAddress,
@@ -60,10 +60,11 @@ const QueueExecuteButton = (
     }),
     [action, enabled, livepeerGovernorAddress, proposal]
   );
-  const { config } = usePrepareContractWrite(preparedWriteConfig);
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+  const { data: config } = useSimulateContract(preparedWriteConfig);
+  const { data, isPending, writeContract, error, isSuccess } =
+    useWriteContract();
 
-  useHandleTransaction(action, data, error, isLoading, isSuccess, {
+  useHandleTransaction(action, data, error, isPending, isSuccess, {
     proposal,
   });
 
@@ -74,7 +75,8 @@ const QueueExecuteButton = (
   return (
     <Button
       onClick={() => {
-        write?.();
+        if (!config) return;
+        writeContract(config.request);
         onClick?.();
       }}
       disabled={!enabled}

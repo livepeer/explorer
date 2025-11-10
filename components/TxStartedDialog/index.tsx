@@ -50,11 +50,16 @@ const Index = () => {
             css={{ display: "flex", alignItems: "center" }}
           >
             <Spinner />
-            <Box css={{ px: "$1" }}>Success</Box>
+            <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
           </Badge>
         </Heading>
       </DialogTitle>
-      <DialogContent css={{ maxWidth: 370, width: "100%" }}>
+      <DialogContent
+        css={{ maxWidth: 370, width: "100%" }}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
+        placeholder={undefined}
+      >
         <Box>
           <Header tx={latestTransaction} />
           <Box>{Table({ tx: latestTransaction, account: account ?? "" })}</Box>
@@ -78,9 +83,9 @@ function Table({ tx, account }: { tx: TransactionStatus; account: string }) {
       css={{
         border: "1px solid $neutral5",
         borderRadius: "$4",
-        bc: "$neutral3",
-        mb: "$4",
-        p: "$3",
+        backgroundColor: "$neutral3",
+        marginBottom: "$4",
+        padding: "$3",
       }}
     >
       <Row>
@@ -179,12 +184,12 @@ function Row({ css = {}, children, ...props }) {
   return (
     <Flex
       css={{
-        mb: "$3",
+        marginBottom: "$3",
         alignItems: "center",
         justifyContent: "space-between",
         fontSize: "$3",
         "&:last-child": {
-          mb: 0,
+          marginBottom: 0,
         },
         ...css,
       }}
@@ -201,7 +206,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
       css={{
         alignItems: "center",
         justifyContent: "space-between",
-        mb: "$3",
+        marginBottom: "$3",
       }}
     >
       <Spinner />
@@ -210,13 +215,13 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Box>
       <A
         variant="primary"
-        css={{ display: "flex", ai: "center" }}
+        css={{ display: "flex", alignItems: "center" }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Details{" "}
-        <Box as={ExternalLinkIcon} css={{ ml: "6px", color: "$primary11" }} />
+        <Box as={ExternalLinkIcon} css={{ marginLeft: "6px", color: "$primary11" }} />
       </A>
     </Flex>
   );

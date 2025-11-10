@@ -16,47 +16,48 @@ const Account = () => {
   return accountAddress ? (
     <Box ref={ref} css={{ position: "relative" }}>
       <Flex css={{ alignItems: "center" }}>
-        <Link href={`/accounts/${accountAddress}/delegating`} passHref>
-          <A
-            variant="subtle"
-            css={{
-              color:
-                asPath.split("?")[0] ===
-                `/accounts/${accountAddress}/delegating`
-                  ? "$hiContrast"
-                  : "$neutral11",
-              display: "flex",
-              fontSize: "$3",
-              fontWeight: 500,
-              cursor: "pointer",
-              alignItems: "center",
-              py: "$2",
+        <A
+          as={Link}
+          href={`/accounts/${accountAddress}/delegating`}
+          passHref
+          variant="subtle"
+          css={{
+            color:
+              asPath.split("?")[0] === `/accounts/${accountAddress}/delegating`
+                ? "$hiContrast"
+                : "$neutral11",
+            display: "flex",
+            fontSize: "$3",
+            fontWeight: 500,
+            cursor: "pointer",
+            alignItems: "center",
+            paddingTop: "$2",
+            paddingBottom: "$2",
+            transition: "color .3s",
+            "&:hover": {
+              textDecoration: "none",
+              color: "$hiContrast",
               transition: "color .3s",
-              "&:hover": {
-                textDecoration: "none",
-                color: "$hiContrast",
-                transition: "color .3s",
-              },
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: 18,
+              height: 18,
+              marginRight: "$2",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <Flex
-              css={{
-                width: 18,
-                height: 18,
-                mr: "$2",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AccountIcon />
-            </Flex>
-            <Box>
-              {ens?.name
-                ? ens.name
-                : accountAddress.replace(accountAddress.slice(6, 38), "…")}
-            </Box>
-          </A>
-        </Link>
+            <AccountIcon />
+          </Flex>
+          <Box>
+            {ens?.name
+              ? ens.name
+              : accountAddress.replace(accountAddress.slice(6, 38), "…")}
+          </Box>
+        </A>
       </Flex>
     </Box>
   ) : (

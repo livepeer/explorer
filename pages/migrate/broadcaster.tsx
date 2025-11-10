@@ -50,7 +50,7 @@ const initialState = {
   title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
   stage: "connectWallet",
   body: (
-    <Text variant="neutral" css={{ mb: "$5" }}>
+    <Text variant="neutral" css={{ marginBottom: "$5" }}>
       This tool will safely migrate your broadcaster&apos;s deposit and reserve
       to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
     </Text>
@@ -66,7 +66,10 @@ const initialState = {
       >
         Migrate Broadcaster
       </Button>
-      <Text size="2" css={{ mt: "$2", fontWeight: 600, color: "$red11" }}>
+      <Text
+        size="2"
+        css={{ marginTop: "$2", fontWeight: 600, color: "$red11" }}
+      >
         Connect your wallet to continue.
       </Text>
     </Flex>
@@ -91,7 +94,7 @@ function reducer(state, action) {
         loading: false,
         receipts: null,
         body: (
-          <Text variant="neutral" css={{ mb: "$5" }}>
+          <Text variant="neutral" css={{ marginBottom: "$5" }}>
             This tool will safely migrate your broadcaster&apos;s deposit and
             reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -107,7 +110,10 @@ function reducer(state, action) {
         loading: true,
         title: "Initiate Migration",
         body: (
-          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+          <Text
+            variant="neutral"
+            css={{ display: "block", marginBottom: "$4" }}
+          >
             Confirm the transaction in your wallet. Note that the gas estimate
             shown in your wallet will include both the L1 fee and a small amount
             of ETH to cover L2 execution.
@@ -122,8 +128,14 @@ function reducer(state, action) {
         stage: "starting",
         title: "Starting Migration",
         body: (
-          <Box css={{ mb: "$4" }}>
-            <Text css={{ display: "block", color: "$neutral11", mb: "$4" }}>
+          <Box css={{ marginBottom: "$4" }}>
+            <Text
+              css={{
+                display: "block",
+                color: "$neutral11",
+                marginBottom: "$4",
+              }}
+            >
               Confirming on {CHAIN_INFO[L1_CHAIN_ID].label}
             </Text>
           </Box>
@@ -144,7 +156,10 @@ function reducer(state, action) {
         title: "Migration Complete",
         image: "/img/arbitrum.svg",
         body: (
-          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+          <Text
+            variant="neutral"
+            css={{ display: "block", marginBottom: "$4" }}
+          >
             Your broadcaster&apos;s deposit and reserve have been migrated to{" "}
             {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -172,7 +187,7 @@ function reducer(state, action) {
         loading: false,
         receipts: null,
         body: (
-          <Text variant="neutral" css={{ mb: "$5" }}>
+          <Text variant="neutral" css={{ marginBottom: "$5" }}>
             This tool will safely migrate your broadcaster&apos;s deposit and
             reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -237,8 +252,11 @@ const MigrateBroadcaster = () => {
         type: "enRoute",
         payload: {
           body: (
-            <Box css={{ mb: "$4" }}>
-              <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
                 Estimated time remaining: {minutes}:
                 {seconds.toString().padStart(2, "0")}
               </Text>
@@ -420,8 +438,10 @@ const MigrateBroadcaster = () => {
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
-          args: [ state.signer ? state.signer : accountAddress,
-            state.signer ? state.signer : accountAddress],
+          args: [
+            state.signer ? state.signer : accountAddress,
+            state.signer ? state.signer : accountAddress,
+          ],
         });
 
         dispatch({
@@ -514,7 +534,7 @@ const MigrateBroadcaster = () => {
                 onClick={handleNext}
                 size="4"
                 variant="primary"
-                css={{ mt: "$4" }}
+                css={{ marginTop: "$4" }}
               >
                 Continue
               </Button>
@@ -568,7 +588,7 @@ const MigrateBroadcaster = () => {
 
         return (
           <Box>
-            <Text css={{ mb: "$3" }}>
+            <Text css={{ marginBottom: "$3" }}>
               Run the Livepeer CLI and select the option to &quot;Sign typed
               data&quot;. When prompted for the typed data message to sign, copy
               and paste the following message.
@@ -584,7 +604,7 @@ const MigrateBroadcaster = () => {
               {JSON.stringify(payload)}
             </CodeBlock>
 
-            <Text css={{ mb: "$2" }}>
+            <Text css={{ marginBottom: "$2" }}>
               The CLI will generate a signed message signature. It should begin
               with “0x”. Paste it here.
             </Text>
@@ -595,7 +615,7 @@ const MigrateBroadcaster = () => {
               size="3"
             />
             {signature && (
-              <Text size="1" css={{ mt: "$1", mb: "$1" }}>
+              <Text size="1" css={{ marginTop: "$1", marginBottom: "$1" }}>
                 {validSignature
                   ? "Valid"
                   : `Invalid. Message must be signed by ${state.migrationParams.l1Addr}`}
@@ -607,7 +627,7 @@ const MigrateBroadcaster = () => {
                 variant={validSignature ? "primary" : "neutral"}
                 onClick={handleNext}
                 size="4"
-                css={{ mt: "$4", mr: "$2" }}
+                css={{ marginTop: "$4", marginRight: "$2" }}
               >
                 Continue
               </Button>
@@ -622,20 +642,20 @@ const MigrateBroadcaster = () => {
       case 2:
         return (
           <Box>
-            <Text css={{ mb: "$3" }}>
+            <Text css={{ marginBottom: "$3" }}>
               Approve migration on behalf of your account.
             </Text>
             {state.migrationParams && (
               <MigrationFields
                 migrationParams={state.migrationParams}
-                css={{ mb: "$5" }}
+                css={{ marginBottom: "$5" }}
               />
             )}
             <Box>
               <Button
                 size="4"
                 variant="primary"
-                css={{ mr: "$2" }}
+                css={{ marginRight: "$2" }}
                 onClick={onApprove}
               >
                 Approve Migration
@@ -656,7 +676,7 @@ const MigrateBroadcaster = () => {
       size="2"
       css={{
         maxWidth: 650,
-        mt: "$8",
+        marginTop: "$8",
         width: "100%",
         "@bp3": {
           width: 650,
@@ -665,22 +685,28 @@ const MigrateBroadcaster = () => {
     >
       <Card
         css={{
-          pt: "$5",
+          paddingTop: "$5",
           borderRadius: "$4",
           backgroundColor: "$panel",
           border: "1px solid $neutral5",
-          mb: "$8",
+          marginBottom: "$8",
         }}
       >
-        <Box css={{ px: "$5" }}>
-          <Box css={{ mx: "auto", textAlign: "center" }}>
-            <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
+        <Box css={{ paddingLeft: "$5", paddingRight: "$5" }}>
+          <Box
+            css={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              textAlign: "center",
+            }}
+          >
+            <Heading size="2" css={{ marginBottom: "$2", fontWeight: 600 }}>
               {state.title}
             </Heading>
             {state?.body && <Box>{state.body}</Box>}
 
             {state.image && (
-              <Box css={{ textAlign: "center", mb: "$5" }}>
+              <Box css={{ textAlign: "center", marginBottom: "$5" }}>
                 <Box as="img" src={state.image} />
               </Box>
             )}
@@ -727,7 +753,7 @@ const MigrateBroadcaster = () => {
           </Box>
 
           {state.loading && (
-            <Flex css={{ justifyContent: "center", mb: "$7" }}>
+            <Flex css={{ justifyContent: "center", marginBottom: "$7" }}>
               <Spinner
                 speed="1.5s"
                 css={{
@@ -740,7 +766,7 @@ const MigrateBroadcaster = () => {
             </Flex>
           )}
           {state?.receipts && (
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               {state?.receipts?.l1 && (
                 <ReceiptLink
                   label="Etherscan"
@@ -763,7 +789,7 @@ const MigrateBroadcaster = () => {
             <Button
               size="4"
               variant="primary"
-              css={{ mr: "$2", width: "100%" }}
+              css={{ marginRight: "$2", width: "100%" }}
               onClick={onApprove}
             >
               Approve Migration
@@ -773,7 +799,7 @@ const MigrateBroadcaster = () => {
             <Text
               size="1"
               variant="neutral"
-              css={{ mt: "$3", textAlign: "center" }}
+              css={{ marginTop: "$3", textAlign: "center" }}
             >
               {state.footnote}
             </Text>
@@ -784,11 +810,13 @@ const MigrateBroadcaster = () => {
           justify="center"
           direction="column"
           css={{
-            px: "$4",
-            py: "$3",
+            paddingLeft: "$4",
+            paddingRight: "$4",
+            paddingTop: "$3",
+            paddingBottom: "$3",
             borderTop: "1px dashed $neutral4",
             textAlign: "center",
-            mt: "$5",
+            marginTop: "$5",
           }}
         >
           <Button
@@ -800,7 +828,7 @@ const MigrateBroadcaster = () => {
             ghost
           >
             Discord Support Channel{" "}
-            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+            <Box css={{ marginLeft: "$1" }} as={ArrowTopRightIcon} />
           </Button>
         </Flex>
       </Card>
@@ -851,14 +879,14 @@ function ReceiptLink({ label, hash, chainId }) {
   return (
     <Box
       css={{
-        jc: "center",
+        justifyContent: "center",
         display: "flex",
-        ai: "center",
+        alignItems: "center",
       }}
     >
       <Text variant="neutral">{label}:</Text>
       <A
-        css={{ ml: "$2", display: "flex", ai: "center" }}
+        css={{ marginLeft: "$2", display: "flex", alignItems: "center" }}
         variant="primary"
         target="_blank"
         rel="noopener noreferrer"

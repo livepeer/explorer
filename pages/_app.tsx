@@ -1,45 +1,43 @@
 import { fetcher } from "@lib/axios";
 import { ApolloProvider } from "@apollo/client";
 import { IdProvider } from "@radix-ui/react-id";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import "@rainbow-me/rainbowkit/styles.css";
 import rainbowTheme from "constants/rainbowTheme";
+import {
+  getDefaultConfig,
+  RainbowKitProvider,
+  type Locale,
+} from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, INFURA_KEY, L1_CHAIN } from "lib/chains";
+import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, L1_CHAIN } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { infuraProvider } from "wagmi/providers/infura";
-import { publicProvider } from "wagmi/providers/public";
+import { WagmiProvider } from "wagmi";
 import { useApollo } from "../apollo";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
+
+const queryClient = new QueryClient();
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
 
-  const { route } = useRouter();
+  const { route, locale } = useRouter();
 
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
-  const { config, chains, layoutKey } = useMemo(() => {
-    const { chains, publicClient } = configureChains(
-      [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN],
-      [infuraProvider({ apiKey: INFURA_KEY ?? "" }), publicProvider()]
-    );
+  const { config, layoutKey } = useMemo(() => {
+    const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN] as _chains;
 
-    const { connectors } = getDefaultWallets({
+    const config = getDefaultConfig({
       appName: "Livepeer Explorer",
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
-    });
-
-    const config = createConfig({
-      autoConnect: true,
-      connectors,
-      publicClient,
+      ssr: true,
     });
 
     return {
@@ -61,31 +59,33 @@ function App({ Component, pageProps, fallback = null }) {
         client={client}
       >
         <TooltipPrimitive.Provider>
-          <WagmiConfig config={config}>
-            <RainbowKitProvider
-              showRecentTransactions={true}
-              appInfo={{
-                appName: "Livepeer Explorer",
-                learnMoreUrl: "https://livepeer.org/primer",
-              }}
-              theme={rainbowTheme}
-              chains={chains}
-            >
-              <SWRConfig
-                value={{
-                  loadingTimeout: 40000,
-                  fetcher: fetcher,
-                  fallback: fallback ?? {},
+          <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+              <RainbowKitProvider
+                appInfo={{
+                  appName: "Livepeer Explorer",
+                  learnMoreUrl: "https://livepeer.org/primer",
                 }}
+                locale={locale as Locale}
+                showRecentTransactions={true}
+                theme={rainbowTheme}
               >
-                <CookiesProvider>
-                  <IdProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                  </IdProvider>
-                </CookiesProvider>
-              </SWRConfig>
-            </RainbowKitProvider>
-          </WagmiConfig>
+                <SWRConfig
+                  value={{
+                    loadingTimeout: 40000,
+                    fetcher: fetcher,
+                    fallback: fallback ?? {},
+                  }}
+                >
+                  <CookiesProvider>
+                    <IdProvider>
+                      {getLayout(<Component {...pageProps} />)}
+                    </IdProvider>
+                  </CookiesProvider>
+                </SWRConfig>
+              </RainbowKitProvider>
+            </QueryClientProvider>
+          </WagmiProvider>
         </TooltipPrimitive.Provider>
       </ApolloProvider>
     </>

@@ -29,7 +29,7 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract, useSimulateContract } from "wagmi";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 
 const StyledTab = styled(Tab, {
@@ -130,8 +130,8 @@ const CreateProposal = () => {
       transferTokenFunctionData &&
       description
   );
-  const { config } = usePrepareContractWrite({
-    enabled: txEnabled,
+  const { data: config } = useSimulateContract({
+    query: { enabled: txEnabled },
     address: contractAddresses.LivepeerGovernor?.address,
     abi: livepeerGovernor,
     functionName: "propose",
@@ -145,13 +145,13 @@ const CreateProposal = () => {
   const {
     data: proposeResult,
     status,
-    isLoading,
-    write,
+    isPending,
+    writeContract,
     error,
     isSuccess,
-  } = useContractWrite(config);
+  } = useWriteContract();
 
-  useHandleTransaction("propose", proposeResult, error, isLoading, isSuccess, {
+  useHandleTransaction("propose", proposeResult, error, isPending, isSuccess, {
     proposal: description,
   });
 
@@ -168,8 +168,8 @@ const CreateProposal = () => {
       >
         <Flex
           css={{
-            mt: "$6",
-            mb: "$4",
+            marginTop: "$6",
+            marginBottom: "$4",
             alignItems: "flex-end",
             justifyContent: "space-between",
           }}
@@ -189,8 +189,11 @@ const CreateProposal = () => {
           onSubmit={async (e) => {
             e.preventDefault();
             try {
+              if (!config) {
+                throw new Error("No config for proposal");
+              }
               console.log("submitting!");
-              write?.();
+              writeContract(config.request);
             } catch (err: any) {
               console.error(err);
               return {
@@ -243,10 +246,10 @@ const CreateProposal = () => {
                     backgroundColor: "$panel",
 
                     // Apply same card styling as proposal page.
-                    p: "$4",
+                    padding: "$4",
                     // border: "1px solid $neutral4",
                     // mb: "$3",
-                                    }}
+                  }}
                 >
                   <MarkdownRenderer>
                     {`# ${formTitle}\n${formDescription}`}
@@ -257,7 +260,7 @@ const CreateProposal = () => {
           </Tabs>
           <Flex
             css={{
-              mt: "$5",
+              marginTop: "$5",
               alignItems: "center",
               justifyContent: "flex-start",
             }}
@@ -266,7 +269,7 @@ const CreateProposal = () => {
               LPT receiver:
             </Text>
             <TextField
-              css={{ ml: "$2", mr: "$3", width: 420 }}
+              css={{ marginLeft: "$2", marginRight: "$3", width: 420 }}
               name="lpt-receiver"
               placeholder="Ethereum Address (0x...)"
               size="3"
@@ -279,7 +282,12 @@ const CreateProposal = () => {
               Amount:
             </Text>
             <TextField
-              css={{ ml: "$2", mr: "$1", width: 200, minWidth: 100 }}
+              css={{
+                marginLeft: "$2",
+                marginRight: "$1",
+                width: 200,
+                minWidth: 100,
+              }}
               name="lpt-amount"
               placeholder="Amount in LPT"
               type="number"
@@ -305,7 +313,7 @@ const CreateProposal = () => {
 
           <Flex
             css={{
-              mt: "$5",
+              marginTop: "$5",
               alignItems: "center",
               justifyContent: "flex-end",
             }}
@@ -316,7 +324,9 @@ const CreateProposal = () => {
               </Box>
             ) : !votingPower ? (
               <>
-                <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
+                <Box css={{ marginRight: "$3" }}>
+                  Loading Staked LPT Balance
+                </Box>
                 <Spinner />
               </>
             ) : (
@@ -334,12 +344,19 @@ const CreateProposal = () => {
                 <Button
                   size="3"
                   variant="primary"
-                  disabled={!sufficientStake || status !== "idle" || !txEnabled}
+                  disabled={
+                    !sufficientStake ||
+                    status !== "idle" ||
+                    !txEnabled ||
+                    !config
+                  }
                   type="submit"
-                  css={{ ml: "$3", alignSelf: "flex-end" }}
+                  css={{ marginLeft: "$3", alignSelf: "flex-end" }}
                 >
                   Create Proposal{" "}
-                  {status === "loading" && <Spinner css={{ ml: "$2" }} />}
+                  {status === "pending" && (
+                    <Spinner css={{ marginLeft: "$2" }} />
+                  )}
                 </Button>
               </>
             )}

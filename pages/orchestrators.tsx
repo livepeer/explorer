@@ -35,32 +35,35 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$5",
+            marginTop: "$5",
             width: "100%",
           }}
         >
           <Flex
             align="center"
-            css={{ mb: "$3", justifyContent: "space-between" }}
+            css={{ marginBottom: "$3", justifyContent: "space-between" }}
           >
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
             </Heading>
             {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
               process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <Link href="/leaderboard" passHref>
+              <A as={Link} href="/leaderboard" passHref>
                 <Button
                   ghost
-                  as={A}
-                  css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                  css={{
+                    color: "$hiContrast",
+                    fontSize: "$2",
+                    marginRight: "$2",
+                  }}
                 >
                   Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                  <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                 </Button>
-              </Link>
+              </A>
             )}
           </Flex>
-          <Box css={{ mb: "$5" }}>
+          <Box css={{ marginBottom: "$5" }}>
             <OrchestratorList
               data={orchestrators?.transcoders}
               pageSize={20}

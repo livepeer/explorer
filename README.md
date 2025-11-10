@@ -1,28 +1,28 @@
 # Livepeer Explorer
 
-![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen) 
-![Yarn](https://img.shields.io/badge/yarn-%3E%3D1.22.0-blue)
+![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen) 
+![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9.15.0-blue)
 
 ## Prerequisites
 
 Before getting started, ensure you have the following installed on your system:
 
-- [Node.js 20.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
-- [Yarn v1.22.x](https://yarnpkg.com/getting-started/install) - enabling corepack should be sufficient
+- [Node.js 22.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
+- [pnpm v9.15.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
 
 > [!TIP]
 > Use `nvm install` or `asdf install` to automatically switch to the correct versions.
 
 ## Getting Started
 
-To run the Livepeer Explorer application, follow these steps to set up your environment correctly. This involves installing Yarn, installing dependencies, and configuring environment variables.
+To run the Livepeer Explorer application, follow these steps to set up your environment correctly. This involves installing pnpm, installing dependencies, and configuring environment variables.
 
 ### Install Runtime Dependencies
 
-With Yarn installed, navigate to the root directory of the project and install all runtime dependencies using:
+With pnpm installed, navigate to the root directory of the project and install all runtime dependencies using:
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ### Setup Environment Variables
@@ -44,7 +44,7 @@ Before running the application, you must configure your environment variables:
 To run the application in development mode, which enables hot-reloading (automatic server restarts upon code changes), use the following command:
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 This will start the application and deploy changes to your browser without needing to restart the server manually.
@@ -58,7 +58,7 @@ To run the application in production mode, follow these steps:
    Compile and optimize the application for production by running:
 
    ```bash
-   yarn build
+   pnpm build
    ```
 
 2. **Start the Production Server:**
@@ -66,7 +66,7 @@ To run the application in production mode, follow these steps:
    After building, start the application in production mode with:
 
    ```bash
-   yarn start
+   pnpm start
    ```
 
 ## Key Environment Variables

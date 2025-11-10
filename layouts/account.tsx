@@ -4,7 +4,7 @@ import Profile from "@components/Profile";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { useRouter } from "next/router";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
 
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
@@ -79,9 +79,9 @@ const AccountLayout = ({
     pollInterval,
   });
 
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
-    enabled: Boolean(bondingManagerAddress),
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+    query: { enabled: Boolean(bondingManagerAddress) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
@@ -140,13 +140,13 @@ const AccountLayout = ({
         <Flex
           css={{
             flexDirection: "column",
-            mb: "$6",
-            pr: 0,
-            pt: "$4",
+            marginBottom: "$6",
+            paddingRight: 0,
+            paddingTop: "$4",
             width: "100%",
             "@bp3": {
-              pt: "$6",
-              pr: "$7",
+              paddingTop: "$6",
+              paddingRight: "$7",
             },
           }}
         >
@@ -159,7 +159,7 @@ const AccountLayout = ({
           <Flex
             css={{
               display: "flex",
-              mb: "$4",
+              marginBottom: "$4",
               "@bp3": {
                 display: "none",
               },
@@ -179,7 +179,7 @@ const AccountLayout = ({
                 <SheetTrigger asChild>
                   <Button
                     variant="primary"
-                    css={{ mr: "$3" }}
+                    css={{ marginRight: "$3" }}
                     size="4"
                     onClick={(event) => {
                       event.stopPropagation();
@@ -189,7 +189,13 @@ const AccountLayout = ({
                     Delegate
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" css={{ height: "initial" }}>
+                <SheetContent
+                  css={{ height: "initial" }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
+                  side="bottom"
+                >
                   <DelegatingWidget
                     transcoders={sortedOrchestrators?.transcoders as any}
                     delegator={dataMyAccount?.delegator}
@@ -221,7 +227,13 @@ const AccountLayout = ({
                       Undelegate
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="bottom" css={{ height: "initial" }}>
+                  <SheetContent
+                    side="bottom"
+                    css={{ height: "initial" }}
+                    placeholder={undefined}
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                  >
                     <DelegatingWidget
                       transcoders={sortedOrchestrators?.transcoders}
                       delegator={dataMyAccount?.delegator}
@@ -250,25 +262,28 @@ const AccountLayout = ({
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
-              <Link scroll={false} key={i} href={tab.href} passHref>
-                <A
-                  variant="subtle"
-                  css={{
-                    color: tab.isActive ? "$hiContrast" : "$neutral11",
-                    mr: "$4",
-                    pb: "$2",
-                    fontSize: "$3",
-                    fontWeight: 500,
-                    borderBottom: "2px solid",
-                    borderColor: tab.isActive ? "$primary11" : "transparent",
-                    "&:hover": {
-                      textDecoration: "none",
-                    },
-                  }}
-                >
-                  {tab.name}
-                </A>
-              </Link>
+              <A
+                as={Link}
+                scroll={false}
+                key={i}
+                href={tab.href}
+                passHref
+                variant="subtle"
+                css={{
+                  color: tab.isActive ? "$hiContrast" : "$neutral11",
+                  marginRight: "$4",
+                  paddingBottom: "$2",
+                  fontSize: "$3",
+                  fontWeight: 500,
+                  borderBottom: "2px solid",
+                  borderColor: tab.isActive ? "$primary11" : "transparent",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+              >
+                {tab.name}
+              </A>
             ))}
           </Box>
           {view === "orchestrating" && (
@@ -297,7 +312,7 @@ const AccountLayout = ({
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "40%",
                   display: "flex",
                 },

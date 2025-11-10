@@ -9,7 +9,7 @@ import {
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useWriteContract, useSimulateContract } from "wagmi";
 import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({
@@ -30,8 +30,8 @@ const Delegate = ({
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(livepeerTokenAddress && bondingManagerAddress),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(livepeerTokenAddress && bondingManagerAddress) },
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
@@ -39,11 +39,11 @@ const Delegate = ({
   });
   const {
     data: approveData,
-    isLoading: approveIsLoading,
-    write: approveWrite,
+    isPending: approveIsLoading,
+    writeContract: approveWrite,
     error: approveError,
     isSuccess: approveIsSuccess,
-  } = useContractWrite(config);
+  } = useWriteContract();
 
   useHandleTransaction(
     "approve",
@@ -66,8 +66,8 @@ const Delegate = ({
     currDelegateNewPosNext,
   };
 
-  const { config: bondWithHintConfig } = usePrepareContractWrite({
-    enabled: Boolean(to),
+  const { data: bondWithHintConfig } = useSimulateContract({
+    query: { enabled: Boolean(to) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "bondWithHint",
@@ -82,11 +82,11 @@ const Delegate = ({
   });
   const {
     data: bondData,
-    isLoading: bondIsLoading,
-    write: bondWrite,
+    isPending: bondIsLoading,
+    writeContract: bondWrite,
     isSuccess: bondIsSuccess,
     error: bondError,
-  } = useContractWrite(bondWithHintConfig);
+  } = useWriteContract();
 
   useHandleTransaction(
     "bond",
@@ -125,9 +125,12 @@ const Delegate = ({
 
   const onApprove = async () => {
     try {
+      if (!config) {
+        throw new Error("No config for approve");
+      }
       setApprovalSubmitted(true);
 
-      approveWrite?.();
+      approveWrite(config.request);
     } catch (e) {
       console.log(e);
     }
@@ -135,7 +138,10 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      bondWrite?.();
+      if (!bondWithHintConfig) {
+        throw new Error("No config for bond with hint");
+      }
+      bondWrite(bondWithHintConfig.request);
     } catch (e) {
       console.error(e);
     }
