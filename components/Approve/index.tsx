@@ -30,6 +30,7 @@ const Index = () => {
   return (
     <Button
       color="primary"
+      disabled={!config}
       onClick={() => config && writeContract(config.request)}
     >
       Approve

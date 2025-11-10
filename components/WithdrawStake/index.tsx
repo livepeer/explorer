@@ -29,10 +29,11 @@ const Index = ({ unbondingLockId }: any) => {
   return (
     <>
       <Button
-        variant="primary"
-        size="3"
-        onClick={() => config && writeContract(config.request)}
         css={{ paddingTop: "$2", paddingBottom: "$2", marginRight: "$3" }}
+        disabled={!config}
+        onClick={() => config && writeContract(config.request)}
+        size="3"
+        variant="primary"
       >
         Withdraw
       </Button>

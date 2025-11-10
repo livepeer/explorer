@@ -52,11 +52,11 @@ const CheckpointButton = ({
   return (
     <Button
       {...props}
+      disabled={disabled || !config}
+      ghost
+      onClick={() => config && writeContract(config.request)}
       size="3"
       variant="transparentBlack"
-      ghost
-      disabled={disabled}
-      onClick={() => config && writeContract(config.request)}
     >
       {children}
     </Button>

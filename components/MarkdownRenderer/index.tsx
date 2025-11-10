@@ -1,7 +1,7 @@
 import { styled } from "@livepeer/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import React, { JSX } from "react";
+import React from "react";
 import { isImageUrl } from "@lib/utils";
 
 const StyledTable = styled("table", {
@@ -113,7 +113,7 @@ type MarkdownRendererProps = {
 const MarkdownRenderer = ({
   children,
   ...props
-}: MarkdownRendererProps): JSX.Element | null => {
+}: MarkdownRendererProps): React.ReactElement | null => {
   const safeChildren = typeof children === "string" ? children : "";
 
   const components: React.ComponentProps<

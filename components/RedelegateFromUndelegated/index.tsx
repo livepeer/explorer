@@ -39,10 +39,11 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }: any) => {
   return (
     <>
       <Button
-        variant="primary"
-        size="3"
-        onClick={() => config && writeContract(config.request)}
         css={{ marginRight: "$3" }}
+        disabled={!config}
+        onClick={() => config && writeContract(config.request)}
+        size="3"
+        variant="primary"
       >
         Redelegate
       </Button>

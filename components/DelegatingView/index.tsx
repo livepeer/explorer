@@ -335,13 +335,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
-                  variant="primary"
-                  size="4"
                   css={{
                     marginTop: "$3",
                     width: "100%",
                   }}
+                  disabled={!config}
                   onClick={() => config && writeContract(config.request)}
+                  size="4"
+                  variant="primary"
                 >
                   Withdraw Pending Fees
                 </Button>

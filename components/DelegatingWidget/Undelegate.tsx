@@ -38,7 +38,7 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }: any) => {
       <Button
         size="4"
         variant="red"
-        disabled={disabled}
+        disabled={disabled || !config}
         css={{
           width: "100%",
         }}

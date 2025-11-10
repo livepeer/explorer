@@ -344,7 +344,12 @@ const CreateProposal = () => {
                 <Button
                   size="3"
                   variant="primary"
-                  disabled={!sufficientStake || status !== "idle" || !txEnabled}
+                  disabled={
+                    !sufficientStake ||
+                    status !== "idle" ||
+                    !txEnabled ||
+                    !config
+                  }
                   type="submit"
                   css={{ marginLeft: "$3", alignSelf: "flex-end" }}
                 >
