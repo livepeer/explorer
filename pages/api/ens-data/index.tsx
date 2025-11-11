@@ -1,13 +1,10 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
-
-const timeout = <T,>(prom: Promise<T>, time: number) =>
-  Promise.race([prom, new Promise<T>((_r, rej) => setTimeout(rej, time))]);
 
 const handler = async (
   req: NextApiRequest,
@@ -39,6 +36,9 @@ const handler = async (
               }
           `,
           }),
+        },
+        {
+          retryOnMethods: ["POST"],
         }
       );
 

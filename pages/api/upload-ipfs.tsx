@@ -1,5 +1,4 @@
 import { AddIpfs } from "@lib/api/types/add-ipfs";
-import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (

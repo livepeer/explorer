@@ -50,7 +50,7 @@ export async function fetchWithRetry(
   const method = (init.method || "GET").toUpperCase();
   const allowRetry = retryOnMethods.includes(method);
 
-  const originalReq = new Request(input as any, init);
+  const originalReq = new Request(input, init);
 
   let lastResponse: Response | undefined;
   let lastError: unknown;
