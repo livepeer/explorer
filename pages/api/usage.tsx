@@ -11,6 +11,7 @@ import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
 import utc from "dayjs/plugin/utc";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -27,7 +28,7 @@ const chartDataHandler = async (
       const cutoffDate = 1692489600000;
       const currentDate = Date.now();
 
-      const response = await fetch(
+      const response = await fetchWithRetry(
         `https://livepeer.com/data/usage/query/total?from=${cutoffDate}&to=${currentDate}`,
         {
           headers: {
