@@ -37,7 +37,7 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
       body: JSON.stringify({ query }),
     },
     {
-      retryOnMethods: ["GET", "HEAD", "PUT", "DELETE", "OPTIONS", "POST"],
+      retryOnMethods: ["POST"],
     }
   );
 

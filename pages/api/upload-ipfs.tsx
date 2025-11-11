@@ -10,7 +10,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "POST") {
-      const fetchResult = await fetchWithRetry(
+      const fetchResult = await fetch(
         `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
         {
           method: "POST",
@@ -19,9 +19,6 @@ const handler = async (
             Authorization: `Bearer ${process.env.PINATA_JWT}`,
           },
           body: JSON.stringify(req.body),
-        },
-        {
-          retryOnMethods: ["GET", "HEAD", "PUT", "DELETE", "OPTIONS", "POST"],
         }
       );
       const result = await fetchResult.json();

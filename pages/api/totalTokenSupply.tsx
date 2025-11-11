@@ -22,7 +22,7 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
       }),
     },
     {
-      retryOnMethods: ["GET", "HEAD", "PUT", "DELETE", "OPTIONS", "POST"],
+      retryOnMethods: ["POST"],
     }
   );
 
