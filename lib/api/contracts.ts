@@ -9,12 +9,8 @@ export const getL1MigratorAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator;
 export const getL2MigratorAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator;
-export const getInboxAddress = (): Address =>
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox;
 export const getArbRetryableTxAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.arbRetryableTx;
-export const getNodeInterfaceAddress = (): Address =>
-  CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface;
 export const getPollCreatorAddress = (): Address =>
   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.pollCreator;
 

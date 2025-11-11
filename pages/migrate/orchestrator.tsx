@@ -17,11 +17,7 @@ import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import {
-  getInboxAddress,
-  getL1MigratorAddress,
-  getNodeInterfaceAddress,
-} from "@lib/api/contracts";
+import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
@@ -193,9 +189,7 @@ function reducer(state, action) {
   }
 }
 
-const inboxAddress = getInboxAddress();
 const l1MigratorAddress = getL1MigratorAddress();
-const nodeInterfaceAddress = getNodeInterfaceAddress();
 
 const MigrateOrchestrator = () => {
   const router = useRouter();
