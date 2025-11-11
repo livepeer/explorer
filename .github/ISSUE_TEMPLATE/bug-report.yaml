@@ -1,0 +1,113 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in our project.
+title: ""
+labels: ["needs-triage"]
+type: bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thanks for reporting a bug!**
+        Please fill out the details below to help us reproduce and resolve it quickly.
+
+  - type: textarea
+    id: describe-bug
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the issue here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: to-reproduce
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: Describe what should have happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+      placeholder: Paste image links or upload screenshots here.
+
+  # Desktop Section
+  - type: input
+    id: desktop-os
+    attributes:
+      label: Desktop OS
+      description: e.g. macOS, Windows, Linux
+      placeholder: ex. macOS Ventura 13.4
+  - type: input
+    id: desktop-browser
+    attributes:
+      label: Desktop Browser
+      description: e.g. Chrome, Safari, Edge
+      placeholder: ex. Chrome 122.0.0
+  - type: input
+    id: desktop-wallet
+    attributes:
+      label: Desktop Wallet
+      description: Which wallet are you using?
+      placeholder: ex. MetaMask, Rabby, Phantom
+  - type: input
+    id: desktop-version
+    attributes:
+      label: Desktop App/Extension Version
+      placeholder: ex. v1.2.3
+
+  # Smartphone Section
+  - type: input
+    id: smartphone-device
+    attributes:
+      label: Smartphone Device
+      description: e.g. iPhone 14, Pixel 7
+      placeholder: ex. iPhone 14
+  - type: input
+    id: smartphone-os
+    attributes:
+      label: Smartphone OS
+      description: e.g. iOS 17.1, Android 14
+      placeholder: ex. iOS 17.1
+  - type: input
+    id: smartphone-browser
+    attributes:
+      label: Smartphone Browser
+      description: e.g. Safari, Chrome, Brave
+      placeholder: ex. Safari
+  - type: input
+    id: smartphone-wallet
+    attributes:
+      label: Smartphone Wallet
+      description: Which wallet are you using on mobile?
+      placeholder: ex. MetaMask, Rainbow, Coinbase Wallet
+  - type: input
+    id: smartphone-version
+    attributes:
+      label: Smartphone App/Extension Version
+      placeholder: ex. v1.2.3
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+      placeholder: Any other information that might help us debug.
