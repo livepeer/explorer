@@ -1,4 +1,5 @@
 import { AddIpfs } from "@lib/api/types/add-ipfs";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -9,7 +10,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "POST") {
-      const fetchResult = await fetch(
+      const fetchResult = await fetchWithRetry(
         `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
         {
           method: "POST",
@@ -18,6 +19,9 @@ const handler = async (
             Authorization: `Bearer ${process.env.PINATA_JWT}`,
           },
           body: JSON.stringify(req.body),
+        },
+        {
+          retryOnMethods: ["GET", "HEAD", "PUT", "DELETE", "OPTIONS", "POST"],
         }
       );
       const result = await fetchResult.json();
