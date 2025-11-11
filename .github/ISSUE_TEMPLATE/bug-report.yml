@@ -1,6 +1,5 @@
 name: Bug Report
 description: Report a bug or unexpected behavior in our project.
-title: ""
 labels: ["needs-triage"]
 type: bug
 
