@@ -3,14 +3,11 @@ import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "@lib/dayjs";
 import { useEnsData } from "hooks";
 import Link from "next/link";
 import numeral from "numeral";
 import { useCallback, useMemo } from "react";
-
-dayjs.extend(relativeTime);
 
 export const FILTERED_EVENT_TYPENAMES = [
   "MintEvent",
@@ -66,14 +63,17 @@ const Transaction = (props: { id: string | undefined }) => {
     >
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
-        <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
+        <Box
+          css={{ marginLeft: "$1", width: 15, height: 15 }}
+          as={ArrowTopRightIcon}
+        />
       </Badge>
     </A>
   );
 };
 
 const renderEmoji = (emoji: string) => (
-  <Box as="span" css={{ ml: 6 }}>
+  <Box as="span" css={{ marginLeft: 6 }}>
     {emoji}
   </Box>
 );

@@ -6,7 +6,7 @@ import {
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
 } from "apollo";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
