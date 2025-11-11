@@ -36,8 +36,8 @@ import {
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../utils/stepperStyles";
+import { isAddress } from "viem";
 
 const signingSteps = [
   `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -464,11 +464,11 @@ const MigrateBroadcaster = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (isValidAddress(signerAddress) && state.showSigningSteps) {
+      if (isAddress(signerAddress) && state.showSigningSteps) {
         dispatch({
           type: "updateSigner",
           payload: {
-            signer: isValidAddress(signerAddress),
+            signer: isAddress(signerAddress),
           },
         });
       } else {
@@ -583,8 +583,7 @@ const MigrateBroadcaster = () => {
         }
 
         const validSignature =
-          isValidAddress(signer) ===
-          isValidAddress(state.migrationParams.l1Addr);
+          isAddress(signer) === isAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
