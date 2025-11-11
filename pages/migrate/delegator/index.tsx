@@ -34,7 +34,7 @@ import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { stepperStyles } from "../../../utils/stepperStyles";
-import { isAddress } from "viem";
+import { getAddress, isAddress } from "viem";
 
 const signingSteps = [
   `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -448,7 +448,7 @@ const MigrateUndelegatedStake = () => {
         dispatch({
           type: "updateSigner",
           payload: {
-            signer: isAddress(signerAddress),
+            signer: getAddress(signerAddress),
           },
         });
       } else {
@@ -565,7 +565,7 @@ const MigrateUndelegatedStake = () => {
         }
 
         const validSignature =
-          isAddress(signer) === isAddress(state.migrationParams.l1Addr);
+          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>

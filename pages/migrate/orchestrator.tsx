@@ -33,7 +33,7 @@ import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { stepperStyles } from "../../utils/stepperStyles";
-import { isAddress } from "viem";
+import { getAddress, isAddress } from "viem";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -430,7 +430,7 @@ const MigrateOrchestrator = () => {
           dispatch({
             type: "updateSigner",
             payload: {
-              signer: isAddress(signerAddress),
+              signer: getAddress(signerAddress),
             },
           });
         } else {
@@ -555,7 +555,7 @@ const MigrateOrchestrator = () => {
         }
 
         const validSignature =
-          isAddress(signer) === isAddress(state.migrationParams.delegate);
+          getAddress(signer) === getAddress(state.migrationParams.delegate);
 
         return (
           <Box>
