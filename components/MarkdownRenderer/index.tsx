@@ -1,6 +1,7 @@
 import { styled } from "@livepeer/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import React from "react";
 import { isImageUrl } from "@lib/utils";
 
@@ -175,6 +176,7 @@ const MarkdownRenderer = ({
   return (
     <StyledReactMarkdown
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
       components={components}
       {...props}
     >
