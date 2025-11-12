@@ -9,6 +9,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 const chartDataHandler = async (
   req: NextApiRequest,
@@ -21,7 +22,7 @@ const chartDataHandler = async (
       const cutoffDate = 1692489600000;
       const currentDate = Date.now();
 
-      const response = await fetch(
+      const response = await fetchWithRetry(
         `https://livepeer.com/data/usage/query/total?from=${cutoffDate}&to=${currentDate}`,
         {
           headers: {
