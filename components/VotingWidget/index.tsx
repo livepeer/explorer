@@ -13,8 +13,7 @@ import {
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import dayjs from "@lib/dayjs";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
@@ -23,8 +22,6 @@ import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";
-
-dayjs.extend(duration);
 
 type Props = {
   poll: PollExtended;

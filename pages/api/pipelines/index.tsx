@@ -1,5 +1,6 @@
 import { getCacheControlHeader } from "@lib/api";
 import { AvailablePipelines } from "@lib/api/types/get-available-pipelines";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -14,12 +15,11 @@ const handler = async (
 
       const { region } = req.query;
       const url = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/pipelines${region ? `?region=${region}` : ""}`;
-      const pipelinesResponse = await fetch(url)
+      const pipelinesResponse = await fetchWithRetry(url)
         .then((res) => res.json())
         .catch((e) => {
-          return { pipelines: []};
-        }
-      );
+          return { pipelines: [] };
+        });
       const availablePipelines: AvailablePipelines = await pipelinesResponse;
       return res.status(200).json(availablePipelines);
     }

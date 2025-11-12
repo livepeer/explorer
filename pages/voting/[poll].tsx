@@ -17,7 +17,7 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
@@ -31,9 +31,7 @@ import FourZeroFour from "../404";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
-import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
-dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 

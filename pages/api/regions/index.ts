@@ -1,10 +1,11 @@
 import { getCacheControlHeader } from "@lib/api";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Regions, Region } from "@lib/api/types/get-regions";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 const METRICS_URL = [
   process.env.NEXT_PUBLIC_METRICS_SERVER_URL,
-  process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
+  process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL,
 ];
 
 /**
@@ -12,9 +13,11 @@ const METRICS_URL = [
  * @param url - The URL to fetch regions from.
  * @returns Returns a promise that resolves to the regions or null if the fetch fails.
  */
-const fetchRegions = async (url: string | undefined): Promise<Regions | null> => {
+const fetchRegions = async (
+  url: string | undefined
+): Promise<Regions | null> => {
   if (!url) return null;
-  const response = await fetch(`${url}/api/regions`);
+  const response = await fetchWithRetry(`${url}/api/regions`);
   return response.ok ? response.json() : null;
 };
 

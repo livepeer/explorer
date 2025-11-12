@@ -1,17 +1,14 @@
 import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import dayjs from "@lib/dayjs";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import VoteButton from "../VoteButton";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { ProposalExtended } from "@lib/api/treasury";
 import QueueExecuteButton from "@components/QueueExecuteButton";
 import TreasuryVotingReason from "@components/TreasuryVotingReason";
-
-dayjs.extend(duration);
 
 type Props = {
   proposal: ProposalExtended;

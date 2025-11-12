@@ -4,17 +4,26 @@ import {
   WeeklyData,
 } from "@lib/api/types/get-chart-data";
 import { getPercentChange } from "@lib/utils";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
-import utc from "dayjs/plugin/utc";
-import weekOfYear from "dayjs/plugin/weekOfYear";
+import { z } from "zod";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
-// format dayjs with the libraries that we need
-dayjs.extend(utc);
-dayjs.extend(weekOfYear);
+
+// Parse schema zod for DayData
+const DayDataSchema = z.array(z.object({
+  dateS: z.number(),
+  volumeEth: z.number().nullish().transform((val) => val ?? 0),
+  volumeUsd: z.number().nullish().transform((val) => val ?? 0),
+  feeDerivedMinutes: z.number().nullish().transform((val) => val ?? 0),
+  participationRate: z.number().nullish().transform((val) => val ?? 0),
+  inflation: z.number().nullish().transform((val) => val ?? 0),
+  activeTranscoderCount: z.number().nullish().transform((val) => val ?? 0),
+  delegatorsCount: z.number().nullish().transform((val) => val ?? 0),
+}));
 
 const chartDataHandler = async (
   req: NextApiRequest,
@@ -27,7 +36,7 @@ const chartDataHandler = async (
       const cutoffDate = 1692489600000;
       const currentDate = Date.now();
 
-      const response = await fetch(
+      const response = await fetchWithRetry(
         `https://livepeer.com/data/usage/query/total?from=${cutoffDate}&to=${currentDate}`,
         {
           headers: {
@@ -40,12 +49,17 @@ const chartDataHandler = async (
         const errorBody = await response
           .text()
           .catch(() => "Could not read error body");
-        console.error("API request failed:", response.status, errorBody);
+        console.error("[api/usage] API request failed:", response.status, errorBody);
 
         return res.status(500).json(null);
       }
 
-      const newApiData: DayData[] = await response.json();
+      const parsedDayData = await response.json().then((data) => DayDataSchema.safeParse(data));
+
+      if (!parsedDayData.success) {
+        console.error(parsedDayData.error);
+        return res.status(500).json(null);
+      }
 
       const mergedDayData: DayData[] = [
         ...historicalDayData.map((day) => ({
@@ -58,7 +72,7 @@ const chartDataHandler = async (
           activeTranscoderCount: Number(day.activeTranscoderCount),
           delegatorsCount: Number(day.delegatorsCount),
         })),
-        ...newApiData,
+        ...parsedDayData.data,
       ];
 
       const sortedDays = mergedDayData
@@ -87,8 +101,7 @@ const chartDataHandler = async (
 
           weeklyData[startIndexWeekly].weeklyVolumeUsd += day.volumeUsd;
           weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
-          weeklyData[startIndexWeekly].weeklyUsageMinutes +=
-            day.feeDerivedMinutes;
+          weeklyData[startIndexWeekly].weeklyUsageMinutes += day.feeDerivedMinutes;
         }
 
         // const currentWeekData = weeklyData[weeklyData.length - 1];

@@ -3,8 +3,10 @@ import {
   AllPerformanceMetrics, RegionalValues
 } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { avg } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { MetricsResponse, PriceResponse, avg } from "./[address]";
+import { MetricsResponse, PriceResponse } from "./[address]";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 const handler = async (
   req: NextApiRequest,
@@ -22,12 +24,18 @@ const handler = async (
         ? process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
         : process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
 
-      const metricsResponse = await fetch(
-        `${baseUrl}/api/aggregated_stats${pipeline ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}` : ""}`
+      const metricsResponse = await fetchWithRetry(
+        `${baseUrl}/api/aggregated_stats${
+          pipeline
+            ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}`
+            : ""
+        }`
       ).then((res) => res.json());
 
       const metrics: MetricsResponse = await metricsResponse;
-      const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl);
+      const response = await fetchWithRetry(
+        CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl
+      );
       const transcodersWithPrice: PriceResponse = await response.json();
 
       const allTranscoderIds = Object.keys(metrics);
