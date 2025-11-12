@@ -19,7 +19,7 @@ import { CodeBlock } from "@components/CodeBlock";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
