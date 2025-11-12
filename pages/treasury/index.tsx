@@ -7,17 +7,14 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useCurrentRoundData } from "hooks";
 import TreasuryProposalRow from "@components/TreasuryProposalRow";
 import { parseProposalText } from "@lib/api/treasury";
 import { useMemo } from "react";
-dayjs.extend(relativeTime);
 
 const pollInterval = 20000;
 

@@ -2,7 +2,7 @@ import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
-import { checkAddressEquality } from "@lib/utils";
+import { avg, checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 
 type Metric = {
@@ -41,15 +41,6 @@ export type PriceResponse = {
   PricePerPixel: number;
   UpdatedAt: number;
 }[];
-
-export function avg(obj, key) {
-  if (!obj || !key) {
-    return 0;
-  }
-  const arr = Object.values(obj);
-  const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-  return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
-}
 
 const handler = async (
   req: NextApiRequest,

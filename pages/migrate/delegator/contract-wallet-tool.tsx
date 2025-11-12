@@ -1,6 +1,5 @@
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
-import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import {
   Box,
   Card,
@@ -12,21 +11,10 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ethers } from "ethers";
-import {
-
-  useL1DelegatorData,
-
-} from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-  l2Provider,
-} from "lib/chains";
-import { useEffect, useState } from "react";
+import { useL1DelegatorData } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import { useState } from "react";
 import useForm from "react-hook-form";
-import { isValidAddress } from "utils/validAddress";
 
 const ReadOnlyCard = styled(Box, {
   length: {},
