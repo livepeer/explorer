@@ -1,17 +1,14 @@
 import Stat from "@components/Stat";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import numeral from "numeral";
 import Masonry from "react-masonry-css";
 
 import { AccountQueryResult } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useScoreData } from "hooks";
 import { useMemo } from "react";
 import { useRegionsData } from "hooks/useSwr";
-
-dayjs.extend(relativeTime);
 
 const breakpointColumnsObj = {
   default: 2,
@@ -86,7 +83,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   return (
     <Box
       css={{
-        pt: "$4",
+        paddingTop: "$4",
         ".masonry-grid": {
           display: "flex",
           marginLeft: "-$3",
@@ -123,23 +120,29 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Status"
           tooltip={`The status of the orchestrator on the network.`}
-          value={isActive ? `Active ${transcoder?.activationTimestamp ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true) : ""}` : "Inactive"}
+          value={
+            isActive
+              ? `Active ${
+                  transcoder?.activationTimestamp
+                    ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true)
+                    : ""
+                }`
+              : "Inactive"
+          }
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top Transcoding Regional Score"
           tooltip={`The Orchestrator's score for its best operational transcodingregion in the past 24 hours.`}
-          value={
-            maxScoreOutput
-          }
+          value={maxScoreOutput}
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top AI Regional Score"
           tooltip={`The Orchestrator's score for its best operational AI region in the past 24 hours${maxAIScoreOutput.modelText}.`}
-          value={
-            maxAIScoreOutput.score
-          }
+          value={maxAIScoreOutput.score}
         />
         <Stat
           className="masonry-grid_item"
@@ -179,7 +182,11 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.feeShare? numeral(1 - (+(transcoder?.feeShare || 0)) / 1000000).format("0%"):"N/A"}
+          value={
+            transcoder?.feeShare
+              ? numeral(1 - +(transcoder?.feeShare || 0) / 1000000).format("0%")
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -187,7 +194,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.rewardCut? numeral(transcoder?.rewardCut || 0).divide(1000000).format("0%"): "N/A"}
+          value={
+            transcoder?.rewardCut
+              ? numeral(transcoder?.rewardCut || 0)
+                  .divide(1000000)
+                  .format("0%")
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -196,7 +209,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
           value={
-            transcoder ? `${callsMade}/${transcoder?.pools?.length ?? 0}` : "N/A"
+            transcoder
+              ? `${callsMade}/${transcoder?.pools?.length ?? 0}`
+              : "N/A"
           }
         />
         {transcoder?.lastRewardRound?.id && (
@@ -214,12 +229,20 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     {transcoder.lastRewardRound.id === currentRound?.id ? (
                       <Box
                         as={CheckIcon}
-                        css={{ fontSize: "$3", color: "$green11", ml: "$2" }}
+                        css={{
+                          fontSize: "$3",
+                          color: "$green11",
+                          marginLeft: "$2",
+                        }}
                       />
                     ) : (
                       <Box
                         as={Cross1Icon}
-                        css={{ fontSize: "$2", color: "$red11", ml: "$2" }}
+                        css={{
+                          fontSize: "$2",
+                          color: "$red11",
+                          marginLeft: "$2",
+                        }}
                       />
                     )}
                   </Flex>

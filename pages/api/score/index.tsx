@@ -3,8 +3,9 @@ import {
   AllPerformanceMetrics, RegionalValues
 } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { avg } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { MetricsResponse, PriceResponse, avg } from "./[address]";
+import { MetricsResponse, PriceResponse } from "./[address]";
 
 const handler = async (
   req: NextApiRequest,

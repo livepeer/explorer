@@ -4,17 +4,11 @@ import {
   WeeklyData,
 } from "@lib/api/types/get-chart-data";
 import { getPercentChange } from "@lib/utils";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
-import utc from "dayjs/plugin/utc";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-
-// format dayjs with the libraries that we need
-dayjs.extend(utc);
-dayjs.extend(weekOfYear);
 
 const chartDataHandler = async (
   req: NextApiRequest,

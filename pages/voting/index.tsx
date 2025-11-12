@@ -11,17 +11,15 @@ import {
   styled,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { usePollsQuery } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useCurrentRoundData } from "hooks";
 import { sentenceCase } from "change-case";
-dayjs.extend(relativeTime);
 
 export const Status = styled("div", {
   length: {},
