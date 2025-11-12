@@ -16,7 +16,7 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import Head from "next/head";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
@@ -32,7 +32,6 @@ import {
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
-import relativeTime from "dayjs/plugin/relativeTime";
 import numeral from "numeral";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
@@ -41,8 +40,6 @@ import { decodeFunctionData } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
-
-dayjs.extend(relativeTime);
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 

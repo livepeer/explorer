@@ -1,18 +1,21 @@
-import { AccountQueryResult, OrchestratorsSortedQueryResult, UnbondingLock } from "apollo";
+import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { StakingAction } from "hooks";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
-import Numeral from "numeral";
+import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
+import { isAddress } from "viem";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );
 
 export function avg(obj, key) {
+  if (!obj || !key) {
+    return 0;
+  }
   const arr = Object.values(obj);
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-  return (arr.reduce(sum)?.[key] ?? 0) / arr.length;
+  return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
 }
 
 export const EMPTY_ADDRESS = ethers.constants.AddressZero;
@@ -30,22 +33,6 @@ export const abbreviateNumber = (value, precision = 3) => {
   newValue += suffixes[suffixNum];
 
   return newValue;
-};
-
-export const numberWithCommas = (x) => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-export const getDelegationStatusColor = (status) => {
-  if (status === "Bonded") {
-    return "$primary";
-  } else if (status === "Unbonding") {
-    return "yellow";
-  } else if (status === "Pending") {
-    return "blue";
-  } else {
-    return "$muted";
-  }
 };
 
 export const getDelegatorStatus = (
@@ -248,49 +235,6 @@ export const simulateNewActiveSetOrder = ({
   return transcoders.sort((a, b) => +a.totalStake - +b.totalStake);
 };
 
-export const isAddress = (address: string) => {
-  try {
-    ethers.utils.getAddress(address);
-  } catch (e) {
-    return false;
-  }
-  return true;
-};
-
-export const priceFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
-
-export const toK = (num) => {
-  return Numeral(num).format("0.[00]a");
-};
-
-/**
- * gets the amount difference plus the % change in change itself (second order change)
- * @param {*} valueNow
- * @param {*} valueAsOfPeriodOne
- * @param {*} valueAsOfPeriodTwo
- */
-export const getTwoPeriodPercentChange = (
-  valueNow: number,
-  valueAsOfPeriodOne: number,
-  valueAsOfPeriodTwo: number
-) => {
-  // get volume info for both 24 hour periods
-  const currentChange = valueNow - valueAsOfPeriodOne;
-  const previousChange = valueAsOfPeriodOne - valueAsOfPeriodTwo;
-
-  const adjustedPercentChange =
-    ((currentChange - previousChange) / previousChange) * 100;
-
-  if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
-    return [currentChange, 0];
-  }
-  return [currentChange, adjustedPercentChange];
-};
-
 /**
  * get standard percent change between two values
  * @param {*} valueNow
@@ -307,85 +251,12 @@ export const getPercentChange = (valueNow, value24HoursAgo) => {
   return adjustedPercentChange;
 };
 
-type LivepeerComUsageParams = {
-  fromTime: number;
-  toTime: number;
-};
-
-export const getLivepeerComUsageData = async (
-  params?: LivepeerComUsageParams
-) => {
-  try {
-    const endpoint = `https://livepeer.com/api/usage${
-      params ? `?fromTime=${params.fromTime}&toTime=${params.toTime}` : ""
-    }`;
-    const livepeerComUsageDataReponse = await fetch(endpoint, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.LIVEPEER_COM_API_ADMIN_TOKEN}`,
-      },
-    });
-    const livepeerComUsageData = await livepeerComUsageDataReponse.json();
-
-    // convert date format from milliseconds to seconds before merging
-    const arr =
-      livepeerComUsageData?.map((day) => ({
-        ...day,
-        date: day.date / 1000,
-      })) ?? [];
-    return arr as any;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-export const getTotalFeeDerivedMinutes = ({
-  totalVolumeETH,
-  totalVolumeUSD,
-  pricePerPixel,
-  pixelsPerMinute,
-}): number => {
-  const ethDaiRate = totalVolumeETH / totalVolumeUSD;
-  const usdAveragePricePerPixel = pricePerPixel / ethDaiRate;
-  const feeDerivedMinutes =
-    totalVolumeUSD / usdAveragePricePerPixel / pixelsPerMinute || 0;
-  return feeDerivedMinutes;
-};
-
-export const scientificToDecimal = (x) => {
-  if (Math.abs(x) < 1.0) {
-    const e = parseInt(x.toString().split("e-")[1]);
-    if (e) {
-      x *= Math.pow(10, e - 1);
-      x = "0." + new Array(e).join("0") + x.toString().substring(2);
-    }
-  } else {
-    let e = parseInt(x.toString().split("+")[1]);
-    if (e > 20) {
-      e -= 20;
-      x /= Math.pow(10, e);
-      x += new Array(e + 1).join("0");
-    }
-  }
-  return x;
-};
-
-export function roundToTwo(num) {
-  return Math.round(num * 100 + Number.EPSILON) / 100;
-}
-
-export function toTitleCase(str) {
-  return str.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  });
-}
-
 export const fromWei = (wei: BigNumberish) => formatEther(wei);
 
 export const toWei = (ether: BigNumberish) =>
   parseUnits(ether.toString(), "ether").toBigInt();
 
-/** 
+/**
  * Check if a URL is an image URL.
  * @param url - The URL to check
  * @returns Whether the URL is an image URL.

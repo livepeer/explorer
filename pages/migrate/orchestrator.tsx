@@ -17,11 +17,7 @@ import { useEffect, useReducer, useState } from "react";
 
 import { CodeBlock } from "@components/CodeBlock";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import {
-  getInboxAddress,
-  getL1MigratorAddress,
-  getNodeInterfaceAddress,
-} from "@lib/api/contracts";
+import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
@@ -36,8 +32,8 @@ import {
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { isValidAddress } from "utils/validAddress";
 import { stepperStyles } from "../../utils/stepperStyles";
+import { getAddress, isAddress } from "viem";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -193,9 +189,7 @@ function reducer(state, action) {
   }
 }
 
-const inboxAddress = getInboxAddress();
 const l1MigratorAddress = getL1MigratorAddress();
-const nodeInterfaceAddress = getNodeInterfaceAddress();
 
 const MigrateOrchestrator = () => {
   const router = useRouter();
@@ -431,12 +425,12 @@ const MigrateOrchestrator = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (isValidAddress(signerAddress)) {
+      if (isAddress(signerAddress)) {
         if (!state.isOrchestrator) {
           dispatch({
             type: "updateSigner",
             payload: {
-              signer: isValidAddress(signerAddress),
+              signer: getAddress(signerAddress),
             },
           });
         } else {
@@ -561,8 +555,7 @@ const MigrateOrchestrator = () => {
         }
 
         const validSignature =
-          isValidAddress(signer) ===
-          isValidAddress(state.migrationParams.delegate);
+          getAddress(signer) === getAddress(state.migrationParams.delegate);
 
         return (
           <Box>

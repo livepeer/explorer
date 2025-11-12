@@ -4,19 +4,13 @@ import {
   WeeklyData,
 } from "@lib/api/types/get-chart-data";
 import { getPercentChange } from "@lib/utils";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { getCacheControlHeader } from "@lib/api";
 import { historicalDayData } from "data/historical-usage";
-import utc from "dayjs/plugin/utc";
-import weekOfYear from "dayjs/plugin/weekOfYear";
 import { z } from "zod";
-
-
-// format dayjs with the libraries that we need
-dayjs.extend(utc);
-dayjs.extend(weekOfYear);
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 
 // Parse schema zod for DayData
@@ -42,7 +36,7 @@ const chartDataHandler = async (
       const cutoffDate = 1692489600000;
       const currentDate = Date.now();
 
-      const response = await fetch(
+      const response = await fetchWithRetry(
         `https://livepeer.com/data/usage/query/total?from=${cutoffDate}&to=${currentDate}`,
         {
           headers: {

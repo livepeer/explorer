@@ -5,14 +5,20 @@ import UniswapModal from "../UniswapModal";
 import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
+import { useEffect } from "react";
 
 const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
   const router = useRouter();
   const { asPath } = router;
 
-  Router.events.on("routeChangeStart", () => {
-    onDrawerClose();
-  });
+  useEffect(() => {
+    const onStart = () => onDrawerClose();
+    Router.events.on("routeChangeStart", onStart);
+    
+    return () => {
+      Router.events.off("routeChangeStart", onStart);
+    };
+  }, []);
 
   return (
     <Flex

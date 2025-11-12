@@ -1,7 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { checkAddressEquality } from "@lib/utils";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
+import { avg, checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 
 type Metric = {
@@ -12,10 +13,10 @@ type Metric = {
 
 export type MetricsResponse = {
   [key: string]:
-      | {
+    | {
         [key: string]: Metric;
-    }
-  | undefined;
+      }
+    | undefined;
 };
 
 type ScoreResponse = {
@@ -41,15 +42,6 @@ export type PriceResponse = {
   UpdatedAt: number;
 }[];
 
-export function avg(obj, key) {
-  if (!obj || !key) {
-    return 0;
-  }
-  const arr = Object.values(obj);
-  const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
-  return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
-}
-
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<PerformanceMetrics | null>
@@ -66,8 +58,8 @@ const handler = async (
         const transcoderId = address.toLowerCase();
 
         // Fetch the top AI score.
-        const topScoreResponse = await fetch(
-           `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
+        const topScoreResponse = await fetchWithRetry(
+          `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
         );
         if (!topScoreResponse.ok) {
           return res.status(500).end("Failed to fetch top AI score");
@@ -75,8 +67,8 @@ const handler = async (
         const topAIScore: ScoreResponse = await topScoreResponse.json();
 
         // Fetch aggregated metrics.
-        const metricsResponse = await fetch(
-           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
+        const metricsResponse = await fetchWithRetry(
+          `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
         );
         if (!metricsResponse.ok) {
           return res.status(500).end("Failed to fetch metrics");
@@ -84,7 +76,7 @@ const handler = async (
         const metrics: MetricsResponse = await metricsResponse.json();
 
         // Fetch Transcoder price.
-        const response = await fetch(
+        const response = await fetchWithRetry(
           `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`
         );
         if (!response.ok) {
@@ -94,38 +86,56 @@ const handler = async (
         const transcoderWithPrice = transcodersWithPrice.find((t) =>
           checkAddressEquality(t.Address, transcoderId)
         );
-        
+
         const uniqueRegions = (() => {
           const keys = new Set<string>();
-          Object.values(metrics).forEach(metric => {
+          Object.values(metrics).forEach((metric) => {
             if (metric) {
-              Object.keys(metric).forEach(key => keys.add(key));
+              Object.keys(metric).forEach((key) => keys.add(key));
             }
           });
           return Array.from(keys);
         })();
 
-        const createMetricsObject = (metricKey: string, transcoderId: string, metrics: MetricsResponse): RegionalValues => {
-          const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
-            const val = metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
-            if(val !== null && val !== "")
-              acc[metricsRegionKey] = (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ?? 0) * 100 || 0;
-            return acc;
-          }, {} as RegionalValues);
+        const createMetricsObject = (
+          metricKey: string,
+          transcoderId: string,
+          metrics: MetricsResponse
+        ): RegionalValues => {
+          const metricsObject: RegionalValues = uniqueRegions.reduce(
+            (acc, metricsRegionKey) => {
+              const val =
+                metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
+              if (val !== null && val !== "")
+                acc[metricsRegionKey] =
+                  (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ??
+                    0) * 100 || 0;
+              return acc;
+            },
+            {} as RegionalValues
+          );
 
           // Define a global key that is the average of the other keys
           const globalValue = avg(metrics[transcoderId], metricKey) * 100;
           const finalMetricsObject: RegionalValues = {
             ...metricsObject,
-            GLOBAL: globalValue
+            GLOBAL: globalValue,
           };
           return finalMetricsObject;
         };
 
         const combined: PerformanceMetrics = {
           pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
-          successRates: createMetricsObject("success_rate", transcoderId, metrics),
-          roundTripScores: createMetricsObject("round_trip_score", transcoderId, metrics),
+          successRates: createMetricsObject(
+            "success_rate",
+            transcoderId,
+            metrics
+          ),
+          roundTripScores: createMetricsObject(
+            "round_trip_score",
+            transcoderId,
+            metrics
+          ),
           scores: createMetricsObject("score", transcoderId, metrics),
           topAIScore: topAIScore,
         };

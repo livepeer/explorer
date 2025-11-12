@@ -1,19 +1,12 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import dayjs from "dayjs";
+import dayjs from "@lib/dayjs";
 import numeral from "numeral";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart as ReBarChart,
-  Cell,
   Line,
   LineChart as ReLineChart,
   ResponsiveContainer,
