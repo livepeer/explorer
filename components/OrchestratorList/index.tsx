@@ -48,7 +48,6 @@ import {
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
-
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useReadContract } from "wagmi";
 
@@ -82,6 +81,17 @@ const AvatarWrapper = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasAvatarError, setHasAvatarError] = useState(false);
 
+  const avatarContainerStyles = {
+    marginRight: "$2",
+    borderRadius: 1000,
+    width: 24,
+    height: 24,
+    maxWidth: 24,
+    maxHeight: 24,
+    overflow: "hidden",
+    position: "relative",
+  } as const;
+
   useEffect(() => {
     setImageLoaded(false);
     setHasAvatarError(false);
@@ -94,14 +104,7 @@ const AvatarWrapper = ({
     return (
       <Box
         css={{
-          marginRight: "$2",
-          borderRadius: 1000,
-          width: 24,
-          height: 24,
-          maxWidth: 24,
-          maxHeight: 24,
-          overflow: "hidden",
-          position: "relative",
+          ...avatarContainerStyles,
         }}
       >
         {awaitingEnsData ? (
@@ -126,14 +129,7 @@ const AvatarWrapper = ({
   return (
     <Box
       css={{
-        marginRight: "$2",
-        borderRadius: 1000,
-        width: 24,
-        height: 24,
-        maxWidth: 24,
-        maxHeight: 24,
-        position: "relative",
-        overflow: "hidden",
+        ...avatarContainerStyles,
       }}
     >
       {!imageLoaded && (
