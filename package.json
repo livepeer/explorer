@@ -7,7 +7,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -28,7 +28,7 @@
     "@types/react-table": "^7.7.20",
     "@types/recharts": "^1.8.23",
     "@types/sanitize-html": "^2.6.2",
-    "eslint": "8.20.0",
+    "eslint": "^9.39.0",
     "eslint-config-next": "16.0.1",
     "typechain": "^8.1.0",
     "typescript": "5.1.6"
