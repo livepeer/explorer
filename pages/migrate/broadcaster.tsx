@@ -42,6 +42,8 @@ const signingSteps = [
   "Approve migration",
 ];
 
+const randomNumber = Math.random();
+
 const initialState = {
   title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
   stage: "connectWallet",
@@ -201,6 +203,8 @@ const MigrateBroadcaster = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const [render, setRender] = useState(false);
+
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
     setTimeout(() => {
@@ -219,7 +223,6 @@ const MigrateBroadcaster = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -453,7 +456,6 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.signer, accountAddress]);
 
   useEffect(() => {
@@ -588,7 +590,7 @@ const MigrateBroadcaster = () => {
             </Text>
 
             <CodeBlock
-              key={Math.random()}
+              key={randomNumber}
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
@@ -829,21 +831,21 @@ const MigrateBroadcaster = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
         <Box>
           {migrationParams.l1Addr.replace(
@@ -852,11 +854,11 @@ function MigrationFields({ migrationParams, css = {} }) {
           )}
         </Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Deposit</Box>
         <Box>{ethers.utils.formatEther(migrationParams.deposit)} ETH</Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Reserve</Box>
         <Box>{ethers.utils.formatEther(migrationParams.reserve)} ETH</Box>
       </ReadOnlyCard>

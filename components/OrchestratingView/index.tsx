@@ -34,30 +34,31 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const maxScore = useMemo(
-    () =>
-      {
-        const topTransData = Object.keys(scores?.scores ?? {}).reduce(
-          (prev, curr) => {
-            const score = scores?.scores[curr];
-            const region = knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
-            if (score && score >= prev.score && !region.toLowerCase().startsWith("global")) {
-              return {
-                region: region,
-                score: scores?.scores[curr],
-              };
-            }
-            return prev;
-          },
-          { region: "N/A", score: 0 }
-        );
-        return {
-          transcoding: topTransData,
-          ai: scores?.topAIScore,
+  const maxScore = useMemo(() => {
+    const topTransData = Object.keys(scores?.scores ?? {}).reduce(
+      (prev, curr) => {
+        const score = scores?.scores[curr];
+        const region =
+          knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
+        if (
+          score &&
+          score >= prev.score &&
+          !region.toLowerCase().startsWith("global")
+        ) {
+          return {
+            region: region,
+            score: scores?.scores[curr],
+          };
         }
+        return prev;
       },
-    [scores]
-  );
+      { region: "N/A", score: 0 }
+    );
+    return {
+      transcoding: topTransData,
+      ai: scores?.topAIScore,
+    };
+  }, [knownRegions?.regions, scores]);
 
   const maxScoreOutput = useMemo(() => {
     const outputTrans = maxScore.transcoding?.score && maxScore.transcoding?.score > 0
@@ -70,15 +71,24 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   , [maxScore]);
 
   const maxAIScoreOutput = useMemo(() => {
-    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0
-    const region = knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ?? "N/A";
-    const aiInfo = outputAI
-      ? (<>{numeral(maxScore.ai?.value).format("0.0%")} - {region}</>)
-      : "";
-    return outputAI?
-      {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
-  }
-  , [maxScore]);
+    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
+    const region =
+      knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ??
+      "N/A";
+    const aiInfo = outputAI ? (
+      <>
+        {numeral(maxScore.ai?.value).format("0.0%")} - {region}
+      </>
+    ) : (
+      ""
+    );
+    return outputAI
+      ? {
+          score: aiInfo,
+          modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
+        }
+      : { score: "N/A", modelText: "" };
+  }, [knownRegions?.regions, maxScore]);
 
   return (
     <Box

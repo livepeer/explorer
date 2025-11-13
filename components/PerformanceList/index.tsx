@@ -324,7 +324,14 @@ const PerformanceList = ({
         },
       },
     ],
-    [region, isValidating]
+    [
+      isAIData,
+      isValidating,
+      roundTripScoreAccessor,
+      scoreAccessor,
+      sortTypeFn,
+      successRateAccessor,
+    ]
   );
   return (
     <Table data={mergedData} columns={columns} initialState={initialState} />

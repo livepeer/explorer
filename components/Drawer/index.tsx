@@ -18,6 +18,7 @@ const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
     return () => {
       Router.events.off("routeChangeStart", onStart);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -98,7 +98,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       if (!config) return;
       writeContract(config.request);
     }
-  }, [hash, writeContract, status]);
+  }, [config, hash, writeContract, status]);
 
   return (
     <>

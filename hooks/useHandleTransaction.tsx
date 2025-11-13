@@ -24,6 +24,7 @@ export const useHandleTransaction = (
     if (isLoading) {
       setLatestTransactionSummary();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export const useHandleTransaction = (
         description: capitalCase(id),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
@@ -43,12 +45,14 @@ export const useHandleTransaction = (
         onSuccess(data);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
     if (isSuccess) {
       setLatestTransactionConfirmed();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   useEffect(() => {
@@ -56,5 +60,6 @@ export const useHandleTransaction = (
       console.error(error);
       setLatestTransactionError(error.message.replace("GraphQL error: ", ""));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 };

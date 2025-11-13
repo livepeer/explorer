@@ -59,7 +59,6 @@ export async function waitToRelayTxsToL2(
   console.log("autoRedeem", autoRedeem);
 
   console.log(
-    // eslint-disable-next-line
     `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.transactionHash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`
   );
 

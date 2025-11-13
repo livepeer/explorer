@@ -819,18 +819,19 @@ const MigrateUndelegatedStake = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
 
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
+
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>

@@ -48,7 +48,7 @@ const Claim = () => {
       if (!config) return;
       writeContract(config.request);
     }
-  }, [proof, writeContract, isIdle]);
+  }, [config, proof, writeContract, isIdle]);
 
   const { data: claimStakeEnabled } = useReadContract({
     query: { enabled: Boolean(l2MigratorAddress) },
