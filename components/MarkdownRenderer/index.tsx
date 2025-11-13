@@ -166,12 +166,17 @@ const MarkdownRenderer = ({
   children,
   ...props
 }: MarkdownRendererProps): React.ReactElement | null => {
-  const safeChildren = typeof children === "string" ? children : "";
+	if (typeof children !== "string") {
+		console.warn(
+			"MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
+		);
+		return null;
+	}
 
   // Sanitize HTML content to prevent XSS attacks
   const sanitizedChildren = React.useMemo(
-    () => sanitizeHtml(safeChildren, sanitizeOptions),
-    [safeChildren]
+		() => sanitizeHtml(children, sanitizeOptions),
+		[children]
   );
 
   const components: React.ComponentProps<
@@ -225,8 +230,10 @@ const MarkdownRenderer = ({
     []
   );
 
-  if (!sanitizedChildren) {
-    console.warn("MarkdownRenderer: children prop must be a string");
+	if (!sanitizedChildren.trim()) {
+		console.warn(
+			"MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
+		);
     return null;
   }
 
