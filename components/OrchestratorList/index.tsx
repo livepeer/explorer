@@ -90,22 +90,7 @@ const AvatarWrapper = ({
   const avatarSrc = identity?.avatar ?? null;
   const awaitingEnsData = identity?.isLoading && !avatarSrc;
 
-  if (awaitingEnsData) {
-    return (
-      <Skeleton
-        css={{
-          marginRight: "$2",
-          borderRadius: 1000,
-          width: 24,
-          height: 24,
-          minWidth: 24,
-          minHeight: 24,
-        }}
-      />
-    );
-  }
-
-  if (!avatarSrc || hasAvatarError) {
+  if (!avatarSrc || hasAvatarError || awaitingEnsData) {
     return (
       <Box
         css={{
@@ -116,13 +101,24 @@ const AvatarWrapper = ({
           maxWidth: 24,
           maxHeight: 24,
           overflow: "hidden",
+          position: "relative",
         }}
       >
-        <QRCode
-          fgColor={`#${address.substr(2, 6)}`}
-          size={24}
-          value={address}
-        />
+        {awaitingEnsData ? (
+          <Skeleton
+            css={{
+              width: "100%",
+              height: "100%",
+              borderRadius: 1000,
+            }}
+          />
+        ) : (
+          <QRCode
+            fgColor={`#${address.slice(2, 8)}`}
+            size={24}
+            value={address}
+          />
+        )}
       </Box>
     );
   }
@@ -134,8 +130,8 @@ const AvatarWrapper = ({
         borderRadius: 1000,
         width: 24,
         height: 24,
-        minWidth: 24,
-        minHeight: 24,
+        maxWidth: 24,
+        maxHeight: 24,
         position: "relative",
         overflow: "hidden",
       }}
