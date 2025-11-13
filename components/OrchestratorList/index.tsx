@@ -27,7 +27,7 @@ import {
 import dayjs from "@lib/dayjs";
 import Link from "next/link";
 import numeral from "numeral";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
@@ -296,7 +296,7 @@ const OrchestratorList = ({
                         overflow: "hidden",
                       }}
                     >
-                      <QRCode
+                      <QRCodeCanvas
                         fgColor={`#${row.values.id.substr(2, 6)}`}
                         size={24}
                         value={row.values.id}
