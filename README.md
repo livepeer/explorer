@@ -83,6 +83,7 @@ To run the application in production mode, follow these steps:
 | `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | WalletConnect (Reown) Cloud Project ID. Used to enhance wallet UX for users of Explorer.                                                                                                                          |
 | `NEXT_PUBLIC_METRICS_SERVER_URL`        | The Transcoding performance API server used by Explorer.                                                                                                                                                          |
 | `NEXT_PUBLIC_AI_METRICS_SERVER_URL`     | The AI performance API server used by Explorer.                                                                                                                                                                   |
+| `NEXT_PUBLIC_SNAPSHOT_SPACE`            | The Snapshot space ID for community governance (e.g., `livepeer.eth`). Used to fetch and display community proposals via Snapshot.                                                                                |
 
 ## Developing on Arbitrum Rinkeby
 
@@ -111,5 +112,26 @@ To test Livepeer Improvement Proposals (LIPs), follow these steps:
 3. **Use Your Fork for Local Testing:**
 
    With the namespace and your forked repository, you can now test LIPs locally within the application.
+
+## Community Governance via Snapshot
+
+The Explorer integrates with [Snapshot](https://snapshot.org) to enable community governance voting on proposals outside of LIPs and treasury funding. This allows orchestrators and delegators to express support or opposition to smaller governance changes.
+
+### Features
+
+- **Browse Proposals**: View all community proposals from the Livepeer Snapshot space at `/governance`
+- **Vote on Proposals**: Cast votes directly using your connected wallet
+- **Voting Power**: Your voting power is calculated based on your stake at the proposal's snapshot block
+- **Real-time Results**: See current vote distributions and participation rates
+
+### Configuration
+
+To use a custom Snapshot space for testing:
+
+```env
+NEXT_PUBLIC_SNAPSHOT_SPACE=your-space.eth
+```
+
+The default is `livepeer.eth` which is the official Livepeer community space.
 
 ---
