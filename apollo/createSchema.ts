@@ -19,7 +19,7 @@ const createSchema = async () => {
   }) as any;
 
   const subgraphSchema = wrapSchema({
-    schema: introspectSchema(executor),
+    schema: await introspectSchema(executor),
     executor,
   });
 
