@@ -11,7 +11,7 @@ import { useTransactionsQuery } from "apollo";
 import dayjs from "@lib/dayjs";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
@@ -222,7 +222,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.additionalAmount).format("0.0a")}
+                +{numbro(event.additionalAmount).format({
+                  mantissa: 1,
+                  average: true,
+                })}
               </Box>{" "}
               LPT
             </Box>
@@ -342,7 +345,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.amount).format("0.0a")}
+                +{numbro(event.amount).format({
+                  mantissa: 1,
+                  average: true,
+                })}
               </Box>{" "}
               LPT
             </Box>
@@ -404,7 +410,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                -{numeral(event.amount).format("0.0a")}
+                -{numbro(event.amount).format({
+                  mantissa: 1,
+                  average: true,
+                })}
               </Box>{" "}
               LPT
             </Box>
@@ -465,7 +474,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.rewardTokens).format("0.00a")}
+                +{numbro(event.rewardTokens).format({
+                  mantissa: 2,
+                  average: true,
+                })}
               </Box>{" "}
               LPT
             </Box>
@@ -591,7 +603,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numeral(event.amount).format("0.00a")}
+                {numbro(event.amount).format({
+                  mantissa: 2,
+                  average: true,
+                })}
               </Box>{" "}
               LPT
             </Box>
@@ -650,7 +665,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numeral(event.amount).format("0.000a")}
+                {numbro(event.amount).format({
+                  mantissa: 3,
+                  average: true,
+                })}
               </Box>{" "}
               ETH
             </Box>
@@ -709,7 +727,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.faceValue).format("0.000a")}
+                +{numbro(event.faceValue).format({
+                  mantissa: 3,
+                  average: true,
+                })}
               </Box>{" "}
               ETH
             </Box>
@@ -768,7 +789,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.amount).format("0.00a")}
+                +{numbro(event.amount).format({
+                  mantissa: 2,
+                  average: true,
+                })}
               </Box>{" "}
               ETH
             </Box>
@@ -832,7 +856,10 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numeral(event.amount).format("0.00a")}
+                +{numbro(event.amount).format({
+                  mantissa: 2,
+                  average: true,
+                })}
               </Box>{" "}
               ETH
             </Box>

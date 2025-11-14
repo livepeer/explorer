@@ -1,12 +1,8 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import {
-  useEnsData,
-  useExplorerStore,
-  usePendingFeesAndStakeData,
-} from "hooks";
-import numeral from "numeral";
+import { useEnsData, useExplorerStore, usePendingFeesAndStakeData } from "hooks";
+import numbro from "numbro";
 import { useMemo, useState } from "react";
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
@@ -139,7 +135,7 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numeral(currentPendingStake).format("0,0.0")}
+                      {numbro(delegator?.bondedAmount || 0).format({ mantissa: 1, thousandSeparated: true })}
                       {` LPT`}
                     </Box>
                     {` from `}

@@ -6,7 +6,7 @@ import { sentenceCase } from "change-case";
 import dayjs from "@lib/dayjs";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useCallback, useMemo } from "react";
 
 export const FILTERED_EVENT_TYPENAMES = [
@@ -17,24 +17,35 @@ export const FILTERED_EVENT_TYPENAMES = [
 
 const getLptAmount = (number: number | string | undefined) => {
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.00a")} LPT`}</Badge>
+    <Badge size="1">{`${numbro(number || 0).format({
+      mantissa: 2,
+      average: true
+    })} LPT`}</Badge>
   );
 };
 
 const getEthAmount = (number: number | string | undefined) => {
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.000a")} ETH`}</Badge>
+    <Badge size="1">{`${numbro(number || 0).format({
+      mantissa: 2,
+      average: true
+    })} ETH`}</Badge>
   );
 };
 
 const getRound = (number: number | string | undefined) => {
-  return `#${numeral(number || 0).format("0")}`;
+  return `#${numbro(number || 0).format({
+    mantissa: 0
+  })}`;
 };
 
 const getPercentAmount = (number: number | string | undefined) => {
   return (
     <Badge color="white" size="1">
-      {numeral(number || 0).format("0%")}
+      {numbro(number || 0).format({
+        output: "percent",
+        mantissa: 0
+      })}
     </Badge>
   );
 };
@@ -337,9 +348,12 @@ const TransactionsList = ({
             <Box>
               {`The inflation has been set to `}
               <Badge size="1">
-                {numeral(event?.currentInflation || 0)
+                {numbro(event?.currentInflation || 0)
                   .divide(1000000000)
-                  .format("0.0000%")}
+                  .format({
+                    output: "percent",
+                    mantissa: 4
+                  })}
               </Badge>
             </Box>
           );
