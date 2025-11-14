@@ -1,11 +1,36 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+import prettier from "eslint-config-prettier/flat";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
-export default [
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  prettier,
   {
-    ignores: ["node_modules/**", ".next/**", "dist/**"],
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
+    rules: {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "react-hooks/set-state-in-effect": "off",
+    },
     linterOptions: {
       reportUnusedDisableDirectives: true,
     },
   },
-  ...nextCoreWebVitals,
-];
+  globalIgnores([
+    "apollo/**",
+    "@types/**",
+    ".next/**",
+    "dist/**",
+    "node_modules/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;

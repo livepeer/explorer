@@ -1,5 +1,9 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { getL1MigratorAddress } from "@lib/api/contracts";
+import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import {
   Box,
   Button,
@@ -13,27 +17,18 @@ import {
   TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-
-import { CodeBlock } from "@components/CodeBlock";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import { getL1MigratorAddress } from "@lib/api/contracts";
-import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-  l2Provider,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
 import { getAddress, isAddress } from "viem";
+
+import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -223,7 +218,7 @@ const MigrateOrchestrator = () => {
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -262,8 +257,6 @@ const MigrateOrchestrator = () => {
       dispatch({
         type: "initiate",
       });
-
-      const gasPriceBid = await l2Provider.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
@@ -817,18 +810,18 @@ const MigrateOrchestrator = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>

@@ -1,5 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
+import {
+  PerformanceMetrics,
+  RegionalValues,
+} from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg, checkAddressEquality } from "@lib/utils";

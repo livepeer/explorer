@@ -1,5 +1,7 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { isL2ChainId } from "@lib/chains";
 import {
   Box,
   Button,
@@ -11,30 +13,19 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-
-import { CodeBlock } from "@components/CodeBlock";
-import { isL2ChainId } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import {
-  useAccountAddress,
-  useActiveChain,
-
-  useL1DelegatorData
-} from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID, L1_CHAIN_ID
-} from "lib/chains";
+import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../../utils/stepperStyles";
 import { getAddress, isAddress } from "viem";
+
+import { stepperStyles } from "../../../utils/stepperStyles";
 
 const signingSteps = [
   `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -217,7 +208,6 @@ const MigrateUndelegatedStake = () => {
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
 
-  const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
@@ -227,11 +217,8 @@ const MigrateUndelegatedStake = () => {
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
   const l1Delegator = useL1DelegatorData(accountAddress);
-  const l1SignerOrAddress = useL1DelegatorData(
-    state.signer ? state.signer : accountAddress
-  );
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -469,15 +456,6 @@ const MigrateUndelegatedStake = () => {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-    });
   };
 
   if (!render) {
@@ -819,18 +797,18 @@ const MigrateUndelegatedStake = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>

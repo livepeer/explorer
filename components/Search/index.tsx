@@ -8,7 +8,7 @@ import {
   IconButton,
   Link as A,
   Text,
-  TextField
+  TextField,
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";

@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import dayjs from "@lib/dayjs";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import dayjs from "@lib/dayjs";
 import numeral from "numeral";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -17,10 +17,19 @@ import {
 
 // Correctly formatted custom content of tooltip is required to not throw error in console
 // As defined in https://recharts.github.io/en-US/examples/CustomContentOfTooltip
-const CustomContentOfTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
+const CustomContentOfTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: unknown[];
+}) => {
   const isVisible = active && payload && payload.length;
   return (
-    <div className="custom-tooltip" style={{ visibility: isVisible ? 'visible' : 'hidden' }} />
+    <div
+      className="custom-tooltip"
+      style={{ visibility: isVisible ? "visible" : "hidden" }}
+    />
   );
 };
 

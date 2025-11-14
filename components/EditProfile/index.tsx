@@ -1,15 +1,15 @@
 import {
+  Box,
+  Button,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTitle,
-  Heading,
-  Box,
-  Flex,
-  Button,
-  Text,
-  Link as A,
   DialogTrigger,
-  DialogClose,
+  Flex,
+  Heading,
+  Link as A,
+  Text,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 
@@ -18,7 +18,11 @@ const Index = () => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button css={{ marginTop: "3px", marginLeft: "$3" }} variant="primary" size="1">
+          <Button
+            css={{ marginTop: "3px", marginLeft: "$3" }}
+            variant="primary"
+            size="1"
+          >
             Edit Profile
           </Button>
         </DialogTrigger>

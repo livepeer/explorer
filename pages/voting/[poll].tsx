@@ -1,12 +1,11 @@
-import VotingWidget from "@components/VotingWidget";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { useRouter } from "next/router";
-import MarkdownRenderer from "@components/MarkdownRenderer";
-import { abbreviateNumber } from "../../lib/utils";
-
 import BottomDrawer from "@components/BottomDrawer";
+import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import VotingWidget from "@components/VotingWidget";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { getPollExtended, PollExtended } from "@lib/api/polls";
+import dayjs from "@lib/dayjs";
 import {
   Badge,
   Box,
@@ -17,21 +16,21 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "@lib/dayjs";
+import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
+import { sentenceCase } from "change-case";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import numeral from "numeral";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
 } from "../../hooks";
+import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
-
-import { getPollExtended, PollExtended } from "@lib/api/polls";
-import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
-import { sentenceCase } from "change-case";
-import numeral from "numeral";
 
 const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
 

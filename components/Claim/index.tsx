@@ -1,7 +1,6 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
-import { getL1MigratorAddress, getL2MigratorAddress } from "@lib/api/contracts";
+import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
@@ -12,7 +11,8 @@ import {
 } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
-import { useReadContract, useWriteContract, useSimulateContract } from "wagmi";
+import { Hex } from "viem";
+import { useReadContract, useSimulateContract, useWriteContract } from "wagmi";
 
 const l2MigratorAddress = getL2MigratorAddress();
 
@@ -21,8 +21,16 @@ const Claim = () => {
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const [proof, setProof] = useState<any>(null);
-  const [migrationParams, setMigrationParams] = useState<any>(undefined);
+  const [proof, setProof] = useState<Hex[] | null>(null);
+  const [migrationParams, setMigrationParams] = useState<{
+    delegate: Hex;
+    stake: bigint;
+    fees: bigint;
+  }>({
+    delegate: constants.AddressZero as Hex,
+    stake: 0n,
+    fees: 0n,
+  });
   const [isDelegator, setIsDelegator] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +40,10 @@ const Claim = () => {
     abi: l2Migrator,
     functionName: "claimStake",
     args: [
-      migrationParams?.delegate,
-      migrationParams?.stake,
-      migrationParams?.fees,
-      proof,
+      migrationParams.delegate,
+      migrationParams.stake,
+      migrationParams.fees,
+      proof ?? [],
       constants.AddressZero,
     ],
   });
@@ -48,7 +56,7 @@ const Claim = () => {
       if (!config) return;
       writeContract(config.request);
     }
-  }, [proof, writeContract, isIdle]);
+  }, [config, proof, writeContract, isIdle]);
 
   const { data: claimStakeEnabled } = useReadContract({
     query: { enabled: Boolean(l2MigratorAddress) },
@@ -91,9 +99,9 @@ const Claim = () => {
         setIsDelegator(false);
 
         setMigrationParams({
-          delegate: l1Delegator.delegateAddress,
-          stake: l1Delegator.pendingStake,
-          fees: l1Delegator.pendingFees,
+          delegate: l1Delegator.delegateAddress as Hex,
+          stake: BigInt(l1Delegator.pendingStake),
+          fees: BigInt(l1Delegator.pendingFees),
         });
 
         if (

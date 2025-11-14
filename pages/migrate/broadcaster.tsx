@@ -1,5 +1,9 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { getL1MigratorAddress } from "@lib/api/contracts";
+import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import {
   Box,
   Button,
@@ -11,29 +15,20 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-
-import { CodeBlock } from "@components/CodeBlock";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import { getL1MigratorAddress } from "@lib/api/contracts";
-import { isL2ChainId, l1PublicClient } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-  l2Provider,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
 import { getAddress, isAddress } from "viem";
+
+import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
   `This account has no deposit or reserve on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -201,6 +196,8 @@ const MigrateBroadcaster = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const [render, setRender] = useState(false);
+
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
     setTimeout(() => {
@@ -219,7 +216,6 @@ const MigrateBroadcaster = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -227,7 +223,7 @@ const MigrateBroadcaster = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -266,8 +262,6 @@ const MigrateBroadcaster = () => {
       dispatch({
         type: "initiate",
       });
-
-      const gasPriceBid = await l2Provider.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
@@ -404,7 +398,7 @@ const MigrateBroadcaster = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const [_unused, params] = await l1PublicClient.readContract({
+        const [, params] = await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
@@ -453,7 +447,6 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.signer, accountAddress]);
 
   useEffect(() => {
@@ -588,7 +581,6 @@ const MigrateBroadcaster = () => {
             </Text>
 
             <CodeBlock
-              key={Math.random()}
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
@@ -829,21 +821,21 @@ const MigrateBroadcaster = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
         <Box>
           {migrationParams.l1Addr.replace(
@@ -852,11 +844,11 @@ function MigrationFields({ migrationParams, css = {} }) {
           )}
         </Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Deposit</Box>
         <Box>{ethers.utils.formatEther(migrationParams.deposit)} ETH</Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Reserve</Box>
         <Box>{ethers.utils.formatEther(migrationParams.reserve)} ETH</Box>
       </ReadOnlyCard>

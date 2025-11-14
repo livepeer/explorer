@@ -1,23 +1,36 @@
-import Logo from "../Logo";
+import { DrawerItem } from "@layouts/main";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { IS_L2 } from "lib/chains";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import UniswapModal from "../UniswapModal";
-import Account from "../Account";
-import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
-import { IS_L2 } from "lib/chains";
 import { useEffect } from "react";
 
-const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
+import Account from "../Account";
+import Logo from "../Logo";
+import UniswapModal from "../UniswapModal";
+
+const Index = ({
+  items = [],
+  open,
+  onDrawerOpen,
+  onDrawerClose,
+}: {
+  items: DrawerItem[];
+  open: boolean;
+  onDrawerOpen: () => void;
+  onDrawerClose: () => void;
+}) => {
   const router = useRouter();
   const { asPath } = router;
 
   useEffect(() => {
     const onStart = () => onDrawerClose();
     Router.events.on("routeChangeStart", onStart);
-    
+
     return () => {
       Router.events.off("routeChangeStart", onStart);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,5 +1,5 @@
-import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { ethers } from "ethers";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 
 const params = {
   // Replace with the chainId of the chain that the L1Migrator is deployed on

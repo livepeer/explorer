@@ -1,6 +1,6 @@
 # Livepeer Explorer
 
-![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen) 
+![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9.15.0-blue)
 
 ## Prerequisites
@@ -72,7 +72,7 @@ To run the application in production mode, follow these steps:
 ## Key Environment Variables
 
 | Environment Variable                    | Description                                                                                                                                                                                                       |
-|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `PINATA_JWT`                            | JWT token used to create Polls data in IPFS for LIPs.                                                                                                                                                             |
 | `NEXT_PUBLIC_NETWORK`                   | The network/chain the Explorer will interact with. The default is `ARBITRUM_ONE`.                                                                                                                                 |
 | `NEXT_PUBLIC_INFURA_KEY`                | The private API key used to interact with the Infura RPC endpoints. If you prefer to use your own RPC, you can ignore this and instead set the RPC URLs in `NEXT_PUBLIC_L1_RPC_URL` and `NEXT_PUBLIC_L2_RPC_URL`. |

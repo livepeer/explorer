@@ -7,10 +7,9 @@ import {
   useTreasuryRegisteredToVoteData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-
 import { useMemo, useState } from "react";
-import { useWriteContract, useSimulateContract } from "wagmi";
 import { Address } from "viem";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
   bondingManagerAddress: Address | undefined;

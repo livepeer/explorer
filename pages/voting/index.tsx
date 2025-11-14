@@ -1,4 +1,6 @@
 import Spinner from "@components/Spinner";
+import { getPollExtended, PollExtended } from "@lib/api/polls";
+import dayjs from "@lib/dayjs";
 import {
   Badge,
   Box,
@@ -11,15 +13,13 @@ import {
   styled,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "@lib/dayjs";
+import { usePollsQuery } from "apollo";
+import { sentenceCase } from "change-case";
+import { useCurrentRoundData } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getPollExtended, PollExtended } from "@lib/api/polls";
-import { usePollsQuery } from "apollo";
-import { useCurrentRoundData } from "hooks";
-import { sentenceCase } from "change-case";
 
 export const Status = styled("div", {
   length: {},

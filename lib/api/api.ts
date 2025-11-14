@@ -42,4 +42,7 @@ export const getCacheControlHeader = (
 
 export const isValidAddress = (
   address: string | string[] | null | undefined
-): address is Address => typeof address === "string" && address.length === 42 && address.startsWith("0x");
+): address is Address =>
+  typeof address === "string" &&
+  address.length === 42 &&
+  address.startsWith("0x");

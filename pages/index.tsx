@@ -1,3 +1,5 @@
+import "react-circular-progressbar/dist/styles.css";
+
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
@@ -6,18 +8,21 @@ import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
-  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
+  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { useChartData } from "hooks";
 import Link from "next/link";
-
 import { useMemo, useState } from "react";
+
 import {
   EventsQueryResult,
   getApollo,
@@ -25,11 +30,6 @@ import {
   ProtocolQueryResult,
 } from "../apollo";
 import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
-
-import { HomeChartData } from "@lib/api/types/get-chart-data";
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import { useChartData } from "hooks";
-import "react-circular-progressbar/dist/styles.css";
 
 const Panel = ({ children }) => (
   <Flex
@@ -434,8 +434,8 @@ export const getStaticProps = async () => {
   };
   try {
     const client = getApollo();
-    const { orchestrators, fallback } = await getOrchestrators(client);
-    const { events, fallback: eventsFallback } = await getEvents(client);
+    const { orchestrators } = await getOrchestrators(client);
+    const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {

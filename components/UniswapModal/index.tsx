@@ -1,11 +1,11 @@
-import { Cross1Icon } from "@modulz/radix-icons";
 import {
   Box,
   Dialog,
   DialogClose,
-  DialogTrigger,
   DialogContent,
+  DialogTrigger,
 } from "@livepeer/design-system";
+import { Cross1Icon } from "@modulz/radix-icons";
 
 const Index = ({ trigger, children }) => {
   return (

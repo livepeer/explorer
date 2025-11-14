@@ -1,16 +1,17 @@
 import PerformanceList from "@components/PerformanceList";
-import PerformanceListSelector from '@components/PerformanceListSelector';
+import PerformanceListSelector from "@components/PerformanceListSelector";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
+import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Region } from "@lib/api/types/get-regions";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
+import { useRegionsData } from "hooks/useSwr";
 import Head from "next/head";
 import { useState } from "react";
+
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
-import { Pipeline } from "@lib/api/types/get-available-pipelines";
-import { useRegionsData } from "hooks/useSwr";
-import { Region } from "@lib/api/types/get-regions";
 
 type PageProps = {
   orchestratorIds: Pick<
@@ -21,7 +22,9 @@ type PageProps = {
 };
 
 const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
-  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline["id"] | null>(null);
+  const [selectedPipeline, setSelectedPipeline] = useState<
+    Pipeline["id"] | null
+  >(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");
