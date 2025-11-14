@@ -2,15 +2,14 @@ import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
 import { Button } from "@livepeer/design-system";
 import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useLivepeerGovernorAddress } from "hooks/useContracts";
+import { useMemo } from "react";
+import { Address } from "viem";
 import {
+  useSimulateContract,
   UseSimulateContractParameters,
   useWriteContract,
-  useSimulateContract,
 } from "wagmi";
-import { Address } from "viem";
-
-import { useMemo } from "react";
-import { useLivepeerGovernorAddress } from "hooks/useContracts";
 
 type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;

@@ -17,8 +17,9 @@ import { useRouter } from "next/router";
 import numeral from "numeral";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
-import { useWriteContract, useSimulateContract } from "wagmi";
 import { Address } from "viem";
+import { useSimulateContract,useWriteContract } from "wagmi";
+
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {

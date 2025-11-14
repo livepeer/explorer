@@ -1,4 +1,5 @@
 import Spinner from "@components/Spinner";
+import dayjs from "@lib/dayjs";
 import {
   Box,
   Card as CardBase,
@@ -8,7 +9,6 @@ import {
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { useTransactionsQuery } from "apollo";
-import dayjs from "@lib/dayjs";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numeral from "numeral";

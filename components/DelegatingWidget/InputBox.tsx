@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
-import Input from "./Input";
-import { Box, Flex, Card } from "@livepeer/design-system";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { fromWei } from "@lib/utils";
+import { Box, Card,Flex } from "@livepeer/design-system";
 import { AccountQueryResult } from "apollo";
 import {
   StakingAction,
@@ -10,8 +10,9 @@ import {
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
-import { fromWei } from "@lib/utils";
-import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
+import React, { useMemo } from "react";
+
+import Input from "./Input";
 
 interface Treasury {
   treasuryRewardCutRate: number;

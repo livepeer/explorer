@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  getContractAddress,
   getBondingVotesAddress,
+  getContractAddress,
   getLivepeerGovernorAddress,
   getTreasuryAddress,
 } from "@lib/api/contracts";

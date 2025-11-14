@@ -27,8 +27,8 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { useWriteContract, useSimulateContract } from "wagmi";
 import { Address } from "viem";
+import { useSimulateContract,useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 

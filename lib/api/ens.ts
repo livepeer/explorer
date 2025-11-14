@@ -1,6 +1,6 @@
+import { l1Provider } from "@lib/chains";
 import sanitizeHtml from "sanitize-html";
 
-import { l1Provider } from "@lib/chains";
 import { EnsIdentity } from "./types/get-ens";
 
 const sanitizeOptions: sanitizeHtml.IOptions = {

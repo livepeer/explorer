@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Box, IconButton } from "@livepeer/design-system";
-import copy from "copy-to-clipboard";
-import { ClipboardIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Pre } from "@components/Pre";
+import { Box, IconButton } from "@livepeer/design-system";
+import { CheckIcon,ClipboardIcon } from "@radix-ui/react-icons";
+import copy from "copy-to-clipboard";
+import { useEffect, useRef, useState } from "react";
 
 export function CodeBlock({
   className = "code-block",

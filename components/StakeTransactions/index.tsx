@@ -1,3 +1,7 @@
+import { Box, Card, Flex, Heading,Text } from "@livepeer/design-system";
+import { UnbondingLock } from "apollo";
+import { parseEther } from "ethers/lib/utils";
+
 import {
   abbreviateNumber,
   getHint,
@@ -6,9 +10,6 @@ import {
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
-import { Card, Text, Box, Flex, Heading } from "@livepeer/design-system";
-import { parseEther } from "ethers/lib/utils";
-import { UnbondingLock } from "apollo";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const pendingStakeTransactions: Array<UnbondingLock> =

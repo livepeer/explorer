@@ -1,15 +1,15 @@
 import {
+  Box,
+  Button,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTitle,
-  Heading,
-  Box,
-  Flex,
-  Button,
-  Text,
-  Link as A,
   DialogTrigger,
-  DialogClose,
+  Flex,
+  Heading,
+  Link as A,
+  Text,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 

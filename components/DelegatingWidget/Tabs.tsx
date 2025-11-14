@@ -1,9 +1,9 @@
-import {
-  Tabs as ReachTabs,
-  TabList as ReachTabList,
-  Tab as ReachTab,
-} from "@reach/tabs";
 import { Box } from "@livepeer/design-system";
+import {
+  Tab as ReachTab,
+  TabList as ReachTabList,
+  Tabs as ReachTabs,
+} from "@reach/tabs";
 
 export const Tabs = (props) => <ReachTabs {...props} />;
 

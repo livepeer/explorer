@@ -1,7 +1,7 @@
-import { Box, Skeleton } from "@livepeer/design-system";
-import { useAvailableInferencePipelinesData } from "hooks";
-import { ChevronDownIcon } from "@modulz/radix-icons";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
+import { Box, Skeleton } from "@livepeer/design-system";
+import { ChevronDownIcon } from "@modulz/radix-icons";
+import { useAvailableInferencePipelinesData } from "hooks";
 
 interface PerformanceSelectorProps {
   selectedPipeline: Pipeline["id"] | null;

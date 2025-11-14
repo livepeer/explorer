@@ -1,5 +1,5 @@
-import React from "react";
 import { Box } from "@livepeer/design-system";
+import React from "react";
 
 interface Props {
   open?: boolean;
@@ -16,7 +16,7 @@ const Index = ({ css = {}, open = true, label, button }: Props) =>
         border: "1px solid",
         borderColor: "$border",
         width: "100%",
-        p: "$3",
+        padding: "$3",
         fontSize: "$2",
         ...css,
       }}

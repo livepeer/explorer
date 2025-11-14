@@ -1,7 +1,7 @@
+import { ALL_SUPPORTED_CHAIN_IDS } from "@lib/chains";
 import { Signer } from "ethers";
 import { useMemo, useState } from "react";
 import { useAccount, useDisconnect } from "wagmi";
-import { ALL_SUPPORTED_CHAIN_IDS } from "@lib/chains";
 
 const useIsChainSupported = () => {
   const activeChain = useActiveChain();

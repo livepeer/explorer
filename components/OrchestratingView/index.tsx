@@ -1,14 +1,13 @@
 import Stat from "@components/Stat";
+import dayjs from "@lib/dayjs";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import dayjs from "@lib/dayjs";
-import numeral from "numeral";
-import Masonry from "react-masonry-css";
-
 import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
-import { useMemo } from "react";
 import { useRegionsData } from "hooks/useSwr";
+import numeral from "numeral";
+import { useMemo } from "react";
+import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
   default: 2,

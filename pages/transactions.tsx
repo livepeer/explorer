@@ -8,6 +8,7 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import Head from "next/head";
 import { useMemo } from "react";
+
 import { EventsQueryResult, getApollo } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;

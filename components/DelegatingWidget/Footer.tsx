@@ -1,3 +1,4 @@
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
   getDelegatorStatus,
@@ -14,10 +15,10 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo } from "react";
+
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
-import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 
 type FooterData = {
   isTransferStake: boolean;

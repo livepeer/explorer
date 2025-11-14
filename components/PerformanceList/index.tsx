@@ -1,16 +1,16 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Table from "@components/Table";
+import { Pipeline } from "@lib/api/types/get-available-pipelines";
+import { Region } from "@lib/api/types/get-regions";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import Link from "next/link";
-import { useMemo } from "react";
-import QRCode from "qrcode.react";
-import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
+import { useAllScoreData, useEnsData } from "hooks";
+import Link from "next/link";
 import numeral from "numeral";
-import { Pipeline } from "@lib/api/types/get-available-pipelines";
-import { Region } from "@lib/api/types/get-regions";
+import QRCode from "qrcode.react";
+import { useMemo } from "react";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 

@@ -1,10 +1,11 @@
 import {
-  ethers,
   BigNumber,
   ContractTransaction,
+  ethers,
   providers,
   utils,
 } from "ethers";
+
 import InboxABI from "./Inbox.json";
 
 export async function waitForTx(

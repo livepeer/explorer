@@ -1,17 +1,18 @@
-import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   CopyIcon,
+  GitHubLogoIcon,
   GlobeIcon,
   TwitterLogoIcon,
-  GitHubLogoIcon,
 } from "@modulz/radix-icons";
 import QRCode from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
+
 import EditProfile from "../EditProfile";
 
 interface Props {

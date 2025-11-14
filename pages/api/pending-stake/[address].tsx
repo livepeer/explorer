@@ -5,7 +5,6 @@ import {
   getBondingManagerAddress,
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
-
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";

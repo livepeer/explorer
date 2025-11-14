@@ -4,6 +4,7 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { useEnsData, useExplorerStore } from "hooks";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
+
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
 import Header from "./Header";

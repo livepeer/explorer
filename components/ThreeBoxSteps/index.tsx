@@ -1,7 +1,7 @@
-import Stepper from "@material-ui/core/Stepper";
+import { Box } from "@livepeer/design-system";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
-import { Box } from "@livepeer/design-system";
+import Stepper from "@material-ui/core/Stepper";
 import { stepperStyles } from "utils/stepperStyles";
 
 function getSteps(hasProfile) {

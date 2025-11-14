@@ -1,10 +1,10 @@
-import { Container, Card, Heading, Text, Box } from "@livepeer/design-system";
 import { getLayout } from "@layouts/main";
-import { useEffect } from "react";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { isL2ChainId } from "@lib/chains";
-import { useRouter } from "next/router";
+import { Box,Card, Container, Heading, Text } from "@livepeer/design-system";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Migrate = () => {
   const router = useRouter();

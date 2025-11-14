@@ -2,15 +2,16 @@ import PerformanceList from "@components/PerformanceList";
 import PerformanceListSelector from '@components/PerformanceListSelector';
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
+import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Region } from "@lib/api/types/get-regions";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
+import { useRegionsData } from "hooks/useSwr";
 import Head from "next/head";
 import { useState } from "react";
+
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
-import { Pipeline } from "@lib/api/types/get-available-pipelines";
-import { useRegionsData } from "hooks/useSwr";
-import { Region } from "@lib/api/types/get-regions";
 
 type PageProps = {
   orchestratorIds: Pick<

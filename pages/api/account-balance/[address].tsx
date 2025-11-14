@@ -1,8 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import {
-  getLivepeerTokenAddress,
   getBondingManagerAddress,
+  getLivepeerTokenAddress,
 } from "@lib/api/contracts";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";

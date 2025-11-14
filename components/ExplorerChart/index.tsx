@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import dayjs from "@lib/dayjs";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import dayjs from "@lib/dayjs";
 import numeral from "numeral";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {

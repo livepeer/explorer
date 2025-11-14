@@ -1,4 +1,5 @@
 import { AccountBalance } from "@lib/api/types/get-account-balance";
+import { AvailablePipelines, Pipeline } from "@lib/api/types/get-available-pipelines";
 import { GetChangefeed } from "@lib/api/types/get-changefeed";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
@@ -7,7 +8,6 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { AllPerformanceMetrics, PerformanceMetrics } from "@lib/api/types/get-performance";
-import { AvailablePipelines, Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Regions } from "@lib/api/types/get-regions";
 import {
   ProposalState,

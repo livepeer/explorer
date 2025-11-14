@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
-import { NextApiRequest, NextApiResponse } from "next";
-import { Regions, Region } from "@lib/api/types/get-regions";
+import { Region,Regions } from "@lib/api/types/get-regions";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const METRICS_URL = [
   process.env.NEXT_PUBLIC_METRICS_SERVER_URL,

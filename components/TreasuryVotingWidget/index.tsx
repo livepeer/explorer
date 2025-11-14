@@ -1,14 +1,15 @@
-import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import QueueExecuteButton from "@components/QueueExecuteButton";
+import TreasuryVotingReason from "@components/TreasuryVotingReason";
+import { ProposalExtended } from "@lib/api/treasury";
+import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
+import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
+import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
 import { useAccountAddress } from "hooks";
 import numeral from "numeral";
 import { useState } from "react";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
+
 import VoteButton from "../VoteButton";
-import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
-import { ProposalExtended } from "@lib/api/treasury";
-import QueueExecuteButton from "@components/QueueExecuteButton";
-import TreasuryVotingReason from "@components/TreasuryVotingReason";
 
 type Props = {
   proposal: ProposalExtended;

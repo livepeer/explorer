@@ -1,8 +1,8 @@
+import { isImageUrl } from "@lib/utils";
 import { styled } from "@livepeer/design-system";
+import React from "react";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import React from "react";
-import { isImageUrl } from "@lib/utils";
 
 const StyledTable = styled("table", {
   borderCollapse: "collapse",

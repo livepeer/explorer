@@ -1,6 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
-
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const query = `

@@ -9,7 +9,8 @@ import {
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
-import { useWriteContract, useSimulateContract } from "wagmi";
+import { useSimulateContract,useWriteContract } from "wagmi";
+
 import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({

@@ -1,4 +1,4 @@
-import { styled, Flex } from "@livepeer/design-system";
+import { Flex,styled } from "@livepeer/design-system";
 
 const Circle = styled("div", {
   length: {},
@@ -61,7 +61,7 @@ interface ProgressCirclesProps {
  */
 const ProgressSteps = ({ steps, css = {}, ...props }: ProgressCirclesProps) => {
   return (
-    <Flex css={{ px: "$5", justifyContent: "center", ...css }} {...props}>
+    <Flex css={{ paddingLeft: "$5", paddingRight: "$5", justifyContent: "center", ...css }} {...props}>
       {steps.map((step, i) => {
         return (
           <CircleRow key={i}>

@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { useMemo, useRef, useEffect, useState, useCallback } from "react";
-import gsap from "gsap";
 import { Box } from "@livepeer/design-system";
+import gsap from "gsap";
+import Link from "next/link";
+import { useCallback,useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   isDark?: boolean;

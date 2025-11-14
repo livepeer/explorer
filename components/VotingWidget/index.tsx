@@ -1,4 +1,5 @@
 import { PollExtended } from "@lib/api/polls";
+import dayjs from "@lib/dayjs";
 import {
   Box,
   Button,
@@ -13,11 +14,11 @@ import {
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
-import dayjs from "@lib/dayjs";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+
 import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";

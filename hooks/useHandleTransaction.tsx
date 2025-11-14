@@ -1,6 +1,7 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
+
 import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
 
 export const useHandleTransaction = (

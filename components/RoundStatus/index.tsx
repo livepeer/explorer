@@ -1,19 +1,20 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { Box, Flex, Text, getThemes } from "@livepeer/design-system";
+import dayjs from "@lib/dayjs";
+import { Box, Flex, getThemes,Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
 import { ProtocolQueryResult } from "apollo";
-import dayjs from "@lib/dayjs";
 import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
 import numeral from "numeral";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
+
 import CircularProgressbar from "../CircularProgressBar";
 
 const themes = getThemes();

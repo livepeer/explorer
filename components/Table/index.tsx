@@ -1,13 +1,12 @@
-import { useTable, useSortBy, usePagination, Column } from "react-table";
 import {
-  Flex,
   Box,
+  Flex,
   Table,
-  Thead,
   Tbody,
-  Tr,
-  Th,
   Td,
+  Th,
+  Thead,
+  Tr,
 } from "@livepeer/design-system";
 import {
   ArrowLeftIcon,
@@ -16,6 +15,7 @@ import {
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
+import { Column,usePagination, useSortBy, useTable } from "react-table";
 
 function DataTable<T extends object>({
   heading = null,

@@ -1,4 +1,5 @@
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import dayjs from "@lib/dayjs";
 import {
   getApollo,
   PollsQueryResult,
@@ -6,7 +7,6 @@ import {
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
 } from "apollo";
-import dayjs from "@lib/dayjs";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
