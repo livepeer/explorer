@@ -37,8 +37,6 @@ const signingSteps = [
   "Approve migration",
 ];
 
-const randomNumber = Math.random();
-
 const initialState = {
   title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
   stage: "connectWallet",
@@ -583,7 +581,6 @@ const MigrateBroadcaster = () => {
             </Text>
 
             <CodeBlock
-              key={randomNumber}
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
