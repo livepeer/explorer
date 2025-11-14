@@ -15,6 +15,13 @@ import {
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
+import {
+  SnapshotProposal,
+  getSnapshotProposals,
+  getSnapshotProposal,
+  getVotingPower,
+  hasVoted,
+} from "@lib/api/snapshot";
 import useSWR from "swr";
 import { Address } from "viem";
 
@@ -171,4 +178,80 @@ export const useContractInfoData = (
       BondingVotes: null,
     }
   );
+};
+
+export const useSnapshotProposals = (
+  state: "all" | "active" | "pending" | "closed" = "all"
+) => {
+  const { data, error, isLoading } = useSWR<SnapshotProposal[]>(
+    `snapshot-proposals-${state}`,
+    () => getSnapshotProposals(state),
+    {
+      refreshInterval: 20000,
+    }
+  );
+
+  return {
+    data: data ?? [],
+    error,
+    isLoading,
+  };
+};
+
+export const useSnapshotProposal = (proposalId: string | undefined) => {
+  const { data, error, isLoading } = useSWR<SnapshotProposal | null>(
+    proposalId ? `snapshot-proposal-${proposalId}` : null,
+    () => (proposalId ? getSnapshotProposal(proposalId) : null),
+    {
+      refreshInterval: 20000,
+    }
+  );
+
+  return {
+    data: data ?? null,
+    error,
+    isLoading,
+  };
+};
+
+export const useSnapshotVotingPower = (
+  address: string | undefined | null,
+  proposalId: string | undefined,
+  snapshot: string | undefined,
+  strategies: any[] | undefined
+) => {
+  const { data, error, isLoading } = useSWR<number>(
+    address && proposalId && snapshot && strategies
+      ? `snapshot-voting-power-${proposalId}-${address}`
+      : null,
+    () =>
+      address && proposalId && snapshot && strategies
+        ? getVotingPower(address, proposalId, snapshot, strategies)
+        : 0
+  );
+
+  return {
+    data: data ?? 0,
+    error,
+    isLoading,
+  };
+};
+
+export const useSnapshotHasVoted = (
+  address: string | undefined | null,
+  proposalId: string | undefined
+) => {
+  const { data, error, isLoading } = useSWR<boolean>(
+    address && proposalId ? `snapshot-has-voted-${proposalId}-${address}` : null,
+    () => (address && proposalId ? hasVoted(address, proposalId) : false),
+    {
+      refreshInterval: 20000,
+    }
+  );
+
+  return {
+    data: data ?? false,
+    error,
+    isLoading,
+  };
 };

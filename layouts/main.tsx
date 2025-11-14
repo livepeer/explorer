@@ -231,6 +231,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       icon: Ballot,
       className: "treasury",
     },
+    {
+      name: "Community",
+      href: "/governance",
+      as: "/governance",
+      icon: Ballot,
+      className: "governance",
+    },
   ];
 
   const onDrawerOpen = () => {
@@ -530,6 +537,29 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   {totalActiveTreasuryProposals}
                                 </Badge>
                               )}
+                            </Button>
+                          </Link>
+                          <Link passHref href="/governance">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes("/governance")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Community
                             </Button>
                           </Link>
                           {accountAddress && (

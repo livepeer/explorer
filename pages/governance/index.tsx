@@ -1,0 +1,100 @@
+import Spinner from "@components/Spinner";
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Text,
+} from "@livepeer/design-system";
+import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import Head from "next/head";
+import { useSnapshotProposals } from "hooks";
+import SnapshotProposalRow from "@components/SnapshotProposalRow";
+
+const Governance = () => {
+  const { data: proposals, isLoading } = useSnapshotProposals("all");
+
+  return (
+    <>
+      <Head>
+        <title>Livepeer Explorer - Governance</title>
+      </Head>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+      >
+        {isLoading ? (
+          <Flex
+            css={{
+              height: "calc(100vh - 100px)",
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              "@bp3": {
+                height: "100vh",
+              },
+            }}
+          >
+            <Spinner />
+          </Flex>
+        ) : (
+          <Flex
+            css={{
+              width: "100%",
+              flexDirection: "column",
+            }}
+          >
+            <Flex
+              css={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "$5",
+              }}
+            >
+              <Heading
+                size="2"
+                css={{
+                  fontWeight: 700,
+                  m: 0,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                Governance
+              </Heading>
+            </Flex>
+            <Box css={{ marginBottom: "$3" }}>
+              <Text size="3" variant="neutral">
+                Community governance proposals via Snapshot. Vote on proposals
+                to help shape the future of Livepeer.
+              </Text>
+            </Box>
+            {!proposals?.length && (
+              <Flex
+                justify="center"
+                css={{
+                  borderRadius: "$4",
+                  padding: "$6",
+                  border: "1px dashed $neutral5",
+                  marginTop: "$4",
+                }}
+              >
+                <Text size="3" variant="neutral">
+                  No proposals found.
+                </Text>
+              </Flex>
+            )}
+            <Box>
+              {proposals?.map((prop) => (
+                <SnapshotProposalRow key={prop.id} proposal={prop} />
+              ))}
+            </Box>
+          </Flex>
+        )}
+      </Container>
+    </>
+  );
+};
+
+Governance.getLayout = getLayout;
+
+export default Governance;
