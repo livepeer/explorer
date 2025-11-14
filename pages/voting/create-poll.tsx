@@ -28,7 +28,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 

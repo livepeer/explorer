@@ -13,7 +13,7 @@ import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import rainbowTheme from "constants/rainbowTheme";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, L1_CHAIN,WALLET_CONNECT_PROJECT_ID } from "lib/chains";
+import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";

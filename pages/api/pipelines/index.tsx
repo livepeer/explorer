@@ -14,7 +14,9 @@ const handler = async (
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
       const { region } = req.query;
-      const url = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/pipelines${region ? `?region=${region}` : ""}`;
+      const url = `${
+        process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
+      }/api/pipelines${region ? `?region=${region}` : ""}`;
       const pipelinesResponse = await fetchWithRetry(url)
         .then((res) => res.json())
         .catch(() => {
@@ -30,6 +32,6 @@ const handler = async (
     console.error(e);
     return res.status(500).json(null);
   }
-}
+};
 
 export default handler;

@@ -28,13 +28,15 @@ type FooterData = {
   action: StakingAction;
   amount: string;
 
-  currentRound: NonNullable<
-    NonNullable<AccountQueryResult["data"]>["protocol"]
-  >["currentRound"] | undefined;
+  currentRound:
+    | NonNullable<
+        NonNullable<AccountQueryResult["data"]>["protocol"]
+      >["currentRound"]
+    | undefined;
 
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"];
   account: EnsIdentity;

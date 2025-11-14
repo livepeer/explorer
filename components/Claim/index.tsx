@@ -12,7 +12,7 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
 import { Hex } from "viem";
-import { useReadContract, useSimulateContract,useWriteContract } from "wagmi";
+import { useReadContract, useSimulateContract, useWriteContract } from "wagmi";
 
 const l2MigratorAddress = getL2MigratorAddress();
 

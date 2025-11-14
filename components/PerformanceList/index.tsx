@@ -30,18 +30,19 @@ const PerformanceList = ({
     "id"
   >[];
 }) => {
-  const {isValidating, data: allScores} = useAllScoreData(pipeline, model);
+  const { isValidating, data: allScores } = useAllScoreData(pipeline, model);
   const isAIData = pipeline !== null && model !== null;
-  const scoreAccessor = `scores.${region}`;//total score
-  const successRateAccessor = `successRates.${region}`;//success rate
-  const roundTripScoreAccessor = `roundTripScores.${region}`;//latency score
+  const scoreAccessor = `scores.${region}`; //total score
+  const successRateAccessor = `successRates.${region}`; //success rate
+  const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
 
   const initialState = {
     pageSize: pageSize,
-    sortBy: [{
-        id: 'scores',
+    sortBy: [
+      {
+        id: "scores",
         desc: true,
-      }
+      },
     ],
     hiddenColumns: [
       "activationRound",
@@ -58,16 +59,19 @@ const PerformanceList = ({
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
-  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always 
-  //sort double values correctly.  As such, we use a custom sort function to place 0 values after 
+  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always
+  //sort double values correctly.  As such, we use a custom sort function to place 0 values after
   //non-zero's and before null/undefined values.
-  const sortTypeFn = useMemo(() => (rowA: any, rowB: any, columnId: string) => {
-    const a = rowA.values[columnId];
-    const b = rowB.values[columnId];
-    if (a === null || a === undefined) return -1;
-    if (b === null || b === undefined) return 1;
-    return a === b ? 0 : a > b ? 1 : -1;
-  }, []);
+  const sortTypeFn = useMemo(
+    () => (rowA: any, rowB: any, columnId: string) => {
+      const a = rowA.values[columnId];
+      const b = rowB.values[columnId];
+      if (a === null || a === undefined) return -1;
+      if (b === null || b === undefined) return 1;
+      return a === b ? 0 : a > b ? 1 : -1;
+    },
+    []
+  );
 
   const columns: any = useMemo(
     () => [

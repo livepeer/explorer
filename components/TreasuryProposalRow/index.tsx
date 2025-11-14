@@ -4,7 +4,14 @@ import {
   ProposalExtended,
 } from "@lib/api/treasury";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Link as A,
+} from "@livepeer/design-system";
 import { ProtocolQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import { useTreasuryProposalState } from "hooks";

@@ -269,53 +269,54 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 )}
               </Box>
 
-              {proposal?.state === "Active" && vote?.self.hasVoted === false && (
-                <Box
-                  css={{
-                    marginTop: "$4",
-                    display: "grid",
-                    gap: "$2",
-                    columns: 2,
-                  }}
-                >
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="red"
-                    size="4"
-                    choiceId={0}
-                    proposalId={proposal?.id}
-                    reason={reason}
+              {proposal?.state === "Active" &&
+                vote?.self.hasVoted === false && (
+                  <Box
+                    css={{
+                      marginTop: "$4",
+                      display: "grid",
+                      gap: "$2",
+                      columns: 2,
+                    }}
                   >
-                    Against
-                  </VoteButton>
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="primary"
-                    choiceId={1}
-                    size="4"
-                    proposalId={proposal?.id}
-                    reason={reason}
-                  >
-                    For
-                  </VoteButton>
-                  <VoteButton
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                    variant="gray"
-                    size="4"
-                    choiceId={2}
-                    proposalId={proposal?.id}
-                    reason={reason}
-                  >
-                    Abstain
-                  </VoteButton>
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="red"
+                      size="4"
+                      choiceId={0}
+                      proposalId={proposal?.id}
+                      reason={reason}
+                    >
+                      Against
+                    </VoteButton>
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="primary"
+                      choiceId={1}
+                      size="4"
+                      proposalId={proposal?.id}
+                      reason={reason}
+                    >
+                      For
+                    </VoteButton>
+                    <VoteButton
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                      variant="gray"
+                      size="4"
+                      choiceId={2}
+                      proposalId={proposal?.id}
+                      reason={reason}
+                    >
+                      Abstain
+                    </VoteButton>
 
-                  <TreasuryVotingReason
-                    reason={reason}
-                    setReason={setReason}
-                    disabled={!(parseFloat(vote.self.votes) > 0)}
-                  />
-                </Box>
-              )}
+                    <TreasuryVotingReason
+                      reason={reason}
+                      setReason={setReason}
+                      disabled={!(parseFloat(vote.self.votes) > 0)}
+                    />
+                  </Box>
+                )}
 
               {["Succeeded", "Queued"].includes(proposal?.state) && (
                 <Box

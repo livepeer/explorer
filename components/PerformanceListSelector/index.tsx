@@ -16,25 +16,31 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
   selectedModel,
   setSelectedModel,
 }) => {
-
-  const {data: availPipelines, isValidating} = useAvailableInferencePipelinesData();
+  const { data: availPipelines, isValidating } =
+    useAvailableInferencePipelinesData();
   const findPipelineIndex = (pipelineId) =>
     availPipelines.pipelines.findIndex((p) => p.id === pipelineId);
 
   const findModelIndex = (pipelineIndex, model) =>
-    availPipelines.pipelines[pipelineIndex]?.models.findIndex((m) => m === model);
+    availPipelines.pipelines[pipelineIndex]?.models.findIndex(
+      (m) => m === model
+    );
 
-  const indexOfSelectedPipeline = selectedPipeline ? findPipelineIndex(selectedPipeline) : -1;
+  const indexOfSelectedPipeline = selectedPipeline
+    ? findPipelineIndex(selectedPipeline)
+    : -1;
   const indexOfSelectedModel =
     indexOfSelectedPipeline !== -1 && selectedModel
       ? findModelIndex(indexOfSelectedPipeline, selectedModel)
       : null;
 
   const indexOfSelectedOption =
-    selectedPipeline && selectedModel ? `${indexOfSelectedPipeline},${indexOfSelectedModel}` : -1;
+    selectedPipeline && selectedModel
+      ? `${indexOfSelectedPipeline},${indexOfSelectedModel}`
+      : -1;
 
   const handleSelectChange = (e) => {
-    const [pipelineIdx, modelIdx] = e.target.value.split(',').map(Number);
+    const [pipelineIdx, modelIdx] = e.target.value.split(",").map(Number);
 
     if (pipelineIdx === -1) {
       setSelectedPipeline(null);
@@ -43,16 +49,15 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
     }
 
     const selectedPipeline = availPipelines.pipelines[pipelineIdx];
-    const selectedModel = modelIdx !== undefined ? selectedPipeline.models[modelIdx] : null;
+    const selectedModel =
+      modelIdx !== undefined ? selectedPipeline.models[modelIdx] : null;
 
     setSelectedPipeline(selectedPipeline.id);
     setSelectedModel(selectedModel);
   };
 
   if (isValidating) {
-    return (
-      <Skeleton css={{ height: 20, width: 100 }} />
-    );
+    return <Skeleton css={{ height: 20, width: 100 }} />;
   }
 
   return (

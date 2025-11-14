@@ -2,7 +2,7 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
 import { useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();

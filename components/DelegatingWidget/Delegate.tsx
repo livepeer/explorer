@@ -9,7 +9,7 @@ import {
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
 

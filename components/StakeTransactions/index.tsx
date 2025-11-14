@@ -1,4 +1,4 @@
-import { Box, Card, Flex, Heading,Text } from "@livepeer/design-system";
+import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
 import { UnbondingLock } from "apollo";
 import { parseEther } from "ethers/lib/utils";
 

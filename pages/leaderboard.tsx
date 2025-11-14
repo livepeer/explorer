@@ -1,5 +1,5 @@
 import PerformanceList from "@components/PerformanceList";
-import PerformanceListSelector from '@components/PerformanceListSelector';
+import PerformanceListSelector from "@components/PerformanceListSelector";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
@@ -22,7 +22,9 @@ type PageProps = {
 };
 
 const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
-  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline["id"] | null>(null);
+  const [selectedPipeline, setSelectedPipeline] = useState<
+    Pipeline["id"] | null
+  >(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");

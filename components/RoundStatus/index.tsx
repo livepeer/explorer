@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { Box, Flex, getThemes,Text } from "@livepeer/design-system";
+import { Box, Flex, getThemes, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,

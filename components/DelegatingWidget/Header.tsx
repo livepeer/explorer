@@ -1,5 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { Box, Flex,Heading } from "@livepeer/design-system";
+import { Box, Flex, Heading } from "@livepeer/design-system";
 import QRCode from "qrcode.react";
 
 import { TranscoderOrDelegateType } from ".";

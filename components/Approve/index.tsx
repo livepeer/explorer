@@ -4,7 +4,7 @@ import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 import { MAXIMUM_VALUE_UINT256 } from "../../lib/utils";
 import Button from "../Button";

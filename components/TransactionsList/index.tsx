@@ -1,6 +1,6 @@
 import Table from "@components/Table";
 import dayjs from "@lib/dayjs";
-import { Badge, Box, Flex, Link as A,Text } from "@livepeer/design-system";
+import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";

@@ -18,7 +18,11 @@ const Index = () => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button css={{ marginTop: "3px", marginLeft: "$3" }} variant="primary" size="1">
+          <Button
+            css={{ marginTop: "3px", marginLeft: "$3" }}
+            variant="primary"
+            size="1"
+          >
             Edit Profile
           </Button>
         </DialogTrigger>

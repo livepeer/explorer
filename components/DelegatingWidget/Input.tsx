@@ -4,7 +4,14 @@ import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
 
-const Input = ({ transcoder, value, onChange, protocol, treasury, ...props }) => {
+const Input = ({
+  transcoder,
+  value,
+  onChange,
+  protocol,
+  treasury,
+  ...props
+}) => {
   const { width } = useWindowSize();
 
   const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);

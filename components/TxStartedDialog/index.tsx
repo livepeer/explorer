@@ -222,7 +222,10 @@ function Header({ tx }: { tx: TransactionStatus }) {
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Details{" "}
-        <Box as={ExternalLinkIcon} css={{ marginLeft: "6px", color: "$primary11" }} />
+        <Box
+          as={ExternalLinkIcon}
+          css={{ marginLeft: "6px", color: "$primary11" }}
+        />
       </A>
     </Flex>
   );

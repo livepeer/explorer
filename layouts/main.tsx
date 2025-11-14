@@ -134,7 +134,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   useEffect(() => {
     const onComplete = () => document.body.removeAttribute("style");
     Router.events.on("routeChangeComplete", onComplete);
-    
+
     return () => {
       Router.events.off("routeChangeComplete", onComplete);
     };

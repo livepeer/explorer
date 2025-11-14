@@ -1,5 +1,5 @@
 import { DrawerItem } from "@layouts/main";
-import { Box, Flex, Link as A,Text } from "@livepeer/design-system";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
@@ -26,11 +26,11 @@ const Index = ({
   useEffect(() => {
     const onStart = () => onDrawerClose();
     Router.events.on("routeChangeStart", onStart);
-    
+
     return () => {
       Router.events.off("routeChangeStart", onStart);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

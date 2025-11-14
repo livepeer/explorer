@@ -161,7 +161,10 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                <Flex
+                  align="center"
+                  css={{ marginTop: "$2", marginRight: "$3" }}
+                >
                   <Box as={GlobeIcon} css={{ marginRight: "$1" }} />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </Flex>
@@ -176,7 +179,10 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                <Flex
+                  align="center"
+                  css={{ marginTop: "$2", marginRight: "$3" }}
+                >
                   <Box as={TwitterLogoIcon} css={{ marginRight: "$1" }} />
                   <Box
                     css={{
@@ -199,7 +205,10 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 target="__blank"
                 rel="noopener noreferrer"
               >
-                <Flex align="center" css={{ marginTop: "$2", marginRight: "$3" }}>
+                <Flex
+                  align="center"
+                  css={{ marginTop: "$2", marginRight: "$3" }}
+                >
                   <Box as={GitHubLogoIcon} css={{ marginRight: "$1" }} />
                   <Box
                     css={{

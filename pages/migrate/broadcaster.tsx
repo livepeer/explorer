@@ -15,7 +15,7 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";

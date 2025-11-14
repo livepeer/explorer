@@ -60,14 +60,15 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   }, [knownRegions?.regions, scores]);
 
   const maxScoreOutput = useMemo(() => {
-    const outputTrans = maxScore.transcoding?.score && maxScore.transcoding?.score > 0
-    const transcodingInfo
-      = outputTrans
-        ? `${numeral(maxScore.transcoding?.score).divide(100).format("0.0%")} - ${maxScore.transcoding.region}`
-        : "";
-    return outputTrans? transcodingInfo: "N/A";
-  }
-  , [maxScore]);
+    const outputTrans =
+      maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
+    const transcodingInfo = outputTrans
+      ? `${numeral(maxScore.transcoding?.score).divide(100).format("0.0%")} - ${
+          maxScore.transcoding.region
+        }`
+      : "";
+    return outputTrans ? transcodingInfo : "N/A";
+  }, [maxScore]);
 
   const maxAIScoreOutput = useMemo(() => {
     const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;

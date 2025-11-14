@@ -18,7 +18,7 @@ import numeral from "numeral";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import { Address } from "viem";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 import StakeTransactions from "../StakeTransactions";
 

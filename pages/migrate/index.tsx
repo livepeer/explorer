@@ -1,6 +1,6 @@
 import { getLayout } from "@layouts/main";
 import { isL2ChainId } from "@lib/chains";
-import { Box,Card, Container, Heading, Text } from "@livepeer/design-system";
+import { Box, Card, Container, Heading, Text } from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Link from "next/link";
 import { useRouter } from "next/router";

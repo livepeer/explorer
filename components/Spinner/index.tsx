@@ -1,4 +1,4 @@
-import { Box,keyframes } from "@livepeer/design-system";
+import { Box, keyframes } from "@livepeer/design-system";
 
 const rotate = keyframes({
   "100%": { transform: "rotate(360deg)" },

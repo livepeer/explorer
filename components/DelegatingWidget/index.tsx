@@ -15,12 +15,14 @@ import { Tab, TabList, Tabs } from "./Tabs";
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
   | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+  | NonNullable<
+      NonNullable<AccountQueryResult["data"]>["delegator"]
+    >["delegate"];
 
 interface Props {
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType | undefined;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;

@@ -155,7 +155,9 @@ const Proposal = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
+      >
         <Flex>
           <Flex
             css={{

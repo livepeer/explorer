@@ -61,7 +61,9 @@ const Stat = ({
       {value ? (
         <Box css={{ color: "$hiContrast" }}>{value}</Box>
       ) : (
-        <Skeleton css={{ marginTop: "$1", height: 35, width: 100, borderRadius: 8 }} />
+        <Skeleton
+          css={{ marginTop: "$1", height: 35, width: 100, borderRadius: 8 }}
+        />
       )}
     </Text>
     {meta && <Box css={{ marginTop: "$1", color: "$hiContrast" }}>{meta}</Box>}

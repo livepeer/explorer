@@ -797,7 +797,6 @@ const MigrateUndelegatedStake = () => {
   );
 };
 
-
 const ReadOnlyCard = styled(Box, {
   length: {},
   display: "flex",

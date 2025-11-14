@@ -16,7 +16,7 @@ const SUBGRAPH_ID =
   process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
   "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
 
-// Check for required environment variables. 
+// Check for required environment variables.
 if (!INFURA_KEY || !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
@@ -84,7 +84,7 @@ export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumGoerli] as const;
 
 export const L1_CHAIN_IDS = [chain.mainnet, chain.goerli] as const;
 
-export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
+export type SupportedL2ChainId = (typeof L2_CHAIN_IDS)[number];
 
 export const TESTNET_CHAIN_IDS = [chain.goerli, chain.arbitrumGoerli] as const;
 

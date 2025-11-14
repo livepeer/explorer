@@ -2,9 +2,7 @@ import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import {
-  getLivepeerTokenAddress,
-} from "@lib/api/contracts";
+import { getLivepeerTokenAddress } from "@lib/api/contracts";
 import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
@@ -30,7 +28,7 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const StyledTab = styled(Tab, {
   position: "relative",

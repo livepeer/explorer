@@ -3,7 +3,7 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { controller } from "@lib/api/abis/main/Controller";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
-import { CHAIN_INFO, L1_CHAIN_ID,l1PublicClient } from "@lib/chains";
+import { CHAIN_INFO, L1_CHAIN_ID, l1PublicClient } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";

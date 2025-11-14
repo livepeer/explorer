@@ -11,7 +11,15 @@ const Index = ({ tx }: { tx?: TransactionStatus }) => {
   }
 
   return (
-    <Box css={{ position: "relative", paddingLeft: "$4", paddingRight: "$4", paddingBottom: "$3", paddingTop: "18px" }}>
+    <Box
+      css={{
+        position: "relative",
+        paddingLeft: "$4",
+        paddingRight: "$4",
+        paddingBottom: "$3",
+        paddingTop: "18px",
+      }}
+    >
       <Flex css={{ height: 42, alignItems: "center" }}>
         <Spinner css={{ marginRight: "$3", width: 20, height: 20 }} />
         <Box css={{ width: "100%" }}>

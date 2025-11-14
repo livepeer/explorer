@@ -11,18 +11,40 @@ import { historicalDayData } from "data/historical-usage";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
-
 // Parse schema zod for DayData
-const DayDataSchema = z.array(z.object({
-  dateS: z.number(),
-  volumeEth: z.number().nullish().transform((val) => val ?? 0),
-  volumeUsd: z.number().nullish().transform((val) => val ?? 0),
-  feeDerivedMinutes: z.number().nullish().transform((val) => val ?? 0),
-  participationRate: z.number().nullish().transform((val) => val ?? 0),
-  inflation: z.number().nullish().transform((val) => val ?? 0),
-  activeTranscoderCount: z.number().nullish().transform((val) => val ?? 0),
-  delegatorsCount: z.number().nullish().transform((val) => val ?? 0),
-}));
+const DayDataSchema = z.array(
+  z.object({
+    dateS: z.number(),
+    volumeEth: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    volumeUsd: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    feeDerivedMinutes: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    participationRate: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    inflation: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    activeTranscoderCount: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+    delegatorsCount: z
+      .number()
+      .nullish()
+      .transform((val) => val ?? 0),
+  })
+);
 
 const chartDataHandler = async (
   req: NextApiRequest,
@@ -48,12 +70,18 @@ const chartDataHandler = async (
         const errorBody = await response
           .text()
           .catch(() => "Could not read error body");
-        console.error("[api/usage] API request failed:", response.status, errorBody);
+        console.error(
+          "[api/usage] API request failed:",
+          response.status,
+          errorBody
+        );
 
         return res.status(500).json(null);
       }
 
-      const parsedDayData = await response.json().then((data) => DayDataSchema.safeParse(data));
+      const parsedDayData = await response
+        .json()
+        .then((data) => DayDataSchema.safeParse(data));
 
       if (!parsedDayData.success) {
         console.error(parsedDayData.error);
@@ -100,7 +128,8 @@ const chartDataHandler = async (
 
           weeklyData[startIndexWeekly].weeklyVolumeUsd += day.volumeUsd;
           weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
-          weeklyData[startIndexWeekly].weeklyUsageMinutes += day.feeDerivedMinutes;
+          weeklyData[startIndexWeekly].weeklyUsageMinutes +=
+            day.feeDerivedMinutes;
         }
 
         // const currentWeekData = weeklyData[weeklyData.length - 1];

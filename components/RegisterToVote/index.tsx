@@ -9,7 +9,7 @@ import {
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useMemo, useState } from "react";
 import { Address } from "viem";
-import { useSimulateContract,useWriteContract } from "wagmi";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
   bondingManagerAddress: Address | undefined;
