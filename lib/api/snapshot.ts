@@ -253,7 +253,7 @@ export async function castSnapshotVote(
   proposalId: string,
   choice: number,
   reason?: string
-): Promise<{ id: string } | null> {
+): Promise<any> {
   try {
     const receipt = await client.vote(web3Provider, address, {
       space: SNAPSHOT_SPACE,

@@ -183,7 +183,7 @@ export const useContractInfoData = (
 export const useSnapshotProposals = (
   state: "all" | "active" | "pending" | "closed" = "all"
 ) => {
-  const { data, error, isLoading } = useSWR<SnapshotProposal[]>(
+  const { data, error, isValidating } = useSWR<SnapshotProposal[]>(
     `snapshot-proposals-${state}`,
     () => getSnapshotProposals(state),
     {
@@ -194,12 +194,12 @@ export const useSnapshotProposals = (
   return {
     data: data ?? [],
     error,
-    isLoading,
+    isLoading: isValidating && !data,
   };
 };
 
 export const useSnapshotProposal = (proposalId: string | undefined) => {
-  const { data, error, isLoading } = useSWR<SnapshotProposal | null>(
+  const { data, error, isValidating } = useSWR<SnapshotProposal | null>(
     proposalId ? `snapshot-proposal-${proposalId}` : null,
     () => (proposalId ? getSnapshotProposal(proposalId) : null),
     {
@@ -210,7 +210,7 @@ export const useSnapshotProposal = (proposalId: string | undefined) => {
   return {
     data: data ?? null,
     error,
-    isLoading,
+    isLoading: isValidating && !data,
   };
 };
 
@@ -220,7 +220,7 @@ export const useSnapshotVotingPower = (
   snapshot: string | undefined,
   strategies: any[] | undefined
 ) => {
-  const { data, error, isLoading } = useSWR<number>(
+  const { data, error, isValidating } = useSWR<number>(
     address && proposalId && snapshot && strategies
       ? `snapshot-voting-power-${proposalId}-${address}`
       : null,
@@ -233,7 +233,7 @@ export const useSnapshotVotingPower = (
   return {
     data: data ?? 0,
     error,
-    isLoading,
+    isLoading: isValidating && !data,
   };
 };
 
@@ -241,7 +241,7 @@ export const useSnapshotHasVoted = (
   address: string | undefined | null,
   proposalId: string | undefined
 ) => {
-  const { data, error, isLoading } = useSWR<boolean>(
+  const { data, error, isValidating } = useSWR<boolean>(
     address && proposalId ? `snapshot-has-voted-${proposalId}-${address}` : null,
     () => (address && proposalId ? hasVoted(address, proposalId) : false),
     {
@@ -252,6 +252,6 @@ export const useSnapshotHasVoted = (
   return {
     data: data ?? false,
     error,
-    isLoading,
+    isLoading: isValidating && !data,
   };
 };
