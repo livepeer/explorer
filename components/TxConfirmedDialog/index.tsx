@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { fromWei, txMessages } from "../../lib/utils";
 import { MdReceipt } from "react-icons/md";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import {
   Box,
   Flex,

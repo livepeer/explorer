@@ -6,8 +6,19 @@ import Account from "../Account";
 import { Box, Flex, Text, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
 import { useEffect } from "react";
+import { DrawerItem } from "@layouts/main";
 
-const Index = ({ items = [], open, onDrawerOpen, onDrawerClose }: any) => {
+const Index = ({
+  items = [],
+  open,
+  onDrawerOpen,
+  onDrawerClose,
+}: {
+  items: DrawerItem[];
+  open: boolean;
+  onDrawerOpen: () => void;
+  onDrawerClose: () => void;
+}) => {
   const router = useRouter();
   const { asPath } = router;
 

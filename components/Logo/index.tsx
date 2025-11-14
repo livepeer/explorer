@@ -84,7 +84,7 @@ const LivepeerLogo = ({
         css={{ height: "34px", width: 110, marginBottom: "$4" }}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        ref={svgRef as any}
+        ref={svgRef as React.Ref<SVGSVGElement>}
       >
         <defs>
           <linearGradient

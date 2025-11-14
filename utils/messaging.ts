@@ -19,7 +19,7 @@ export async function waitForTx(
   // we retry / wait if it fails the first time
   try {
     return await resolvedTx.wait(confirmations);
-  } catch (e) {}
+  } catch {}
   return await resolvedTx.wait(confirmations);
 }
 

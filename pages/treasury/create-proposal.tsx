@@ -194,10 +194,10 @@ const CreateProposal = () => {
               }
               console.log("submitting!");
               writeContract(config.request);
-            } catch (err: any) {
+            } catch (err: unknown) {
               console.error(err);
               return {
-                error: err.message ?? err.toString(),
+                error: err instanceof Error ? err.message : String(err),
               };
             }
           }}

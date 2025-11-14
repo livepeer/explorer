@@ -1,27 +1,34 @@
 import QRCode from "qrcode.react";
 import { Heading, Box, Flex } from "@livepeer/design-system";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { TranscoderOrDelegateType } from ".";
 
 const Header = ({
   transcoder,
   delegateProfile,
 }: {
-  transcoder: any;
+  transcoder: TranscoderOrDelegateType;
   delegateProfile: EnsIdentity | undefined;
 }) => {
   return (
     <Box
       css={{
-        pt: "$3",
-        pb: "$2",
-        px: "$3",
+        paddingTop: "$3",
+        paddingBottom: "$2",
+        paddingLeft: "$3",
+        paddingRight: "$3",
         display: "flex",
         alignItems: "center",
         fontWeight: "bold",
       }}
     >
       <Flex
-        css={{ minWidth: 40, minHeight: 40, position: "relative", mr: "$2" }}
+        css={{
+          minWidth: 40,
+          minHeight: 40,
+          position: "relative",
+          marginRight: "$2",
+        }}
       >
         {delegateProfile?.avatar ? (
           <Box
@@ -42,7 +49,7 @@ const Header = ({
               height: 40,
             }}
             fgColor={`#${transcoder?.id.substr(2, 6)}`}
-            value={transcoder?.id}
+            value={transcoder?.id ?? ""}
           />
         )}
       </Flex>
@@ -50,7 +57,7 @@ const Header = ({
         <Heading size="1" css={{ fontWeight: 700 }}>
           {delegateProfile?.name
             ? delegateProfile.name
-            : transcoder.id.replace(transcoder.id.slice(7, 37), "…")}
+            : transcoder?.id.replace(transcoder.id.slice(7, 37), "…")}
         </Heading>
         <Box
           css={{

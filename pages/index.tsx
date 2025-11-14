@@ -434,8 +434,8 @@ export const getStaticProps = async () => {
   };
   try {
     const client = getApollo();
-    const { orchestrators, fallback } = await getOrchestrators(client);
-    const { events, fallback: eventsFallback } = await getEvents(client);
+    const { orchestrators } = await getOrchestrators(client);
+    const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {

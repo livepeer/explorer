@@ -4,7 +4,7 @@ import { useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useWriteContract, useSimulateContract } from "wagmi";
 
-const Index = ({ unbondingLockId, newPosPrev, newPosNext }: any) => {
+const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { data: config } = useSimulateContract({

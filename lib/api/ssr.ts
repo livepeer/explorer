@@ -19,7 +19,6 @@ import {
   ProtocolQuery,
   ProtocolQueryVariables,
 } from "../../apollo";
-import { EnsIdentity } from "./types/get-ens";
 
 export async function getProtocol(client = getApollo()) {
   return client.query<ProtocolQuery, ProtocolQueryVariables>({
@@ -137,25 +136,3 @@ export const server =
     ? "http://localhost:3000"
     : "https://explorer.livepeer.org";
 
-async function getEnsIdentity(address: string) {
-  try {
-    const response = await fetch(
-      `${server}/api/ens-data/${address.toLowerCase()}`
-    );
-
-    const identity: EnsIdentity = await response.json();
-
-    return identity;
-  } catch (e) {
-    console.error(e);
-  }
-
-  const idShort = address.replace(address.slice(6, 38), "…");
-  const ens: EnsIdentity = {
-    id: address,
-    idShort,
-    name: null,
-  };
-
-  return ens;
-}

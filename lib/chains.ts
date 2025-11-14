@@ -3,15 +3,7 @@ import ethereumLogoUrl from "../public/img/logos/ethereum.png";
 
 import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
-import {
-  Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
-  createPublicClient,
-  http,
-} from "viem";
+import { Address, createPublicClient, http } from "viem";
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;

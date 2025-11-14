@@ -39,7 +39,7 @@ type FooterData = {
   account: EnsIdentity;
 };
 interface Props {
-  reset: Function;
+  reset: () => void;
   data: FooterData;
   css?: object;
 }
@@ -55,7 +55,6 @@ const Footer = ({
     transcoder,
     action,
     amount,
-    account,
     currentRound,
   },
   css = {},

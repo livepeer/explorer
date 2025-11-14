@@ -43,13 +43,7 @@ export function ExplorerTooltip({
     >
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
 
-      <Content
-        side="top"
-        align="center"
-        sideOffset={5}
-        multiline
-        {...props}
-      >
+      <Content side="top" align="center" sideOffset={5} multiline {...props}>
         <Text
           size="1"
           as="p"
@@ -59,7 +53,7 @@ export function ExplorerTooltip({
             fontWeight: 600,
             color: "white",
             zIndex: "$4",
-            lineHeight: multiline ? "20px" : (undefined as any),
+            lineHeight: multiline ? "20px" : undefined,
           }}
         >
           {content}

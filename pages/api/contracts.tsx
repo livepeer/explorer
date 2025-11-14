@@ -6,7 +6,7 @@ import {
   getTreasuryAddress,
 } from "@lib/api/contracts";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
-import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (

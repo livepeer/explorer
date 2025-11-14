@@ -197,7 +197,7 @@ const AccountLayout = ({
                   side="bottom"
                 >
                   <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders as any}
+                    transcoders={sortedOrchestrators?.transcoders}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
                     transcoder={

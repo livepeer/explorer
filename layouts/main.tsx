@@ -47,7 +47,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
@@ -76,8 +76,8 @@ if (process.env.NODE_ENV === "production") {
 
 const themeMap = getThemes();
 
-type DrawerItem = {
-  name: any;
+export type DrawerItem = {
+  name: ReactNode;
   href: string;
   as: string;
   icon: React.ElementType;
@@ -363,7 +363,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref as any}
+                ref={ref}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}

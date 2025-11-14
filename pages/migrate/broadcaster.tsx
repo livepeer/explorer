@@ -23,12 +23,7 @@ import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-  l2Provider,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
@@ -230,7 +225,7 @@ const MigrateBroadcaster = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -269,8 +264,6 @@ const MigrateBroadcaster = () => {
       dispatch({
         type: "initiate",
       });
-
-      const gasPriceBid = await l2Provider.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
@@ -407,7 +400,7 @@ const MigrateBroadcaster = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const [_unused, params] = await l1PublicClient.readContract({
+        const [, params] = await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",

@@ -11,7 +11,6 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
 } from "@livepeer/design-system";
 import { useEffect, useReducer, useState } from "react";
 
@@ -20,16 +19,8 @@ import { isL2ChainId } from "@lib/chains";
 import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
-import {
-  useAccountAddress,
-  useActiveChain,
-
-  useL1DelegatorData
-} from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID, L1_CHAIN_ID
-} from "lib/chains";
+import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
@@ -217,7 +208,6 @@ const MigrateUndelegatedStake = () => {
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
 
-  const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
@@ -227,11 +217,8 @@ const MigrateUndelegatedStake = () => {
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
   const l1Delegator = useL1DelegatorData(accountAddress);
-  const l1SignerOrAddress = useL1DelegatorData(
-    state.signer ? state.signer : accountAddress
-  );
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -469,15 +456,6 @@ const MigrateUndelegatedStake = () => {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-    });
   };
 
   if (!render) {

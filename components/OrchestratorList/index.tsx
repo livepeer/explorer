@@ -983,8 +983,8 @@ const OrchestratorList = ({
 
   return (
     <Table
-      data={mappedData as any}
-      columns={columns as any}
+      data={mappedData as object[]}
+      columns={columns}
       initialState={{
         pageSize,
         hiddenColumns: ["identity"],

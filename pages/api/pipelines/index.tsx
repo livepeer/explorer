@@ -17,7 +17,7 @@ const handler = async (
       const url = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/pipelines${region ? `?region=${region}` : ""}`;
       const pipelinesResponse = await fetchWithRetry(url)
         .then((res) => res.json())
-        .catch((e) => {
+        .catch(() => {
           return { pipelines: [] };
         });
       const availablePipelines: AvailablePipelines = await pipelinesResponse;

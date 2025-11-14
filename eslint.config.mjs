@@ -1,10 +1,10 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
-// import nextTs from "eslint-config-next/typescript";
+import nextTs from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  // ...nextTs,
+  ...nextTs,
   {
     rules: {
       "react-hooks/set-state-in-effect": "off",
@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
   },
   globalIgnores([
     // Default ignores of eslint-config-next:
+    "apollo/**",
+    "@types/**",
     ".next/**",
     "out/**",
     "build/**",

@@ -31,7 +31,7 @@ const Index = (props) => {
           alignItems: "center",
         }}
       >
-        {props.children}
+        {children}
       </Flex>
     </Box>
   );

@@ -28,7 +28,7 @@ export const useAccountAddress = () => {
 export const useAccountSigner = () => {
   const isChainSupported = useIsChainSupported();
 
-  const [signer, setSigner] = useState<Signer | null>(null);
+  const [signer] = useState<Signer | null>(null);
 
   // useEffect(() => {
   //   async function getSigner() {

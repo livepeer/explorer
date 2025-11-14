@@ -12,7 +12,7 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
-import { AccountQuery, PollChoice } from "apollo";
+import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import dayjs from "@lib/dayjs";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
@@ -79,7 +79,14 @@ const Index = ({ data }: { data: Props }) => {
     [accountAddress, data, pendingFeesAndStake]
   );
 
-  let delegate: any = null;
+  let delegate: {
+    __typename: "Transcoder";
+    id: string;
+    active: boolean;
+    status: TranscoderStatus;
+    totalStake: string;
+  } | null = null;
+
   if (data?.myAccount?.delegator?.delegate) {
     delegate = data?.myAccount?.delegator?.delegate;
   }

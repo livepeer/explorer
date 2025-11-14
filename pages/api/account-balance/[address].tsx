@@ -1,5 +1,4 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import {
   getLivepeerTokenAddress,

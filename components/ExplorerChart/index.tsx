@@ -17,10 +17,19 @@ import {
 
 // Correctly formatted custom content of tooltip is required to not throw error in console
 // As defined in https://recharts.github.io/en-US/examples/CustomContentOfTooltip
-const CustomContentOfTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
+const CustomContentOfTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: unknown[];
+}) => {
   const isVisible = active && payload && payload.length;
   return (
-    <div className="custom-tooltip" style={{ visibility: isVisible ? 'visible' : 'hidden' }} />
+    <div
+      className="custom-tooltip"
+      style={{ visibility: isVisible ? "visible" : "hidden" }}
+    />
   );
 };
 

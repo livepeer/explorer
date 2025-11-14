@@ -1,10 +1,4 @@
-import {
-  useTable,
-  useSortBy,
-  usePagination,
-  Column,
-  TableState,
-} from "react-table";
+import { useTable, useSortBy, usePagination, Column } from "react-table";
 import {
   Flex,
   Box,
