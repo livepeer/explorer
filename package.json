@@ -7,7 +7,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "lint": "pnpm exec eslint ."
+    "lint": "eslint . --max-warnings 0"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^3.2.0",

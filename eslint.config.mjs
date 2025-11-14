@@ -9,12 +9,16 @@ const eslintConfig = defineConfig([
     rules: {
       "react-hooks/set-state-in-effect": "off",
     },
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
   },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     "apollo/**",
     "@types/**",
     ".next/**",
+    "dist/**",
+    "node_modules/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
