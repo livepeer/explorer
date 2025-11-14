@@ -1,7 +1,7 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { useEnsData, useExplorerStore } from "hooks";
+import { useEnsData, useExplorerStore, usePendingFeesAndStakeData } from "hooks";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
 import ArrowDown from "../../public/img/arrow-down.svg";
@@ -10,6 +10,7 @@ import Header from "./Header";
 import InputBox from "./InputBox";
 import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
+import { fromWei } from "@lib/utils";
 
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
@@ -41,6 +42,8 @@ const Index = ({
   const { selectedStakingAction, setSelectedStakingAction } =
     useExplorerStore();
 
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
+  
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
     [delegator, transcoder]
@@ -56,6 +59,9 @@ const Index = ({
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
   );
+  const currentBondedAmount = Number(delegator?.bondedAmount ?? 0);
+  const currentPendingStake= Number(fromWei(pendingFeesAndStake?.pendingFees ?? 0));
+  const amountToBeTransferred = currentBondedAmount + currentPendingStake;
 
   return (
     <Box
@@ -113,7 +119,7 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numeral(delegator?.bondedAmount || 0).format("0,0.0")}
+                      {numeral(amountToBeTransferred).format("0,0.0")}
                       {` LPT`}
                     </Box>
                     {` from `}
