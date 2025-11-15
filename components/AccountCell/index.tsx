@@ -1,4 +1,4 @@
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { textTruncate } from "@lib/utils";
 import { Box, Flex } from "@livepeer/design-system";
 import { useEnsData } from "hooks";
@@ -46,7 +46,7 @@ const Index = ({ active, address }) => {
             src={identity.avatar}
           />
         ) : (
-          <QRCode
+          <QRCodeCanvas
             style={{
               borderRadius: 1000,
               width: 24,

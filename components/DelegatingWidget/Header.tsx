@@ -1,4 +1,4 @@
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { Heading, Box, Flex } from "@livepeer/design-system";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 
@@ -35,7 +35,7 @@ const Header = ({
             src={delegateProfile.avatar}
           />
         ) : (
-          <QRCode
+          <QRCodeCanvas
             style={{
               borderRadius: 1000,
               width: 40,

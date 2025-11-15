@@ -5,7 +5,7 @@ import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Link from "next/link";
 import { useMemo } from "react";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import numeral from "numeral";
@@ -135,7 +135,7 @@ const PerformanceList = ({
                       overflow: "hidden",
                     }}
                   >
-                    <QRCode
+                    <QRCodeCanvas
                       fgColor={`#${row.values.id.substr(2, 6)}`}
                       size={24}
                       value={row.values.id}
