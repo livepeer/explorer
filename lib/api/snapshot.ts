@@ -311,3 +311,37 @@ export async function hasVoted(
     return false;
   }
 }
+
+/**
+ * Create a new Snapshot proposal
+ */
+export async function createSnapshotProposal(
+  web3Provider: any,
+  address: string,
+  proposal: {
+    title: string;
+    body: string;
+    choices: string[];
+    start: number;
+    end: number;
+  }
+): Promise<any> {
+  try {
+    const receipt = await client.proposal(web3Provider, address, {
+      space: SNAPSHOT_SPACE,
+      type: "single-choice",
+      title: proposal.title,
+      body: proposal.body,
+      choices: proposal.choices,
+      start: proposal.start,
+      end: proposal.end,
+      snapshot: 0, // Will use current block
+      app: "livepeer-explorer",
+    } as any);
+
+    return receipt;
+  } catch (error) {
+    console.error("Error creating snapshot proposal:", error);
+    throw error;
+  }
+}

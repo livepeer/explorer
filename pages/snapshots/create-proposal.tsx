@@ -5,107 +5,313 @@ import {
   Flex,
   Heading,
   Text,
-  Link as A,
+  TextField,
+  TextArea,
+  Card,
 } from "@livepeer/design-system";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { useState } from "react";
+import { useAccountAddress } from "hooks";
+import { useWalletClient } from "wagmi";
+import { createSnapshotProposal } from "@lib/api/snapshot";
 
-const CreateSnapshotProposal = () => {
-  const SNAPSHOT_SPACE = process.env.NEXT_PUBLIC_SNAPSHOT_SPACE || "livepeer.eth";
-  const snapshotUrl = `https://snapshot.org/#/${SNAPSHOT_SPACE}`;
+const CreateSnapshot = () => {
+  const accountAddress = useAccountAddress();
+  const { data: walletClient } = useWalletClient();
+
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [choices, setChoices] = useState("For\nAgainst\nAbstain");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!walletClient || !accountAddress) {
+      setError("Please connect your wallet");
+      return;
+    }
+
+    if (!title || !body || !startDate || !endDate) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const choicesArray = choices.split("\n").filter(c => c.trim());
+      
+      const startTimestamp = Math.floor(new Date(startDate).getTime() / 1000);
+      const endTimestamp = Math.floor(new Date(endDate).getTime() / 1000);
+
+      const receipt = await createSnapshotProposal(
+        walletClient,
+        accountAddress,
+        {
+          title,
+          body,
+          choices: choicesArray,
+          start: startTimestamp,
+          end: endTimestamp,
+        }
+      );
+
+      console.log("Proposal created:", receipt);
+      setSuccess(true);
+      
+      // Redirect to snapshots page after a delay
+      setTimeout(() => {
+        window.location.href = "/snapshots";
+      }, 2000);
+    } catch (err) {
+      console.error("Error creating snapshot:", err);
+      setError(err instanceof Error ? err.message : "Failed to create snapshot");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!accountAddress) {
+    return (
+      <>
+        <Head>
+          <title>Livepeer Explorer - Create Snapshot</title>
+        </Head>
+        <Container
+          css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "60vh",
+            }}
+          >
+            <Heading
+              size="2"
+              css={{
+                fontWeight: 700,
+                marginBottom: "$4",
+                textAlign: "center",
+              }}
+            >
+              Create Snapshot
+            </Heading>
+            <Text size="3" variant="neutral">
+              Please connect your wallet to create a snapshot proposal.
+            </Text>
+          </Flex>
+        </Container>
+      </>
+    );
+  }
+
+  if (success) {
+    return (
+      <>
+        <Head>
+          <title>Livepeer Explorer - Create Snapshot</title>
+        </Head>
+        <Container
+          css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "60vh",
+            }}
+          >
+            <Heading
+              size="2"
+              css={{
+                fontWeight: 700,
+                marginBottom: "$4",
+                textAlign: "center",
+                color: "$green11",
+              }}
+            >
+              Snapshot Created Successfully!
+            </Heading>
+            <Text size="3" variant="neutral">
+              Redirecting to snapshots page...
+            </Text>
+          </Flex>
+        </Container>
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Create Snapshot Proposal</title>
+        <title>Livepeer Explorer - Create Snapshot</title>
       </Head>
       <Container
-        css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+        css={{ maxWidth: 800, width: "100%", marginTop: "$6", marginBottom: "$6" }}
       >
-        <Flex
+        <Heading
+          size="2"
           css={{
-            width: "100%",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "60vh",
+            fontWeight: 700,
+            marginBottom: "$4",
           }}
         >
-          <Heading
-            size="2"
-            css={{
-              fontWeight: 700,
-              marginBottom: "$4",
-              textAlign: "center",
-            }}
-          >
-            Create a Snapshot Proposal
-          </Heading>
+          Create Snapshot
+        </Heading>
 
-          <Text
-            size="4"
-            variant="neutral"
+        <form onSubmit={handleSubmit}>
+          <Card
             css={{
-              marginBottom: "$5",
-              textAlign: "center",
-              maxWidth: "600px",
-            }}
-          >
-            To create a new Snapshot proposal for the Livepeer community, please
-            visit the official Snapshot space.
-          </Text>
-
-          <Box css={{ marginBottom: "$4" }}>
-            <A
-              href={snapshotUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              css={{ textDecoration: "none" }}
-            >
-              <Button size="4" variant="primary">
-                <Flex css={{ alignItems: "center", gap: "$2" }}>
-                  Go to Snapshot
-                  <Box
-                    as={ArrowTopRightIcon}
-                    css={{
-                      width: 20,
-                      height: 20,
-                    }}
-                  />
-                </Flex>
-              </Button>
-            </A>
-          </Box>
-
-          <Box
-            css={{
-              marginTop: "$5",
               padding: "$4",
-              backgroundColor: "$panel",
-              borderRadius: "$4",
+              marginBottom: "$4",
               border: "1px solid $neutral4",
-              maxWidth: "600px",
             }}
           >
-            <Heading size="1" css={{ marginBottom: "$3", fontWeight: 600 }}>
-              Requirements
-            </Heading>
-            <Text size="3" variant="neutral" css={{ lineHeight: 1.6 }}>
-              • You must have sufficient voting power in the Livepeer protocol
-              <br />
-              • Connect your wallet on Snapshot.org
-              <br />
-              • Follow the Snapshot proposal guidelines
-              <br />• Proposals should be relevant to the Livepeer community
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                size="2"
+                css={{ marginBottom: "$2", display: "block", fontWeight: 600 }}
+              >
+                Title *
+              </Text>
+              <TextField
+                size="3"
+                placeholder="Enter proposal title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                css={{ width: "100%" }}
+              />
+            </Box>
+
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                size="2"
+                css={{ marginBottom: "$2", display: "block", fontWeight: 600 }}
+              >
+                Description *
+              </Text>
+              <TextArea
+                size="3"
+                placeholder="Enter proposal description (supports Markdown)"
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                required
+                css={{ width: "100%", minHeight: 200 }}
+              />
+            </Box>
+
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                size="2"
+                css={{ marginBottom: "$2", display: "block", fontWeight: 600 }}
+              >
+                Choices (one per line) *
+              </Text>
+              <TextArea
+                size="3"
+                placeholder="For&#10;Against&#10;Abstain"
+                value={choices}
+                onChange={(e) => setChoices(e.target.value)}
+                required
+                css={{ width: "100%", minHeight: 100 }}
+              />
+            </Box>
+
+            <Flex css={{ gap: "$4", marginBottom: "$4" }}>
+              <Box css={{ flex: 1 }}>
+                <Text
+                  size="2"
+                  css={{ marginBottom: "$2", display: "block", fontWeight: 600 }}
+                >
+                  Start Date *
+                </Text>
+                <TextField
+                  size="3"
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                  css={{ width: "100%" }}
+                />
+              </Box>
+
+              <Box css={{ flex: 1 }}>
+                <Text
+                  size="2"
+                  css={{ marginBottom: "$2", display: "block", fontWeight: 600 }}
+                >
+                  End Date *
+                </Text>
+                <TextField
+                  size="3"
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                  css={{ width: "100%" }}
+                />
+              </Box>
+            </Flex>
+
+            {error && (
+              <Box
+                css={{
+                  padding: "$3",
+                  marginBottom: "$4",
+                  backgroundColor: "$red3",
+                  border: "1px solid $red7",
+                  borderRadius: "$2",
+                }}
+              >
+                <Text size="2" css={{ color: "$red11" }}>
+                  {error}
+                </Text>
+              </Box>
+            )}
+
+            <Button
+              size="3"
+              variant="primary"
+              type="submit"
+              disabled={isSubmitting}
+              css={{ width: "100%" }}
+            >
+              {isSubmitting ? "Creating Snapshot..." : "Create Snapshot"}
+            </Button>
+          </Card>
+
+          <Card
+            css={{
+              padding: "$3",
+              backgroundColor: "$neutral3",
+              border: "1px solid $neutral4",
+            }}
+          >
+            <Text size="2" variant="neutral">
+              <strong>Note:</strong> Creating a snapshot requires signing with your
+              connected wallet. Make sure you have sufficient voting power in the
+              Livepeer protocol.
             </Text>
-          </Box>
-        </Flex>
+          </Card>
+        </form>
       </Container>
     </>
   );
 };
 
-CreateSnapshotProposal.getLayout = getLayout;
+CreateSnapshot.getLayout = getLayout;
 
-export default CreateSnapshotProposal;
+export default CreateSnapshot;

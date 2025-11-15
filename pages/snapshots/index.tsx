@@ -69,7 +69,7 @@ const Snapshots = () => {
                 passHref
               >
                 <Button size="3" variant="primary">
-                  Create Proposal
+                  Create Snapshot
                 </Button>
               </Link>
             </Flex>
