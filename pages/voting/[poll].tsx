@@ -31,9 +31,12 @@ import FourZeroFour from "../404";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
-import numeral from "numeral";
+import numbro from "numbro";
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format({
+  output: "percent",
+  mantissa: 4
+});
 
 const Poll = () => {
   const router = useRouter();

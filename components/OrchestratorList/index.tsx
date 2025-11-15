@@ -26,7 +26,7 @@ import {
 } from "@radix-ui/react-icons";
 import dayjs from "@lib/dayjs";
 import Link from "next/link";
-import numeral from "numeral";
+import numbro from "numbro";
 import QRCode from "qrcode.react";
 import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
@@ -85,16 +85,16 @@ const OrchestratorList = ({
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
-        ? `Fixed at ${numeral(
+        ? `Fixed at ${numbro(
             Number(protocolData?.inflation) / 1000000000
-          ).format("0.000%")}`
-        : change === "positive"
-        ? `+${numeral(
+          ).format({
+            mantissa: 3,
+            output: "percent",
+          })}`
+        :  `${numbro(
             Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`
-        : `-${numeral(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`,
+          ).format({ mantissa: 5, output: "percent", forceSign: true })} per round`,
+       
     [protocolData?.inflation, protocolData?.inflationChange]
   );
 
@@ -108,7 +108,7 @@ const OrchestratorList = ({
     [protocolData]
   );
   const formattedPrinciple = useMemo(
-    () => numeral(Number(principle) || 150).format("0a"),
+    () => numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
     [principle]
   );
   const { data: bondingManagerAddress } = useBondingManagerAddress();
@@ -373,23 +373,23 @@ const OrchestratorList = ({
           );
           const feeCut = useMemo(
             () =>
-              numeral(
+              numbro(
                 1 - Number(row.values.earnings.feeShare) / 1000000
-              ).format("0%"),
+              ).format({ mantissa: 0, output: "percent" }),
             [row.values.earnings.feeShare]
           );
           const rewardCut = useMemo(
             () =>
-              numeral(Number(row.values.earnings.rewardCut) / 1000000).format(
-                "0%"
+              numbro(Number(row.values.earnings.rewardCut) / 1000000).format(
+                { mantissa: 0, output: "percent" }
               ),
             [row.values.earnings.rewardCut]
           );
           const rewardCalls = useMemo(
             () =>
-              `${numeral(row.values.earnings.rewardCalls)
+              `${numbro(row.values.earnings.rewardCalls)
                 .divide(row.values.earnings.rewardCallLength)
-                .format("0%")}`,
+                .format({ mantissa: 0, output: "percent" })}`,
             [
               row.values.earnings.rewardCalls,
               row.values.earnings.rewardCallLength,
@@ -412,10 +412,10 @@ const OrchestratorList = ({
                   ) : (
                     <>
                       <Box>
-                        {numeral(
+                        {numbro(
                           row.values.earnings.roi.delegatorPercent.fees +
                             row.values.earnings.roi.delegatorPercent.rewards
-                        ).format("0.0%")}
+                        ).format({ mantissa: 1, output: "percent" })}
                       </Box>
                       <Box css={{ marginLeft: "$1" }}>
                         <ChevronDownIcon />
@@ -458,9 +458,9 @@ const OrchestratorList = ({
                             size="2"
                           >
                             Rewards (
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegatorPercent.rewards
-                            ).format("0.0%")}
+                            ).format({ mantissa: 1, output: "percent" })}
                             ):
                           </Text>
                           <Text
@@ -473,9 +473,9 @@ const OrchestratorList = ({
                             }}
                             size="2"
                           >
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegator.rewards
-                            ).format("0.0")}
+                            ).format({ mantissa: 1 })}
                             {" LPT"}
                           </Text>
                         </Flex>
@@ -490,9 +490,9 @@ const OrchestratorList = ({
                             size="2"
                           >
                             Fees (
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegatorPercent.fees
-                            ).format("0.0%")}
+                            ).format({ mantissa: 1, output: "percent" })}
                             ):
                           </Text>
                           <Text
@@ -505,9 +505,9 @@ const OrchestratorList = ({
                             }}
                             size="2"
                           >
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegator.fees
-                            ).format("0.000")}
+                            ).format({ mantissa: 3 })}
                             {" ETH"}
                           </Text>
                         </Flex>
@@ -646,9 +646,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numeral(
+                          {numbro(
                             row.values.earnings.ninetyDayVolumeETH
-                          ).format("0.000a")}
+                          ).format({ mantissa: 3, average: true })}
                           {" ETH"}
                         </Text>
                       </Flex>
@@ -672,8 +672,8 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numeral(row.values.earnings.totalStake).format(
-                            "0.0a"
+                          {numbro(row.values.earnings.totalStake).format(
+                            { mantissa: 1, average: true }
                           )}
                           {" LPT"}
                         </Text>
@@ -741,7 +741,7 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numeral(AVERAGE_L1_BLOCK_TIME).format("0")}
+                          {numbro(AVERAGE_L1_BLOCK_TIME).format({ mantissa: 0 })}
                           {" seconds"}
                         </Text>
                       </Flex>
@@ -765,9 +765,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numeral(
+                          {numbro(
                             row.values.earnings.roi.params.roundsCount
-                          ).format("0")}
+                          ).format({ mantissa: 0 })}
                           {" rounds"}
                         </Text>
                       </Flex>
@@ -791,8 +791,8 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numeral(row.values.earnings.totalActiveStake).format(
-                            "0.0a"
+                          {numbro(row.values.earnings.totalActiveStake).format(
+                            { mantissa: 1, average: true }
                           )}
                           {" LPT"}
                         </Text>
@@ -841,7 +841,7 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numeral(row.values.totalStake).format("0,0")} LPT
+              {numbro(row.values.totalStake).format({ mantissa: 0, thousandSeparated: true })} LPT
             </Text>
           </Box>
         ),
@@ -871,7 +871,7 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numeral(row.values.ninetyDayVolumeETH).format("0.00a")} ETH
+              {numbro(row.values.ninetyDayVolumeETH).format({ mantissa: 2, average: true })} ETH
             </Text>
           </Box>
         ),
@@ -1145,7 +1145,7 @@ const OrchestratorList = ({
                         fontWeight: 600,
                       }}
                     >
-                      {numeral(principle).format("0.0a")}
+                      {numbro(principle).format({ mantissa: 1, average: true })}
                       {" LPT"}
                     </Text>
                   </Badge>

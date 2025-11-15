@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
 import dayjs from "@lib/dayjs";
 import { useAccountAddress } from "hooks";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useState } from "react";
 import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import VoteButton from "../VoteButton";
@@ -15,7 +15,10 @@ type Props = {
   vote: ProposalVotingPower | undefined | null;
 };
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format({
+  output: "percent",
+  mantissa: 4
+});
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? 0), 4);

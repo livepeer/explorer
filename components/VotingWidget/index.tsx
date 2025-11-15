@@ -15,7 +15,7 @@ import { Cross1Icon } from "@modulz/radix-icons";
 import { AccountQuery, PollChoice } from "apollo";
 import dayjs from "@lib/dayjs";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { abbreviateNumber, fromWei } from "../../lib/utils";
@@ -46,7 +46,10 @@ type Props = {
   myAccount: AccountQuery;
 };
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format({
+  output: "percent",
+  mantissa: 4
+});
 
 const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();
