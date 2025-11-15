@@ -232,11 +232,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       className: "treasury",
     },
     {
-      name: "Community",
-      href: "/governance",
-      as: "/governance",
+      name: "Snapshots",
+      href: "/snapshots",
+      as: "/snapshots",
       icon: Ballot,
-      className: "governance",
+      className: "snapshots",
     },
   ];
 
@@ -539,12 +539,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               )}
                             </Button>
                           </Link>
-                          <Link passHref href="/governance">
+                          <Link passHref href="/snapshots">
                             <Button
                               size="3"
                               css={{
                                 marginLeft: "$2",
-                                backgroundColor: asPath.includes("/governance")
+                                backgroundColor: asPath.includes("/snapshots")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
                                 color: "white",
@@ -559,7 +559,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 },
                               }}
                             >
-                              Community
+                              Snapshots
                             </Button>
                           </Link>
                           {accountAddress && (

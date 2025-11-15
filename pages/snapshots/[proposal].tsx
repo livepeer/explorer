@@ -65,7 +65,7 @@ const Proposal = () => {
     return (
       <>
         <Head>
-          <title>Livepeer Explorer - Governance</title>
+          <title>Livepeer Explorer - Snapshots</title>
         </Head>
         <Flex
           css={{
@@ -89,7 +89,7 @@ const Proposal = () => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Governance</title>
+        <title>Livepeer Explorer - Snapshots</title>
       </Head>
       <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}>
         <Flex>

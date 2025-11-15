@@ -27,7 +27,7 @@ const SnapshotProposalRow = ({ key, proposal, ...props }: Props) => {
     <A
       as={Link}
       {...props}
-      href={`/governance/${proposal.id}`}
+      href={`/snapshots/${proposal.id}`}
       passHref
       css={{
         cursor: "pointer",

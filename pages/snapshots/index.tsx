@@ -1,6 +1,7 @@
 import Spinner from "@components/Spinner";
 import {
   Box,
+  Button,
   Container,
   Flex,
   Heading,
@@ -8,16 +9,17 @@ import {
 } from "@livepeer/design-system";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
+import Link from "next/link";
 import { useSnapshotProposals } from "hooks";
 import SnapshotProposalRow from "@components/SnapshotProposalRow";
 
-const Governance = () => {
+const Snapshots = () => {
   const { data: proposals, isLoading } = useSnapshotProposals("all");
 
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Governance</title>
+        <title>Livepeer Explorer - Snapshots</title>
       </Head>
       <Container
         css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
@@ -59,8 +61,17 @@ const Governance = () => {
                   alignItems: "center",
                 }}
               >
-                Governance
+                Snapshots
               </Heading>
+              <Link
+                href="/snapshots/create-proposal"
+                as="/snapshots/create-proposal"
+                passHref
+              >
+                <Button size="3" variant="primary">
+                  Create Proposal
+                </Button>
+              </Link>
             </Flex>
             <Box css={{ marginBottom: "$3" }}>
               <Text size="3" variant="neutral">
@@ -95,6 +106,6 @@ const Governance = () => {
   );
 };
 
-Governance.getLayout = getLayout;
+Snapshots.getLayout = getLayout;
 
-export default Governance;
+export default Snapshots;
