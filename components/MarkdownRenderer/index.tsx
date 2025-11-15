@@ -120,7 +120,7 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   ],
   disallowedTagsMode: "discard",
   allowedAttributes: {
-    a: ["href"],
+		a: ["href", "target", "rel"],
     img: ["src", "alt", "title"],
     code: ["class"],
   },
