@@ -7,4 +7,5 @@ export type EnsIdentity = {
   twitter?: string | null;
   github?: string | null;
   description?: string | null;
+  isLoading?: boolean;
 };

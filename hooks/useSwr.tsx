@@ -25,17 +25,20 @@ export const useRegionsData = (): Regions => {
 };
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
-  const { data } = useSWR<EnsIdentity>(
+  const { data, isValidating, error } = useSWR<EnsIdentity>(
     address ? `/ens-data/${address.toLowerCase()}` : null
   );
 
-  return (
-    data ?? {
-      id: address ?? "",
-      idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
-      name: null,
-    }
-  );
+  const fallbackIdentity: EnsIdentity = {
+    id: address ?? "",
+    idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
+    name: null,
+  };
+
+  return {
+    ...(data ?? fallbackIdentity),
+    isLoading: Boolean(address && !data && isValidating && !error),
+  };
 };
 
 export const useAllEnsData = (): EnsIdentity[] => {
