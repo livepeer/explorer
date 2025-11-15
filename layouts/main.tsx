@@ -65,6 +65,7 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import RegisterToVote from "@components/RegisterToVote";
+import URLVerificationBanner from "@components/URLVerificationBanner";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -272,6 +273,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
         </Head>
         <SnackbarProvider>
           <Box css={{ height: "calc(100vh - 82px)" }}>
+            <URLVerificationBanner />
             {protocolData?.protocol?.paused && (
               <Flex
                 css={{
