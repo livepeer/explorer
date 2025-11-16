@@ -32,7 +32,7 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
     >
       <Box
         as={FiAlertTriangle}
-        aria-hidden
+        aria-hidden="true"
         css={{
           color: "$amber11",
           width: 16,
@@ -72,9 +72,18 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
           top: 12,
           width: 20,
           height: 20,
+          transition: "opacity 150ms ease, transform 150ms ease",
+          "&:hover": {
+            opacity: 0.7,
+            transform: "scale(1.1)",
+          },
+          "&:focus-visible": {
+            outline: "2px solid $amber11",
+            outlineOffset: 2,
+          },
         }}
       >
-        <FiX />
+        <FiX aria-hidden="true" />
       </Box>
     </Flex>
   );
