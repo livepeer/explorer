@@ -20,11 +20,11 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
         borderBottom: "1px solid $amber6",
         fontSize: "$2",
         gap: "$2",
-        px: "$3",
-        py: "$2",
+        px: "$4",
+        py: "$1",
         position: "relative",
         textAlign: "center",
-        pr: "$7",
+        pr: "$8",
         "@bp3": {
           fontSize: "$3",
         },
@@ -43,7 +43,7 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
       <Text
         css={{
           color: "$amber11",
-          fontWeight: 500,
+          fontWeight: 400,
           lineHeight: 1.4,
         }}
       >
@@ -69,13 +69,14 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
           color: "$amber11",
           position: "absolute",
           right: "$3",
-          top: 12,
-          width: 20,
-          height: 20,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 22,
+          height: 22,
           transition: "opacity 150ms ease, transform 150ms ease",
           "&:hover": {
             opacity: 0.7,
-            transform: "scale(1.1)",
+            transform: "translateY(-50%) scale(1.08)",
           },
           "&:focus-visible": {
             outline: "2px solid $amber11",
