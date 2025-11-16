@@ -24,7 +24,7 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
         py: "$1",
         position: "relative",
         textAlign: "center",
-        pr: "$8",
+        pr: "$7",
         "@bp3": {
           fontSize: "$3",
         },
