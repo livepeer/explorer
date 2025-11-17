@@ -555,7 +555,7 @@ const MigrateOrchestrator = () => {
         }
 
         const validSignature =
-          getAddress(signer) === getAddress(state.migrationParams.delegate);
+          signer && getAddress(signer) === getAddress(state.migrationParams.delegate);
 
         return (
           <Box>

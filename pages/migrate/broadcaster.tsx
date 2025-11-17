@@ -577,7 +577,7 @@ const MigrateBroadcaster = () => {
         }
 
         const validSignature =
-          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
+          signer && getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
