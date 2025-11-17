@@ -16,6 +16,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Skeleton,
   Text,
   TextField,
 } from "@livepeer/design-system";
@@ -27,8 +28,9 @@ import {
 import dayjs from "@lib/dayjs";
 import Link from "next/link";
 import numeral from "numeral";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { useCallback, useMemo, useState } from "react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -47,6 +49,7 @@ import {
 } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { useReadContract } from "wagmi";
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
@@ -68,6 +71,97 @@ const formatFactors = (factors: ROIFactors) =>
     : factors === "lpt"
     ? `LPT Only`
     : `ETH Only`;
+
+const AvatarWrapper = ({
+  identity,
+  address,
+}: {
+  identity: EnsIdentity | null | undefined;
+  address: string;
+}) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [hasAvatarError, setHasAvatarError] = useState(false);
+
+  const avatarContainerStyles = {
+    marginRight: "$2",
+    borderRadius: 1000,
+    width: 24,
+    height: 24,
+    maxWidth: 24,
+    maxHeight: 24,
+    overflow: "hidden",
+    position: "relative",
+  } as const;
+
+  useEffect(() => {
+    setImageLoaded(false);
+    setHasAvatarError(false);
+  }, [identity?.avatar, address]);
+
+  const avatarSrc = identity?.avatar ?? null;
+  const awaitingEnsData = identity?.isLoading && !avatarSrc;
+
+  if (!avatarSrc || hasAvatarError || awaitingEnsData) {
+    return (
+      <Box
+        css={{
+          ...avatarContainerStyles,
+        }}
+      >
+        {awaitingEnsData ? (
+          <Skeleton
+            css={{
+              width: "100%",
+              height: "100%",
+              borderRadius: 1000,
+            }}
+          />
+        ) : (
+          <QRCodeCanvas
+            fgColor={`#${address.slice(2, 8)}`}
+            size={24}
+            value={address}
+          />
+        )}
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      css={{
+        ...avatarContainerStyles,
+      }}
+    >
+      {!imageLoaded && (
+        <Skeleton
+          css={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 1000,
+          }}
+        />
+      )}
+      <Box
+        as="img"
+        css={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 1000,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          objectFit: "cover",
+          opacity: imageLoaded ? 1 : 0,
+          transition: "opacity 150ms ease",
+        }}
+        src={avatarSrc}
+        onLoad={() => setImageLoaded(true)}
+        onError={() => setHasAvatarError(true)}
+      />
+    </Box>
+  );
+};
 
 const OrchestratorList = ({
   data,
@@ -271,38 +365,7 @@ const OrchestratorList = ({
                 </Box>
 
                 <Flex css={{ marginRight: "$2", alignItems: "center" }}>
-                  {identity?.avatar ? (
-                    <Box
-                      as="img"
-                      css={{
-                        marginRight: "$2",
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                        borderRadius: 1000,
-                      }}
-                      src={identity.avatar}
-                    />
-                  ) : (
-                    <Box
-                      css={{
-                        marginRight: "$2",
-                        borderRadius: 1000,
-                        width: 24,
-                        height: 24,
-                        maxWidth: 24,
-                        maxHeight: 24,
-                        overflow: "hidden",
-                      }}
-                    >
-                      <QRCodeCanvas
-                        fgColor={`#${row.values.id.substr(2, 6)}`}
-                        size={24}
-                        value={row.values.id}
-                      />
-                    </Box>
-                  )}
+                  <AvatarWrapper identity={identity} address={row.values.id} />
                   {identity?.name ? (
                     <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                       <Box
