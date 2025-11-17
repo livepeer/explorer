@@ -231,6 +231,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       icon: Ballot,
       className: "treasury",
     },
+    {
+      name: "Snapshots",
+      href: "/snapshots",
+      as: "/snapshots",
+      icon: Ballot,
+      className: "snapshots",
+    },
   ];
 
   const onDrawerOpen = () => {
@@ -530,6 +537,29 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   {totalActiveTreasuryProposals}
                                 </Badge>
                               )}
+                            </Button>
+                          </Link>
+                          <Link passHref href="/snapshots">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes("/snapshots")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Snapshots
                             </Button>
                           </Link>
                           {accountAddress && (
