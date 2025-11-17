@@ -18,6 +18,9 @@
 # misc
 .DS_Store
 *.pem
+.vscode/*
+!.vscode/settings.json
+.code-workspace
 
 # debug
 npm-debug.log*

@@ -28,8 +28,9 @@ import {
 import dayjs from "@lib/dayjs";
 import Link from "next/link";
 import numeral from "numeral";
-import QRCode from "qrcode.react";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useBondingManagerAddress } from "hooks/useContracts";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -116,7 +117,7 @@ const AvatarWrapper = ({
             }}
           />
         ) : (
-          <QRCode
+          <QRCodeCanvas
             fgColor={`#${address.slice(2, 8)}`}
             size={24}
             value={address}
