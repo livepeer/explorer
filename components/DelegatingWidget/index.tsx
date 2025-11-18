@@ -1,7 +1,11 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { useEnsData, useExplorerStore, usePendingFeesAndStakeData } from "hooks";
+import {
+  useEnsData,
+  useExplorerStore,
+  usePendingFeesAndStakeData,
+} from "hooks";
 import numeral from "numeral";
 import { useMemo, useState } from "react";
 import ArrowDown from "../../public/img/arrow-down.svg";
@@ -15,12 +19,14 @@ import { fromWei } from "@lib/utils";
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
   | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+  | NonNullable<
+      NonNullable<AccountQueryResult["data"]>["delegator"]
+    >["delegate"];
 
 interface Props {
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType | undefined;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;
@@ -43,7 +49,7 @@ const Index = ({
     useExplorerStore();
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
-  
+
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
     [delegator, transcoder]
@@ -59,9 +65,9 @@ const Index = ({
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
   );
-  const currentBondedAmount = Number(delegator?.bondedAmount ?? 0);
-  const currentPendingStake= Number(fromWei(pendingFeesAndStake?.pendingFees ?? 0));
-  const amountToBeTransferred = currentBondedAmount + currentPendingStake;
+  const currentPendingStake = Number(
+    fromWei(pendingFeesAndStake?.pendingStake ?? 0)
+  );
 
   return (
     <Box
@@ -119,7 +125,7 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numeral(amountToBeTransferred).format("0,0.0")}
+                      {numeral(currentPendingStake).format("0,0.0")}
                       {` LPT`}
                     </Box>
                     {` from `}
