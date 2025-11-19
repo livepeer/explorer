@@ -625,7 +625,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               >
                                 {IS_L2 && (
                                   <PopoverLink
-                                    newWindow={true}
                                     href={`/migrate`}
                                   >
                                     Arbitrum Migration Tool
