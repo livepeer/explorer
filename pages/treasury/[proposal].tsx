@@ -32,7 +32,7 @@ import {
 import FourZeroFour from "../404";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
-import numeral from "numeral";
+import numbro from "numbro";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
 import { getProposalExtended } from "@lib/api/treasury";
@@ -41,7 +41,7 @@ import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { BigNumber } from "ethers";
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
