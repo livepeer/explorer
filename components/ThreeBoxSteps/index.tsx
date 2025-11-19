@@ -1,7 +1,5 @@
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
 import { Box } from "@livepeer/design-system";
+import { Step, StepLabel, Stepper } from "@mui/material";
 import { stepperStyles } from "utils/stepperStyles";
 
 function getSteps(hasProfile) {
@@ -16,7 +14,7 @@ const Index = ({ hasProfile, activeStep }) => {
   const steps = getSteps(hasProfile);
 
   return (
-    <Box css={{ ...stepperStyles, mb: 0, py: "$4" }}>
+    <Box css={{ ...stepperStyles, marginBottom: 0, paddingTop: "$4", paddingBottom: "$4" }}>
       <Stepper activeStep={activeStep} orientation="vertical">
         {steps.map((label, _index) => (
           <Step key={label}>

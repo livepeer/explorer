@@ -1,8 +1,8 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { useEnsData, useExplorerStore } from "hooks";
-import numeral from "numeral";
+import { useEnsData, useExplorerStore, usePendingFeesAndStakeData } from "hooks";
+import numbro from "numbro";
 import { useMemo, useState } from "react";
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
@@ -10,16 +10,19 @@ import Header from "./Header";
 import InputBox from "./InputBox";
 import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
+import { fromWei } from "@lib/utils";
 
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
   | NonNullable<AccountQueryResult["data"]>["transcoder"]
-  | NonNullable<NonNullable<AccountQueryResult["data"]>["delegator"]>["delegate"];
+  | NonNullable<
+      NonNullable<AccountQueryResult["data"]>["delegator"]
+    >["delegate"];
 
 interface Props {
-  transcoders: NonNullable<
-    OrchestratorsSortedQueryResult["data"]
-  >["transcoders"] | undefined;
+  transcoders:
+    | NonNullable<OrchestratorsSortedQueryResult["data"]>["transcoders"]
+    | undefined;
   transcoder: TranscoderOrDelegateType | undefined;
   delegator?: NonNullable<AccountQueryResult["data"]>["delegator"] | undefined;
   protocol: NonNullable<AccountQueryResult["data"]>["protocol"] | undefined;
@@ -41,6 +44,8 @@ const Index = ({
   const { selectedStakingAction, setSelectedStakingAction } =
     useExplorerStore();
 
+  const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
+
   const isMyTranscoder = useMemo(
     () => delegator?.delegate?.id === transcoder?.id,
     [delegator, transcoder]
@@ -55,6 +60,9 @@ const Index = ({
   const isTransferStake = useMemo(
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
+  );
+  const currentPendingStake = Number(
+    fromWei(pendingFeesAndStake?.pendingFees ?? 0)
   );
 
   return (
@@ -72,7 +80,14 @@ const Index = ({
       }}
     >
       <Header transcoder={transcoder} delegateProfile={delegateProfile} />
-      <Box css={{ pt: "$2", pb: "$3", px: "$3" }}>
+      <Box
+        css={{
+          paddingTop: "$2",
+          paddingBottom: "$3",
+          paddingLeft: "$3",
+          paddingRight: "$3",
+        }}
+      >
         <Tabs
           index={selectedStakingAction === "delegate" ? 0 : 1}
           onChange={(index: number) => {
@@ -96,14 +111,21 @@ const Index = ({
           <>
             <Card
               css={{
-                bc: "$neutral3",
+                backgroundColor: "$neutral3",
                 boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
                 width: "100%",
                 borderRadius: "$4",
-                mb: "$3",
+                marginBottom: "$3",
               }}
             >
-              <Box css={{ px: "$3", py: "$3" }}>
+              <Box
+                css={{
+                  paddingLeft: "$3",
+                  paddingRight: "$3",
+                  paddingTop: "$3",
+                  paddingBottom: "$3",
+                }}
+              >
                 <Flex
                   css={{
                     fontSize: "$1",
@@ -113,7 +135,7 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numeral(delegator?.bondedAmount || 0).format("0,0.0")}
+                      {numbro(delegator?.bondedAmount || 0).format({ mantissa: 1, thousandSeparated: true })}
                       {` LPT`}
                     </Box>
                     {` from `}

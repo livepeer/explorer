@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import dayjs from "@lib/dayjs";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bar,
@@ -88,18 +88,35 @@ const ExplorerChart = ({
     [grouping]
   );
   const formatSubtitle = useCallback(
-    (value: number) =>
-      `${numeral(value).format(
-        unit === "usd"
-          ? "$0,0"
-          : unit === "eth"
-          ? "0,0.0"
+    (value: number) => {
+      if (unit === "usd") {
+        return numbro(value).formatCurrency({
+          mantissa: 0,
+          thousandSeparated: true
+        });
+      }
+      return `${numbro(value).format(
+          unit === "eth"
+          ? {
+            mantissa: 1,
+            thousandSeparated: true
+          }
           : unit === "percent"
-          ? "0.0%"
+          ? {
+            output: "percent",
+            mantissa: 1,
+          }
           : unit === "small-percent"
-          ? "0.00000%"
-          : "0,0"
-      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
+          ? {
+            output: "percent",
+            mantissa: 5,
+          }
+          : {
+            mantissa: 0,
+            thousandSeparated: true
+          }
+      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`;
+    },
     [unit]
   );
   const defaultSubtitle = useMemo<string>(
@@ -109,7 +126,11 @@ const ExplorerChart = ({
   const defaultPercentChange = useMemo<string>(
     () =>
       basePercentChange !== 0
-        ? numeral(basePercentChange / 100).format("+0.00%")
+        ? numbro(basePercentChange / 100).format({
+          output: "percent",
+          mantissa: 2,
+          forceSign: true,
+        })
         : "",
     [basePercentChange]
   );
@@ -149,18 +170,36 @@ const ExplorerChart = ({
           fontWeight={400}
           fontSize="13px"
         >
-          {numeral(payload.value).format(
+          {numbro(payload.value).format(
             unit === "usd"
-              ? "$0a"
+              ? {
+                mantissa: 0,
+                currencySymbol: "$",
+                average: true,
+              }
               : unit === "eth"
-              ? "0.0"
+              ? {
+                mantissa: 1,
+              }
               : unit === "percent"
-              ? "0%"
+              ? {
+                output: "percent",
+                mantissa: 0,
+              }
               : unit === "small-percent"
-              ? "0.00%"
+              ? {
+                output: "percent",
+                mantissa: 2,
+              }
               : unit === "small-unitless"
-              ? "0.0a"
-              : "0a"
+              ? { 
+                mantissa: 1,
+                average: true
+              }
+              : {
+                mantissa: 0,
+                average: true
+              }
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>
@@ -257,7 +296,7 @@ const ExplorerChart = ({
                     marginLeft: "$2",
                     fontSize: "$3",
                     color:
-                      (numeral(barSelected.percentChange).value() ?? 0) < 0
+                      (numbro(barSelected.percentChange).value() ?? 0) < 0
                         ? "#ff0022"
                         : "#00EB88",
                   }}

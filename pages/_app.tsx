@@ -20,8 +20,13 @@ import { WagmiProvider } from "wagmi";
 import { useApollo } from "../apollo";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
+import numbro from "numbro";
 
 const queryClient = new QueryClient();
+
+numbro.setDefaults({
+  spaceSeparated: false,
+});
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
