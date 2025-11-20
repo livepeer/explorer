@@ -16,20 +16,26 @@ export const FILTERED_EVENT_TYPENAMES = [
 ];
 
 const getLptAmount = (number: number | string | undefined) => {
+  const amount = Number(number ?? 0) || 0;
   return (
-    <Badge size="1">{`${numbro(number || 0).format({
-      mantissa: 2,
-      average: true
-    })} LPT`}</Badge>
+    <Badge size="1">{`${numbro(amount).format(
+      amount > 0 && amount < 0.01
+        ? { mantissa: 4, trimMantissa: true }
+        : { mantissa: 2, average: true, lowPrecision: false }
+    )} LPT`}</Badge>
   );
 };
 
-const getEthAmount = (number: number | string | undefined) => {
+const getEthAmount = (number?: number | string) => {
+  const amount = Number(number ?? 0) || 0;
   return (
-    <Badge size="1">{`${numbro(number || 0).format({
-      mantissa: 2,
-      average: true
-    })} ETH`}</Badge>
+    <Badge size="1">
+      {`${numbro(amount).format(
+        amount > 0 && amount < 0.01
+          ? { mantissa: 4, trimMantissa: true }
+          : { mantissa: 2, average: true, lowPrecision: false  }
+      )} ETH`}
+    </Badge>
   );
 };
 
