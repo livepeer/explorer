@@ -1,5 +1,8 @@
 import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { PerformanceMetrics, RegionalValues } from "@lib/api/types/get-performance";
+import {
+  PerformanceMetrics,
+  RegionalValues,
+} from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg, checkAddressEquality } from "@lib/utils";
@@ -62,6 +65,12 @@ const handler = async (
           `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
         );
         if (!topScoreResponse.ok) {
+          const errorText = await topScoreResponse.text();
+          console.error(
+            "Metrics fetch error:",
+            topScoreResponse.status,
+            errorText
+          );
           return res.status(500).end("Failed to fetch top AI score");
         }
         const topAIScore: ScoreResponse = await topScoreResponse.json();
@@ -71,6 +80,12 @@ const handler = async (
           `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
         );
         if (!metricsResponse.ok) {
+          const errorText = await metricsResponse.text();
+          console.error(
+            "Metrics fetch error:",
+            metricsResponse.status,
+            errorText
+          );
           return res.status(500).end("Failed to fetch metrics");
         }
         const metrics: MetricsResponse = await metricsResponse.json();

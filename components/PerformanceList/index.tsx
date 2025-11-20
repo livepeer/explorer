@@ -5,10 +5,10 @@ import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Link from "next/link";
 import { useMemo } from "react";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
-import numeral from "numeral";
+import numbro from "numbro";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
 
@@ -135,7 +135,7 @@ const PerformanceList = ({
                       overflow: "hidden",
                     }}
                   >
-                    <QRCode
+                    <QRCodeCanvas
                       fgColor={`#${row.values.id.substr(2, 6)}`}
                       size={24}
                       value={row.values.id}
@@ -183,7 +183,9 @@ const PerformanceList = ({
                       },
                     }}
                   >
-                    {numeral(row.values.scores).divide(10).format("0.00")}
+                    {numbro(row.values.scores).divide(10).format({
+                      mantissa: 2,
+                    })}
                   </Badge>
                 ) : null}
               </Flex>
@@ -243,7 +245,9 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numeral(value).divide(10).format("0.00")}
+                : numbro(value).divide(10).format({
+                  mantissa: 2,
+                })}
             </Box>
           );
         },
@@ -280,7 +284,10 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numeral(value).divide(100).format("0%")}
+                : numbro(value).divide(100).format({
+                  output: "percent",
+                  mantissa: 0,
+                })}
             </Box>
           );
         },
@@ -318,7 +325,9 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numeral(value).divide(10).format("0.00")}
+                : numbro(value).divide(10).format({
+                  mantissa: 2,
+                })}
             </Box>
           );
         },

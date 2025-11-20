@@ -8,7 +8,7 @@ import {
   TwitterLogoIcon,
   GitHubLogoIcon,
 } from "@modulz/radix-icons";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowMoreText from "react-show-more-text";
@@ -82,7 +82,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   width: "100%",
                 }}
               >
-                <QRCode
+                <QRCodeCanvas
                   fgColor={`#${account.substr(2, 6)}`}
                   size={60}
                   value={account}

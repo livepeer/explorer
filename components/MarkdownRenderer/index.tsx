@@ -1,8 +1,10 @@
 import { styled } from "@livepeer/design-system";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import React from "react";
 import { isImageUrl } from "@lib/utils";
+import sanitizeHtml from "sanitize-html";
 
 const StyledTable = styled("table", {
   borderCollapse: "collapse",
@@ -81,6 +83,56 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
 });
 
 /**
+ * Sanitization options for HTML in markdown content.
+ * Allows safe HTML tags while preventing XSS attacks.
+ */
+const sanitizeOptions: sanitizeHtml.IOptions = {
+  allowedTags: [
+    "b",
+    "i",
+    "em",
+    "strong",
+    "a",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "div",
+    "hr",
+    "li",
+    "ol",
+    "p",
+    "pre",
+    "ul",
+    "br",
+    "code",
+    "span",
+    "img",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
+    "blockquote",
+  ],
+  disallowedTagsMode: "discard",
+  allowedAttributes: {
+		a: ["href", "target", "rel"],
+    img: ["src", "alt", "title"],
+    code: ["class"],
+  },
+  selfClosing: ["img", "br", "hr"],
+  allowedSchemes: ["https", "mailto"],
+  allowedSchemesByTag: {},
+  allowedSchemesAppliedToAttributes: ["href", "src"],
+  allowProtocolRelative: false,
+  enforceHtmlBoundary: true,
+};
+
+/**
  * Component for rendering markdown images with custom styling.
  * @param src - The image source URL.
  * @param alt - The image alt text.
@@ -114,7 +166,18 @@ const MarkdownRenderer = ({
   children,
   ...props
 }: MarkdownRendererProps): React.ReactElement | null => {
-  const safeChildren = typeof children === "string" ? children : "";
+	if (typeof children !== "string") {
+		console.warn(
+			"MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
+		);
+		return null;
+	}
+
+  // Sanitize HTML content to prevent XSS attacks
+  const sanitizedChildren = React.useMemo(
+		() => sanitizeHtml(children, sanitizeOptions),
+		[children]
+  );
 
   const components: React.ComponentProps<
     typeof OriginalReactMarkdown
@@ -167,18 +230,21 @@ const MarkdownRenderer = ({
     []
   );
 
-  if (!safeChildren) {
-    console.warn("MarkdownRenderer: children prop must be a string");
+	if (!sanitizedChildren.trim()) {
+		console.warn(
+			"MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
+		);
     return null;
   }
 
   return (
     <StyledReactMarkdown
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
       components={components}
       {...props}
     >
-      {safeChildren}
+      {sanitizedChildren}
     </StyledReactMarkdown>
   );
 };
