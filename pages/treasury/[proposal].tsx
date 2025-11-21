@@ -26,7 +26,6 @@ import { sentenceCase } from "change-case";
 import { BigNumber } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numeral from "numeral";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import { decodeFunctionData } from "viem";
@@ -41,8 +40,9 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
+import numbro from "numbro";
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) => numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;

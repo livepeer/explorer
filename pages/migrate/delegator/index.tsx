@@ -1,7 +1,6 @@
 import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
-import { isL2ChainId } from "@lib/chains";
 import {
   Box,
   Button,
@@ -13,17 +12,33 @@ import {
   styled,
   Text,
   TextField,
+  useSnackbar,
 } from "@livepeer/design-system";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
+import { useEffect, useReducer, useState } from "react";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+
+import {
+  isL2ChainId,
+  l1Provider,
+  l1PublicClient,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
-import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { getAddress, isAddress } from "viem";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
+import { waitToRelayTxsToL2 } from "utils/messaging";
+import { useWriteContract } from "wagmi";
+import Link from "next/link";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 import { stepperStyles } from "../../../utils/stepperStyles";
 
@@ -92,7 +107,7 @@ function reducer(state, action) {
         ...action.payload,
       };
     case "initiate":
-      return {
+      const newState = {
         ...state,
         stage: "initiate",
         loading: true,
@@ -110,6 +125,8 @@ function reducer(state, action) {
         cta: false,
         ...action.payload,
       };
+      console.log('newState', newState);
+      return newState;
     case "starting":
       return {
         ...state,
@@ -208,6 +225,7 @@ const MigrateUndelegatedStake = () => {
   const activeChain = useActiveChain();
   const accountAddress = useAccountAddress();
 
+  const [openSnackbar] = useSnackbar();
   const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
@@ -216,13 +234,24 @@ const MigrateUndelegatedStake = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const l1Delegator = useL1DelegatorData(accountAddress);
+  const { start, restart } = useTimer({
+    autoStart: false,
+    expiryTimestamp: time,
+    onExpire: () => console.warn("onExpire called"),
+  });
 
+
+  const l1Delegator = useL1DelegatorData(accountAddress);
+  const l1SignerOrAddress = useL1DelegatorData(
+    state.signer ? state.signer : accountAddress
+  );
   const { seconds, minutes } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
   });
+
+  const { writeContractAsync } = useWriteContract();
 
   useEffect(() => {
     if (!accountAddress) {
@@ -252,137 +281,162 @@ const MigrateUndelegatedStake = () => {
     }
   }, [state.stage, minutes, seconds]);
 
-  // const onApprove = async () => {
-  //   try {
-  //     dispatch({
-  //       type: "initiate",
-  //     });
+  const onApprove = async () => {
+    try {
+      if (!accountAddress) {
+        throw new Error("Account address is required");
+      }
 
-  //     const gasPriceBid = await l2Provider.getGasPrice();
+      dispatch({
+        type: "initiate",
+      });
 
-  //     // fetching submission price
-  //     // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
-  //     const submissionPrice = await inbox.calculateRetryableSubmissionFee(
-  //       state.migrationCallData.length,
-  //       gasPriceBid // TODO change this to 0 to use the block.basefee once Nitro upgrades
-  //     );
+      const gasPriceBid = await l2PublicClient.getGasPrice();
 
-  //     // overpaying submission price to account for increase
-  //     // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
-  //     // the excess will be sent back to the refund address
-  //     const maxSubmissionPrice = submissionPrice.mul(4);
+      // fetching submission price
+      // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
+      const submissionPrice = await l1PublicClient.readContract({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
+        abi: inbox,
+        functionName: "calculateRetryableSubmissionFee",
+        args: [
+          state.migrationCallData.length,
+          gasPriceBid, // TODO change this to 0 to use the block.basefee once Nitro upgrades
+        ],
+      });
 
-  //     // calculating estimated gas for the tx
-  //     const estimatedGas =
-  //       await nodeInterface.estimateGas.estimateRetryableTicket(
-  //         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-  //         ethers.utils.parseEther("0.01"),
-  //         CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-  //         0,
-  //         accountAddress,
-  //         accountAddress,
-  //         state.migrationCallData
-  //       );
+      // overpaying submission price to account for increase
+      // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
+      // the excess will be sent back to the refund address
+      const maxSubmissionPrice = submissionPrice * 4n;
 
-  //     // overpaying gas just in case
-  //     // the excess will be sent back to the refund address
-  //     const maxGas = estimatedGas.mul(4);
+      // calculating estimated gas for the tx
+      const estimatedGas = await l1PublicClient.estimateContractGas({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+        abi: nodeInterface,
+        functionName: "estimateRetryableTicket",
+        args: [
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+          ethers.utils.parseEther("0.01").toBigInt(),
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+          0n,
+          accountAddress,
+          accountAddress,
+          state.migrationCallData,
+        ],
+      });
 
-  //     // ethValue will be sent as callvalue
-  //     // this entire amount will be used for successfully completing
-  //     // the L2 side of the transaction
-  //     // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-  //     const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
+      // overpaying gas just in case
+      // the excess will be sent back to the refund address
+      const maxGas = estimatedGas * 4n;
 
-  //     const tx1 = await l1Migrator.migrateUnbondingLocks(
-  //       state.signer ? state.signer : accountAddress,
-  //       state.signer ? state.signer : accountAddress,
-  //       state.migrationParams.unbondingLockIds,
-  //       signature ? signature : "0x",
-  //       maxGas,
-  //       gasPriceBid,
-  //       maxSubmissionPrice,
-  //       {
-  //         value: ethValue,
-  //       }
-  //     );
-  //     dispatch({
-  //       type: "starting",
-  //       payload: {
-  //         receipts: {
-  //           l1: tx1.hash,
-  //         },
-  //       },
-  //     });
+      // ethValue will be sent as callvalue
+      // this entire amount will be used for successfully completing
+      // the L2 side of the transaction
+      // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
+      const ethValue = maxSubmissionPrice + gasPriceBid * maxGas;
 
-  //     await tx1.wait();
+      const migrateUnbondingLocksTx = await writeContractAsync({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        abi: l1Migrator,
+        functionName: "migrateUnbondingLocks",
+        args: [
+          state.signer ? state.signer : accountAddress,
+          state.signer ? state.signer : accountAddress,
+          state.migrationParams.unbondingLockIds,
+          signature ? signature : "0x",
+          maxGas,
+          BigInt(gasPriceBid.toString()),
+          maxSubmissionPrice,
+        ],
+        value: ethValue,
+      });
 
-  //     // start timer
-  //     start();
+      dispatch({
+        type: "starting",
+        payload: {
+          receipts: {
+            l1: migrateUnbondingLocksTx,
+          },
+        },
+      });
 
-  //     dispatch({
-  //       type: "enRoute",
-  //       payload: {
-  //         body: (
-  //           <Box css={{ mb: "$4" }}>
-  //             <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
-  //               Estimated time remaining: {minutes}:
-  //               {seconds.toString().padStart(2, "0")}
-  //             </Text>
-  //           </Box>
-  //         ),
-  //       },
-  //     });
+      const txReceipt = await l1PublicClient.waitForTransactionReceipt({
+        hash: migrateUnbondingLocksTx as `0x${string}`,
+      });
 
-  //     const tx2 = await waitToRelayTxsToL2(
-  //       waitForTx(tx1),
-  //       CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
-  //       l1Provider,
-  //       l2Provider
-  //     );
+      // start timer
+      start();
 
-  //     dispatch({
-  //       type: "complete",
-  //       payload: {
-  //         receipts: {
-  //           l1: tx1.hash,
-  //           l2: tx2.transactionHash,
-  //         },
-  //         cta: (
-  //           <Box css={{ textAlign: "center" }}>
-  //             <Link
-  //               href={`/accounts/${
-  //                 state.signer ? state.signer : accountAddress
-  //               }/delegating`}
-  //               passHref
-  //             >
-  //               <Button
-  //                 as="A"
-  //                 variant="primary"
-  //                 size="4"
-  //                 css={{
-  //                   display: "inline-flex",
-  //                   ai: "center",
-  //                   mt: "$2",
-  //                   mb: "$2",
-  //                 }}
-  //               >
-  //                 View account on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
-  //                 <Box as={ArrowRightIcon} css={{ ml: "$2" }} />
-  //               </Button>
-  //             </Link>
-  //           </Box>
-  //         ),
-  //         loading: false,
-  //         footnote: null,
-  //       },
-  //     });
-  //   } catch (e) {
-  //     console.log(e);
-  //     openSnackbar(e.message);
-  //     handleReset();
-  //   }
-  // };
+      dispatch({
+        type: "enRoute",
+        payload: {
+          body: (
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
+                Estimated time remaining: {minutes}:
+                {seconds.toString().padStart(2, "0")}
+              </Text>
+            </Box>
+          ),
+        },
+      });
+
+      const tx2 = await waitToRelayTxsToL2(
+        // @ts-expect-error Incorrect type between ethers and viem transaction receipt
+        Promise.resolve(txReceipt),
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
+        l1Provider,
+        l2Provider
+      );
+
+      dispatch({
+        type: "complete",
+        payload: {
+          receipts: {
+            l1: migrateUnbondingLocksTx,
+            l2: tx2.transactionHash,
+          },
+          cta: (
+            <Box css={{ textAlign: "center" }}>
+              <Link
+                href={`/accounts/${
+                  state.signer ? state.signer : accountAddress
+                }/delegating`}
+                passHref
+              >
+                <Button
+                  as="a"
+                  variant="primary"
+                  size="4"
+                  css={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    marginTop: "$2",
+                    marginBottom: "$2",
+                  }}
+                >
+                  View account on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
+                  <Box as={ArrowRightIcon} css={{ marginLeft: "$2" }} />
+                </Button>
+              </Link>
+            </Box>
+          ),
+          loading: false,
+          footnote: null,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      openSnackbar(
+        e instanceof Error ? e.message : "An unknown error occurred"
+      );
+      handleReset();
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -399,35 +453,38 @@ const MigrateUndelegatedStake = () => {
     init();
   }, [accountAddress, l1Delegator]);
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     if (accountAddress && l1SignerOrAddress) {
-  //       const locks = l1SignerOrAddress.activeLocks.map((e) => e.id);
+  useEffect(() => {
+    const init = async () => {
+      if (accountAddress && l1SignerOrAddress) {
+        const locks = l1SignerOrAddress.activeLocks.map((e) => e.id);
 
-  //       // fetch calldata to be submitted for calling L2 function
-  //       const { data, params } =
-  //         await l1Migrator.getMigrateUnbondingLocksParams(
-  //           state.signer ? state.signer : accountAddress,
-  //           state.signer ? state.signer : accountAddress,
-  //           locks
-  //         );
-  //       dispatch({
-  //         type: "initialize",
-  //         payload: {
-  //           migrationCallData: data,
-  //           migrationParams: {
-  //             l1Addr: params.l1Addr,
-  //             l2Addr: params.l2Addr,
-  //             total: params.total,
-  //             unbondingLockIds: params.unbondingLockIds,
-  //           },
-  //         },
-  //       });
-  //     }
-  //   };
-  //   init();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [state.signer, accountAddress, l1SignerOrAddress]);
+        const [data, params] = await l1PublicClient.readContract({
+          address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+          abi: l1Migrator,
+          functionName: "getMigrateUnbondingLocksParams",
+          args: [
+            state.signer ? state.signer : accountAddress,
+            state.signer ? state.signer : accountAddress,
+            locks.map((e) => BigInt(e)),
+          ],
+        });
+        dispatch({
+          type: "initialize",
+          payload: {
+            migrationCallData: data,
+            migrationParams: {
+              l1Addr: params.l1Addr,
+              l2Addr: params.l2Addr,
+              total: params.total,
+              unbondingLockIds: params.unbondingLockIds,
+            },
+          },
+        });
+      }
+    };
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.signer, accountAddress, l1SignerOrAddress]);
 
   useEffect(() => {
     const init = async () => {
@@ -458,6 +515,15 @@ const MigrateUndelegatedStake = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const handleReset = () => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 600);
+    restart(time, false); // restart timer
+    dispatch({
+      type: "reset",
+    });
+  };
+
   if (!render) {
     return (
       <Flex
@@ -470,7 +536,8 @@ const MigrateUndelegatedStake = () => {
     );
   }
 
-  const getSigningStepContent = (activeStep) => {
+  const getSigningStepContent = (activeStep: number) => {
+    console.log('getting step signer content for step', activeStep);
     switch (activeStep) {
       case 0:
         return (
@@ -484,7 +551,7 @@ const MigrateUndelegatedStake = () => {
             {state.signer && (
               <MigrationFields
                 migrationParams={state.migrationParams}
-                css={{ mt: "$3", mb: "$2" }}
+                css={{ marginTop: "$3", marginBottom: "$2" }}
               />
             )}
             {state.signer && (
@@ -529,6 +596,9 @@ const MigrateUndelegatedStake = () => {
         );
         let signer = "";
 
+        console.log('signer', signer);
+        console.log('signature', signature);
+
         if (signature) {
           try {
             signer = ethers.utils.verifyTypedData(
@@ -543,7 +613,7 @@ const MigrateUndelegatedStake = () => {
         }
 
         const validSignature =
-          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
+          !!signature && !!signer && getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
@@ -554,8 +624,7 @@ const MigrateUndelegatedStake = () => {
             </Text>
 
             <CodeBlock
-              key={Math.random()}
-              css={{ mb: "$4" }}
+              css={{ marginBottom: "$4" }}
               showLineNumbers={false}
               id="message"
               isHighlightingLines={false}
@@ -615,8 +684,7 @@ const MigrateUndelegatedStake = () => {
                 size="4"
                 variant="primary"
                 css={{ marginRight: "$2" }}
-                disabled
-                // onClick={onApprove}
+                onClick={onApprove}
               >
                 Approve Migration
               </Button>
@@ -689,7 +757,7 @@ const MigrateUndelegatedStake = () => {
               <Box css={stepperStyles}>
                 <Stepper activeStep={activeStep} orientation="vertical">
                   {signingSteps.map((step, index) => (
-                    <Step key={`step-${index}`}>
+                    <Step key={step}>
                       <Box
                         as={StepLabel}
                         optional={
@@ -702,7 +770,7 @@ const MigrateUndelegatedStake = () => {
                       >
                         {step}
                       </Box>
-                      <StepContent TransitionProps={{ unmountOnExit: false }}>
+                      <StepContent slotProps={{ transition: { unmountOnExit: false } }}>
                         {getSigningStepContent(index)}
                       </StepContent>
                     </Step>

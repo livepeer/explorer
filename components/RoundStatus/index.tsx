@@ -11,7 +11,7 @@ import {
 import { ProtocolQueryResult } from "apollo";
 import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
 
@@ -246,9 +246,10 @@ const Index = ({
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numeral(protocol?.currentRound?.volumeUSD || 0).format(
-                    "$0,0k"
-                  )}{" "}
+                  {numbro(protocol?.currentRound?.volumeUSD || 0).formatCurrency({
+                    mantissa: 0,
+                    average: true
+                  })}{" "}
                   at recent prices of ETH.
                 </Box>
               }
@@ -287,8 +288,8 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(protocol?.currentRound?.volumeETH || 0).format(
-                    "0.00a"
+                  {numbro(protocol?.currentRound?.volumeETH || 0).format(
+                    {mantissa: 2, average: true}
                   )}{" "}
                   ETH
                 </Text>
@@ -337,9 +338,13 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(rewardTokensClaimed).format("0")}/
-                  {numeral(protocol?.currentRound?.mintableTokens || 0).format(
-                    "0"
+                  {numbro(rewardTokensClaimed).format({
+                    mantissa: 0
+                  })}/
+                  {numbro(protocol?.currentRound?.mintableTokens || 0).format(
+                   {
+                    mantissa: 0
+                   } 
                   )}{" "}
                   LPT
                 </Text>

@@ -20,7 +20,6 @@ import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numeral from "numeral";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 
@@ -32,7 +31,12 @@ import {
 import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
 
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+import numbro from "numbro";
+
+const formatPercent = (percent: number) => numbro(percent).format({
+  output: "percent",
+  mantissa: 4
+});
 
 const Poll = () => {
   const router = useRouter();

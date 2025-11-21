@@ -22,8 +22,13 @@ import { SWRConfig } from "swr";
 import { WagmiProvider } from "wagmi";
 
 import { useApollo } from "../apollo";
+import numbro from "numbro";
 
 const queryClient = new QueryClient();
+
+numbro.setDefaults({
+  spaceSeparated: false,
+});
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();

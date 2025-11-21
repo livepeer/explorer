@@ -757,7 +757,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           }}
         >
           <Image
-            objectFit="contain"
+            style={{ objectFit: "contain" }}
             width={18}
             height={18}
             alt={
