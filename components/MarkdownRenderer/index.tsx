@@ -4,8 +4,6 @@ import React from "react";
 import OriginalReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import React from "react";
-import { isImageUrl } from "@lib/utils";
 import sanitizeHtml from "sanitize-html";
 
 const StyledTable = styled("table", {
@@ -122,7 +120,7 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   ],
   disallowedTagsMode: "discard",
   allowedAttributes: {
-		a: ["href", "target", "rel"],
+    a: ["href", "target", "rel"],
     img: ["src", "alt", "title"],
     code: ["class"],
   },
@@ -168,17 +166,17 @@ const MarkdownRenderer = ({
   children,
   ...props
 }: MarkdownRendererProps): React.ReactElement | null => {
-	if (typeof children !== "string") {
-		console.warn(
-			"MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
-		);
-		return null;
-	}
+  if (typeof children !== "string") {
+    console.warn(
+      "MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
+    );
+    return null;
+  }
 
   // Sanitize HTML content to prevent XSS attacks
   const sanitizedChildren = React.useMemo(
-		() => sanitizeHtml(children, sanitizeOptions),
-		[children]
+    () => sanitizeHtml(children, sanitizeOptions),
+    [children]
   );
 
   const components: React.ComponentProps<
@@ -232,10 +230,10 @@ const MarkdownRenderer = ({
     []
   );
 
-	if (!sanitizedChildren.trim()) {
-		console.warn(
-			"MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
-		);
+  if (!sanitizedChildren.trim()) {
+    console.warn(
+      "MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
+    );
     return null;
   }
 

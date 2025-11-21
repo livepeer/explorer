@@ -42,7 +42,8 @@ import {
 import FourZeroFour from "../404";
 import numbro from "numbro";
 
-const formatPercent = (percent: number) => numbro(percent).format({ mantissa: 4, output: "percent" });
+const formatPercent = (percent: number) =>
+  numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;

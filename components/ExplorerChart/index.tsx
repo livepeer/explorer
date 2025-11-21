@@ -101,29 +101,29 @@ const ExplorerChart = ({
       if (unit === "usd") {
         return numbro(value).formatCurrency({
           mantissa: 0,
-          thousandSeparated: true
+          thousandSeparated: true,
         });
       }
       return `${numbro(value).format(
-          unit === "eth"
+        unit === "eth"
           ? {
-            mantissa: 1,
-            thousandSeparated: true
-          }
+              mantissa: 1,
+              thousandSeparated: true,
+            }
           : unit === "percent"
           ? {
-            output: "percent",
-            mantissa: 1,
-          }
+              output: "percent",
+              mantissa: 1,
+            }
           : unit === "small-percent"
           ? {
-            output: "percent",
-            mantissa: 5,
-          }
+              output: "percent",
+              mantissa: 5,
+            }
           : {
-            mantissa: 0,
-            thousandSeparated: true
-          }
+              mantissa: 0,
+              thousandSeparated: true,
+            }
       )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`;
     },
     [unit]
@@ -136,10 +136,10 @@ const ExplorerChart = ({
     () =>
       basePercentChange !== 0
         ? numbro(basePercentChange / 100).format({
-          output: "percent",
-          mantissa: 2,
-          forceSign: true,
-        })
+            output: "percent",
+            mantissa: 2,
+            forceSign: true,
+          })
         : "",
     [basePercentChange]
   );
@@ -182,33 +182,33 @@ const ExplorerChart = ({
           {numbro(payload.value).format(
             unit === "usd"
               ? {
-                mantissa: 0,
-                currencySymbol: "$",
-                average: true,
-              }
+                  mantissa: 0,
+                  currencySymbol: "$",
+                  average: true,
+                }
               : unit === "eth"
               ? {
-                mantissa: 1,
-              }
+                  mantissa: 1,
+                }
               : unit === "percent"
               ? {
-                output: "percent",
-                mantissa: 0,
-              }
+                  output: "percent",
+                  mantissa: 0,
+                }
               : unit === "small-percent"
               ? {
-                output: "percent",
-                mantissa: 2,
-              }
+                  output: "percent",
+                  mantissa: 2,
+                }
               : unit === "small-unitless"
-              ? { 
-                mantissa: 1,
-                average: true
-              }
+              ? {
+                  mantissa: 1,
+                  average: true,
+                }
               : {
-                mantissa: 0,
-                average: true
-              }
+                  mantissa: 0,
+                  average: true,
+                }
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>

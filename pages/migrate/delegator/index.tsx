@@ -125,7 +125,7 @@ function reducer(state, action) {
         cta: false,
         ...action.payload,
       };
-      console.log('newState', newState);
+      console.log("newState", newState);
       return newState;
     case "starting":
       return {
@@ -239,7 +239,6 @@ const MigrateUndelegatedStake = () => {
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
   });
-
 
   const l1Delegator = useL1DelegatorData(accountAddress);
   const l1SignerOrAddress = useL1DelegatorData(
@@ -537,7 +536,7 @@ const MigrateUndelegatedStake = () => {
   }
 
   const getSigningStepContent = (activeStep: number) => {
-    console.log('getting step signer content for step', activeStep);
+    console.log("getting step signer content for step", activeStep);
     switch (activeStep) {
       case 0:
         return (
@@ -596,8 +595,8 @@ const MigrateUndelegatedStake = () => {
         );
         let signer = "";
 
-        console.log('signer', signer);
-        console.log('signature', signature);
+        console.log("signer", signer);
+        console.log("signature", signature);
 
         if (signature) {
           try {
@@ -613,7 +612,9 @@ const MigrateUndelegatedStake = () => {
         }
 
         const validSignature =
-          !!signature && !!signer && getAddress(signer) === getAddress(state.migrationParams.l1Addr);
+          !!signature &&
+          !!signer &&
+          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
@@ -770,7 +771,9 @@ const MigrateUndelegatedStake = () => {
                       >
                         {step}
                       </Box>
-                      <StepContent slotProps={{ transition: { unmountOnExit: false } }}>
+                      <StepContent
+                        slotProps={{ transition: { unmountOnExit: false } }}
+                      >
                         {getSigningStepContent(index)}
                       </StepContent>
                     </Step>

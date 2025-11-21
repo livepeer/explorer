@@ -246,9 +246,11 @@ const Index = ({
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numbro(protocol?.currentRound?.volumeUSD || 0).formatCurrency({
+                  {numbro(
+                    protocol?.currentRound?.volumeUSD || 0
+                  ).formatCurrency({
                     mantissa: 0,
-                    average: true
+                    average: true,
                   })}{" "}
                   at recent prices of ETH.
                 </Box>
@@ -288,9 +290,10 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numbro(protocol?.currentRound?.volumeETH || 0).format(
-                    {mantissa: 2, average: true}
-                  )}{" "}
+                  {numbro(protocol?.currentRound?.volumeETH || 0).format({
+                    mantissa: 2,
+                    average: true,
+                  })}{" "}
                   ETH
                 </Text>
               </Flex>
@@ -339,13 +342,12 @@ const Index = ({
                   }}
                 >
                   {numbro(rewardTokensClaimed).format({
-                    mantissa: 0
-                  })}/
-                  {numbro(protocol?.currentRound?.mintableTokens || 0).format(
-                   {
-                    mantissa: 0
-                   } 
-                  )}{" "}
+                    mantissa: 0,
+                  })}
+                  /
+                  {numbro(protocol?.currentRound?.mintableTokens || 0).format({
+                    mantissa: 0,
+                  })}{" "}
                   LPT
                 </Text>
               </Flex>

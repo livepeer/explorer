@@ -47,10 +47,11 @@ type Props = {
   myAccount: AccountQuery;
 };
 
-const formatPercent = (percent: number) => numbro(percent).format({
-  output: "percent",
-  mantissa: 4
-});
+const formatPercent = (percent: number) =>
+  numbro(percent).format({
+    output: "percent",
+    mantissa: 4,
+  });
 
 const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();

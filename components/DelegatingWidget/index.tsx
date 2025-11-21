@@ -140,7 +140,10 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numbro(currentPendingStake).format({ mantissa: 1, thousandSeparated: true })}
+                      {numbro(currentPendingStake).format({
+                        mantissa: 1,
+                        thousandSeparated: true,
+                      })}
                       {` LPT`}
                     </Box>
                     {` from `}

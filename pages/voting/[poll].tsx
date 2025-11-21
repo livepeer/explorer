@@ -33,10 +33,11 @@ import FourZeroFour from "../404";
 
 import numbro from "numbro";
 
-const formatPercent = (percent: number) => numbro(percent).format({
-  output: "percent",
-  mantissa: 4
-});
+const formatPercent = (percent: number) =>
+  numbro(percent).format({
+    output: "percent",
+    mantissa: 4,
+  });
 
 const Poll = () => {
   const router = useRouter();

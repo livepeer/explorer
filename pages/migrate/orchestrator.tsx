@@ -22,11 +22,7 @@ import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { useEffect, useReducer, useState } from "react";
 
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
@@ -300,12 +296,11 @@ const MigrateOrchestrator = () => {
       const maxSubmissionPrice = submissionPrice * 4n;
 
       // calculating estimated gas for the tx
-      const estimatedGas =
-        await l1PublicClient.estimateContractGas({
-          address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
-          abi: nodeInterface,
-          functionName: "estimateRetryableTicket",
-          args: [
+      const estimatedGas = await l1PublicClient.estimateContractGas({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+        abi: nodeInterface,
+        functionName: "estimateRetryableTicket",
+        args: [
           CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
           ethers.utils.parseEther("0.01").toBigInt(),
           CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
@@ -362,7 +357,10 @@ const MigrateOrchestrator = () => {
         payload: {
           body: (
             <Box css={{ marginBottom: "$4" }}>
-              <Text variant="neutral" css={{ display: "block", marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
                 Estimated time remaining: {minutes}:
                 {seconds.toString().padStart(2, "0")}
               </Text>
@@ -589,7 +587,9 @@ const MigrateOrchestrator = () => {
         }
 
         const validSignature =
-          !!signature && !!signer && getAddress(signer) === getAddress(state.migrationParams.delegate);
+          !!signature &&
+          !!signer &&
+          getAddress(signer) === getAddress(state.migrationParams.delegate);
 
         return (
           <Box>

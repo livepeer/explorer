@@ -3,7 +3,13 @@ import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { getL1MigratorAddress } from "@lib/api/contracts";
-import { isL2ChainId, l1Provider, l1PublicClient, l2Provider, l2PublicClient } from "@lib/chains";
+import {
+  isL2ChainId,
+  l1Provider,
+  l1PublicClient,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
 import {
   Box,
   Button,
@@ -362,7 +368,10 @@ const MigrateBroadcaster = () => {
         payload: {
           body: (
             <Box css={{ marginBottom: "$4" }}>
-              <Text variant="neutral" css={{ display: "block", marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
                 Estimated time remaining: {minutes}:
                 {seconds.toString().padStart(2, "0")}
               </Text>
@@ -597,7 +606,9 @@ const MigrateBroadcaster = () => {
         }
 
         const validSignature =
-          !!signer && !!signature && getAddress(signer) === getAddress(state.migrationParams.l1Addr);
+          !!signer &&
+          !!signature &&
+          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>

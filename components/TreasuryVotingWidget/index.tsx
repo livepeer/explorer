@@ -16,10 +16,11 @@ type Props = {
   vote: ProposalVotingPower | undefined | null;
 };
 
-const formatPercent = (percent: number) => numbro(percent).format({
-  output: "percent",
-  mantissa: 4
-});
+const formatPercent = (percent: number) =>
+  numbro(percent).format({
+    output: "percent",
+    mantissa: 4,
+  });
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? 0), 4);

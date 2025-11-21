@@ -250,8 +250,8 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(10).format({
-                  mantissa: 2,
-                })}
+                    mantissa: 2,
+                  })}
             </Box>
           );
         },
@@ -289,9 +289,9 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(100).format({
-                  output: "percent",
-                  mantissa: 0,
-                })}
+                    output: "percent",
+                    mantissa: 0,
+                  })}
             </Box>
           );
         },
@@ -330,8 +330,8 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(10).format({
-                  mantissa: 2,
-                })}
+                    mantissa: 2,
+                  })}
             </Box>
           );
         },

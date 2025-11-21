@@ -46,11 +46,9 @@ import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import numbro from "numbro";
-
 
 import { EnsIdentity } from "@lib/api/types/get-ens";
 
@@ -187,10 +185,12 @@ const OrchestratorList = ({
             mantissa: 3,
             output: "percent",
           })}`
-        :  `${numbro(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format({ mantissa: 5, output: "percent", forceSign: true })} per round`,
-       
+        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
+            mantissa: 5,
+            output: "percent",
+            forceSign: true,
+          })} per round`,
+
     [protocolData?.inflation, protocolData?.inflationChange]
   );
 
@@ -204,7 +204,8 @@ const OrchestratorList = ({
     [protocolData]
   );
   const formattedPrinciple = useMemo(
-    () => numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
+    () =>
+      numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
     [principle]
   );
   const { data: bondingManagerAddress } = useBondingManagerAddress();
@@ -438,16 +439,17 @@ const OrchestratorList = ({
           );
           const feeCut = useMemo(
             () =>
-              numbro(
-                1 - Number(row.values.earnings.feeShare) / 1000000
-              ).format({ mantissa: 0, output: "percent" }),
+              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
+                { mantissa: 0, output: "percent" }
+              ),
             [row.values.earnings.feeShare]
           );
           const rewardCut = useMemo(
             () =>
-              numbro(Number(row.values.earnings.rewardCut) / 1000000).format(
-                { mantissa: 0, output: "percent" }
-              ),
+              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
+                mantissa: 0,
+                output: "percent",
+              }),
             [row.values.earnings.rewardCut]
           );
           const rewardCalls = useMemo(
@@ -737,9 +739,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalStake).format(
-                            { mantissa: 1, average: true }
-                          )}
+                          {numbro(row.values.earnings.totalStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -806,7 +809,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(AVERAGE_L1_BLOCK_TIME).format({ mantissa: 0 })}
+                          {numbro(AVERAGE_L1_BLOCK_TIME).format({
+                            mantissa: 0,
+                          })}
                           {" seconds"}
                         </Text>
                       </Flex>
@@ -856,9 +861,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalActiveStake).format(
-                            { mantissa: 1, average: true }
-                          )}
+                          {numbro(row.values.earnings.totalActiveStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -906,7 +912,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.totalStake).format({ mantissa: 0, thousandSeparated: true })} LPT
+              {numbro(row.values.totalStake).format({
+                mantissa: 0,
+                thousandSeparated: true,
+              })}{" "}
+              LPT
             </Text>
           </Box>
         ),
@@ -936,7 +946,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.ninetyDayVolumeETH).format({ mantissa: 2, average: true })} ETH
+              {numbro(row.values.ninetyDayVolumeETH).format({
+                mantissa: 2,
+                average: true,
+              })}{" "}
+              ETH
             </Text>
           </Box>
         ),
