@@ -68,6 +68,17 @@ import RegisterToVote from "@components/RegisterToVote";
 
 export const IS_BANNER_ENABLED = true;
 
+const isBannerDismissed = () => {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(`bannersDismissed`) ?? "[]"
+    );
+    return Array.isArray(parsed) && parsed.includes(uniqueBannerID);
+  } catch {
+    return false;
+  }
+};
+
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "");
 } else {
@@ -101,7 +112,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bannerActive, setBannerActive] = useState(false);
+  const [bannerActive, setBannerActive] = useState<boolean>(() => {
+    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
+      return false;
+    }
+    return !isBannerDismissed();
+  });
   const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
@@ -140,24 +156,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
       return;
     }
 
-    try {
-      const ls = window.localStorage.getItem(`bannersDismissed`);
-      const parsed = ls ? JSON.parse(ls) : [];
-      if (Array.isArray(parsed) && parsed.includes(uniqueBannerID)) {
-        setBannerActive(false);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key && event.key !== "bannersDismissed") {
         return;
       }
-    } catch (_err) {
-      // fall through to enabling the banner when parsing fails
-    }
+      setBannerActive(!isBannerDismissed());
+    };
 
-    if (IS_BANNER_ENABLED) {
-      setBannerActive(true);
-    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   useEffect(() => {
