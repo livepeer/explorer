@@ -35,6 +35,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
+import { LuRadioTower } from "react-icons/lu";
 import {
   usePollsQuery,
   useProtocolQuery,
@@ -186,6 +187,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/orchestrators",
       icon: DNS,
       className: "orchestrators",
+    },
+    {
+      name: "Gateways",
+      href: "/gateways",
+      as: "/gateways",
+      icon: LuRadioTower,
+      className: "gateways",
     },
     {
       name: (
@@ -444,7 +452,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 marginLeft: "$2",
                                 backgroundColor:
-                                  !asPath.includes(accountAddress ?? "") &&
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
@@ -462,6 +471,33 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Orchestrators
+                            </Button>
+                          </Link>
+                          <Link passHref href="/gateways">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$2",
+                                backgroundColor:
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
+                                  (asPath.includes("/gateways") ||
+                                    asPath.includes("/broadcasting"))
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Gateways
                             </Button>
                           </Link>
                           <Link passHref href="/voting">
