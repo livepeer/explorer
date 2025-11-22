@@ -1,11 +1,11 @@
 import Table from "@components/Table";
+import IdentityAvatar from "@components/IdentityAvatar";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Link from "next/link";
 import { useMemo } from "react";
-import { QRCodeCanvas } from "qrcode.react";
 import { useAllScoreData, useEnsData } from "hooks";
 import { OrchestratorsQueryResult } from "apollo";
 import numbro from "numbro";
@@ -109,39 +109,11 @@ const PerformanceList = ({
               }}
             >
               <Flex css={{ alignItems: "center" }}>
-                {identity?.avatar ? (
-                  <Box
-                    key={row.values.id}
-                    as="img"
-                    css={{
-                      marginRight: "$2",
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      borderRadius: 1000,
-                    }}
-                    src={identity.avatar}
-                  />
-                ) : (
-                  <Box
-                    css={{
-                      marginRight: "$2",
-                      borderRadius: 1000,
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <QRCodeCanvas
-                      fgColor={`#${row.values.id.substr(2, 6)}`}
-                      size={24}
-                      value={row.values.id}
-                    />
-                  </Box>
-                )}
+                <IdentityAvatar
+                  identity={identity}
+                  address={row.values.id}
+                  css={{ marginRight: "$2" }}
+                />
                 {identity?.name ? (
                   <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                     <Box
