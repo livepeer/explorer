@@ -55,9 +55,9 @@ const handler = async (
           addresses.map(async (address) => {
             try {
               return await getEnsForAddress(address as Address);
-            } catch {}
-
-            return null;
+            } catch {
+              return null;
+            }
           })
         )
       )

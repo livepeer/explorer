@@ -20,7 +20,9 @@ export async function waitForTx(
   // we retry / wait if it fails the first time
   try {
     return await resolvedTx.wait(confirmations);
-  } catch {}
+  } catch (e) {
+    console.error("Error waiting for transaction, retrying...", e);
+  }
   return await resolvedTx.wait(confirmations);
 }
 

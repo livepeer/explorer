@@ -1,6 +1,16 @@
 import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
+import {
+  isL2ChainId,
+  l1Provider,
+  l1PublicClient,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
 import {
   Box,
   Button,
@@ -14,31 +24,20 @@ import {
   TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-
-import {
-  isL2ChainId,
-  l1Provider,
-  l1PublicClient,
-  l2Provider,
-  l2PublicClient,
-} from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { getAddress, isAddress } from "viem";
-import { inbox } from "@lib/api/abis/bridge/Inbox";
-import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { waitToRelayTxsToL2 } from "utils/messaging";
+import { getAddress, isAddress } from "viem";
 import { useWriteContract } from "wagmi";
-import Link from "next/link";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 import { stepperStyles } from "../../../utils/stepperStyles";
 
@@ -125,7 +124,6 @@ function reducer(state, action) {
         cta: false,
         ...action.payload,
       };
-      console.log("newState", newState);
       return newState;
     case "starting":
       return {
@@ -429,7 +427,7 @@ const MigrateUndelegatedStake = () => {
         },
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
       openSnackbar(
         e instanceof Error ? e.message : "An unknown error occurred"
       );
@@ -482,7 +480,6 @@ const MigrateUndelegatedStake = () => {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.signer, accountAddress, l1SignerOrAddress]);
 
   useEffect(() => {
@@ -536,7 +533,6 @@ const MigrateUndelegatedStake = () => {
   }
 
   const getSigningStepContent = (activeStep: number) => {
-    console.log("getting step signer content for step", activeStep);
     switch (activeStep) {
       case 0:
         return (
@@ -595,9 +591,6 @@ const MigrateUndelegatedStake = () => {
         );
         let signer = "";
 
-        console.log("signer", signer);
-        console.log("signature", signature);
-
         if (signature) {
           try {
             signer = ethers.utils.verifyTypedData(
@@ -607,7 +600,7 @@ const MigrateUndelegatedStake = () => {
               signature
             );
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         }
 
