@@ -169,7 +169,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         <Stat
           className="masonry-grid_item"
           label="Price / Pixel"
-          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
+          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to gateways. This may be different from on-chain pricing."
           value={
             scores
               ? `${numbro(
