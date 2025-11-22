@@ -1,18 +1,14 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import {
-  getLivepeerTokenAddress,
   getBondingManagerAddress,
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
-
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
-import { BigNumber } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address } from "viem";
+import { isAddress } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -26,7 +22,7 @@ const handler = async (
 
       const { address } = req.query;
 
-      if (isValidAddress(address)) {
+      if (!!address && !Array.isArray(address) && isAddress(address)) {
         const roundsManagerAddress = await getRoundsManagerAddress();
         const bondingManagerAddress = await getBondingManagerAddress();
 

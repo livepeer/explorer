@@ -1,13 +1,13 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { controller } from "@lib/api/abis/main/Controller";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
-import { CHAIN_INFO, l1PublicClient, L1_CHAIN_ID } from "@lib/chains";
+import { CHAIN_INFO, L1_CHAIN_ID, l1PublicClient } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address } from "viem";
+import { Address, isAddress } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -21,7 +21,7 @@ const handler = async (
 
       const { address } = req.query;
 
-      if (isValidAddress(address)) {
+      if (!!address && !Array.isArray(address) && isAddress(address)) {
         const bondingManagerHash = keccak256(
           toUtf8Bytes("BondingManager")
         ) as Address;

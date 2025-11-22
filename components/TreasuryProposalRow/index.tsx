@@ -1,15 +1,22 @@
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
-import Link from "next/link";
-import { useMemo } from "react";
-import { ProtocolQuery } from "apollo";
-import { useTreasuryProposalState } from "hooks";
-import { sentenceCase } from "change-case";
-import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import {
+  getProposalExtended,
   ParsedProposal,
   ProposalExtended,
-  getProposalExtended,
 } from "@lib/api/treasury";
+import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Link as A,
+} from "@livepeer/design-system";
+import { ProtocolQuery } from "apollo";
+import { sentenceCase } from "change-case";
+import { useTreasuryProposalState } from "hooks";
+import Link from "next/link";
+import { useMemo } from "react";
 
 export const BadgeVariantByState = {
   Pending: "lime",
@@ -30,7 +37,6 @@ type Props = {
 };
 
 const TreasuryProposalRow = ({
-  key,
   proposal: parsedProposal,
   currentRound,
   protocol,

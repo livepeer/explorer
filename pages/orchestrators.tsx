@@ -3,16 +3,17 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
-  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
+  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import Link from "next/link";
+
 import {
   getApollo,
   OrchestratorsQueryResult,

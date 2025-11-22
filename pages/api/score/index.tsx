@@ -1,12 +1,14 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  AllPerformanceMetrics, RegionalValues
+  AllPerformanceMetrics,
+  RegionalValues,
 } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
+
 import { MetricsResponse, PriceResponse } from "./[address]";
-import { fetchWithRetry } from "@lib/fetchWithRetry";
 
 const handler = async (
   req: NextApiRequest,
@@ -54,13 +56,18 @@ const handler = async (
         transcoderId: string,
         metrics: MetricsResponse
       ) => {
-        const metricsObject: RegionalValues = uniqueRegions.reduce((acc, metricsRegionKey) => {
-          const metricsParentField = metrics[transcoderId]?.[metricsRegionKey] ?? {};
-          const val = metricsParentField?.[metricKey];
-          if (val !== null && val !== "")
-            acc[metricsRegionKey] = (metricsParentField?.[metricKey] ?? 0) * 100;
-          return acc;
-        }, {} as RegionalValues);
+        const metricsObject: RegionalValues = uniqueRegions.reduce(
+          (acc, metricsRegionKey) => {
+            const metricsParentField =
+              metrics[transcoderId]?.[metricsRegionKey] ?? {};
+            const val = metricsParentField?.[metricKey];
+            if (val !== null && val !== "")
+              acc[metricsRegionKey] =
+                (metricsParentField?.[metricKey] ?? 0) * 100;
+            return acc;
+          },
+          {} as RegionalValues
+        );
 
         // Define a global key that is the average of the other keys
         const globalValue = avg(metrics[transcoderId], metricKey) * 100;
@@ -79,8 +86,16 @@ const handler = async (
               transcodersWithPrice?.find(
                 (t) => t.Address.toLowerCase() === transcoderId
               ) ?? 0,
-            successRates: createMetricsObject("success_rate", transcoderId, metrics),
-            roundTripScores: createMetricsObject("round_trip_score", transcoderId, metrics),
+            successRates: createMetricsObject(
+              "success_rate",
+              transcoderId,
+              metrics
+            ),
+            roundTripScores: createMetricsObject(
+              "round_trip_score",
+              transcoderId,
+              metrics
+            ),
             scores: createMetricsObject("score", transcoderId, metrics),
           },
         }),

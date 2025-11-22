@@ -1,5 +1,16 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
+import {
+  isL2ChainId,
+  l1Provider,
+  l1PublicClient,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
 import {
   Box,
   Button,
@@ -13,33 +24,22 @@ import {
   TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-
-import { CodeBlock } from "@components/CodeBlock";
-import {
-  isL2ChainId,
-  l1Provider,
-  l1PublicClient,
-  l2Provider,
-  l2PublicClient,
-} from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../../utils/stepperStyles";
-import { getAddress, isAddress } from "viem";
-import { inbox } from "@lib/api/abis/bridge/Inbox";
-import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { waitToRelayTxsToL2 } from "utils/messaging";
+import { getAddress, isAddress } from "viem";
 import { useWriteContract } from "wagmi";
-import Link from "next/link";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+
+import { stepperStyles } from "../../../utils/stepperStyles";
 
 const signingSteps = [
   `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
@@ -124,7 +124,6 @@ function reducer(state, action) {
         cta: false,
         ...action.payload,
       };
-      console.log('newState', newState);
       return newState;
     case "starting":
       return {
@@ -233,12 +232,17 @@ const MigrateUndelegatedStake = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
+  const { start, restart } = useTimer({
+    autoStart: false,
+    expiryTimestamp: time,
+    onExpire: () => console.warn("onExpire called"),
+  });
+
   const l1Delegator = useL1DelegatorData(accountAddress);
   const l1SignerOrAddress = useL1DelegatorData(
     state.signer ? state.signer : accountAddress
   );
-
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -423,7 +427,7 @@ const MigrateUndelegatedStake = () => {
         },
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
       openSnackbar(
         e instanceof Error ? e.message : "An unknown error occurred"
       );
@@ -476,7 +480,6 @@ const MigrateUndelegatedStake = () => {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.signer, accountAddress, l1SignerOrAddress]);
 
   useEffect(() => {
@@ -530,7 +533,6 @@ const MigrateUndelegatedStake = () => {
   }
 
   const getSigningStepContent = (activeStep: number) => {
-    console.log('getting step signer content for step', activeStep);
     switch (activeStep) {
       case 0:
         return (
@@ -589,9 +591,6 @@ const MigrateUndelegatedStake = () => {
         );
         let signer = "";
 
-        console.log('signer', signer);
-        console.log('signature', signature);
-
         if (signature) {
           try {
             signer = ethers.utils.verifyTypedData(
@@ -601,12 +600,14 @@ const MigrateUndelegatedStake = () => {
               signature
             );
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         }
 
         const validSignature =
-          !!signature && !!signer && getAddress(signer) === getAddress(state.migrationParams.l1Addr);
+          !!signature &&
+          !!signer &&
+          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
@@ -763,7 +764,9 @@ const MigrateUndelegatedStake = () => {
                       >
                         {step}
                       </Box>
-                      <StepContent slotProps={{ transition: { unmountOnExit: false } }}>
+                      <StepContent
+                        slotProps={{ transition: { unmountOnExit: false } }}
+                      >
                         {getSigningStepContent(index)}
                       </StepContent>
                     </Step>
@@ -858,18 +861,18 @@ const MigrateUndelegatedStake = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>

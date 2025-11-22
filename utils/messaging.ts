@@ -1,10 +1,11 @@
 import {
-  ethers,
   BigNumber,
   ContractTransaction,
+  ethers,
   providers,
   utils,
 } from "ethers";
+
 import InboxABI from "./Inbox.json";
 
 export async function waitForTx(
@@ -19,7 +20,9 @@ export async function waitForTx(
   // we retry / wait if it fails the first time
   try {
     return await resolvedTx.wait(confirmations);
-  } catch (e) {}
+  } catch (e) {
+    console.error("Error waiting for transaction, retrying...", e);
+  }
   return await resolvedTx.wait(confirmations);
 }
 
@@ -59,7 +62,6 @@ export async function waitToRelayTxsToL2(
   console.log("autoRedeem", autoRedeem);
 
   console.log(
-    // eslint-disable-next-line
     `Waiting for xchain messages to be relayed... L1 hash: ${l1Tx.transactionHash}, L2 tx hash: ${retryableTicket}, L2 auto redeem tx: ${redeemTransaction}`
   );
 

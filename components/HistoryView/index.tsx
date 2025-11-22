@@ -1,4 +1,5 @@
 import Spinner from "@components/Spinner";
+import dayjs from "@lib/dayjs";
 import {
   Box,
   Card as CardBase,
@@ -8,7 +9,6 @@ import {
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { useTransactionsQuery } from "apollo";
-import dayjs from "@lib/dayjs";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
@@ -222,7 +222,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.additionalAmount).format({
+                +
+                {numbro(event.additionalAmount).format({
                   mantissa: 1,
                   average: true,
                 })}
@@ -345,7 +346,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.amount).format({
+                +
+                {numbro(event.amount).format({
                   mantissa: 1,
                   average: true,
                 })}
@@ -410,7 +412,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                -{numbro(event.amount).format({
+                -
+                {numbro(event.amount).format({
                   mantissa: 1,
                   average: true,
                 })}
@@ -474,7 +477,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.rewardTokens).format({
+                +
+                {numbro(event.rewardTokens).format({
                   mantissa: 2,
                   average: true,
                 })}
@@ -727,7 +731,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.faceValue).format({
+                +
+                {numbro(event.faceValue).format({
                   mantissa: 3,
                   average: true,
                 })}
@@ -789,7 +794,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.amount).format({
+                +
+                {numbro(event.amount).format({
                   mantissa: 2,
                   average: true,
                 })}
@@ -856,7 +862,8 @@ function renderSwitch(event: any, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +{numbro(event.amount).format({
+                +
+                {numbro(event.amount).format({
                   mantissa: 2,
                   average: true,
                 })}

@@ -1,23 +1,22 @@
-import Spinner from "@components/Spinner";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import Spinner from "@components/Spinner";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import {
-  getLivepeerTokenAddress,
-} from "@lib/api/contracts";
+import { getLivepeerTokenAddress } from "@lib/api/contracts";
 import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
   Button,
+  Card,
   Container,
   Flex,
   Heading,
+  styled,
+  Text,
   TextArea,
   TextField,
-  Text,
-  styled,
-  Card,
 } from "@livepeer/design-system";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
 import {
   useAccountAddress,
   useAccountBalanceData,
@@ -29,8 +28,7 @@ import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
-import { useWriteContract, useSimulateContract } from "wagmi";
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const StyledTab = styled(Tab, {
   position: "relative",
@@ -194,10 +192,10 @@ const CreateProposal = () => {
               }
               console.log("submitting!");
               writeContract(config.request);
-            } catch (err: any) {
+            } catch (err: unknown) {
               console.error(err);
               return {
-                error: err.message ?? err.toString(),
+                error: err instanceof Error ? err.message : String(err),
               };
             }
           }}

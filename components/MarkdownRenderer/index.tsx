@@ -1,9 +1,9 @@
-import { styled } from "@livepeer/design-system";
-import OriginalReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import React from "react";
 import { isImageUrl } from "@lib/utils";
+import { styled } from "@livepeer/design-system";
+import React, { useMemo } from "react";
+import OriginalReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
 import sanitizeHtml from "sanitize-html";
 
 const StyledTable = styled("table", {
@@ -120,7 +120,7 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   ],
   disallowedTagsMode: "discard",
   allowedAttributes: {
-		a: ["href", "target", "rel"],
+    a: ["href", "target", "rel"],
     img: ["src", "alt", "title"],
     code: ["class"],
   },
@@ -166,22 +166,15 @@ const MarkdownRenderer = ({
   children,
   ...props
 }: MarkdownRendererProps): React.ReactElement | null => {
-	if (typeof children !== "string") {
-		console.warn(
-			"MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
-		);
-		return null;
-	}
-
   // Sanitize HTML content to prevent XSS attacks
-  const sanitizedChildren = React.useMemo(
-		() => sanitizeHtml(children, sanitizeOptions),
-		[children]
+  const sanitizedChildren = useMemo(
+    () => sanitizeHtml(children, sanitizeOptions),
+    [children]
   );
 
   const components: React.ComponentProps<
     typeof OriginalReactMarkdown
-  >["components"] = React.useMemo(
+  >["components"] = useMemo(
     () => ({
       img: MarkdownImage,
       a: ({ href, children, ...props }) => {
@@ -230,10 +223,17 @@ const MarkdownRenderer = ({
     []
   );
 
-	if (!sanitizedChildren.trim()) {
-		console.warn(
-			"MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
-		);
+  if (typeof children !== "string") {
+    console.warn(
+      "MarkdownRenderer: expected markdown string; got non-string (likely JSX or data object)."
+    );
+    return null;
+  }
+
+  if (!sanitizedChildren.trim()) {
+    console.warn(
+      "MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
+    );
     return null;
   }
 

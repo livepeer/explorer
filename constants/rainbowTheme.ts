@@ -1,5 +1,4 @@
 import { Theme } from "@rainbow-me/rainbowkit";
-import { baseTheme } from "@rainbow-me/rainbowkit/dist/themes/baseTheme";
 
 const darkGrey = "#252a27";
 

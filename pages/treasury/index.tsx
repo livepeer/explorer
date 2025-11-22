@@ -1,4 +1,6 @@
 import Spinner from "@components/Spinner";
+import TreasuryProposalRow from "@components/TreasuryProposalRow";
+import { parseProposalText } from "@lib/api/treasury";
 import {
   Box,
   Button,
@@ -7,13 +9,11 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
+import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
+import { useCurrentRoundData } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import Link from "next/link";
-import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
-import { useCurrentRoundData } from "hooks";
-import TreasuryProposalRow from "@components/TreasuryProposalRow";
-import { parseProposalText } from "@lib/api/treasury";
 import { useMemo } from "react";
 
 const pollInterval = 20000;

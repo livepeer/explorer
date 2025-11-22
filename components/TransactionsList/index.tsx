@@ -1,9 +1,9 @@
 import Table from "@components/Table";
-import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import dayjs from "@lib/dayjs";
+import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
-import dayjs from "@lib/dayjs";
 import { useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
@@ -33,7 +33,7 @@ const getEthAmount = (number?: number | string) => {
       {`${numbro(amount).format(
         amount > 0 && amount < 0.01
           ? { mantissa: 4, trimMantissa: true }
-          : { mantissa: 2, average: true, lowPrecision: false  }
+          : { mantissa: 2, average: true, lowPrecision: false }
       )} ETH`}
     </Badge>
   );
@@ -41,7 +41,7 @@ const getEthAmount = (number?: number | string) => {
 
 const getRound = (number: number | string | undefined) => {
   return `#${numbro(number || 0).format({
-    mantissa: 0
+    mantissa: 0,
   })}`;
 };
 
@@ -50,7 +50,7 @@ const getPercentAmount = (number: number | string | undefined) => {
     <Badge color="white" size="1">
       {numbro(number || 0).format({
         output: "percent",
-        mantissa: 0
+        mantissa: 0,
       })}
     </Badge>
   );
@@ -358,7 +358,7 @@ const TransactionsList = ({
                   .divide(1000000000)
                   .format({
                     output: "percent",
-                    mantissa: 4
+                    mantissa: 4,
                   })}
               </Badge>
             </Box>

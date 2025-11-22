@@ -1,4 +1,4 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import {
   PerformanceMetrics,
   RegionalValues,
@@ -7,6 +7,7 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg, checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
+import { isAddress } from "viem";
 
 type Metric = {
   success_rate: number;
@@ -57,7 +58,7 @@ const handler = async (
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
-      if (isValidAddress(address)) {
+      if (!!address && !Array.isArray(address) && isAddress(address)) {
         const transcoderId = address.toLowerCase();
 
         // Fetch the top AI score.

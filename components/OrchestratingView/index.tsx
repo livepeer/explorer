@@ -1,14 +1,13 @@
 import Stat from "@components/Stat";
+import dayjs from "@lib/dayjs";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import dayjs from "@lib/dayjs";
-import numbro from "numbro";
-import Masonry from "react-masonry-css";
-
 import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
-import { useMemo } from "react";
 import { useRegionsData } from "hooks/useSwr";
+import numbro from "numbro";
+import { useMemo } from "react";
+import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -34,57 +33,67 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const maxScore = useMemo(
-    () =>
-      {
-        const topTransData = Object.keys(scores?.scores ?? {}).reduce(
-          (prev, curr) => {
-            const score = scores?.scores[curr];
-            const region = knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
-            if (score && score >= prev.score && !region.toLowerCase().startsWith("global")) {
-              return {
-                region: region,
-                score: scores?.scores[curr],
-              };
-            }
-            return prev;
-          },
-          { region: "N/A", score: 0 }
-        );
-        return {
-          transcoding: topTransData,
-          ai: scores?.topAIScore,
+  const maxScore = useMemo(() => {
+    const topTransData = Object.keys(scores?.scores ?? {}).reduce(
+      (prev, curr) => {
+        const score = scores?.scores[curr];
+        const region =
+          knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
+        if (
+          score &&
+          score >= prev.score &&
+          !region.toLowerCase().startsWith("global")
+        ) {
+          return {
+            region: region,
+            score: scores?.scores[curr],
+          };
         }
+        return prev;
       },
-    [scores]
-  );
+      { region: "N/A", score: 0 }
+    );
+    return {
+      transcoding: topTransData,
+      ai: scores?.topAIScore,
+    };
+  }, [knownRegions?.regions, scores]);
 
   const maxScoreOutput = useMemo(() => {
-    const outputTrans = maxScore.transcoding?.score && maxScore.transcoding?.score > 0
-    const transcodingInfo
-      = outputTrans
-        ? `${numbro(maxScore.transcoding?.score).divide(100).format({
+    const outputTrans =
+      maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
+    const transcodingInfo = outputTrans
+      ? `${numbro(maxScore.transcoding?.score).divide(100).format({
           output: "percent",
           mantissa: 1,
         })} - ${maxScore.transcoding.region}`
-        : "";
-    return outputTrans? transcodingInfo: "N/A";
-  }
-  , [maxScore]);
+      : "";
+    return outputTrans ? transcodingInfo : "N/A";
+  }, [maxScore]);
 
   const maxAIScoreOutput = useMemo(() => {
-    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0
-    const region = knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ?? "N/A";
-    const aiInfo = outputAI
-      ? (<>{numbro(maxScore.ai?.value).format({
-        output: "percent",
-        mantissa: 1,
-      })} - {region}</>)
-      : "";
-    return outputAI?
-      {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
-  }
-  , [maxScore]);
+    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
+    const region =
+      knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ??
+      "N/A";
+    const aiInfo = outputAI ? (
+      <>
+        {numbro(maxScore.ai?.value).format({
+          output: "percent",
+          mantissa: 1,
+        })}{" "}
+        - {region}
+      </>
+    ) : (
+      ""
+    );
+    return outputAI
+      ? {
+          score: aiInfo,
+          modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
+        }
+      : { score: "N/A", modelText: "" };
+  }, [knownRegions?.regions, maxScore]);
 
   return (
     <Box
@@ -119,9 +128,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           value={
             transcoder
               ? `${numbro(transcoder?.totalStake || 0).format({
-                mantissa: 2,
-                average: true,
-              })} LPT`
+                  mantissa: 2,
+                  average: true,
+                })} LPT`
               : "N/A"
           }
         />
@@ -159,12 +168,10 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
-          value={`${numbro(transcoder?.totalVolumeETH || 0).format(
-            {
-              mantissa: 2,
-              average: true,
-            }
-          )} ETH`}
+          value={`${numbro(transcoder?.totalVolumeETH || 0).format({
+            mantissa: 2,
+            average: true,
+          })} ETH`}
         />
         <Stat
           className="masonry-grid_item"
@@ -176,7 +183,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                   (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
                 ).format({
                   mantissa: 1,
-                  thousandSeparated: true
+                  thousandSeparated: true,
                 })} WEI`
               : "N/A"
           }
@@ -200,9 +207,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           value={
             transcoder?.feeShare
               ? numbro(1 - +(transcoder?.feeShare || 0) / 1000000).format({
-                output: "percent",
-                mantissa: 0,
-              })
+                  output: "percent",
+                  mantissa: 0,
+                })
               : "N/A"
           }
         />

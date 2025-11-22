@@ -8,10 +8,11 @@ function Error() {
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        bc: "$loContrast",
+        backgroundColor: "$loContrast",
         height: "90vh",
         flexDirection: "column",
-        px: "$2"
+        paddingLeft: "$2",
+        paddingRight: "$2",
       }}
     >
       <Box>
@@ -29,15 +30,13 @@ function Error() {
       </Box>
       <Box
         css={{
-          mt: "$8",
+          marginTop: "$8",
           maxWidth: 520,
           textAlign: "center",
           color: "$neutral11",
         }}
       >
-        {
-          "We are actively working on a fix. Please check back soon."
-        }
+        {"We are actively working on a fix. Please check back soon."}
       </Box>
     </Flex>
   );

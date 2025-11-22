@@ -1,10 +1,15 @@
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { useRouter } from "next/router";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
-import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
+import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import { BadgeVariantByState } from "@components/TreasuryProposalRow";
+import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
+import { getProposalExtended } from "@lib/api/treasury";
+import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
+import dayjs from "@lib/dayjs";
+import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -16,10 +21,16 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "@lib/dayjs";
+import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
+import { sentenceCase } from "change-case";
+import { BigNumber } from "ethers";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
+import { decodeFunctionData } from "viem";
+
 import {
   useAccountAddress,
   useContractInfoData,
@@ -30,18 +41,9 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
-import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
-import { sentenceCase } from "change-case";
-import numbro from "numbro";
-import { BadgeVariantByState } from "@components/TreasuryProposalRow";
-import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
-import { getProposalExtended } from "@lib/api/treasury";
-import { decodeFunctionData } from "viem";
-import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { BigNumber } from "ethers";
 
-const formatPercent = (percent: number) => numbro(percent).format({ mantissa: 4, output: "percent" });
+const formatPercent = (percent: number) =>
+  numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
@@ -154,7 +156,9 @@ const Proposal = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
+      >
         <Flex>
           <Flex
             css={{

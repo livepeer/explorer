@@ -11,7 +11,6 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useState } from "react";
 import useForm from "react-hook-form";
@@ -28,19 +27,15 @@ const ReadOnlyCard = styled(Box, {
 });
 
 const ContractWalletTool = () => {
-  const { register, watch } = useForm();
-  const l1Addr = watch("l1Addr");
-  const l2Addr = watch("l2Addr");
+  const { register } = useForm();
 
-  const [params, setParams] = useState<any>(null);
-  const [message, setMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const l1Delegator = useL1DelegatorData(l1Addr);
+  const [params] = useState<any>(null);
+  const [message] = useState(null);
+  const [loading] = useState(false);
 
   // useEffect(() => {
   //   async function init() {
-  //     if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
+  //     if (isAddress(l1Addr) && isAddress(l2Addr)) {
   //       setLoading(true);
   //       setParams(null);
   //       const params = await getParams(

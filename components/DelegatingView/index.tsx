@@ -17,8 +17,9 @@ import { useRouter } from "next/router";
 import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
-import { useWriteContract, useSimulateContract } from "wagmi";
 import { Address } from "viem";
+import { useSimulateContract, useWriteContract } from "wagmi";
+
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -230,7 +231,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                         mantissa: 2,
                         average: true,
                         forceSign: true,
-                      })} LPT
+                      })}{" "}
+                      LPT
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -263,7 +265,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     mantissa: 2,
                     average: true,
                     forceSign: true,
-                  })} LPT
+                  })}{" "}
+                  LPT
                 </Text>
               </Flex>
             </Box>
@@ -282,7 +285,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               >
                 {numbro(pendingFees).format({
                   mantissa: 3,
-                })} ETH
+                })}{" "}
+                ETH
               </Box>
             ) : null
           }
@@ -318,7 +322,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   {numbro(lifetimeEarnings || 0).format({
                     mantissa: 3,
                     average: true,
-                  })} ETH
+                  })}{" "}
+                  ETH
                 </Text>
               </Flex>
               <Flex
@@ -350,7 +355,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   {numbro(delegator?.withdrawnFees || 0).format({
                     mantissa: 3,
                     average: true,
-                  })} ETH
+                  })}{" "}
+                  ETH
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
@@ -434,7 +440,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     {numbro(pendingStake).format({
                       mantissa: 2,
                       average: true,
-                    })} LPT
+                    })}{" "}
+                    LPT
                   </Text>
                 </Flex>
                 <Flex
@@ -458,12 +465,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numbro(Math.abs(+delegator.delegate.totalStake)).format(
-                      {
-                        mantissa: 2,
-                        average: true,
-                      }
-                    )}{" "}
+                    {numbro(Math.abs(+delegator.delegate.totalStake)).format({
+                      mantissa: 2,
+                      average: true,
+                    })}{" "}
                     LPT
                   </Text>
                 </Flex>

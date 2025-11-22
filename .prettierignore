@@ -1,0 +1,19 @@
+# build artifacts
+.next
+build
+dist
+out
+
+# deps
+node_modules
+
+# misc
+.github
+.vscode
+@types
+apollo
+codegen.yml
+data
+next-env.d.ts
+pnpm-lock.yaml
+public

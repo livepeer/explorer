@@ -1,4 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { fromWei } from "@lib/utils";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -8,13 +9,13 @@ import {
 } from "hooks";
 import numbro from "numbro";
 import { useMemo, useState } from "react";
+
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
 import Header from "./Header";
 import InputBox from "./InputBox";
 import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
-import { fromWei } from "@lib/utils";
 
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =
@@ -139,7 +140,10 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numbro(currentPendingStake).format({ mantissa: 1, thousandSeparated: true })}
+                      {numbro(currentPendingStake).format({
+                        mantissa: 1,
+                        thousandSeparated: true,
+                      })}
                       {` LPT`}
                     </Box>
                     {` from `}

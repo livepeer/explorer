@@ -1,19 +1,12 @@
 import {
-  useTable,
-  useSortBy,
-  usePagination,
-  Column,
-  TableState,
-} from "react-table";
-import {
-  Flex,
   Box,
+  Flex,
   Table,
-  Thead,
   Tbody,
-  Tr,
-  Th,
   Td,
+  Th,
+  Thead,
+  Tr,
 } from "@livepeer/design-system";
 import {
   ArrowLeftIcon,
@@ -22,6 +15,7 @@ import {
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
+import { Column, usePagination, useSortBy, useTable } from "react-table";
 
 function DataTable<T extends object>({
   heading = null,
@@ -101,7 +95,7 @@ function DataTable<T extends object>({
               }}
             >
               <Thead>
-                {headerGroups.map(headerGroup => {
+                {headerGroups.map((headerGroup) => {
                   const headerGroupProps = headerGroup.getHeaderGroupProps();
                   const { key: headerGroupKey, ...restHeaderGroupProps } =
                     headerGroupProps;

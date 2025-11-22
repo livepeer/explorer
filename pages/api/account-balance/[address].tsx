@@ -1,9 +1,9 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { getCacheControlHeader } from "@lib/api";
+import { isAddress } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import {
-  getLivepeerTokenAddress,
   getBondingManagerAddress,
+  getLivepeerTokenAddress,
 } from "@lib/api/contracts";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
@@ -22,7 +22,7 @@ const handler = async (
 
       const { address } = req.query;
 
-      if (isValidAddress(address)) {
+      if (!!address && !Array.isArray(address) && isAddress(address)) {
         const livepeerTokenAddress = await getLivepeerTokenAddress();
         const bondingManagerAddress = await getBondingManagerAddress();
 

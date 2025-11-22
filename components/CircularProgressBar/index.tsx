@@ -1,6 +1,5 @@
-import { CircularProgressbar } from "react-circular-progressbar";
-
 import { Box, Flex } from "@livepeer/design-system";
+import { CircularProgressbar } from "react-circular-progressbar";
 
 const Index = (props) => {
   const { children, ...otherProps } = props;
@@ -31,7 +30,7 @@ const Index = (props) => {
           alignItems: "center",
         }}
       >
-        {props.children}
+        {children}
       </Flex>
     </Box>
   );

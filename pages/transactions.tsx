@@ -8,6 +8,7 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import Head from "next/head";
 import { useMemo } from "react";
+
 import { EventsQueryResult, getApollo } from "../apollo";
 
 const NUMBER_OF_PAGES = 20;
@@ -43,16 +44,16 @@ const TransactionsPage = ({ events }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$5",
+            marginTop: "$5",
             width: "100%",
           }}
         >
-          <Flex align="center" css={{ mb: "$3" }}>
+          <Flex align="center" css={{ marginBottom: "$3" }}>
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Transactions
             </Heading>
           </Flex>
-          <Box css={{ mb: "$5" }}>
+          <Box css={{ marginBottom: "$5" }}>
             {!events ? (
               <Flex align="center" justify="center">
                 <Spinner />
