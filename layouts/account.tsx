@@ -6,6 +6,7 @@ import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import BroadcastingView from "@components/GatewayProfileView";
 import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
@@ -37,9 +38,14 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history";
+type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS: TabTypeEnum[] = [
+  "delegating",
+  "orchestrating",
+  "broadcasting",
+  "history",
+];
 
 const AccountLayout = ({
   account,
@@ -107,6 +113,7 @@ const AccountLayout = ({
     [accountAddress, accountId]
   );
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
+  const isGateway = useMemo(() => Boolean(account?.gateway), [account]);
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
     [accountId, dataMyAccount]
@@ -125,9 +132,10 @@ const AccountLayout = ({
         isOrchestrator,
         accountId ?? "",
         view ?? "delegating",
-        isMyDelegate
+        isMyDelegate,
+        isGateway
       ),
-    [isOrchestrator, accountId, view, isMyDelegate]
+    [isOrchestrator, accountId, view, isMyDelegate, isGateway]
   );
 
   useEffect(() => {
@@ -302,6 +310,9 @@ const AccountLayout = ({
             />
           )}
           {view === "history" && <HistoryView />}
+          {view === "broadcasting" && (
+            <BroadcastingView gateway={account?.gateway} />
+          )}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
@@ -362,27 +373,34 @@ function getTabs(
   isOrchestrator: boolean,
   account: string,
   view: TabTypeEnum,
-  isMyDelegate: boolean
+  isMyDelegate: boolean,
+  hasGateway: boolean
 ): Array<TabType> {
-  const tabs: Array<TabType> = [
-    {
-      name: "Delegating",
-      href: `/accounts/${account}/delegating`,
-      isActive: view === "delegating",
-    },
-    {
-      name: "History",
-      href: `/accounts/${account}/history`,
-      isActive: view === "history",
-    },
-  ];
+  const tabs: Array<TabType> = [];
   if (isOrchestrator || isMyDelegate) {
-    tabs.unshift({
+    tabs.push({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
       isActive: view === "orchestrating",
     });
   }
+  tabs.push({
+    name: "Delegating",
+    href: `/accounts/${account}/delegating`,
+    isActive: view === "delegating",
+  });
+  if (hasGateway) {
+    tabs.push({
+      name: "Broadcasting",
+      href: `/accounts/${account}/broadcasting`,
+      isActive: view === "broadcasting",
+    });
+  }
+  tabs.push({
+    name: "History",
+    href: `/accounts/${account}/history`,
+    isActive: view === "history",
+  });
 
   return tabs;
 }

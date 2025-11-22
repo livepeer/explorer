@@ -1,9 +1,18 @@
 overwrite: true
-schema: https://gateway.thegraph.com/api/${NEXT_PUBLIC_SUBGRAPH_API_KEY}/subgraphs/id/${NEXT_PUBLIC_SUBGRAPH_ID}
+# schema: https://gateway.thegraph.com/api/${NEXT_PUBLIC_SUBGRAPH_API_KEY}/subgraphs/id/${NEXT_PUBLIC_SUBGRAPH_ID}
+schema: https://api.studio.thegraph.com/query/31909/livepeer-ci/pr-168-b602361-19536247588 # TODO: Merge https://github.com/livepeer/subgraph/pull/168 upstream first and then update this to real graph.
 documents: ./queries/**/*.graphql
 generates:
   ./apollo/subgraph.ts:
     plugins:
+      - add:
+          content: |
+            /* eslint-disable */
+            /**
+             * @generated
+             * This file was automatically generated and should not be edited.
+             * To add new queries, mutations, or subscriptions, create or update files in the queries folder.
+             */
       - typescript
       - typescript-operations
       - typescript-react-apollo
@@ -19,4 +28,4 @@ config:
 
 hooks:
   afterAllFileWrite:
-    - yarn prettier --write ./apollo/subgraph.ts
+    - pnpm prettier --write ./apollo/subgraph.ts
