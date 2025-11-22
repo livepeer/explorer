@@ -187,11 +187,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {`${numbro(pendingStake).format(
-                  pendingStake > 0 && pendingStake < 0.01
-                    ? { mantissa: 4, trimMantissa: true }
-                    : { mantissa: 2, average: true, lowPrecision: false }
-                )} LPT`}
+                {`${numbro(pendingStake).format({
+                  mantissa: 2,
+                  average: true
+                })} LPT`}
               </Box>
             ) : null
           }
