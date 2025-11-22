@@ -452,7 +452,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 marginLeft: "$2",
                                 backgroundColor:
-                                  !asPath.includes(accountAddress ?? "") &&
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
@@ -478,7 +479,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 marginLeft: "$2",
                                 backgroundColor:
-                                  !asPath.includes(accountAddress ?? "") &&
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
                                   (asPath.includes("/gateways") ||
                                     asPath.includes("/broadcasting"))
                                   ? "hsla(0,100%,100%,.05)"
