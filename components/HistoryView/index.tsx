@@ -666,7 +666,7 @@ function renderSwitch(event: any, i: number) {
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 {numbro(event.amount).format({
-                  mantissa: 3,
+                  mantissa: 4,
                   average: true,
                 })}
               </Box>{" "}
@@ -728,7 +728,7 @@ function renderSwitch(event: any, i: number) {
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
                 +{numbro(event.faceValue).format({
-                  mantissa: 3,
+                  mantissa: 4,
                   average: true,
                 })}
               </Box>{" "}
