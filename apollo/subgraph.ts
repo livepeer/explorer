@@ -9970,6 +9970,8 @@ export type TransactionsQuery = {
       | {
           __typename: "WinningTicketRedeemedEvent";
           faceValue: string;
+          sender: { __typename: "Broadcaster"; id: string };
+          recipient: { __typename: "Transcoder"; id: string };
           round: { __typename: "Round"; id: string };
           transaction: {
             __typename: "Transaction";
@@ -10014,6 +10016,8 @@ export type TransactionsQuery = {
     faceValue: string;
     round: { __typename: "Round"; id: string };
     transaction: { __typename: "Transaction"; id: string; timestamp: number };
+    sender: { __typename: "Broadcaster"; id: string };
+    recipient: { __typename: "Transcoder"; id: string };
   }>;
 };
 
@@ -11135,6 +11139,12 @@ export const TransactionsDocument = gql`
         }
         ... on WinningTicketRedeemedEvent {
           faceValue
+          sender {
+            id
+          }
+          recipient {
+            id
+          }
         }
         ... on DepositFundedEvent {
           sender {
@@ -11153,7 +11163,7 @@ export const TransactionsDocument = gql`
     winningTicketRedeemedEvents(
       orderBy: timestamp
       orderDirection: desc
-      where: { recipient: $account }
+      where: { or: [{ recipient: $account }, { sender: $account }] }
     ) {
       __typename
       id
@@ -11165,6 +11175,12 @@ export const TransactionsDocument = gql`
         timestamp
       }
       faceValue
+      sender {
+        id
+      }
+      recipient {
+        id
+      }
     }
   }
 `;
