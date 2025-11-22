@@ -16,13 +16,13 @@ import Layout from "layouts/main";
 import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
 import { WagmiProvider } from "wagmi";
 
 import { useApollo } from "../apollo";
-import numbro from "numbro";
 
 const queryClient = new QueryClient();
 

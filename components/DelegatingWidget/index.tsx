@@ -1,4 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { fromWei } from "@lib/utils";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -15,7 +16,6 @@ import Header from "./Header";
 import InputBox from "./InputBox";
 import ProjectionBox from "./ProjectionBox";
 import { Tab, TabList, Tabs } from "./Tabs";
-import { fromWei } from "@lib/utils";
 
 // Define a type for either a Transcoder or a Delegate.
 export type TranscoderOrDelegateType =

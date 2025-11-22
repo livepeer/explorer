@@ -2,6 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
@@ -42,15 +43,12 @@ import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
+import numbro from "numbro";
+import { QRCodeCanvas } from "qrcode.react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
-
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { QRCodeCanvas } from "qrcode.react";
-import numbro from "numbro";
-
-import { EnsIdentity } from "@lib/api/types/get-ens";
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"

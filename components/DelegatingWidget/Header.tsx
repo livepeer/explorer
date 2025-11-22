@@ -1,6 +1,6 @@
-import { QRCodeCanvas } from "qrcode.react";
-import { Heading, Box, Flex } from "@livepeer/design-system";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Box, Flex, Heading } from "@livepeer/design-system";
+import { QRCodeCanvas } from "qrcode.react";
 
 import { TranscoderOrDelegateType } from ".";
 

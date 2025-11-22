@@ -1,7 +1,9 @@
 import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
 import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
 import {
@@ -18,24 +20,21 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
-import { useEffect, useReducer, useState } from "react";
-
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { getAddress, isAddress } from "viem";
-import { inbox } from "@lib/api/abis/bridge/Inbox";
-import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
-import { useWriteContract } from "wagmi";
 import { waitToRelayTxsToL2 } from "utils/messaging";
-import Link from "next/link";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { getAddress, isAddress } from "viem";
+import { useWriteContract } from "wagmi";
 
 import { stepperStyles } from "../../utils/stepperStyles";
-import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",

@@ -2,13 +2,12 @@ import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import numbro from "numbro";
-import Masonry from "react-masonry-css";
-
 import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
 import { useRegionsData } from "hooks/useSwr";
+import numbro from "numbro";
 import { useMemo } from "react";
+import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -94,7 +93,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
         }
       : { score: "N/A", modelText: "" };
-  }, [maxScore]);
+  }, [knownRegions?.regions, maxScore]);
 
   return (
     <Box

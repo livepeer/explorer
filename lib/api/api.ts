@@ -1,5 +1,3 @@
-import { Address } from "viem";
-
 const cacheControlValues = {
   revalidate: {
     maxAge: 0,

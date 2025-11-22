@@ -1,7 +1,7 @@
-import { QRCodeCanvas } from "qrcode.react";
 import { textTruncate } from "@lib/utils";
 import { Box, Flex } from "@livepeer/design-system";
 import { useEnsData } from "hooks";
+import { QRCodeCanvas } from "qrcode.react";
 
 const ActiveCircle = ({ css = {}, active }) => {
   return (
