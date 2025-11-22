@@ -133,9 +133,11 @@ const AccountLayout = ({
         accountId ?? "",
         view ?? "delegating",
         isMyDelegate,
-        isGateway
+        isGateway,
+        isMyAccount,
+        Boolean(account?.delegator)
       ),
-    [isOrchestrator, accountId, view, isMyDelegate, isGateway]
+    [isOrchestrator, accountId, view, isMyDelegate, isGateway, isMyAccount, account?.delegator]
   );
 
   useEffect(() => {
@@ -374,7 +376,9 @@ function getTabs(
   account: string,
   view: TabTypeEnum,
   isMyDelegate: boolean,
-  hasGateway: boolean
+  hasGateway: boolean,
+  isMyAccount: boolean,
+  hasDelegator: boolean
 ): Array<TabType> {
   const tabs: Array<TabType> = [];
   if (isOrchestrator || isMyDelegate) {
@@ -384,11 +388,13 @@ function getTabs(
       isActive: view === "orchestrating",
     });
   }
-  tabs.push({
-    name: "Delegating",
-    href: `/accounts/${account}/delegating`,
-    isActive: view === "delegating",
-  });
+  if (isMyAccount || hasDelegator) {
+    tabs.push({
+      name: "Delegating",
+      href: `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
+    });
+  }
   if (hasGateway) {
     tabs.push({
       name: "Broadcasting",
