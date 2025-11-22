@@ -1,3 +1,10 @@
+/* eslint-disable */
+/**
+ * @generated
+ * This file was automatically generated and should not be edited.
+ * To add new queries, mutations, or subscriptions, create or update files in the queries folder.
+ */
+
 import { gql } from "@apollo/client";
 import * as Apollo from "@apollo/client";
 export type Maybe<T> = T | null;
@@ -41,10 +48,7 @@ export type Block_Height = {
   number_gte?: InputMaybe<Scalars["Int"]>;
 };
 
-/**
- * BondEvent entities are created for every emitted Bond event.
- *
- */
+/** BondEvent entities are created for every emitted Bond event. */
 export type BondEvent = Event & {
   __typename: "BondEvent";
   /** Additional amount added to bonded amount */
@@ -292,32 +296,90 @@ export enum BondEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Broadcasters pay transcoders to do the work of transcoding in exchange for fees
- *
- */
+/** Broadcasters pay transcoders to do the work of transcoding in exchange for fees */
 export type Broadcaster = {
   __typename: "Broadcaster";
+  /** Days in which this broadcaster paid out fees */
+  broadcasterDays: Array<BroadcasterDay>;
   /** Amount of funds deposited */
   deposit: Scalars["BigDecimal"];
+  /** The date this broadcaster first funded a deposit or reserve, beginning at 12:00am UTC */
+  firstActiveDay: Scalars["Int"];
   /** ETH address of a broadcaster */
   id: Scalars["ID"];
+  /** The date this broadcaster last paid fees, beginning at 12:00am UTC */
+  lastActiveDay: Scalars["Int"];
+  /** Fees paid out by this broadcaster in ETH during the last 90 days */
+  ninetyDayVolumeETH: Scalars["BigDecimal"];
   /** Amount of funds in reserve */
   reserve: Scalars["BigDecimal"];
+  /** Fees paid out by this broadcaster in ETH during the last 60 days */
+  sixtyDayVolumeETH: Scalars["BigDecimal"];
+  /** Fees paid out by this broadcaster in ETH during the last 30 days */
+  thirtyDayVolumeETH: Scalars["BigDecimal"];
+  /** Total fees paid out by this broadcaster in ETH */
+  totalVolumeETH: Scalars["BigDecimal"];
+  /** Total fees paid out by this broadcaster in USD */
+  totalVolumeUSD: Scalars["BigDecimal"];
 };
 
-export type Broadcaster_Filter = {
+/** Broadcasters pay transcoders to do the work of transcoding in exchange for fees */
+export type BroadcasterBroadcasterDaysArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<BroadcasterDay_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<BroadcasterDay_Filter>;
+};
+
+/** Broadcaster data accumulated and condensed into day stats */
+export type BroadcasterDay = {
+  __typename: "BroadcasterDay";
+  /** Broadcaster associated with the day */
+  broadcaster: Broadcaster;
+  /** The date beginning at 12:00am UTC */
+  date: Scalars["Int"];
+  /** Combination of the broadcaster address and the timestamp rounded to the current day by dividing by 86400 */
+  id: Scalars["ID"];
+  /** Fees paid this day in ETH */
+  volumeETH: Scalars["BigDecimal"];
+  /** Fees paid this day in USD */
+  volumeUSD: Scalars["BigDecimal"];
+};
+
+export type BroadcasterDay_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
-  deposit?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_gt?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_gte?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
-  deposit_lt?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_lte?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_not?: InputMaybe<Scalars["BigDecimal"]>;
-  deposit_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  and?: InputMaybe<Array<InputMaybe<BroadcasterDay_Filter>>>;
+  broadcaster?: InputMaybe<Scalars["String"]>;
+  broadcaster_?: InputMaybe<Broadcaster_Filter>;
+  broadcaster_contains?: InputMaybe<Scalars["String"]>;
+  broadcaster_contains_nocase?: InputMaybe<Scalars["String"]>;
+  broadcaster_ends_with?: InputMaybe<Scalars["String"]>;
+  broadcaster_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  broadcaster_gt?: InputMaybe<Scalars["String"]>;
+  broadcaster_gte?: InputMaybe<Scalars["String"]>;
+  broadcaster_in?: InputMaybe<Array<Scalars["String"]>>;
+  broadcaster_lt?: InputMaybe<Scalars["String"]>;
+  broadcaster_lte?: InputMaybe<Scalars["String"]>;
+  broadcaster_not?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_contains?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_ends_with?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  broadcaster_not_starts_with?: InputMaybe<Scalars["String"]>;
+  broadcaster_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  broadcaster_starts_with?: InputMaybe<Scalars["String"]>;
+  broadcaster_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  date?: InputMaybe<Scalars["Int"]>;
+  date_gt?: InputMaybe<Scalars["Int"]>;
+  date_gte?: InputMaybe<Scalars["Int"]>;
+  date_in?: InputMaybe<Array<Scalars["Int"]>>;
+  date_lt?: InputMaybe<Scalars["Int"]>;
+  date_lte?: InputMaybe<Scalars["Int"]>;
+  date_not?: InputMaybe<Scalars["Int"]>;
+  date_not_in?: InputMaybe<Array<Scalars["Int"]>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -326,6 +388,94 @@ export type Broadcaster_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<BroadcasterDay_Filter>>>;
+  volumeETH?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  volumeETH_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  volumeUSD?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  volumeUSD_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_not?: InputMaybe<Scalars["BigDecimal"]>;
+  volumeUSD_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+};
+
+export enum BroadcasterDay_OrderBy {
+  Broadcaster = "broadcaster",
+  BroadcasterDeposit = "broadcaster__deposit",
+  BroadcasterFirstActiveDay = "broadcaster__firstActiveDay",
+  BroadcasterId = "broadcaster__id",
+  BroadcasterLastActiveDay = "broadcaster__lastActiveDay",
+  BroadcasterNinetyDayVolumeEth = "broadcaster__ninetyDayVolumeETH",
+  BroadcasterReserve = "broadcaster__reserve",
+  BroadcasterSixtyDayVolumeEth = "broadcaster__sixtyDayVolumeETH",
+  BroadcasterThirtyDayVolumeEth = "broadcaster__thirtyDayVolumeETH",
+  BroadcasterTotalVolumeEth = "broadcaster__totalVolumeETH",
+  BroadcasterTotalVolumeUsd = "broadcaster__totalVolumeUSD",
+  Date = "date",
+  Id = "id",
+  VolumeEth = "volumeETH",
+  VolumeUsd = "volumeUSD",
+}
+
+export type Broadcaster_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
+  broadcasterDays?: InputMaybe<Array<Scalars["String"]>>;
+  broadcasterDays_?: InputMaybe<BroadcasterDay_Filter>;
+  broadcasterDays_contains?: InputMaybe<Array<Scalars["String"]>>;
+  broadcasterDays_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  broadcasterDays_not?: InputMaybe<Array<Scalars["String"]>>;
+  broadcasterDays_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+  broadcasterDays_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  deposit?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  deposit_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_not?: InputMaybe<Scalars["BigDecimal"]>;
+  deposit_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  firstActiveDay?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_gt?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_gte?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_in?: InputMaybe<Array<Scalars["Int"]>>;
+  firstActiveDay_lt?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_lte?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_not?: InputMaybe<Scalars["Int"]>;
+  firstActiveDay_not_in?: InputMaybe<Array<Scalars["Int"]>>;
+  id?: InputMaybe<Scalars["ID"]>;
+  id_gt?: InputMaybe<Scalars["ID"]>;
+  id_gte?: InputMaybe<Scalars["ID"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]>;
+  id_lte?: InputMaybe<Scalars["ID"]>;
+  id_not?: InputMaybe<Scalars["ID"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  lastActiveDay?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_gt?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_gte?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_in?: InputMaybe<Array<Scalars["Int"]>>;
+  lastActiveDay_lt?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_lte?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_not?: InputMaybe<Scalars["Int"]>;
+  lastActiveDay_not_in?: InputMaybe<Array<Scalars["Int"]>>;
+  ninetyDayVolumeETH?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  ninetyDayVolumeETH_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
+  ninetyDayVolumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
   or?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
   reserve?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_gt?: InputMaybe<Scalars["BigDecimal"]>;
@@ -335,18 +485,55 @@ export type Broadcaster_Filter = {
   reserve_lte?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_not?: InputMaybe<Scalars["BigDecimal"]>;
   reserve_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  sixtyDayVolumeETH?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  sixtyDayVolumeETH_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
+  sixtyDayVolumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  thirtyDayVolumeETH?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  thirtyDayVolumeETH_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
+  thirtyDayVolumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  totalVolumeETH?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  totalVolumeETH_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_not?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeETH_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  totalVolumeUSD?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_gt?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_gte?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
+  totalVolumeUSD_lt?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_lte?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_not?: InputMaybe<Scalars["BigDecimal"]>;
+  totalVolumeUSD_not_in?: InputMaybe<Array<Scalars["BigDecimal"]>>;
 };
 
 export enum Broadcaster_OrderBy {
+  BroadcasterDays = "broadcasterDays",
   Deposit = "deposit",
+  FirstActiveDay = "firstActiveDay",
   Id = "id",
+  LastActiveDay = "lastActiveDay",
+  NinetyDayVolumeEth = "ninetyDayVolumeETH",
   Reserve = "reserve",
+  SixtyDayVolumeEth = "sixtyDayVolumeETH",
+  ThirtyDayVolumeEth = "thirtyDayVolumeETH",
+  TotalVolumeEth = "totalVolumeETH",
+  TotalVolumeUsd = "totalVolumeUSD",
 }
 
-/**
- * BurnEvent entities are created for every emitted Burn event.
- *
- */
+/** BurnEvent entities are created for every emitted Burn event. */
 export type BurnEvent = Event & {
   __typename: "BurnEvent";
   /** Ethereum transaction hash + event log index */
@@ -467,10 +654,7 @@ export enum BurnEvent_OrderBy {
   Value = "value",
 }
 
-/**
- * Protocol data accumulated and condensed into day stats
- *
- */
+/** Protocol data accumulated and condensed into day stats */
 export type Day = {
   __typename: "Day";
   /** Total active transcoders (up to the limit) */
@@ -606,10 +790,7 @@ export enum Day_OrderBy {
   VolumeUsd = "volumeUSD",
 }
 
-/**
- * Bonded accounts who have delegated their stake towards a transcoder candidate
- *
- */
+/** Bonded accounts who have delegated their stake towards a transcoder candidate */
 export type Delegator = {
   __typename: "Delegator";
   /** Amount of Livepeer Token a delegator currently has bonded */
@@ -636,10 +817,7 @@ export type Delegator = {
   withdrawnFees: Scalars["BigDecimal"];
 };
 
-/**
- * Bonded accounts who have delegated their stake towards a transcoder candidate
- *
- */
+/** Bonded accounts who have delegated their stake towards a transcoder candidate */
 export type DelegatorUnbondingLocksArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<UnbondingLock_OrderBy>;
@@ -812,10 +990,7 @@ export enum Delegator_OrderBy {
   WithdrawnFees = "withdrawnFees",
 }
 
-/**
- * DepositFundedEvent entities are created for every emitted DepositFunded event.
- *
- */
+/** DepositFundedEvent entities are created for every emitted DepositFunded event. */
 export type DepositFundedEvent = Event & {
   __typename: "DepositFundedEvent";
   /** Amount of broadcasting fees deposited */
@@ -950,8 +1125,15 @@ export enum DepositFundedEvent_OrderBy {
   RoundVolumeUsd = "round__volumeUSD",
   Sender = "sender",
   SenderDeposit = "sender__deposit",
+  SenderFirstActiveDay = "sender__firstActiveDay",
   SenderId = "sender__id",
+  SenderLastActiveDay = "sender__lastActiveDay",
+  SenderNinetyDayVolumeEth = "sender__ninetyDayVolumeETH",
   SenderReserve = "sender__reserve",
+  SenderSixtyDayVolumeEth = "sender__sixtyDayVolumeETH",
+  SenderThirtyDayVolumeEth = "sender__thirtyDayVolumeETH",
+  SenderTotalVolumeEth = "sender__totalVolumeETH",
+  SenderTotalVolumeUsd = "sender__totalVolumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
   TransactionBlockNumber = "transaction__blockNumber",
@@ -963,10 +1145,7 @@ export enum DepositFundedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * EarningsClaimedEvent entities are created for every emitted EarningsClaimed event.
- *
- */
+/** EarningsClaimedEvent entities are created for every emitted EarningsClaimed event. */
 export type EarningsClaimedEvent = Event & {
   __typename: "EarningsClaimedEvent";
   /** Reference to the delegator's delegate */
@@ -1329,10 +1508,7 @@ export enum Event_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Abstraction for accounts/delegators bonded with the protocol
- *
- */
+/** Abstraction for accounts/delegators bonded with the protocol */
 export type LivepeerAccount = {
   __typename: "LivepeerAccount";
   /** Reference to the Delegate this address is bonded to */
@@ -1443,10 +1619,7 @@ export enum LivepeerAccount_OrderBy {
   LastUpdatedTimestamp = "lastUpdatedTimestamp",
 }
 
-/**
- * MigrateDelegatorFinalizedEvent entities are created for every emitted WithdrawStake event.
- *
- */
+/** MigrateDelegatorFinalizedEvent entities are created for every emitted WithdrawStake event. */
 export type MigrateDelegatorFinalizedEvent = Event & {
   __typename: "MigrateDelegatorFinalizedEvent";
   delegate: Scalars["String"];
@@ -1652,10 +1825,7 @@ export enum MigrateDelegatorFinalizedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * MintEvent entities are created for every emitted Mint event.
- *
- */
+/** MintEvent entities are created for every emitted Mint event. */
 export type MintEvent = Event & {
   __typename: "MintEvent";
   /** Amount of tokens minted */
@@ -1799,10 +1969,7 @@ export enum MintEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * NewRoundEvent entities are created for every emitted NewRound event.
- *
- */
+/** NewRoundEvent entities are created for every emitted NewRound event. */
 export type NewRoundEvent = Event & {
   __typename: "NewRoundEvent";
   /** Block hash for the round */
@@ -1941,10 +2108,7 @@ export enum OrderDirection {
   Desc = "desc",
 }
 
-/**
- * ParameterUpdateEvent entities are created for every emitted ParameterUpdate event.
- *
- */
+/** ParameterUpdateEvent entities are created for every emitted ParameterUpdate event. */
 export type ParameterUpdateEvent = Event & {
   __typename: "ParameterUpdateEvent";
   /** Ethereum transaction hash + event log index */
@@ -2077,10 +2241,7 @@ export enum ParameterUpdateEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * PauseEvent entities are created for every emitted Pause event.
- *
- */
+/** PauseEvent entities are created for every emitted Pause event. */
 export type PauseEvent = Event & {
   __typename: "PauseEvent";
   /** Ethereum transaction hash + event log index */
@@ -2190,10 +2351,7 @@ export enum PauseEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Stake weighted poll
- *
- */
+/** Stake weighted poll */
 export type Poll = {
   __typename: "Poll";
   /** Block at which the poll ends and votes can no longer be submitted */
@@ -2212,10 +2370,7 @@ export type Poll = {
   votes: Array<Vote>;
 };
 
-/**
- * Stake weighted poll
- *
- */
+/** Stake weighted poll */
 export type PollVotesArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Vote_OrderBy>;
@@ -2229,10 +2384,7 @@ export enum PollChoice {
   Yes = "Yes",
 }
 
-/**
- * PollCreatedEvent entities are created for every emitted PollCreated event.
- *
- */
+/** PollCreatedEvent entities are created for every emitted PollCreated event. */
 export type PollCreatedEvent = Event & {
   __typename: "PollCreatedEvent";
   /** Ethereum block in which this poll ends */
@@ -2417,10 +2569,7 @@ export enum PollCreatedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Stake weighted tally associated with a poll
- *
- */
+/** Stake weighted tally associated with a poll */
 export type PollTally = {
   __typename: "PollTally";
   /** Poll address */
@@ -2568,10 +2717,7 @@ export enum Poll_OrderBy {
   Votes = "votes",
 }
 
-/**
- * Represents a transcoder's rewards and fees to be distributed to delegators
- *
- */
+/** Represents a transcoder's rewards and fees to be distributed to delegators */
 export type Pool = {
   __typename: "Pool";
   /** Transcoder associated with the pool */
@@ -2736,12 +2882,11 @@ export enum Pool_OrderBy {
   TotalStake = "totalStake",
 }
 
-/**
- * Livepeer protocol global parameters
- *
- */
+/** Livepeer protocol global parameters */
 export type Protocol = {
   __typename: "Protocol";
+  /** Broadcasters active within the current 90 day fee window */
+  activeBroadcasters: Array<Scalars["String"]>;
   /** Total active transcoders (up to the limit) */
   activeTranscoderCount: Scalars["BigInt"];
   /** Current round the protocol is in */
@@ -2796,10 +2941,7 @@ export type Protocol = {
   winningTicketCount: Scalars["Int"];
 };
 
-/**
- * Livepeer protocol global parameters
- *
- */
+/** Livepeer protocol global parameters */
 export type ProtocolPendingActivationArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Transcoder_OrderBy>;
@@ -2808,10 +2950,7 @@ export type ProtocolPendingActivationArgs = {
   where?: InputMaybe<Transcoder_Filter>;
 };
 
-/**
- * Livepeer protocol global parameters
- *
- */
+/** Livepeer protocol global parameters */
 export type ProtocolPendingDeactivationArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Transcoder_OrderBy>;
@@ -2823,6 +2962,12 @@ export type ProtocolPendingDeactivationArgs = {
 export type Protocol_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  activeBroadcasters?: InputMaybe<Array<Scalars["String"]>>;
+  activeBroadcasters_contains?: InputMaybe<Array<Scalars["String"]>>;
+  activeBroadcasters_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  activeBroadcasters_not?: InputMaybe<Array<Scalars["String"]>>;
+  activeBroadcasters_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+  activeBroadcasters_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
   activeTranscoderCount?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_gt?: InputMaybe<Scalars["BigInt"]>;
   activeTranscoderCount_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -3077,6 +3222,7 @@ export type Protocol_Filter = {
 };
 
 export enum Protocol_OrderBy {
+  ActiveBroadcasters = "activeBroadcasters",
   ActiveTranscoderCount = "activeTranscoderCount",
   CurrentRound = "currentRound",
   CurrentRoundActiveTranscoderCount = "currentRound__activeTranscoderCount",
@@ -3166,6 +3312,8 @@ export type Query = {
   bondEvent?: Maybe<BondEvent>;
   bondEvents: Array<BondEvent>;
   broadcaster?: Maybe<Broadcaster>;
+  broadcasterDay?: Maybe<BroadcasterDay>;
+  broadcasterDays: Array<BroadcasterDay>;
   broadcasters: Array<Broadcaster>;
   burnEvent?: Maybe<BurnEvent>;
   burnEvents: Array<BurnEvent>;
@@ -3283,6 +3431,22 @@ export type QueryBroadcasterArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
   subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryBroadcasterDayArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryBroadcasterDaysArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<BroadcasterDay_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<BroadcasterDay_Filter>;
 };
 
 export type QueryBroadcastersArgs = {
@@ -4015,10 +4179,7 @@ export type QueryWithdrawalEventsArgs = {
   where?: InputMaybe<WithdrawalEvent_Filter>;
 };
 
-/**
- * RebondEvent entities are created for every emitted Rebond event.
- *
- */
+/** RebondEvent entities are created for every emitted Rebond event. */
 export type RebondEvent = Event & {
   __typename: "RebondEvent";
   amount: Scalars["BigDecimal"];
@@ -4221,10 +4382,7 @@ export enum RebondEvent_OrderBy {
   UnbondingLockId = "unbondingLockId",
 }
 
-/**
- * ReserveClaimedEvent entities are created for every emitted ReserveClaimed event.
- *
- */
+/** ReserveClaimedEvent entities are created for every emitted ReserveClaimed event. */
 export type ReserveClaimedEvent = Event & {
   __typename: "ReserveClaimedEvent";
   /** Amount of funds claimed by claimant from the reserve for the reserve holder */
@@ -4382,8 +4540,15 @@ export enum ReserveClaimedEvent_OrderBy {
   Id = "id",
   ReserveHolder = "reserveHolder",
   ReserveHolderDeposit = "reserveHolder__deposit",
+  ReserveHolderFirstActiveDay = "reserveHolder__firstActiveDay",
   ReserveHolderId = "reserveHolder__id",
+  ReserveHolderLastActiveDay = "reserveHolder__lastActiveDay",
+  ReserveHolderNinetyDayVolumeEth = "reserveHolder__ninetyDayVolumeETH",
   ReserveHolderReserve = "reserveHolder__reserve",
+  ReserveHolderSixtyDayVolumeEth = "reserveHolder__sixtyDayVolumeETH",
+  ReserveHolderThirtyDayVolumeEth = "reserveHolder__thirtyDayVolumeETH",
+  ReserveHolderTotalVolumeEth = "reserveHolder__totalVolumeETH",
+  ReserveHolderTotalVolumeUsd = "reserveHolder__totalVolumeUSD",
   Round = "round",
   RoundActiveTranscoderCount = "round__activeTranscoderCount",
   RoundDelegatorsCount = "round__delegatorsCount",
@@ -4414,10 +4579,7 @@ export enum ReserveClaimedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * ReserveFundedEvent entities are created for every emitted ReserveFunded event.
- *
- */
+/** ReserveFundedEvent entities are created for every emitted ReserveFunded event. */
 export type ReserveFundedEvent = Event & {
   __typename: "ReserveFundedEvent";
   /** Amount of funds added to reserve */
@@ -4533,8 +4695,15 @@ export enum ReserveFundedEvent_OrderBy {
   Id = "id",
   ReserveHolder = "reserveHolder",
   ReserveHolderDeposit = "reserveHolder__deposit",
+  ReserveHolderFirstActiveDay = "reserveHolder__firstActiveDay",
   ReserveHolderId = "reserveHolder__id",
+  ReserveHolderLastActiveDay = "reserveHolder__lastActiveDay",
+  ReserveHolderNinetyDayVolumeEth = "reserveHolder__ninetyDayVolumeETH",
   ReserveHolderReserve = "reserveHolder__reserve",
+  ReserveHolderSixtyDayVolumeEth = "reserveHolder__sixtyDayVolumeETH",
+  ReserveHolderThirtyDayVolumeEth = "reserveHolder__thirtyDayVolumeETH",
+  ReserveHolderTotalVolumeEth = "reserveHolder__totalVolumeETH",
+  ReserveHolderTotalVolumeUsd = "reserveHolder__totalVolumeUSD",
   Round = "round",
   RoundActiveTranscoderCount = "round__activeTranscoderCount",
   RoundDelegatorsCount = "round__delegatorsCount",
@@ -4565,10 +4734,7 @@ export enum ReserveFundedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * RewardEvent entities are created for every emitted Reward event.
- *
- */
+/** RewardEvent entities are created for every emitted Reward event. */
 export type RewardEvent = Event & {
   __typename: "RewardEvent";
   /** Reference to the delegate that claimed its inflationary token reward */
@@ -4731,10 +4897,7 @@ export enum RewardEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * The Livepeer protocol is round based and each round is represented by some number of Ethereum blocks.
- *
- */
+/** The Livepeer protocol is round based and each round is represented by some number of Ethereum blocks. */
 export type Round = {
   __typename: "Round";
   /** Total active transcoders (up to the limit) */
@@ -4777,10 +4940,7 @@ export type Round = {
   volumeUSD: Scalars["BigDecimal"];
 };
 
-/**
- * The Livepeer protocol is round based and each round is represented by some number of Ethereum blocks.
- *
- */
+/** The Livepeer protocol is round based and each round is represented by some number of Ethereum blocks. */
 export type RoundPoolsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Pool_OrderBy>;
@@ -4959,10 +5119,7 @@ export enum Round_OrderBy {
   VolumeUsd = "volumeUSD",
 }
 
-/**
- * ServiceURIUpdateEvent entities are created for every emitted ServiceURIUpdate event.
- *
- */
+/** ServiceURIUpdateEvent entities are created for every emitted ServiceURIUpdate event. */
 export type ServiceUriUpdateEvent = Event & {
   __typename: "ServiceURIUpdateEvent";
   /** Address of sender */
@@ -5118,10 +5275,7 @@ export enum ServiceUriUpdateEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * SetCurrentRewardTokensEvent entities are created for every emitted SetCurrentRewardTokens event.
- *
- */
+/** SetCurrentRewardTokensEvent entities are created for every emitted SetCurrentRewardTokens event. */
 export type SetCurrentRewardTokensEvent = Event & {
   __typename: "SetCurrentRewardTokensEvent";
   /** Current inflation during the round */
@@ -5253,10 +5407,7 @@ export enum SetCurrentRewardTokensEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * StakeClaimedEvent entities are created for every emitted StakeClaimed event.
- *
- */
+/** StakeClaimedEvent entities are created for every emitted StakeClaimed event. */
 export type StakeClaimedEvent = Event & {
   __typename: "StakeClaimedEvent";
   delegate: Scalars["String"];
@@ -5430,866 +5581,7 @@ export enum StakeClaimedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-export type Subscription = {
-  __typename: "Subscription";
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-  bondEvent?: Maybe<BondEvent>;
-  bondEvents: Array<BondEvent>;
-  broadcaster?: Maybe<Broadcaster>;
-  broadcasters: Array<Broadcaster>;
-  burnEvent?: Maybe<BurnEvent>;
-  burnEvents: Array<BurnEvent>;
-  day?: Maybe<Day>;
-  days: Array<Day>;
-  delegator?: Maybe<Delegator>;
-  delegators: Array<Delegator>;
-  depositFundedEvent?: Maybe<DepositFundedEvent>;
-  depositFundedEvents: Array<DepositFundedEvent>;
-  earningsClaimedEvent?: Maybe<EarningsClaimedEvent>;
-  earningsClaimedEvents: Array<EarningsClaimedEvent>;
-  event?: Maybe<Event>;
-  events: Array<Event>;
-  livepeerAccount?: Maybe<LivepeerAccount>;
-  livepeerAccounts: Array<LivepeerAccount>;
-  migrateDelegatorFinalizedEvent?: Maybe<MigrateDelegatorFinalizedEvent>;
-  migrateDelegatorFinalizedEvents: Array<MigrateDelegatorFinalizedEvent>;
-  mintEvent?: Maybe<MintEvent>;
-  mintEvents: Array<MintEvent>;
-  newRoundEvent?: Maybe<NewRoundEvent>;
-  newRoundEvents: Array<NewRoundEvent>;
-  parameterUpdateEvent?: Maybe<ParameterUpdateEvent>;
-  parameterUpdateEvents: Array<ParameterUpdateEvent>;
-  pauseEvent?: Maybe<PauseEvent>;
-  pauseEvents: Array<PauseEvent>;
-  poll?: Maybe<Poll>;
-  pollCreatedEvent?: Maybe<PollCreatedEvent>;
-  pollCreatedEvents: Array<PollCreatedEvent>;
-  pollTallies: Array<PollTally>;
-  pollTally?: Maybe<PollTally>;
-  polls: Array<Poll>;
-  pool?: Maybe<Pool>;
-  pools: Array<Pool>;
-  protocol?: Maybe<Protocol>;
-  protocols: Array<Protocol>;
-  rebondEvent?: Maybe<RebondEvent>;
-  rebondEvents: Array<RebondEvent>;
-  reserveClaimedEvent?: Maybe<ReserveClaimedEvent>;
-  reserveClaimedEvents: Array<ReserveClaimedEvent>;
-  reserveFundedEvent?: Maybe<ReserveFundedEvent>;
-  reserveFundedEvents: Array<ReserveFundedEvent>;
-  rewardEvent?: Maybe<RewardEvent>;
-  rewardEvents: Array<RewardEvent>;
-  round?: Maybe<Round>;
-  rounds: Array<Round>;
-  serviceURIUpdateEvent?: Maybe<ServiceUriUpdateEvent>;
-  serviceURIUpdateEvents: Array<ServiceUriUpdateEvent>;
-  setCurrentRewardTokensEvent?: Maybe<SetCurrentRewardTokensEvent>;
-  setCurrentRewardTokensEvents: Array<SetCurrentRewardTokensEvent>;
-  stakeClaimedEvent?: Maybe<StakeClaimedEvent>;
-  stakeClaimedEvents: Array<StakeClaimedEvent>;
-  transaction?: Maybe<Transaction>;
-  transactions: Array<Transaction>;
-  transcoder?: Maybe<Transcoder>;
-  transcoderActivatedEvent?: Maybe<TranscoderActivatedEvent>;
-  transcoderActivatedEvents: Array<TranscoderActivatedEvent>;
-  transcoderDay?: Maybe<TranscoderDay>;
-  transcoderDays: Array<TranscoderDay>;
-  transcoderDeactivatedEvent?: Maybe<TranscoderDeactivatedEvent>;
-  transcoderDeactivatedEvents: Array<TranscoderDeactivatedEvent>;
-  transcoderEvictedEvent?: Maybe<TranscoderEvictedEvent>;
-  transcoderEvictedEvents: Array<TranscoderEvictedEvent>;
-  transcoderResignedEvent?: Maybe<TranscoderResignedEvent>;
-  transcoderResignedEvents: Array<TranscoderResignedEvent>;
-  transcoderSlashedEvent?: Maybe<TranscoderSlashedEvent>;
-  transcoderSlashedEvents: Array<TranscoderSlashedEvent>;
-  transcoderUpdateEvent?: Maybe<TranscoderUpdateEvent>;
-  transcoderUpdateEvents: Array<TranscoderUpdateEvent>;
-  transcoders: Array<Transcoder>;
-  transferBondEvent?: Maybe<TransferBondEvent>;
-  transferBondEvents: Array<TransferBondEvent>;
-  treasuryProposal?: Maybe<TreasuryProposal>;
-  treasuryProposals: Array<TreasuryProposal>;
-  unbondEvent?: Maybe<UnbondEvent>;
-  unbondEvents: Array<UnbondEvent>;
-  unbondingLock?: Maybe<UnbondingLock>;
-  unbondingLocks: Array<UnbondingLock>;
-  unpauseEvent?: Maybe<UnpauseEvent>;
-  unpauseEvents: Array<UnpauseEvent>;
-  vote?: Maybe<Vote>;
-  voteEvent?: Maybe<VoteEvent>;
-  voteEvents: Array<VoteEvent>;
-  votes: Array<Vote>;
-  winningTicketRedeemedEvent?: Maybe<WinningTicketRedeemedEvent>;
-  winningTicketRedeemedEvents: Array<WinningTicketRedeemedEvent>;
-  withdrawFeesEvent?: Maybe<WithdrawFeesEvent>;
-  withdrawFeesEvents: Array<WithdrawFeesEvent>;
-  withdrawStakeEvent?: Maybe<WithdrawStakeEvent>;
-  withdrawStakeEvents: Array<WithdrawStakeEvent>;
-  withdrawalEvent?: Maybe<WithdrawalEvent>;
-  withdrawalEvents: Array<WithdrawalEvent>;
-};
-
-export type Subscription_MetaArgs = {
-  block?: InputMaybe<Block_Height>;
-};
-
-export type SubscriptionBondEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionBondEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<BondEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BondEvent_Filter>;
-};
-
-export type SubscriptionBroadcasterArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionBroadcastersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Broadcaster_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Broadcaster_Filter>;
-};
-
-export type SubscriptionBurnEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionBurnEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<BurnEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BurnEvent_Filter>;
-};
-
-export type SubscriptionDayArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionDaysArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Day_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Day_Filter>;
-};
-
-export type SubscriptionDelegatorArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionDelegatorsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Delegator_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Delegator_Filter>;
-};
-
-export type SubscriptionDepositFundedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionDepositFundedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<DepositFundedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<DepositFundedEvent_Filter>;
-};
-
-export type SubscriptionEarningsClaimedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionEarningsClaimedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<EarningsClaimedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<EarningsClaimedEvent_Filter>;
-};
-
-export type SubscriptionEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Event_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Event_Filter>;
-};
-
-export type SubscriptionLivepeerAccountArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionLivepeerAccountsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<LivepeerAccount_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<LivepeerAccount_Filter>;
-};
-
-export type SubscriptionMigrateDelegatorFinalizedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionMigrateDelegatorFinalizedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<MigrateDelegatorFinalizedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<MigrateDelegatorFinalizedEvent_Filter>;
-};
-
-export type SubscriptionMintEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionMintEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<MintEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<MintEvent_Filter>;
-};
-
-export type SubscriptionNewRoundEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionNewRoundEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<NewRoundEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<NewRoundEvent_Filter>;
-};
-
-export type SubscriptionParameterUpdateEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionParameterUpdateEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<ParameterUpdateEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ParameterUpdateEvent_Filter>;
-};
-
-export type SubscriptionPauseEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionPauseEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<PauseEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<PauseEvent_Filter>;
-};
-
-export type SubscriptionPollArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionPollCreatedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionPollCreatedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<PollCreatedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<PollCreatedEvent_Filter>;
-};
-
-export type SubscriptionPollTalliesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<PollTally_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<PollTally_Filter>;
-};
-
-export type SubscriptionPollTallyArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionPollsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Poll_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Poll_Filter>;
-};
-
-export type SubscriptionPoolArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionPoolsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Pool_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Pool_Filter>;
-};
-
-export type SubscriptionProtocolArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionProtocolsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Protocol_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Protocol_Filter>;
-};
-
-export type SubscriptionRebondEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionRebondEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<RebondEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<RebondEvent_Filter>;
-};
-
-export type SubscriptionReserveClaimedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionReserveClaimedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<ReserveClaimedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ReserveClaimedEvent_Filter>;
-};
-
-export type SubscriptionReserveFundedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionReserveFundedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<ReserveFundedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ReserveFundedEvent_Filter>;
-};
-
-export type SubscriptionRewardEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionRewardEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<RewardEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<RewardEvent_Filter>;
-};
-
-export type SubscriptionRoundArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionRoundsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Round_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Round_Filter>;
-};
-
-export type SubscriptionServiceUriUpdateEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionServiceUriUpdateEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<ServiceUriUpdateEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ServiceUriUpdateEvent_Filter>;
-};
-
-export type SubscriptionSetCurrentRewardTokensEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionSetCurrentRewardTokensEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<SetCurrentRewardTokensEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<SetCurrentRewardTokensEvent_Filter>;
-};
-
-export type SubscriptionStakeClaimedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionStakeClaimedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<StakeClaimedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<StakeClaimedEvent_Filter>;
-};
-
-export type SubscriptionTransactionArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTransactionsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Transaction_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transaction_Filter>;
-};
-
-export type SubscriptionTranscoderArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderActivatedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderActivatedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderActivatedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderActivatedEvent_Filter>;
-};
-
-export type SubscriptionTranscoderDayArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderDaysArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderDay_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderDay_Filter>;
-};
-
-export type SubscriptionTranscoderDeactivatedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderDeactivatedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderDeactivatedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderDeactivatedEvent_Filter>;
-};
-
-export type SubscriptionTranscoderEvictedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderEvictedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderEvictedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderEvictedEvent_Filter>;
-};
-
-export type SubscriptionTranscoderResignedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderResignedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderResignedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderResignedEvent_Filter>;
-};
-
-export type SubscriptionTranscoderSlashedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderSlashedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderSlashedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderSlashedEvent_Filter>;
-};
-
-export type SubscriptionTranscoderUpdateEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTranscoderUpdateEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
-};
-
-export type SubscriptionTranscodersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Transcoder_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transcoder_Filter>;
-};
-
-export type SubscriptionTransferBondEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTransferBondEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TransferBondEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TransferBondEvent_Filter>;
-};
-
-export type SubscriptionTreasuryProposalArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionTreasuryProposalsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<TreasuryProposal_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<TreasuryProposal_Filter>;
-};
-
-export type SubscriptionUnbondEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionUnbondEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<UnbondEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<UnbondEvent_Filter>;
-};
-
-export type SubscriptionUnbondingLockArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionUnbondingLocksArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<UnbondingLock_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<UnbondingLock_Filter>;
-};
-
-export type SubscriptionUnpauseEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionUnpauseEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<UnpauseEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<UnpauseEvent_Filter>;
-};
-
-export type SubscriptionVoteArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionVoteEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionVoteEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<VoteEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<VoteEvent_Filter>;
-};
-
-export type SubscriptionVotesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Vote_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Vote_Filter>;
-};
-
-export type SubscriptionWinningTicketRedeemedEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionWinningTicketRedeemedEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<WinningTicketRedeemedEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<WinningTicketRedeemedEvent_Filter>;
-};
-
-export type SubscriptionWithdrawFeesEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionWithdrawFeesEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<WithdrawFeesEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<WithdrawFeesEvent_Filter>;
-};
-
-export type SubscriptionWithdrawStakeEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionWithdrawStakeEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<WithdrawStakeEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<WithdrawStakeEvent_Filter>;
-};
-
-export type SubscriptionWithdrawalEventArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionWithdrawalEventsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<WithdrawalEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<WithdrawalEvent_Filter>;
-};
-
-/**
- * Transaction entities are created for each Ethereum transaction that contains an interaction within Livepeer contracts.
- *
- */
+/** Transaction entities are created for each Ethereum transaction that contains an interaction within Livepeer contracts. */
 export type Transaction = {
   __typename: "Transaction";
   /** Block transaction was mined in */
@@ -6310,10 +5602,7 @@ export type Transaction = {
   to: Scalars["String"];
 };
 
-/**
- * Transaction entities are created for each Ethereum transaction that contains an interaction within Livepeer contracts.
- *
- */
+/** Transaction entities are created for each Ethereum transaction that contains an interaction within Livepeer contracts. */
 export type TransactionEventsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Event_OrderBy>;
@@ -6421,10 +5710,7 @@ export enum Transaction_OrderBy {
   To = "to",
 }
 
-/**
- * Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network.
- *
- */
+/** Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network. */
 export type Transcoder = {
   __typename: "Transcoder";
   /** Round in which the transcoder became active - 0 if inactive */
@@ -6475,10 +5761,7 @@ export type Transcoder = {
   transcoderDays: Array<TranscoderDay>;
 };
 
-/**
- * Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network.
- *
- */
+/** Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network. */
 export type TranscoderDelegatorsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Delegator_OrderBy>;
@@ -6487,10 +5770,7 @@ export type TranscoderDelegatorsArgs = {
   where?: InputMaybe<Delegator_Filter>;
 };
 
-/**
- * Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network.
- *
- */
+/** Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network. */
 export type TranscoderPoolsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Pool_OrderBy>;
@@ -6499,10 +5779,7 @@ export type TranscoderPoolsArgs = {
   where?: InputMaybe<Pool_Filter>;
 };
 
-/**
- * Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network.
- *
- */
+/** Perform transcoding work for the network. The transcoders with the most delegated stake are elected as active transcoders that process transcode jobs for the network. */
 export type TranscoderTranscoderDaysArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<TranscoderDay_OrderBy>;
@@ -6511,10 +5788,7 @@ export type TranscoderTranscoderDaysArgs = {
   where?: InputMaybe<TranscoderDay_Filter>;
 };
 
-/**
- * TranscoderActivatedEvent entities are created for every emitted TranscoderActivated event.
- *
- */
+/** TranscoderActivatedEvent entities are created for every emitted TranscoderActivated event. */
 export type TranscoderActivatedEvent = Event & {
   __typename: "TranscoderActivatedEvent";
   /** Future round in which the delegate will become active */
@@ -6677,10 +5951,7 @@ export enum TranscoderActivatedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Transcoder data accumulated and condensed into day stats
- *
- */
+/** Transcoder data accumulated and condensed into day stats */
 export type TranscoderDay = {
   __typename: "TranscoderDay";
   /** The date beginning at 12:00am UTC */
@@ -6781,10 +6052,7 @@ export enum TranscoderDay_OrderBy {
   VolumeUsd = "volumeUSD",
 }
 
-/**
- * TranscoderDeactivatedEvent entities are created for every emitted TranscoderDeactivated event.
- *
- */
+/** TranscoderDeactivatedEvent entities are created for every emitted TranscoderDeactivated event. */
 export type TranscoderDeactivatedEvent = Event & {
   __typename: "TranscoderDeactivatedEvent";
   /** Future round in which the delegate will become deactive */
@@ -6947,10 +6215,7 @@ export enum TranscoderDeactivatedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * TranscoderEvictedEvent entities are created for every emitted TranscoderEvicted event.
- *
- */
+/** TranscoderEvictedEvent entities are created for every emitted TranscoderEvicted event. */
 export type TranscoderEvictedEvent = Event & {
   __typename: "TranscoderEvictedEvent";
   /** Reference to the delegate that was evicted */
@@ -7102,10 +6367,7 @@ export enum TranscoderEvictedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * TranscoderResignedEvent entities are created for every emitted TranscoderResigned event.
- *
- */
+/** TranscoderResignedEvent entities are created for every emitted TranscoderResigned event. */
 export type TranscoderResignedEvent = Event & {
   __typename: "TranscoderResignedEvent";
   /** Reference to the delegate that resigned */
@@ -7257,10 +6519,7 @@ export enum TranscoderResignedEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * TranscoderSlashedEvent entities are created for every emitted TranscoderSlashed event.
- *
- */
+/** TranscoderSlashedEvent entities are created for every emitted TranscoderSlashed event. */
 export type TranscoderSlashedEvent = Event & {
   __typename: "TranscoderSlashedEvent";
   /** Reference to the delegate that was slashed */
@@ -7452,10 +6711,7 @@ export enum TranscoderStatus {
   Registered = "Registered",
 }
 
-/**
- * TranscoderUpdateEvent entities are created for every emitted TranscoderUpdate event.
- *
- */
+/** TranscoderUpdateEvent entities are created for every emitted TranscoderUpdate event. */
 export type TranscoderUpdateEvent = Event & {
   __typename: "TranscoderUpdateEvent";
   /** Reference to the delegate that was updated */
@@ -7887,10 +7143,7 @@ export enum Transcoder_OrderBy {
   TranscoderDays = "transcoderDays",
 }
 
-/**
- * TransferBond entities are created for every emitted TransferBond event.
- *
- */
+/** TransferBond entities are created for every emitted TransferBond event. */
 export type TransferBondEvent = Event & {
   __typename: "TransferBondEvent";
   amount: Scalars["BigDecimal"];
@@ -8215,10 +7468,7 @@ export enum TreasuryProposal_OrderBy {
   VoteStart = "voteStart",
 }
 
-/**
- * UnbondEvent entities are created for every emitted Unbond event.
- *
- */
+/** UnbondEvent entities are created for every emitted Unbond event. */
 export type UnbondEvent = Event & {
   __typename: "UnbondEvent";
   /** Amount unbonded in the transaction */
@@ -8435,10 +7685,7 @@ export enum UnbondEvent_OrderBy {
   WithdrawRound = "withdrawRound",
 }
 
-/**
- * Get an unbonding lock for a delegator
- *
- */
+/** Get an unbonding lock for a delegator */
 export type UnbondingLock = {
   __typename: "UnbondingLock";
   /** Amount being unbonded */
@@ -8594,10 +7841,7 @@ export enum UnbondingLock_OrderBy {
   WithdrawRound = "withdrawRound",
 }
 
-/**
- * UnpauseEvent entities are created for every emitted Unpause event.
- *
- */
+/** UnpauseEvent entities are created for every emitted Unpause event. */
 export type UnpauseEvent = Event & {
   __typename: "UnpauseEvent";
   /** Ethereum transaction hash + event log index */
@@ -8707,10 +7951,7 @@ export enum UnpauseEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * Vote data
- *
- */
+/** Vote data */
 export type Vote = {
   __typename: "Vote";
   /** Vote choice */
@@ -8729,10 +7970,7 @@ export type Vote = {
   voter: Scalars["String"];
 };
 
-/**
- * VoteEvent entities are created for every emitted Vote event.
- *
- */
+/** VoteEvent entities are created for every emitted Vote event. */
 export type VoteEvent = Event & {
   __typename: "VoteEvent";
   /** Voter choice. Zero means yes and one means no */
@@ -9000,10 +8238,7 @@ export enum Vote_OrderBy {
   Voter = "voter",
 }
 
-/**
- * WinningTicketRedeemedEvent entities are created for every emitted WinningTicketRedeemed event.
- *
- */
+/** WinningTicketRedeemedEvent entities are created for every emitted WinningTicketRedeemed event. */
 export type WinningTicketRedeemedEvent = Event & {
   __typename: "WinningTicketRedeemedEvent";
   /** Auxilary data included in ticket used for additional validation */
@@ -9236,8 +8471,15 @@ export enum WinningTicketRedeemedEvent_OrderBy {
   Sender = "sender",
   SenderNonce = "senderNonce",
   SenderDeposit = "sender__deposit",
+  SenderFirstActiveDay = "sender__firstActiveDay",
   SenderId = "sender__id",
+  SenderLastActiveDay = "sender__lastActiveDay",
+  SenderNinetyDayVolumeEth = "sender__ninetyDayVolumeETH",
   SenderReserve = "sender__reserve",
+  SenderSixtyDayVolumeEth = "sender__sixtyDayVolumeETH",
+  SenderThirtyDayVolumeEth = "sender__thirtyDayVolumeETH",
+  SenderTotalVolumeEth = "sender__totalVolumeETH",
+  SenderTotalVolumeUsd = "sender__totalVolumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
   TransactionBlockNumber = "transaction__blockNumber",
@@ -9250,10 +8492,7 @@ export enum WinningTicketRedeemedEvent_OrderBy {
   WinProb = "winProb",
 }
 
-/**
- * WithdrawFeesEvent entities are created for every emitted WithdrawFees event.
- *
- */
+/** WithdrawFeesEvent entities are created for every emitted WithdrawFees event. */
 export type WithdrawFeesEvent = Event & {
   __typename: "WithdrawFeesEvent";
   /** Amount of fees withdrawn */
@@ -9429,10 +8668,7 @@ export enum WithdrawFeesEvent_OrderBy {
   TransactionTo = "transaction__to",
 }
 
-/**
- * WithdrawStakeEvent entities are created for every emitted WithdrawStake event.
- *
- */
+/** WithdrawStakeEvent entities are created for every emitted WithdrawStake event. */
 export type WithdrawStakeEvent = Event & {
   __typename: "WithdrawStakeEvent";
   /** Amount of stake withdrawn */
@@ -9596,10 +8832,7 @@ export enum WithdrawStakeEvent_OrderBy {
   UnbondingLockId = "unbondingLockId",
 }
 
-/**
- * WithdrawalEvent entities are created for every emitted Withdrawal event.
- *
- */
+/** WithdrawalEvent entities are created for every emitted Withdrawal event. */
 export type WithdrawalEvent = Event & {
   __typename: "WithdrawalEvent";
   /** Deposit amount withdrawn */
@@ -9745,8 +8978,15 @@ export enum WithdrawalEvent_OrderBy {
   RoundVolumeUsd = "round__volumeUSD",
   Sender = "sender",
   SenderDeposit = "sender__deposit",
+  SenderFirstActiveDay = "sender__firstActiveDay",
   SenderId = "sender__id",
+  SenderLastActiveDay = "sender__lastActiveDay",
+  SenderNinetyDayVolumeEth = "sender__ninetyDayVolumeETH",
   SenderReserve = "sender__reserve",
+  SenderSixtyDayVolumeEth = "sender__sixtyDayVolumeETH",
+  SenderThirtyDayVolumeEth = "sender__thirtyDayVolumeETH",
+  SenderTotalVolumeEth = "sender__totalVolumeETH",
+  SenderTotalVolumeUsd = "sender__totalVolumeUSD",
   Timestamp = "timestamp",
   Transaction = "transaction",
   TransactionBlockNumber = "transaction__blockNumber",
@@ -9778,7 +9018,6 @@ export type _Meta_ = {
    * will be null if the _meta field has a block constraint that asks for
    * a block number. It will be filled if the _meta field has no block constraint
    * and therefore asks for the latest  block
-   *
    */
   block: _Block_;
   /** The deployment ID */
@@ -9842,6 +9081,16 @@ export type AccountQuery = {
     lastRewardRound?: { __typename: "Round"; id: string } | null;
     pools?: Array<{ __typename: "Pool"; rewardTokens?: string | null }> | null;
     delegators?: Array<{ __typename: "Delegator"; id: string }> | null;
+  } | null;
+  gateway?: {
+    __typename: "Broadcaster";
+    id: string;
+    deposit: string;
+    reserve: string;
+    totalVolumeETH: string;
+    ninetyDayVolumeETH: string;
+    firstActiveDay: number;
+    lastActiveDay: number;
   } | null;
   protocol?: {
     __typename: "Protocol";
@@ -10282,6 +9531,31 @@ export type EventsQuery = {
     > | null;
   }>;
   transcoders: Array<{ __typename: "Transcoder"; id: string }>;
+};
+
+export type GatewaysQueryVariables = Exact<{
+  first: Scalars["Int"];
+  skip: Scalars["Int"];
+  minActiveDay: Scalars["Int"];
+}>;
+
+export type GatewaysQuery = {
+  __typename: "Query";
+  protocol?: {
+    __typename: "Protocol";
+    id: string;
+    activeBroadcasters: Array<string>;
+  } | null;
+  gateways: Array<{
+    __typename: "Broadcaster";
+    id: string;
+    deposit: string;
+    reserve: string;
+    totalVolumeETH: string;
+    ninetyDayVolumeETH: string;
+    firstActiveDay: number;
+    lastActiveDay: number;
+  }>;
 };
 
 export type OrchestratorsQueryVariables = Exact<{
@@ -10845,6 +10119,15 @@ export const AccountDocument = gql`
         id
       }
     }
+    gateway: broadcaster(id: $account) {
+      id
+      deposit
+      reserve
+      totalVolumeETH
+      ninetyDayVolumeETH
+      firstActiveDay
+      lastActiveDay
+    }
     protocol(id: "0") {
       id
       totalSupply
@@ -11294,6 +10577,82 @@ export type EventsLazyQueryHookResult = ReturnType<typeof useEventsLazyQuery>;
 export type EventsQueryResult = Apollo.QueryResult<
   EventsQuery,
   EventsQueryVariables
+>;
+export const GatewaysDocument = gql`
+  query gateways($first: Int!, $skip: Int!, $minActiveDay: Int!) {
+    protocol(id: "0") {
+      id
+      activeBroadcasters
+    }
+    gateways: broadcasters(
+      first: $first
+      skip: $skip
+      orderBy: ninetyDayVolumeETH
+      orderDirection: desc
+      where: {
+        or: [
+          { ninetyDayVolumeETH_gt: "0" }
+          { lastActiveDay_gte: $minActiveDay }
+        ]
+      }
+    ) {
+      id
+      deposit
+      reserve
+      totalVolumeETH
+      ninetyDayVolumeETH
+      firstActiveDay
+      lastActiveDay
+    }
+  }
+`;
+
+/**
+ * __useGatewaysQuery__
+ *
+ * To run a query within a React component, call `useGatewaysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGatewaysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGatewaysQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      minActiveDay: // value for 'minActiveDay'
+ *   },
+ * });
+ */
+export function useGatewaysQuery(
+  baseOptions: Apollo.QueryHookOptions<GatewaysQuery, GatewaysQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GatewaysQuery, GatewaysQueryVariables>(
+    GatewaysDocument,
+    options
+  );
+}
+export function useGatewaysLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GatewaysQuery,
+    GatewaysQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GatewaysQuery, GatewaysQueryVariables>(
+    GatewaysDocument,
+    options
+  );
+}
+export type GatewaysQueryHookResult = ReturnType<typeof useGatewaysQuery>;
+export type GatewaysLazyQueryHookResult = ReturnType<
+  typeof useGatewaysLazyQuery
+>;
+export type GatewaysQueryResult = Apollo.QueryResult<
+  GatewaysQuery,
+  GatewaysQueryVariables
 >;
 export const OrchestratorsDocument = gql`
   query orchestrators(
