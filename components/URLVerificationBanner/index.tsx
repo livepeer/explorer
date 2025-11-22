@@ -105,8 +105,16 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent
           css={{
-            maxWidth: 420,
-            textAlign: "left",
+            maxWidth: 360,
+            width: "calc(100vw - 32px)",
+            textAlign: "center",
+            padding: "$4",
+            paddingRight: "$5",
+            "@bp2": {
+              textAlign: "left",
+              padding: "$5",
+              paddingRight: "$6",
+            },
           }}
           onPointerEnterCapture={undefined}
           onPointerLeaveCapture={undefined}
@@ -115,12 +123,23 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
           <DialogTitle asChild>
             <Text
               as="h2"
-              css={{ fontWeight: 600, fontSize: "$4", marginBottom: "$3" }}
+              css={{
+                fontWeight: 600,
+                fontSize: "$4",
+                marginBottom: "$3",
+                lineHeight: 1.3,
+              }}
             >
               Hide this reminder?
             </Text>
           </DialogTitle>
-          <Text css={{ marginBottom: "$4", color: "$neutral11" }}>
+          <Text
+            css={{
+              marginBottom: "$4",
+              color: "$neutral11",
+              lineHeight: 1.5,
+            }}
+          >
             We show this warning to help prevent phishing. If you hide it,
             please continue double-checking the URL before connecting a wallet.
           </Text>
@@ -129,6 +148,7 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
               justifyContent: "flex-end",
               gap: "$2",
               flexDirection: "column",
+              width: "100%",
               "@bp2": {
                 flexDirection: "row",
               },
@@ -139,8 +159,10 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
               ghost
               onClick={() => setConfirmOpen(false)}
               css={{
-                minWidth: 120,
+                minWidth: "unset",
                 width: "100%",
+                justifyContent: "center",
+                whiteSpace: "nowrap",
                 "@bp2": {
                   width: "auto",
                 },
@@ -153,8 +175,10 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
               variant="primary"
               onClick={handleConfirm}
               css={{
-                minWidth: 120,
+                minWidth: "unset",
                 width: "100%",
+                justifyContent: "center",
+                whiteSpace: "nowrap",
                 "@bp2": {
                   width: "auto",
                 },
