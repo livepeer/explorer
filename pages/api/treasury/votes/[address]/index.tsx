@@ -1,4 +1,4 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { bondingVotes } from "@lib/api/abis/main/BondingVotes";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import {
@@ -8,7 +8,7 @@ import {
 import { VotingPower } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address } from "viem";
+import { Address, isAddress } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -23,7 +23,7 @@ const handler = async (
     res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
     const address = req.query.address?.toString();
-    if (!isValidAddress(address)) {
+    if (!(!!address && isAddress(address))) {
       throw new Error("Missing address");
     }
 

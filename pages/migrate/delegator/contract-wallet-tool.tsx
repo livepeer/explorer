@@ -35,7 +35,7 @@ const ContractWalletTool = () => {
 
   // useEffect(() => {
   //   async function init() {
-  //     if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
+  //     if (isAddress(l1Addr) && isAddress(l2Addr)) {
   //       setLoading(true);
   //       setParams(null);
   //       const params = await getParams(
