@@ -1,7 +1,7 @@
 import { getCacheControlHeader } from "@lib/api";
-import { NextApiRequest, NextApiResponse } from "next";
-import { Regions, Region } from "@lib/api/types/get-regions";
+import { Region, Regions } from "@lib/api/types/get-regions";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const METRICS_URL = [
   process.env.NEXT_PUBLIC_METRICS_SERVER_URL,
@@ -37,7 +37,10 @@ const handler = async (
           new Map(
             regionsData
               .flatMap((data) => data?.regions || [])
-              .map((region) => [`${region.id}-${region.name}-${region.type}`, region])
+              .map((region) => [
+                `${region.id}-${region.name}-${region.type}`,
+                region,
+              ])
           ).values()
         ),
       };
@@ -46,7 +49,10 @@ const handler = async (
       mergedRegions.regions.sort((a: Region, b: Region) => {
         if (a.name.startsWith(globalKey) && !b.name.startsWith(globalKey)) {
           return -1;
-        } else if (!a.name.startsWith(globalKey) && b.name.startsWith(globalKey)) {
+        } else if (
+          !a.name.startsWith(globalKey) &&
+          b.name.startsWith(globalKey)
+        ) {
           return 1;
         } else {
           return a.name.localeCompare(b.name);

@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
-import Input from "./Input";
-import { Box, Flex, Card } from "@livepeer/design-system";
+import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { fromWei } from "@lib/utils";
+import { Box, Card, Flex } from "@livepeer/design-system";
 import { AccountQueryResult } from "apollo";
 import {
   StakingAction,
@@ -10,9 +10,9 @@ import {
   useAccountBalanceData,
   usePendingFeesAndStakeData,
 } from "hooks";
-import { fromWei } from "@lib/utils";
-import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
-import { ConsoleView } from "react-device-detect";
+import React, { useMemo } from "react";
+
+import Input from "./Input";
 
 interface Treasury {
   treasuryRewardCutRate: number;
@@ -62,16 +62,27 @@ const InputBox = ({
   return (
     <Card
       css={{
-        bc: "$neutral3",
+        backgroundColor: "$neutral3",
         boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
         width: "100%",
         borderRadius: "$4",
       }}
     >
-      <Box css={{ px: "$3", py: "$3" }}>
+      <Box
+        css={{
+          paddingLeft: "$3",
+          paddingRight: "$3",
+          paddingTop: "$3",
+          paddingBottom: "$3",
+        }}
+      >
         <Box>
           <Flex
-            css={{ fontSize: "$1", mb: "$3", justifyContent: "space-between" }}
+            css={{
+              fontSize: "$1",
+              marginBottom: "$3",
+              justifyContent: "space-between",
+            }}
           >
             <Box css={{ color: "$muted" }}>Input</Box>
 

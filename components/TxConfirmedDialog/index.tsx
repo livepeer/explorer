@@ -1,23 +1,24 @@
-import React, { useCallback } from "react";
-import { fromWei, txMessages } from "../../lib/utils";
-import { MdReceipt } from "react-icons/md";
-import Router, { useRouter } from "next/router";
+import QueueExecuteButton from "@components/QueueExecuteButton";
 import {
+  Badge,
   Box,
-  Flex,
   Button,
   Dialog,
-  DialogTitle,
   DialogClose,
   DialogContent,
-  Link as A,
-  Badge,
+  DialogTitle,
+  Flex,
   Heading,
+  Link as A,
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { TransactionStatus, useExplorerStore } from "hooks";
-import QueueExecuteButton from "@components/QueueExecuteButton";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { useRouter } from "next/router";
+import { useCallback } from "react";
+import { MdReceipt } from "react-icons/md";
+
+import { fromWei, txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();

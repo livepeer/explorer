@@ -1,26 +1,28 @@
-import { fetcher } from "@lib/axios";
+import "@rainbow-me/rainbowkit/styles.css";
+
 import { ApolloProvider } from "@apollo/client";
+import { fetcher } from "@lib/axios";
 import { IdProvider } from "@radix-ui/react-id";
-import rainbowTheme from "constants/rainbowTheme";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   getDefaultConfig,
-  RainbowKitProvider,
   type Locale,
+  RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
-import "@rainbow-me/rainbowkit/styles.css";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import rainbowTheme from "constants/rainbowTheme";
 import Layout from "layouts/main";
-import { DEFAULT_CHAIN, WALLET_CONNECT_PROJECT_ID, L1_CHAIN } from "lib/chains";
+import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
 import { WagmiProvider } from "wagmi";
+
 import { useApollo } from "../apollo";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
-import numbro from "numbro";
 
 const queryClient = new QueryClient();
 

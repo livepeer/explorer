@@ -1,11 +1,11 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import {
-  Heading,
-  Text,
-  Card,
   Box,
+  Card,
   Flex,
+  Heading,
   Skeleton,
+  Text,
 } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { ReactNode } from "react";
@@ -33,7 +33,7 @@ const Stat = ({
     className={className ?? ""}
     css={{
       color: "$neutral9",
-      p: "$3",
+      padding: "$3",
       boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
       ...css,
     }}
@@ -46,11 +46,11 @@ const Stat = ({
         fontWeight: 600,
       }}
     >
-      <Flex css={{ ai: "center" }}>
+      <Flex css={{ alignItems: "center" }}>
         {label}
         {tooltip && (
           <ExplorerTooltip multiline content={tooltip}>
-            <Flex css={{ ml: "$1" }}>
+            <Flex css={{ marginLeft: "$1" }}>
               <Box as={QuestionMarkCircledIcon} css={{ color: "$neutral11" }} />
             </Flex>
           </ExplorerTooltip>
@@ -61,10 +61,12 @@ const Stat = ({
       {value ? (
         <Box css={{ color: "$hiContrast" }}>{value}</Box>
       ) : (
-        <Skeleton css={{ mt: "$1", height: 35, width: 100, borderRadius: 8 }} />
+        <Skeleton
+          css={{ marginTop: "$1", height: 35, width: 100, borderRadius: 8 }}
+        />
       )}
     </Text>
-    {meta && <Box css={{ mt: "$1", color: "$hiContrast" }}>{meta}</Box>}
+    {meta && <Box css={{ marginTop: "$1", color: "$hiContrast" }}>{meta}</Box>}
   </Card>
 );
 

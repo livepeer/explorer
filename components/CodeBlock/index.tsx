@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Box, IconButton } from "@livepeer/design-system";
-import copy from "copy-to-clipboard";
-import { ClipboardIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Pre } from "@components/Pre";
+import { Box, IconButton } from "@livepeer/design-system";
+import { CheckIcon, ClipboardIcon } from "@radix-ui/react-icons";
+import copy from "copy-to-clipboard";
+import { useEffect, useRef, useState } from "react";
 
 export function CodeBlock({
   className = "code-block",
@@ -44,11 +44,13 @@ export function CodeBlock({
           overflow: "auto",
           borderRadius: "$3",
           backgroundColor: "$primary3",
-          py: "$4",
+          paddingTop: "$4",
+          paddingBottom: "$4",
           "& > pre": {
             backgroundColor: "transparent",
             overflow: "visible",
-            py: 0,
+            paddingTop: 0,
+            paddingBottom: 0,
             float: "left",
             minWidth: "100%",
             $$outline: "none",

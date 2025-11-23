@@ -7,6 +7,7 @@ import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
+import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
@@ -21,6 +22,7 @@ import {
   Container,
   DesignSystemProvider,
   Flex,
+  getThemes,
   Link as A,
   Popover,
   PopoverContent,
@@ -28,7 +30,6 @@ import {
   Skeleton,
   SnackbarProvider,
   Text,
-  getThemes,
 } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
@@ -42,17 +43,18 @@ import {
 } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ThemeProvider } from "next-themes";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
+
 import {
   useAccountAddress,
   useActiveChain,
@@ -64,7 +66,6 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
-import RegisterToVote from "@components/RegisterToVote";
 
 export const IS_BANNER_ENABLED = false;
 
@@ -76,8 +77,8 @@ if (process.env.NODE_ENV === "production") {
 
 const themeMap = getThemes();
 
-type DrawerItem = {
-  name: any;
+export type DrawerItem = {
+  name: ReactNode;
   href: string;
   as: string;
   icon: React.ElementType;
@@ -133,7 +134,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   useEffect(() => {
     const onComplete = () => document.body.removeAttribute("style");
     Router.events.on("routeChangeComplete", onComplete);
-    
+
     return () => {
       Router.events.off("routeChangeComplete", onComplete);
     };
@@ -363,7 +364,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref as any}
+                ref={ref}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}

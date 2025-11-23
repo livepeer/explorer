@@ -44,7 +44,10 @@ const PopoverLink = ({ href, children, newWindow = false }) => {
       }}
     >
       {children}
-      <Box as={ChevronRightIcon} css={{ marginLeft: "$2", width: 16, height: 16 }} />
+      <Box
+        as={ChevronRightIcon}
+        css={{ marginLeft: "$2", width: 16, height: 16 }}
+      />
     </A>
   );
 };

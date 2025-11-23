@@ -1,10 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
-import delegatorClaimSnapshotRinkeby from "../../data/delegatorClaimSnapshotRinkeby.json";
+import { DEFAULT_CHAIN_ID } from "@lib/chains";
 import { EarningsTree } from "@lib/earningsTree";
 import { utils } from "ethers";
-import { DEFAULT_CHAIN_ID } from "@lib/chains";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { arbitrum } from "viem/chains";
+
+import delegatorClaimSnapshot from "../../data/delegatorClaimSnapshot.json";
+import delegatorClaimSnapshotRinkeby from "../../data/delegatorClaimSnapshotRinkeby.json";
 
 const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
   const { account, delegate, stake, fees } = _req.body;

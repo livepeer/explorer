@@ -1,6 +1,16 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import PopoverLink from "@components/PopoverLink";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import Table from "@components/Table";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { EnsIdentity } from "@lib/api/types/get-ens";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import dayjs from "@lib/dayjs";
+import {
+  calculateROI,
+  ROIFactors,
+  ROIInflationChange,
+  ROITimeHorizon,
+} from "@lib/roi";
 import { textTruncate } from "@lib/utils";
 import {
   Badge,
@@ -21,36 +31,24 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import {
+  ArrowTopRightIcon,
+  // ExclamationTriangleIcon,
+} from "@modulz/radix-icons";
+import {
   ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
-import dayjs from "@lib/dayjs";
-import Link from "next/link";
-
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { QRCodeCanvas } from "qrcode.react";
-import numbro from "numbro";
-import { useBondingManagerAddress } from "hooks/useContracts";
-
-import YieldChartIcon from "../../public/img/yield-chart.svg";
-
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import {
-  calculateROI,
-  ROIFactors,
-  ROIInflationChange,
-  ROITimeHorizon,
-} from "@lib/roi";
-import {
-  ArrowTopRightIcon,
-  // ExclamationTriangleIcon,
-} from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
-import { EnsIdentity } from "@lib/api/types/get-ens";
+import { useBondingManagerAddress } from "hooks/useContracts";
+import Link from "next/link";
+import numbro from "numbro";
+import { QRCodeCanvas } from "qrcode.react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
+
+import YieldChartIcon from "../../public/img/yield-chart.svg";
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"
@@ -185,10 +183,12 @@ const OrchestratorList = ({
             mantissa: 3,
             output: "percent",
           })}`
-        :  `${numbro(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format({ mantissa: 5, output: "percent", forceSign: true })} per round`,
-       
+        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
+            mantissa: 5,
+            output: "percent",
+            forceSign: true,
+          })} per round`,
+
     [protocolData?.inflation, protocolData?.inflationChange]
   );
 
@@ -202,7 +202,8 @@ const OrchestratorList = ({
     [protocolData]
   );
   const formattedPrinciple = useMemo(
-    () => numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
+    () =>
+      numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
     [principle]
   );
   const { data: bondingManagerAddress } = useBondingManagerAddress();
@@ -436,16 +437,17 @@ const OrchestratorList = ({
           );
           const feeCut = useMemo(
             () =>
-              numbro(
-                1 - Number(row.values.earnings.feeShare) / 1000000
-              ).format({ mantissa: 0, output: "percent" }),
+              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
+                { mantissa: 0, output: "percent" }
+              ),
             [row.values.earnings.feeShare]
           );
           const rewardCut = useMemo(
             () =>
-              numbro(Number(row.values.earnings.rewardCut) / 1000000).format(
-                { mantissa: 0, output: "percent" }
-              ),
+              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
+                mantissa: 0,
+                output: "percent",
+              }),
             [row.values.earnings.rewardCut]
           );
           const rewardCalls = useMemo(
@@ -735,9 +737,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalStake).format(
-                            { mantissa: 1, average: true }
-                          )}
+                          {numbro(row.values.earnings.totalStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -804,7 +807,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(AVERAGE_L1_BLOCK_TIME).format({ mantissa: 0 })}
+                          {numbro(AVERAGE_L1_BLOCK_TIME).format({
+                            mantissa: 0,
+                          })}
                           {" seconds"}
                         </Text>
                       </Flex>
@@ -854,9 +859,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalActiveStake).format(
-                            { mantissa: 1, average: true }
-                          )}
+                          {numbro(row.values.earnings.totalActiveStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -904,7 +910,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.totalStake).format({ mantissa: 0, thousandSeparated: true })} LPT
+              {numbro(row.values.totalStake).format({
+                mantissa: 0,
+                thousandSeparated: true,
+              })}{" "}
+              LPT
             </Text>
           </Box>
         ),
@@ -934,7 +944,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.ninetyDayVolumeETH).format({ mantissa: 2, average: true })} ETH
+              {numbro(row.values.ninetyDayVolumeETH).format({
+                mantissa: 2,
+                average: true,
+              })}{" "}
+              ETH
             </Text>
           </Box>
         ),
@@ -1046,8 +1060,8 @@ const OrchestratorList = ({
 
   return (
     <Table
-      data={mappedData as any}
-      columns={columns as any}
+      data={mappedData as object[]}
+      columns={columns}
       initialState={{
         pageSize,
         hiddenColumns: ["identity"],
