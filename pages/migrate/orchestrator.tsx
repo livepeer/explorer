@@ -1,5 +1,11 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
+import { getL1MigratorAddress } from "@lib/api/contracts";
+import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
 import {
   Box,
   Button,
@@ -13,32 +19,22 @@ import {
   TextField,
   useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-
-import { CodeBlock } from "@components/CodeBlock";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import { getL1MigratorAddress } from "@lib/api/contracts";
-import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { stepperStyles } from "../../utils/stepperStyles";
-import { getAddress, isAddress } from "viem";
-import { inbox } from "@lib/api/abis/bridge/Inbox";
-import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
-import { useWriteContract } from "wagmi";
 import { waitToRelayTxsToL2 } from "utils/messaging";
-import Link from "next/link";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { getAddress, isAddress } from "viem";
+import { useWriteContract } from "wagmi";
+
+import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
   "Enter orchestrator Ethereum Address",
@@ -227,9 +223,15 @@ const MigrateOrchestrator = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
+  const { start } = useTimer({
+    autoStart: false,
+    expiryTimestamp: time,
+    onExpire: () => console.warn("onExpire called"),
+  });
+
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { seconds, minutes, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -293,12 +295,11 @@ const MigrateOrchestrator = () => {
       const maxSubmissionPrice = submissionPrice * 4n;
 
       // calculating estimated gas for the tx
-      const estimatedGas =
-        await l1PublicClient.estimateContractGas({
-          address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
-          abi: nodeInterface,
-          functionName: "estimateRetryableTicket",
-          args: [
+      const estimatedGas = await l1PublicClient.estimateContractGas({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+        abi: nodeInterface,
+        functionName: "estimateRetryableTicket",
+        args: [
           CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
           ethers.utils.parseEther("0.01").toBigInt(),
           CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
@@ -355,7 +356,10 @@ const MigrateOrchestrator = () => {
         payload: {
           body: (
             <Box css={{ marginBottom: "$4" }}>
-              <Text variant="neutral" css={{ display: "block", marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
                 Estimated time remaining: {minutes}:
                 {seconds.toString().padStart(2, "0")}
               </Text>
@@ -582,7 +586,9 @@ const MigrateOrchestrator = () => {
         }
 
         const validSignature =
-          !!signature && !!signer && getAddress(signer) === getAddress(state.migrationParams.delegate);
+          !!signature &&
+          !!signer &&
+          getAddress(signer) === getAddress(state.migrationParams.delegate);
 
         return (
           <Box>
@@ -844,18 +850,18 @@ const MigrateOrchestrator = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>

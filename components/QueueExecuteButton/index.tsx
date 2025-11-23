@@ -1,18 +1,17 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
-import { Button } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
-import {
-  UseSimulateContractParameters,
-  useReadContract,
-  useWriteContract,
-  useSimulateContract,
-} from "wagmi";
-import { Address } from "viem";
-
-import { useMemo } from "react";
-import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { ProposalExtended } from "@lib/api/treasury";
+import { Button } from "@livepeer/design-system";
 import { ethers } from "ethers";
+import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useLivepeerGovernorAddress } from "hooks/useContracts";
+import { useMemo } from "react";
+import { Address } from "viem";
+import {
+  useReadContract,
+  useSimulateContract,
+  UseSimulateContractParameters,
+  useWriteContract,
+} from "wagmi";
 
 type Props = {
   action: "queue" | "execute";

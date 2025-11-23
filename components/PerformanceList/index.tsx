@@ -1,16 +1,16 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Table from "@components/Table";
 import IdentityAvatar from "@components/IdentityAvatar";
 import { textTruncate } from "@lib/utils";
-import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import Link from "next/link";
-import { useMemo } from "react";
-import { useAllScoreData, useEnsData } from "hooks";
-import { OrchestratorsQueryResult } from "apollo";
-import numbro from "numbro";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
+import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { OrchestratorsQueryResult } from "apollo";
+import { useAllScoreData, useEnsData } from "hooks";
+import Link from "next/link";
+import numbro from "numbro";
+import { useMemo } from "react";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
@@ -30,18 +30,19 @@ const PerformanceList = ({
     "id"
   >[];
 }) => {
-  const {isValidating, data: allScores} = useAllScoreData(pipeline, model);
+  const { isValidating, data: allScores } = useAllScoreData(pipeline, model);
   const isAIData = pipeline !== null && model !== null;
-  const scoreAccessor = `scores.${region}`;//total score
-  const successRateAccessor = `successRates.${region}`;//success rate
-  const roundTripScoreAccessor = `roundTripScores.${region}`;//latency score
+  const scoreAccessor = `scores.${region}`; //total score
+  const successRateAccessor = `successRates.${region}`; //success rate
+  const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
 
   const initialState = {
     pageSize: pageSize,
-    sortBy: [{
-        id: 'scores',
+    sortBy: [
+      {
+        id: "scores",
         desc: true,
-      }
+      },
     ],
     hiddenColumns: [
       "activationRound",
@@ -58,16 +59,19 @@ const PerformanceList = ({
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
-  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always 
-  //sort double values correctly.  As such, we use a custom sort function to place 0 values after 
+  //alphanumeric sorting does properly handle null and undefined values, but it unforunately doesn't always
+  //sort double values correctly.  As such, we use a custom sort function to place 0 values after
   //non-zero's and before null/undefined values.
-  const sortTypeFn = useMemo(() => (rowA: any, rowB: any, columnId: string) => {
-    const a = rowA.values[columnId];
-    const b = rowB.values[columnId];
-    if (a === null || a === undefined) return -1;
-    if (b === null || b === undefined) return 1;
-    return a === b ? 0 : a > b ? 1 : -1;
-  }, []);
+  const sortTypeFn = useMemo(
+    () => (rowA: any, rowB: any, columnId: string) => {
+      const a = rowA.values[columnId];
+      const b = rowB.values[columnId];
+      if (a === null || a === undefined) return -1;
+      if (b === null || b === undefined) return 1;
+      return a === b ? 0 : a > b ? 1 : -1;
+    },
+    []
+  );
 
   const columns: any = useMemo(
     () => [
@@ -218,8 +222,8 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(10).format({
-                  mantissa: 2,
-                })}
+                    mantissa: 2,
+                  })}
             </Box>
           );
         },
@@ -257,9 +261,9 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(100).format({
-                  output: "percent",
-                  mantissa: 0,
-                })}
+                    output: "percent",
+                    mantissa: 0,
+                  })}
             </Box>
           );
         },
@@ -298,14 +302,21 @@ const PerformanceList = ({
               {typeof value === "undefined" || value === null
                 ? "---"
                 : numbro(value).divide(10).format({
-                  mantissa: 2,
-                })}
+                    mantissa: 2,
+                  })}
             </Box>
           );
         },
       },
     ],
-    [region, isValidating]
+    [
+      isAIData,
+      isValidating,
+      roundTripScoreAccessor,
+      scoreAccessor,
+      sortTypeFn,
+      successRateAccessor,
+    ]
   );
   return (
     <Table data={mergedData} columns={columns} initialState={initialState} />

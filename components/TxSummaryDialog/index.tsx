@@ -9,6 +9,7 @@ import {
 } from "@livepeer/design-system";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
+
 import CloseIcon from "../../public/img/close.svg";
 
 const rotate = keyframes({

@@ -1,20 +1,21 @@
 import { fromWei, txMessages } from "@lib/utils";
-import Spinner from "../Spinner";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
+  Badge,
   Box,
-  Flex,
   Button,
   Dialog,
   DialogClose,
-  DialogTitle,
   DialogContent,
+  DialogTitle,
+  Flex,
   Heading,
-  Badge,
   Link as A,
 } from "@livepeer/design-system";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import { ExternalLinkIcon } from "@modulz/radix-icons";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+
+import Spinner from "../Spinner";
 
 const Index = () => {
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();
@@ -221,7 +222,10 @@ function Header({ tx }: { tx: TransactionStatus }) {
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
         Details{" "}
-        <Box as={ExternalLinkIcon} css={{ marginLeft: "6px", color: "$primary11" }} />
+        <Box
+          as={ExternalLinkIcon}
+          css={{ marginLeft: "6px", color: "$primary11" }}
+        />
       </A>
     </Flex>
   );

@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { useMemo, useRef, useEffect, useState, useCallback } from "react";
-import gsap from "gsap";
 import { Box } from "@livepeer/design-system";
+import gsap from "gsap";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   isDark?: boolean;
@@ -84,7 +84,7 @@ const LivepeerLogo = ({
         css={{ height: "34px", width: 110, marginBottom: "$4" }}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        ref={svgRef as any}
+        ref={svgRef as React.Ref<SVGSVGElement>}
       >
         <defs>
           <linearGradient

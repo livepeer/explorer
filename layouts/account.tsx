@@ -1,15 +1,11 @@
-import DelegatingWidget from "@components/DelegatingWidget";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import Profile from "@components/Profile";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { useRouter } from "next/router";
-import { useBondingManagerAddress } from "hooks/useContracts";
-import { useReadContract } from "wagmi";
-
 import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
+import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
 import OrchestratingView from "@components/OrchestratingView";
+import Profile from "@components/Profile";
+import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
@@ -26,9 +22,13 @@ import {
   OrchestratorsSortedQueryResult,
   useAccountQuery,
 } from "apollo";
+import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
+import { useReadContract } from "wagmi";
+
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
@@ -197,7 +197,7 @@ const AccountLayout = ({
                   side="bottom"
                 >
                   <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders as any}
+                    transcoders={sortedOrchestrators?.transcoders}
                     delegator={dataMyAccount?.delegator}
                     account={myIdentity}
                     transcoder={

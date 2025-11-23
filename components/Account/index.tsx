@@ -1,10 +1,10 @@
-import Link from "next/link";
-import AccountIcon from "../../public/img/account.svg";
-import { useRef } from "react";
-import { useRouter } from "next/router";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
-
 import { useAccountAddress, useEnsData } from "hooks";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useRef } from "react";
+
+import AccountIcon from "../../public/img/account.svg";
 
 const Account = () => {
   const router = useRouter();

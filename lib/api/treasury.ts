@@ -1,10 +1,11 @@
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
 import dayjs from "@lib/dayjs";
-import fm from "front-matter";
-import { ProposalState } from "./types/get-treasury-proposal";
-import { CurrentRoundInfo } from "./types/get-current-round";
 import { fromWei } from "@lib/utils";
+import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
+import fm from "front-matter";
+
+import { CurrentRoundInfo } from "./types/get-current-round";
+import { ProposalState } from "./types/get-treasury-proposal";
 
 export type Proposal = NonNullable<TreasuryProposalQuery["treasuryProposal"]>;
 
