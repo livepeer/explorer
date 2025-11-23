@@ -1,4 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import IdentityAvatar from "@components/IdentityAvatar";
 import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
@@ -9,7 +10,6 @@ import { OrchestratorsQueryResult } from "apollo";
 import { useAllScoreData, useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
-import { QRCodeCanvas } from "qrcode.react";
 import { useMemo } from "react";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
@@ -113,39 +113,11 @@ const PerformanceList = ({
               }}
             >
               <Flex css={{ alignItems: "center" }}>
-                {identity?.avatar ? (
-                  <Box
-                    key={row.values.id}
-                    as="img"
-                    css={{
-                      marginRight: "$2",
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      borderRadius: 1000,
-                    }}
-                    src={identity.avatar}
-                  />
-                ) : (
-                  <Box
-                    css={{
-                      marginRight: "$2",
-                      borderRadius: 1000,
-                      width: 24,
-                      height: 24,
-                      maxWidth: 24,
-                      maxHeight: 24,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <QRCodeCanvas
-                      fgColor={`#${row.values.id.substr(2, 6)}`}
-                      size={24}
-                      value={row.values.id}
-                    />
-                  </Box>
-                )}
+                <IdentityAvatar
+                  identity={identity}
+                  address={row.values.id}
+                  css={{ marginRight: "$2" }}
+                />
                 {identity?.name ? (
                   <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                     <Box

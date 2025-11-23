@@ -1,5 +1,4 @@
 import { getCacheControlHeader } from "@lib/api";
-import { isAddress } from "viem";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import {
   getBondingManagerAddress,
@@ -8,6 +7,7 @@ import {
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
+import { isAddress } from "viem";
 import { Address } from "viem";
 
 const handler = async (

@@ -1,8 +1,8 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import IdentityAvatar from "@components/IdentityAvatar";
 import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { EnsIdentity } from "@lib/api/types/get-ens";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
@@ -26,14 +26,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Skeleton,
   Text,
   TextField,
 } from "@livepeer/design-system";
-import {
-  ArrowTopRightIcon,
-  // ExclamationTriangleIcon,
-} from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
@@ -44,8 +40,7 @@ import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import numbro from "numbro";
-import { QRCodeCanvas } from "qrcode.react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -69,97 +64,6 @@ const formatFactors = (factors: ROIFactors) =>
     : factors === "lpt"
     ? `LPT Only`
     : `ETH Only`;
-
-const AvatarWrapper = ({
-  identity,
-  address,
-}: {
-  identity: EnsIdentity | null | undefined;
-  address: string;
-}) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [hasAvatarError, setHasAvatarError] = useState(false);
-
-  const avatarContainerStyles = {
-    marginRight: "$2",
-    borderRadius: 1000,
-    width: 24,
-    height: 24,
-    maxWidth: 24,
-    maxHeight: 24,
-    overflow: "hidden",
-    position: "relative",
-  } as const;
-
-  useEffect(() => {
-    setImageLoaded(false);
-    setHasAvatarError(false);
-  }, [identity?.avatar, address]);
-
-  const avatarSrc = identity?.avatar ?? null;
-  const awaitingEnsData = identity?.isLoading && !avatarSrc;
-
-  if (!avatarSrc || hasAvatarError || awaitingEnsData) {
-    return (
-      <Box
-        css={{
-          ...avatarContainerStyles,
-        }}
-      >
-        {awaitingEnsData ? (
-          <Skeleton
-            css={{
-              width: "100%",
-              height: "100%",
-              borderRadius: 1000,
-            }}
-          />
-        ) : (
-          <QRCodeCanvas
-            fgColor={`#${address.slice(2, 8)}`}
-            size={24}
-            value={address}
-          />
-        )}
-      </Box>
-    );
-  }
-
-  return (
-    <Box
-      css={{
-        ...avatarContainerStyles,
-      }}
-    >
-      {!imageLoaded && (
-        <Skeleton
-          css={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 1000,
-          }}
-        />
-      )}
-      <Box
-        as="img"
-        css={{
-          width: "100%",
-          height: "100%",
-          borderRadius: 1000,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          objectFit: "cover",
-          opacity: imageLoaded ? 1 : 0,
-          transition: "opacity 150ms ease",
-        }}
-        src={avatarSrc}
-        onLoad={() => setImageLoaded(true)}
-        onError={() => setHasAvatarError(true)}
-      />
-    </Box>
-  );
-};
 
 const OrchestratorList = ({
   data,
@@ -366,7 +270,11 @@ const OrchestratorList = ({
                 </Box>
 
                 <Flex css={{ marginRight: "$2", alignItems: "center" }}>
-                  <AvatarWrapper identity={identity} address={row.values.id} />
+                  <IdentityAvatar
+                    identity={identity}
+                    address={row.values.id}
+                    css={{ marginRight: "$2" }}
+                  />
                   {identity?.name ? (
                     <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                       <Box
