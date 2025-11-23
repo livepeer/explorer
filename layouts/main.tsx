@@ -445,7 +445,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 marginLeft: "$2",
                                 backgroundColor:
-                                  !asPath.includes(accountAddress ?? "") &&
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
