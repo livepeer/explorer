@@ -1,7 +1,7 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Skeleton } from "@livepeer/design-system";
-import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useEffect, useState } from "react";
 
 type Identity = Pick<EnsIdentity, "avatar" | "isLoading"> | null | undefined;
 
@@ -12,12 +12,7 @@ type Props = {
   css?: object;
 };
 
-const IdentityAvatar = ({
-  identity,
-  address,
-  size = 24,
-  css = {},
-}: Props) => {
+const IdentityAvatar = ({ identity, address, size = 24, css = {} }: Props) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasAvatarError, setHasAvatarError] = useState(false);
 

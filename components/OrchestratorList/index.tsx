@@ -1,8 +1,16 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import IdentityAvatar from "@components/IdentityAvatar";
 import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
-import IdentityAvatar from "@components/IdentityAvatar";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import dayjs from "@lib/dayjs";
+import {
+  calculateROI,
+  ROIFactors,
+  ROIInflationChange,
+  ROITimeHorizon,
+} from "@lib/roi";
 import { textTruncate } from "@lib/utils";
 import {
   Badge,
@@ -21,23 +29,12 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
-import dayjs from "@lib/dayjs";
-
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import {
-  calculateROI,
-  ROIFactors,
-  ROIInflationChange,
-  ROITimeHorizon,
-} from "@lib/roi";
-import {
-  ArrowTopRightIcon,
-} from "@modulz/radix-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";

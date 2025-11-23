@@ -625,9 +625,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 }}
                               >
                                 {IS_L2 && (
-                                  <PopoverLink
-                                    href={`/migrate`}
-                                  >
+                                  <PopoverLink href={`/migrate`}>
                                     Arbitrum Migration Tool
                                   </PopoverLink>
                                 )}

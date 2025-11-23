@@ -1,9 +1,9 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import Table from "@components/Table";
 import IdentityAvatar from "@components/IdentityAvatar";
-import { textTruncate } from "@lib/utils";
+import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
+import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult } from "apollo";
