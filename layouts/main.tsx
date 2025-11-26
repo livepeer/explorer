@@ -69,7 +69,7 @@ import DNS from "../public/img/dns.svg";
 
 export const IS_BANNER_ENABLED = true;
 
-const uniqueBannerID = 6;
+const uniqueBannerID = 5;
 
 const isBannerDismissed = () => {
   try {
