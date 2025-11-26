@@ -27,7 +27,7 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
   return (
     <>
       <Flex
-        role="status"
+        role="alert"
         css={{
           width: "100%",
           alignItems: "center",

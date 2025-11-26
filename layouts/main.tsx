@@ -72,6 +72,8 @@ import DNS from "../public/img/dns.svg";
 
 export const IS_BANNER_ENABLED = true;
 
+const uniqueBannerID = 6;
+
 const isBannerDismissed = () => {
   try {
     const parsed = JSON.parse(
@@ -98,9 +100,6 @@ export type DrawerItem = {
   icon: React.ElementType;
   className?: string;
 };
-
-// increment this value when updating the banner
-const uniqueBannerID = 5;
 
 export const LAYOUT_MAX_WIDTH = 1400;
 
@@ -165,7 +164,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     }
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key && event.key !== "bannersDismissed") {
+      if (event.key !== null && event.key !== "bannersDismissed") {
         return;
       }
       setBannerActive(!isBannerDismissed());
