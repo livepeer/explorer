@@ -7,11 +7,8 @@ import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-<<<<<<< HEAD
 import RegisterToVote from "@components/RegisterToVote";
-=======
 import URLVerificationBanner from "@components/URLVerificationBanner";
->>>>>>> 8db514f (feat: add URL verification banner)
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
