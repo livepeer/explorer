@@ -49,7 +49,15 @@ import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  ReactNode,
+} from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { useWindowSize } from "react-use";
@@ -112,16 +120,18 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bannerActive, setBannerActive] = useState<boolean>(() => {
-    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
-      return false;
-    }
-    return !isBannerDismissed();
-  });
+  const [bannerActive, setBannerActive] = useState<boolean>(false);
   const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
+
+  useLayoutEffect(() => {
+    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
+      return;
+    }
+    setBannerActive(!isBannerDismissed());
+  }, []);
 
   const totalActivePolls = useMemo(
     () =>
