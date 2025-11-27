@@ -8,6 +8,7 @@ import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
 import RegisterToVote from "@components/RegisterToVote";
+import URLVerificationBanner from "@components/URLVerificationBanner";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
@@ -48,10 +49,17 @@ import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  ReactNode,
+} from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
-import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
 
@@ -67,7 +75,20 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 
-export const IS_BANNER_ENABLED = false;
+export const IS_BANNER_ENABLED = true;
+
+const uniqueBannerID = 5;
+
+const isBannerDismissed = () => {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(`bannersDismissed`) ?? "[]"
+    );
+    return Array.isArray(parsed) && parsed.includes(uniqueBannerID);
+  } catch {
+    return false;
+  }
+};
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "");
@@ -85,9 +106,6 @@ export type DrawerItem = {
   className?: string;
 };
 
-// increment this value when updating the banner
-const uniqueBannerID = 4;
-
 export const LAYOUT_MAX_WIDTH = 1400;
 
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
@@ -102,11 +120,18 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bannerActive, setBannerActive] = useState(false);
+  const [bannerActive, setBannerActive] = useState<boolean>(false);
   const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
+
+  useLayoutEffect(() => {
+    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
+      return;
+    }
+    setBannerActive(!isBannerDismissed());
+  }, []);
 
   const totalActivePolls = useMemo(
     () =>
@@ -141,15 +166,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, []);
 
   useEffect(() => {
-    const ls = window.localStorage.getItem(`bannersDismissed`);
-    const storage = ls ? JSON.parse(ls) : null;
-    if (storage && storage.includes(uniqueBannerID)) {
-      setBannerActive(false);
-    } else {
-      if (IS_BANNER_ENABLED) {
-        setBannerActive(true);
-      }
+    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
+      return;
     }
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== "bannersDismissed") {
+        return;
+      }
+      setBannerActive(!isBannerDismissed());
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   useEffect(() => {
@@ -251,6 +280,32 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   globalStyles();
 
+  const handleDismissBanner = useCallback(() => {
+    setBannerActive(false);
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const ls = window.localStorage.getItem(`bannersDismissed`);
+      const parsed = ls ? JSON.parse(ls) : [];
+      const storage = Array.isArray(parsed) ? parsed : [];
+
+      if (!storage.includes(uniqueBannerID)) {
+        window.localStorage.setItem(
+          `bannersDismissed`,
+          JSON.stringify([...storage, uniqueBannerID])
+        );
+      }
+    } catch (_err) {
+      window.localStorage.setItem(
+        `bannersDismissed`,
+        JSON.stringify([uniqueBannerID])
+      );
+    }
+  }, []);
+
   return (
     <DesignSystemProviderTyped>
       <ThemeProvider
@@ -293,68 +348,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               </Flex>
             )}
             {bannerActive && (
-              <Flex
-                css={{
-                  paddingTop: 10,
-                  paddingBottom: 10,
-                  display: "none",
-                  paddingLeft: "$2",
-                  paddingRight: "$2",
-                  width: "100%",
-                  alignItems: "center",
-                  backgroundColor: "$neutral4",
-                  justifyContent: "center",
-                  fontSize: "$2",
-                  borderBottom: "1px solid $neutral5",
-                  position: "relative",
-                  "@bp2": {
-                    display: "flex",
-                  },
-                  "@bp3": {
-                    fontSize: "$3",
-                  },
-                }}
-              >
-                <Box
-                  as="span"
-                  css={{
-                    marginRight: "$3",
-                    paddingRight: "$3",
-                  }}
-                >
-                  <Box as="span">
-                    The Livepeer Protocol is moving to Arbitrum Nitro - wallet
-                    connection is temporarily paused 🚦
-                  </Box>
-                </Box>
-
-                <Box
-                  as={FiX}
-                  onClick={() => {
-                    setBannerActive(false);
-                    const ls = window.localStorage.getItem(`bannersDismissed`);
-                    const storage = ls ? JSON.parse(ls) : null;
-                    if (storage) {
-                      storage.push(uniqueBannerID);
-                      window.localStorage.setItem(
-                        `bannersDismissed`,
-                        JSON.stringify(storage)
-                      );
-                    } else {
-                      window.localStorage.setItem(
-                        `bannersDismissed`,
-                        JSON.stringify([uniqueBannerID])
-                      );
-                    }
-                  }}
-                  css={{
-                    cursor: "pointer",
-                    position: "absolute",
-                    right: 20,
-                    top: 14,
-                  }}
-                />
-              </Flex>
+              <URLVerificationBanner onDismiss={handleDismissBanner} />
             )}
 
             <Box css={{}}>
