@@ -6,7 +6,6 @@ import { Region } from "@lib/api/types/get-regions";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { OrchestratorsQueryResult } from "apollo";
 import { useAllScoreData, useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
