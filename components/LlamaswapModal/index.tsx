@@ -1,11 +1,8 @@
 import {
-  Box,
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTrigger,
 } from "@livepeer/design-system";
-import { Cross1Icon } from "@modulz/radix-icons";
 
 const Index = ({ trigger, children }) => {
   return (
@@ -17,20 +14,6 @@ const Index = ({ trigger, children }) => {
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
-        <DialogClose asChild>
-          <Box
-            as={Cross1Icon}
-            css={{
-              cursor: "pointer",
-              position: "fixed",
-              right: 20,
-              top: 20,
-              zIndex: 1000,
-              color: "white",
-            }}
-          />
-        </DialogClose>
-
         {children}
       </DialogContent>
     </Dialog>
