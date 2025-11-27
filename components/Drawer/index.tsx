@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 import Account from "../Account";
 import Logo from "../Logo";
-import UniswapModal from "../UniswapModal";
+import LlamaswapModal from "../LlamaswapModal";
 
 const Index = ({
   items = [],
@@ -160,7 +160,7 @@ const Index = ({
               Docs
             </A>
 
-            <UniswapModal
+            <LlamaswapModal
               trigger={
                 <A
                   as={Text}
@@ -183,9 +183,9 @@ const Index = ({
                   height: "100%",
                   border: "0",
                 }}
-                src={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
+                src={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
               />
-            </UniswapModal>
+            </LlamaswapModal>
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
               href="https://discord.gg/livepeer"
