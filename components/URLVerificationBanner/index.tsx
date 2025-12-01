@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Button,
@@ -8,6 +7,7 @@ import {
   Flex,
   Text,
 } from "@livepeer/design-system";
+import React from "react";
 import { FiAlertTriangle, FiX } from "react-icons/fi";
 
 type URLVerificationBannerProps = {

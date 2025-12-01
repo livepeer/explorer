@@ -6,8 +6,8 @@ import Router, { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import Account from "../Account";
-import Logo from "../Logo";
 import LlamaswapModal from "../LlamaswapModal";
+import Logo from "../Logo";
 
 const Index = ({
   items = [],

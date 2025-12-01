@@ -99,18 +99,21 @@ function Table({ tx, account }: { tx: TransactionStatus; account: string }) {
 
 function Inputs({ tx }: { tx: TransactionStatus }) {
   const inputData = tx.inputData;
+  if (!inputData) return null;
+
   switch (tx.name) {
     case "bond":
+      if (!(inputData.to && inputData.amount)) return null;
       return (
         <>
           <Row>
             <Box>Delegate</Box>{" "}
-            {inputData && inputData.to.replace(inputData.to.slice(7, 37), "…")}
+            {inputData.to.replace(inputData.to.slice(7, 37), "…")}
           </Row>
 
           {Number(inputData.amount) > 0 ? (
             <Row>
-              <Box>Amount</Box> {tx.inputData && fromWei(inputData.amount)} LPT
+              <Box>Amount</Box> {fromWei(inputData.amount)} LPT
             </Row>
           ) : (
             <></>
@@ -118,6 +121,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
         </>
       );
     case "unbond":
+      if (!inputData.amount) return null;
       return (
         <>
           <Row>
@@ -126,12 +130,12 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
         </>
       );
     case "rebondFromUnbonded":
+      if (!inputData.delegate) return null;
       return (
         <>
           <Row>
             <Box>Delegate</Box>{" "}
-            {tx.inputData &&
-              inputData.delegate.replace(inputData.delegate.slice(7, 37), "…")}
+            {inputData.delegate.replace(inputData.delegate.slice(7, 37), "…")}
           </Row>
         </>
       );
@@ -139,8 +143,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Vote</Box>{" "}
-            {tx.inputData && inputData.choiceId === 0 ? "Yes" : "No"}
+            <Box>Vote</Box> {inputData.choiceId === 0 ? "Yes" : "No"}
           </Row>
         </>
       );
@@ -148,7 +151,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Total Rounds</Box> {tx.inputData && inputData.totalRounds}
+            <Box>Total Rounds</Box> {inputData.totalRounds}
           </Row>
         </>
       );
@@ -165,14 +168,15 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
     // case "initializeRound":
     //   return null;
     case "claimStake":
+      if (!(inputData.stake && inputData.fees)) return null;
       return (
         <>
           <Row>
-            <Box>Stake</Box> {tx.inputData && fromWei(inputData.stake)}
+            <Box>Stake</Box> {fromWei(inputData.stake)}
           </Row>
 
           <Row>
-            <Box>Fees</Box> {tx.inputData && fromWei(inputData.fees)} LPT
+            <Box>Fees</Box> {fromWei(inputData.fees)} LPT
           </Row>
         </>
       );

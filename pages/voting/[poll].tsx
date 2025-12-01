@@ -16,7 +16,13 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
+import {
+  AccountQuery,
+  PollChoice,
+  useAccountQuery,
+  usePollQuery,
+  useVoteQuery,
+} from "apollo";
 import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -343,9 +349,25 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote as any,
-                  vote: voteData?.vote as any,
-                  myAccount: myAccountData as any,
+                  delegateVote: delegateVoteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  vote: voteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  myAccount: myAccountData as AccountQuery,
                 }}
               />
             </Flex>
@@ -354,9 +376,25 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote as any,
-                  vote: voteData?.vote as any,
-                  myAccount: myAccountData as any,
+                  delegateVote: delegateVoteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  vote: voteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  myAccount: myAccountData as AccountQuery,
                 }}
               />
             </BottomDrawer>

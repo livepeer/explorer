@@ -25,7 +25,7 @@ const Index = () => {
 
   useHandleTransaction("approve", data, error, isPending, isSuccess, {
     type: "approve",
-    amount: MAXIMUM_VALUE_UINT256,
+    amount: BigInt(MAXIMUM_VALUE_UINT256),
   });
 
   return (

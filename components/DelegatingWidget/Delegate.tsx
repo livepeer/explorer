@@ -2,13 +2,13 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { parseEther } from "ethers/lib/utils";
 import { useHandleTransaction } from "hooks";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
+import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
@@ -54,12 +54,12 @@ const Delegate = ({
     approveIsSuccess,
     {
       type: "bond",
-      amount: MAXIMUM_VALUE_UINT256,
+      amount: BigInt(MAXIMUM_VALUE_UINT256),
     }
   );
 
   const bondWithHintArgs = {
-    amount: amount?.toString() ? parseEther(amount) : "0",
+    amount: amount?.toString() ? parseEther(amount) : BigInt(0),
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,

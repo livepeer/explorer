@@ -66,7 +66,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   useHandleTransaction("withdrawFees", data, error, isPending, isSuccess, {
     recipient,
-    amount,
+    amount: BigInt(amount),
   });
 
   const isMyAccount = checkAddressEquality(

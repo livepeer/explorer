@@ -39,20 +39,13 @@ const Index = () => {
   );
 
   const events = useMemo(
-    () =>
-      data?.transactions?.reduce(
-        (res, { events: e }) => res.concat(e as any),
-        []
-      ) ?? [],
+    () => data?.transactions?.flatMap(({ events: e }) => e ?? []) ?? [],
     [data]
   );
 
   const lastEventTimestamp = useMemo(
     () =>
-      Number(
-        (events?.[(events?.length || 0) - 1] as any)?.transaction?.timestamp ??
-          0
-      ),
+      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
     [events]
   );
 
@@ -61,9 +54,7 @@ const Index = () => {
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter(
-          (e) => (e as any)?.__typename !== "WinningTicketRedeemedEvent"
-        ),
+        ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),
@@ -110,7 +101,7 @@ const Index = () => {
               variables: {
                 skip: data.transactions.length,
               },
-              updateQuery: (previousResult: any, { fetchMoreResult }: any) => {
+              updateQuery: (previousResult, { fetchMoreResult }) => {
                 if (!fetchMoreResult) {
                   return previousResult;
                 }
@@ -139,7 +130,7 @@ const Index = () => {
         }}
       >
         <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
+          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
         </Box>
         {loading && data.transactions.length >= 10 && (
           <Flex
@@ -162,7 +153,7 @@ const Index = () => {
 
 export default Index;
 
-function renderSwitch(event: any, i: number) {
+function renderSwitch(event, i: number) {
   switch (event.__typename) {
     case "BondEvent":
       return (

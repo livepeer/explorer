@@ -1,8 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@livepeer/design-system";
+import { Dialog, DialogContent, DialogTrigger } from "@livepeer/design-system";
 
 const Index = ({ trigger, children }) => {
   return (

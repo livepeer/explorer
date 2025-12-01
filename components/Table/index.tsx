@@ -15,7 +15,16 @@ import {
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
-import { Column, usePagination, useSortBy, useTable } from "react-table";
+import {
+  Column,
+  HeaderGroup,
+  TableInstance,
+  usePagination,
+  UsePaginationInstanceProps,
+  useSortBy,
+  UseSortByInstanceProps,
+  useTable,
+} from "react-table";
 
 function DataTable<T extends object>({
   heading = null,
@@ -42,7 +51,7 @@ function DataTable<T extends object>({
     nextPage,
     previousPage,
     state: { pageIndex },
-  }: any = useTable<T>(
+  } = useTable<T>(
     {
       columns,
       data,
@@ -50,7 +59,9 @@ function DataTable<T extends object>({
     },
     useSortBy,
     usePagination
-  );
+  ) as TableInstance<T> &
+    UsePaginationInstanceProps<T> &
+    UseSortByInstanceProps<T> & { state: { pageIndex: number } };
 
   return (
     <>
@@ -102,9 +113,17 @@ function DataTable<T extends object>({
 
                   return (
                     <Tr key={headerGroupKey} {...restHeaderGroupProps}>
-                      {headerGroup.headers.map((column: any, i) => {
+                      {headerGroup.headers.map((column, i) => {
                         const columnProps = column.getHeaderProps(
-                          column.getSortByToggleProps({ title: undefined })
+                          (
+                            column as HeaderGroup<T> & {
+                              getSortByToggleProps: (args?: {
+                                title?: string;
+                              }) => object;
+                            }
+                          ).getSortByToggleProps({
+                            title: undefined,
+                          })
                         );
                         const { key: columnKey, ...restColumnProps } =
                           columnProps;
@@ -114,10 +133,12 @@ function DataTable<T extends object>({
                             key={columnKey}
                             {...restColumnProps}
                             css={{
-                              px: i === 0 ? "$2" : "auto",
+                              paddingLeft: i === 0 ? "$2" : "auto",
+                              paddingRight: i === 0 ? "$2" : "auto",
                               width: i === 0 ? "40px" : "auto",
                               "@bp1": {
-                                px: i === 0 ? "$5" : "auto",
+                                paddingLeft: i === 0 ? "$5" : "auto",
+                                paddingRight: i === 0 ? "$5" : "auto",
                               },
                             }}
                           >
@@ -132,18 +153,34 @@ function DataTable<T extends object>({
                                 fontWeight: 700,
                               }}
                             >
-                              {column?.sortIconAlignment !== "start" &&
+                              {(
+                                column as HeaderGroup<T> & {
+                                  sortIconAlignment?: "start";
+                                }
+                              )?.sortIconAlignment !== "start" &&
                                 column.render("Header")}
                               <Box
                                 css={{
                                   minWidth:
-                                    column?.sortIconAlignment !== "start"
+                                    (
+                                      column as HeaderGroup<T> & {
+                                        sortIconAlignment?: "start";
+                                      }
+                                    )?.sortIconAlignment !== "start"
                                       ? 20
                                       : 0,
                                 }}
                               >
-                                {column.isSorted ? (
-                                  column.isSortedDesc ? (
+                                {(
+                                  column as HeaderGroup<T> & {
+                                    isSorted: boolean;
+                                  }
+                                ).isSorted ? (
+                                  (
+                                    column as HeaderGroup<T> & {
+                                      isSortedDesc: boolean;
+                                    }
+                                  ).isSortedDesc ? (
                                     <ChevronDownIcon />
                                   ) : (
                                     <ChevronUpIcon />
@@ -153,7 +190,11 @@ function DataTable<T extends object>({
                                 )}
                               </Box>
 
-                              {column?.sortIconAlignment === "start" && (
+                              {(
+                                column as HeaderGroup<T> & {
+                                  sortIconAlignment?: "start";
+                                }
+                              )?.sortIconAlignment === "start" && (
                                 <Box
                                   css={{
                                     marginLeft: "$1",
@@ -187,7 +228,8 @@ function DataTable<T extends object>({
                               fontSize: "$3",
                               fontWeight: 500,
                               lineHeight: 2,
-                              px: i === 0 ? "$5" : "$1",
+                              paddingLeft: i === 0 ? "$5" : "$1",
+                              paddingRight: i === 0 ? "$5" : "$1",
                               width: i === 0 ? "40px" : "auto",
                             }}
                           >
