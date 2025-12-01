@@ -49,6 +49,15 @@ query account($account: ID!) {
       id
     }
   }
+  gateway: broadcaster(id: $account) {
+    id
+    deposit
+    reserve
+    totalVolumeETH
+    ninetyDayVolumeETH
+    firstActiveDay
+    lastActiveDay
+  }
   protocol(id: "0") {
     id
     totalSupply
