@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit --incremental false",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },

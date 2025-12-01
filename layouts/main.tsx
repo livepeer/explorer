@@ -8,11 +8,11 @@ import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
 import RegisterToVote from "@components/RegisterToVote";
-import URLVerificationBanner from "@components/URLVerificationBanner";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
+import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
@@ -50,13 +50,13 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
 import React, {
+  ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  ReactNode,
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
@@ -298,7 +298,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
           JSON.stringify([...storage, uniqueBannerID])
         );
       }
-    } catch (_err) {
+    } catch (error) {
+      console.error(error);
       window.localStorage.setItem(
         `bannersDismissed`,
         JSON.stringify([uniqueBannerID])
