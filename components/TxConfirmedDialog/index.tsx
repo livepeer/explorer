@@ -101,7 +101,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
                 {Number(tx.inputData.amount) <= 0
                   ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
                   : `Congrats! You've successfully delegated
-                ${fromWei(tx.inputData?.amount ?? BigInt(0))} LPT.`}
+                ${fromWei(tx.inputData.amount ?? "0")} LPT.`}
               </Box>
             </Box>
           </Table>
@@ -243,7 +243,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               {!isOrchestrator
                 ? "your stake"
                 : `your orchestrator (${targetAddress?.replace(
-                    targetAddress.slice(7, 37),
+                    targetAddress?.slice(7, 37) ?? "",
                     "…"
                   )}) stake!`}
             </Box>

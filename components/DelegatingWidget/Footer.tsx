@@ -7,7 +7,6 @@ import {
 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { parseEther } from "ethers/lib/utils";
 import {
   StakingAction,
   useAccountAddress,
@@ -15,6 +14,7 @@ import {
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo } from "react";
+import { parseEther } from "viem";
 
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
