@@ -2,8 +2,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { ApolloProvider } from "@apollo/client";
 import { fetcher } from "@lib/axios";
-import { IdProvider } from "@radix-ui/react-id";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   getDefaultConfig,
   type Locale,
@@ -17,6 +15,7 @@ import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import numbro from "numbro";
+import { Tooltip } from "radix-ui";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
@@ -65,7 +64,7 @@ function App({ Component, pageProps, fallback = null }) {
         key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
         client={client}
       >
-        <TooltipPrimitive.Provider>
+        <Tooltip.Provider>
           <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
               <RainbowKitProvider
@@ -85,15 +84,13 @@ function App({ Component, pageProps, fallback = null }) {
                   }}
                 >
                   <CookiesProvider>
-                    <IdProvider>
-                      {getLayout(<Component {...pageProps} />)}
-                    </IdProvider>
+                    {getLayout(<Component {...pageProps} />)}
                   </CookiesProvider>
                 </SWRConfig>
               </RainbowKitProvider>
             </QueryClientProvider>
           </WagmiProvider>
-        </TooltipPrimitive.Provider>
+        </Tooltip.Provider>
       </ApolloProvider>
     </>
   );
