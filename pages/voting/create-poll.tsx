@@ -64,7 +64,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     }
   }, [delegatorPendingStakeAndFees]);
 
-  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [selectedProposal, setSelectedProposal] = useState<{
+    gitCommitHash: string;
+    text: string;
+  } | null>(null);
 
   const { data: config } = useSimulateContract({
     query: { enabled: Boolean(pollCreatorAddress && hash) },
@@ -254,6 +257,23 @@ CreatePoll.getLayout = getLayout;
 
 export default CreatePoll;
 
+type TransformedProposal = {
+  attributes: {
+    lip: string;
+  };
+};
+
+type TransformedLip = {
+  attributes: {
+    lip: string;
+    title: string;
+    status: string;
+    created: string;
+    "part-of"?: string;
+  };
+  text: string;
+};
+
 export async function getStaticProps() {
   try {
     const lipsQuery = `
@@ -318,17 +338,19 @@ export async function getStaticProps() {
 
           // check if proposal is valid format {text, gitCommitHash}
           if (obj?.text && obj?.gitCommitHash) {
-            const transformedProposal = fm(obj.text) as any;
+            const transformedProposal = fm(obj.text) as TransformedProposal;
             createdPolls.push(transformedProposal.attributes.lip);
           }
         })
       );
     }
 
-    const lips: any[] = [];
+    const lips: TransformedLip[] = [];
     if (result.data) {
       for (const lip of result.data.repository.content.entries) {
-        const transformedLip = fm(lip.content.text) as any;
+        const transformedLip = fm(
+          lip.content.text
+        ) as unknown as TransformedLip;
         transformedLip.attributes.created =
           transformedLip.attributes.created.toString();
         if (

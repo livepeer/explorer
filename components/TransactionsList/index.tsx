@@ -554,7 +554,7 @@ const TransactionsList = ({
 
   return (
     <Table
-      data={events as any}
+      data={events as object[]}
       columns={columns}
       initialState={{
         pageSize,

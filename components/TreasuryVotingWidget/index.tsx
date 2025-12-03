@@ -23,7 +23,7 @@ const formatPercent = (percent: number) =>
   });
 
 const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? 0), 4);
+  abbreviateNumber(fromWei(lpt ?? "0"), 4);
 
 const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const accountAddress = useAccountAddress();

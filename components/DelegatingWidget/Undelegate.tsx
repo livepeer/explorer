@@ -1,8 +1,8 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
-import { parseEther } from "ethers/lib/utils";
 import { useAccountAddress, useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {

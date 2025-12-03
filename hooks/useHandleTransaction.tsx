@@ -2,7 +2,11 @@ import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
 
-import { TransactionIdentifier, useExplorerStore } from "./useExplorerStore";
+import {
+  InputData,
+  TransactionIdentifier,
+  useExplorerStore,
+} from "./useExplorerStore";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
@@ -10,7 +14,7 @@ export const useHandleTransaction = (
   error: Error | null,
   isLoading: boolean,
   isSuccess: boolean,
-  args: any,
+  args: InputData,
   onSuccess?: ((result: `0x${string}`) => Promise<void> | void) | null
 ) => {
   const {

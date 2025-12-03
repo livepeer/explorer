@@ -60,7 +60,11 @@ const TransactionsPage = ({ events }: PageProps) => {
               </Flex>
             ) : (
               <TransactionsList
-                events={allEvents as any}
+                events={
+                  allEvents as NonNullable<
+                    EventsQueryResult["data"]
+                  >["transactions"][number]["events"]
+                }
                 pageSize={TRANSACTIONS_PER_PAGE}
               />
             )}

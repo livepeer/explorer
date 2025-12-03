@@ -22,7 +22,7 @@ const parseRetryAfter = (h: string | null): number | null => {
 
 function mergeSignalsPolyfill(signals: AbortSignal[]): AbortSignal {
   const ctrl = new AbortController();
-  const abort = (s: AbortSignal) => ctrl.abort((s as any).reason);
+  const abort = (s: AbortSignal) => ctrl.abort(s.reason);
   for (const s of signals) {
     if (!s) continue;
     if (s.aborted) {
@@ -53,7 +53,7 @@ export async function fetchWithRetry(
   const originalReq = new Request(input, init);
 
   let lastResponse: Response | undefined;
-  let lastError: unknown;
+  let lastError: { message: string } | undefined;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     // per-attempt timeout + caller signal merged
@@ -66,8 +66,16 @@ export async function fetchWithRetry(
     const signal =
       signals.length === 1
         ? signals[0]
-        : (AbortSignal as any).any
-        ? (AbortSignal as any).any(signals)
+        : (
+            AbortSignal as unknown as {
+              any?: (signals: AbortSignal[]) => AbortSignal;
+            }
+          ).any
+        ? (
+            AbortSignal as unknown as {
+              any: (signals: AbortSignal[]) => AbortSignal;
+            }
+          ).any(signals)
         : mergeSignalsPolyfill(signals);
 
     try {
@@ -96,19 +104,23 @@ export async function fetchWithRetry(
 
       const ra = parseRetryAfter(res.headers.get("retry-after"));
       await sleep(ra ?? expBackoffJitter(attempt, baseDelayMs, maxDelayMs));
-    } catch (err: any) {
+    } catch (err) {
       clearTimeout(timeoutId);
-      lastError = err;
+      lastError = err as { message: string };
 
       // if caller aborted, fail immediately (don't retry)
       if (userSignal?.aborted) throw err;
 
-      const isAbort = err?.name === "AbortError";
-      const isNetwork = err?.name === "TypeError" || err?.code === "ECONNRESET";
+      const isAbort = (err as { name?: string })?.name === "AbortError";
+      const isNetwork =
+        (err as { name?: string })?.name === "TypeError" ||
+        (err as { code?: string })?.code === "ECONNRESET";
       const canRetry = allowRetry && (isAbort || isNetwork);
 
       if (!canRetry || attempt === retries) {
-        const reason = err?.message || "Request failed after retries";
+        const reason =
+          (err as { message?: string })?.message ||
+          "Request failed after retries";
         throw new Error(reason);
       }
 
@@ -119,6 +131,6 @@ export async function fetchWithRetry(
   // Fallback: if we somehow exit the loop:
   if (lastResponse) return lastResponse;
   throw new Error(
-    (lastError as any)?.message ?? "Request failed after retries (no response)"
+    lastError?.message ?? "Request failed after retries (no response)"
   );
 }

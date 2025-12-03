@@ -1,11 +1,12 @@
 // https://github.com/livepeer/merkle-earnings-cli/blob/master/src/tree/index.ts
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { keccak256, bufferToHex } = require("ethereumjs-util");
 import { utils } from "ethers";
 
 export interface IMerkleTree {
-  elements: Array<any>;
-  layers: Array<any>;
+  elements: Buffer[];
+  layers: Buffer[][];
 }
 
 export class MerkleTree implements IMerkleTree {
@@ -19,18 +20,18 @@ export class MerkleTree implements IMerkleTree {
     this.elements.sort(Buffer.compare);
 
     // Create layers
-    this.layers = this.getLayers(this.elements);
+    this.layers = this.getLayers(this.elements) as Buffer[][];
   }
 
-  elements: any[];
-  layers: any[];
+  elements: Buffer[];
+  layers: Buffer[][];
 
   getLayers(elements) {
     if (elements.length === 0) {
       return [[""]];
     }
 
-    const layers: Array<any> = [];
+    const layers: Buffer[][] = [];
     layers.push(elements);
 
     // Get next layer until we reach the root

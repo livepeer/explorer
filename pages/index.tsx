@@ -418,7 +418,14 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
             </Flex>
 
             <Box>
-              <TransactionsList events={allEvents as any} pageSize={10} />
+              <TransactionsList
+                events={
+                  allEvents as NonNullable<
+                    EventsQueryResult["data"]
+                  >["transactions"][number]["events"]
+                }
+                pageSize={10}
+              />
             </Box>
           </Box>
         </Flex>
