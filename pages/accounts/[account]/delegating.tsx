@@ -1,5 +1,5 @@
 import AccountLayout from "@layouts/account";
-import { getLayout } from "@layouts/main";
+// import { getLayout } from "@layouts/main";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -17,8 +17,6 @@ type PageProps = {
 const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
   <AccountLayout sortedOrchestrators={sortedOrchestrators} account={account} />
 );
-
-Delegating.getLayout = getLayout;
 
 export const getStaticPaths = async () => {
   const { sortedOrchestrators } = await getSortedOrchestrators();
