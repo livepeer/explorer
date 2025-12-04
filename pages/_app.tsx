@@ -10,8 +10,8 @@ import {
 import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import rainbowTheme from "constants/rainbowTheme";
-import Layout from "layouts/main";
 import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import numbro from "numbro";
@@ -22,6 +22,8 @@ import { SWRConfig } from "swr";
 import { WagmiProvider } from "wagmi";
 
 import { useApollo } from "../apollo";
+
+const CreateLayout = dynamic(() => import("../layouts/main"), { ssr: false });
 
 const queryClient = new QueryClient();
 
@@ -53,7 +55,8 @@ function App({ Component, pageProps, fallback = null }) {
     };
   }, [isMigrateRoute]);
 
-  const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
+  const getLayout =
+    Component.getLayout || ((page) => <CreateLayout>{page}</CreateLayout>);
   return (
     <>
       <Head>

@@ -1,9 +1,15 @@
-import { getSortedOrchestrators } from "@lib/api/ssr";
+// import AccountLayout from "@layouts/account";
+// import { getLayout } from "@layouts/main";
+import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { getApollo, OrchestratorsSortedQueryResult } from "apollo";
+import {
+  AccountQueryResult,
+  getApollo,
+  OrchestratorsSortedQueryResult,
+} from "apollo";
 
 type PageProps = {
-  // account: AccountQueryResult["data"] | null;
+  account: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
   fallback: { [key: string]: EnsIdentity };
 };
@@ -22,13 +28,13 @@ export const getStaticPaths = async () => {
   };
 };
 
-export const getStaticProps = async () => {
+export const getStaticProps = async (context) => {
   try {
     const client = getApollo();
-    // const { account, fallback } = await getAccount(
-    //   client,
-    //   context.params?.account?.toString().toLowerCase()
-    // );
+    const { account, fallback } = await getAccount(
+      client,
+      context.params?.account?.toString().toLowerCase()
+    );
 
     const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =
       await getSortedOrchestrators(client);
@@ -38,11 +44,11 @@ export const getStaticProps = async () => {
     }
 
     const props: PageProps = {
-      // account: account.data,
+      account: account.data,
       sortedOrchestrators: sortedOrchestrators.data,
       fallback: {
         ...sortedOrchestratorsFallback,
-        // ...fallback,
+        ...fallback,
       },
     };
 
