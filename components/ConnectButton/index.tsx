@@ -1,8 +1,9 @@
-import { ConnectButton as ConnectButtonRainbowKit } from "@rainbow-me/rainbowkit";
-import { ConnectButtonProps } from "@rainbow-me/rainbowkit/dist/components/ConnectButton/ConnectButton";
+import dynamic from "next/dynamic";
 
-const ConnectButton = (props: ConnectButtonProps) => {
-  return <ConnectButtonRainbowKit chainStatus="name" {...props} />;
-};
+const ConnectButton = dynamic(() => import("components/ConnectButton/Test"), {
+  ssr: false,
+});
 
-export default ConnectButton;
+export default function ConnectButtonComponent(props) {
+  return <ConnectButton {...props} />;
+}
