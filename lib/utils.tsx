@@ -2,9 +2,7 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
-import { formatEther, parseEther } from "viem";
-import { isAddress } from "viem";
-
+import { formatEther, getAddress, parseEther } from "viem";
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );
@@ -83,10 +81,14 @@ export const textTruncate = (str, length, ending) => {
 };
 
 export const checkAddressEquality = (address1: string, address2: string) => {
-  if (!isAddress(address1) || !isAddress(address2)) {
+  try {
+    const formattedAdress1 = getAddress(address1.toLowerCase());
+    const formattedAdress2 = getAddress(address2.toLowerCase());
+
+    return formattedAdress1 === formattedAdress2;
+  } catch {
     return false;
   }
-  return address1.toLowerCase() === address2.toLowerCase();
 };
 
 export const txMessages = {
