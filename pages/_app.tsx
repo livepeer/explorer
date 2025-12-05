@@ -11,7 +11,7 @@ import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import rainbowTheme from "constants/rainbowTheme";
 import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import numbro from "numbro";
@@ -23,7 +23,7 @@ import { WagmiProvider } from "wagmi";
 
 import { useApollo } from "../apollo";
 
-const CreateLayout = dynamic(() => import("../layouts/main"), { ssr: false });
+// const CreateLayout = dynamic(() => import("../layouts/main"), { ssr: false });
 
 const queryClient = new QueryClient();
 
@@ -55,8 +55,8 @@ function App({ Component, pageProps, fallback = null }) {
     };
   }, [isMigrateRoute]);
 
-  const getLayout =
-    Component.getLayout || ((page) => <CreateLayout>{page}</CreateLayout>);
+  // const getLayout =
+  //   Component.getLayout || ((page) => <CreateLayout>{page}</CreateLayout>);
   return (
     <>
       <Head>
@@ -87,7 +87,7 @@ function App({ Component, pageProps, fallback = null }) {
                   }}
                 >
                   <CookiesProvider>
-                    {getLayout(<Component {...pageProps} />)}
+                    <Component {...pageProps} />
                   </CookiesProvider>
                 </SWRConfig>
               </RainbowKitProvider>
