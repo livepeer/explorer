@@ -82,10 +82,10 @@ export const textTruncate = (str, length, ending) => {
 
 export const checkAddressEquality = (address1: string, address2: string) => {
   try {
-    const formattedAdress1 = getAddress(address1.toLowerCase());
-    const formattedAdress2 = getAddress(address2.toLowerCase());
+    const formattedAddress1 = getAddress(address1.toLowerCase());
+    const formattedAddress2 = getAddress(address2.toLowerCase());
 
-    return formattedAdress1 === formattedAdress2;
+    return formattedAddress1 === formattedAddress2;
   } catch {
     return false;
   }
