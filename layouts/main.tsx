@@ -530,7 +530,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link
+                              passHref
+                              href={`/accounts/${accountAddress}/delegating`}
+                            >
                               <Button
                                 size="3"
                                 css={{
