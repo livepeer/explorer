@@ -1,10 +1,8 @@
-import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import { globalStyles } from "@lib/globalStyles";
 import {
   Badge,
   Box,
-  Button,
   DesignSystemProvider,
   Flex,
   getThemes,
@@ -12,22 +10,15 @@ import {
 } from "@livepeer/design-system";
 import { EyeOpenIcon } from "@modulz/radix-icons";
 import { usePollsQuery, useTreasuryProposalsQuery } from "apollo";
-import { BigNumber } from "ethers";
 import Head from "next/head";
-import Link from "next/link";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 import { ThemeProvider } from "next-themes";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { useWindowSize } from "react-use";
 
-import {
-  useAccountAddress,
-  useCurrentRoundData,
-  useOnClickOutside,
-  usePendingFeesAndStakeData,
-} from "../hooks";
+import { useCurrentRoundData, useOnClickOutside } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 
@@ -56,15 +47,12 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 }>;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
-  const { asPath } = useRouter();
   const { data: pollData } = usePollsQuery();
   const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
-  const accountAddress = useAccountAddress();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
-  const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
 
   const totalActivePolls = useMemo(
     () =>
@@ -83,11 +71,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       return voteEndRoundNumber >= currentRoundNumber ? count + 1 : count;
     }, 0);
   }, [currentRound?.id, treasuryProposalsData?.treasuryProposals]);
-
-  const hasPendingFees = useMemo(
-    () => BigNumber.from(pendingFeesAndStake?.pendingFees ?? 0).gt(0),
-    [pendingFeesAndStake?.pendingFees]
-  );
 
   useEffect(() => {
     const onComplete = () => document.body.removeAttribute("style");
@@ -247,43 +230,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                 items={items}
               />
             </Box>
-            {accountAddress && (
-              <Link passHref href={`/accounts/${accountAddress}/delegating`}>
-                <Button
-                  size="3"
-                  css={{
-                    marginLeft: "$2",
-                    backgroundColor: asPath.includes(accountAddress)
-                      ? "hsla(0,100%,100%,.05)"
-                      : "transparent",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "hsla(0,100%,100%,.1)",
-                    },
-                    "&:active": {
-                      backgroundColor: "hsla(0,100%,100%,.15)",
-                    },
-                    "&:disabled": {
-                      opacity: 0.5,
-                    },
-                  }}
-                >
-                  My Account{" "}
-                  {hasPendingFees && (
-                    <Badge
-                      size="2"
-                      variant="green"
-                      css={{
-                        marginLeft: "6px",
-                      }}
-                    >
-                      1
-                    </Badge>
-                  )}
-                </Button>
-              </Link>
-            )}
-            <ConnectButton showBalance={false} />
           </div>
           {children}
         </SnackbarProvider>
