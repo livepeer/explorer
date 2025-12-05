@@ -13,7 +13,6 @@ import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
-import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
 import {
@@ -209,6 +208,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/",
       icon: EyeOpenIcon,
       className: "overview",
+    },
+    {
+      name: "Ecosystem",
+      href: "/ecosystem",
+      as: "/ecosystem",
+      icon: EyeOpenIcon,
+      className: "ecosystem",
     },
     {
       name: "Orchestrators",
@@ -434,6 +440,29 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Overview
                             </Button>
                           </Link>
+                          <Link passHref href="/ecosystem">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes("/ecosystem")
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Ecosystem
+                            </Button>
+                          </Link>
                           <Link passHref href="/orchestrators">
                             <Button
                               size="3"
@@ -620,11 +649,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   borderBottom: "1px solid $neutral6",
                                 }}
                               >
-                                {IS_L2 && (
-                                  <PopoverLink href={`/migrate`}>
-                                    Arbitrum Migration Tool
-                                  </PopoverLink>
-                                )}
                                 <PopoverLink
                                   newWindow={true}
                                   href={`/whats-new`}

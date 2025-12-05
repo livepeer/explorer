@@ -1,5 +1,16 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "prettier.printWidth": 80,
-  "editor.formatOnSaveMode": "modifications"
+  "editor.formatOnSaveMode": "modifications",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#b00c9c",
+    "activityBar.background": "#b00c9c",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#9fb30c",
+    "activityBarBadge.foreground": "#15202b",
+    "sash.hoverBorder": "#b00c9c",
+    "tab.activeBorder": "#b00c9c"
+  },
+  "peacock.color": "#800972"
 }
