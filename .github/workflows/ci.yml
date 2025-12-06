@@ -9,8 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NEXT_PUBLIC_INFURA_KEY: MY_KEY
+      NEXT_PUBLIC_INFURA_KEY: TEST_INFURA_KEY
       NEXT_PUBLIC_NETWORK: ARBITRUM_ONE
+      SUBGRAPH_KEY: TEST_SUBGRAPH_KEY
 
     steps:
       - name: ⬇️ Checkout code
