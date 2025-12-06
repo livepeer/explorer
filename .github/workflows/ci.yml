@@ -17,17 +17,17 @@ jobs:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+          run_install: false
+
       - name: 🟢 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
-
-      - name: 📦 Enable Corepack + Install PNPM
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.15.9 --activate
-          pnpm --version
+          cache: pnpm
 
       - name: 📦 Install dependencies (workspace)
         run: pnpm install --frozen-lockfile
