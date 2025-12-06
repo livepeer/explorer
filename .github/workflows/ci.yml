@@ -8,6 +8,10 @@ jobs:
   lint-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      NEXT_PUBLIC_INFURA_KEY: MY_KEY
+      NEXT_PUBLIC_NETWORK: ARBITRUM_ONE
+
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
