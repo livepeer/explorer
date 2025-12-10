@@ -59,15 +59,18 @@ const AccountLayout = () => {
     (async () => {
       const { sortedOrchestrators: _sortedOrchestrators } =
         await getSortedOrchestrators();
+      setSortedOrchestrators(
+        _sortedOrchestrators.data as OrchestratorsSortedQueryResult["data"]
+      );
+    })();
+  }, [context.params?.account]);
 
+  useEffect(() => {
+    (async () => {
       const client = getApollo();
       const { account } = await getAccount(
         client,
         context.params?.account?.toString().toLowerCase() ?? ""
-      );
-
-      setSortedOrchestrators(
-        _sortedOrchestrators.data as OrchestratorsSortedQueryResult["data"]
       );
       setAccount(account.data);
     })();
