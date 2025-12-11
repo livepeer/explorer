@@ -32,18 +32,22 @@ const handler = async (
           functionName: "currentRound",
         });
 
-        const pendingStake = await l2PublicClient.readContract({
-          address: bondingManagerAddress,
-          abi: bondingManager,
-          functionName: "pendingStake",
-          args: [address, currentRound],
-        });
-
-        const pendingFees = await l2PublicClient.readContract({
-          address: bondingManagerAddress,
-          abi: bondingManager,
-          functionName: "pendingFees",
-          args: [address, currentRound],
+        const [pendingStake, pendingFees] = await l2PublicClient.multicall({
+          allowFailure: false,
+          contracts: [
+            {
+              address: bondingManagerAddress,
+              abi: bondingManager,
+              functionName: "pendingStake",
+              args: [address as `0x${string}`, currentRound],
+            },
+            {
+              address: bondingManagerAddress,
+              abi: bondingManager,
+              functionName: "pendingFees",
+              args: [address as `0x${string}`, currentRound],
+            },
+          ],
         });
 
         const roundInfo: PendingFeesAndStake = {
