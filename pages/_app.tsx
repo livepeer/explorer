@@ -78,9 +78,12 @@ function App({ Component, pageProps, fallback = null }) {
               >
                 <SWRConfig
                   value={{
-                    loadingTimeout: 40000,
-                    fetcher: fetcher,
+                    dedupingInterval: 5000,
                     fallback: fallback ?? {},
+                    fetcher: fetcher,
+                    keepPreviousData: true,
+                    loadingTimeout: 40000,
+                    revalidateOnFocus: false,
                   }}
                 >
                   <CookiesProvider>
