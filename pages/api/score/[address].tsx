@@ -130,7 +130,7 @@ const handler = async (
               const value =
                 metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
               if (value !== null && value !== undefined) {
-                acc[metricsRegionKey] = (value ?? 0) * 100 || 0;
+                acc[metricsRegionKey] = value * 100;
               }
               return acc;
             },
