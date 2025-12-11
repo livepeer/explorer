@@ -6,7 +6,7 @@ export const statusCodes: { [code: number]: string } = {
   500: "Internal Server Error",
 };
 
-const Index = ({ statusCode }) => {
+const Index = ({ statusCode }: { statusCode: number }) => {
   return (
     <Flex
       css={{
@@ -27,7 +27,7 @@ const Index = ({ statusCode }) => {
       >
         {statusCode}
       </Box>
-      <p>{statusCodes[statusCode]}</p>
+      <p>{statusCodes[statusCode] ?? "An unexpected error occurred"}</p>
     </Flex>
   );
 };
