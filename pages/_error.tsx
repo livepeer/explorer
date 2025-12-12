@@ -1,4 +1,5 @@
 import ErrorComponent from "@components/Error";
+
 function Error({ statusCode }) {
   return <ErrorComponent statusCode={statusCode} />;
 }
