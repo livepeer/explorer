@@ -31,6 +31,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
+import useSWR from "swr";
 import { useReadContract } from "wagmi";
 
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
@@ -46,35 +47,36 @@ type TabTypeEnum = "delegating" | "orchestrating" | "history";
 const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = () => {
-  /* PART OF https://github.com/livepeer/explorer/pull/427 - REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
+  /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
   const context = { params: useParams() };
-  const [sortedOrchestrators, setSortedOrchestrators] = useState<
-    OrchestratorsSortedQueryResult["data"] | null
-  >(null);
-  const [account, setAccount] = useState<AccountQueryResult["data"] | null>(
-    null
+
+  const {
+    data: sortedOrchestrators,
+    error: errorSortedOrchestrators,
+    isLoading: isLoadingSortedOrchestrators,
+  } = useSWR<OrchestratorsSortedQueryResult["data"]>(
+    `/api/ssr/sorted-orchestrators`,
+    async () => {
+      const { sortedOrchestrators } = await getSortedOrchestrators();
+      return sortedOrchestrators.data as OrchestratorsSortedQueryResult["data"];
+    }
   );
 
-  useEffect(() => {
-    (async () => {
-      const { sortedOrchestrators: _sortedOrchestrators } =
-        await getSortedOrchestrators();
-      setSortedOrchestrators(
-        _sortedOrchestrators.data as OrchestratorsSortedQueryResult["data"]
-      );
-    })();
-  }, [context.params?.account]);
-
-  useEffect(() => {
-    (async () => {
+  const {
+    data: account,
+    error: errorAccount,
+    isLoading: isLoadingAccount,
+  } = useSWR<AccountQueryResult["data"]>(
+    `/api/ssr/account/${context.params?.account?.toString().toLowerCase()}`,
+    async () => {
       const client = getApollo();
       const { account } = await getAccount(
         client,
         context.params?.account?.toString().toLowerCase() ?? ""
       );
-      setAccount(account.data);
-    })();
-  }, [context.params?.account]);
+      return account.data;
+    }
+  );
 
   /* ************* */
 
@@ -164,8 +166,8 @@ const AccountLayout = () => {
     setSelectedStakingAction("delegate");
   }, [setSelectedStakingAction]);
 
-  /* PART OF https://github.com/livepeer/explorer/pull/427 - REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
-  if (!sortedOrchestrators || !account) {
+  /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
+  if (isLoadingSortedOrchestrators || isLoadingAccount) {
     return (
       <Flex
         css={{
@@ -179,6 +181,25 @@ const AccountLayout = () => {
         }}
       >
         <Spinner />
+      </Flex>
+    );
+  }
+
+  if (errorSortedOrchestrators || errorAccount) {
+    // TODO: Replace with ErrorComponent once https://github.com/livepeer/explorer/pull/435 is merged
+    return (
+      <Flex
+        css={{
+          height: "calc(100vh - 100px)",
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          "@bp3": {
+            height: "100vh",
+          },
+        }}
+      >
+        An error occurred while loading account data.
       </Flex>
     );
   }
