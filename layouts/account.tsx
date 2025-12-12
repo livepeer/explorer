@@ -4,8 +4,10 @@ import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
 import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
+import Spinner from "@components/Spinner";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
@@ -19,14 +21,17 @@ import {
 } from "@livepeer/design-system";
 import {
   AccountQueryResult,
+  getApollo,
   OrchestratorsSortedQueryResult,
   useAccountQuery,
 } from "apollo";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
+import useSWR from "swr";
 import { useReadContract } from "wagmi";
 
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
@@ -41,13 +46,40 @@ type TabTypeEnum = "delegating" | "orchestrating" | "history";
 
 const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
-const AccountLayout = ({
-  account,
-  sortedOrchestrators,
-}: {
-  account?: AccountQueryResult["data"] | null;
-  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
-}) => {
+const AccountLayout = () => {
+  /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
+  const context = { params: useParams() };
+
+  const {
+    data: sortedOrchestrators,
+    error: errorSortedOrchestrators,
+    isLoading: isLoadingSortedOrchestrators,
+  } = useSWR<OrchestratorsSortedQueryResult["data"]>(
+    `/api/ssr/sorted-orchestrators`,
+    async () => {
+      const { sortedOrchestrators } = await getSortedOrchestrators();
+      return sortedOrchestrators.data as OrchestratorsSortedQueryResult["data"];
+    }
+  );
+
+  const {
+    data: account,
+    error: errorAccount,
+    isLoading: isLoadingAccount,
+  } = useSWR<AccountQueryResult["data"]>(
+    `/api/ssr/account/${context.params?.account?.toString().toLowerCase()}`,
+    async () => {
+      const client = getApollo();
+      const { account } = await getAccount(
+        client,
+        context.params?.account?.toString().toLowerCase() ?? ""
+      );
+      return account.data;
+    }
+  );
+
+  /* ************* */
+
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const router = useRouter();
@@ -133,6 +165,45 @@ const AccountLayout = ({
   useEffect(() => {
     setSelectedStakingAction("delegate");
   }, [setSelectedStakingAction]);
+
+  /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
+  if (isLoadingSortedOrchestrators || isLoadingAccount) {
+    return (
+      <Flex
+        css={{
+          height: "calc(100vh - 100px)",
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          "@bp3": {
+            height: "100vh",
+          },
+        }}
+      >
+        <Spinner />
+      </Flex>
+    );
+  }
+
+  if (errorSortedOrchestrators || errorAccount) {
+    // TODO: Replace with ErrorComponent once https://github.com/livepeer/explorer/pull/435 is merged
+    return (
+      <Flex
+        css={{
+          height: "calc(100vh - 100px)",
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          "@bp3": {
+            height: "100vh",
+          },
+        }}
+      >
+        An error occurred while loading account data.
+      </Flex>
+    );
+  }
+  /* ************* */
 
   return (
     <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
