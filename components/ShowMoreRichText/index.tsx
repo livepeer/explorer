@@ -25,14 +25,14 @@ const useIsClient = () =>
     () => false
   );
 
-export function ShowMoreRichText({
+const Index = ({
   children,
   lines = 3,
   lessIcon = <ChevronUpIcon />,
   lessText = "Show less",
   moreIcon = <ChevronDownIcon />,
   moreText = "Show more",
-}: ShowMoreRichTextProps) {
+}: ShowMoreRichTextProps) => {
   const [expanded, setExpanded] = useState(false);
   const [needsToggle, setNeedsToggle] = useState(false);
   const isClient = useIsClient();
@@ -50,7 +50,7 @@ export function ShowMoreRichText({
     const observer = new ResizeObserver(check);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [expanded, children]);
+  }, [expanded]);
 
   return (
     <Box>
@@ -99,6 +99,6 @@ export function ShowMoreRichText({
       )}
     </Box>
   );
-}
+};
 
-export default ShowMoreRichText;
+export default Index;
