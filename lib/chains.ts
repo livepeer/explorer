@@ -1,6 +1,6 @@
-import * as chain from "@wagmi/core/chains";
 import { ethers } from "ethers";
 import { Address, createPublicClient, http } from "viem";
+import * as chain from "viem/chains";
 
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 import ethereumLogoUrl from "../public/img/logos/ethereum.png";
