@@ -61,25 +61,27 @@ const handler = async (
       if (!!address && !Array.isArray(address) && isAddress(address)) {
         const transcoderId = address.toLowerCase();
 
-        // Fetch the top AI score.
-        const topScoreResponse = await fetchWithRetry(
-          `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`
-        );
+        const topScoreUrl = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`;
+        const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
+        const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
+
+        const [topScoreResponse, metricsResponse, priceResponse] =
+          await Promise.all([
+            fetchWithRetry(topScoreUrl),
+            fetchWithRetry(metricsUrl),
+            fetchWithRetry(pricingUrl),
+          ]);
+
         if (!topScoreResponse.ok) {
           const errorText = await topScoreResponse.text();
           console.error(
-            "Metrics fetch error:",
+            "Top AI score fetch error:",
             topScoreResponse.status,
             errorText
           );
           return res.status(500).end("Failed to fetch top AI score");
         }
-        const topAIScore: ScoreResponse = await topScoreResponse.json();
 
-        // Fetch aggregated metrics.
-        const metricsResponse = await fetchWithRetry(
-          `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`
-        );
         if (!metricsResponse.ok) {
           const errorText = await metricsResponse.text();
           console.error(
@@ -89,16 +91,21 @@ const handler = async (
           );
           return res.status(500).end("Failed to fetch metrics");
         }
-        const metrics: MetricsResponse = await metricsResponse.json();
 
-        // Fetch Transcoder price.
-        const response = await fetchWithRetry(
-          `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`
-        );
-        if (!response.ok) {
+        if (!priceResponse.ok) {
+          const errorText = await priceResponse.text();
+          console.error(
+            "Transcoder price fetch error:",
+            priceResponse.status,
+            errorText
+          );
           return res.status(500).end("Failed to fetch transcoders with price");
         }
-        const transcodersWithPrice: PriceResponse = await response.json();
+
+        const topAIScore: ScoreResponse = await topScoreResponse.json();
+        const metrics: MetricsResponse = await metricsResponse.json();
+        const transcodersWithPrice: PriceResponse = await priceResponse.json();
+
         const transcoderWithPrice = transcodersWithPrice.find((t) =>
           checkAddressEquality(t.Address, transcoderId)
         );
@@ -114,30 +121,28 @@ const handler = async (
         })();
 
         const createMetricsObject = (
-          metricKey: string,
+          metricKey: keyof Metric,
           transcoderId: string,
           metrics: MetricsResponse
         ): RegionalValues => {
           const metricsObject: RegionalValues = uniqueRegions.reduce(
             (acc, metricsRegionKey) => {
-              const val =
+              const value =
                 metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
-              if (val !== null && val !== "")
-                acc[metricsRegionKey] =
-                  (metrics[transcoderId]?.[metricsRegionKey]?.[metricKey] ??
-                    0) * 100 || 0;
+              if (value !== null && value !== undefined) {
+                acc[metricsRegionKey] = value * 100;
+              }
               return acc;
             },
             {} as RegionalValues
           );
 
-          // Define a global key that is the average of the other keys
           const globalValue = avg(metrics[transcoderId], metricKey) * 100;
-          const finalMetricsObject: RegionalValues = {
+
+          return {
             ...metricsObject,
             GLOBAL: globalValue,
           };
-          return finalMetricsObject;
         };
 
         const combined: PerformanceMetrics = {
@@ -153,7 +158,7 @@ const handler = async (
             metrics
           ),
           scores: createMetricsObject("score", transcoderId, metrics),
-          topAIScore: topAIScore,
+          topAIScore,
         };
 
         return res.status(200).json(combined);
