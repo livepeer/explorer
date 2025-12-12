@@ -1,5 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { ShowMoreRichText } from "@components/ShowMoreRichText";
+import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
