@@ -1,3 +1,4 @@
+import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import { pollCreator } from "@lib/api/abis/main/PollCreator";
 import { getPollCreatorAddress } from "@lib/api/contracts";
@@ -32,7 +33,13 @@ import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
-const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
+const CreatePoll = ({
+  hadError,
+  projectOwner,
+  projectName,
+  gitCommitHash,
+  lips,
+}) => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
@@ -102,6 +109,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       writeContract(config.request);
     }
   }, [config, hash, writeContract, status]);
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -381,6 +392,11 @@ export async function getStaticProps() {
     };
   } catch (e) {
     console.log(e);
-    return null;
+    return {
+      props: {
+        hadError: true,
+      },
+      revalidate: 60,
+    };
   }
 }

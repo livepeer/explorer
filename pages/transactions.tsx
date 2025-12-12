@@ -1,3 +1,4 @@
+import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
@@ -17,11 +18,12 @@ const TRANSACTIONS_PER_PAGE = 20;
 const numberTransactions = NUMBER_OF_PAGES * TRANSACTIONS_PER_PAGE;
 
 type PageProps = {
-  events: EventsQueryResult["data"];
+  hadError: boolean;
+  events: EventsQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const TransactionsPage = ({ events }: PageProps) => {
+const TransactionsPage = ({ hadError, events }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -34,6 +36,10 @@ const TransactionsPage = ({ events }: PageProps) => {
         ?.slice(0, numberTransactions) ?? [],
     [events]
   );
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -76,19 +82,25 @@ const TransactionsPage = ({ events }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
-  const errorProps = {
-    props: {},
-    revalidate: 300,
+  const errorProps: PageProps = {
+    hadError: true,
+    events: null,
+    fallback: {},
   };
+
   try {
     const client = getApollo();
     const { events, fallback } = await getEvents(client, numberTransactions);
 
     if (!events.data) {
-      return errorProps;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
+      hadError: false,
       events: events.data,
       fallback,
     };
@@ -99,9 +111,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return errorProps;
 };
 
 TransactionsPage.getLayout = getLayout;
