@@ -22515,6 +22515,14 @@ snapshots:
 
   tmpl@1.0.5: {}
 
+  tldts-core@6.1.86: {}
+
+  tldts@6.1.86:
+    dependencies:
+      tldts-core: 6.1.86
+
+  tmpl@1.0.5: {}
+
   to-buffer@1.2.2:
     dependencies:
       isarray: 2.0.5
