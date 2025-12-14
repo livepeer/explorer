@@ -1,5 +1,6 @@
 import "react-circular-progressbar/dist/styles.css";
 
+import ErrorComponent from "@components/Error";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
@@ -223,13 +224,14 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
 };
 
 type PageProps = {
-  orchestrators: OrchestratorsQueryResult["data"];
-  events: EventsQueryResult["data"];
-  protocol: ProtocolQueryResult["data"];
+  hadError: boolean;
+  orchestrators: OrchestratorsQueryResult["data"] | null;
+  events: EventsQueryResult["data"] | null;
+  protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ orchestrators, events, protocol }: PageProps) => {
+const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -244,6 +246,10 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
   );
 
   const chartData = useChartData();
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -435,10 +441,14 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
-  const errorProps = {
-    props: {},
-    revalidate: 300,
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestrators: null,
+    events: null,
+    protocol: null,
+    fallback: {},
   };
+
   try {
     const client = getApollo();
     const { orchestrators } = await getOrchestrators(client);
@@ -446,15 +456,18 @@ export const getStaticProps = async () => {
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {
-      return errorProps;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
+      hadError: false,
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
       fallback: {},
-      // fallback: { ...fallback, ...eventsFallback },
     };
 
     return {
@@ -463,9 +476,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return errorProps;
 };
 
 Home.getLayout = getLayout;
