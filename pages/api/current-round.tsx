@@ -1,8 +1,6 @@
-import { getCacheControlHeader } from "@lib/api";
+import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { l1PublicClient } from "@lib/chains";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -15,49 +13,23 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
-      const response = await fetchWithRetry(
-        CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: `
-              {
-                _meta {
-                  block {
-                    number
-                  }
-                }
-                protocol(id: "0") {
-                  currentRound {
-                    id
-                    startBlock
-                    initialized
-                  }
-                }
-              }
-            `,
-          }),
-        },
-        {
-          retryOnMethods: ["POST"],
-        }
-      );
-
-      const currentL1Block = await l1PublicClient.getBlockNumber();
-
       const {
-        data: {
-          _meta: {
-            block: { number: currentL2Block },
-          },
-          protocol: {
-            currentRound: { id, startBlock, initialized },
-          },
-        },
-      } = await response.json();
+        data: { protocol, _meta },
+      } = await getCurrentRound();
+      const currentRound = protocol?.currentRound;
+
+      if (!currentRound) {
+        return res.status(500).end("No current round found");
+      }
+
+      if (!_meta?.block) {
+        return res.status(500).end("No block number found");
+      }
+
+      const { id, startBlock, initialized } = currentRound;
+
+      const currentL2Block = _meta.block.number;
+      const currentL1Block = await l1PublicClient.getBlockNumber();
 
       const roundInfo: CurrentRoundInfo = {
         id: Number(id),
