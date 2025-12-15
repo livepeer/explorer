@@ -53,6 +53,13 @@ const CustomizedXAxisTick = ({ x, y, payload }) => {
   );
 };
 
+export enum Group {
+  DAY = "day",
+  WEEK = "week",
+  YEAR = "year",
+  ALL = "all",
+}
+
 const ExplorerChart = ({
   title,
   tooltip,
@@ -61,7 +68,7 @@ const ExplorerChart = ({
   basePercentChange,
   unit = "none",
   type,
-  grouping = "day",
+  grouping = Group.DAY,
   onToggleGrouping,
 }: {
   title: string;
@@ -78,8 +85,8 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
-  grouping?: "day" | "week";
-  onToggleGrouping?: (grouping: "day" | "week") => void;
+  grouping?: Group;
+  onToggleGrouping?: (grouping: Group) => void;
 }) => {
   const formatDateSubtitle = useCallback(
     (date: number) =>
@@ -335,19 +342,44 @@ const ExplorerChart = ({
           }}
         >
           <Button
-            onClick={() => onToggleGrouping?.("day")}
+            onClick={() => onToggleGrouping?.(Group.DAY)}
             size="1"
-            variant={grouping === "day" ? "primary" : "neutral"}
+            variant={grouping === Group.DAY ? "primary" : "neutral"}
           >
             D
           </Button>
           <Button
-            onClick={() => onToggleGrouping?.("week")}
+            onClick={() => onToggleGrouping?.(Group.WEEK)}
             size="1"
-            variant={grouping === "week" ? "primary" : "neutral"}
+            variant={grouping === Group.WEEK ? "primary" : "neutral"}
             css={{ marginLeft: "$1" }}
           >
             W
+          </Button>
+        </Flex>
+      )}
+      {type === "line" && grouping && onToggleGrouping && (
+        <Flex
+          css={{
+            position: "absolute",
+            right: 0,
+            zIndex: 3,
+          }}
+        >
+          <Button
+            onClick={() => onToggleGrouping(Group.YEAR)}
+            size="1"
+            variant={grouping === Group.YEAR ? "primary" : "neutral"}
+          >
+            Y
+          </Button>
+          <Button
+            onClick={() => onToggleGrouping(Group.ALL)}
+            size="1"
+            variant={grouping === Group.ALL ? "primary" : "neutral"}
+            css={{ marginLeft: "$1" }}
+          >
+            All
           </Button>
         </Flex>
       )}

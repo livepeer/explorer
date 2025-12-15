@@ -2,6 +2,7 @@ import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
 import ExplorerChart from "@components/ExplorerChart";
+import { Group } from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
@@ -52,12 +53,10 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
-  const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "week"
-  );
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>(Group.WEEK);
   const feesPaidData = useMemo(
     () =>
-      (feesPaidGrouping === "day"
+      (feesPaidGrouping === Group.DAY
         ? chartData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.volumeUsd),
@@ -69,10 +68,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
+  const [usageGrouping, setUsageGrouping] = useState<Group>(Group.WEEK);
   const usageData = useMemo(
     () =>
-      (usageGrouping === "day"
+      (usageGrouping === Group.DAY
         ? chartData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.feeDerivedMinutes),
@@ -92,14 +91,22 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
+  const [inflationGrouping, setInflationGrouping] = useState<Group>(Group.ALL);
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day?.inflation ?? 0) / 1000000000,
-      })) ?? [],
-    [chartData]
+      (inflationGrouping === Group.YEAR
+        ? chartData?.dayData?.slice(-365).map((day) => ({
+            x: Number(day.dateS),
+            y: Number(day?.inflation ?? 0) / 1000000000,
+          }))
+        : chartData?.dayData?.slice(1)?.map((day) => ({
+            x: Number(day.dateS),
+            y: Number(day?.inflation ?? 0) / 1000000000,
+          }))) ?? [],
+    [chartData, inflationGrouping]
   );
+
   const delegatorsCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -108,6 +115,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
   const activeTranscoderCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -166,6 +174,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Inflation Rate"
           unit="small-percent"
           type="line"
+          grouping={inflationGrouping}
+          onToggleGrouping={setInflationGrouping}
         />
       </Panel>
       <Panel>
