@@ -8,7 +8,8 @@ import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
 import { InfoCircledIcon } from "@modulz/radix-icons";
 import { useAccountAddress } from "hooks";
 import numbro from "numbro";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { zeroAddress } from "viem";
 
 import VoteButton from "../VoteButton";
 
@@ -25,8 +26,6 @@ const formatPercent = (percent: number) =>
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? "0"), 4);
-
-const zeroAddress = "0x0000000000000000000000000000000000000000";
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
@@ -56,15 +55,12 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
   const hasDelegate =
     !!vote?.delegate && vote.delegate.address.toLowerCase() !== zeroAddress;
 
-  // Determine user vote status
-  const getUserVoteStatus = () => {
+  const userVoteStatus = useMemo(() => {
     if (!vote?.self) return null;
     if (isIneligible) return "Ineligible";
     if (vote.self.hasVoted) return "Voted";
     return "Not voted";
-  };
-
-  const userVoteStatus = getUserVoteStatus();
+  }, [vote?.self, isIneligible]);
 
   return (
     <Box css={{ width: "100%" }} {...props}>
@@ -407,6 +403,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                       <Link
                         href="https://github.com/livepeer/LIPs/blob/master/LIPs/LIP-89.md#governance-over-the-treasury"
                         target="_blank"
+                        rel="noopener noreferrer"
                         css={{
                           fontSize: "$2",
                           color: "$primary11",
