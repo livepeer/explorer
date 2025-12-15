@@ -1,12 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { roundsManager } from "@lib/api/abis/main/RoundsManager";
-import {
-  getBondingManagerAddress,
-  getRoundsManagerAddress,
-} from "@lib/api/contracts";
+import { getBondingManagerAddress } from "@lib/api/contracts";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 import { isAddress } from "viem";
 
@@ -23,14 +21,39 @@ const handler = async (
       const { address } = req.query;
 
       if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const roundsManagerAddress = await getRoundsManagerAddress();
         const bondingManagerAddress = await getBondingManagerAddress();
 
-        const currentRound = await l2PublicClient.readContract({
-          address: roundsManagerAddress,
-          abi: roundsManager,
-          functionName: "currentRound",
-        });
+        const response = await fetchWithRetry(
+          CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: `
+                {
+                  protocol(id: "0") {
+                    currentRound {
+                      id
+                    }
+                  }
+                }
+              `,
+            }),
+          },
+          {
+            retryOnMethods: ["POST"],
+          }
+        );
+
+        const {
+          data: {
+            protocol: {
+              currentRound: { id: currentRound },
+            },
+          },
+        } = await response.json();
 
         const [pendingStake, pendingFees] = await l2PublicClient.multicall({
           allowFailure: false,

@@ -1,8 +1,8 @@
 import { getCacheControlHeader } from "@lib/api";
-import { roundsManager } from "@lib/api/abis/main/RoundsManager";
-import { getRoundsManagerAddress } from "@lib/api/contracts";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { l1PublicClient, l2PublicClient } from "@lib/chains";
+import { l1PublicClient } from "@lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -15,26 +15,49 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
-      const roundsManagerAddress = await getRoundsManagerAddress();
-
-      const id = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRound",
-      });
-      const startBlock = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRoundStartBlock",
-      });
-      const initialized = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRoundInitialized",
-      });
+      const response = await fetchWithRetry(
+        CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              {
+                _meta {
+                  block {
+                    number
+                  }
+                }
+                protocol(id: "0") {
+                  currentRound {
+                    id
+                    startBlock
+                    initialized
+                  }
+                }
+              }
+            `,
+          }),
+        },
+        {
+          retryOnMethods: ["POST"],
+        }
+      );
 
       const currentL1Block = await l1PublicClient.getBlockNumber();
-      const currentL2Block = await l2PublicClient.getBlockNumber();
+
+      const {
+        data: {
+          _meta: {
+            block: { number: currentL2Block },
+          },
+          protocol: {
+            currentRound: { id, startBlock, initialized },
+          },
+        },
+      } = await response.json();
 
       const roundInfo: CurrentRoundInfo = {
         id: Number(id),
