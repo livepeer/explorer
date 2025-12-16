@@ -2,9 +2,7 @@ import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
 // import ExplorerChart from "@components/ExplorerChart";
-// import OrchestratorList from "@components/OrchestratorList";
-// import RoundStatus from "@components/RoundStatus";
-// import Spinner from "@components/Spinner";
+import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
@@ -19,9 +17,19 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import dynamic from "next/dynamic";
 // import { useChartData } from "hooks";
 import Link from "next/link";
 import { useMemo /* useState  */ } from "react";
+
+const RoundStatus = dynamic(() => import("../components/RoundStatus"), {
+  ssr: false,
+});
+
+const OrchestratorList = dynamic(
+  () => import("../components/OrchestratorList"),
+  { ssr: false }
+);
 
 import {
   EventsQueryResult,
@@ -230,11 +238,7 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({
-  hadError,
-  /* orchestrators, */ events,
-}: // protocol,
-PageProps) => {
+const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -314,7 +318,7 @@ PageProps) => {
                   <Charts chartData={chartData} />
                 </Box>
               </Flex> */}
-              {/* <Flex
+              <Flex
                 css={{
                   justifyContent: "center",
                   width: "100%",
@@ -324,7 +328,7 @@ PageProps) => {
                 }}
               >
                 <RoundStatus protocol={protocol?.protocol} />
-              </Flex> */}
+              </Flex>
             </Flex>
           </Flex>
           <Box css={{ marginBottom: "$3" }}>
@@ -377,7 +381,7 @@ PageProps) => {
               </Flex>
             </Flex>
 
-            {/* {!orchestrators?.transcoders || !protocol?.protocol ? (
+            {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
@@ -389,7 +393,7 @@ PageProps) => {
                   protocolData={protocol?.protocol}
                 />
               </Box>
-            )} */}
+            )}
 
             <Flex
               css={{
