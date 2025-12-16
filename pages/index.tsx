@@ -2,6 +2,8 @@ import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
 import ExplorerChart from "@components/ExplorerChart";
+import OrchestratorList from "@components/OrchestratorList";
+import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
@@ -18,18 +20,8 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { useChartData } from "hooks";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-
-const RoundStatus = dynamic(() => import("../components/RoundStatus"), {
-  ssr: false,
-});
-
-const OrchestratorList = dynamic(
-  () => import("../components/OrchestratorList"),
-  { ssr: false }
-);
 
 import {
   EventsQueryResult,
