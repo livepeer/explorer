@@ -1,3 +1,5 @@
+import "@rainbow-me/rainbowkit/styles.css";
+
 import { ApolloProvider } from "@apollo/client";
 import { fetcher } from "@lib/axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
