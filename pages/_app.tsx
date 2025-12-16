@@ -1,5 +1,3 @@
-import "@rainbow-me/rainbowkit/styles.css";
-
 import { ApolloProvider } from "@apollo/client";
 import { fetcher } from "@lib/axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -21,8 +19,6 @@ const queryClient = new QueryClient();
 const Web3Providers = dynamic(() => import("../components/Web3Providers"), {
   ssr: false,
 });
-
-const Layout = dynamic(() => import("../layouts/main"), { ssr: false });
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
@@ -49,9 +45,7 @@ function App({ Component, pageProps, fallback = null }) {
                 }}
               >
                 <CookiesProvider>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
+                  <Component {...pageProps} />
                 </CookiesProvider>
               </SWRConfig>
             </Web3Providers>
