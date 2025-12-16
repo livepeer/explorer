@@ -43,7 +43,7 @@ function App({ Component, pageProps, fallback = null }) {
       appName: "Livepeer Explorer",
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
-      ssr: false,
+      ssr: true,
     });
 
     return {
@@ -78,12 +78,9 @@ function App({ Component, pageProps, fallback = null }) {
               >
                 <SWRConfig
                   value={{
-                    dedupingInterval: 5000,
-                    fallback: fallback ?? {},
-                    fetcher: fetcher,
-                    keepPreviousData: true,
                     loadingTimeout: 40000,
-                    revalidateOnFocus: false,
+                    fetcher: fetcher,
+                    fallback: fallback ?? {},
                   }}
                 >
                   <CookiesProvider>
