@@ -8,7 +8,6 @@ import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -253,7 +252,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
 
   return (
     <>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
+      <Container css={{ maxWidth: 1400, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",
@@ -482,7 +481,5 @@ export const getStaticProps = async () => {
     };
   }
 };
-
-Home.getLayout = getLayout;
 
 export default Home;
