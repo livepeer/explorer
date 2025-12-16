@@ -1,7 +1,7 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
-import { useHandleTransaction } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
