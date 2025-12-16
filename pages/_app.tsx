@@ -22,6 +22,8 @@ const Web3Providers = dynamic(() => import("../components/Web3Providers"), {
   ssr: false,
 });
 
+const Layout = dynamic(() => import("../layouts/main"), { ssr: false });
+
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
   const { route, locale } = useRouter();
@@ -47,7 +49,9 @@ function App({ Component, pageProps, fallback = null }) {
                 }}
               >
                 <CookiesProvider>
-                  <Component {...pageProps} />
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
                 </CookiesProvider>
               </SWRConfig>
             </Web3Providers>
