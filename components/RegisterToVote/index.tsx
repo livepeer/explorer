@@ -1,4 +1,4 @@
-import { LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { useAccountAddress, useTreasuryRegisteredToVoteData } from "hooks";

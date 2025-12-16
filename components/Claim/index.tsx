@@ -1,4 +1,4 @@
-import { LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
 import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";

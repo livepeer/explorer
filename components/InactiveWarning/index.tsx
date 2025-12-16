@@ -1,4 +1,4 @@
-import { LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { Box, Button, Container, Text } from "@livepeer/design-system";
 import { useAccountInactiveQuery } from "apollo";
 import { useAccountAddress } from "hooks";
