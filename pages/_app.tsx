@@ -30,8 +30,6 @@ function App({ Component, pageProps, fallback = null }) {
 
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
 
-  const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
-
   return (
     <>
       <Head>
@@ -51,7 +49,9 @@ function App({ Component, pageProps, fallback = null }) {
                 }}
               >
                 <CookiesProvider>
-                  {getLayout(<Component {...pageProps} />)}
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
                 </CookiesProvider>
               </SWRConfig>
             </Web3Providers>
