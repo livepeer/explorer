@@ -2,9 +2,9 @@ import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
 // import ExplorerChart from "@components/ExplorerChart";
-import OrchestratorList from "@components/OrchestratorList";
-import RoundStatus from "@components/RoundStatus";
-import Spinner from "@components/Spinner";
+// import OrchestratorList from "@components/OrchestratorList";
+// import RoundStatus from "@components/RoundStatus";
+// import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
@@ -230,7 +230,11 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
+const Home = ({
+  hadError,
+  /* orchestrators, */ events,
+}: // protocol,
+PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -310,7 +314,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   <Charts chartData={chartData} />
                 </Box>
               </Flex> */}
-              <Flex
+              {/* <Flex
                 css={{
                   justifyContent: "center",
                   width: "100%",
@@ -320,7 +324,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                 }}
               >
                 <RoundStatus protocol={protocol?.protocol} />
-              </Flex>
+              </Flex> */}
             </Flex>
           </Flex>
           <Box css={{ marginBottom: "$3" }}>
@@ -373,7 +377,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
 
-            {!orchestrators?.transcoders || !protocol?.protocol ? (
+            {/* {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
               </Flex>
@@ -385,7 +389,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   protocolData={protocol?.protocol}
                 />
               </Box>
-            )}
+            )} */}
 
             <Flex
               css={{
