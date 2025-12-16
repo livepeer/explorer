@@ -21,14 +21,13 @@ import {
   useAccountAddress,
   useAccountBalanceData,
   useContractInfoData,
-  useHandleTransaction,
   useTreasuryVotingPowerData,
 } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 const StyledTab = styled(Tab, {
   position: "relative",
@@ -140,18 +139,6 @@ const CreateProposal = () => {
       description!,
     ],
   });
-  const {
-    data: proposeResult,
-    status,
-    isPending,
-    writeContract,
-    error,
-    isSuccess,
-  } = useWriteContract();
-
-  useHandleTransaction("propose", proposeResult, error, isPending, isSuccess, {
-    proposal: description,
-  });
 
   return (
     <>
@@ -191,7 +178,7 @@ const CreateProposal = () => {
                 throw new Error("No config for proposal");
               }
               console.log("submitting!");
-              writeContract(config.request);
+              // writeContract(config.request);
             } catch (err: unknown) {
               console.error(err);
               return {

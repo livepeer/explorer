@@ -8,7 +8,6 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
   useEnsData,
-  useHandleTransaction,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
@@ -18,7 +17,7 @@ import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import { Address } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 import StakeTransactions from "../StakeTransactions";
 
@@ -60,13 +59,6 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     abi: bondingManager,
     functionName: "withdrawFees",
     args: [recipient ?? "0x", BigInt(amount)],
-  });
-  const { data, isPending, writeContract, isSuccess, error } =
-    useWriteContract();
-
-  useHandleTransaction("withdrawFees", data, error, isPending, isSuccess, {
-    recipient,
-    amount: BigInt(amount),
   });
 
   const isMyAccount = checkAddressEquality(
@@ -366,7 +358,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     width: "100%",
                   }}
                   disabled={!config}
-                  onClick={() => config && writeContract(config.request)}
+                  // onClick={() => config && writeContract(config.request)}
                   size="4"
                   variant="primary"
                 >

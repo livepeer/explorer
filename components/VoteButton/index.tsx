@@ -1,15 +1,11 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
 import { Button } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { useMemo } from "react";
 import { Address } from "viem";
-import {
-  useSimulateContract,
-  UseSimulateContractParameters,
-  useWriteContract,
-} from "wagmi";
+import { useSimulateContract, UseSimulateContractParameters } from "wagmi";
 
 type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;
@@ -59,16 +55,6 @@ const Index = ({
   ]);
 
   const { data: config } = useSimulateContract(preparedWriteConfig);
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
-
-  useHandleTransaction("vote", data, error, isPending, isSuccess, {
-    choiceId,
-    choiceName: proposalId
-      ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
-      : { 0: "No", 1: "Yes" }[choiceId],
-    reason,
-  });
 
   if (!accountAddress) {
     return null;
@@ -77,7 +63,7 @@ const Index = ({
   return (
     <Button
       disabled={!config}
-      onClick={() => config && writeContract(config.request)}
+      // onClick={() => config && writeContract(config.request)}
       {...props}
     >
       {children}

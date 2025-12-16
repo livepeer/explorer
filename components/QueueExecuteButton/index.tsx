@@ -2,7 +2,7 @@ import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { ProposalExtended } from "@lib/api/treasury";
 import { Button } from "@livepeer/design-system";
 import { ethers } from "ethers";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { useMemo } from "react";
 import { Address } from "viem";
@@ -10,7 +10,6 @@ import {
   useReadContract,
   useSimulateContract,
   UseSimulateContractParameters,
-  useWriteContract,
 } from "wagmi";
 
 type Props = {
@@ -60,12 +59,6 @@ const QueueExecuteButton = (
     [action, enabled, livepeerGovernorAddress, proposal]
   );
   const { data: config } = useSimulateContract(preparedWriteConfig);
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
-
-  useHandleTransaction(action, data, error, isPending, isSuccess, {
-    proposal,
-  });
 
   if (!accountAddress) {
     return null;
@@ -75,7 +68,6 @@ const QueueExecuteButton = (
     <Button
       onClick={() => {
         if (!config) return;
-        writeContract(config.request);
         onClick?.();
       }}
       disabled={!enabled}

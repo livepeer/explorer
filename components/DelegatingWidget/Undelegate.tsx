@@ -1,9 +1,9 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { parseEther } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
   const accountAddress = useAccountAddress();
@@ -23,10 +23,6 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
     functionName: "unbondWithHint",
     args: [BigInt(args.amount.toString()), newPosPrev, newPosNext],
   });
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
-
-  useHandleTransaction("unbond", data, error, isPending, isSuccess, args);
 
   if (!accountAddress) {
     return null;
@@ -41,7 +37,7 @@ const Undelegate = ({ amount, newPosPrev, newPosNext, disabled }) => {
         css={{
           width: "100%",
         }}
-        onClick={() => config && writeContract(config.request)}
+        // onClick={() => config && writeContract(config.request)}
       >
         {!amount ? "Enter an amount" : "Undelegate"}
       </Button>

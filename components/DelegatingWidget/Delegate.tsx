@@ -2,14 +2,13 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { useHandleTransaction } from "hooks";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useMemo, useState } from "react";
 import { parseEther } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
 
@@ -38,25 +37,6 @@ const Delegate = ({
     functionName: "approve",
     args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
   });
-  const {
-    data: approveData,
-    isPending: approveIsLoading,
-    writeContract: approveWrite,
-    error: approveError,
-    isSuccess: approveIsSuccess,
-  } = useWriteContract();
-
-  useHandleTransaction(
-    "approve",
-    approveData,
-    approveError,
-    approveIsLoading,
-    approveIsSuccess,
-    {
-      type: "bond",
-      amount: BigInt(MAXIMUM_VALUE_UINT256),
-    }
-  );
 
   const bondWithHintArgs = {
     amount: amount?.toString() ? parseEther(amount) : BigInt(0),
@@ -81,22 +61,6 @@ const Delegate = ({
       currDelegateNewPosNext,
     ],
   });
-  const {
-    data: bondData,
-    isPending: bondIsLoading,
-    writeContract: bondWrite,
-    isSuccess: bondIsSuccess,
-    error: bondError,
-  } = useWriteContract();
-
-  useHandleTransaction(
-    "bond",
-    bondData,
-    bondError,
-    bondIsLoading,
-    bondIsSuccess,
-    bondWithHintArgs
-  );
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
@@ -130,8 +94,6 @@ const Delegate = ({
         throw new Error("No config for approve");
       }
       setApprovalSubmitted(true);
-
-      approveWrite(config.request);
     } catch (e) {
       console.log(e);
     }
@@ -142,7 +104,6 @@ const Delegate = ({
       if (!bondWithHintConfig) {
         throw new Error("No config for bond with hint");
       }
-      bondWrite(bondWithHintConfig.request);
     } catch (e) {
       console.error(e);
     }

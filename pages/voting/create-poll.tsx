@@ -18,18 +18,14 @@ import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  usePendingFeesAndStakeData,
-} from "hooks";
+import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
@@ -83,32 +79,12 @@ const CreatePoll = ({
     functionName: "createPoll",
     args: [hash ? (hexlify(toUtf8Bytes(hash)) as `0x${string}`) : "0x"],
   });
-  const {
-    data: createPollResult,
-    status,
-    isPending,
-    writeContract,
-    error,
-    isSuccess,
-  } = useWriteContract();
-
-  useHandleTransaction(
-    "createPoll",
-    createPollResult,
-    error,
-    isPending,
-    isSuccess,
-    {
-      proposal: hash,
-    }
-  );
 
   useEffect(() => {
-    if (hash && status === "idle") {
+    if (hash) {
       if (!config) return;
-      writeContract(config.request);
     }
-  }, [config, hash, writeContract, status]);
+  }, [config, hash]);
 
   if (hadError) {
     return <ErrorComponent statusCode={500} />;

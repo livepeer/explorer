@@ -1,15 +1,11 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  useTreasuryRegisteredToVoteData,
-} from "hooks";
+import { useAccountAddress, useTreasuryRegisteredToVoteData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useMemo, useState } from "react";
 import { Address } from "viem";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 type ButtonProps = React.ComponentProps<typeof Button> & {
   bondingManagerAddress: Address | undefined;
@@ -21,8 +17,6 @@ type ButtonProps = React.ComponentProps<typeof Button> & {
 const CheckpointButton = ({
   bondingManagerAddress,
   targetAddress,
-  isOrchestrator,
-  onSuccess,
   disabled,
   children,
   ...props
@@ -35,25 +29,13 @@ const CheckpointButton = ({
     functionName: "checkpointBondingState",
     args: [targetAddress!],
   });
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
-
-  useHandleTransaction(
-    "checkpoint",
-    data,
-    error,
-    isPending,
-    isSuccess,
-    { targetAddress, isOrchestrator },
-    onSuccess
-  );
 
   return (
     <Button
       {...props}
       disabled={disabled || !config}
       ghost
-      onClick={() => config && writeContract(config.request)}
+      // onClick={() => config && writeContract(config.request)}
       size="3"
       variant="transparentBlack"
     >

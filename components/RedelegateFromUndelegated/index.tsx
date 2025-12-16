@@ -1,8 +1,8 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useSimulateContract, useWriteContract } from "wagmi";
+import { useSimulateContract } from "wagmi";
 
 const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
   const accountAddress = useAccountAddress();
@@ -15,22 +15,6 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
     functionName: "rebondFromUnbondedWithHint",
     args: [delegate, unbondingLockId, newPosPrev, newPosNext],
   });
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
-
-  useHandleTransaction(
-    "rebondFromUnbonded",
-    data,
-    error,
-    isPending,
-    isSuccess,
-    {
-      delegate,
-      unbondingLockId,
-      newPosPrev,
-      newPosNext,
-    }
-  );
 
   if (!accountAddress) {
     return null;
@@ -41,7 +25,7 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
       <Button
         css={{ marginRight: "$3" }}
         disabled={!config}
-        onClick={() => config && writeContract(config.request)}
+        // onClick={() => config && writeContract(config.request)}
         size="3"
         variant="primary"
       >

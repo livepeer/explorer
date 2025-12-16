@@ -4,15 +4,11 @@ import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  useL1DelegatorData,
-} from "hooks";
+import { useAccountAddress, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
 import { Hex } from "viem";
-import { useReadContract, useSimulateContract, useWriteContract } from "wagmi";
+import { useReadContract, useSimulateContract } from "wagmi";
 
 const l2MigratorAddress = getL2MigratorAddress();
 
@@ -48,15 +44,11 @@ const Claim = () => {
     ],
   });
 
-  const { data, isIdle, isPending, writeContract, isSuccess, error } =
-    useWriteContract();
-
   useEffect(() => {
-    if (proof && isIdle) {
+    if (proof) {
       if (!config) return;
-      writeContract(config.request);
     }
-  }, [config, proof, writeContract, isIdle]);
+  }, [config, proof]);
 
   const { data: claimStakeEnabled } = useReadContract({
     query: { enabled: Boolean(l2MigratorAddress) },
@@ -65,30 +57,13 @@ const Claim = () => {
     functionName: "claimStakeEnabled",
   });
 
-  const { data: isMigrated, refetch } = useReadContract({
+  const { data: isMigrated } = useReadContract({
     query: { enabled: Boolean(accountAddress) },
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "migratedDelegators",
     args: [accountAddress ?? "0x"],
   });
-
-  useHandleTransaction(
-    "claimStake",
-    data,
-    error,
-    isPending,
-    isSuccess,
-    {
-      delegate: migrationParams?.delegate,
-      stake: migrationParams?.stake,
-      fees: migrationParams?.fees,
-      newDelegate: constants.AddressZero,
-    },
-    () => {
-      refetch();
-    }
-  );
 
   useEffect(() => {
     const init = async () => {
