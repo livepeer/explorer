@@ -4,7 +4,7 @@ import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
-import { useEnsData } from "hooks";
+// import { useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo } from "react";
@@ -57,12 +57,13 @@ const getPercentAmount = (number: number | string | undefined) => {
 };
 
 const EthAddress = (props: { value: string | undefined }) => {
-  const ensName = useEnsData(props.value);
+  // const ensName = useEnsData(props.value);
 
   return (
     <Link passHref href={`/accounts/${props.value}/delegating`}>
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
+        {/* {ensName?.name ? ensName?.name : ensName?.idShort ?? ""} */}
+        Test
       </Badge>
     </Link>
   );
