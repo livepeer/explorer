@@ -1,12 +1,9 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  useTreasuryRegisteredToVoteData,
-} from "hooks";
+import { useAccountAddress, useTreasuryRegisteredToVoteData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useMemo, useState } from "react";
 import { Address } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
