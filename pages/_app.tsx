@@ -43,7 +43,7 @@ function App({ Component, pageProps, fallback = null }) {
       appName: "Livepeer Explorer",
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
-      ssr: true,
+      ssr: false,
     });
 
     return {
