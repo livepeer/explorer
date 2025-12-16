@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  serverExternalPackages: [
+    "@rainbow-me/rainbowkit",
+    "@vanilla-extract/sprinkles",
+  ],
   turbopack: {
     rules: {
       "*.svg": {
