@@ -51,9 +51,12 @@ function App({ Component, pageProps, fallback = null }) {
             <Web3Providers isMigrateRoute={isMigrateRoute} locale={locale}>
               <SWRConfig
                 value={{
-                  loadingTimeout: 40000,
-                  fetcher,
+                  dedupingInterval: 5000,
                   fallback: fallback ?? {},
+                  fetcher: fetcher,
+                  keepPreviousData: true,
+                  loadingTimeout: 40000,
+                  revalidateOnFocus: false,
                 }}
               >
                 <CookiesProvider>
