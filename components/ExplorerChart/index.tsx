@@ -53,12 +53,7 @@ const CustomizedXAxisTick = ({ x, y, payload }) => {
   );
 };
 
-export enum Group {
-  DAY = "day",
-  WEEK = "week",
-  YEAR = "year",
-  ALL = "all",
-}
+export type Group = "day" | "week" | "year" | "all";
 
 const ExplorerChart = ({
   title,
@@ -68,7 +63,7 @@ const ExplorerChart = ({
   basePercentChange,
   unit = "none",
   type,
-  grouping = Group.DAY,
+  grouping = "day",
   onToggleGrouping,
 }: {
   title: string;
@@ -342,16 +337,16 @@ const ExplorerChart = ({
           }}
         >
           <Button
-            onClick={() => onToggleGrouping?.(Group.DAY)}
+            onClick={() => onToggleGrouping?.("day")}
             size="1"
-            variant={grouping === Group.DAY ? "primary" : "neutral"}
+            variant={grouping === "day" ? "primary" : "neutral"}
           >
             D
           </Button>
           <Button
-            onClick={() => onToggleGrouping?.(Group.WEEK)}
+            onClick={() => onToggleGrouping?.("week")}
             size="1"
-            variant={grouping === Group.WEEK ? "primary" : "neutral"}
+            variant={grouping === "week" ? "primary" : "neutral"}
             css={{ marginLeft: "$1" }}
           >
             W
@@ -367,16 +362,16 @@ const ExplorerChart = ({
           }}
         >
           <Button
-            onClick={() => onToggleGrouping(Group.YEAR)}
+            onClick={() => onToggleGrouping("year")}
             size="1"
-            variant={grouping === Group.YEAR ? "primary" : "neutral"}
+            variant={grouping === "year" ? "primary" : "neutral"}
           >
             Y
           </Button>
           <Button
-            onClick={() => onToggleGrouping(Group.ALL)}
+            onClick={() => onToggleGrouping("all")}
             size="1"
-            variant={grouping === Group.ALL ? "primary" : "neutral"}
+            variant={grouping === "all" ? "primary" : "neutral"}
             css={{ marginLeft: "$1" }}
           >
             All

@@ -1,8 +1,8 @@
 import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
+import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
-import { Group } from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
@@ -53,10 +53,10 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
-  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>(Group.WEEK);
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
-      (feesPaidGrouping === Group.DAY
+      (feesPaidGrouping === "day"
         ? chartData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.volumeUsd),
@@ -68,10 +68,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<Group>(Group.WEEK);
+  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
   const usageData = useMemo(
     () =>
-      (usageGrouping === Group.DAY
+      (usageGrouping === "day"
         ? chartData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.feeDerivedMinutes),
@@ -92,18 +92,15 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [chartData]
   );
 
-  const [inflationGrouping, setInflationGrouping] = useState<Group>(Group.ALL);
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
   const inflationRateData = useMemo(
     () =>
-      (inflationGrouping === Group.YEAR
-        ? chartData?.dayData?.slice(-365).map((day) => ({
-            x: Number(day.dateS),
-            y: Number(day?.inflation ?? 0) / 1000000000,
-          }))
-        : chartData?.dayData?.slice(1)?.map((day) => ({
-            x: Number(day.dateS),
-            y: Number(day?.inflation ?? 0) / 1000000000,
-          }))) ?? [],
+      chartData?.dayData
+        ?.slice(inflationGrouping === "year" ? -365 : 1)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: Number(day?.inflation ?? 0) / 1000000000,
+        })) ?? [],
     [chartData, inflationGrouping]
   );
 
