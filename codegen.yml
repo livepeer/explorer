@@ -19,4 +19,4 @@ config:
 
 hooks:
   afterAllFileWrite:
-    - yarn prettier --write ./apollo/subgraph.ts
+    - pnpm prettier --write ./apollo/subgraph.ts
