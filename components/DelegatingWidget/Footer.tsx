@@ -116,6 +116,21 @@ const Footer = ({
     [newActiveSetOrder, transcoder]
   );
 
+  // Check if unbonding will deactivate the orchestrator
+  const isOwnOrchestrator = useMemo(
+    () =>
+      accountAddress?.toLowerCase() === delegator?.delegate?.id?.toLowerCase(),
+    [accountAddress, delegator?.delegate?.id]
+  );
+  const isUnbondingAll = useMemo(
+    () => parseFloat(amount) >= stake / 1e18,
+    [amount, stake]
+  );
+  const willDeactivate = useMemo(
+    () => isOwnOrchestrator && isUnbondingAll && parseFloat(amount) > 0,
+    [isOwnOrchestrator, isUnbondingAll, amount]
+  );
+
   if (!accountAddress) {
     return (
       <>
@@ -162,6 +177,7 @@ const Footer = ({
         newPosPrev={newPosPrev}
         newPosNext={newPosNext}
         disabled={!canUndelegate || delegatorStatus === "Pending"}
+        willDeactivate={willDeactivate}
       />
       {renderUnstakeWarnings(
         amount,
