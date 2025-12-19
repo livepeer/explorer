@@ -45,7 +45,11 @@ const Undelegate = ({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "unbondWithHint",
-    args: [BigInt(args.amount.toString()), newPosPrev, newPosNext],
+    args: [
+      BigInt(args.amount.toString()),
+      newPosPrev as `0x${string}`,
+      newPosNext as `0x${string}`,
+    ],
   });
   const { data, isPending, writeContract, error, isSuccess } =
     useWriteContract();
