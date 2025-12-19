@@ -30,6 +30,7 @@ export type InputData = {
   totalRounds?: number;
   type?: string;
   unbondingLockId?: number;
+  wasDeactivated?: boolean;
 };
 
 export type TransactionStep = "summary" | "started" | "confirmed";
