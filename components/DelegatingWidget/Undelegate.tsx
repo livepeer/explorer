@@ -8,8 +8,9 @@ import {
   Flex,
   Text,
 } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useState } from "react";
 import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";

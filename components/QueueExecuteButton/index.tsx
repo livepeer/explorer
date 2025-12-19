@@ -2,8 +2,9 @@ import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { ProposalExtended } from "@lib/api/treasury";
 import { Button } from "@livepeer/design-system";
 import { ethers } from "ethers";
-import { useAccountAddress, useHandleTransaction } from "hooks";
+import { useAccountAddress } from "hooks";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useMemo } from "react";
 import { Address } from "viem";
 import {

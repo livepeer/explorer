@@ -18,12 +18,10 @@ import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  usePendingFeesAndStakeData,
-} from "hooks";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { LAYOUT_MAX_WIDTH } from "layouts/constants";
+import { getLayout } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";

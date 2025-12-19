@@ -1,14 +1,11 @@
-import { LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
 import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  useL1DelegatorData,
-} from "hooks";
+import { useAccountAddress, useL1DelegatorData } from "hooks";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
 import { Hex } from "viem";

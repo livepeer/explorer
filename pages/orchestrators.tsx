@@ -1,6 +1,7 @@
 import ErrorComponent from "@components/Error";
 import OrchestratorList from "@components/OrchestratorList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {

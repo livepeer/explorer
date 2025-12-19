@@ -21,10 +21,11 @@ import {
   useAccountAddress,
   useAccountBalanceData,
   useContractInfoData,
-  useHandleTransaction,
   useTreasuryVotingPowerData,
 } from "hooks";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { LAYOUT_MAX_WIDTH } from "layouts/constants";
+import { getLayout } from "layouts/main";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { Address, encodeFunctionData, isAddress } from "viem";

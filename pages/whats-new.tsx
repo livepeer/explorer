@@ -12,7 +12,8 @@ import { useChangefeedData } from "hooks";
 import Markdown from "markdown-to-jsx";
 import Head from "next/head";
 
-import { getLayout, LAYOUT_MAX_WIDTH } from "../layouts/main";
+import { LAYOUT_MAX_WIDTH } from "../layouts/constants";
+import { getLayout } from "../layouts/main";
 
 function getBadgeColor(changeType) {
   if (changeType === "NEW") {
