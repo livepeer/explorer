@@ -53,6 +53,8 @@ const CustomizedXAxisTick = ({ x, y, payload }) => {
   );
 };
 
+export type Group = "day" | "week" | "year" | "all";
+
 const ExplorerChart = ({
   title,
   tooltip,
@@ -78,8 +80,8 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
-  grouping?: "day" | "week";
-  onToggleGrouping?: (grouping: "day" | "week") => void;
+  grouping?: Group;
+  onToggleGrouping?: (grouping: Group) => void;
 }) => {
   const formatDateSubtitle = useCallback(
     (date: number) =>
@@ -348,6 +350,31 @@ const ExplorerChart = ({
             css={{ marginLeft: "$1" }}
           >
             W
+          </Button>
+        </Flex>
+      )}
+      {type === "line" && grouping && onToggleGrouping && (
+        <Flex
+          css={{
+            position: "absolute",
+            right: 0,
+            zIndex: 3,
+          }}
+        >
+          <Button
+            onClick={() => onToggleGrouping("year")}
+            size="1"
+            variant={grouping === "year" ? "primary" : "neutral"}
+          >
+            Y
+          </Button>
+          <Button
+            onClick={() => onToggleGrouping("all")}
+            size="1"
+            variant={grouping === "all" ? "primary" : "neutral"}
+            css={{ marginLeft: "$1" }}
+          >
+            All
           </Button>
         </Flex>
       )}
