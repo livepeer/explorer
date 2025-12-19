@@ -78,17 +78,22 @@ const Footer = ({
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
-  const stake = useMemo(
+  const stakeWei = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
-        ? +delegatorPendingStakeAndFees?.pendingStake
-        : 0,
+        ? BigInt(delegatorPendingStakeAndFees.pendingStake)
+        : null,
     [delegatorPendingStakeAndFees]
   );
-  const sufficientStake = useMemo(
-    () => delegator && amount && parseFloat(amount) <= stake,
-    [delegator, amount, stake]
-  );
+  const sufficientStake = useMemo(() => {
+    if (!delegator || !amount || stakeWei === null) return false;
+    try {
+      const amountWei = parseEther(amount);
+      return amountWei <= stakeWei;
+    } catch {
+      return false;
+    }
+  }, [delegator, amount, stakeWei]);
   const canUndelegate = useMemo(
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
     [isMyTranscoder, isDelegated, amount]
@@ -122,14 +127,17 @@ const Footer = ({
       accountAddress?.toLowerCase() === delegator?.delegate?.id?.toLowerCase(),
     [accountAddress, delegator?.delegate?.id]
   );
-  const isUnbondingAll = useMemo(
-    () => parseFloat(amount) >= stake / 1e18,
-    [amount, stake]
-  );
-  const willDeactivate = useMemo(
-    () => isOwnOrchestrator && isUnbondingAll && parseFloat(amount) > 0,
-    [isOwnOrchestrator, isUnbondingAll, amount]
-  );
+  const willDeactivate = useMemo(() => {
+    // Wait for stake data to load before determining deactivation
+    if (!isOwnOrchestrator || stakeWei === null || !amount) return false;
+    try {
+      const amountWei = parseEther(amount);
+      // Deactivates if unbonding all stake (amount >= current stake)
+      return amountWei > 0n && amountWei >= stakeWei;
+    } catch {
+      return false;
+    }
+  }, [isOwnOrchestrator, stakeWei, amount]);
 
   if (!accountAddress) {
     return (

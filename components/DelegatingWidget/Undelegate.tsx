@@ -156,7 +156,12 @@ const Undelegate = ({
             >
               Cancel
             </Button>
-            <Button size="3" variant="red" onClick={handleConfirmUnbond}>
+            <Button
+              size="3"
+              variant="red"
+              onClick={handleConfirmUnbond}
+              disabled={!config}
+            >
               Yes, unbond my stake
             </Button>
           </Flex>
