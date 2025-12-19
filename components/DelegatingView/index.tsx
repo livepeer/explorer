@@ -8,10 +8,10 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
   useEnsData,
-  useHandleTransaction,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import numbro from "numbro";

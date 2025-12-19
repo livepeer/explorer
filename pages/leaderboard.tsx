@@ -1,7 +1,8 @@
 import ErrorComponent from "@components/Error";
 import PerformanceList from "@components/PerformanceList";
 import PerformanceListSelector from "@components/PerformanceListSelector";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";

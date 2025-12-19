@@ -3,7 +3,8 @@ import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getEvents } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";

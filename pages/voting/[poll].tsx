@@ -3,7 +3,8 @@ import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
 import VotingWidget from "@components/VotingWidget";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
 import {

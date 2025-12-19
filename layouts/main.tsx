@@ -74,6 +74,7 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
+import { LAYOUT_MAX_WIDTH } from "./constants";
 
 export const IS_BANNER_ENABLED = true;
 
@@ -105,8 +106,6 @@ export type DrawerItem = {
   icon: React.ElementType;
   className?: string;
 };
-
-export const LAYOUT_MAX_WIDTH = 1400;
 
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;

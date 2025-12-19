@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
 import { formatEther, getAddress, parseEther } from "viem";
+
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
 );
