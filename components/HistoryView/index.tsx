@@ -41,7 +41,6 @@ const Index = () => {
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
     const reversedEvents = data?.transactions?.map((tx) => {
-      if (!tx.events) return tx;
       return {
         ...tx,
         events: tx.events ? tx.events.slice().reverse() : [],
