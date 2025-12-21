@@ -44,7 +44,7 @@ const Index = () => {
       if (!tx.events) return tx;
       return {
         ...tx,
-        events: tx.events.slice().reverse(),
+        events: tx.events ? tx.events.slice().reverse() : [],
       };
     });
     return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
