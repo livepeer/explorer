@@ -38,10 +38,16 @@ const Index = () => {
     }
   );
 
-  const events = useMemo(
-    () => data?.transactions?.flatMap(({ events: e }) => e ?? []) ?? [],
-    [data]
-  );
+  const events = useMemo(() => {
+    // First reverse the order of the array of events per transaction to have events in descending order
+    const reversedEvents = data?.transactions?.map((tx) => {
+      return {
+        ...tx,
+        events: tx.events ? tx.events.slice().reverse() : [],
+      };
+    });
+    return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
+  }, [data]);
 
   const lastEventTimestamp = useMemo(
     () =>
