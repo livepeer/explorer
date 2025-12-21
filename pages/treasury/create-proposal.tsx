@@ -197,7 +197,7 @@ const CreateProposal = () => {
             }}
           >
             Treasury Balance:{" "}
-            {treasuryBalance ? (
+            {treasuryBalance !== undefined && treasuryBalance !== null ? (
               <>{formatLPT(treasuryBalance)}</>
             ) : (
               <Skeleton
