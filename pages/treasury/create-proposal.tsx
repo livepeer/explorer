@@ -301,9 +301,9 @@ const CreateProposal = () => {
                 },
               }}
             >
-              <Text variant="neutral" size="3">
+                <Text variant="neutral" size="3" css={{ flexShrink: 0 }}>
                 LPT receiver:
-              </Text>
+                </Text>
               <TextField
                 css={{
                   width: "100%",
