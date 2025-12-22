@@ -10,7 +10,7 @@ import QRCode from "qrcode.react";
 import { useMemo } from "react";
 import { Column } from "react-table";
 
-type VoterSummary = {
+export type VoterSummary = {
   id: string;
   noOfProposalsVotedOn: number;
   noOfVotesCasted: number;

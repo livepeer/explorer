@@ -3,6 +3,9 @@ import "react-circular-progressbar/dist/styles.css";
 import ErrorComponent from "@components/Error";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
+import OrchestratorVotingList, {
+  VoterSummary,
+} from "@components/OrchestratorVotingList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
@@ -11,6 +14,7 @@ import TransactionsList, {
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { OrchestratorTabs } from "@lib/orchestrator";
 import {
   Box,
   Button,
@@ -20,6 +24,9 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
+import { CUBE_TYPE, getCubeData } from "cube/cube-client";
+import { getOrchestratorsVotingHistory } from "cube/query-generator";
 import { useChartData } from "hooks";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -229,9 +236,16 @@ type PageProps = {
   events: EventsQueryResult["data"] | null;
   protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
+  initialVoterData?: VoterSummary[];
 };
 
-const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
+const Home = ({
+  hadError,
+  orchestrators,
+  events,
+  protocol,
+  initialVoterData,
+}: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -374,6 +388,95 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
 
+            <Tabs defaultValue={OrchestratorTabs["Yield Overview"]}>
+              {({ selectedIndex, focusedIndex }) => {
+                const getTabStyle = (index) => ({
+                  borderBottom: `4px solid ${
+                    selectedIndex === index
+                      ? "#6ec08d"
+                      : focusedIndex === index
+                      ? "#141716"
+                      : "#141716"
+                  }`,
+                  backgroundColor: "#141716",
+                  borderWidth: 0,
+                  borderBottomWidth: 1,
+                  paddingBottom: 12,
+                });
+                return (
+                  <>
+                    <TabList>
+                      <Tab style={getTabStyle(0)}>Yield Overview</Tab>
+                      <Tab style={getTabStyle(1)}>Voting History</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <Box>
+                          <OrchestratorList
+                            data={orchestrators?.transcoders}
+                            pageSize={20}
+                            protocolData={protocol?.protocol}
+                          />
+                        </Box>
+                      </TabPanel>
+                      <TabPanel>
+                        <Box>
+                          <OrchestratorVotingList
+                            initialVoterData={initialVoterData}
+                            pageSize={20}
+                          />
+                        </Box>
+                      </TabPanel>
+                    </TabPanels>
+                  </>
+                );
+              }}
+            </Tabs>
+
+            {/* <Tabs
+              defaultValue={OrchestratorTabs["Yield Overview"]}
+              css={{ mb: "$5" }}
+            >
+              <TabsList>
+                <TabsTrigger
+                  css={{
+                    height: 40,
+                  }}
+                  value={OrchestratorTabs["Yield Overview"]}
+                >
+                  <Text size="3">Yield Overview</Text>
+                </TabsTrigger>
+                <TabsTrigger
+                  css={{
+                    height: 40,
+                  }}
+                  value={OrchestratorTabs["Voting History"]}
+                >
+                  <Text size="3">Voting History</Text>
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value={OrchestratorTabs["Yield Overview"]}>
+                {!orchestrators?.transcoders || !protocol?.protocol ? (
+                  <Flex align="center" justify="center">
+                    <Spinner />
+                  </Flex>
+                ) : (
+                  <Box>
+                    <OrchestratorList
+                      data={orchestrators?.transcoders}
+                      pageSize={10}
+                      protocolData={protocol?.protocol}
+                    />
+                  </Box>
+                )}
+              </TabsContent>
+              <TabsContent value={OrchestratorTabs["Voting History"]}>
+                <Box>
+                  <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={10}/>
+                </Box>
+              </TabsContent>
+            </Tabs> */}
+
             {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
@@ -455,6 +558,24 @@ export const getStaticProps = async () => {
     const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
 
+    const query = getOrchestratorsVotingHistory();
+    // @ts-expect-error - query is a string
+    const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
+
+    // Log the response to check the structure of the data
+
+    if (!response || !response[0] || !response[0].data) {
+      return {
+        props: {
+          initialVoterData: [],
+        },
+      };
+    }
+
+    const data = response[0].data;
+
+    const voterSummaries = getVoterSummaries(data);
+
     if (!orchestrators.data || !events.data || !protocol.data) {
       return {
         props: errorProps,
@@ -467,6 +588,7 @@ export const getStaticProps = async () => {
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
+      initialVoterData: voterSummaries,
       fallback: {},
     };
 
@@ -481,6 +603,75 @@ export const getStaticProps = async () => {
       revalidate: 60,
     };
   }
+};
+
+type VoteProposal = {
+  "LivepeerVoteProposals.date": string;
+  "LivepeerVoteProposals.voter": string;
+  "LivepeerVoteProposals.eventTxnsHash": string;
+  "LivepeerVoteProposals.voteType": string;
+  "LivepeerVoteProposals.count": string;
+  "LivepeerVoteProposals.numOfProposals": string;
+  "LivepeerVoteProposals.numOfVoteCasted": string;
+};
+
+// Function to get unique voter IDs
+const getUniqueVoters = (data: VoteProposal[]): string[] => {
+  const voterSet = new Set(
+    data.map((proposal) => proposal["LivepeerVoteProposals.voter"])
+  );
+  return Array.from(voterSet);
+};
+
+// Function to group data by voter
+const groupByVoter = (
+  data: VoteProposal[],
+  voterId: string
+): VoteProposal[] => {
+  return data.filter(
+    (proposal) => proposal["LivepeerVoteProposals.voter"] === voterId
+  );
+};
+
+// Function to process vote proposals and generate voter summary
+const processVoteProposals = (proposals: VoteProposal[]): VoterSummary => {
+  const sortedVotes = proposals.sort(
+    (a, b) =>
+      new Date(b["LivepeerVoteProposals.date"]).getTime() -
+      new Date(a["LivepeerVoteProposals.date"]).getTime()
+  );
+
+  const mostRecentVotes = sortedVotes
+    .slice(0, 5)
+    .map((vote) => vote["LivepeerVoteProposals.voteType"] || null);
+
+  const noOfProposalsVotedOn = Number(
+    proposals[0]["LivepeerVoteProposals.numOfProposals"] || 0
+  );
+  const noOfVotesCasted = Number(
+    proposals[0]["LivepeerVoteProposals.numOfVoteCasted"] || 0
+  );
+
+  const votingTurnout = noOfProposalsVotedOn
+    ? noOfVotesCasted / noOfProposalsVotedOn
+    : 0;
+
+  return {
+    id: proposals[0]["LivepeerVoteProposals.voter"],
+    noOfProposalsVotedOn,
+    noOfVotesCasted,
+    mostRecentVotes,
+    votingTurnout,
+  };
+};
+
+// Function to get voter summaries for all unique voters
+const getVoterSummaries = (data: VoteProposal[]): VoterSummary[] => {
+  const uniqueVoters = getUniqueVoters(data);
+  return uniqueVoters.map((voterId) => {
+    const groupedProposals = groupByVoter(data, voterId);
+    return processVoteProposals(groupedProposals);
+  });
 };
 
 Home.getLayout = getLayout;
