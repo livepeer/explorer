@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@vanilla-extract/sprinkles"],
   turbopack: {
     rules: {
       "*.svg": {

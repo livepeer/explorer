@@ -1,9 +1,9 @@
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import { useHandleTransaction } from "hooks";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 import { MAXIMUM_VALUE_UINT256 } from "../../lib/utils";

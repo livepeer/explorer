@@ -78,17 +78,22 @@ const Footer = ({
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
-  const stake = useMemo(
+  const stakeWei = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
-        ? +delegatorPendingStakeAndFees?.pendingStake
-        : 0,
+        ? BigInt(delegatorPendingStakeAndFees.pendingStake)
+        : null,
     [delegatorPendingStakeAndFees]
   );
-  const sufficientStake = useMemo(
-    () => delegator && amount && parseFloat(amount) <= stake,
-    [delegator, amount, stake]
-  );
+  const sufficientStake = useMemo(() => {
+    if (!delegator || !amount || stakeWei === null) return false;
+    try {
+      const amountWei = parseEther(amount);
+      return amountWei <= stakeWei;
+    } catch {
+      return false;
+    }
+  }, [delegator, amount, stakeWei]);
   const canUndelegate = useMemo(
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
     [isMyTranscoder, isDelegated, amount]
@@ -115,6 +120,24 @@ const Footer = ({
     () => getHint(transcoder?.id, newActiveSetOrder),
     [newActiveSetOrder, transcoder]
   );
+
+  // Check if unbonding will deactivate the orchestrator
+  const isOwnOrchestrator = useMemo(
+    () =>
+      accountAddress?.toLowerCase() === delegator?.delegate?.id?.toLowerCase(),
+    [accountAddress, delegator?.delegate?.id]
+  );
+  const willDeactivate = useMemo(() => {
+    // Wait for stake data to load before determining deactivation
+    if (!isOwnOrchestrator || stakeWei === null || !amount) return false;
+    try {
+      const amountWei = parseEther(amount);
+      // Deactivates if unbonding all stake (amount >= current stake)
+      return amountWei > 0n && amountWei >= stakeWei;
+    } catch {
+      return false;
+    }
+  }, [isOwnOrchestrator, stakeWei, amount]);
 
   if (!accountAddress) {
     return (
@@ -162,6 +185,7 @@ const Footer = ({
         newPosPrev={newPosPrev}
         newPosNext={newPosNext}
         disabled={!canUndelegate || delegatorStatus === "Pending"}
+        willDeactivate={willDeactivate}
       />
       {renderUnstakeWarnings(
         amount,

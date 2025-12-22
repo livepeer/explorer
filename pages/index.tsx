@@ -1,6 +1,7 @@
 import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
+import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import OrchestratorVotingList, {
@@ -11,7 +12,8 @@ import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { OrchestratorTabs } from "@lib/orchestrator";
@@ -59,9 +61,7 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
-  const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "week"
-  );
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
@@ -76,7 +76,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
+  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
@@ -99,14 +99,19 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day?.inflation ?? 0) / 1000000000,
-      })) ?? [],
-    [chartData]
+      chartData?.dayData
+        ?.slice(inflationGrouping === "year" ? -365 : 1)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: Number(day?.inflation ?? 0) / 1000000000,
+        })) ?? [],
+    [chartData, inflationGrouping]
   );
+
   const delegatorsCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -115,6 +120,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
   const activeTranscoderCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -173,34 +179,68 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Inflation Rate"
           unit="small-percent"
           type="line"
+          grouping={inflationGrouping}
+          onToggleGrouping={setInflationGrouping}
         />
       </Panel>
       <Panel>
-        <ExplorerChart
-          tooltip={`The ${
-            usageGrouping === "day" ? "daily" : "weekly"
-          } usage of the network in minutes.`}
-          data={
-            usageGrouping === "week"
-              ? usageData.slice(-26)
-              : usageData.slice(-183)
-          }
-          base={Number(
-            (usageGrouping === "day"
-              ? chartData?.oneDayUsage
-              : chartData?.oneWeekUsage) ?? 0
-          )}
-          basePercentChange={Number(
-            (usageGrouping === "day"
-              ? chartData?.dailyUsageChange
-              : chartData?.weeklyUsageChange) ?? 0
-          )}
-          title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
-          unit="minutes"
-          type="bar"
-          grouping={usageGrouping}
-          onToggleGrouping={setUsageGrouping}
-        />
+        {/* // TODO: Remove when we finished our investigation. */}
+        <Flex css={{ position: "relative", width: "100%", height: "100%" }}>
+          <Box
+            css={{
+              width: "100%",
+              height: "100%",
+              opacity: 0.45,
+              filter: "grayscale(1)",
+              pointerEvents: "none",
+            }}
+          >
+            <ExplorerChart
+              tooltip={`The ${
+                usageGrouping === "day" ? "daily" : "weekly"
+              } usage of the network in minutes.`}
+              data={
+                usageGrouping === "week"
+                  ? usageData.slice(-26)
+                  : usageData.slice(-183)
+              }
+              base={Number(
+                (usageGrouping === "day"
+                  ? chartData?.oneDayUsage
+                  : chartData?.oneWeekUsage) ?? 0
+              )}
+              basePercentChange={Number(
+                (usageGrouping === "day"
+                  ? chartData?.dailyUsageChange
+                  : chartData?.weeklyUsageChange) ?? 0
+              )}
+              title={`Estimated Usage ${
+                usageGrouping === "day" ? "(1d)" : "(7d)"
+              }`}
+              unit="minutes"
+              type="bar"
+              grouping={usageGrouping}
+              onToggleGrouping={setUsageGrouping}
+            />
+          </Box>
+          <Box
+            css={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "$4",
+              fontSize: "$1",
+              fontWeight: 500,
+              pointerEvents: "none",
+              maxWidth: 260,
+            }}
+          >
+            Data temporarily unavailable while we check the data source.
+          </Box>
+        </Flex>
       </Panel>
       <Panel>
         <ExplorerChart

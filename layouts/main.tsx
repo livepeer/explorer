@@ -74,19 +74,20 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
+import { LAYOUT_MAX_WIDTH } from "./constants";
 
 export const IS_BANNER_ENABLED = true;
 
 const uniqueBannerID = 5;
 
-const isBannerDismissed = () => {
+const getDismissedBanners = (): number[] => {
   try {
     const parsed = JSON.parse(
       window.localStorage.getItem(`bannersDismissed`) ?? "[]"
     );
-    return Array.isArray(parsed) && parsed.includes(uniqueBannerID);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return false;
+    return [];
   }
 };
 
@@ -106,14 +107,12 @@ export type DrawerItem = {
   className?: string;
 };
 
-export const LAYOUT_MAX_WIDTH = 1400;
-
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
-  const { asPath } = useRouter();
+  const { asPath, isReady, query } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
   const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
@@ -125,13 +124,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
-
-  useLayoutEffect(() => {
-    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
-      return;
-    }
-    setBannerActive(!isBannerDismissed());
-  }, []);
+  const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
 
   const totalActivePolls = useMemo(
     () =>
@@ -165,8 +158,28 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     };
   }, []);
 
+  // Initialize banner state on mount. skip on SSR/disabled/dismissed.
+  useLayoutEffect(() => {
+    if (
+      !IS_BANNER_ENABLED ||
+      typeof window === "undefined" ||
+      !isReady ||
+      isBannerDisabledByQuery
+    ) {
+      // Query flag only matters on initial embed load; no client-side toggling.
+      return;
+    }
+    setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
+  }, [isReady, isBannerDisabledByQuery]);
+
+  // Ensure banner state updates across tabs.
   useEffect(() => {
-    if (!IS_BANNER_ENABLED || typeof window === "undefined") {
+    if (
+      !IS_BANNER_ENABLED ||
+      typeof window === "undefined" ||
+      !isReady ||
+      isBannerDisabledByQuery
+    ) {
       return;
     }
 
@@ -174,12 +187,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       if (event.key !== null && event.key !== "bannersDismissed") {
         return;
       }
-      setBannerActive(!isBannerDismissed());
+      setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
     };
 
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
     if (width > 1020) {
@@ -280,18 +293,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   globalStyles();
 
-  const handleDismissBanner = useCallback(() => {
+  const onBannerDismiss = useCallback(() => {
     setBannerActive(false);
 
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     try {
-      const ls = window.localStorage.getItem(`bannersDismissed`);
-      const parsed = ls ? JSON.parse(ls) : [];
-      const storage = Array.isArray(parsed) ? parsed : [];
-
+      const storage = getDismissedBanners();
       if (!storage.includes(uniqueBannerID)) {
         window.localStorage.setItem(
           `bannersDismissed`,
@@ -349,7 +357,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               </Flex>
             )}
             {bannerActive && (
-              <URLVerificationBanner onDismiss={handleDismissBanner} />
+              <URLVerificationBanner onDismiss={onBannerDismiss} />
             )}
 
             <Box css={{}}>

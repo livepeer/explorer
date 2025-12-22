@@ -131,9 +131,16 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
             >
               <Box>
                 You&apos;ve successfully undelegated{" "}
-                {fromWei(tx.inputData.amount)} LPT. The unbonding period is ~7
-                days after which you may withdraw the undelegated LPT into your
-                wallet.
+                {fromWei(tx.inputData.amount)} LPT.
+                {tx.inputData.wasDeactivated && (
+                  <Box css={{ marginTop: "$2", color: "$yellow9" }}>
+                    Your orchestrator has been deactivated.
+                  </Box>
+                )}
+                <Box css={{ marginTop: "$2" }}>
+                  The unbonding period is ~7 days after which you may withdraw
+                  the undelegated LPT into your wallet.
+                </Box>
               </Box>
             </Box>
           </Table>
