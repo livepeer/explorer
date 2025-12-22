@@ -278,3 +278,12 @@ export const isImageUrl = (url: string): boolean => {
  */
 export const shortenAddress = (address: string) =>
   address?.replace(address.slice(5, 39), "…") ?? "";
+
+export const lptFormatter = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export const formatLpt = (w: string) => {
+  return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
+};

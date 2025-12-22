@@ -1,5 +1,6 @@
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
+import { abbreviateNumber, fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -19,7 +20,6 @@ import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
-import { abbreviateNumber, fromWei } from "../../lib/utils";
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 import VoteButton from "../VoteButton";

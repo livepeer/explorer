@@ -2,7 +2,7 @@ import BottomDrawer from "@components/BottomDrawer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import VotingWidget from "@components/VotingWidget";
+import VotingWidget from "@components/Votes/VotingWidget";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";

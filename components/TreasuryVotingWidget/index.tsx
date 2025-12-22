@@ -11,7 +11,7 @@ import numbro from "numbro";
 import { useMemo, useState } from "react";
 import { zeroAddress } from "viem";
 
-import VoteButton from "../VoteButton";
+import VoteButton from "../Votes/VoteButton";
 
 type Props = {
   proposal: ProposalExtended;

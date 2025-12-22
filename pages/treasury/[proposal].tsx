@@ -4,6 +4,7 @@ import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
+import VoteTable from "@components/Votes/VoteTable";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getProposalExtended } from "@lib/api/treasury";
@@ -27,7 +28,7 @@ import { BigNumber } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { decodeFunctionData } from "viem";
 
@@ -40,6 +41,7 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
+import { useFetchVotes } from "../../hooks/TreasuryVotes/useFetchVotes";
 import FourZeroFour from "../404";
 
 const formatPercent = (percent: number) =>
@@ -60,6 +62,7 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -79,6 +82,13 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
+  const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
+  const [votesOpen, setVotesOpen] = useState(false);
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
+
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -92,6 +102,25 @@ const Proposal = () => {
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
   const proposerId = useEnsData(proposal?.proposer.id);
+
+  const votesContent = useCallback(() => {
+    if (votesLoading) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "$4",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      );
+    }
+    if (votes.length === 0) return <Text>No votes yet.</Text>;
+    return <VoteTable proposalId={proposal!.id} />;
+  }, [votesLoading, votes.length, proposal]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -613,10 +642,66 @@ const Proposal = () => {
                 </Heading>
                 <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
+
+              <Card
+                css={{
+                  padding: "$4",
+                  border: "1px solid $neutral4",
+                  cursor: "pointer",
+                }}
+                onClick={() => setVotesOpen(!votesOpen)}
+              >
+                <Flex
+                  css={{
+                    marginTop: "$1",
+                    alignItems: "center",
+                  }}
+                >
+                  <Heading
+                    as="h3"
+                    css={{
+                      fontWeight: 700,
+                      fontSize: "$5",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      css={{ display: "flex", alignItems: "center" }}
+                      as="span"
+                    >
+                      <Text
+                        css={{
+                          color: "$white",
+                          fontSize: "$5",
+                        }}
+                      >
+                        {votesLoading
+                          ? "Loading votes…"
+                          : `View Votes (${votes.length})`}
+                      </Text>
+                    </Box>
+
+                    <Text
+                      as="span"
+                      css={{
+                        color: votesOpen ? "$red9" : "$green9",
+                        fontSize: "$3",
+                        marginLeft: "$2",
+                      }}
+                    >
+                      {votesOpen ? "–" : "+"}
+                    </Text>
+                  </Heading>
+                </Flex>
+                {votesOpen && (
+                  <Box css={{ padding: "$3" }}>{votesContent()}</Box>
+                )}
+              </Card>
             </Box>
           </Flex>
 
-          {width > 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",
