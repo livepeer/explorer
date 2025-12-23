@@ -23,7 +23,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { useChartData } from "hooks";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
@@ -83,13 +83,26 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [usageGrouping, chartData]
   );
 
-  const participationRateData = useMemo(
-    () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
+  const getDaySeries = useCallback(
+    (
+      grouping: Group,
+      accessor: (day: NonNullable<HomeChartData["dayData"]>[number]) => number
+    ) =>
+      chartData?.dayData?.slice(grouping === "year" ? -365 : 1).map((day) => ({
         x: Number(day.dateS),
-        y: Number(day.participationRate),
+        y: accessor(day),
       })) ?? [],
     [chartData]
+  );
+
+  const [participationGrouping, setParticipationGrouping] =
+    useState<Group>("all");
+  const participationRateData = useMemo(
+    () =>
+      getDaySeries(participationGrouping, (day) =>
+        Number(day.participationRate)
+      ),
+    [getDaySeries, participationGrouping]
   );
 
   const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
@@ -104,22 +117,21 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [chartData, inflationGrouping]
   );
 
+  const [delegatorsGrouping, setDelegatorsGrouping] = useState<Group>("all");
   const delegatorsCountData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day.delegatorsCount),
-      })) ?? [],
-    [chartData]
+      getDaySeries(delegatorsGrouping, (day) => Number(day.delegatorsCount)),
+    [getDaySeries, delegatorsGrouping]
   );
 
+  const [orchestratorsGrouping, setOrchestratorsGrouping] =
+    useState<Group>("all");
   const activeTranscoderCountData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day.activeTranscoderCount),
-      })) ?? [],
-    [chartData]
+      getDaySeries(orchestratorsGrouping, (day) =>
+        Number(day.activeTranscoderCount)
+      ),
+    [getDaySeries, orchestratorsGrouping]
   );
 
   return (
@@ -160,6 +172,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Participation Rate"
           unit="percent"
           type="line"
+          grouping={participationGrouping}
+          onToggleGrouping={setParticipationGrouping}
         />
       </Panel>
       <Panel>
@@ -211,6 +225,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Delegators"
           unit="small-unitless"
           type="line"
+          grouping={delegatorsGrouping}
+          onToggleGrouping={setDelegatorsGrouping}
         />
       </Panel>
       <Panel>
@@ -224,6 +240,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Orchestrators"
           unit="none"
           type="line"
+          grouping={orchestratorsGrouping}
+          onToggleGrouping={setOrchestratorsGrouping}
         />
       </Panel>
     </>
