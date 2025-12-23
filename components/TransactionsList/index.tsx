@@ -1,5 +1,6 @@
 import Table from "@components/Table";
 import dayjs from "@lib/dayjs";
+import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
@@ -79,7 +80,7 @@ const Transaction = (props: { id: string | undefined }) => {
       }
     >
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
+        {props.id ? formatTransactionHash(props.id) : "N/A"}
         <Box
           css={{ marginLeft: "$1", width: 15, height: 15 }}
           as={ArrowTopRightIcon}

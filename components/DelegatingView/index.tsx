@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
+import { checkAddressEquality, formatAddress } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
@@ -167,10 +167,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Box>
                   {delegateIdentity?.name
                     ? delegateIdentity?.name
-                    : delegator?.delegate?.id.replace(
-                        delegator?.delegate?.id.slice(7, 37),
-                        "…"
-                      )}
+                    : formatAddress(delegator?.delegate?.id)}
                 </Box>
               }
             />{" "}
