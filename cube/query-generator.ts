@@ -53,6 +53,7 @@ export const getOrchestratorsVotingHistory = () => {
 };
 
 export const getAccountVoterSummary = (id: string): Query => {
+  // @ts-expect-error - this is a string query
   return `{
     "measures": [
       "LivepeerVoteProposals.count",
