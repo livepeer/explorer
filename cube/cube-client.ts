@@ -38,7 +38,7 @@ export async function getCubeData(
 
   try {
     const resultSet = await cubejsApi.load(query);
-    const response = resultSet.rawData;
+    const response = resultSet.rawData();
     return response;
   } catch (error) {
     console.error(error);
