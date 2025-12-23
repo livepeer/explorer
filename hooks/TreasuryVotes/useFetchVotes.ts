@@ -5,10 +5,10 @@ import {
   provider,
   VOTECAST_TOPIC0,
 } from "@lib/chains";
+import { formatAddress } from "@lib/utils";
 import { useEffect, useState } from "react";
 
 import { Vote } from "../../lib/api/types/votes";
-import { formatAddress } from "../../utils/formatAddress";
 
 export const useFetchVotes = (proposalId: string) => {
   const [votes, setVotes] = useState<Vote[]>([]);

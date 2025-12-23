@@ -603,7 +603,6 @@ export const getStaticProps = async () => {
     const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
 
     // Log the response to check the structure of the data
-
     if (!response) {
       return {
         props: {

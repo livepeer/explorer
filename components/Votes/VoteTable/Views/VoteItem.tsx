@@ -1,6 +1,6 @@
+import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Card, Heading, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { formatAddress } from "utils/formatAddress";
 
 import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
 
@@ -101,7 +101,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             }}
           >
             <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-              {formatAddress(vote.transactionHash)}
+              {formatTransactionHash(vote.transactionHash)}
               <Box
                 css={{ marginLeft: "$1", width: 15, height: 15 }}
                 as={ArrowTopRightIcon}
@@ -234,7 +234,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             }}
           >
             <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-              {formatAddress(vote.transactionHash)}
+              {formatTransactionHash(vote.transactionHash)}
               <Box
                 css={{ marginLeft: "$1", width: 15, height: 15 }}
                 as={ArrowTopRightIcon}

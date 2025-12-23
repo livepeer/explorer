@@ -4,6 +4,7 @@ import { Box, Flex } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
 import { getAccountVotingHistory } from "cube/query-generator";
+import { formatAddress } from "lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -66,15 +67,6 @@ const Index = () => {
 
     return stylesMap[status] || {}; // Returns styles if status is found, otherwise returns an empty object
   };
-
-  function shortenAddress(address: string) {
-    if (address.length < 10) return address; // Handle short addresses
-
-    const first = address.slice(0, 6); // Get the '0x' + first 4 characters
-    const last = address.slice(-4); // Get last 4 characters
-
-    return `${first}...${last}`; // Return formatted string
-  }
 
   useEffect(() => {
     const fetchingData = async () => {
@@ -284,7 +276,7 @@ const Index = () => {
                     href={`https://explorer.livepeer.org/accounts/${el["LivepeerProposalStatus.voter"]}/delegating`}
                   >
                     <div style={{ marginRight: 8 }}>
-                      {shortenAddress(el["LivepeerProposalStatus.voter"])}
+                      {formatAddress(el["LivepeerProposalStatus.voter"])}
                     </div>
                     <Image
                       src="/img/Vector.png"

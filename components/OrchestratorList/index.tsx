@@ -11,7 +11,7 @@ import {
   ROIInflationChange,
   ROITimeHorizon,
 } from "@lib/roi";
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -291,7 +291,7 @@ const OrchestratorList = ({
                     </Flex>
                   ) : (
                     <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      {formatAddress(row.values.id)}
                     </Box>
                   )}
                   {/* {(row?.original?.daysSinceChangeParams ??

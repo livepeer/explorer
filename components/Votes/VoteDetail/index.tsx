@@ -1,11 +1,10 @@
 "use client";
 
 import { Vote, VOTING_SUPPORT } from "@lib/api/types/votes";
-import { formatLpt } from "@lib/utils";
+import { formatAddress, formatLpt, formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Heading, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import React from "react";
-import { formatAddress } from "utils/formatAddress";
 
 interface VoteDetailItemProps {
   vote: Vote;
@@ -94,7 +93,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
             }}
           >
             <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-              {formatAddress(vote.transactionHash)}
+              {formatTransactionHash(vote.transactionHash)}
               <Box
                 css={{ marginLeft: "$1", width: 15, height: 15 }}
                 as={ArrowTopRightIcon}

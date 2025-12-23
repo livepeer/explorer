@@ -272,14 +272,6 @@ export const isImageUrl = (url: string): boolean => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
 };
 
-/**
- * Shorten an Ethereum address for display.
- * @param address - The address to shorten.
- * @returns The shortened address.
- */
-export const shortenAddress = (address: string) =>
-  address?.replace(address.slice(5, 39), "…") ?? "";
-
 export const lptFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -287,4 +279,26 @@ export const lptFormatter = new Intl.NumberFormat("en-US", {
 
 export const formatLpt = (w: string) => {
   return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
+};
+
+export const formatAddress = (
+  addr: string | null | undefined,
+  startLength = 6,
+  endLength = 4
+): string => {
+  if (!addr) return "";
+  if (addr.endsWith(".xyz")) {
+    return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
+  }
+  if (addr.endsWith(".eth") && addr.length < 21) {
+    return addr;
+  }
+  return addr.length > 21
+    ? `${addr.slice(0, startLength)}…${addr.slice(-endLength)}`
+    : addr;
+};
+
+export const formatTransactionHash = (id: string | null | undefined) => {
+  if (!id) return "";
+  return id.replace(id.slice(6, 62), "…");
 };

@@ -1,6 +1,6 @@
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, fromWei } from "@lib/utils";
+import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -239,11 +239,7 @@ const Index = ({ data }: { data: Props }) => {
                 >
                   <Box as="span" css={{ color: "$neutral11" }}>
                     My Delegate Vote{" "}
-                    {delegate &&
-                      `(${delegate?.id?.replace(
-                        delegate?.id?.slice(5, 39),
-                        "…"
-                      )})`}
+                    {delegate && `(${formatAddress(delegate?.id)})`}
                   </Box>
                   <Box as="span" css={{ fontWeight: 500, color: "white" }}>
                     {data?.delegateVote?.choiceID
@@ -258,8 +254,7 @@ const Index = ({ data }: { data: Props }) => {
                   }}
                 >
                   <Box as="span" css={{ color: "$neutral11" }}>
-                    My Vote (
-                    {accountAddress.replace(accountAddress.slice(5, 39), "…")})
+                    My Vote ({formatAddress(accountAddress)})
                   </Box>
                   <Box
                     as="span"

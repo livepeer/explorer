@@ -21,6 +21,7 @@ import {
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
+import { formatAddress } from "@lib/utils";
 import useSWR from "swr";
 import { Address } from "viem";
 
@@ -39,7 +40,7 @@ export const useEnsData = (address: string | undefined | null): EnsIdentity => {
 
   const fallbackIdentity: EnsIdentity = {
     id: address ?? "",
-    idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
+    idShort: formatAddress(address),
     name: null,
   };
 

@@ -1,6 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Table from "@components/Table";
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { CheckIcon, Cross2Icon, MinusIcon } from "@radix-ui/react-icons";
 import { useEnsData } from "hooks";
@@ -129,7 +129,7 @@ const OrchestratorVotingList = ({
                       </Flex>
                     ) : (
                       <Box css={{ fontWeight: 600 }}>
-                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                        {formatAddress(row.values.id)}
                       </Box>
                     )}
                   </Flex>
