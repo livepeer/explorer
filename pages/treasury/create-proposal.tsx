@@ -11,6 +11,7 @@ import {
   Container,
   Flex,
   Heading,
+  Skeleton,
   styled,
   Text,
   TextArea,
@@ -186,11 +187,30 @@ const CreateProposal = () => {
             Create Proposal
           </Heading>
 
-          {treasuryBalance && (
-            <Text variant="neutral" size="3">
-              Treasury Balance: {formatLPT(treasuryBalance)} LPT
-            </Text>
-          )}
+          <Text
+            variant="neutral"
+            size="3"
+            css={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "$2",
+            }}
+          >
+            Treasury Balance:{" "}
+            {treasuryBalance !== undefined && treasuryBalance !== null ? (
+              <>{formatLPT(treasuryBalance)}</>
+            ) : (
+              <Skeleton
+                css={{
+                  display: "inline-block",
+                  height: 16,
+                  width: 80,
+                  borderRadius: 6,
+                }}
+              />
+            )}{" "}
+            LPT
+          </Text>
         </Flex>
         <Box
           as="form"
@@ -301,9 +321,9 @@ const CreateProposal = () => {
                 },
               }}
             >
-                <Text variant="neutral" size="3" css={{ flexShrink: 0 }}>
+              <Text variant="neutral" size="3" css={{ flexShrink: 0 }}>
                 LPT receiver:
-                </Text>
+              </Text>
               <TextField
                 css={{
                   width: "100%",
