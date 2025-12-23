@@ -51,3 +51,25 @@ export const getOrchestratorsVotingHistory = () => {
     ]
   }`;
 };
+
+export const getAccountVoterSummary = (id: string): Query => {
+  return `{
+    "measures": [
+      "LivepeerVoteProposals.count",
+      "LivepeerVoteProposals.numOfProposals",
+      "LivepeerVoteProposals.numOfVoteCasted"
+    ],
+    "dimensions": [
+      "LivepeerVoteProposals.voter"
+    ],
+    "filters": [
+      {
+        "member": "LivepeerVoteProposals.voter",
+        "operator": "equals",
+        "values": [
+          "${id}"
+        ]
+      }
+    ]
+  }`;
+};
