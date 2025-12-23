@@ -218,9 +218,7 @@ export const getStaticProps = async () => {
     // @ts-expect-error - query is a string
     const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
 
-    // Log the response to check the structure of the data
-
-    if (!response || !response[0] || !response[0].data) {
+    if (!response) {
       return {
         props: {
           initialVoterData: [],
@@ -228,9 +226,7 @@ export const getStaticProps = async () => {
       };
     }
 
-    const data = response[0].data;
-
-    const voterSummaries = getVoterSummaries(data);
+    const voterSummaries = getVoterSummaries(response);
 
     if (!orchestrators.data || !protocol.data) {
       return {
