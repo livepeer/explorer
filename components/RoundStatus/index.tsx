@@ -9,7 +9,7 @@ import {
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
 import { ProtocolQueryResult } from "apollo";
-import { useCurrentRoundData } from "hooks";
+import { useCurrentRoundData, useSupplyChangeData } from "hooks";
 import { useTheme } from "next-themes";
 import numbro from "numbro";
 import { useMemo } from "react";
@@ -77,6 +77,11 @@ const Index = ({
       ) || 0,
     [protocol]
   );
+  const totalSupply = useMemo(
+    () => (protocol?.totalSupply ? Number(protocol.totalSupply) : null),
+    [protocol]
+  );
+  const supplyChangeData = useSupplyChangeData();
 
   return (
     <Box
@@ -173,7 +178,6 @@ const Index = ({
         ) : currentRoundInfo?.initialized ? (
           <Flex
             css={{
-              paddingBottom: "$2",
               alignItems: "center",
               flexDirection: "column",
             }}
@@ -350,6 +354,101 @@ const Index = ({
                     mantissa: 0,
                   })}{" "}
                   LPT
+                </Text>
+              </Flex>
+            </ExplorerTooltip>
+            <Box css={{ marginTop: "$3" }} />
+            <ExplorerTooltip
+              multiline
+              content={<Box>The current total supply of LPT.</Box>}
+            >
+              <Flex
+                css={{
+                  marginTop: "$1",
+                  width: "100%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Flex
+                  css={{
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    css={{
+                      fontSize: "$2",
+                    }}
+                    variant="neutral"
+                  >
+                    Total Supply
+                  </Text>
+                  <Box css={{ marginLeft: "$1" }}>
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
+                  </Box>
+                </Flex>
+
+                <Text
+                  css={{
+                    fontSize: "$2",
+                    color: "white",
+                  }}
+                >
+                  {totalSupply !== null
+                    ? `${numbro(totalSupply).format({
+                        mantissa: 0,
+                        average: true,
+                      })} LPT`
+                    : "--"}
+                </Text>
+              </Flex>
+            </ExplorerTooltip>
+            <ExplorerTooltip
+              multiline
+              content={<Box>Total supply change over the past 365 days.</Box>}
+            >
+              <Flex
+                css={{
+                  marginTop: "$1",
+                  width: "100%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Flex
+                  css={{
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    css={{
+                      fontSize: "$2",
+                    }}
+                    variant="neutral"
+                  >
+                    Supply Change (1Y)
+                  </Text>
+                  <Box css={{ marginLeft: "$1" }}>
+                    <Box
+                      as={QuestionMarkCircledIcon}
+                      css={{ color: "$neutral11" }}
+                    />
+                  </Box>
+                </Flex>
+
+                <Text
+                  css={{
+                    fontSize: "$2",
+                    color: "white",
+                  }}
+                >
+                  {supplyChangeData?.supplyChange !== null
+                    ? numbro(supplyChangeData?.supplyChange ?? 0).format({
+                        output: "percent",
+                        mantissa: 2,
+                      })
+                    : "--"}
                 </Text>
               </Flex>
             </ExplorerTooltip>

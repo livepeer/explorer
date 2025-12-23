@@ -15,6 +15,7 @@ import {
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
 import { Regions } from "@lib/api/types/get-regions";
+import { SupplyChangeData } from "@lib/api/types/get-supply-change";
 import {
   ProposalState,
   ProposalVotingPower,
@@ -64,6 +65,12 @@ export const useChartData = () => {
 
 export const useChangefeedData = () => {
   const { data } = useSWR<GetChangefeed>(`/changefeed`);
+
+  return data ?? null;
+};
+
+export const useSupplyChangeData = () => {
+  const { data } = useSWR<SupplyChangeData>(`/supply-change`);
 
   return data ?? null;
 };
