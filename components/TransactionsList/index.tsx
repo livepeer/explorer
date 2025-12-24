@@ -379,10 +379,13 @@ const TransactionsList = ({
             <Box>
               {`Voted `}
               <Badge
-                variant={+event?.choiceID === 0 ? "primary" : "red"}
+                css={{
+                  backgroundColor:
+                    +event?.choiceID === 0 ? "$tomato9" : "$sky9",
+                }}
                 size="1"
               >
-                {+event?.choiceID === 0 ? '"Yes"' : '"No"'}
+                {+event?.choiceID === 0 ? '"Against"' : '"For"'}
               </Badge>
               {` on a proposal`}
               {renderEmoji("👩‍⚖️")}
