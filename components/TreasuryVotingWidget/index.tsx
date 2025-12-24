@@ -121,7 +121,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -173,7 +173,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -224,7 +224,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -280,7 +280,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Text css={{ color: "$neutral11" }}>
                   Delegate vote ({formatAddress(vote.delegate!.address)})
                 </Text>
-                <Text css={{ fontWeight: 600, color: "$hiContrast" }}>
+                <Text css={{ fontWeight: 500, color: "$hiContrast" }}>
                   {vote.delegate!.hasVoted ? "Voted" : "Not voted"}
                 </Text>
               </Flex>
@@ -297,7 +297,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Text css={{ color: "$neutral11" }}>Status</Text>
               <Text
                 css={{
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: isIneligible ? "$neutral11" : "$hiContrast",
                 }}
               >
@@ -316,7 +316,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Text css={{ color: "$neutral11" }}>Voting power</Text>
               <Text
                 css={{
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: isIneligible ? "$neutral11" : "$hiContrast",
                   fontVariantNumeric: "tabular-nums",
                 }}
