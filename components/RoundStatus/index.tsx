@@ -443,7 +443,7 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {supplyChangeData?.supplyChange !== null
+                  {supplyChangeData?.supplyChange != null
                     ? numbro(supplyChangeData?.supplyChange ?? 0).format({
                         output: "percent",
                         mantissa: 2,
