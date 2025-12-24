@@ -1,12 +1,15 @@
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
-import { Box, Flex } from "@livepeer/design-system";
-import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import { AccountQueryResult } from "apollo";
+import { CUBE_TYPE, getCubeData } from "cube/cube-client";
+import { getAccountVoterSummary } from "cube/query-generator";
 import { useScoreData } from "hooks";
 import { useRegionsData } from "hooks/useSwr";
+import Link from "next/link";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
@@ -24,6 +27,11 @@ interface Props {
   isActive: boolean;
 }
 
+interface GovStats {
+  voted: number;
+  eligible: number;
+}
+
 const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
@@ -32,6 +40,41 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
+
+  const [govStats, setGovStats] = useState<GovStats | null>(null);
+
+  useEffect(() => {
+    const fetchGovStats = async () => {
+      if (!transcoder?.id) return;
+
+      try {
+        const cubeQuery = getAccountVoterSummary(transcoder.id);
+        const response = await getCubeData(cubeQuery, {
+          type: CUBE_TYPE.SERVER,
+        });
+
+        // Some cube responses are wrapped in [0].data, others are direct arrays
+        const data = Array.isArray(response)
+          ? response[0]?.data || response
+          : null;
+
+        if (data && data.length > 0) {
+          const votedCount = Number(
+            data[0]["LivepeerVoteProposals.numOfVoteCasted"] || 0
+          );
+          const eligibleCount = Number(
+            data[0]["LivepeerVoteProposals.numOfProposals"] || 0
+          );
+
+          setGovStats({ voted: votedCount, eligible: eligibleCount });
+        }
+      } catch (error) {
+        console.error("Error fetching governance stats:", error);
+      }
+    };
+
+    fetchGovStats();
+  }, [transcoder?.id]);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -279,6 +322,111 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             }
           />
         )}
+        <A
+          as={Link}
+          href={`/accounts/${transcoder?.id}/history`}
+          passHref
+          className="masonry-grid_item"
+          css={{
+            display: "block",
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+              ".see-history": {
+                textDecoration: "underline",
+                color: "$primary11",
+                transition: "color .3s",
+              },
+            },
+          }}
+        >
+          <Stat
+            label="Governance Participation"
+            variant="interactive"
+            tooltip={
+              <Box>
+                Number of proposals voted on relative to the number of proposals
+                the orchestrator was eligible for while active.
+              </Box>
+            }
+            value={
+              govStats ? (
+                <Flex css={{ alignItems: "baseline", gap: "$1" }}>
+                  <Box css={{ color: "$hiContrast" }}>{govStats.voted}</Box>
+                  <Box
+                    css={{
+                      fontSize: "$3",
+                      color: "$neutral11",
+                      fontWeight: 500,
+                    }}
+                  >
+                    / {govStats.eligible} Proposals
+                  </Box>
+                </Flex>
+              ) : (
+                "N/A"
+              )
+            }
+            meta={
+              <Box css={{ width: "100%", marginTop: "$2" }}>
+                {govStats && (
+                  <Box
+                    css={{
+                      width: "100%",
+                      height: 4,
+                      backgroundColor: "$neutral4",
+                      borderRadius: "$2",
+                      overflow: "hidden",
+                      marginBottom: "$2",
+                    }}
+                  >
+                    <Box
+                      css={{
+                        width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                        height: "100%",
+                        backgroundColor: "$primary11",
+                      }}
+                    />
+                  </Box>
+                )}
+                <Flex
+                  css={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  {govStats && (
+                    <Text
+                      size="2"
+                      css={{ color: "$neutral11", fontWeight: 600 }}
+                    >
+                      {numbro(govStats.voted / govStats.eligible).format({
+                        output: "percent",
+                        mantissa: 0,
+                      })}{" "}
+                      Participation
+                    </Text>
+                  )}
+                  <Text
+                    className="see-history"
+                    size="2"
+                    css={{
+                      color: "$primary11",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "$0.75",
+                    }}
+                  >
+                    See history
+                    <Box as={ArrowTopRightIcon} width={15} height={15} />
+                  </Text>
+                </Flex>
+              </Box>
+            }
+          />
+        </A>
       </Masonry>
     </Box>
   );

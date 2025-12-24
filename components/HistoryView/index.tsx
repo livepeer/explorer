@@ -1,5 +1,6 @@
 import Spinner from "@components/Spinner";
 import dayjs from "@lib/dayjs";
+import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Card as CardBase,
@@ -185,11 +186,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Delegated with{" "}
-                {event.newDelegate.id.replace(
-                  event.newDelegate.id.slice(7, 37),
-                  "…"
-                )}
+                Delegated with {formatAddress(event.newDelegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -208,10 +205,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -271,10 +265,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -312,8 +303,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Redelegated with{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Redelegated with {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -332,10 +322,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -378,8 +365,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Undelegated from{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Undelegated from {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -398,10 +384,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -463,10 +446,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -526,10 +506,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -593,10 +570,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -655,10 +629,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -717,10 +688,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -780,10 +748,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -848,10 +813,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>

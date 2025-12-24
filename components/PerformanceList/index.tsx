@@ -3,7 +3,7 @@ import IdentityAvatar from "@components/IdentityAvatar";
 import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { Region } from "@lib/api/types/get-regions";
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult } from "apollo";
@@ -149,7 +149,7 @@ const PerformanceList = ({
                   </Flex>
                 ) : (
                   <Box css={{ fontWeight: 600 }}>
-                    {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    {formatAddress(row.values.id)}
                   </Box>
                 )}
                 {typeof row.values.scores != "undefined" &&

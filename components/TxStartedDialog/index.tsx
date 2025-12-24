@@ -1,4 +1,4 @@
-import { fromWei, txMessages } from "@lib/utils";
+import { formatAddress, fromWei, txMessages } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -90,7 +90,7 @@ function Table({ tx, account }: { tx: TransactionStatus; account: string }) {
       }}
     >
       <Row>
-        <Box>Your account</Box> {account?.replace(account?.slice(7, 37), "…")}
+        <Box>Your account</Box> {formatAddress(account)}
       </Row>
       <Inputs tx={tx} />
     </Box>
@@ -107,8 +107,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Delegate</Box>{" "}
-            {inputData.to.replace(inputData.to.slice(7, 37), "…")}
+            <Box>Delegate</Box> {formatAddress(inputData.to)}
           </Row>
 
           {Number(inputData.amount) > 0 ? (
@@ -134,8 +133,7 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Delegate</Box>{" "}
-            {inputData.delegate.replace(inputData.delegate.slice(7, 37), "…")}
+            <Box>Delegate</Box> {formatAddress(inputData.delegate)}
           </Row>
         </>
       );

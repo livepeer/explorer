@@ -1,6 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { formatAddress } from "@lib/utils";
 import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
@@ -107,9 +108,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   fontWeight: 700,
                 }}
               >
-                {identity?.name
-                  ? identity.name
-                  : account.replace(account.slice(5, 39), "…")}
+                {identity?.name ? identity.name : formatAddress(account)}
                 <ExplorerTooltip
                   content={`${copied ? "Copied" : "Copy address to clipboard"}`}
                 >

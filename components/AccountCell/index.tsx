@@ -1,4 +1,4 @@
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import { Box, Flex } from "@livepeer/design-system";
 import { useEnsData } from "hooks";
 import { QRCodeCanvas } from "qrcode.react";
@@ -88,7 +88,7 @@ const Index = ({ active, address }) => {
           <Box css={{ fontWeight: 600 }}>
             {identity?.name
               ? textTruncate(identity.name, 12, "…")
-              : address.replace(address.slice(5, 36), "…")}
+              : formatAddress(address)}
           </Box>
         </Flex>
       </Flex>

@@ -9,6 +9,9 @@ import {
   EventsQuery,
   EventsQueryVariables,
   getApollo,
+  GetProposalsByIdsDocument,
+  GetProposalsByIdsQuery,
+  GetProposalsByIdsQueryVariables,
   OrchestratorsDocument,
   OrchestratorsQuery,
   OrchestratorsQueryVariables,
@@ -100,6 +103,20 @@ export async function getEvents(client = getApollo(), first = 100) {
   return {
     fallback: {},
     events,
+  };
+}
+
+export async function getProposalsByIds(ids: string[], client = getApollo()) {
+  const proposals = await client.query<
+    GetProposalsByIdsQuery,
+    GetProposalsByIdsQueryVariables
+  >({
+    query: GetProposalsByIdsDocument,
+    variables: { ids },
+  });
+  return {
+    fallback: {},
+    proposals,
   };
 }
 
