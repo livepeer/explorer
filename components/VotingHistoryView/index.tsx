@@ -1,11 +1,13 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
-import { Box, Flex } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
+import {
+  ArrowTopRightIcon,
+  QuestionMarkCircledIcon,
+} from "@radix-ui/react-icons";
 import { CUBE_TYPE, getCubeData } from "cube/cube-client";
 import { getAccountVotingHistory } from "cube/query-generator";
 import { formatAddress } from "lib/utils";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -216,81 +218,135 @@ const Index = () => {
           <div style={{ fontSize: 27, marginTop: 6 }}>{votingTurnOut}%</div>
         </div>
       </div>
-      <div style={{ marginTop: 20 }}>
+      <Box css={{ marginTop: "$4" }}>
         {votingData &&
           // @ts-expect-error - votingData is an array of objects
           votingData.map((el, index) => {
+            const status = el["LivepeerProposalStatus.status"];
+            const statusStyle = getTextStyleByStatus(status);
             return (
-              <div
+              <Box
                 key={index}
-                style={{
-                  padding: 20,
-                  backgroundColor: getBackgroundColorByStatus(
-                    el["LivepeerProposalStatus.status"]
-                  ),
-                  marginTop: 15,
-                  borderRadius: 8,
+                css={{
+                  padding: "$4",
+                  backgroundColor: getBackgroundColorByStatus(status),
+                  marginTop: "$3",
+                  borderRadius: "$2",
+                  transition: "all 0.2s ease",
+                  "&:hover, &:focus-within": {
+                    transform: "translateY(-2px)",
+                    filter: "brightness(1.1)",
+                  },
                 }}
               >
-                <div
-                  style={{ fontSize: 16, marginBottom: 12, fontWeight: "500" }}
+                <Flex
+                  css={{
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    flexDirection: "column",
+                    "@bp2": { flexDirection: "row" },
+                    gap: "$3",
+                  }}
                 >
-                  {el["LivepeerProposalStatus.nameOfProposal"]}
-                </div>
-                <div
-                  style={{ fontSize: 12, marginBottom: 12, color: "#696d6b" }}
-                >
-                  {getDateTimeAndRound(
-                    el["LivepeerProposalStatus.date"],
-                    el["LivepeerProposalStatus.round"]
-                  )}
-                </div>
-                <div
-                  style={{ fontSize: 12, marginBottom: 12, color: "#696d6b" }}
-                >
-                  Proposed by{" "}
-                  <a
-                    style={{ color: "inherit" }}
-                    href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}
-                  >
-                    livepeer.eth
-                  </a>
-                </div>
-                <div
-                  style={getTextStyleByStatus(
-                    el["LivepeerProposalStatus.status"]
-                  )}
-                >
-                  {el["LivepeerProposalStatus.status"]}
-                </div>
-                <div>
-                  <a
-                    style={{
-                      textDecoration: "none",
-                      fontSize: 12,
-                      color: "#696d6b",
-                      display: "flex",
-                      flexDirection: "row",
-                      marginTop: 12,
+                  <Box css={{ flex: 1 }}>
+                    <Text
+                      css={{
+                        fontSize: "$3",
+                        marginBottom: "$2",
+                        fontWeight: 600,
+                        color: "$white",
+                        display: "block",
+                      }}
+                    >
+                      {el["LivepeerProposalStatus.nameOfProposal"] ||
+                        "Unknown Proposal"}
+                    </Text>
+                    <Flex
+                      css={{
+                        gap: "$3",
+                        alignItems: "center",
+                        marginBottom: "$2",
+                      }}
+                    >
+                      <Text size="1" css={{ color: "$neutral11" }}>
+                        {getDateTimeAndRound(
+                          el["LivepeerProposalStatus.date"],
+                          el["LivepeerProposalStatus.round"]
+                        )}
+                      </Text>
+                      <Text size="1" css={{ color: "$neutral11" }}>
+                        Proposed by{" "}
+                        <Link
+                          href={`https://explorer.livepeer.org/accounts/${el.orchestratorId}/delegating`}
+                          css={{
+                            color: "$primary11",
+                            textDecoration: "none",
+                            "&:hover": { textDecoration: "underline" },
+                            "&:focus-visible": {
+                              outline: "2px solid $primary11",
+                              outlineOffset: "2px",
+                              borderRadius: "2px",
+                            },
+                          }}
+                        >
+                          livepeer.eth
+                        </Link>
+                      </Text>
+                    </Flex>
+                  </Box>
+
+                  <Flex
+                    css={{
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      "@bp2": { alignItems: "flex-end" },
+                      gap: "$2",
+                      minWidth: 120,
                     }}
-                    href={`https://explorer.livepeer.org/accounts/${el["LivepeerProposalStatus.voter"]}/delegating`}
                   >
-                    <div style={{ marginRight: 8 }}>
+                    <Badge
+                      css={{
+                        color: statusStyle.color as string,
+                        backgroundColor: statusStyle.backgroundColor as string,
+                        fontWeight: 600,
+                        padding: "$1 $2",
+                        borderRadius: "$1",
+                        fontSize: "10px",
+                      }}
+                    >
+                      {status.toUpperCase()}
+                    </Badge>
+
+                    <Link
+                      href={`https://explorer.livepeer.org/accounts/${el["LivepeerProposalStatus.voter"]}/delegating`}
+                      css={{
+                        textDecoration: "none",
+                        fontSize: "$1",
+                        color: "$neutral11",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "$1",
+                        "&:hover": { color: "$primary11" },
+                        "&:focus-visible": {
+                          outline: "2px solid $primary11",
+                          outlineOffset: "2px",
+                          borderRadius: "2px",
+                          color: "$primary11",
+                        },
+                      }}
+                    >
                       {formatAddress(el["LivepeerProposalStatus.voter"])}
-                    </div>
-                    <Image
-                      src="/img/Vector.png"
-                      alt="Next.js logo"
-                      width={14}
-                      height={11}
-                      priority
-                    />
-                  </a>
-                </div>
-              </div>
+                      <Box
+                        as={ArrowTopRightIcon}
+                        css={{ width: 12, height: 12 }}
+                      />
+                    </Link>
+                  </Flex>
+                </Flex>
+              </Box>
             );
           })}
-      </div>
+      </Box>
     </div>
   );
 };

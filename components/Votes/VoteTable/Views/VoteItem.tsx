@@ -18,7 +18,7 @@ import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
 
 interface VoteViewProps {
   vote: Vote;
-  onSelect: (voter: string) => void;
+  onSelect: (voter: { address: string; ensName?: string }) => void;
   formatWeight: (weight: string) => string;
   isMobile?: boolean;
 }
@@ -46,6 +46,9 @@ export function VoteView({
 
 function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
   const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
+  const hasReason =
+    vote.reason && vote.reason.toLowerCase() !== "no reason provided";
+
   return (
     <Card
       css={{
@@ -54,53 +57,71 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
         position: "relative",
         zIndex: 2,
         backgroundColor: "$neutral3",
+        borderLeft: `4px solid ${support.style.color}`,
+        transition: "all 0.2s ease",
+        "&:hover, &:focus-within": {
+          backgroundColor: "$neutral4",
+        },
       }}
     >
-      <Heading
-        as="h4"
-        css={{ fontSize: "$2", marginBottom: "$2", color: "$primary11" }}
-      >
-        <Link
-          href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
-          target="_blank"
-          css={{
-            color: "$primary11",
-            textDecoration: "none",
-            "&:hover": { textDecoration: "underline" },
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {vote.ensName}
-        </Link>
-      </Heading>
-      <Text css={{ display: "flex", alignItems: "left", marginBottom: "$1" }}>
-        <Text
-          as="span"
+      <Flex css={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+        <Box>
+          <Heading
+            as="h4"
+            css={{ fontSize: "$2", marginBottom: "$1", color: "$primary11" }}
+          >
+            <Link
+              href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
+              target="_blank"
+              css={{
+                color: "$primary11",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "underline" },
+                "&:focus-visible": {
+                  outline: "2px solid $primary11",
+                  outlineOffset: "2px",
+                  borderRadius: "2px",
+                },
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {vote.ensName}
+            </Link>
+          </Heading>
+          <Text
+            size="1"
+            css={{ color: "$neutral11", marginBottom: "$3", display: "block" }}
+          >
+            {formatWeight(vote.weight)}
+          </Text>
+        </Box>
+        <Badge
           size="1"
-          css={{ fontWeight: 600, marginRight: "$2", color: "$neutral11" }}
+          css={{
+            color: support.style.color,
+            fontWeight: support.style.fontWeight,
+          }}
         >
-          Support:
-        </Text>
-        <Text as="span" size="1" css={support.style}>
           {support.text}
-        </Text>
-      </Text>
-      <Text css={{ marginBottom: "$1", color: "$hiContrast" }}>
-        <Text as="span" size="1" css={{ fontWeight: 600, color: "$neutral11" }}>
-          Weight:
-        </Text>{" "}
-        <Text as="span" size="1" css={{ color: "$hiContrast" }}>
-          {formatWeight(vote.weight)}
-        </Text>
-      </Text>
-      <Text css={{ marginBottom: "$3", color: "$neutral11" }}>
-        <Text as="span" size="1" css={{ fontWeight: 600 }}>
-          Reason:
-        </Text>{" "}
-        <Text as="span" size="1">
-          {vote.reason}
-        </Text>
-      </Text>
+        </Badge>
+      </Flex>
+
+      {hasReason && (
+        <Box
+          css={{
+            marginBottom: "$3",
+            padding: "$2",
+            backgroundColor: "$neutral2",
+            borderRadius: "$1",
+            fontSize: "$1",
+          }}
+        >
+          <Text css={{ color: "$neutral12", fontStyle: "italic" }}>
+            &ldquo;{vote.reason}&rdquo;
+          </Text>
+        </Box>
+      )}
+
       <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
         <Box>
           {vote.transactionHash ? (
@@ -112,35 +133,57 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 display: "inline-block",
                 transition: "transform 0.2s ease",
                 "&:hover": { transform: "scale(1.1)" },
+                "&:focus-visible": {
+                  outline: "2px solid $primary11",
+                  outlineOffset: "2px",
+                  borderRadius: "2px",
+                },
               }}
             >
               <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
                 {formatTransactionHash(vote.transactionHash)}
                 <Box
-                  css={{ marginLeft: "$1", width: 15, height: 15 }}
+                  css={{ marginLeft: "$1", width: 14, height: 14 }}
                   as={ArrowTopRightIcon}
                 />
               </Badge>
             </Link>
           ) : (
-            <Text css={{ color: "$neutral9" }}>N/A</Text>
+            <Text css={{ color: "$neutral9" }} size="1">
+              N/A
+            </Text>
           )}
         </Box>
-        <Flex
+        <Box
+          as="button"
           css={{
+            display: "flex",
             alignItems: "center",
             gap: "$1",
-            color: "$neutral8",
+            color: "$neutral10",
             cursor: "pointer",
-            "&:hover": { color: "$primary12" },
+            border: "none",
+            backgroundColor: "transparent",
+            "&:hover": { color: "$primary11" },
+            "&:focus-visible": {
+              outline: "2px solid $primary11",
+              outlineOffset: "2px",
+              borderRadius: "4px",
+              color: "$primary11",
+            },
+            padding: "$1",
+            transition: "all 0.2s",
           }}
-          onClick={() => onSelect(vote.voter)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect({ address: vote.voter, ensName: vote.ensName });
+          }}
         >
           <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
             History
           </Text>
-          <Box as={CounterClockwiseClockIcon} css={{ width: 16, height: 16 }} />
-        </Flex>
+          <Box as={CounterClockwiseClockIcon} css={{ width: 14, height: 14 }} />
+        </Box>
       </Flex>
     </Card>
   );
@@ -174,6 +217,11 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             color: "$primary11",
             textDecoration: "none",
             "&:hover": { textDecoration: "underline" },
+            "&:focus-visible": {
+              outline: "2px solid $primary11",
+              outlineOffset: "2px",
+              borderRadius: "2px",
+            },
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -264,6 +312,11 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               display: "inline-block",
               transition: "transform 0.2s ease",
               "&:hover": { transform: "scale(1.1)" },
+              "&:focus-visible": {
+                outline: "2px solid $primary11",
+                outlineOffset: "2px",
+                borderRadius: "2px",
+              },
             }}
           >
             <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
@@ -291,7 +344,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             as="button"
             onClick={(e) => {
               e.stopPropagation();
-              onSelect(vote.voter);
+              onSelect({ address: vote.voter, ensName: vote.ensName });
             }}
             css={{
               display: "inline-flex",
@@ -309,7 +362,13 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 backgroundColor: "$primary3",
                 transform: "rotate(-15deg)",
               },
-              transition: "color .2s, background-color .2s, transform .2s",
+              "&:focus-visible": {
+                outline: "2px solid $primary11",
+                outlineOffset: "2px",
+                color: "$primary11",
+                backgroundColor: "$primary3",
+              },
+              transition: "all 0.2s",
             }}
           >
             <Box
