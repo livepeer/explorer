@@ -198,18 +198,17 @@ const CreateProposal = () => {
           >
             Treasury Balance:{" "}
             {treasuryBalance !== undefined && treasuryBalance !== null ? (
-              <>{formatLPT(treasuryBalance)}</>
+              <>{formatLPT(treasuryBalance)} LPT</>
             ) : (
               <Skeleton
                 css={{
                   display: "inline-block",
                   height: 16,
-                  width: 80,
+                  width: 110,
                   borderRadius: 6,
                 }}
               />
-            )}{" "}
-            LPT
+            )}
           </Text>
         </Flex>
         <Box
