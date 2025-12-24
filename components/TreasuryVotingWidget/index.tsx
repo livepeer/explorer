@@ -111,7 +111,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     css={{
                       height: "100%",
                       borderRadius: 3,
-                      backgroundColor: "$neutral9",
+                      backgroundColor: "$tomato9",
                       width: `${proposal.votes.percent.against * 100}%`,
                     }}
                   />
@@ -162,7 +162,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     css={{
                       height: "100%",
                       borderRadius: 3,
-                      backgroundColor: "$green9",
+                      backgroundColor: "$sky9",
                       width: `${proposal.votes.percent.for * 100}%`,
                     }}
                   />
@@ -233,13 +233,26 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
           </Box>
 
           {/* Summary line */}
-          <Text css={{ fontSize: "$2", color: "$neutral11" }}>
-            {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
-            {proposal.state !== "Pending" && proposal.state !== "Active"
-              ? "Final Results"
-              : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
-                " left"}
-          </Text>
+          <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
+            <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+              {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
+              {proposal.state !== "Pending" && proposal.state !== "Active"
+                ? "Final Results"
+                : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
+                  " left"}
+            </Text>
+            <Link
+              href="#votes-section"
+              css={{
+                fontSize: "$1",
+                color: "$primary11",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              View votes
+            </Link>
+          </Flex>
         </Box>
 
         {/* ========== YOUR VOTE SECTION ========== */}
@@ -321,20 +334,28 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 }}
               >
                 <VoteButton
-                  variant="red"
                   size="4"
                   choiceId={0}
                   proposalId={proposal?.id}
                   reason={reason}
+                  css={{
+                    backgroundColor: "$tomato9",
+                    color: "$white",
+                    "&:hover": { backgroundColor: "$tomato10" },
+                  }}
                 >
                   Against
                 </VoteButton>
                 <VoteButton
-                  variant="primary"
                   choiceId={1}
                   size="4"
                   proposalId={proposal?.id}
                   reason={reason}
+                  css={{
+                    backgroundColor: "$sky9",
+                    color: "$white",
+                    "&:hover": { backgroundColor: "$sky10" },
+                  }}
                 >
                   For
                 </VoteButton>

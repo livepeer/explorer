@@ -1,10 +1,7 @@
-"use client";
-
 import Spinner from "@components/Spinner";
-import { Vote } from "@lib/api/types/votes";
 import { lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
 import { useFetchVotes } from "../../../hooks/TreasuryVotes/useFetchVotes";
@@ -16,27 +13,58 @@ interface VoteTableProps {
   proposalId: string;
 }
 
-const countVotes = (votes: Vote[]) => {
-  return {
-    yes: votes.filter((v) => v.choiceID === "1").length || 0,
-    no: votes.filter((v) => v.choiceID === "0").length || 0,
-    abstain: votes.filter((v) => v.choiceID === "2").length || 0,
-  };
-};
-
 const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
   const { votes, loading, error } = useFetchVotes(proposalId);
   const { width } = useWindowSize();
   const isDesktop = width >= 768;
 
   const [selectedVoter, setSelectedVoter] = useState<string | null>(null);
-  const counts = countVotes(votes);
-  const totalWeight = votes.reduce((sum, v) => sum + parseFloat(v.weight), 0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
-  const formatWeight = (w: string) =>
-    `${lptFormatter.format(parseFloat(w) / 1e18)} LPT (${
-      totalWeight > 0 ? ((parseFloat(w) / totalWeight) * 100).toFixed(2) : "0"
-    }%)`;
+  const totalWeight = useMemo(
+    () => votes.reduce((sum, v) => sum + parseFloat(v.weight), 0),
+    [votes]
+  );
+
+  const formatWeight = useMemo(
+    () => (w: string) =>
+      `${lptFormatter.format(parseFloat(w) / 1e18)} LPT (${
+        totalWeight > 0 ? ((parseFloat(w) / totalWeight) * 100).toFixed(2) : "0"
+      }%)`,
+    [totalWeight]
+  );
+
+  const paginatedVotesForMobile = useMemo(() => {
+    const sorted = [...votes].sort(
+      (a, b) => parseFloat(b.weight) - parseFloat(a.weight)
+    );
+    const startIndex = (currentPage - 1) * pageSize;
+    return sorted.slice(startIndex, startIndex + pageSize);
+  }, [votes, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(votes.length / pageSize);
+
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7242/ingest/8cfdffd9-8818-4982-b018-96c8efb80746", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "VoteTable/index.tsx:50",
+        message: "Passing props to MobileVoteCards",
+        data: {
+          paginatedVotesCount: paginatedVotesForMobile.length,
+          currentPage,
+          totalPages,
+        },
+        timestamp: Date.now(),
+        sessionId: "debug-mobile-table",
+        hypothesisId: "B",
+      }),
+    }).catch(() => {});
+  }, [paginatedVotesForMobile.length, currentPage, totalPages]);
+  // #endregion
 
   if (loading) {
     return (
@@ -65,16 +93,25 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
       </Text>
     );
 
-  const VoteListView = isDesktop ? DesktopVoteTable : MobileVoteCards;
-
   return (
     <>
-      <VoteListView
-        votes={votes}
-        counts={counts}
-        formatWeight={formatWeight}
-        onSelect={setSelectedVoter}
-      />
+      {isDesktop ? (
+        <DesktopVoteTable
+          votes={votes}
+          formatWeight={formatWeight}
+          onSelect={setSelectedVoter}
+          pageSize={pageSize}
+        />
+      ) : (
+        <MobileVoteCards
+          votes={paginatedVotesForMobile}
+          formatWeight={formatWeight}
+          onSelect={setSelectedVoter}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
       {selectedVoter && (
         <VoterPopover
           voter={selectedVoter}

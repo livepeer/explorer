@@ -84,7 +84,6 @@ const Proposal = () => {
   const currentRound = useCurrentRoundData();
 
   const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
-  const [votesOpen, setVotesOpen] = useState(false);
 
   useEffect(() => {
     setIsDesktop(width >= 768);
@@ -184,7 +183,9 @@ const Proposal = () => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Treasury</title>
+        <title>
+          {proposal.attributes.title} | Proposal | Livepeer Explorer
+        </title>
       </Head>
       <Container
         css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
@@ -309,7 +310,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$sky11" }}>
                             For ({formatPercent(proposal.votes.percent.for)})
                           </Box>
                         </Flex>
@@ -326,7 +327,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$tomato11" }}>
                             Against (
                             {formatPercent(proposal.votes.percent.against)})
                           </Box>
@@ -344,7 +345,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$neutral11" }}>
                             Abstain (
                             {formatPercent(proposal.votes.percent.abstain)})
                           </Box>
@@ -645,59 +646,24 @@ const Proposal = () => {
               </Card>
 
               <Card
+                id="votes-section"
                 css={{
                   padding: "$4",
                   border: "1px solid $neutral4",
-                  cursor: "pointer",
                 }}
-                onClick={() => setVotesOpen(!votesOpen)}
               >
-                <Flex
+                <Heading
+                  as="h3"
                   css={{
-                    marginTop: "$1",
-                    alignItems: "center",
+                    fontWeight: 700,
+                    fontSize: "$5",
+                    color: "$white",
+                    marginBottom: "$2",
                   }}
                 >
-                  <Heading
-                    as="h3"
-                    css={{
-                      fontWeight: 700,
-                      fontSize: "$5",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Box
-                      css={{ display: "flex", alignItems: "center" }}
-                      as="span"
-                    >
-                      <Text
-                        css={{
-                          color: "$white",
-                          fontSize: "$5",
-                        }}
-                      >
-                        {votesLoading
-                          ? "Loading votes…"
-                          : `View Votes (${votes.length})`}
-                      </Text>
-                    </Box>
-
-                    <Text
-                      as="span"
-                      css={{
-                        color: votesOpen ? "$red9" : "$green9",
-                        fontSize: "$3",
-                        marginLeft: "$2",
-                      }}
-                    >
-                      {votesOpen ? "–" : "+"}
-                    </Text>
-                  </Heading>
-                </Flex>
-                {votesOpen && (
-                  <Box css={{ padding: "$3" }}>{votesContent()}</Box>
-                )}
+                  {votesLoading ? "Loading votes…" : `Votes (${votes.length})`}
+                </Heading>
+                {votesContent()}
               </Card>
             </Box>
           </Flex>

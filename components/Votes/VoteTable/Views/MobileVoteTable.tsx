@@ -1,72 +1,87 @@
-import { Box, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Text } from "@livepeer/design-system";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import React from "react";
 
 import { VoteTableProps } from "./DesktopVoteTable";
 import { VoteView } from "./VoteItem";
 
-export const MobileVoteCards: React.FC<VoteTableProps> = ({
-  votes,
-  counts,
-  formatWeight,
-  onSelect,
-}) => (
-  <Box css={{ display: "block", "@bp2": { display: "none" } }}>
-    <Text
-      css={{
-        textAlign: "center",
-        marginTop: "$2",
-        fontSize: "$4",
-        fontWeight: 500,
-        color: "$white",
-        marginBottom: "$2",
-      }}
-    >
-      Vote Results
-    </Text>
-    <Flex
-      css={{
-        justifyContent: "center",
-        fontWeight: 700,
-        fontSize: "$3",
-        color: "$white",
-        marginTop: "$2",
-        marginBottom: "$2",
-      }}
-    >
-      <Text css={{ marginRight: "$1", color: "$green9" }}>
-        Yes ({counts.yes})
-      </Text>
-      <Text>|</Text>
-      <Text css={{ marginLeft: "$1", marginRight: "$1", color: "$red9" }}>
-        No ({counts.no})
-      </Text>
-      <Text>|</Text>
-      <Text css={{ marginLeft: "$1", color: "$yellow9" }}>
-        Abstain ({counts.abstain})
-      </Text>
-    </Flex>
+export const MobileVoteCards: React.FC<VoteTableProps> = (props) => {
+  const {
+    votes,
+    formatWeight,
+    onSelect,
+    totalPages = 0,
+    currentPage = 1,
+    onPageChange,
+  } = props;
 
-    <Text
-      css={{
-        textAlign: "center",
-        fontSize: "$2",
-        color: "$neutral11",
-        marginBottom: "$2",
-      }}
-    >
-      Click on a vote to view a voters proposal voting history.
-    </Text>
+  return (
+    <Box css={{ display: "block", "@bp2": { display: "none" } }}>
+      <Text
+        css={{
+          textAlign: "center",
+          fontSize: "$2",
+          color: "$neutral11",
+          marginTop: "$2",
+          marginBottom: "$3",
+        }}
+      >
+        Click on a vote to view a voter&apos;s proposal voting history.
+      </Text>
 
-    {votes.map((vote) => {
-      return (
-        <VoteView
-          key={vote.voter}
-          vote={vote}
-          onSelect={onSelect}
-          formatWeight={formatWeight}
-          isMobile={true}
-        />
-      );
-    })}
-  </Box>
-);
+      {votes.map((vote) => {
+        return (
+          <VoteView
+            key={vote.transactionHash || vote.voter}
+            vote={vote}
+            onSelect={onSelect}
+            formatWeight={formatWeight}
+            isMobile={true}
+          />
+        );
+      })}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Flex
+          css={{
+            marginTop: "$4",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "$4",
+          }}
+        >
+          <Button
+            size="1"
+            disabled={currentPage === 1}
+            onClick={() => onPageChange?.(currentPage - 1)}
+            css={{
+              display: "flex",
+              alignItems: "center",
+              gap: "$1",
+              color: currentPage === 1 ? "$neutral8" : "$white",
+            }}
+          >
+            <ArrowLeftIcon /> Previous
+          </Button>
+          <Text css={{ fontSize: "$1", color: "$neutral11" }}>
+            Page {currentPage} of {totalPages}
+          </Text>
+          <Button
+            size="1"
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange?.(currentPage + 1)}
+            css={{
+              display: "flex",
+              alignItems: "center",
+              gap: "$1",
+              color: currentPage === totalPages ? "$neutral8" : "$white",
+            }}
+          >
+            Next <ArrowRightIcon />
+          </Button>
+        </Flex>
+      )}
+    </Box>
+  );
+};
