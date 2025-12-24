@@ -31,11 +31,11 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
     css={{
       fontSize: "$1",
-      fontWeight: 600,
+      fontWeight: 700,
       color: "$neutral10",
       textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      marginBottom: "$2",
+      letterSpacing: "0.08em",
+      marginBottom: "$3",
     }}
   >
     {children}
@@ -100,8 +100,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               >
                 <Box
                   css={{
-                    height: 6,
-                    borderRadius: 3,
+                    height: 8,
+                    borderRadius: 4,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -110,7 +110,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 3,
+                      borderRadius: 4,
                       backgroundColor: "$tomato9",
                       width: `${proposal.votes.percent.against * 100}%`,
                     }}
@@ -121,6 +121,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
+                  fontWeight: 600,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -151,8 +152,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               >
                 <Box
                   css={{
-                    height: 6,
-                    borderRadius: 3,
+                    height: 8,
+                    borderRadius: 4,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -161,7 +162,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 3,
+                      borderRadius: 4,
                       backgroundColor: "$sky9",
                       width: `${proposal.votes.percent.for * 100}%`,
                     }}
@@ -172,6 +173,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
+                  fontWeight: 600,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -201,8 +203,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               >
                 <Box
                   css={{
-                    height: 6,
-                    borderRadius: 3,
+                    height: 8,
+                    borderRadius: 4,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -211,7 +213,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 3,
+                      borderRadius: 4,
                       backgroundColor: "$neutral8",
                       width: `${proposal.votes.percent.abstain * 100}%`,
                     }}
@@ -222,6 +224,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
+                  fontWeight: 600,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
@@ -270,14 +273,14 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Flex
                 css={{
                   fontSize: "$2",
-                  marginBottom: "$2",
+                  marginBottom: "$3",
                   justifyContent: "space-between",
                 }}
               >
                 <Text css={{ color: "$neutral11" }}>
                   Delegate vote ({formatAddress(vote.delegate!.address)})
                 </Text>
-                <Text css={{ fontWeight: 500, color: "$hiContrast" }}>
+                <Text css={{ fontWeight: 600, color: "$hiContrast" }}>
                   {vote.delegate!.hasVoted ? "Voted" : "Not voted"}
                 </Text>
               </Flex>
@@ -287,14 +290,14 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
             <Flex
               css={{
                 fontSize: "$2",
-                marginBottom: "$2",
+                marginBottom: "$3",
                 justifyContent: "space-between",
               }}
             >
               <Text css={{ color: "$neutral11" }}>Status</Text>
               <Text
                 css={{
-                  fontWeight: 500,
+                  fontWeight: 600,
                   color: isIneligible ? "$neutral11" : "$hiContrast",
                 }}
               >
@@ -307,12 +310,13 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               css={{
                 fontSize: "$2",
                 justifyContent: "space-between",
+                marginBottom: "$4",
               }}
             >
               <Text css={{ color: "$neutral11" }}>Voting power</Text>
               <Text
                 css={{
-                  fontWeight: 500,
+                  fontWeight: 600,
                   color: isIneligible ? "$neutral11" : "$hiContrast",
                   fontVariantNumeric: "tabular-nums",
                 }}
@@ -329,7 +333,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   marginTop: "$4",
                   display: "grid",
-                  gap: "$2",
+                  gap: "$3",
                   gridTemplateColumns: "1fr 1fr",
                 }}
               >
@@ -339,9 +343,14 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   proposalId={proposal?.id}
                   reason={reason}
                   css={{
-                    backgroundColor: "$tomato9",
-                    color: "$white",
-                    "&:hover": { backgroundColor: "$tomato10" },
+                    backgroundColor: "$tomato3",
+                    color: "$tomato11",
+                    fontWeight: 600,
+                    border: "1px solid $tomato4",
+                    "&:hover": {
+                      backgroundColor: "$tomato4",
+                      borderColor: "$tomato5",
+                    },
                   }}
                 >
                   Against
@@ -352,20 +361,34 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   proposalId={proposal?.id}
                   reason={reason}
                   css={{
-                    backgroundColor: "$sky9",
-                    color: "$white",
-                    "&:hover": { backgroundColor: "$sky10" },
+                    backgroundColor: "$sky3",
+                    color: "$sky11",
+                    fontWeight: 600,
+                    border: "1px solid $sky4",
+                    "&:hover": {
+                      backgroundColor: "$sky4",
+                      borderColor: "$sky5",
+                    },
                   }}
                 >
                   For
                 </VoteButton>
                 <VoteButton
-                  variant="gray"
                   size="4"
                   choiceId={2}
                   proposalId={proposal?.id}
                   reason={reason}
-                  css={{ gridColumn: "span 2" }}
+                  css={{
+                    gridColumn: "span 2",
+                    backgroundColor: "$neutral3",
+                    color: "$neutral11",
+                    fontWeight: 600,
+                    border: "1px solid $neutral4",
+                    "&:hover": {
+                      backgroundColor: "$neutral4",
+                      borderColor: "$neutral5",
+                    },
+                  }}
                 >
                   Abstain
                 </VoteButton>
