@@ -59,10 +59,13 @@ export function useInfuraVoterVotes(voter: string) {
 
   const { data, isLoading: proposalsLoading } = useSWR<
     GetProposalsByIdsQueryResult["data"]
-  >(`/api/ssr/sorted-orchestrators`, async () => {
-    const { proposals } = await getProposalsByIds(proposalIds);
-    return proposals.data as GetProposalsByIdsQueryResult["data"];
-  });
+  >(
+    proposalIds.length > 0 ? [`/api/treasury/proposals`, proposalIds] : null,
+    async () => {
+      const { proposals } = await getProposalsByIds(proposalIds);
+      return proposals.data as GetProposalsByIdsQueryResult["data"];
+    }
+  );
 
   const votes: Vote[] = useMemo(() => {
     if (logsLoading || proposalsLoading) return [];
