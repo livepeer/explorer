@@ -1,7 +1,7 @@
 import Spinner from "@components/Spinner";
 import { lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
 import { useFetchVotes } from "../../../hooks/TreasuryVotes/useFetchVotes";
@@ -44,27 +44,6 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
   }, [votes, currentPage, pageSize]);
 
   const totalPages = Math.ceil(votes.length / pageSize);
-
-  // #region agent log
-  useEffect(() => {
-    fetch("http://127.0.0.1:7242/ingest/8cfdffd9-8818-4982-b018-96c8efb80746", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "VoteTable/index.tsx:50",
-        message: "Passing props to MobileVoteCards",
-        data: {
-          paginatedVotesCount: paginatedVotesForMobile.length,
-          currentPage,
-          totalPages,
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-mobile-table",
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
-  }, [paginatedVotesForMobile.length, currentPage, totalPages]);
-  // #endregion
 
   if (loading) {
     return (
