@@ -18,7 +18,10 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
   const { width } = useWindowSize();
   const isDesktop = width >= 768;
 
-  const [selectedVoter, setSelectedVoter] = useState<string | null>(null);
+  const [selectedVoter, setSelectedVoter] = useState<{
+    address: string;
+    ensName?: string;
+  } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -93,7 +96,8 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
       )}
       {selectedVoter && (
         <VoterPopover
-          voter={selectedVoter}
+          voter={selectedVoter.address}
+          ensName={selectedVoter.ensName}
           onClose={() => setSelectedVoter(null)}
         />
       )}

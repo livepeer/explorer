@@ -13,7 +13,7 @@ import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
 export interface VoteTableProps {
   votes: Vote[];
   formatWeight: (weight: string) => string;
-  onSelect: (voter: string) => void;
+  onSelect: (voter: { address: string; ensName?: string }) => void;
   pageSize?: number;
   totalPages?: number;
   currentPage?: number;
@@ -170,7 +170,10 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 as="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onSelect(row.original.voter);
+                  onSelect({
+                    address: row.original.voter,
+                    ensName: row.original.ensName,
+                  });
                 }}
                 css={{
                   display: "inline-flex",
