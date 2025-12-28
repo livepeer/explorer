@@ -29,10 +29,7 @@ const BroadcastingView = ({
   );
   const statusText = useMemo(() => {
     const active = Number(gateway?.ninetyDayVolumeETH ?? 0) > 0;
-    if (active && gateway?.lastActiveDay) {
-      return `Active ${dayjs.unix(gateway.lastActiveDay).fromNow(true)}`;
-    }
-    return "Inactive";
+    return active ? "Active" : "Inactive";
   }, [gateway]);
   const statItems = useMemo(
     () => [
@@ -44,8 +41,7 @@ const BroadcastingView = ({
       {
         label: "Status",
         value: statusText,
-        tooltip:
-          "Gateways are marked active if they have distributed fees in the past 90 days.",
+        tooltip: "Active if this gateway distributed fees in the last 90 days.",
       },
       {
         label: "90d fees distributed",

@@ -31,6 +31,19 @@ const GatewaysPage = ({ gateways }: PageProps) => {
               Gateways
             </Heading>
           </Flex>
+          <Box
+            css={{
+              color: "$neutral11",
+              fontSize: "13px",
+              fontWeight: 400,
+              opacity: 0.8,
+              maxWidth: "70ch",
+              marginBottom: "$4",
+            }}
+          >
+            Showing gateways with fees in the last 90 days or activated within
+            the last 12 months.
+          </Box>
           <Box css={{ marginBottom: "$5" }}>
             <GatewayList data={gateways?.gateways} pageSize={20} />
           </Box>

@@ -68,8 +68,7 @@ const GatewayList = ({
             multiline
             content={
               <Box>
-                The account which is actively routing jobs to orchestrators and
-                paying fees.
+                The account routing jobs to orchestrators and paying fees.
               </Box>
             }
           >
@@ -78,7 +77,6 @@ const GatewayList = ({
         ),
         id: "gateway",
         accessor: "id",
-        disableSortBy: true,
         Cell: ({ row, value }) => {
           const address = value as string;
           const identity = useEnsData(address);
