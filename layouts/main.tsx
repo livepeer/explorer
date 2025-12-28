@@ -126,6 +126,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
+  const isOrchestratorsNavActive =
+    (!accountAddress || !asPath.includes(accountAddress)) &&
+    (asPath.includes("/orchestrators") ||
+      asPath.includes("/orchestrating") ||
+      asPath.includes("/delegating"));
+  const isGatewaysNavActive =
+    (!accountAddress || !asPath.includes(accountAddress)) &&
+    (asPath.includes("/gateways") || asPath.includes("/broadcasting"));
 
   const totalActivePolls = useMemo(
     () =>
@@ -455,13 +463,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               size="3"
                               css={{
                                 marginLeft: "$2",
-                                backgroundColor:
-                                  (!accountAddress ||
-                                    !asPath.includes(accountAddress)) &&
-                                  (asPath.includes("/accounts") ||
-                                    asPath.includes("/orchestrators"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
+                                backgroundColor: isOrchestratorsNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
                                 color: "white",
                                 "&:hover": {
                                   backgroundColor: "hsla(0,100%,100%,.1)",
@@ -482,13 +486,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               size="3"
                               css={{
                                 marginLeft: "$2",
-                                backgroundColor:
-                                  (!accountAddress ||
-                                    !asPath.includes(accountAddress)) &&
-                                  (asPath.includes("/gateways") ||
-                                    asPath.includes("/broadcasting"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
+                                backgroundColor: isGatewaysNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
                                 color: "white",
                                 "&:hover": {
                                   backgroundColor: "hsla(0,100%,100%,.1)",
