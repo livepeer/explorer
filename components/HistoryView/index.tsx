@@ -74,11 +74,7 @@ const Index = () => {
             ? ("out" as const)
             : ("in" as const),
       }));
-  }, [
-    data?.winningTicketRedeemedEvents,
-    account,
-    lastEventTimestamp,
-  ]);
+  }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
   // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108

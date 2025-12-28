@@ -540,6 +540,7 @@ export const getStaticProps = async () => {
   const errorProps: PageProps = {
     hadError: true,
     orchestrators: null,
+    gateways: null,
     events: null,
     protocol: null,
     fallback: {},
