@@ -468,18 +468,18 @@ function getTabs(
       isActive: view === "orchestrating",
     });
   }
-  if (isMyAccount || hasDelegator) {
-    tabs.push({
-      name: "Delegating",
-      href: `/accounts/${account}/delegating`,
-      isActive: view === "delegating",
-    });
-  }
   if (hasGateway) {
     tabs.push({
       name: "Broadcasting",
       href: `/accounts/${account}/broadcasting`,
       isActive: view === "broadcasting",
+    });
+  }
+  if (isMyAccount || hasDelegator) {
+    tabs.push({
+      name: "Delegating",
+      href: `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
     });
   }
   tabs.push({
