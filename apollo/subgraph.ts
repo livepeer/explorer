@@ -1,3 +1,9 @@
+/**
+ * @generated
+ * This file was automatically generated and should not be edited.
+ * To add new queries, mutations, or subscriptions, create or update files in the queries folder.
+ */
+
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
