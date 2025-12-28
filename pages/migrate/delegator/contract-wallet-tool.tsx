@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import useForm from "react-hook-form";
 
 const ReadOnlyCard = styled(Box, {
@@ -29,7 +29,10 @@ const ReadOnlyCard = styled(Box, {
 const ContractWalletTool = () => {
   const { register } = useForm();
 
-  const [params] = useState<any>(null);
+  const [params] = useState<{
+    migrateDelegatorParams: { [key: string]: ReactNode };
+    migrateUnbondingLockParams: { [key: string]: ReactNode };
+  } | null>(null);
   const [message] = useState(null);
   const [loading] = useState(false);
 

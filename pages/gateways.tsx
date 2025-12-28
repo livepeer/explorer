@@ -1,8 +1,8 @@
 import GatewayList from "@components/GatewayList";
 import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
 import { getGateways } from "@lib/api/ssr";
+import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { GatewaysQueryResult, getApollo } from "apollo";
-import { Box, Container, Flex, Heading, Text } from "@livepeer/design-system";
 import Head from "next/head";
 
 type PageProps = {

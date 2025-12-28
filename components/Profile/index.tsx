@@ -1,4 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
 import {
@@ -11,7 +12,6 @@ import {
 import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import ShowMoreText from "react-show-more-text";
 
 import EditProfile from "../EditProfile";
 
@@ -228,26 +228,14 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
 
       {identity?.description && (
         <Text css={{ marginTop: "$4", marginBottom: "$4" }}>
-          <ShowMoreText
-            lines={3}
-            more={
-              <Box as="span" css={{ color: "$primary11" }}>
-                Show more
-              </Box>
-            }
-            less={
-              <Box as="span" css={{ color: "$primary11" }}>
-                Show Less
-              </Box>
-            }
-          >
+          <ShowMoreRichText lines={3}>
             <Box
               css={{ a: { color: "$primary11" } }}
               dangerouslySetInnerHTML={{
                 __html: identity.description,
               }}
             />
-          </ShowMoreText>
+          </ShowMoreRichText>
         </Text>
       )}
     </Box>

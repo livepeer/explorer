@@ -1,14 +1,16 @@
 import "react-circular-progressbar/dist/styles.css";
 
+import ErrorComponent from "@components/Error";
+import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
-import OrchestratorList from "@components/OrchestratorList";
 import GatewayList from "@components/GatewayList";
+import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -26,10 +28,10 @@ import { useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
+  GatewaysQueryResult,
   getApollo,
   OrchestratorsQueryResult,
   ProtocolQueryResult,
-  GatewaysQueryResult,
 } from "../apollo";
 import {
   getEvents,
@@ -58,9 +60,7 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
-  const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "week"
-  );
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
@@ -75,7 +75,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
+  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
@@ -98,14 +98,19 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day?.inflation ?? 0) / 1000000000,
-      })) ?? [],
-    [chartData]
+      chartData?.dayData
+        ?.slice(inflationGrouping === "year" ? -365 : 1)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: Number(day?.inflation ?? 0) / 1000000000,
+        })) ?? [],
+    [chartData, inflationGrouping]
   );
+
   const delegatorsCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -114,6 +119,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
   const activeTranscoderCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -172,34 +178,68 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Inflation Rate"
           unit="small-percent"
           type="line"
+          grouping={inflationGrouping}
+          onToggleGrouping={setInflationGrouping}
         />
       </Panel>
       <Panel>
-        <ExplorerChart
-          tooltip={`The ${
-            usageGrouping === "day" ? "daily" : "weekly"
-          } usage of the network in minutes.`}
-          data={
-            usageGrouping === "week"
-              ? usageData.slice(-26)
-              : usageData.slice(-183)
-          }
-          base={Number(
-            (usageGrouping === "day"
-              ? chartData?.oneDayUsage
-              : chartData?.oneWeekUsage) ?? 0
-          )}
-          basePercentChange={Number(
-            (usageGrouping === "day"
-              ? chartData?.dailyUsageChange
-              : chartData?.weeklyUsageChange) ?? 0
-          )}
-          title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
-          unit="minutes"
-          type="bar"
-          grouping={usageGrouping}
-          onToggleGrouping={setUsageGrouping}
-        />
+        {/* // TODO: Remove when we finished our investigation. */}
+        <Flex css={{ position: "relative", width: "100%", height: "100%" }}>
+          <Box
+            css={{
+              width: "100%",
+              height: "100%",
+              opacity: 0.45,
+              filter: "grayscale(1)",
+              pointerEvents: "none",
+            }}
+          >
+            <ExplorerChart
+              tooltip={`The ${
+                usageGrouping === "day" ? "daily" : "weekly"
+              } usage of the network in minutes.`}
+              data={
+                usageGrouping === "week"
+                  ? usageData.slice(-26)
+                  : usageData.slice(-183)
+              }
+              base={Number(
+                (usageGrouping === "day"
+                  ? chartData?.oneDayUsage
+                  : chartData?.oneWeekUsage) ?? 0
+              )}
+              basePercentChange={Number(
+                (usageGrouping === "day"
+                  ? chartData?.dailyUsageChange
+                  : chartData?.weeklyUsageChange) ?? 0
+              )}
+              title={`Estimated Usage ${
+                usageGrouping === "day" ? "(1d)" : "(7d)"
+              }`}
+              unit="minutes"
+              type="bar"
+              grouping={usageGrouping}
+              onToggleGrouping={setUsageGrouping}
+            />
+          </Box>
+          <Box
+            css={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "$4",
+              fontSize: "$1",
+              fontWeight: 500,
+              pointerEvents: "none",
+              maxWidth: 260,
+            }}
+          >
+            Data temporarily unavailable while we check the data source.
+          </Box>
+        </Flex>
       </Panel>
       <Panel>
         <ExplorerChart
@@ -230,14 +270,21 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
 };
 
 type PageProps = {
-  orchestrators: OrchestratorsQueryResult["data"];
-  gateways: GatewaysQueryResult["data"];
-  events: EventsQueryResult["data"];
-  protocol: ProtocolQueryResult["data"];
+  hadError: boolean;
+  orchestrators: OrchestratorsQueryResult["data"] | null;
+  gateways: GatewaysQueryResult["data"] | null;
+  events: EventsQueryResult["data"] | null;
+  protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ orchestrators, gateways, events, protocol }: PageProps) => {
+const Home = ({
+  hadError,
+  orchestrators,
+  gateways,
+  events,
+  protocol,
+}: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -252,6 +299,10 @@ const Home = ({ orchestrators, gateways, events, protocol }: PageProps) => {
   );
 
   const chartData = useChartData();
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -327,7 +378,6 @@ const Home = ({ orchestrators, gateways, events, protocol }: PageProps) => {
             </Flex>
           </Flex>
           <Box css={{ marginBottom: "$3" }}>
-
             <Flex
               css={{
                 flexDirection: "column",
@@ -470,7 +520,14 @@ const Home = ({ orchestrators, gateways, events, protocol }: PageProps) => {
             </Flex>
 
             <Box>
-              <TransactionsList events={allEvents as any} pageSize={10} />
+              <TransactionsList
+                events={
+                  allEvents as NonNullable<
+                    EventsQueryResult["data"]
+                  >["transactions"][number]["events"]
+                }
+                pageSize={10}
+              />
             </Box>
           </Box>
         </Flex>
@@ -480,10 +537,14 @@ const Home = ({ orchestrators, gateways, events, protocol }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
-  const errorProps = {
-    props: {},
-    revalidate: 300,
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestrators: null,
+    events: null,
+    protocol: null,
+    fallback: {},
   };
+
   try {
     const client = getApollo();
     const { orchestrators } = await getOrchestrators(client);
@@ -491,17 +552,25 @@ export const getStaticProps = async () => {
     const protocol = await getProtocol(client);
     const { gateways } = await getGateways();
 
-    if (!orchestrators.data || !events.data || !protocol.data || !gateways.data) {
-      return errorProps;
+    if (
+      !orchestrators.data ||
+      !events.data ||
+      !protocol.data ||
+      !gateways.data
+    ) {
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
+      hadError: false,
       orchestrators: orchestrators.data,
       gateways: gateways.data,
       events: events.data,
       protocol: protocol.data,
       fallback: {},
-      // fallback: { ...fallback, ...eventsFallback },
     };
 
     return {
@@ -510,11 +579,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return errorProps;
 };
-
-Home.getLayout = getLayout;
 
 export default Home;

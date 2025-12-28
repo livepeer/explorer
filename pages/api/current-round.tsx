@@ -1,8 +1,6 @@
-import { getCacheControlHeader } from "@lib/api";
-import { roundsManager } from "@lib/api/abis/main/RoundsManager";
-import { getRoundsManagerAddress } from "@lib/api/contracts";
+import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { l1PublicClient, l2PublicClient } from "@lib/chains";
+import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -15,26 +13,23 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
-      const roundsManagerAddress = await getRoundsManagerAddress();
+      const {
+        data: { protocol, _meta },
+      } = await getCurrentRound();
+      const currentRound = protocol?.currentRound;
 
-      const id = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRound",
-      });
-      const startBlock = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRoundStartBlock",
-      });
-      const initialized = await l2PublicClient.readContract({
-        address: roundsManagerAddress,
-        abi: roundsManager,
-        functionName: "currentRoundInitialized",
-      });
+      if (!currentRound) {
+        return res.status(500).end("No current round found");
+      }
 
+      if (!_meta?.block) {
+        return res.status(500).end("No block number found");
+      }
+
+      const { id, startBlock, initialized } = currentRound;
+
+      const currentL2Block = _meta.block.number;
       const currentL1Block = await l1PublicClient.getBlockNumber();
-      const currentL2Block = await l2PublicClient.getBlockNumber();
 
       const roundInfo: CurrentRoundInfo = {
         id: Number(id),

@@ -1,3 +1,4 @@
+import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import { pollCreator } from "@lib/api/abis/main/PollCreator";
 import { getPollCreatorAddress } from "@lib/api/contracts";
@@ -17,12 +18,10 @@ import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  usePendingFeesAndStakeData,
-} from "hooks";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { LAYOUT_MAX_WIDTH } from "layouts/constants";
+import { getLayout } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
@@ -32,7 +31,13 @@ import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
-const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
+const CreatePoll = ({
+  hadError,
+  projectOwner,
+  projectName,
+  gitCommitHash,
+  lips,
+}) => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
@@ -64,7 +69,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     }
   }, [delegatorPendingStakeAndFees]);
 
-  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [selectedProposal, setSelectedProposal] = useState<{
+    gitCommitHash: string;
+    text: string;
+  } | null>(null);
 
   const { data: config } = useSimulateContract({
     query: { enabled: Boolean(pollCreatorAddress && hash) },
@@ -99,6 +107,10 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       writeContract(config.request);
     }
   }, [config, hash, writeContract, status]);
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -254,6 +266,23 @@ CreatePoll.getLayout = getLayout;
 
 export default CreatePoll;
 
+type TransformedProposal = {
+  attributes: {
+    lip: string;
+  };
+};
+
+type TransformedLip = {
+  attributes: {
+    lip: string;
+    title: string;
+    status: string;
+    created: string;
+    "part-of"?: string;
+  };
+  text: string;
+};
+
 export async function getStaticProps() {
   try {
     const lipsQuery = `
@@ -318,17 +347,19 @@ export async function getStaticProps() {
 
           // check if proposal is valid format {text, gitCommitHash}
           if (obj?.text && obj?.gitCommitHash) {
-            const transformedProposal = fm(obj.text) as any;
+            const transformedProposal = fm(obj.text) as TransformedProposal;
             createdPolls.push(transformedProposal.attributes.lip);
           }
         })
       );
     }
 
-    const lips: any[] = [];
+    const lips: TransformedLip[] = [];
     if (result.data) {
       for (const lip of result.data.repository.content.entries) {
-        const transformedLip = fm(lip.content.text) as any;
+        const transformedLip = fm(
+          lip.content.text
+        ) as unknown as TransformedLip;
         transformedLip.attributes.created =
           transformedLip.attributes.created.toString();
         if (
@@ -359,6 +390,11 @@ export async function getStaticProps() {
     };
   } catch (e) {
     console.log(e);
-    return null;
+    return {
+      props: {
+        hadError: true,
+      },
+      revalidate: 60,
+    };
   }
 }

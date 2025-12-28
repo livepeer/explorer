@@ -1,5 +1,7 @@
+import ErrorComponent from "@components/Error";
 import OrchestratorList from "@components/OrchestratorList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -21,12 +23,21 @@ import {
 } from "../apollo";
 
 type PageProps = {
-  orchestrators: OrchestratorsQueryResult["data"];
-  protocol: ProtocolQueryResult["data"];
+  hadError: boolean;
+  orchestrators: OrchestratorsQueryResult["data"] | null;
+  protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
+const OrchestratorsPage = ({
+  hadError,
+  orchestrators,
+  protocol,
+}: PageProps) => {
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
+
   return (
     <>
       <Head>
@@ -78,16 +89,27 @@ const OrchestratorsPage = ({ orchestrators, protocol }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestrators: null,
+    protocol: null,
+    fallback: {},
+  };
+
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !protocol.data) {
-      return null;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
+      hadError: false,
       orchestrators: orchestrators.data,
       protocol: protocol.data,
       fallback,
@@ -99,9 +121,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return null;
 };
 
 OrchestratorsPage.getLayout = getLayout;

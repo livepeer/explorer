@@ -111,7 +111,7 @@ export const getPollExtended = async (
   const nonVotersPercent = totalNonVoteStake / totalStake;
 
   return {
-    ...(poll as any),
+    ...poll,
     attributes,
     status,
     estimatedEndTime,
@@ -130,7 +130,7 @@ export const getPollExtended = async (
       voters: totalVoteStake,
       nonVoters: totalNonVoteStake,
     },
-  };
+  } as PollExtended;
 };
 
 const absolutizeLinks = (markdown: string, baseUrl: string) => {

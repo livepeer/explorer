@@ -9,10 +9,7 @@ query gateways($first: Int!, $skip: Int!, $minActiveDay: Int!) {
     orderBy: ninetyDayVolumeETH
     orderDirection: desc
     where: {
-      or: [
-        { ninetyDayVolumeETH_gt: "0" }
-        { lastActiveDay_gte: $minActiveDay }
-      ]
+      or: [{ ninetyDayVolumeETH_gt: "0" }, { lastActiveDay_gte: $minActiveDay }]
     }
   ) {
     id

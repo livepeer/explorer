@@ -1,6 +1,8 @@
+import ErrorComponent from "@components/Error";
 import PerformanceList from "@components/PerformanceList";
 import PerformanceListSelector from "@components/PerformanceListSelector";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -14,6 +16,7 @@ import { useState } from "react";
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
 type PageProps = {
+  hadError: boolean;
   orchestratorIds: Pick<
     NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
     "id"
@@ -21,13 +24,17 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
+const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
   const [selectedPipeline, setSelectedPipeline] = useState<
     Pipeline["id"] | null
   >(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -161,16 +168,25 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestratorIds: [],
+    fallback: {},
+  };
+
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
 
     if (!orchestrators.data) {
-      return null;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
-      // initialApolloState: client.cache.extract(),
+      hadError: false,
       orchestratorIds: orchestrators.data.transcoders.map((t) => ({
         id: t.id,
       })),
@@ -183,9 +199,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return null;
 };
 
 LeaderboardPage.getLayout = getLayout;

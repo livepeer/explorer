@@ -1,36 +1,34 @@
-import Table from "@components/Table";
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
 import PopoverLink from "@components/PopoverLink";
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import Table from "@components/Table";
+import { textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
   Flex,
-  Link as A,
   IconButton,
+  Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "@lib/dayjs";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { GatewaysQuery } from "apollo";
+import { useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
 import { useMemo } from "react";
-import { GatewaysQuery } from "apollo";
 import { Column } from "react-table";
-import { useEnsData } from "hooks";
-import { textTruncate } from "@lib/utils";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
-type GatewayRow =
-  NonNullable<GatewaysQuery["gateways"]>[number] & {
-    depositNumber: number;
-    reserveNumber: number;
-    ninetyDayVolumeNumber: number;
-    totalVolumeNumber: number;
-    lastActiveDayNumber: number;
-  };
+type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
+  depositNumber: number;
+  reserveNumber: number;
+  ninetyDayVolumeNumber: number;
+  totalVolumeNumber: number;
+  lastActiveDayNumber: number;
+};
 
 const formatEth = (value: number) => {
   const amount = Number(value ?? 0) || 0;
@@ -140,9 +138,7 @@ const GatewayList = ({
                       </Badge>
                     </Flex>
                   ) : (
-                    <Box css={{ fontWeight: 600 }}>
-                      {shortAddress}
-                    </Box>
+                    <Box css={{ fontWeight: 600 }}>{shortAddress}</Box>
                   )}
                 </Flex>
               </Flex>
@@ -306,7 +302,9 @@ const GatewayList = ({
                 <PopoverLink href={`/accounts/${row.values.id}/broadcasting`}>
                   Profile
                 </PopoverLink>
-                <PopoverLink href={`/accounts/${row.values.id}/broadcasting?tab=history`}>
+                <PopoverLink
+                  href={`/accounts/${row.values.id}/broadcasting?tab=history`}
+                >
                   History
                 </PopoverLink>
               </Flex>

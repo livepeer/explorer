@@ -1,4 +1,6 @@
+import { ProposalExtended } from "@lib/api/treasury";
 import { txMessages } from "lib/utils";
+import { Address } from "viem";
 import { create } from "zustand";
 
 export type StakingAction = "undelegate" | "delegate" | null;
@@ -9,12 +11,34 @@ export type YieldResults = {
   principle: number;
 };
 
+export type InputData = {
+  amount?: bigint;
+  choiceId?: number;
+  choiceName?: string;
+  delegate?: Address;
+  fees?: bigint;
+  isOrchestrator?: boolean;
+  newDelegate?: Address;
+  newPosNext?: string;
+  newPosPrev?: string;
+  proposal?: ProposalExtended | string | null;
+  reason?: string;
+  recipient?: Address;
+  stake?: bigint;
+  targetAddress?: Address | null;
+  to?: string;
+  totalRounds?: number;
+  type?: string;
+  unbondingLockId?: number;
+  wasDeactivated?: boolean;
+};
+
 export type TransactionStep = "summary" | "started" | "confirmed";
 export type TransactionIdentifier = keyof typeof txMessages;
 export type TransactionStatus = {
   hash?: string;
   name?: TransactionIdentifier;
-  inputData?: any | null;
+  inputData?: InputData | null;
   step: TransactionStep | null;
   error?: string;
 };
@@ -34,7 +58,7 @@ export type ExplorerState = {
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: InputData
   ) => void;
   setLatestTransactionConfirmed: () => void;
   setLatestTransactionSummary: () => void;
@@ -63,7 +87,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   setLatestTransactionDetails: (
     hash: string,
     id: TransactionIdentifier,
-    inputData?: any
+    inputData?: InputData
   ) =>
     set(() => ({
       latestTransaction: {
@@ -83,7 +107,10 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     })),
   setLatestTransactionError: (v: string) =>
     set(({ latestTransaction }) => ({
-      latestTransaction: { ...latestTransaction, error: v } as any,
+      latestTransaction: { ...latestTransaction, error: v } as {
+        step: TransactionStep | null;
+        error: string;
+      },
     })),
   clearLatestTransaction: () =>
     set(() => ({

@@ -5,12 +5,12 @@ import {
   CurrentRoundDocument,
   CurrentRoundQuery,
   CurrentRoundQueryVariables,
-  GatewaysDocument,
-  GatewaysQuery,
-  GatewaysQueryVariables,
   EventsDocument,
   EventsQuery,
   EventsQueryVariables,
+  GatewaysDocument,
+  GatewaysQuery,
+  GatewaysQueryVariables,
   getApollo,
   OrchestratorsDocument,
   OrchestratorsQuery,
@@ -46,6 +46,12 @@ export async function getGateways(client = getApollo()) {
     fallback: {},
     gateways,
   };
+}
+
+export async function getCurrentRound(client = getApollo()) {
+  return client.query<CurrentRoundQuery, CurrentRoundQueryVariables>({
+    query: CurrentRoundDocument,
+  });
 }
 
 export async function getOrchestrators(client = getApollo()) {

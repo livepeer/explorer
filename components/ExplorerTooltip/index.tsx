@@ -1,15 +1,15 @@
 import { Box, styled, Text } from "@livepeer/design-system";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip } from "radix-ui";
 import React from "react";
 
-type TooltipProps = React.ComponentProps<typeof TooltipPrimitive.Root> &
-  Omit<React.ComponentProps<typeof TooltipPrimitive.Content>, "content"> & {
+type TooltipProps = React.ComponentProps<typeof Tooltip.Root> &
+  Omit<React.ComponentProps<typeof Tooltip.Content>, "content"> & {
     children: React.ReactElement;
     content: React.ReactNode;
     multiline?: boolean;
   };
 
-const Content = styled(TooltipPrimitive.Content, {
+const Content = styled(Tooltip.Content, {
   length: {},
   backgroundColor: "$neutral4",
   borderRadius: "$1",
@@ -36,12 +36,12 @@ export function ExplorerTooltip({
   ...props
 }: TooltipProps) {
   return (
-    <TooltipPrimitive.Root
+    <Tooltip.Root
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
     >
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
 
       <Content side="top" align="center" sideOffset={5} multiline {...props}>
         <Text
@@ -59,7 +59,7 @@ export function ExplorerTooltip({
           {content}
         </Text>
         <Box css={{ color: "$neutral4" }}>
-          <TooltipPrimitive.Arrow
+          <Tooltip.Arrow
             offset={5}
             width={11}
             height={5}
@@ -69,6 +69,6 @@ export function ExplorerTooltip({
           />
         </Box>
       </Content>
-    </TooltipPrimitive.Root>
+    </Tooltip.Root>
   );
 }

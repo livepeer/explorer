@@ -38,27 +38,29 @@ const Index = () => {
     }
   );
 
-  const events = useMemo(
-    () =>
-      data?.transactions?.reduce(
-        (res, { events: e }) => res.concat(e as any),
-        []
-      ) ?? [],
-    [data]
-  );
+  const events = useMemo(() => {
+    // First reverse the order of the array of events per transaction to have events in descending order
+    const reversedEvents = data?.transactions?.map((tx) => {
+      return {
+        ...tx,
+        events: tx.events ? tx.events.slice().reverse() : [],
+      };
+    });
+    return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
+  }, [data]);
 
   const lastEventTimestamp = useMemo(
     () =>
-      Number(
-        (events?.[(events?.length || 0) - 1] as any)?.transaction?.timestamp ??
-          0
-      ),
+      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
     [events]
   );
 
   // Tag winning tickets (in/out/self) within the current window
   const ticketEvents = useMemo(() => {
-    const tickets = data?.winningTicketRedeemedEvents ?? [];
+    const tickets =
+      data?.winningTicketRedeemedEvents?.filter(
+        (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+      ) ?? [];
     const accountLower = account.toLowerCase();
     return tickets
       .filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
@@ -72,16 +74,18 @@ const Index = () => {
             ? ("out" as const)
             : ("in" as const),
       }));
-  }, [data?.winningTicketRedeemedEvents, account, events.length, lastEventTimestamp]);
+  }, [
+    data?.winningTicketRedeemedEvents,
+    account,
+    lastEventTimestamp,
+  ]);
 
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
   // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter(
-          (e) => (e as any)?.__typename !== "WinningTicketRedeemedEvent"
-        ),
+        ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
         ...ticketEvents,
       ].sort(
         (a, b) =>
@@ -126,7 +130,7 @@ const Index = () => {
               variables: {
                 skip: data.transactions.length,
               },
-              updateQuery: (previousResult: any, { fetchMoreResult }: any) => {
+              updateQuery: (previousResult, { fetchMoreResult }) => {
                 if (!fetchMoreResult) {
                   return previousResult;
                 }
@@ -155,7 +159,7 @@ const Index = () => {
         }}
       >
         <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event: any, i: number) => renderSwitch(event, i))}
+          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
         </Box>
         {loading && data.transactions.length >= 10 && (
           <Flex
@@ -178,7 +182,7 @@ const Index = () => {
 
 export default Index;
 
-function renderSwitch(event: any, i: number) {
+function renderSwitch(event, i: number) {
   switch (event.__typename) {
     case "BondEvent":
       return (
@@ -703,7 +707,8 @@ function renderSwitch(event: any, i: number) {
           : direction === "self"
           ? "Self-redeemed winning ticket"
           : "Redeemed winning ticket";
-      const amountPrefix = direction === "out" ? "-" : direction === "self" ? "±" : "+";
+      const amountPrefix =
+        direction === "out" ? "-" : direction === "self" ? "±" : "+";
       return (
         <Card
           as={A}

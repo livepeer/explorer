@@ -1,9 +1,8 @@
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
-import { BigNumber, BigNumberish, ethers } from "ethers";
-import { formatEther, parseUnits } from "ethers/lib/utils";
+import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
-import { isAddress } from "viem";
+import { formatEther, getAddress, parseEther } from "viem";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
@@ -83,10 +82,14 @@ export const textTruncate = (str, length, ending) => {
 };
 
 export const checkAddressEquality = (address1: string, address2: string) => {
-  if (!isAddress(address1) || !isAddress(address2)) {
+  try {
+    const formattedAddress1 = getAddress(address1.toLowerCase());
+    const formattedAddress2 = getAddress(address2.toLowerCase());
+
+    return formattedAddress1 === formattedAddress2;
+  } catch {
     return false;
   }
-  return address1.toLowerCase() === address2.toLowerCase();
 };
 
 export const txMessages = {
@@ -193,7 +196,7 @@ export const simulateNewActiveSetOrder = ({
   transcoders: NonNullable<
     OrchestratorsSortedQueryResult["data"]
   >["transcoders"];
-  amount: BigNumber;
+  amount: bigint;
   newDelegate: string;
   oldDelegate?: string;
 }) => {
@@ -207,7 +210,7 @@ export const simulateNewActiveSetOrder = ({
 
   if (action === "delegate") {
     transcoders[index].totalStake = (
-      +transcoders[index].totalStake + +amount
+      +transcoders[index].totalStake + +amount.toString()
     ).toString();
 
     // if delegator is moving stake, subtract amount from old delegate
@@ -221,13 +224,13 @@ export const simulateNewActiveSetOrder = ({
       );
       if (oldDelegateIndex !== -1) {
         transcoders[oldDelegateIndex].totalStake = (
-          +transcoders[oldDelegateIndex].totalStake - +amount
+          +transcoders[oldDelegateIndex].totalStake - +amount.toString()
         ).toString();
       }
     }
   } else {
     transcoders[index].totalStake = (
-      +transcoders[index].totalStake - +amount
+      +transcoders[index].totalStake - +amount.toString()
     ).toString();
   }
 
@@ -251,10 +254,14 @@ export const getPercentChange = (valueNow, value24HoursAgo) => {
   return adjustedPercentChange;
 };
 
-export const fromWei = (wei: BigNumberish) => formatEther(wei);
+export const fromWei = (wei: bigint | string) => {
+  if (typeof wei === "string") {
+    return formatEther(BigInt(wei));
+  }
+  return formatEther(wei);
+};
 
-export const toWei = (ether: BigNumberish) =>
-  parseUnits(ether.toString(), "ether").toBigInt();
+export const toWei = (ether: number) => parseEther(ether.toString());
 
 /**
  * Check if a URL is an image URL.

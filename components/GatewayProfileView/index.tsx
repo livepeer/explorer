@@ -1,9 +1,9 @@
 import Stat from "@components/Stat";
-import { Box, Flex, Grid } from "@livepeer/design-system";
 import dayjs from "@lib/dayjs";
+import { Box, Grid } from "@livepeer/design-system";
+import { GatewaysQuery } from "apollo";
 import numbro from "numbro";
 import { useMemo } from "react";
-import { GatewaysQuery } from "apollo";
 
 const formatEth = (value?: string | number | null) => {
   const amount = Number(value ?? 0) || 0;
@@ -19,23 +19,20 @@ const BroadcastingView = ({
 }: {
   gateway?: GatewaysQuery["gateways"] extends Array<infer G> ? G | null : null;
 }) => {
-  const isActive = useMemo(
-    () => Number(gateway?.ninetyDayVolumeETH ?? 0) > 0,
-    [gateway?.ninetyDayVolumeETH]
-  );
   const activeSince = useMemo(
     () =>
       gateway?.firstActiveDay
         ? dayjs.unix(gateway.firstActiveDay).format("MMM D, YYYY")
         : "Pending graph update",
-    [gateway?.firstActiveDay]
+    [gateway]
   );
   const statusText = useMemo(() => {
-    if (isActive && gateway?.lastActiveDay) {
+    const active = Number(gateway?.ninetyDayVolumeETH ?? 0) > 0;
+    if (active && gateway?.lastActiveDay) {
       return `Active ${dayjs.unix(gateway.lastActiveDay).fromNow(true)}`;
     }
     return "Inactive";
-  }, [gateway?.lastActiveDay, isActive]);
+  }, [gateway]);
   const statItems = useMemo(
     () => [
       {
@@ -52,7 +49,8 @@ const BroadcastingView = ({
       {
         label: "90d fees distributed",
         value: formatEth(gateway?.ninetyDayVolumeETH),
-        tooltip: "Total fees distributed to orchestrators over the last 90 days.",
+        tooltip:
+          "Total fees distributed to orchestrators over the last 90 days.",
       },
       {
         label: "Activation date",
@@ -70,14 +68,7 @@ const BroadcastingView = ({
         tooltip: "Reserve funds available for winning ticket payouts.",
       },
     ],
-    [
-      activeSince,
-      gateway?.deposit,
-      gateway?.ninetyDayVolumeETH,
-      gateway?.reserve,
-      gateway?.totalVolumeETH,
-      statusText,
-    ]
+    [gateway, activeSince, statusText]
   );
 
   return (

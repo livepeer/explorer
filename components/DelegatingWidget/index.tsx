@@ -67,7 +67,7 @@ const Index = ({
     [isMyTranscoder, isDelegated]
   );
   const currentPendingStake = Number(
-    fromWei(pendingFeesAndStake?.pendingStake ?? 0)
+    fromWei(pendingFeesAndStake?.pendingStake ?? "0")
   );
 
   return (

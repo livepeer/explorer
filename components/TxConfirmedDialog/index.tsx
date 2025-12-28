@@ -1,4 +1,5 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
+import { ProposalExtended } from "@lib/api/treasury";
 import {
   Badge,
   Box,
@@ -81,6 +82,7 @@ const Index = () => {
 export default Index;
 
 function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
+  if (!tx.inputData) return;
   switch (tx.name) {
     case "bond":
       return (
@@ -99,7 +101,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
                 {Number(tx.inputData.amount) <= 0
                   ? `Congrats! You've successfully migrated your stake to a new orchestrator.`
                   : `Congrats! You've successfully delegated
-                ${fromWei(tx.inputData.amount)} LPT.`}
+                ${fromWei(tx.inputData.amount ?? "0")} LPT.`}
               </Box>
             </Box>
           </Table>
@@ -114,6 +116,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
         </Box>
       );
     case "unbond":
+      if (!tx.inputData.amount) return null;
       return (
         <Box>
           <Table css={{ mb: "$4" }}>
@@ -128,9 +131,16 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
             >
               <Box>
                 You&apos;ve successfully undelegated{" "}
-                {fromWei(tx.inputData.amount)} LPT. The unbonding period is ~7
-                days after which you may withdraw the undelegated LPT into your
-                wallet.
+                {fromWei(tx.inputData.amount)} LPT.
+                {tx.inputData.wasDeactivated && (
+                  <Box css={{ marginTop: "$2", color: "$yellow9" }}>
+                    Your orchestrator has been deactivated.
+                  </Box>
+                )}
+                <Box css={{ marginTop: "$2" }}>
+                  The unbonding period is ~7 days after which you may withdraw
+                  the undelegated LPT into your wallet.
+                </Box>
               </Box>
             </Box>
           </Table>
@@ -195,6 +205,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
         </Box>
       );
     case "rebondFromUnbonded":
+      if (!tx.inputData.delegate) return null;
       return (
         <Box>
           <Table css={{ mb: "$4" }}>
@@ -208,11 +219,10 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               }}
             >
               You&apos;ve successfully redelegated to orchestrator{" "}
-              {tx.inputData &&
-                tx.inputData.delegate.replace(
-                  tx.inputData.delegate.slice(7, 37),
-                  "…"
-                )}
+              {tx.inputData.delegate.replace(
+                tx.inputData.delegate.slice(7, 37),
+                "…"
+              )}
             </Box>
           </Table>
           <DialogClose asChild>
@@ -239,8 +249,8 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               You&apos;ve successfully checkpointed{" "}
               {!isOrchestrator
                 ? "your stake"
-                : `your orchestrator (${targetAddress.replace(
-                    targetAddress.slice(7, 37),
+                : `your orchestrator (${targetAddress?.replace(
+                    targetAddress?.slice(7, 37) ?? "",
                     "…"
                   )}) stake!`}
             </Box>
@@ -300,6 +310,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
         </Box>
       );
     case "queue":
+      if (!tx.inputData.proposal) return null;
       return (
         <Box>
           <Table css={{ mb: "$4" }}>
@@ -324,7 +335,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               size="4"
               variant="primary"
               css={{ marginRight: "$2", flex: 1 }}
-              proposal={tx.inputData?.proposal}
+              proposal={tx.inputData.proposal as ProposalExtended}
               onClick={onDismiss}
             />
             <DialogClose asChild>
