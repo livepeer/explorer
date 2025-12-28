@@ -5,6 +5,7 @@ import { GatewaysQuery } from "apollo";
 import numbro from "numbro";
 import { useMemo } from "react";
 
+// TODO: replace with common formatting util.
 const formatEth = (value?: string | number | null) => {
   const amount = Number(value ?? 0) || 0;
   return `${numbro(amount).format(

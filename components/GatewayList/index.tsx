@@ -30,6 +30,7 @@ type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
   lastActiveDayNumber: number;
 };
 
+// TODO: replace with common formatting util.
 const formatEth = (value: number) => {
   const amount = Number(value ?? 0) || 0;
   return `${numbro(amount).format(
