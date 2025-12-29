@@ -349,6 +349,9 @@ const AccountLayout = () => {
               position: "relative",
               borderBottom: "1px solid",
               borderColor: "$neutral6",
+              overflowX: "auto",
+              flexWrap: "nowrap",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {tabs.map((tab: TabType, i: number) => (
@@ -365,6 +368,8 @@ const AccountLayout = () => {
                   paddingBottom: "$2",
                   fontSize: "$3",
                   fontWeight: 500,
+                  flex: "0 0 auto",
+                  whiteSpace: "nowrap",
                   borderBottom: "2px solid",
                   borderColor: tab.isActive ? "$primary11" : "transparent",
                   "&:hover": {
