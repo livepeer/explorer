@@ -1,7 +1,10 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Grid } from "@livepeer/design-system";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { GatewaysQuery } from "apollo";
+import { useGatewaySelfRedeemStatus } from "hooks";
 import numbro from "numbro";
 import { useMemo } from "react";
 
@@ -15,11 +18,24 @@ const formatEth = (value?: string | number | null) => {
   )} ETH`;
 };
 
+const SelfRedeemIndicator = () => (
+  <ExplorerTooltip
+    multiline
+    content={
+      <Box>Self-redeemed winning tickets detected in the last 90 days.</Box>
+    }
+  >
+    <Box as={ExclamationTriangleIcon} css={{ color: "$amber11" }} />
+  </ExplorerTooltip>
+);
+
 const BroadcastingView = ({
   gateway,
 }: {
   gateway?: GatewaysQuery["gateways"] extends Array<infer G> ? G | null : null;
 }) => {
+  const isSelfRedeeming = useGatewaySelfRedeemStatus(gateway?.id);
+
   const activeSince = useMemo(
     () =>
       gateway?.firstActiveDay
@@ -34,38 +50,51 @@ const BroadcastingView = ({
   const statItems = useMemo(
     () => [
       {
+        id: "total-fees-distributed",
         label: "Total fees distributed",
-        value: formatEth(gateway?.totalVolumeETH),
+        value: (
+          <Box
+            css={{ display: "inline-flex", alignItems: "center", gap: "$3" }}
+          >
+            <Box>{formatEth(gateway?.totalVolumeETH)}</Box>
+            {isSelfRedeeming && <SelfRedeemIndicator />}
+          </Box>
+        ),
         tooltip: "Lifetime fees this gateway has distributed on-chain.",
       },
       {
+        id: "status",
         label: "Status",
         value: statusText,
         tooltip: "Active if this gateway distributed fees in the last 90 days.",
       },
       {
+        id: "ninety-day-fees",
         label: "90d fees distributed",
         value: formatEth(gateway?.ninetyDayVolumeETH),
         tooltip:
           "Total fees distributed to orchestrators over the last 90 days.",
       },
       {
+        id: "activation-date",
         label: "Activation date",
         value: activeSince,
         tooltip: "First day this gateway funded deposit/reserve on-chain.",
       },
       {
+        id: "deposit-balance",
         label: "Deposit balance",
         value: formatEth(gateway?.deposit),
         tooltip: "Current deposit balance funded for gateway job payouts.",
       },
       {
+        id: "reserve-balance",
         label: "Reserve balance",
         value: formatEth(gateway?.reserve),
         tooltip: "Reserve funds available for winning ticket payouts.",
       },
     ],
-    [gateway, activeSince, statusText]
+    [gateway, activeSince, statusText, isSelfRedeeming]
   );
 
   return (
@@ -87,7 +116,7 @@ const BroadcastingView = ({
       >
         {statItems.map((stat) => (
           <Stat
-            key={stat.label}
+            key={stat.id}
             label={stat.label}
             value={stat.value}
             tooltip={stat.tooltip}
