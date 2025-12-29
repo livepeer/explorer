@@ -1,3 +1,7 @@
+import "react-circular-progressbar/dist/styles.css";
+
+import ErrorComponent from "@components/Error";
+import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
@@ -5,19 +9,22 @@ import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { HomeChartData } from "@lib/api/types/get-chart-data";
+import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
-  Link as A,
   Box,
   Button,
   Container,
   Flex,
   Heading,
+  Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { useChartData } from "hooks";
 import Link from "next/link";
-
 import { useMemo, useState } from "react";
+
 import {
   EventsQueryResult,
   getApollo,
@@ -26,17 +33,12 @@ import {
 } from "../apollo";
 import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
 
-import { HomeChartData } from "@lib/api/types/get-chart-data";
-import { EnsIdentity } from "@lib/api/types/get-ens";
-import { useChartData } from "hooks";
-import "react-circular-progressbar/dist/styles.css";
-
 const Panel = ({ children }) => (
   <Flex
     css={{
       minHeight: 240,
       height: 240,
-      p: "24px",
+      padding: "24px",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
@@ -51,9 +53,7 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
-  const [feesPaidGrouping, setFeesPaidGrouping] = useState<"day" | "week">(
-    "week"
-  );
+  const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
@@ -68,7 +68,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [feesPaidGrouping, chartData]
   );
 
-  const [usageGrouping, setUsageGrouping] = useState<"day" | "week">("week");
+  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
   const usageData = useMemo(
     () =>
       (usageGrouping === "day"
@@ -91,14 +91,19 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day?.inflation ?? 0) / 1000000000,
-      })) ?? [],
-    [chartData]
+      chartData?.dayData
+        ?.slice(inflationGrouping === "year" ? -365 : 1)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: Number(day?.inflation ?? 0) / 1000000000,
+        })) ?? [],
+    [chartData, inflationGrouping]
   );
+
   const delegatorsCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -107,6 +112,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       })) ?? [],
     [chartData]
   );
+
   const activeTranscoderCountData = useMemo(
     () =>
       chartData?.dayData?.slice(1)?.map((day) => ({
@@ -165,34 +171,68 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Inflation Rate"
           unit="small-percent"
           type="line"
+          grouping={inflationGrouping}
+          onToggleGrouping={setInflationGrouping}
         />
       </Panel>
       <Panel>
-        <ExplorerChart
-          tooltip={`The ${
-            usageGrouping === "day" ? "daily" : "weekly"
-          } usage of the network in minutes.`}
-          data={
-            usageGrouping === "week"
-              ? usageData.slice(-26)
-              : usageData.slice(-183)
-          }
-          base={Number(
-            (usageGrouping === "day"
-              ? chartData?.oneDayUsage
-              : chartData?.oneWeekUsage) ?? 0
-          )}
-          basePercentChange={Number(
-            (usageGrouping === "day"
-              ? chartData?.dailyUsageChange
-              : chartData?.weeklyUsageChange) ?? 0
-          )}
-          title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
-          unit="minutes"
-          type="bar"
-          grouping={usageGrouping}
-          onToggleGrouping={setUsageGrouping}
-        />
+        {/* // TODO: Remove when we finished our investigation. */}
+        <Flex css={{ position: "relative", width: "100%", height: "100%" }}>
+          <Box
+            css={{
+              width: "100%",
+              height: "100%",
+              opacity: 0.45,
+              filter: "grayscale(1)",
+              pointerEvents: "none",
+            }}
+          >
+            <ExplorerChart
+              tooltip={`The ${
+                usageGrouping === "day" ? "daily" : "weekly"
+              } usage of the network in minutes.`}
+              data={
+                usageGrouping === "week"
+                  ? usageData.slice(-26)
+                  : usageData.slice(-183)
+              }
+              base={Number(
+                (usageGrouping === "day"
+                  ? chartData?.oneDayUsage
+                  : chartData?.oneWeekUsage) ?? 0
+              )}
+              basePercentChange={Number(
+                (usageGrouping === "day"
+                  ? chartData?.dailyUsageChange
+                  : chartData?.weeklyUsageChange) ?? 0
+              )}
+              title={`Estimated Usage ${
+                usageGrouping === "day" ? "(1d)" : "(7d)"
+              }`}
+              unit="minutes"
+              type="bar"
+              grouping={usageGrouping}
+              onToggleGrouping={setUsageGrouping}
+            />
+          </Box>
+          <Box
+            css={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "$4",
+              fontSize: "$1",
+              fontWeight: 500,
+              pointerEvents: "none",
+              maxWidth: 260,
+            }}
+          >
+            Data temporarily unavailable while we check the data source.
+          </Box>
+        </Flex>
       </Panel>
       <Panel>
         <ExplorerChart
@@ -223,13 +263,14 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
 };
 
 type PageProps = {
-  orchestrators: OrchestratorsQueryResult["data"];
-  events: EventsQueryResult["data"];
-  protocol: ProtocolQueryResult["data"];
+  hadError: boolean;
+  orchestrators: OrchestratorsQueryResult["data"] | null;
+  events: EventsQueryResult["data"] | null;
+  protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ orchestrators, events, protocol }: PageProps) => {
+const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -245,16 +286,20 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 
   const chartData = useChartData();
 
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
+
   return (
     <>
       <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$3",
+            marginTop: "$3",
             width: "100%",
             "@bp3": {
-              mt: "$6",
+              marginTop: "$6",
             },
           }}
         >
@@ -280,16 +325,17 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
           </Heading>
           <Flex
             css={{
-              mb: "$7",
+              marginBottom: "$7",
             }}
           >
             <Flex
               css={{
-                bc: "$panel",
+                backgroundColor: "$panel",
                 borderRadius: "$4",
                 border: "1px solid $colors$neutral4",
                 overflow: "hidden",
-                mx: "auto",
+                marginLeft: "auto",
+                marginRight: "auto",
                 overflowX: "auto",
               }}
             >
@@ -309,7 +355,7 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                   justifyContent: "center",
                   width: "100%",
                   height: "100%",
-                  p: "24px",
+                  padding: "24px",
                   flex: 1,
                 }}
               >
@@ -317,12 +363,12 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
           </Flex>
-          <Box css={{ mb: "$3" }}>
+          <Box css={{ marginBottom: "$3" }}>
             <Flex
               css={{
                 flexDirection: "column",
                 justifyContent: "space-between",
-                mb: "$4",
+                marginBottom: "$4",
                 alignItems: "center",
                 "@bp1": {
                   flexDirection: "row",
@@ -345,26 +391,25 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-                  <Link href="/leaderboard" passHref>
+                  <A as={Link} href="/leaderboard" passHref>
                     <Button
                       ghost
-                      as={A}
-                      css={{ color: "$hiContrast", fontSize: "$2", mr: "$2" }}
+                      css={{
+                        color: "$hiContrast",
+                        fontSize: "$2",
+                        marginRight: "$2",
+                      }}
                     >
                       Performance Leaderboard
                     </Button>
-                  </Link>
+                  </A>
                 )}
-                <Link href="/orchestrators" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
+                <A as={Link} href="/orchestrators" passHref>
+                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
                     View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
-                </Link>
+                </A>
               </Flex>
             </Flex>
 
@@ -386,8 +431,8 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
               css={{
                 flexDirection: "column",
                 justifyContent: "space-between",
-                mb: "$4",
-                mt: "$7",
+                marginBottom: "$4",
+                marginTop: "$7",
                 alignItems: "center",
                 "@bp1": {
                   flexDirection: "row",
@@ -408,21 +453,24 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
                 </Heading>
               </Flex>
               <Flex align="center">
-                <Link href="/transactions" passHref>
-                  <Button
-                    ghost
-                    as={A}
-                    css={{ color: "$hiContrast", fontSize: "$2" }}
-                  >
+                <A as={Link} href="/transactions" passHref>
+                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
                     View All
-                    <Box as={ArrowRightIcon} css={{ ml: "$1" }} />
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
-                </Link>
+                </A>
               </Flex>
             </Flex>
 
             <Box>
-              <TransactionsList events={allEvents as any} pageSize={10} />
+              <TransactionsList
+                events={
+                  allEvents as NonNullable<
+                    EventsQueryResult["data"]
+                  >["transactions"][number]["events"]
+                }
+                pageSize={10}
+              />
             </Box>
           </Box>
         </Flex>
@@ -432,26 +480,33 @@ const Home = ({ orchestrators, events, protocol }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
-  const errorProps = {
-    props: {},
-    revalidate: 300,
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestrators: null,
+    events: null,
+    protocol: null,
+    fallback: {},
   };
+
   try {
     const client = getApollo();
-    const { orchestrators, fallback } = await getOrchestrators(client);
-    const { events, fallback: eventsFallback } = await getEvents(client);
+    const { orchestrators } = await getOrchestrators(client);
+    const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
 
     if (!orchestrators.data || !events.data || !protocol.data) {
-      return errorProps;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
+      hadError: false,
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
       fallback: {},
-      // fallback: { ...fallback, ...eventsFallback },
     };
 
     return {
@@ -460,11 +515,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return errorProps;
 };
-
-Home.getLayout = getLayout;
 
 export default Home;

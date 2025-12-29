@@ -1,10 +1,11 @@
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
-import dayjs from "dayjs";
-import fm from "front-matter";
-import { ProposalState } from "./types/get-treasury-proposal";
-import { CurrentRoundInfo } from "./types/get-current-round";
+import dayjs from "@lib/dayjs";
 import { fromWei } from "@lib/utils";
+import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
+import fm from "front-matter";
+
+import { CurrentRoundInfo } from "./types/get-current-round";
+import { ProposalState } from "./types/get-treasury-proposal";
 
 export type Proposal = NonNullable<TreasuryProposalQuery["treasuryProposal"]>;
 
@@ -85,11 +86,11 @@ export const getProposalExtended = (
   const proposal =
     "attributes" in proposalArg ? proposalArg : parseProposalText(proposalArg);
 
-  const totalVoteSupply = +fromWei(state.totalVoteSupply || 0);
+  const totalVoteSupply = +fromWei(state.totalVoteSupply || "0");
 
-  const againstVotes = +fromWei(state.votes.against || 0);
-  const forVotes = +fromWei(state.votes.for || 0);
-  const abstainVotes = +fromWei(state.votes.abstain || 0);
+  const againstVotes = +fromWei(state.votes.against || "0");
+  const forVotes = +fromWei(state.votes.for || "0");
+  const abstainVotes = +fromWei(state.votes.abstain || "0");
   const totalVotes = againstVotes + forVotes + abstainVotes;
   const quotaTotalVotes = againstVotes + forVotes;
 

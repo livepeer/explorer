@@ -19,11 +19,16 @@ import {
   ProtocolQuery,
   ProtocolQueryVariables,
 } from "../../apollo";
-import { EnsIdentity } from "./types/get-ens";
 
 export async function getProtocol(client = getApollo()) {
   return client.query<ProtocolQuery, ProtocolQueryVariables>({
     query: ProtocolDocument,
+  });
+}
+
+export async function getCurrentRound(client = getApollo()) {
+  return client.query<CurrentRoundQuery, CurrentRoundQueryVariables>({
+    query: CurrentRoundDocument,
   });
 }
 
@@ -46,16 +51,8 @@ export async function getOrchestrators(client = getApollo()) {
     },
   });
 
-  // const ensIdentities = await Promise.all(
-  //   orchestrators.data.transcoders.map((e) => getEnsIdentity(e.id))
-  // );
-
   return {
     fallback: {},
-    // ensIdentities.reduce(
-    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
-    //   {}
-    // ),
     orchestrators,
   };
 }
@@ -70,14 +67,8 @@ export async function getAccount(client = getApollo(), id: string) {
     },
   });
 
-  // const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
-
   return {
     fallback: {},
-    // ensIdentities.reduce(
-    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
-    //   {}
-    // ),
     account,
   };
 }
@@ -92,14 +83,8 @@ export async function getSortedOrchestrators(client = getApollo()) {
     query,
   });
 
-  // const ensIdentities = [await getEnsIdentity(orchestrator.data.transcoder.id)];
-
   return {
     fallback: {},
-    // ensIdentities.reduce(
-    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
-    //   {}
-    // ),
     sortedOrchestrators,
   };
 }
@@ -112,22 +97,8 @@ export async function getEvents(client = getApollo(), first = 100) {
     },
   });
 
-  // const ensIdentitiesTranscoders = await Promise.all(
-  //   events.data.transcoders.map((e) => getEnsIdentity(e.id))
-  // );
-
-  // const ensIdentities = await Promise.all(
-  //   events.data.transactions.flatMap((t) =>
-  //     t.events.map((e) => getEnsIdentity(e.transaction.from))
-  //   )
-  // );
-
   return {
     fallback: {},
-    // [...ensIdentitiesTranscoders, ...ensIdentities].reduce(
-    //   (prev, curr) => ({ ...prev, [curr.id]: curr }),
-    //   {}
-    // ),
     events,
   };
 }
@@ -136,26 +107,3 @@ export const server =
   process.env.NODE_ENV !== "production"
     ? "http://localhost:3000"
     : "https://explorer.livepeer.org";
-
-async function getEnsIdentity(address: string) {
-  try {
-    const response = await fetch(
-      `${server}/api/ens-data/${address.toLowerCase()}`
-    );
-
-    const identity: EnsIdentity = await response.json();
-
-    return identity;
-  } catch (e) {
-    console.error(e);
-  }
-
-  const idShort = address.replace(address.slice(6, 38), "…");
-  const ens: EnsIdentity = {
-    id: address,
-    idShort,
-    name: null,
-  };
-
-  return ens;
-}

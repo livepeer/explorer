@@ -1,18 +1,22 @@
+import ErrorComponent from "@components/Error";
 import PerformanceList from "@components/PerformanceList";
-import PerformanceListSelector from '@components/PerformanceListSelector';
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
+import PerformanceListSelector from "@components/PerformanceListSelector";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
 import { getOrchestrators } from "@lib/api/ssr";
+import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { Region } from "@lib/api/types/get-regions";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
+import { useAllScoreData, useRegionsData } from "hooks/useSwr";
 import Head from "next/head";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
-import { Pipeline } from "@lib/api/types/get-available-pipelines";
-import { useRegionsData, useAllScoreData } from "hooks/useSwr";
-import { Region } from "@lib/api/types/get-regions";
 
 type PageProps = {
+  hadError: boolean;
   orchestratorIds: Pick<
     NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
     "id"
@@ -20,41 +24,54 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
-  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline["id"] | null>(null);
+const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
+  const [selectedPipeline, setSelectedPipeline] = useState<
+    Pipeline["id"] | null
+  >(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");
-  const { data: allScores, isValidating } = useAllScoreData(selectedPipeline, selectedModel);
+  const { data: allScores, isValidating } = useAllScoreData(
+    selectedPipeline,
+    selectedModel
+  );
 
+  // TODO: use new data when endpoint has been updated
+  // https://github.com/livepeer/explorer/pull/359#issuecomment-3690188260
   // Filter regions to only show those with data.
   const availableRegions = useMemo(() => {
     if (!knownRegions?.regions) return [];
-  
+
     const pipelineType = selectedPipeline ? "ai" : "transcoding";
-    
+
     // If no scores loaded yet, just filter by pipeline type.
     if (!allScores) {
       return knownRegions.regions.filter((r) => r.type === pipelineType);
     }
-    
+
     // Collect regions that have score data.
     const regionsWithData = new Set<string>();
     Object.values(allScores).forEach((orchestratorData) => {
       if (orchestratorData?.scores) {
-        Object.entries(orchestratorData.scores).forEach(([regionKey, value]) => {
-          if (value != null) {
-            regionsWithData.add(regionKey);
+        Object.entries(orchestratorData.scores).forEach(
+          ([regionKey, value]) => {
+            if (value != null) {
+              regionsWithData.add(regionKey);
+            }
           }
-        });
+        );
       }
     });
-    
+
     // Filter regions based on pipeline type and data availability.
     return knownRegions.regions.filter(
       (r) => r.type === pipelineType && regionsWithData.has(r.id)
     );
-  }, [knownRegions?.regions, allScores, selectedPipeline]);
+  }, [knownRegions, allScores, selectedPipeline]);
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -65,18 +82,19 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
         <Flex
           css={{
             flexDirection: "column",
-            mt: "$5",
+            marginTop: "$5",
             width: "100%",
           }}
         >
-          <Flex justify="between" 
-            css={{ 
+          <Flex
+            justify="between"
+            css={{
               width: "100%",
               flexDirection: "column", // Default to column for mobile
-              mb: "0",
+              marginBottom: "0",
               "@bp2": {
                 flexDirection: "row", // Change to row for larger screens
-                mb: "$4",
+                marginBottom: "$4",
               },
             }}
           >
@@ -86,9 +104,9 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
               css={{
                 fontWeight: 700,
                 fontSize: 26,
-                mb: "$2",
+                marginBottom: "$2",
                 "@bp3": {
-                  mb: "0",
+                  marginBottom: "0",
                 },
               }}
             >
@@ -107,53 +125,56 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
                 css={{
                   flexDirection: "row", // Stack title and dropdown vertically on mobile
                   alignItems: "center",
-                  mb: "$2", // Add margin-bottom for spacing when stacked
-                  ml: "$2", // Add margin-left for spacing between groups
+                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
+                  marginLeft: "$2", // Add margin-left for spacing between groups
                   "@bp2": {
-                    mb: "0", // Remove margin-bottom for larger screens
-                    mr: "$4", // Add margin-right for spacing between groups
+                    marginBottom: "0", // Remove margin-bottom for larger screens
+                    marginRight: "$4", // Add margin-right for spacing between groups
                   },
                 }}
               >
-                <Flex css={{ mr: "$2" }}>Region:</Flex>
-                  <Box
-                    as="select"
-                    onChange={(e) => {
-                      setRegion(e.target.value as Region["id"]);
-                    }}
-                    css={{
-                      py: "$1",
-                      pl: "$2",
-                      border: "none",
-                      bc: "$panel",
-                      appearance: "none",
-                    }}
-                  >
-                    {availableRegions.map((region) => {
-                      return (<Box as="option" key={region.id} value={region.id}>
+                <Flex css={{ marginRight: "$2" }}>Region:</Flex>
+                <Box
+                  as="select"
+                  onChange={(e) => {
+                    setRegion(e.target.value as Region["id"]);
+                  }}
+                  css={{
+                    paddingTop: "$1",
+                    paddingBottom: "$1",
+                    paddingLeft: "$2",
+                    border: "none",
+                    backgroundColor: "$panel",
+                    appearance: "none",
+                  }}
+                >
+                  {availableRegions.map((region) => {
+                    return (
+                      <Box as="option" key={region.id} value={region.id}>
                         {region.name}
-                      </Box>)
-                    })}
-                  </Box>
-                  <Box
-                    as={ChevronDownIcon}
-                    css={{
-                      pointerEvents: "none",
-                      }}
-                  />
-                </Flex>
+                      </Box>
+                    );
+                  })}
+                </Box>
+                <Box
+                  as={ChevronDownIcon}
+                  css={{
+                    pointerEvents: "none",
+                  }}
+                />
+              </Flex>
               <Flex
                 css={{
                   flexDirection: "row", // Align title and dropdown horizontally
                   alignItems: "center",
-                  mb: "$2", // Add margin-bottom for spacing when stacked
-                  ml: "$2", // Add margin-left for spacing between groups
+                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
+                  marginLeft: "$2", // Add margin-left for spacing between groups
                   "@bp2": {
-                    mb: "0", // Remove margin-bottom for larger screens
+                    marginBottom: "0", // Remove margin-bottom for larger screens
                   },
                 }}
               >
-                <Flex css={{ mr: "$2" }}>Type:</Flex>
+                <Flex css={{ marginRight: "$2" }}>Type:</Flex>
                 <PerformanceListSelector
                   selectedPipeline={selectedPipeline}
                   setSelectedPipeline={setSelectedPipeline}
@@ -163,7 +184,7 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
               </Flex>
             </Flex>
           </Flex>
-          <Box css={{ mb: "$5" }}>
+          <Box css={{ marginBottom: "$5" }}>
             <PerformanceList
               orchestratorIds={orchestratorIds}
               pageSize={20}
@@ -181,16 +202,25 @@ const LeaderboardPage = ({ orchestratorIds }: PageProps) => {
 };
 
 export const getStaticProps = async () => {
+  const errorProps: PageProps = {
+    hadError: true,
+    orchestratorIds: [],
+    fallback: {},
+  };
+
   try {
     const client = getApollo();
     const { orchestrators, fallback } = await getOrchestrators(client);
 
     if (!orchestrators.data) {
-      return null;
+      return {
+        props: errorProps,
+        revalidate: 60,
+      };
     }
 
     const props: PageProps = {
-      // initialApolloState: client.cache.extract(),
+      hadError: false,
       orchestratorIds: orchestrators.data.transcoders.map((t) => ({
         id: t.id,
       })),
@@ -203,9 +233,11 @@ export const getStaticProps = async () => {
     };
   } catch (e) {
     console.error(e);
+    return {
+      props: errorProps,
+      revalidate: 60,
+    };
   }
-
-  return null;
 };
 
 LeaderboardPage.getLayout = getLayout;

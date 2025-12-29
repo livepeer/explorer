@@ -2,39 +2,50 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useExplorerStore } from "hooks";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 
 const ProjectionBox = ({ action }) => {
   const { yieldResults } = useExplorerStore();
 
   const formattedPrinciple = useMemo(
-    () => numeral(Number(yieldResults?.principle) || 0).format("0a"),
+    () =>
+      numbro(Number(yieldResults?.principle) || 0).format({
+        mantissa: 0,
+        average: true,
+      }),
     [yieldResults]
   );
 
   return (
     <Card
       css={{
-        bc: "$neutral3",
+        backgroundColor: "$neutral3",
         boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
         width: "100%",
         borderRadius: "$4",
-        mb: "$3",
+        marginBottom: "$3",
       }}
     >
-      <Box css={{ px: "$3", py: "$3" }}>
+      <Box
+        css={{
+          paddingLeft: "$3",
+          paddingRight: "$3",
+          paddingTop: "$3",
+          paddingBottom: "$3",
+        }}
+      >
         <Box>
           <Flex
             css={{
               fontSize: "$1",
-              mb: "$2",
-              ai: "center",
+              marginBottom: "$2",
+              alignItems: "center",
               justifyContent: "space-between",
             }}
           >
             <Box css={{ color: "$neutral11" }}>
-              <Flex css={{ ai: "center" }}>
+              <Flex css={{ alignItems: "center" }}>
                 <Box>
                   {action === "delegate"
                     ? "Forecasted Yield (1Y)"
@@ -54,7 +65,7 @@ const ProjectionBox = ({ action }) => {
                     </Box>
                   }
                 >
-                  <Flex css={{ ml: "$1" }}>
+                  <Flex css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -65,18 +76,21 @@ const ProjectionBox = ({ action }) => {
             </Box>
             {action === "delegate" && (
               <Box css={{ fontFamily: "$monospace", color: "$neutral11" }}>
-                {numeral(
+                {numbro(
                   yieldResults.principle
                     ? (yieldResults.roiFeesLpt + yieldResults.roiRewards) /
                         +yieldResults.principle
                     : 0
-                ).format("0.0%")}
+                ).format({
+                  mantissa: 1,
+                  output: "percent",
+                })}
               </Box>
             )}
           </Flex>
 
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-            <Flex css={{ ai: "center" }}>
+            <Flex css={{ alignItems: "center" }}>
               <Text css={{ fontSize: "$2" }}>Inflationary Rewards</Text>
               <ExplorerTooltip
                 multiline
@@ -87,7 +101,7 @@ const ProjectionBox = ({ action }) => {
                   </Box>
                 }
               >
-                <Flex css={{ ml: "$1" }}>
+                <Flex css={{ marginLeft: "$1" }}>
                   <Box
                     as={QuestionMarkCircledIcon}
                     css={{ color: "$neutral11" }}
@@ -96,11 +110,14 @@ const ProjectionBox = ({ action }) => {
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numeral(yieldResults.roiRewards).format("0.0")} LPT
+              {numbro(yieldResults.roiRewards).format({
+                mantissa: 1,
+              })}{" "}
+              LPT
             </Text>
           </Flex>
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-            <Flex css={{ ai: "center" }}>
+            <Flex css={{ alignItems: "center" }}>
               <Text css={{ fontSize: "$2" }}>Fee Share</Text>
               <ExplorerTooltip
                 multiline
@@ -111,7 +128,7 @@ const ProjectionBox = ({ action }) => {
                   </Box>
                 }
               >
-                <Flex css={{ ml: "$1" }}>
+                <Flex css={{ marginLeft: "$1" }}>
                   <Box
                     as={QuestionMarkCircledIcon}
                     css={{ color: "$neutral11" }}
@@ -120,7 +137,10 @@ const ProjectionBox = ({ action }) => {
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numeral(yieldResults.roiFees).format("0.000")} ETH
+              {numbro(yieldResults.roiFees).format({
+                mantissa: 3,
+              })}{" "}
+              ETH
             </Text>
           </Flex>
         </Box>

@@ -18,6 +18,9 @@
 # misc
 .DS_Store
 *.pem
+.vscode/*
+!.vscode/settings.json
+.code-workspace
 
 # debug
 npm-debug.log*
@@ -42,3 +45,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+usage.backup.json
+.gitignore
+bquxjob_1944883c_19a4f7cd5f0.json
+usage.json

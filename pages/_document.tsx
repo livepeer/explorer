@@ -1,6 +1,5 @@
-import React from "react";
-import NextDocument, { Html, Head, Main, NextScript } from "next/document";
 import { getCssText } from "@livepeer/design-system";
+import NextDocument, { Head, Html, Main, NextScript } from "next/document";
 
 export default class Document extends NextDocument {
   render() {

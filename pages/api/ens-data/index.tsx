@@ -1,12 +1,10 @@
-import { getCacheControlHeader, isValidAddress } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
-
-const timeout = <T,>(prom: Promise<T>, time: number) =>
-  Promise.race([prom, new Promise<T>((_r, rej) => setTimeout(rej, time))]);
 
 const handler = async (
   req: NextApiRequest,
@@ -18,13 +16,15 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-      const response = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: `
+      const response = await fetchWithRetry(
+        CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
               query {
                 livepeerAccounts(
                   first: 200
@@ -35,8 +35,12 @@ const handler = async (
                 }
               }
           `,
-        }),
-      });
+          }),
+        },
+        {
+          retryOnMethods: ["POST"],
+        }
+      );
 
       const {
         data: { livepeerAccounts },
@@ -51,9 +55,9 @@ const handler = async (
           addresses.map(async (address) => {
             try {
               return await getEnsForAddress(address as Address);
-            } catch (e) {}
-
-            return null;
+            } catch {
+              return null;
+            }
           })
         )
       )

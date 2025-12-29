@@ -1,6 +1,5 @@
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
-import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import {
   Box,
   Card,
@@ -12,21 +11,9 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ethers } from "ethers";
-import {
-
-  useL1DelegatorData,
-
-} from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  L1_CHAIN_ID,
-  l2Provider,
-} from "lib/chains";
-import { useEffect, useState } from "react";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import { ReactNode, useState } from "react";
 import useForm from "react-hook-form";
-import { isValidAddress } from "utils/validAddress";
 
 const ReadOnlyCard = styled(Box, {
   length: {},
@@ -40,19 +27,18 @@ const ReadOnlyCard = styled(Box, {
 });
 
 const ContractWalletTool = () => {
-  const { register, watch } = useForm();
-  const l1Addr = watch("l1Addr");
-  const l2Addr = watch("l2Addr");
+  const { register } = useForm();
 
-  const [params, setParams] = useState<any>(null);
-  const [message, setMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const l1Delegator = useL1DelegatorData(l1Addr);
+  const [params] = useState<{
+    migrateDelegatorParams: { [key: string]: ReactNode };
+    migrateUnbondingLockParams: { [key: string]: ReactNode };
+  } | null>(null);
+  const [message] = useState(null);
+  const [loading] = useState(false);
 
   // useEffect(() => {
   //   async function init() {
-  //     if (isValidAddress(l1Addr) && isValidAddress(l2Addr)) {
+  //     if (isAddress(l1Addr) && isAddress(l2Addr)) {
   //       setLoading(true);
   //       setParams(null);
   //       const params = await getParams(
@@ -86,7 +72,7 @@ const ContractWalletTool = () => {
       size="2"
       css={{
         maxWidth: 650,
-        mt: "$8",
+        marginTop: "$8",
         width: "100%",
         "@bp3": {
           width: 650,
@@ -95,15 +81,15 @@ const ContractWalletTool = () => {
     >
       <Card
         css={{
-          p: "$5",
+          padding: "$5",
           borderRadius: "$4",
           backgroundColor: "$panel",
           border: "1px solid $neutral5",
-          mb: "$8",
+          marginBottom: "$8",
         }}
       >
-        <Box css={{ mb: "$6" }}>
-          <Heading css={{ mb: "$1" }}>
+        <Box css={{ marginBottom: "$6" }}>
+          <Heading css={{ marginBottom: "$1" }}>
             Contract Wallet Stake Migration Tool
           </Heading>
           <Text variant="neutral">
@@ -118,8 +104,8 @@ const ContractWalletTool = () => {
             </A>{" "}
           </Text>
         </Box>
-        <Box css={{ mb: "$3" }}>
-          <Text css={{ display: "block", mb: "$2" }}>
+        <Box css={{ marginBottom: "$3" }}>
+          <Text css={{ display: "block", marginBottom: "$2" }}>
             Enter the address of your contract wallet on L1 that has stake to
             migrate
           </Text>
@@ -131,10 +117,12 @@ const ContractWalletTool = () => {
           />
         </Box>
         <Box>
-          <Text css={{ display: "block", mb: "$2" }}>
+          <Text css={{ display: "block", marginBottom: "$2" }}>
             Enter the address that will receive migrated stake on L2
           </Text>
-          <Text css={{ fontWeight: "bold", display: "block", mb: "$2" }}>
+          <Text
+            css={{ fontWeight: "bold", display: "block", marginBottom: "$2" }}
+          >
             This address should be different from the L1 address and you MUST
             verify you have access to it on L2
           </Text>
@@ -146,23 +134,26 @@ const ContractWalletTool = () => {
           />
         </Box>
         {loading && (
-          <Flex align="center" justify="center" css={{ mt: "$3" }}>
+          <Flex align="center" justify="center" css={{ marginTop: "$3" }}>
             <Spinner />
           </Flex>
         )}
         {!loading && message && (
-          <Text size="2" variant="neutral" css={{ mt: "$2" }}>
+          <Text size="2" variant="neutral" css={{ marginTop: "$2" }}>
             {message}
           </Text>
         )}
         {!loading && params?.migrateDelegatorParams && (
-          <Box css={{ mt: "$3" }}>
-            <Text size="2" variant="neutral" css={{ mb: "$2" }}>
+          <Box css={{ marginTop: "$3" }}>
+            <Text size="2" variant="neutral" css={{ marginBottom: "$2" }}>
               The function <code>migrateDelegator</code> should be submitted
               with the following parameters:
             </Text>
             {Object.keys(params.migrateDelegatorParams).map((keyName, i) => (
-              <ReadOnlyCard key={i} css={{ p: "$2", mb: "$1", fontSize: "$2" }}>
+              <ReadOnlyCard
+                key={i}
+                css={{ padding: "$2", marginBottom: "$1", fontSize: "$2" }}
+              >
                 <Box
                   css={{
                     fontFamily: "$mono",
@@ -184,8 +175,8 @@ const ContractWalletTool = () => {
           </Box>
         )}
         {!loading && params?.migrateUnbondingLockParams && (
-          <Box css={{ mt: "$3" }}>
-            <Text size="2" variant="neutral" css={{ mb: "$2" }}>
+          <Box css={{ marginTop: "$3" }}>
+            <Text size="2" variant="neutral" css={{ marginBottom: "$2" }}>
               The function <code>migrateUnbondingLocks</code> should be
               submitted with the following parameters:
             </Text>

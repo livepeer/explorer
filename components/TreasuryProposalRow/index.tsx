@@ -1,16 +1,22 @@
-import { Badge, Box, Card, Flex, Heading, Link as A } from "@livepeer/design-system";
-import dayjs from "dayjs";
-import Link from "next/link";
-import { useMemo } from "react";
-import { ProtocolQuery } from "apollo";
-import { useTreasuryProposalState } from "hooks";
-import { sentenceCase } from "change-case";
-import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import {
+  getProposalExtended,
   ParsedProposal,
   ProposalExtended,
-  getProposalExtended,
 } from "@lib/api/treasury";
+import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Link as A,
+} from "@livepeer/design-system";
+import { ProtocolQuery } from "apollo";
+import { sentenceCase } from "change-case";
+import { useTreasuryProposalState } from "hooks";
+import Link from "next/link";
+import { useMemo } from "react";
 
 export const BadgeVariantByState = {
   Pending: "lime",
@@ -31,7 +37,6 @@ type Props = {
 };
 
 const TreasuryProposalRow = ({
-  key,
   proposal: parsedProposal,
   currentRound,
   protocol,
@@ -49,80 +54,77 @@ const TreasuryProposalRow = ({
   }, [currentRound, protocol, parsedProposal, state]);
 
   return (
-    <Link
+    <A
+      as={Link}
       {...props}
-      href="/treasury/[proposal]"
-      as={`/treasury/${proposal.id}`}
+      href={`/treasury/${proposal.id}`}
       passHref
       // disable clicking if there's no state (i.e. details page would just hang)
       {...(!state ? { onClick: (e) => e.preventDefault() } : {})}
+      css={{
+        cursor: "pointer",
+        display: "block",
+        textDecoration: "none",
+        "&:hover": { textDecoration: "none" },
+      }}
     >
-      <A
+      <Card
+        variant="interactive"
         css={{
-          cursor: "pointer",
-          display: "block",
-          textDecoration: "none",
-          "&:hover": { textDecoration: "none" },
+          padding: "$4",
+          marginBottom: "$3",
+          border: "1px solid $neutral4",
         }}
       >
-        <Card
-          variant="interactive"
+        <Flex
           css={{
-            p: "$4",
-            mb: "$3",
-            border: "1px solid $neutral4",
+            flexDirection: "column-reverse",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            "@bp2": {
+              flexDirection: "row",
+              alignItems: "center",
+            },
           }}
         >
-          <Flex
+          <Box>
+            <Heading size="1" css={{ mb: "$1" }}>
+              {proposal.attributes.title}
+              {!proposal.attributes.lip
+                ? ""
+                : ` (LIP ${proposal.attributes.lip})`}
+            </Heading>
+            <Box css={{ fontSize: "$1", color: "$neutral10" }}>
+              {!state || !("votes" in proposal) ? (
+                <Box>Loading...</Box>
+              ) : !["Pending", "Active"].includes(state?.state) ? (
+                <Box>
+                  Voting ended on{" "}
+                  {proposal.votes.voteEndTime.format("MMM D, YYYY")}
+                </Box>
+              ) : (
+                <Box>
+                  Voting will end on ~
+                  {proposal.votes.voteEndTime.format("MMM D, YYYY")}
+                </Box>
+              )}
+            </Box>
+          </Box>
+          <Badge
+            size="2"
+            variant={BadgeVariantByState[state?.state ?? ""] || "neutral"}
             css={{
-              flexDirection: "column-reverse",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              "@bp2": {
-                flexDirection: "row",
-                alignItems: "center",
-              },
+              textTransform: "capitalize",
+              fontWeight: 700,
             }}
           >
-            <Box>
-              <Heading size="1" css={{ mb: "$1" }}>
-                {proposal.attributes.title}
-                {!proposal.attributes.lip
-                  ? ""
-                  : ` (LIP ${proposal.attributes.lip})`}
-              </Heading>
-              <Box css={{ fontSize: "$1", color: "$neutral10" }}>
-                {!state || !("votes" in proposal) ? (
-                  <Box>Loading...</Box>
-                ) : !["Pending", "Active"].includes(state?.state) ? (
-                  <Box>
-                    Voting ended on{" "}
-                    {proposal.votes.voteEndTime.format("MMM D, YYYY")}
-                  </Box>
-                ) : (
-                  <Box>
-                    Voting will end on ~
-                    {proposal.votes.voteEndTime.format("MMM D, YYYY")}
-                  </Box>
-                )}
-              </Box>
-            </Box>
-            <Badge
-              size="2"
-              variant={BadgeVariantByState[state?.state ?? ""] || "neutral"}
-              css={{
-                textTransform: "capitalize",
-                fontWeight: 700,
-              }}
-            >
-              {sentenceCase(
-                isLoadingState ? "Loading" : state?.state ?? "Unknown"
-              )}
-            </Badge>
-          </Flex>
-        </Card>
-      </A>
-    </Link>
+            {sentenceCase(
+              isLoadingState ? "Loading" : state?.state ?? "Unknown"
+            )}
+          </Badge>
+        </Flex>
+      </Card>
+    </A>
   );
 };
 

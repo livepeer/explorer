@@ -1,10 +1,11 @@
 import { getCacheControlHeader } from "@lib/api";
+import { Region, Regions } from "@lib/api/types/get-regions";
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Regions, Region } from "@lib/api/types/get-regions";
 
 const METRICS_URL = [
   process.env.NEXT_PUBLIC_METRICS_SERVER_URL,
-  process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
+  process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL,
 ];
 
 /**
@@ -12,9 +13,11 @@ const METRICS_URL = [
  * @param url - The URL to fetch regions from.
  * @returns Returns a promise that resolves to the regions or null if the fetch fails.
  */
-const fetchRegions = async (url: string | undefined): Promise<Regions | null> => {
+const fetchRegions = async (
+  url: string | undefined
+): Promise<Regions | null> => {
   if (!url) return null;
-  const response = await fetch(`${url}/api/regions`);
+  const response = await fetchWithRetry(`${url}/api/regions`);
   return response.ok ? response.json() : null;
 };
 
@@ -34,7 +37,10 @@ const handler = async (
           new Map(
             regionsData
               .flatMap((data) => data?.regions || [])
-              .map((region) => [`${region.id}-${region.name}-${region.type}`, region])
+              .map((region) => [
+                `${region.id}-${region.name}-${region.type}`,
+                region,
+              ])
           ).values()
         ),
       };
@@ -43,7 +49,10 @@ const handler = async (
       mergedRegions.regions.sort((a: Region, b: Region) => {
         if (a.name.startsWith(globalKey) && !b.name.startsWith(globalKey)) {
           return -1;
-        } else if (!a.name.startsWith(globalKey) && b.name.startsWith(globalKey)) {
+        } else if (
+          !a.name.startsWith(globalKey) &&
+          b.name.startsWith(globalKey)
+        ) {
           return 1;
         } else {
           return a.name.localeCompare(b.name);

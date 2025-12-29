@@ -1,19 +1,12 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import dayjs from "@lib/dayjs";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import dayjs from "dayjs";
-import numeral from "numeral";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import numbro from "numbro";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart as ReBarChart,
-  Cell,
   Line,
   LineChart as ReLineChart,
   ResponsiveContainer,
@@ -21,6 +14,24 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+// Correctly formatted custom content of tooltip is required to not throw error in console
+// As defined in https://recharts.github.io/en-US/examples/CustomContentOfTooltip
+const CustomContentOfTooltip = ({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: unknown[];
+}) => {
+  const isVisible = active && payload && payload.length;
+  return (
+    <div
+      className="custom-tooltip"
+      style={{ visibility: isVisible ? "visible" : "hidden" }}
+    />
+  );
+};
 
 export type ChartDatum = { x: number; y: number };
 
@@ -41,6 +52,8 @@ const CustomizedXAxisTick = ({ x, y, payload }) => {
     </g>
   );
 };
+
+export type Group = "day" | "week" | "year" | "all";
 
 const ExplorerChart = ({
   title,
@@ -67,8 +80,8 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
-  grouping?: "day" | "week";
-  onToggleGrouping?: (grouping: "day" | "week") => void;
+  grouping?: Group;
+  onToggleGrouping?: (grouping: Group) => void;
 }) => {
   const formatDateSubtitle = useCallback(
     (date: number) =>
@@ -86,18 +99,35 @@ const ExplorerChart = ({
     [grouping]
   );
   const formatSubtitle = useCallback(
-    (value: number) =>
-      `${numeral(value).format(
-        unit === "usd"
-          ? "$0,0"
-          : unit === "eth"
-          ? "0,0.0"
+    (value: number) => {
+      if (unit === "usd") {
+        return numbro(value).formatCurrency({
+          mantissa: 0,
+          thousandSeparated: true,
+        });
+      }
+      return `${numbro(value).format(
+        unit === "eth"
+          ? {
+              mantissa: 1,
+              thousandSeparated: true,
+            }
           : unit === "percent"
-          ? "0.0%"
+          ? {
+              output: "percent",
+              mantissa: 1,
+            }
           : unit === "small-percent"
-          ? "0.00000%"
-          : "0,0"
-      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`,
+          ? {
+              output: "percent",
+              mantissa: 5,
+            }
+          : {
+              mantissa: 0,
+              thousandSeparated: true,
+            }
+      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`;
+    },
     [unit]
   );
   const defaultSubtitle = useMemo<string>(
@@ -107,7 +137,11 @@ const ExplorerChart = ({
   const defaultPercentChange = useMemo<string>(
     () =>
       basePercentChange !== 0
-        ? numeral(basePercentChange / 100).format("+0.00%")
+        ? numbro(basePercentChange / 100).format({
+            output: "percent",
+            mantissa: 2,
+            forceSign: true,
+          })
         : "",
     [basePercentChange]
   );
@@ -147,18 +181,36 @@ const ExplorerChart = ({
           fontWeight={400}
           fontSize="13px"
         >
-          {numeral(payload.value).format(
+          {numbro(payload.value).format(
             unit === "usd"
-              ? "$0a"
+              ? {
+                  mantissa: 0,
+                  currencySymbol: "$",
+                  average: true,
+                }
               : unit === "eth"
-              ? "0.0"
+              ? {
+                  mantissa: 1,
+                }
               : unit === "percent"
-              ? "0%"
+              ? {
+                  output: "percent",
+                  mantissa: 0,
+                }
               : unit === "small-percent"
-              ? "0.00%"
+              ? {
+                  output: "percent",
+                  mantissa: 2,
+                }
               : unit === "small-unitless"
-              ? "0.0a"
-              : "0a"
+              ? {
+                  mantissa: 1,
+                  average: true,
+                }
+              : {
+                  mantissa: 0,
+                  average: true,
+                }
           )}
           {unit === "eth" ? " Ξ" : ""}
         </text>
@@ -226,7 +278,7 @@ const ExplorerChart = ({
               {title}
             </Text>
             {tooltip && (
-              <Box css={{ ml: "$1" }}>
+              <Box css={{ marginLeft: "$1" }}>
                 <Box
                   as={QuestionMarkCircledIcon}
                   css={{ color: "$neutral11" }}
@@ -237,7 +289,7 @@ const ExplorerChart = ({
         </ExplorerTooltip>
         <Flex>
           {(data?.length || 0) <= 0 ? (
-            <Skeleton css={{ mt: "$1", width: "100%", height: 20 }} />
+            <Skeleton css={{ marginTop: "$1", width: "100%", height: 20 }} />
           ) : (
             <>
               <Text
@@ -252,10 +304,10 @@ const ExplorerChart = ({
               {barSelected.percentChange && (
                 <Text
                   css={{
-                    ml: "$2",
+                    marginLeft: "$2",
                     fontSize: "$3",
                     color:
-                      (numeral(barSelected.percentChange).value() ?? 0) < 0
+                      (numbro(barSelected.percentChange).value() ?? 0) < 0
                         ? "#ff0022"
                         : "#00EB88",
                   }}
@@ -295,15 +347,40 @@ const ExplorerChart = ({
             onClick={() => onToggleGrouping?.("week")}
             size="1"
             variant={grouping === "week" ? "primary" : "neutral"}
-            css={{ ml: "$1" }}
+            css={{ marginLeft: "$1" }}
           >
             W
           </Button>
         </Flex>
       )}
+      {type === "line" && grouping && onToggleGrouping && (
+        <Flex
+          css={{
+            position: "absolute",
+            right: 0,
+            zIndex: 3,
+          }}
+        >
+          <Button
+            onClick={() => onToggleGrouping("year")}
+            size="1"
+            variant={grouping === "year" ? "primary" : "neutral"}
+          >
+            Y
+          </Button>
+          <Button
+            onClick={() => onToggleGrouping("all")}
+            size="1"
+            variant={grouping === "all" ? "primary" : "neutral"}
+            css={{ marginLeft: "$1" }}
+          >
+            All
+          </Button>
+        </Flex>
+      )}
       <Box
         css={{
-          pt: 57,
+          paddingTop: 57,
           width: "100%",
           height: "100%",
         }}
@@ -355,7 +432,7 @@ const ExplorerChart = ({
                 orientation="right"
                 tick={CustomizedYAxisTick}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomContentOfTooltip} />
 
               <Bar dataKey="y" cursor="pointer" fill="rgba(0, 235, 136, 0.8)" />
             </ReBarChart>
@@ -404,7 +481,7 @@ const ExplorerChart = ({
                 tick={CustomizedYAxisTick}
                 domain={["auto", "auto"]}
               />
-              <ReTooltip content={<></>} />
+              <ReTooltip content={CustomContentOfTooltip} />
 
               <Line
                 dataKey="y"

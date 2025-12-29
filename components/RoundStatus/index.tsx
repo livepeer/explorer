@@ -1,23 +1,21 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import { Box, Flex, Text, getThemes } from "@livepeer/design-system";
+import dayjs from "@lib/dayjs";
+import { Box, Flex, getThemes, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
 import { ProtocolQueryResult } from "apollo";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
-import CircularProgressbar from "../CircularProgressBar";
 
-dayjs.extend(relativeTime);
+import CircularProgressbar from "../CircularProgressBar";
 
 const themes = getThemes();
 
@@ -133,12 +131,22 @@ const Index = ({
             {isRoundLocked ? (
               <Box
                 as={Cross1Icon}
-                css={{ ml: "$2", width: 20, height: 20, color: "$red11" }}
+                css={{
+                  marginLeft: "$2",
+                  width: 20,
+                  height: 20,
+                  color: "$red11",
+                }}
               />
             ) : (
               <Box
                 as={CheckIcon}
-                css={{ ml: "$1", width: 20, height: 20, color: "$primary11" }}
+                css={{
+                  marginLeft: "$1",
+                  width: 20,
+                  height: 20,
+                  color: "$primary11",
+                }}
               />
             )}
           </Flex>
@@ -148,7 +156,7 @@ const Index = ({
       <Box
         css={{
           width: "100%",
-          mt: "$2",
+          marginTop: "$2",
         }}
       >
         {!currentRoundInfo || !protocol ? (
@@ -164,7 +172,7 @@ const Index = ({
         ) : currentRoundInfo?.initialized ? (
           <Flex
             css={{
-              pb: "$2",
+              paddingBottom: "$2",
               alignItems: "center",
               flexDirection: "column",
             }}
@@ -175,7 +183,7 @@ const Index = ({
                 minWidth: 160,
                 height: 160,
                 minHeight: 160,
-                mb: "$4",
+                marginBottom: "$4",
                 display: "block",
               }}
             >
@@ -238,16 +246,19 @@ const Index = ({
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numeral(protocol?.currentRound?.volumeUSD || 0).format(
-                    "$0,0k"
-                  )}{" "}
+                  {numbro(
+                    protocol?.currentRound?.volumeUSD || 0
+                  ).formatCurrency({
+                    mantissa: 0,
+                    average: true,
+                  })}{" "}
                   at recent prices of ETH.
                 </Box>
               }
             >
               <Flex
                 css={{
-                  mt: "$3",
+                  marginTop: "$3",
                   width: "100%",
                   justifyContent: "space-between",
                 }}
@@ -265,7 +276,7 @@ const Index = ({
                   >
                     Fees
                   </Text>
-                  <Box css={{ ml: "$1" }}>
+                  <Box css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -279,9 +290,10 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(protocol?.currentRound?.volumeETH || 0).format(
-                    "0.00a"
-                  )}{" "}
+                  {numbro(protocol?.currentRound?.volumeETH || 0).format({
+                    mantissa: 2,
+                    average: true,
+                  })}{" "}
                   ETH
                 </Text>
               </Flex>
@@ -297,7 +309,7 @@ const Index = ({
             >
               <Flex
                 css={{
-                  mt: "$1",
+                  marginTop: "$1",
                   width: "100%",
                   justifyContent: "space-between",
                 }}
@@ -315,7 +327,7 @@ const Index = ({
                   >
                     Rewards
                   </Text>
-                  <Box css={{ ml: "$1" }}>
+                  <Box css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -329,10 +341,13 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numeral(rewardTokensClaimed).format("0")}/
-                  {numeral(protocol?.currentRound?.mintableTokens || 0).format(
-                    "0"
-                  )}{" "}
+                  {numbro(rewardTokensClaimed).format({
+                    mantissa: 0,
+                  })}
+                  /
+                  {numbro(protocol?.currentRound?.mintableTokens || 0).format({
+                    mantissa: 0,
+                  })}{" "}
                   LPT
                 </Text>
               </Flex>

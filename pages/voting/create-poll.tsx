@@ -1,3 +1,4 @@
+import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import { pollCreator } from "@lib/api/abis/main/PollCreator";
 import { getPollCreatorAddress } from "@lib/api/contracts";
@@ -17,21 +18,26 @@ import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
 import fm from "front-matter";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  usePendingFeesAndStakeData,
-} from "hooks";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
+import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { LAYOUT_MAX_WIDTH } from "layouts/constants";
+import { getLayout } from "layouts/main";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Address } from "viem";
+import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
-const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
+const CreatePoll = ({
+  hadError,
+  projectOwner,
+  projectName,
+  gitCommitHash,
+  lips,
+}) => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
@@ -63,29 +69,32 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
     }
   }, [delegatorPendingStakeAndFees]);
 
-  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [selectedProposal, setSelectedProposal] = useState<{
+    gitCommitHash: string;
+    text: string;
+  } | null>(null);
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(pollCreatorAddress && hash),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(pollCreatorAddress && hash) },
     address: pollCreatorAddress,
     abi: pollCreator,
     functionName: "createPoll",
-    args: [hash ? hexlify(toUtf8Bytes(hash)) as `0x${string}` : "0x"],
+    args: [hash ? (hexlify(toUtf8Bytes(hash)) as `0x${string}`) : "0x"],
   });
   const {
     data: createPollResult,
     status,
-    isLoading,
-    write,
+    isPending,
+    writeContract,
     error,
     isSuccess,
-  } = useContractWrite(config);
+  } = useWriteContract();
 
   useHandleTransaction(
     "createPoll",
     createPollResult,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     {
       proposal: hash,
@@ -94,9 +103,14 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 
   useEffect(() => {
     if (hash && status === "idle") {
-      write?.();
+      if (!config) return;
+      writeContract(config.request);
     }
-  }, [hash, write, status]);
+  }, [config, hash, writeContract, status]);
+
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
 
   return (
     <>
@@ -106,8 +120,8 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
       <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
-            mt: "$6",
-            mb: "$4",
+            marginTop: "$6",
+            marginBottom: "$4",
           }}
         >
           <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
@@ -154,14 +168,17 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       width: "100%",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      p: "$4",
-                      mb: "$4",
+                      padding: "$4",
+                      marginBottom: "$4",
                       display: "flex",
                       borderRadius: "$4",
                     }}
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                    placeholder={undefined}
                   >
                     <Flex css={{ alignItems: "center", width: "100%" }}>
-                      <Box css={{ ml: "$3", width: "100%" }}>
+                      <Box css={{ marginLeft: "$3", width: "100%" }}>
                         LIP-{lip.attributes.lip} - {lip.attributes.title}
                       </Box>
                     </Flex>
@@ -169,7 +186,7 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                       variant="primary"
                       css={{
                         display: "flex",
-                        ml: "$2",
+                        marginLeft: "$2",
                         minWidth: 108,
                       }}
                       target="_blank"
@@ -184,14 +201,16 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
               </RadioCardGroup>
               <Flex
                 css={{
-                  mt: "$5",
+                  marginTop: "$5",
                   alignItems: "center",
                   justifyContent: "flex-end",
                 }}
               >
                 {loading ? (
                   <>
-                    <Box css={{ mr: "$3" }}>Loading Staked LPT Balance</Box>
+                    <Box css={{ marginRight: "$3" }}>
+                      Loading Staked LPT Balance
+                    </Box>
                     <Spinner />
                   </>
                 ) : (
@@ -220,10 +239,12 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
                         isCreatePollLoading
                       }
                       type="submit"
-                      css={{ ml: "$3", alignSelf: "flex-end" }}
+                      css={{ marginLeft: "$3", alignSelf: "flex-end" }}
                     >
                       Create Poll{" "}
-                      {isCreatePollLoading && <Spinner css={{ ml: "$2" }} />}
+                      {isCreatePollLoading && (
+                        <Spinner css={{ marginLeft: "$2" }} />
+                      )}
                     </Button>
                   </>
                 )}
@@ -244,6 +265,23 @@ const CreatePoll = ({ projectOwner, projectName, gitCommitHash, lips }) => {
 CreatePoll.getLayout = getLayout;
 
 export default CreatePoll;
+
+type TransformedProposal = {
+  attributes: {
+    lip: string;
+  };
+};
+
+type TransformedLip = {
+  attributes: {
+    lip: string;
+    title: string;
+    status: string;
+    created: string;
+    "part-of"?: string;
+  };
+  text: string;
+};
 
 export async function getStaticProps() {
   try {
@@ -309,17 +347,19 @@ export async function getStaticProps() {
 
           // check if proposal is valid format {text, gitCommitHash}
           if (obj?.text && obj?.gitCommitHash) {
-            const transformedProposal = fm(obj.text) as any;
+            const transformedProposal = fm(obj.text) as TransformedProposal;
             createdPolls.push(transformedProposal.attributes.lip);
           }
         })
       );
     }
 
-    const lips: any[] = [];
+    const lips: TransformedLip[] = [];
     if (result.data) {
       for (const lip of result.data.repository.content.entries) {
-        const transformedLip = fm(lip.content.text) as any;
+        const transformedLip = fm(
+          lip.content.text
+        ) as unknown as TransformedLip;
         transformedLip.attributes.created =
           transformedLip.attributes.created.toString();
         if (
@@ -350,6 +390,11 @@ export async function getStaticProps() {
     };
   } catch (e) {
     console.log(e);
-    return null;
+    return {
+      props: {
+        hadError: true,
+      },
+      revalidate: 60,
+    };
   }
 }

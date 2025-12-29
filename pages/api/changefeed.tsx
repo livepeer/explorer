@@ -1,6 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
-import fetch from "isomorphic-unfetch";
-
+import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const query = `
@@ -26,16 +25,20 @@ const query = `
 `;
 
 const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
-  const response = await fetch(`https://changefeed.app/graphql`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.CHANGEFEED_ACCESS_TOKEN}`,
+  const response = await fetchWithRetry(
+    "https://changefeed.app/graphql",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CHANGEFEED_ACCESS_TOKEN!}`,
+      },
+      body: JSON.stringify({ query }),
     },
-    body: JSON.stringify({
-      query,
-    }),
-  });
+    {
+      retryOnMethods: ["POST"],
+    }
+  );
 
   res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 

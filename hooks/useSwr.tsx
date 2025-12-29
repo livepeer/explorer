@@ -1,4 +1,8 @@
 import { AccountBalance } from "@lib/api/types/get-account-balance";
+import {
+  AvailablePipelines,
+  Pipeline,
+} from "@lib/api/types/get-available-pipelines";
 import { GetChangefeed } from "@lib/api/types/get-changefeed";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
@@ -6,8 +10,10 @@ import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { L1Delegator } from "@lib/api/types/get-l1-delegator";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
-import { AllPerformanceMetrics, PerformanceMetrics } from "@lib/api/types/get-performance";
-import { AvailablePipelines, Pipeline } from "@lib/api/types/get-available-pipelines";
+import {
+  AllPerformanceMetrics,
+  PerformanceMetrics,
+} from "@lib/api/types/get-performance";
 import { Regions } from "@lib/api/types/get-regions";
 import {
   ProposalState,
@@ -21,21 +27,26 @@ import { Address } from "viem";
 export const useRegionsData = (): Regions => {
   const { data } = useSWR<Regions>(`/regions`);
 
-  return data ?? { regions: [{id:"GLOBAL", name:"Global", type: "transcoding"}] };
+  return (
+    data ?? { regions: [{ id: "GLOBAL", name: "Global", type: "transcoding" }] }
+  );
 };
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
-  const { data } = useSWR<EnsIdentity>(
+  const { data, isValidating, error } = useSWR<EnsIdentity>(
     address ? `/ens-data/${address.toLowerCase()}` : null
   );
 
-  return (
-    data ?? {
-      id: address ?? "",
-      idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
-      name: null,
-    }
-  );
+  const fallbackIdentity: EnsIdentity = {
+    id: address ?? "",
+    idShort: address?.replace(address?.slice(6, 38), "…") ?? "",
+    name: null,
+  };
+
+  return {
+    ...(data ?? fallbackIdentity),
+    isLoading: Boolean(address && !data && isValidating && !error),
+  };
 };
 
 export const useAllEnsData = (): EnsIdentity[] => {
@@ -58,13 +69,19 @@ export const useChangefeedData = () => {
 
 export const useAvailableInferencePipelinesData = () => {
   const { data, isValidating } = useSWR<AvailablePipelines>(`/pipelines`);
-  return { data: data ?? {pipelines: []}, isValidating };
+  return { data: data ?? { pipelines: [] }, isValidating };
 };
 
-export const useAllScoreData = (pipeline: Pipeline["id"] | null, model: string | null) => {
-  const url = pipeline && model
-    ? `/score?pipeline=${encodeURIComponent(pipeline)}&model=${encodeURIComponent(model)}`
-    : `/score`;
+export const useAllScoreData = (
+  pipeline: Pipeline["id"] | null,
+  model: string | null
+) => {
+  const url =
+    pipeline && model
+      ? `/score?pipeline=${encodeURIComponent(
+          pipeline
+        )}&model=${encodeURIComponent(model)}`
+      : `/score`;
 
   const { data, isValidating } = useSWR<AllPerformanceMetrics>(url);
 
@@ -134,13 +151,17 @@ export const useProposalVotingPowerData = (
 };
 
 export const useAccountBalanceData = (address: string | undefined | null) => {
-  const { data } = useSWR<AccountBalance>(address ? `/account-balance/${address.toLowerCase()}` : null);
+  const { data } = useSWR<AccountBalance>(
+    address ? `/account-balance/${address.toLowerCase()}` : null
+  );
 
   return data ?? null;
 };
 
 export const useL1DelegatorData = (address: string | undefined | null) => {
-  const { data } = useSWR<L1Delegator>(address ? `/l1-delegator/${address.toLowerCase()}` : null);
+  const { data } = useSWR<L1Delegator>(
+    address ? `/l1-delegator/${address.toLowerCase()}` : null
+  );
 
   return data ?? null;
 };

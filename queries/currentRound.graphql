@@ -1,9 +1,16 @@
 query currentRound {
+  _meta {
+    block {
+      number
+    }
+  }
   protocol(id: 0) {
     id
 
     currentRound {
       id
+      initialized
+      startBlock
     }
   }
 }

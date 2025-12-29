@@ -1,6 +1,16 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import IdentityAvatar from "@components/IdentityAvatar";
 import PopoverLink from "@components/PopoverLink";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import Table from "@components/Table";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import dayjs from "@lib/dayjs";
+import {
+  calculateROI,
+  ROIFactors,
+  ROIInflationChange,
+  ROITimeHorizon,
+} from "@lib/roi";
 import { textTruncate } from "@lib/utils";
 import {
   Badge,
@@ -19,38 +29,21 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
+import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
-import dayjs from "dayjs";
-import Link from "next/link";
-import numeral from "numeral";
-import QRCode from "qrcode.react";
-import { useCallback, useMemo, useState } from "react";
+import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
+import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import Link from "next/link";
+import numbro from "numbro";
+import { useCallback, useMemo, useState } from "react";
+import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
-
-import { ExplorerTooltip } from "@components/ExplorerTooltip";
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import {
-  calculateROI,
-  ROIFactors,
-  ROIInflationChange,
-  ROITimeHorizon,
-} from "@lib/roi";
-import {
-  ArrowTopRightIcon,
-  // ExclamationTriangleIcon,
-} from "@modulz/radix-icons";
-import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { useEnsData } from "hooks";
-import { useContractRead } from "wagmi";
-
-dayjs.extend(relativeTime);
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"
@@ -88,16 +81,18 @@ const OrchestratorList = ({
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
-        ? `Fixed at ${numeral(
+        ? `Fixed at ${numbro(
             Number(protocolData?.inflation) / 1000000000
-          ).format("0.000%")}`
-        : change === "positive"
-        ? `+${numeral(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`
-        : `-${numeral(
-            Number(protocolData?.inflationChange) / 1000000000
-          ).format("0.00000%")} per round`,
+          ).format({
+            mantissa: 3,
+            output: "percent",
+          })}`
+        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
+            mantissa: 5,
+            output: "percent",
+            forceSign: true,
+          })} per round`,
+
     [protocolData?.inflation, protocolData?.inflationChange]
   );
 
@@ -111,12 +106,13 @@ const OrchestratorList = ({
     [protocolData]
   );
   const formattedPrinciple = useMemo(
-    () => numeral(Number(principle) || 150).format("0a"),
+    () =>
+      numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
     [principle]
   );
-  const { data: bondingManagerAddress } = useBondingManagerAddress(); 
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useContractRead({
-    enabled: Boolean(bondingManagerAddress),
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+    query: { enabled: Boolean(bondingManagerAddress) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "treasuryRewardCutRate",
@@ -168,7 +164,8 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut:
+              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
           },
         });
 
@@ -209,7 +206,15 @@ const OrchestratorList = ({
           ? -1
           : 1
       );
-  }, [data, inflationChange, protocolData, principle, timeHorizon, factors, treasuryRewardCutRate]);
+  }, [
+    data,
+    inflationChange,
+    protocolData,
+    principle,
+    timeHorizon,
+    factors,
+    treasuryRewardCutRate,
+  ]);
 
   const columns = useMemo(
     () => [
@@ -232,85 +237,64 @@ const OrchestratorList = ({
           const identity = useEnsData(row.values.id);
 
           return (
-            <Link href={`/accounts/${row.values.id}/orchestrating`} passHref>
-              <A
-                css={{
-                  width: 350,
-                  display: "block",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "none" },
-                }}
-              >
-                <Flex css={{ alignItems: "center" }}>
-                  <Box
-                    css={{
-                      mr: "$2",
-                      backgroundColor: "$neutral4",
-                      borderRadius: 1000,
-                      color: "$neutral11",
-                      fontWeight: 700,
-                      width: 24,
-                      height: 24,
-                      minWidth: 24,
-                      minHeight: 24,
-                      fontSize: 11,
-                      justifyContent: "center",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {+row.id + 1}
-                  </Box>
+            <A
+              as={Link}
+              href={`/accounts/${row.values.id}/orchestrating`}
+              passHref
+              css={{
+                width: 350,
+                display: "block",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "none" },
+              }}
+            >
+              <Flex css={{ alignItems: "center" }}>
+                <Box
+                  css={{
+                    marginRight: "$2",
+                    backgroundColor: "$neutral4",
+                    borderRadius: 1000,
+                    color: "$neutral11",
+                    fontWeight: 700,
+                    width: 24,
+                    height: 24,
+                    minWidth: 24,
+                    minHeight: 24,
+                    fontSize: 11,
+                    justifyContent: "center",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {+row.id + 1}
+                </Box>
 
-                  <Flex css={{ mr: "$2", alignItems: "center" }}>
-                    {identity?.avatar ? (
+                <Flex css={{ marginRight: "$2", alignItems: "center" }}>
+                  <IdentityAvatar
+                    identity={identity}
+                    address={row.values.id}
+                    css={{ marginRight: "$2" }}
+                  />
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, alignItems: "center" }}>
                       <Box
-                        as="img"
                         css={{
-                          mr: "$2",
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                          borderRadius: 1000,
+                          marginRight: "$2",
+                          fontSize: "$3",
                         }}
-                        src={identity.avatar}
-                      />
-                    ) : (
-                      <Box
-                        as={QRCode}
-                        css={{
-                          mr: "$2",
-                          borderRadius: 1000,
-                          width: 24,
-                          height: 24,
-                          maxWidth: 24,
-                          maxHeight: 24,
-                        }}
-                        fgColor={`#${row.values.id.substr(2, 6)}`}
-                        value={row.values.id}
-                      />
-                    )}
-                    {identity?.name ? (
-                      <Flex css={{ fontWeight: 600, ai: "center" }}>
-                        <Box
-                          css={{
-                            mr: "$2",
-                            fontSize: "$3",
-                          }}
-                        >
-                          {textTruncate(identity.name, 20, "…")}
-                        </Box>
-                        <Badge size="2" css={{ fontSize: "$2" }}>
-                          {row.values.id.substring(0, 6)}
-                        </Badge>
-                      </Flex>
-                    ) : (
-                      <Box css={{ fontWeight: 600 }}>
-                        {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
                       </Box>
-                    )}
-                    {/* {(row?.original?.daysSinceChangeParams ??
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {row.values.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                    </Box>
+                  )}
+                  {/* {(row?.original?.daysSinceChangeParams ??
                       Number.MAX_VALUE) < 30 && (
                       <ExplorerTooltip
                         multiline
@@ -324,10 +308,9 @@ const OrchestratorList = ({
                         </Box>
                       </ExplorerTooltip>
                     )} */}
-                  </Flex>
                 </Flex>
-              </A>
-            </Link>
+              </Flex>
+            </A>
           );
         },
       },
@@ -362,23 +345,24 @@ const OrchestratorList = ({
           );
           const feeCut = useMemo(
             () =>
-              numeral(
-                1 - Number(row.values.earnings.feeShare) / 1000000
-              ).format("0%"),
+              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
+                { mantissa: 0, output: "percent" }
+              ),
             [row.values.earnings.feeShare]
           );
           const rewardCut = useMemo(
             () =>
-              numeral(Number(row.values.earnings.rewardCut) / 1000000).format(
-                "0%"
-              ),
+              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
+                mantissa: 0,
+                output: "percent",
+              }),
             [row.values.earnings.rewardCut]
           );
           const rewardCalls = useMemo(
             () =>
-              `${numeral(row.values.earnings.rewardCalls)
+              `${numbro(row.values.earnings.rewardCalls)
                 .divide(row.values.earnings.rewardCallLength)
-                .format("0%")}`,
+                .format({ mantissa: 0, output: "percent" })}`,
             [
               row.values.earnings.rewardCalls,
               row.values.earnings.rewardCallLength,
@@ -401,12 +385,12 @@ const OrchestratorList = ({
                   ) : (
                     <>
                       <Box>
-                        {numeral(
+                        {numbro(
                           row.values.earnings.roi.delegatorPercent.fees +
                             row.values.earnings.roi.delegatorPercent.rewards
-                        ).format("0.0%")}
+                        ).format({ mantissa: 1, output: "percent" })}
                       </Box>
-                      <Box css={{ ml: "$1" }}>
+                      <Box css={{ marginLeft: "$1" }}>
                         <ChevronDownIcon />
                       </Box>
                     </>
@@ -416,6 +400,9 @@ const OrchestratorList = ({
               {!isNewlyActive && (
                 <PopoverContent
                   css={{ minWidth: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
                 >
                   <Box
                     css={{
@@ -426,7 +413,7 @@ const OrchestratorList = ({
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -439,14 +426,14 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
                             Rewards (
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegatorPercent.rewards
-                            ).format("0.0%")}
+                            ).format({ mantissa: 1, output: "percent" })}
                             ):
                           </Text>
                           <Text
@@ -455,13 +442,13 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegator.rewards
-                            ).format("0.0")}
+                            ).format({ mantissa: 1 })}
                             {" LPT"}
                           </Text>
                         </Flex>
@@ -471,14 +458,14 @@ const OrchestratorList = ({
                           <Text
                             variant="neutral"
                             css={{
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
                             Fees (
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegatorPercent.fees
-                            ).format("0.0%")}
+                            ).format({ mantissa: 1, output: "percent" })}
                             ):
                           </Text>
                           <Text
@@ -487,56 +474,55 @@ const OrchestratorList = ({
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              mb: "$1",
+                              marginBottom: "$1",
                             }}
                             size="2"
                           >
-                            {numeral(
+                            {numbro(
                               row.values.earnings.roi.delegator.fees
-                            ).format("0.000")}
+                            ).format({ mantissa: 3 })}
                             {" ETH"}
                           </Text>
                         </Flex>
                       )}
-                      <Link
+                      <A
+                        as={Link}
                         passHref
                         href="https://docs.livepeer.org/delegators/reference/yield-calculation"
                       >
-                        <A>
-                          <Flex
-                            css={{
-                              mt: "$2",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
+                        <Flex
+                          css={{
+                            marginTop: "$2",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text
+                            css={{ whiteSpace: "nowrap" }}
+                            variant="neutral"
+                            size="1"
                           >
-                            <Text
-                              css={{ whiteSpace: "nowrap" }}
-                              variant="neutral"
-                              size="1"
-                            >
-                              Learn how this calculation is performed
-                            </Text>
-                            <Box
-                              css={{ ml: "$1", width: 15, height: 15 }}
-                              as={ArrowTopRightIcon}
-                            />
-                          </Flex>
-                        </A>
-                      </Link>
+                            Learn how this calculation is performed
+                          </Text>
+                          <Box
+                            css={{ marginLeft: "$1", width: 15, height: 15 }}
+                            as={ArrowTopRightIcon}
+                          />
+                        </Flex>
+                      </A>
                     </Box>
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -548,7 +534,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -560,7 +546,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -571,7 +557,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -583,7 +569,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -594,7 +580,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -606,7 +592,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -617,7 +603,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -629,13 +615,13 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
-                          {numeral(
+                          {numbro(
                             row.values.earnings.ninetyDayVolumeETH
-                          ).format("0.000a")}
+                          ).format({ mantissa: 3, average: true })}
                           {" ETH"}
                         </Text>
                       </Flex>
@@ -643,7 +629,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -655,13 +641,14 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
-                          {numeral(row.values.earnings.totalStake).format(
-                            "0.0a"
-                          )}
+                          {numbro(row.values.earnings.totalStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -669,7 +656,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -681,7 +668,7 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -692,15 +679,15 @@ const OrchestratorList = ({
 
                     <Box
                       css={{
-                        mt: "$3",
-                        pt: "$3",
+                        marginTop: "$3",
+                        paddingTop: "$3",
                         borderTop: "1px solid $neutral6",
                       }}
                     >
                       <Text
                         size="1"
                         css={{
-                          mb: "$2",
+                          marginBottom: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -712,7 +699,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -724,11 +711,13 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
-                          {numeral(AVERAGE_L1_BLOCK_TIME).format("0")}
+                          {numbro(AVERAGE_L1_BLOCK_TIME).format({
+                            mantissa: 0,
+                          })}
                           {" seconds"}
                         </Text>
                       </Flex>
@@ -736,7 +725,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -748,13 +737,13 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
-                          {numeral(
+                          {numbro(
                             row.values.earnings.roi.params.roundsCount
-                          ).format("0")}
+                          ).format({ mantissa: 0 })}
                           {" rounds"}
                         </Text>
                       </Flex>
@@ -762,7 +751,7 @@ const OrchestratorList = ({
                         <Text
                           variant="neutral"
                           css={{
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
@@ -774,13 +763,14 @@ const OrchestratorList = ({
                             display: "block",
                             fontWeight: 600,
                             color: "$white",
-                            mb: "$1",
+                            marginBottom: "$1",
                           }}
                           size="2"
                         >
-                          {numeral(row.values.earnings.totalActiveStake).format(
-                            "0.0a"
-                          )}
+                          {numbro(row.values.earnings.totalActiveStake).format({
+                            mantissa: 1,
+                            average: true,
+                          })}
                           {" LPT"}
                         </Text>
                       </Flex>
@@ -828,7 +818,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numeral(row.values.totalStake).format("0,0")} LPT
+              {numbro(row.values.totalStake).format({
+                mantissa: 0,
+                thousandSeparated: true,
+              })}{" "}
+              LPT
             </Text>
           </Box>
         ),
@@ -858,7 +852,11 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numeral(row.values.ninetyDayVolumeETH).format("0.00a")} ETH
+              {numbro(row.values.ninetyDayVolumeETH).format({
+                mantissa: 2,
+                average: true,
+              })}{" "}
+              ETH
             </Text>
           </Box>
         ),
@@ -875,12 +873,12 @@ const OrchestratorList = ({
               }}
               asChild
             >
-              <Flex css={{ ai: "center" }}>
+              <Flex css={{ alignItems: "center" }}>
                 <IconButton
                   aria-label="Orchestrator actions"
                   css={{
                     cursor: "pointer",
-                    ml: "$1",
+                    marginLeft: "$1",
                     opacity: 1,
                     transition: "background-color .3s",
                     "&:hover": {
@@ -894,25 +892,30 @@ const OrchestratorList = ({
               </Flex>
             </PopoverTrigger>
             <PopoverContent
+              css={{ borderRadius: "$4", bc: "$neutral4" }}
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              css={{ borderRadius: "$4", bc: "$neutral4" }}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
             >
               <Box
                 css={{
                   borderBottom: "1px solid $neutral6",
-                  px: "$1",
-                  pt: "$1",
-                  pb: "$2",
+                  paddingLeft: "$1",
+                  paddingRight: "$1",
+                  paddingTop: "$1",
+                  paddingBottom: "$2",
                 }}
               >
                 <Text
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -927,7 +930,7 @@ const OrchestratorList = ({
               <Flex
                 css={{
                   flexDirection: "column",
-                  p: "$1",
+                  padding: "$1",
                   borderBottom: "1px solid $neutral6",
                 }}
               >
@@ -935,8 +938,9 @@ const OrchestratorList = ({
                   variant="neutral"
                   size="1"
                   css={{
-                    ml: "$3",
-                    my: "$2",
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
                     fontWeight: 600,
                     textTransform: "uppercase",
                   }}
@@ -964,8 +968,8 @@ const OrchestratorList = ({
 
   return (
     <Table
-      data={mappedData as any}
-      columns={columns as any}
+      data={mappedData as object[]}
+      columns={columns}
       initialState={{
         pageSize,
         hiddenColumns: ["identity"],
@@ -977,16 +981,16 @@ const OrchestratorList = ({
         ],
       }}
       input={
-        <Box css={{ mb: "$2" }}>
-          <Flex css={{ alignItems: "center", mb: "$2" }}>
-            <Box css={{ mr: "$1", color: "$neutral11" }}>
+        <Box css={{ marginBottom: "$2" }}>
+          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+            <Box css={{ marginRight: "$1", color: "$neutral11" }}>
               <YieldChartIcon />
             </Box>
             <Text
               variant="neutral"
               size="1"
               css={{
-                ml: "$1",
+                marginLeft: "$1",
                 textTransform: "uppercase",
                 fontWeight: 600,
               }}
@@ -1010,7 +1014,7 @@ const OrchestratorList = ({
                     fontSize: "$2",
                   }}
                 >
-                  <Box css={{ mr: "$1" }}>
+                  <Box css={{ marginRight: "$1" }}>
                     <Pencil1Icon />
                   </Box>
 
@@ -1018,7 +1022,7 @@ const OrchestratorList = ({
                     variant="neutral"
                     size="1"
                     css={{
-                      mr: 3,
+                      marginRight: 3,
                     }}
                   >
                     {"Time horizon:"}
@@ -1043,6 +1047,9 @@ const OrchestratorList = ({
                   bc: "$neutral4",
                 }}
                 align="center"
+                onPointerEnterCapture={undefined}
+                onPointerLeaveCapture={undefined}
+                placeholder={undefined}
               >
                 <DropdownMenuGroup>
                   <DropdownMenuItem
@@ -1088,7 +1095,7 @@ const OrchestratorList = ({
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <Popover>
                 <PopoverTrigger
                   onClick={(e) => {
@@ -1104,14 +1111,14 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
                     <Text
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Delegation:"}
@@ -1123,18 +1130,21 @@ const OrchestratorList = ({
                         fontWeight: 600,
                       }}
                     >
-                      {numeral(principle).format("0.0a")}
+                      {numbro(principle).format({ mantissa: 1, average: true })}
                       {" LPT"}
                     </Text>
                   </Badge>
                 </PopoverTrigger>
                 <PopoverContent
                   css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
                 >
                   <Box
                     css={{
                       borderBottom: "1px solid $neutral6",
-                      p: "$3",
+                      padding: "$3",
                     }}
                   >
                     <Flex align="center">
@@ -1160,7 +1170,7 @@ const OrchestratorList = ({
                         variant="neutral"
                         size="3"
                         css={{
-                          ml: "$2",
+                          marginLeft: "$2",
                           fontWeight: 600,
                           textTransform: "uppercase",
                         }}
@@ -1172,7 +1182,7 @@ const OrchestratorList = ({
                 </PopoverContent>
               </Popover>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1188,7 +1198,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1196,7 +1206,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Factors:"}
@@ -1221,6 +1231,9 @@ const OrchestratorList = ({
                     bc: "$neutral4",
                   }}
                   align="center"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -1251,7 +1264,7 @@ const OrchestratorList = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </Box>
-            <Box css={{ ml: "$1" }}>
+            <Box css={{ marginLeft: "$1" }}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => {
@@ -1267,7 +1280,7 @@ const OrchestratorList = ({
                       fontSize: "$2",
                     }}
                   >
-                    <Box css={{ mr: "$1" }}>
+                    <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
 
@@ -1275,7 +1288,7 @@ const OrchestratorList = ({
                       variant="neutral"
                       size="1"
                       css={{
-                        mr: 3,
+                        marginRight: 3,
                       }}
                     >
                       {"Inflation change:"}
@@ -1300,6 +1313,9 @@ const OrchestratorList = ({
                     bc: "$neutral4",
                   }}
                   align="center"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem

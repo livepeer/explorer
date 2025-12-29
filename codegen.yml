@@ -4,6 +4,13 @@ documents: ./queries/**/*.graphql
 generates:
   ./apollo/subgraph.ts:
     plugins:
+      - add:
+          content: |
+            /**
+             * @generated
+             * This file was automatically generated and should not be edited.
+             * To add new queries, mutations, or subscriptions, create or update files in the queries folder.
+             */
       - typescript
       - typescript-operations
       - typescript-react-apollo
@@ -19,4 +26,4 @@ config:
 
 hooks:
   afterAllFileWrite:
-    - yarn prettier --write ./apollo/subgraph.ts
+    - pnpm prettier --write ./apollo/subgraph.ts

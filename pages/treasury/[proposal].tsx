@@ -1,10 +1,16 @@
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { useRouter } from "next/router";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
-import MarkdownRenderer from "@components/MarkdownRenderer";
 import BottomDrawer from "@components/BottomDrawer";
+import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import { BadgeVariantByState } from "@components/TreasuryProposalRow";
+import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
+import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
+import { getProposalExtended } from "@lib/api/treasury";
+import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
+import dayjs from "@lib/dayjs";
+import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -16,10 +22,16 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
+import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
+import { sentenceCase } from "change-case";
+import { BigNumber } from "ethers";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import numbro from "numbro";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
+import { decodeFunctionData } from "viem";
+
 import {
   useAccountAddress,
   useContractInfoData,
@@ -30,21 +42,9 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
-import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
-import { sentenceCase } from "change-case";
-import relativeTime from "dayjs/plugin/relativeTime";
-import numeral from "numeral";
-import { BadgeVariantByState } from "@components/TreasuryProposalRow";
-import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
-import { getProposalExtended } from "@lib/api/treasury";
-import { decodeFunctionData } from "viem";
-import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
-import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { BigNumber } from "ethers";
 
-dayjs.extend(relativeTime);
-
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) =>
+  numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
@@ -157,25 +157,27 @@ const Proposal = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mt: "$4", width: "100%" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
+      >
         <Flex>
           <Flex
             css={{
               flexDirection: "column",
-              mb: "$6",
-              pr: 0,
-              pt: "$2",
+              marginBottom: "$6",
+              paddingRight: 0,
+              paddingTop: "$2",
               width: "100%",
               "@bp3": {
                 width: "75%",
-                pr: "$7",
+                paddingRight: "$7",
               },
             }}
           >
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               <Flex
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   alignItems: "center",
                 }}
               >
@@ -222,8 +224,8 @@ const Proposal = () => {
                   variant="primary"
                   css={{
                     display: "flex",
-                    mt: "$3",
-                    mr: "$3",
+                    marginTop: "$3",
+                    marginRight: "$3",
                     "@bp3": {
                       display: "none",
                     },
@@ -241,7 +243,7 @@ const Proposal = () => {
                   display: "grid",
                   gridGap: "$3",
                   gridTemplateColumns: "100%",
-                  mb: "$3",
+                  marginBottom: "$3",
                   "@bp2": {
                     gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
                   },
@@ -268,11 +270,11 @@ const Proposal = () => {
                     </Box>
                   }
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -289,7 +291,7 @@ const Proposal = () => {
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -346,11 +348,11 @@ const Proposal = () => {
                     <Box>{formatPercent(proposal.votes.percent.voters)}</Box>
                   }
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -393,9 +395,9 @@ const Proposal = () => {
               </Box>
               <Card
                 css={{
-                  mb: "$3",
+                  marginBottom: "$3",
                   color: "$neutral9",
-                  p: "$3",
+                  padding: "$3",
                   boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
                 }}
               >
@@ -425,10 +427,16 @@ const Proposal = () => {
                   >
                     {action.lptTransfer ? (
                       <>
-                        <Text css={{ mb: "0.4em" }} variant="neutral" size="3">
+                        <Text
+                          css={{ marginBottom: "0.4em" }}
+                          variant="neutral"
+                          size="3"
+                        >
                           LPT Transfer:
                         </Text>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex
+                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                        >
                           <Text variant="neutral" size="3">
                             Receiver:
                           </Text>
@@ -455,7 +463,9 @@ const Proposal = () => {
                             </Text>
                           </Link>
                         </Flex>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex
+                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                        >
                           <Text variant="neutral" size="3">
                             Amount:
                           </Text>
@@ -464,7 +474,7 @@ const Proposal = () => {
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              ml: "auto",
+                              marginLeft: "auto",
                             }}
                             size="2"
                           >
@@ -474,10 +484,16 @@ const Proposal = () => {
                       </>
                     ) : (
                       <>
-                        <Text css={{ mb: "0.4em" }} variant="neutral" size="3">
+                        <Text
+                          css={{ marginBottom: "0.4em" }}
+                          variant="neutral"
+                          size="3"
+                        >
                           Custom:
                         </Text>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex
+                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                        >
                           <Text variant="neutral" size="3">
                             Target:
                           </Text>
@@ -507,7 +523,9 @@ const Proposal = () => {
                             </Text>
                           </Link>
                         </Flex>
-                        <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                        <Flex
+                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                        >
                           <Text variant="neutral" size="3">
                             Value:
                           </Text>
@@ -516,7 +534,7 @@ const Proposal = () => {
                               display: "block",
                               fontWeight: 600,
                               color: "$white",
-                              ml: "auto",
+                              marginLeft: "auto",
                             }}
                             size="2"
                           >
@@ -525,7 +543,9 @@ const Proposal = () => {
                           </Text>
                         </Flex>
                         {action.functionName ? (
-                          <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                          <Flex
+                            css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                          >
                             <Text variant="neutral" size="3">
                               Function:
                             </Text>
@@ -534,7 +554,7 @@ const Proposal = () => {
                                 display: "block",
                                 fontWeight: 600,
                                 color: "$white",
-                                ml: "auto",
+                                marginLeft: "auto",
                                 maxWidth: "50%",
                                 textAlign: "right",
                               }}
@@ -546,7 +566,9 @@ const Proposal = () => {
                           </Flex>
                         ) : (
                           <>
-                            <Flex css={{ pl: "$2", mb: "0.2em" }}>
+                            <Flex
+                              css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                            >
                               <Text variant="neutral" size="3">
                                 Calldata:
                               </Text>
@@ -555,7 +577,7 @@ const Proposal = () => {
                                   display: "block",
                                   fontWeight: 600,
                                   color: "$white",
-                                  ml: "auto",
+                                  marginLeft: "auto",
                                   maxWidth: "50%",
                                   wordBreak: "break-all",
                                   textAlign: "right",
@@ -574,9 +596,9 @@ const Proposal = () => {
               </Card>
               <Card
                 css={{
-                  p: "$4",
+                  padding: "$4",
                   border: "1px solid $neutral4",
-                  mb: "$3",
+                  marginBottom: "$3",
                 }}
               >
                 <Heading
@@ -585,7 +607,7 @@ const Proposal = () => {
                     color: "$neutral9",
                     textTransform: "uppercase",
                     fontWeight: 600,
-                    mb: "$2",
+                    marginBottom: "$2",
                   }}
                 >
                   Description
@@ -603,7 +625,7 @@ const Proposal = () => {
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "25%",
                   display: "flex",
                 },

@@ -8,7 +8,7 @@ import {
   IconButton,
   Link as A,
   Text,
-  TextField
+  TextField,
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
@@ -65,20 +65,25 @@ const Index = ({ css = {}, ...props }) => {
           aria-label="Orchestrator actions"
           css={{
             cursor: "pointer",
-            ml: "$3",
+            marginLeft: "$3",
             opacity: 1,
             transition: "background-color .3s",
             border: "1px solid $neutral4",
-            bc: "$neutral4",
+            backgroundColor: "$neutral4",
             "&:hover": {
-              bc: "hsla(0,100%,100%,.1)",
+              backgroundColor: "hsla(0,100%,100%,.1)",
             },
           }}
         >
           <Box as={MagnifyingGlassIcon} css={{ width: 18, height: 18 }} />
         </IconButton>
       </DialogTrigger>
-      <DialogContent css={{ overflow: "auto", transition: "max-height 2s" }}>
+      <DialogContent
+        css={{ overflow: "auto", transition: "max-height 2s" }}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
+        placeholder={undefined}
+      >
         <Box
           css={{
             borderRadius: 10,
@@ -95,11 +100,11 @@ const Index = ({ css = {}, ...props }) => {
             css={{
               position: "absolute",
               left: "$2",
-              mr: "$1",
+              marginRight: "$1",
               display: "flex",
               alignItems: "center",
-              bc: "transparent",
-              p: 0,
+              backgroundColor: "transparent",
+              padding: 0,
               width: "$5",
               height: "$5",
             }}
@@ -126,8 +131,8 @@ const Index = ({ css = {}, ...props }) => {
               borderRadius: "$2",
               height: "$8",
               fontSize: "$5",
-              pr: "$3",
-              pl: "$7",
+              paddingRight: "$3",
+              paddingLeft: "$7",
               "&:-webkit-autofill::first-line": {
                 fontSize: "$3",
               },
@@ -140,11 +145,11 @@ const Index = ({ css = {}, ...props }) => {
             maxHeight: searchMapping.length > 0 ? 400 : 30,
             transition: "max-height 0.2s",
             overflow: "auto",
-            mt: "$1",
+            marginTop: "$1",
           }}
         >
           {search.length > 1 && searchMapping.length <= 0 ? (
-            <Flex css={{ mt: "$1" }}>
+            <Flex css={{ marginTop: "$1" }}>
               <Text>No results found.</Text>
             </Flex>
           ) : (
@@ -157,17 +162,20 @@ const Index = ({ css = {}, ...props }) => {
                       cursor: "pointer",
                       borderRadius: "$2",
                       fontSize: "$5",
-                      py: "$2",
-                      px: "$3",
-                      my: "$1",
-                      bc: "$neutral3",
+                      paddingTop: "$2",
+                      paddingBottom: "$2",
+                      paddingLeft: "$3",
+                      paddingRight: "$3",
+                      marginTop: "$1",
+                      marginBottom: "$1",
+                      backgroundColor: "$neutral3",
                       justifyContent: "space-between",
                       alignItems: "center",
                       "&:-webkit-autofill::first-line": {
                         fontSize: "$3",
                       },
                       "&:hover": {
-                        bc: "$neutral4",
+                        backgroundColor: "$neutral4",
                       },
                     }}
                   >

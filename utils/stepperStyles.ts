@@ -1,18 +1,19 @@
 export const stepperStyles = {
-  mb: "$5",
+  marginBottom: "$5",
   textAlign: "left",
   ".MuiPaper-root": {
     backgroundColor: "$inherit",
     color: "$hiContrast",
     p: 0,
     "@bp3": {
-      px: "$4",
+      paddingLeft: "$4",
+      paddingRight: "$4",
     },
   },
   ".MuiStepIcon-root": {
     color: "$neutral9",
   },
-  ".MuiStepIcon-root.MuiStepIcon-active": {
+  ".MuiStepIcon-root.Mui-active": {
     color: "$primary11",
   },
   ".MuiStepIcon-text": {
@@ -21,13 +22,13 @@ export const stepperStyles = {
   ".MuiStepLabel-label": {
     color: "$neutral11",
   },
-  ".MuiStepLabel-label.MuiStepLabel-completed": {
+  ".MuiStepLabel-label.Mui-completed": {
     color: "$hiContrast",
   },
-  ".MuiStepIcon-root.MuiStepIcon-completed": {
+  ".MuiStepIcon-root.Mui-completed": {
     color: "$primary11",
   },
-  ".MuiStepLabel-label.MuiStepLabel-active": {
+  ".MuiStepLabel-label.Mui-active": {
     color: "$hiContrast",
   },
 };

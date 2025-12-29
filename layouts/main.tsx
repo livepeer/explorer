@@ -7,10 +7,12 @@ import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
+import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
+import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import { EMPTY_ADDRESS } from "@lib/utils";
@@ -21,6 +23,7 @@ import {
   Container,
   DesignSystemProvider,
   Flex,
+  getThemes,
   Link as A,
   Popover,
   PopoverContent,
@@ -28,27 +31,38 @@ import {
   Skeleton,
   SnackbarProvider,
   Text,
-  getThemes,
 } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
-import { usePollsQuery, useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
+import {
+  usePollsQuery,
+  useProtocolQuery,
+  useTreasuryProposalsQuery,
+} from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ThemeProvider } from "next-themes";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
-import { FiX } from "react-icons/fi";
 import { useWindowSize } from "react-use";
-import { Chain } from "wagmi";
+import { Chain } from "viem";
+
 import {
   useAccountAddress,
   useActiveChain,
@@ -60,9 +74,22 @@ import {
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
-import RegisterToVote from "@components/RegisterToVote";
+import { LAYOUT_MAX_WIDTH } from "./constants";
 
-export const IS_BANNER_ENABLED = false;
+export const IS_BANNER_ENABLED = true;
+
+const uniqueBannerID = 5;
+
+const getDismissedBanners = (): number[] => {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(`bannersDismissed`) ?? "[]"
+    );
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "");
@@ -72,36 +99,32 @@ if (process.env.NODE_ENV === "production") {
 
 const themeMap = getThemes();
 
-type DrawerItem = {
-  name: any;
+export type DrawerItem = {
+  name: ReactNode;
   href: string;
   as: string;
   icon: React.ElementType;
   className?: string;
 };
 
-// increment this value when updating the banner
-const uniqueBannerID = 4;
-
-export const LAYOUT_MAX_WIDTH = 1400;
-
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
-  const { asPath } = useRouter();
+  const { asPath, isReady, query } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
   const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bannerActive, setBannerActive] = useState(false);
+  const [bannerActive, setBannerActive] = useState<boolean>(false);
   const { width } = useWindowSize();
-  const ref = useRef();
+  const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
+  const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
 
   const totalActivePolls = useMemo(
     () =>
@@ -127,16 +150,49 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
 
   useEffect(() => {
-    const ls = window.localStorage.getItem(`bannersDismissed`);
-    const storage = ls ? JSON.parse(ls) : null;
-    if (storage && storage.includes(uniqueBannerID)) {
-      setBannerActive(false);
-    } else {
-      if (IS_BANNER_ENABLED) {
-        setBannerActive(true);
-      }
-    }
+    const onComplete = () => document.body.removeAttribute("style");
+    Router.events.on("routeChangeComplete", onComplete);
+
+    return () => {
+      Router.events.off("routeChangeComplete", onComplete);
+    };
   }, []);
+
+  // Initialize banner state on mount. skip on SSR/disabled/dismissed.
+  useLayoutEffect(() => {
+    if (
+      !IS_BANNER_ENABLED ||
+      typeof window === "undefined" ||
+      !isReady ||
+      isBannerDisabledByQuery
+    ) {
+      // Query flag only matters on initial embed load; no client-side toggling.
+      return;
+    }
+    setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
+  }, [isReady, isBannerDisabledByQuery]);
+
+  // Ensure banner state updates across tabs.
+  useEffect(() => {
+    if (
+      !IS_BANNER_ENABLED ||
+      typeof window === "undefined" ||
+      !isReady ||
+      isBannerDisabledByQuery
+    ) {
+      return;
+    }
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== "bannersDismissed") {
+        return;
+      }
+      setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
     if (width > 1020) {
@@ -183,7 +239,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               size="2"
               variant="green"
               css={{
-                ml: "6px",
+                marginLeft: "6px",
               }}
             >
               {totalActivePolls}
@@ -205,7 +261,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               size="2"
               variant="green"
               css={{
-                ml: "6px",
+                marginLeft: "6px",
               }}
             >
               {totalActiveTreasuryProposals}
@@ -219,10 +275,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       className: "treasury",
     },
   ];
-
-  Router.events.on("routeChangeComplete", () =>
-    document.body.removeAttribute("style")
-  );
 
   const onDrawerOpen = () => {
     document.body.style.overflow = "hidden";
@@ -240,6 +292,28 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   });
 
   globalStyles();
+
+  const onBannerDismiss = useCallback(() => {
+    setBannerActive(false);
+
+    if (typeof window === "undefined") return;
+
+    try {
+      const storage = getDismissedBanners();
+      if (!storage.includes(uniqueBannerID)) {
+        window.localStorage.setItem(
+          `bannersDismissed`,
+          JSON.stringify([...storage, uniqueBannerID])
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      window.localStorage.setItem(
+        `bannersDismissed`,
+        JSON.stringify([uniqueBannerID])
+      );
+    }
+  }, []);
 
   return (
     <DesignSystemProviderTyped>
@@ -266,13 +340,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
             {protocolData?.protocol?.paused && (
               <Flex
                 css={{
-                  py: "$2",
-                  px: "$2",
+                  paddingTop: "$2",
+                  paddingBottom: "$2",
+                  paddingLeft: "$2",
+                  paddingRight: "$2",
                   width: "100%",
                   alignItems: "center",
                   color: "$hiContrast",
                   justifyContent: "center",
-                  bc: "amber11",
+                  backgroundColor: "amber11",
                   fontWeight: 500,
                   fontSize: "$3",
                 }}
@@ -281,66 +357,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               </Flex>
             )}
             {bannerActive && (
-              <Flex
-                css={{
-                  py: 10,
-                  display: "none",
-                  px: "$2",
-                  width: "100%",
-                  alignItems: "center",
-                  bc: "$neutral4",
-                  justifyContent: "center",
-                  fontSize: "$2",
-                  borderBottom: "1px solid $neutral5",
-                  position: "relative",
-                  "@bp2": {
-                    display: "flex",
-                  },
-                  "@bp3": {
-                    fontSize: "$3",
-                  },
-                }}
-              >
-                <Box
-                  as="span"
-                  css={{
-                    mr: "$3",
-                    pr: "$3",
-                  }}
-                >
-                  <Box as="span">
-                    The Livepeer Protocol is moving to Arbitrum Nitro - wallet
-                    connection is temporarily paused 🚦
-                  </Box>
-                </Box>
-
-                <Box
-                  as={FiX}
-                  onClick={() => {
-                    setBannerActive(false);
-                    const ls = window.localStorage.getItem(`bannersDismissed`);
-                    const storage = ls ? JSON.parse(ls) : null;
-                    if (storage) {
-                      storage.push(uniqueBannerID);
-                      window.localStorage.setItem(
-                        `bannersDismissed`,
-                        JSON.stringify(storage)
-                      );
-                    } else {
-                      window.localStorage.setItem(
-                        `bannersDismissed`,
-                        JSON.stringify([uniqueBannerID])
-                      );
-                    }
-                  }}
-                  css={{
-                    cursor: "pointer",
-                    position: "absolute",
-                    right: 20,
-                    top: 14,
-                  }}
-                />
-              </Flex>
+              <URLVerificationBanner onDismiss={onBannerDismiss} />
             )}
 
             <Box css={{}}>
@@ -350,7 +367,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     display: "none",
                   },
                 }}
-                ref={ref as any}
+                ref={ref}
               >
                 <Drawer
                   onDrawerClose={onDrawerClose}
@@ -378,7 +395,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       <Box
                         css={{
                           "@bp3": {
-                            py: "$3",
+                            paddingTop: "$3",
+                            paddingBottom: "$3",
                             display: "none",
                           },
                         }}
@@ -392,8 +410,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             height: "100%",
                             justifyContent: "center",
                             display: "flex",
-                            mr: "$3",
-                            mt: "$2",
+                            marginRight: "$3",
+                            marginTop: "$2",
                           },
                         }}
                       >
@@ -404,17 +422,17 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                ml: "$4",
-                                bc:
+                                marginLeft: "$4",
+                                backgroundColor:
                                   asPath === "/"
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                 color: "white",
                                 "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
                                 },
                                 "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
                                 },
                                 "&:disabled": {
                                   opacity: 0.5,
@@ -428,19 +446,20 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                ml: "$2",
-                                bc:
-                                  !asPath.includes(accountAddress ?? "") &&
+                                marginLeft: "$2",
+                                backgroundColor:
+                                  (!accountAddress ||
+                                    !asPath.includes(accountAddress)) &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                 color: "white",
                                 "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
                                 },
                                 "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
                                 },
                                 "&:disabled": {
                                   opacity: 0.5,
@@ -454,16 +473,16 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                ml: "$2",
-                                bc: asPath.includes("/voting")
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes("/voting")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
                                 color: "white",
                                 "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
                                 },
                                 "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
                                 },
                                 "&:disabled": {
                                   opacity: 0.5,
@@ -476,7 +495,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   size="2"
                                   variant="green"
                                   css={{
-                                    ml: "6px",
+                                    marginLeft: "6px",
                                   }}
                                 >
                                   {totalActivePolls}
@@ -488,16 +507,16 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                ml: "$2",
-                                bc: asPath.includes("/treasury")
+                                marginLeft: "$2",
+                                backgroundColor: asPath.includes("/treasury")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
                                 color: "white",
                                 "&:hover": {
-                                  bc: "hsla(0,100%,100%,.1)",
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
                                 },
                                 "&:active": {
-                                  bc: "hsla(0,100%,100%,.15)",
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
                                 },
                                 "&:disabled": {
                                   opacity: 0.5,
@@ -510,7 +529,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                   size="2"
                                   variant="green"
                                   css={{
-                                    ml: "6px",
+                                    marginLeft: "6px",
                                   }}
                                 >
                                   {totalActiveTreasuryProposals}
@@ -523,16 +542,18 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  ml: "$2",
-                                  bc: asPath.includes(accountAddress)
+                                  marginLeft: "$2",
+                                  backgroundColor: asPath.includes(
+                                    accountAddress
+                                  )
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
                                   "&:hover": {
-                                    bc: "hsla(0,100%,100%,.1)",
+                                    backgroundColor: "hsla(0,100%,100%,.1)",
                                   },
                                   "&:active": {
-                                    bc: "hsla(0,100%,100%,.15)",
+                                    backgroundColor: "hsla(0,100%,100%,.15)",
                                   },
                                   "&:disabled": {
                                     opacity: 0.5,
@@ -545,7 +566,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                     size="2"
                                     variant="green"
                                     css={{
-                                      ml: "6px",
+                                      marginLeft: "6px",
                                     }}
                                   >
                                     1
@@ -564,14 +585,14 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  ml: "$2",
-                                  bc: "transparent",
+                                  marginLeft: "$2",
+                                  backgroundColor: "transparent",
                                   color: "white",
                                   "&:hover": {
-                                    bc: "hsla(0,100%,100%,.1)",
+                                    backgroundColor: "hsla(0,100%,100%,.1)",
                                   },
                                   "&:active": {
-                                    bc: "hsla(0,100%,100%,.15)",
+                                    backgroundColor: "hsla(0,100%,100%,.15)",
                                   },
                                   "&:disabled": {
                                     opacity: 0.5,
@@ -579,28 +600,36 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 }}
                               >
                                 More
-                                <Box css={{ ml: "$1" }} as={ChevronDownIcon} />
+                                <Box
+                                  css={{ marginLeft: "$1" }}
+                                  as={ChevronDownIcon}
+                                />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
+                              css={{
+                                borderRadius: "$4",
+                                backgroundColor: "$neutral4",
+                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              css={{ borderRadius: "$4", bc: "$neutral4" }}
+                              onPointerEnterCapture={undefined}
+                              onPointerLeaveCapture={undefined}
+                              placeholder={undefined}
                             >
                               <Flex
                                 css={{
                                   flexDirection: "column",
-                                  py: "$3",
-                                  px: "$2",
+                                  paddingTop: "$3",
+                                  paddingBottom: "$3",
+                                  paddingLeft: "$2",
+                                  paddingRight: "$2",
                                   borderBottom: "1px solid $neutral6",
                                 }}
                               >
                                 {IS_L2 && (
-                                  <PopoverLink
-                                    newWindow={true}
-                                    href={`/migrate`}
-                                  >
+                                  <PopoverLink href={`/migrate`}>
                                     Arbitrum Migration Tool
                                   </PopoverLink>
                                 )}
@@ -624,7 +653,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://app.uniswap.org/#/tokens/ethereum/0x58b6a8a3302369daec383334672404ee733ab239`}
+                                  href={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
                                 >
                                   Get LPT
                                 </PopoverLink>
@@ -640,9 +669,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                         </Box>
                       </Flex>
 
-                      <Flex css={{ ml: "auto" }}>
+                      <Flex css={{ marginLeft: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
-                        <Flex css={{ ai: "center", ml: "8px" }}>
+                        <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
                           <ConnectButton showBalance={false} />
                         </Flex>
                         <Search />
@@ -679,7 +708,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               <Box
                 css={{
                   position: "fixed",
-                  bc: "$panel",
+                  backgroundColor: "$panel",
                   borderTop: "1px solid $neutral4",
                   bottom: 0,
                   width: "100%",
@@ -717,18 +746,19 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           css={{
             cursor: "pointer",
             fontWeight: 600,
-            px: "$2",
+            paddingLeft: "$2",
+            paddingRight: "$2",
             fontSize: "$2",
             display: "none",
-            ai: "center",
-            mr: "$2",
+            alignItems: "center",
+            marginRight: "$2",
             "@bp1": {
               display: "flex",
             },
           }}
         >
           <Image
-            objectFit="contain"
+            style={{ objectFit: "contain" }}
             width={18}
             height={18}
             alt={
@@ -744,7 +774,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).logoUrl
             }
           />
-          <Box css={{ ml: "8px" }}>
+          <Box css={{ marginLeft: "8px" }}>
             {
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -753,7 +783,10 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             }
           </Box>
 
-          <Box as={ChevronDownIcon} css={{ color: "$neutral11", ml: "$1" }} />
+          <Box
+            as={ChevronDownIcon}
+            css={{ color: "$neutral11", marginLeft: "$1" }}
+          />
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -762,6 +795,9 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           borderRadius: "$4",
           bc: "$neutral4",
         }}
+        placeholder={undefined}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
       >
         <Box
           css={{
@@ -772,7 +808,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             <Text
               size="1"
               css={{
-                mb: "$2",
+                marginBottom: "$2",
                 fontWeight: 600,
                 textTransform: "uppercase",
               }}
@@ -791,7 +827,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                       <Text
                         variant="neutral"
                         css={{
-                          mb: "$1",
+                          marginBottom: "$1",
                         }}
                         size="2"
                       >
@@ -803,7 +839,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                         css={{
                           marginLeft: "auto",
 
-                          mb: "$1",
+                          marginBottom: "$1",
                         }}
                         target="_blank"
                         href={
@@ -834,7 +870,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   ) : (
                     <Skeleton
                       css={{
-                        mb: "$1",
+                        marginBottom: "$1",
 
                         marginLeft: "auto",
                         maxWidth: "100%",
@@ -853,7 +889,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               <A>
                 <Flex
                   css={{
-                    mt: "$2",
+                    marginTop: "$2",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
@@ -867,7 +903,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                   </Text>
                   <Box
                     css={{
-                      ml: "$1",
+                      marginLeft: "$1",
                       width: 15,
                       height: 15,
                     }}

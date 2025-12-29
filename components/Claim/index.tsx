@@ -1,23 +1,15 @@
-import { LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
-import { getL1MigratorAddress, getL2MigratorAddress } from "@lib/api/contracts";
+import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
-import {
-  useAccountAddress,
-  useHandleTransaction,
-  useL1DelegatorData,
-} from "hooks";
+import { useAccountAddress, useL1DelegatorData } from "hooks";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useEffect, useState } from "react";
-import {
-  Address,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-} from "wagmi";
+import { Hex } from "viem";
+import { useReadContract, useSimulateContract, useWriteContract } from "wagmi";
 
 const l2MigratorAddress = getL2MigratorAddress();
 
@@ -26,43 +18,52 @@ const Claim = () => {
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const [proof, setProof] = useState<any>(null);
-  const [migrationParams, setMigrationParams] = useState<any>(undefined);
+  const [proof, setProof] = useState<Hex[] | null>(null);
+  const [migrationParams, setMigrationParams] = useState<{
+    delegate: Hex;
+    stake: bigint;
+    fees: bigint;
+  }>({
+    delegate: constants.AddressZero as Hex,
+    stake: 0n,
+    fees: 0n,
+  });
   const [isDelegator, setIsDelegator] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(migrationParams && l2MigratorAddress),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(migrationParams && l2MigratorAddress) },
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStake",
     args: [
-      migrationParams?.delegate,
-      migrationParams?.stake,
-      migrationParams?.fees,
-      proof,
+      migrationParams.delegate,
+      migrationParams.stake,
+      migrationParams.fees,
+      proof ?? [],
       constants.AddressZero,
     ],
   });
 
-  const { data, isIdle, isLoading, write, isSuccess, error } =
-    useContractWrite(config);
+  const { data, isIdle, isPending, writeContract, isSuccess, error } =
+    useWriteContract();
 
   useEffect(() => {
     if (proof && isIdle) {
-      write?.();
+      if (!config) return;
+      writeContract(config.request);
     }
-  }, [proof, write, isIdle]);
+  }, [config, proof, writeContract, isIdle]);
 
-  const { data: claimStakeEnabled } = useContractRead({
-    enabled: Boolean(l2MigratorAddress),
+  const { data: claimStakeEnabled } = useReadContract({
+    query: { enabled: Boolean(l2MigratorAddress) },
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "claimStakeEnabled",
   });
 
-  const { data: isMigrated, refetch } = useContractRead({
-    enabled: Boolean(accountAddress),
+  const { data: isMigrated, refetch } = useReadContract({
+    query: { enabled: Boolean(accountAddress) },
     address: l2MigratorAddress,
     abi: l2Migrator,
     functionName: "migratedDelegators",
@@ -73,7 +74,7 @@ const Claim = () => {
     "claimStake",
     data,
     error,
-    isLoading,
+    isPending,
     isSuccess,
     {
       delegate: migrationParams?.delegate,
@@ -95,9 +96,9 @@ const Claim = () => {
         setIsDelegator(false);
 
         setMigrationParams({
-          delegate: l1Delegator.delegateAddress,
-          stake: l1Delegator.pendingStake,
-          fees: l1Delegator.pendingFees,
+          delegate: l1Delegator.delegateAddress as Hex,
+          stake: BigInt(l1Delegator.pendingStake),
+          fees: BigInt(l1Delegator.pendingFees),
         });
 
         if (
@@ -115,10 +116,10 @@ const Claim = () => {
   }, [accountAddress, l1Delegator]);
 
   return loading || !isDelegator || isMigrated ? null : (
-    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mb: "$5" }}>
+    <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, marginBottom: "$5" }}>
       <Box
         css={{
-          mt: "$5",
+          marginTop: "$5",
           borderRadius: 10,
           width: "100%",
           padding: "$4",
@@ -129,7 +130,7 @@ const Claim = () => {
         <Box>
           <Box
             css={{
-              mb: "$2",
+              marginBottom: "$2",
               fontSize: "$6",
               fontWeight: 600,
             }}
@@ -146,7 +147,8 @@ const Claim = () => {
                 borderBottom: "1px dashed $neutral11",
                 fontSize: "$3",
                 color: "$hiContrast",
-                mx: "$1",
+                marginLeft: "$1",
+                marginRight: "$1",
                 letterSpacing: "-.4px",
               }}
             >
@@ -160,7 +162,8 @@ const Claim = () => {
                 fontSize: "$3",
                 color: "$hiContrast",
                 borderBottom: "1px dashed $neutral11",
-                mx: "$1",
+                marginLeft: "$1",
+                marginRight: "$1",
                 letterSpacing: "-.4px",
               }}
             >
@@ -175,8 +178,8 @@ const Claim = () => {
         </Box>
         <Box
           css={{
-            mt: "$3",
-            mb: "$5",
+            marginTop: "$3",
+            marginBottom: "$5",
             maxWidth: 350,
           }}
         >
@@ -195,7 +198,7 @@ const Claim = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              pb: "$1",
+              paddingBottom: "$1",
               borderBottom: "1px solid rgba(255,255,255, .2)",
             }}
           >
@@ -205,7 +208,7 @@ const Claim = () => {
             )}
           </Box>
         </Box>
-        <Flex css={{ mt: "$3", alignItems: "center" }}>
+        <Flex css={{ marginTop: "$3", alignItems: "center" }}>
           {claimStakeEnabled && (
             <Button
               onClick={async () => {
@@ -232,7 +235,7 @@ const Claim = () => {
               }}
               size="3"
               variant="transparentWhite"
-              css={{ mr: "$2" }}
+              css={{ marginRight: "$2" }}
             >
               Claim Stake & Fees
             </Button>
@@ -246,7 +249,7 @@ const Claim = () => {
             ghost
           >
             Discord Support Channel{" "}
-            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+            <Box css={{ marginLeft: "$1" }} as={ArrowTopRightIcon} />
           </Button>
         </Flex>
       </Box>

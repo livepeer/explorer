@@ -1,16 +1,21 @@
 import Spinner from "@components/Spinner";
-import { Badge, Box, Button, Card, Container, Flex, Heading, Link as A, styled, Text } from "@livepeer/design-system";
-import dayjs from "dayjs";
-import { getLayout, LAYOUT_MAX_WIDTH } from "layouts/main";
-import Head from "next/head";
-import Link from "next/link";
-import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { useCurrentRoundData } from "hooks";
 import TreasuryProposalRow from "@components/TreasuryProposalRow";
 import { parseProposalText } from "@lib/api/treasury";
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+} from "@livepeer/design-system";
+import { useProtocolQuery, useTreasuryProposalsQuery } from "apollo";
+import { useCurrentRoundData } from "hooks";
+import { LAYOUT_MAX_WIDTH } from "layouts/constants";
+import { getLayout } from "layouts/main";
+import Head from "next/head";
+import Link from "next/link";
 import { useMemo } from "react";
-dayjs.extend(relativeTime);
 
 const pollInterval = 20000;
 
@@ -31,7 +36,9 @@ const Voting = () => {
       <Head>
         <title>Livepeer Explorer - Treasury</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", mt: "$6" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%", marginTop: "$6" }}
+      >
         {isLoading ? (
           <Flex
             css={{
@@ -57,7 +64,7 @@ const Voting = () => {
               css={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                mb: "$5",
+                marginBottom: "$5",
               }}
             >
               <Heading
@@ -86,9 +93,9 @@ const Voting = () => {
                 justify="center"
                 css={{
                   borderRadius: "$4",
-                  p: "$6",
+                  padding: "$6",
                   border: "1px dashed $neutral5",
-                  mt: "$4",
+                  marginTop: "$4",
                 }}
               >
                 <Text size="3" variant="neutral">

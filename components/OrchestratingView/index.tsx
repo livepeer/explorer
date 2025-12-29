@@ -1,17 +1,13 @@
 import Stat from "@components/Stat";
+import dayjs from "@lib/dayjs";
 import { Box, Flex } from "@livepeer/design-system";
 import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import dayjs from "dayjs";
-import numeral from "numeral";
-import Masonry from "react-masonry-css";
-
 import { AccountQueryResult } from "apollo";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useScoreData } from "hooks";
-import { useMemo } from "react";
 import { useRegionsData } from "hooks/useSwr";
-
-dayjs.extend(relativeTime);
+import numbro from "numbro";
+import { useMemo } from "react";
+import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
   default: 2,
@@ -37,56 +33,72 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const maxScore = useMemo(
-    () =>
-      {
-        const topTransData = Object.keys(scores?.scores ?? {}).reduce(
-          (prev, curr) => {
-            const score = scores?.scores[curr];
-            const region = knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
-            if (score && score >= prev.score && !region.toLowerCase().startsWith("global")) {
-              return {
-                region: region,
-                score: scores?.scores[curr],
-              };
-            }
-            return prev;
-          },
-          { region: "N/A", score: 0 }
-        );
-        return {
-          transcoding: topTransData,
-          ai: scores?.topAIScore,
+  const maxScore = useMemo(() => {
+    const topTransData = Object.keys(scores?.scores ?? {}).reduce(
+      (prev, curr) => {
+        const score = scores?.scores[curr];
+        const region =
+          knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
+        if (
+          score &&
+          score >= prev.score &&
+          !region.toLowerCase().startsWith("global")
+        ) {
+          return {
+            region: region,
+            score: scores?.scores[curr],
+          };
         }
+        return prev;
       },
-    [scores]
-  );
+      { region: "N/A", score: 0 }
+    );
+    return {
+      transcoding: topTransData,
+      ai: scores?.topAIScore,
+    };
+  }, [knownRegions?.regions, scores]);
 
   const maxScoreOutput = useMemo(() => {
-    const outputTrans = maxScore.transcoding?.score && maxScore.transcoding?.score > 0
-    const transcodingInfo
-      = outputTrans
-        ? `${numeral(maxScore.transcoding?.score).divide(100).format("0.0%")} - ${maxScore.transcoding.region}`
-        : "";
-    return outputTrans? transcodingInfo: "N/A";
-  }
-  , [maxScore]);
+    const outputTrans =
+      maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
+    const transcodingInfo = outputTrans
+      ? `${numbro(maxScore.transcoding?.score).divide(100).format({
+          output: "percent",
+          mantissa: 1,
+        })} - ${maxScore.transcoding.region}`
+      : "";
+    return outputTrans ? transcodingInfo : "N/A";
+  }, [maxScore]);
 
   const maxAIScoreOutput = useMemo(() => {
-    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0
-    const region = knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ?? "N/A";
-    const aiInfo = outputAI
-      ? (<>{numeral(maxScore.ai?.value).format("0.0%")} - {region}</>)
-      : "";
-    return outputAI?
-      {"score": aiInfo, "modelText": `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`} : {"score": "N/A", "modelText": ""};
-  }
-  , [maxScore]);
+    const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
+    const region =
+      knownRegions?.regions?.find((r) => r.id === maxScore.ai?.region)?.name ??
+      "N/A";
+    const aiInfo = outputAI ? (
+      <>
+        {numbro(maxScore.ai?.value).format({
+          output: "percent",
+          mantissa: 1,
+        })}{" "}
+        - {region}
+      </>
+    ) : (
+      ""
+    );
+    return outputAI
+      ? {
+          score: aiInfo,
+          modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
+        }
+      : { score: "N/A", modelText: "" };
+  }, [knownRegions?.regions, maxScore]);
 
   return (
     <Box
       css={{
-        pt: "$4",
+        paddingTop: "$4",
         ".masonry-grid": {
           display: "flex",
           marginLeft: "-$3",
@@ -115,7 +127,10 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           }
           value={
             transcoder
-              ? `${numeral(transcoder?.totalStake || 0).format("0.00a")} LPT`
+              ? `${numbro(transcoder?.totalStake || 0).format({
+                  mantissa: 2,
+                  average: true,
+                })} LPT`
               : "N/A"
           }
         />
@@ -123,23 +138,29 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Status"
           tooltip={`The status of the orchestrator on the network.`}
-          value={isActive ? `Active ${transcoder?.activationTimestamp ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true) : ""}` : "Inactive"}
+          value={
+            isActive
+              ? `Active ${
+                  transcoder?.activationTimestamp
+                    ? dayjs.unix(transcoder?.activationTimestamp).fromNow(true)
+                    : ""
+                }`
+              : "Inactive"
+          }
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top Transcoding Regional Score"
           tooltip={`The Orchestrator's score for its best operational transcodingregion in the past 24 hours.`}
-          value={
-            maxScoreOutput
-          }
+          value={maxScoreOutput}
         />
         <Stat
-          className="masonry-grid_item" css={{ fontSize: '20px' }}
+          className="masonry-grid_item"
+          css={{ fontSize: "20px" }}
           label="Top AI Regional Score"
           tooltip={`The Orchestrator's score for its best operational AI region in the past 24 hours${maxAIScoreOutput.modelText}.`}
-          value={
-            maxAIScoreOutput.score
-          }
+          value={maxAIScoreOutput.score}
         />
         <Stat
           className="masonry-grid_item"
@@ -147,19 +168,23 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
-          value={`${numeral(transcoder?.totalVolumeETH || 0).format(
-            "0.00a"
-          )} ETH`}
+          value={`${numbro(transcoder?.totalVolumeETH || 0).format({
+            mantissa: 2,
+            average: true,
+          })} ETH`}
         />
         <Stat
           className="masonry-grid_item"
           label="Price / Pixel"
-          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to broadcasters. This may be different from on-chain pricing."
+          tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to gateways. This may be different from on-chain pricing."
           value={
             scores
-              ? `${numeral(
+              ? `${numbro(
                   (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
-                ).format("0,0")} WEI`
+                ).format({
+                  mantissa: 1,
+                  thousandSeparated: true,
+                })} WEI`
               : "N/A"
           }
         />
@@ -169,7 +194,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The number of delegators which have delegated stake to this orchestrator."
           }
-          value={`${numeral(transcoder?.delegators?.length || 0).format(
+          value={`${numbro(transcoder?.delegators?.length || 0).format(
             "0,0"
           )}`}
         /> */}
@@ -179,7 +204,14 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.feeShare? numeral(1 - (+(transcoder?.feeShare || 0)) / 1000000).format("0%"):"N/A"}
+          value={
+            transcoder?.feeShare
+              ? numbro(1 - +(transcoder?.feeShare || 0) / 1000000).format({
+                  output: "percent",
+                  mantissa: 0,
+                })
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -187,7 +219,16 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
           }
-          value={transcoder?.rewardCut? numeral(transcoder?.rewardCut || 0).divide(1000000).format("0%"): "N/A"}
+          value={
+            transcoder?.rewardCut
+              ? numbro(transcoder?.rewardCut || 0)
+                  .divide(1000000)
+                  .format({
+                    output: "percent",
+                    mantissa: 0,
+                  })
+              : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"
@@ -196,7 +237,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             "The number of times this orchestrator has requested inflationary rewards over the past thirty rounds. A lower ratio than 30/30 indicates this orchestrator has missed rewards for a round."
           }
           value={
-            transcoder ? `${callsMade}/${transcoder?.pools?.length ?? 0}` : "N/A"
+            transcoder
+              ? `${callsMade}/${transcoder?.pools?.length ?? 0}`
+              : "N/A"
           }
         />
         {transcoder?.lastRewardRound?.id && (
@@ -214,12 +257,20 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     {transcoder.lastRewardRound.id === currentRound?.id ? (
                       <Box
                         as={CheckIcon}
-                        css={{ fontSize: "$3", color: "$green11", ml: "$2" }}
+                        css={{
+                          fontSize: "$3",
+                          color: "$green11",
+                          marginLeft: "$2",
+                        }}
                       />
                     ) : (
                       <Box
                         as={Cross1Icon}
-                        css={{ fontSize: "$2", color: "$red11", ml: "$2" }}
+                        css={{
+                          fontSize: "$2",
+                          color: "$red11",
+                          marginLeft: "$2",
+                        }}
                       />
                     )}
                   </Flex>

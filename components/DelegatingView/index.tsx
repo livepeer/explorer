@@ -8,16 +8,18 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
   useEnsData,
-  useHandleTransaction,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
-import { Address, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { Address } from "viem";
+import { useSimulateContract, useWriteContract } from "wagmi";
+
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -52,18 +54,19 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(bondingManagerAddress && recipient),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(bondingManagerAddress && recipient) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "withdrawFees",
     args: [recipient ?? "0x", BigInt(amount)],
   });
-  const { data, isLoading, write, isSuccess, error } = useContractWrite(config);
+  const { data, isPending, writeContract, isSuccess, error } =
+    useWriteContract();
 
-  useHandleTransaction("withdrawFees", data, error, isLoading, isSuccess, {
+  useHandleTransaction("withdrawFees", data, error, isPending, isSuccess, {
     recipient,
-    amount,
+    amount: BigInt(amount),
   });
 
   const isMyAccount = checkAddressEquality(
@@ -104,27 +107,27 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
       return (
-        <Box css={{ pt: "$4" }}>
-          <Box css={{ mr: "$3", mb: "$3" }}>
+        <Box css={{ paddingTop: "$4" }}>
+          <Box css={{ marginRight: "$3", marginBottom: "$3" }}>
             Delegate LPT with an Orchestrator to begin earning LPT rewards and a
             share of the fees being paid into the Livepeer network.
           </Box>
-          <Link href="/orchestrators" passHref>
+          <A as={Link} href="/orchestrators" passHref>
             <Button size="3" variant="primary">
-              <A variant="primary">View Orchestrators</A>
+              View Orchestrators
             </Button>
-          </Link>
+          </A>
         </Box>
       );
     } else {
-      return <Box css={{ pt: "$4" }}>Nothing here.</Box>;
+      return <Box css={{ paddingTop: "$4" }}>Nothing here.</Box>;
     }
   }
 
   return (
     <Box
       css={{
-        pt: "$4",
+        paddingTop: "$4",
         ".masonry-grid": {
           display: "flex",
           marginLeft: "-$3",
@@ -146,34 +149,32 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
         columnClassName="masonry-grid_column"
       >
         {delegator?.delegate && (
-          <Link
+          <A
+            as={Link}
             href={`/accounts/${delegator.delegate.id}/orchestrating`}
             passHref
+            className="masonry-grid_item"
+            css={{
+              display: "block",
+              textDecoration: "none",
+              "&:hover": { textDecoration: "none" },
+            }}
           >
-            <A
-              className="masonry-grid_item"
-              css={{
-                display: "block",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "none" },
-              }}
-            >
-              <Stat
-                label="Delegated with"
-                variant="interactive"
-                value={
-                  <Box>
-                    {delegateIdentity?.name
-                      ? delegateIdentity?.name
-                      : delegator?.delegate?.id.replace(
-                          delegator?.delegate?.id.slice(7, 37),
-                          "…"
-                        )}
-                  </Box>
-                }
-              />{" "}
-            </A>
-          </Link>
+            <Stat
+              label="Delegated with"
+              variant="interactive"
+              value={
+                <Box>
+                  {delegateIdentity?.name
+                    ? delegateIdentity?.name
+                    : delegator?.delegate?.id.replace(
+                        delegator?.delegate?.id.slice(7, 37),
+                        "…"
+                      )}
+                </Box>
+              }
+            />{" "}
+          </A>
         )}
 
         <Stat
@@ -183,11 +184,15 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             pendingFeesAndStake?.pendingStake ? (
               <Box
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   fontSize: 26,
                 }}
               >
-                {`${numeral(pendingStake).format("0.00a")} LPT`}
+                {`${numbro(pendingStake).format(
+                  pendingStake > 0 && pendingStake < 0.01
+                    ? { mantissa: 4, trimMantissa: true }
+                    : { mantissa: 2, average: true, lowPrecision: false }
+                )} LPT`}
               </Box>
             ) : null
           }
@@ -196,7 +201,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
               <Flex
                 css={{
                   fontSize: "$2",
-                  mb: "$1",
+                  marginBottom: "$1",
                   justifyContent: "space-between",
                 }}
               >
@@ -211,7 +216,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -222,7 +227,12 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      {numeral(-unbonded).format("+0.00a")} LPT
+                      {numbro(-unbonded).format({
+                        mantissa: 2,
+                        average: true,
+                        forceSign: true,
+                      })}{" "}
+                      LPT
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -242,7 +252,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -251,7 +261,12 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  {numeral(Math.abs(rewards)).format("+0.00a")} LPT
+                  {numbro(Math.abs(rewards)).format({
+                    mantissa: 2,
+                    average: true,
+                    forceSign: true,
+                  })}{" "}
+                  LPT
                 </Text>
               </Flex>
             </Box>
@@ -264,11 +279,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             pendingFeesAndStake ? (
               <Box
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   fontSize: 26,
                 }}
               >
-                {numeral(pendingFees).format("0.000")} ETH
+                {numbro(pendingFees).format({
+                  mantissa: 3,
+                })}{" "}
+                ETH
               </Box>
             ) : null
           }
@@ -276,7 +294,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             <Box>
               <Flex
                 css={{
-                  mb: "$1",
+                  marginBottom: "$1",
                   fontSize: "$2",
                   justifyContent: "space-between",
                 }}
@@ -292,7 +310,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -301,7 +319,11 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(lifetimeEarnings || 0).format("0.000a")} ETH
+                  {numbro(lifetimeEarnings || 0).format({
+                    mantissa: 3,
+                    average: true,
+                  })}{" "}
+                  ETH
                 </Text>
               </Flex>
               <Flex
@@ -321,7 +343,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                       </Box>
                     }
                   >
-                    <Flex css={{ ml: "$1" }}>
+                    <Flex css={{ marginLeft: "$1" }}>
                       <Box
                         as={QuestionMarkCircledIcon}
                         css={{ color: "$neutral11" }}
@@ -330,18 +352,23 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numeral(delegator?.withdrawnFees || 0).format("0.000a")} ETH
+                  {numbro(delegator?.withdrawnFees || 0).format({
+                    mantissa: 3,
+                    average: true,
+                  })}{" "}
+                  ETH
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
                 <Button
-                  variant="primary"
-                  size="4"
                   css={{
-                    mt: "$3",
+                    marginTop: "$3",
                     width: "100%",
                   }}
-                  onClick={write}
+                  disabled={!config}
+                  onClick={() => config && writeContract(config.request)}
+                  size="4"
+                  variant="primary"
                 >
                   Withdraw Pending Fees
                 </Button>
@@ -363,7 +390,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     </Box>
                   }
                 >
-                  <Flex css={{ ml: "$1" }}>
+                  <Flex css={{ marginLeft: "$1" }}>
                     <Box
                       as={QuestionMarkCircledIcon}
                       css={{ color: "$neutral11" }}
@@ -374,7 +401,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
             }
             value={
               <Box>
-                {numeral(
+                {numbro(
                   totalActiveStake === 0
                     ? 0
                     : delegator.delegate.id === delegator.id
@@ -382,52 +409,66 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                         pendingStake) /
                       totalActiveStake
                     : pendingStake / totalActiveStake
-                ).format("0.000%")}
+                ).format({
+                  output: "percent",
+                  mantissa: 3,
+                })}
               </Box>
             }
             meta={
-              <Box css={{ mt: "$4" }}>
+              <Box css={{ marginTop: "$4" }}>
                 <Flex
                   css={{
                     fontSize: "$2",
-                    mb: "$1",
+                    marginBottom: "$1",
                     justifyContent: "space-between",
                   }}
                 >
                   <Box>
                     Account (
-                    {numeral(
+                    {numbro(
                       totalActiveStake === 0
                         ? 0
                         : pendingStake / totalActiveStake
-                    ).format("0.00%")}
+                    ).format({
+                      output: "percent",
+                      mantissa: 2,
+                    })}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(pendingStake).format("0.00a")} LPT
+                    {numbro(pendingStake).format({
+                      mantissa: 2,
+                      average: true,
+                    })}{" "}
+                    LPT
                   </Text>
                 </Flex>
                 <Flex
                   css={{
                     fontSize: "$2",
-                    mb: "$1",
+                    marginBottom: "$1",
                     justifyContent: "space-between",
                   }}
                 >
                   <Box>
                     Orchestrator (
-                    {numeral(
+                    {numbro(
                       totalActiveStake === 0
                         ? 0
                         : Math.abs(+delegator.delegate.totalStake) /
                             totalActiveStake
-                    ).format("0.00%")}
+                    ).format({
+                      output: "percent",
+                      mantissa: 2,
+                    })}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numeral(Math.abs(+delegator.delegate.totalStake)).format(
-                      "0.00a"
-                    )}{" "}
+                    {numbro(Math.abs(+delegator.delegate.totalStake)).format({
+                      mantissa: 2,
+                      average: true,
+                    })}{" "}
                     LPT
                   </Text>
                 </Flex>

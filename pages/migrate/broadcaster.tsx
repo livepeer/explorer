@@ -1,5 +1,17 @@
+import { CodeBlock } from "@components/CodeBlock";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
+import { inbox } from "@lib/api/abis/bridge/Inbox";
+import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
+import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
+import { getL1MigratorAddress } from "@lib/api/contracts";
+import {
+  isL2ChainId,
+  l1Provider,
+  l1PublicClient,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
 import {
   Box,
   Button,
@@ -11,32 +23,23 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar
+  useSnackbar,
 } from "@livepeer/design-system";
-import { useEffect, useReducer, useState } from "react";
-
-import { CodeBlock } from "@components/CodeBlock";
-import { inbox } from "@lib/api/abis/bridge/Inbox";
-import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
-import {
-  getInboxAddress,
-  getL1MigratorAddress,
-  getNodeInterfaceAddress
-} from "@lib/api/contracts";
-import { isL2ChainId, l1PublicClient } from "@lib/chains";
-import { Step, StepContent, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { BigNumber, ethers } from "ethers";
+import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
-import {
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID, L1_CHAIN_ID,
-  l2Provider
-} from "lib/chains";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
-import { isValidAddress } from "utils/validAddress";
+import { waitToRelayTxsToL2 } from "utils/messaging";
+import { getAddress, isAddress } from "viem";
+import { useWriteContract } from "wagmi";
+
 import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
@@ -50,7 +53,7 @@ const initialState = {
   title: `Migrate Broadcaster to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
   stage: "connectWallet",
   body: (
-    <Text variant="neutral" css={{ mb: "$5" }}>
+    <Text variant="neutral" css={{ marginBottom: "$5" }}>
       This tool will safely migrate your broadcaster&apos;s deposit and reserve
       to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
     </Text>
@@ -66,7 +69,10 @@ const initialState = {
       >
         Migrate Broadcaster
       </Button>
-      <Text size="2" css={{ mt: "$2", fontWeight: 600, color: "$red11" }}>
+      <Text
+        size="2"
+        css={{ marginTop: "$2", fontWeight: 600, color: "$red11" }}
+      >
         Connect your wallet to continue.
       </Text>
     </Flex>
@@ -91,7 +97,7 @@ function reducer(state, action) {
         loading: false,
         receipts: null,
         body: (
-          <Text variant="neutral" css={{ mb: "$5" }}>
+          <Text variant="neutral" css={{ marginBottom: "$5" }}>
             This tool will safely migrate your broadcaster&apos;s deposit and
             reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -107,7 +113,10 @@ function reducer(state, action) {
         loading: true,
         title: "Initiate Migration",
         body: (
-          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+          <Text
+            variant="neutral"
+            css={{ display: "block", marginBottom: "$4" }}
+          >
             Confirm the transaction in your wallet. Note that the gas estimate
             shown in your wallet will include both the L1 fee and a small amount
             of ETH to cover L2 execution.
@@ -122,8 +131,14 @@ function reducer(state, action) {
         stage: "starting",
         title: "Starting Migration",
         body: (
-          <Box css={{ mb: "$4" }}>
-            <Text css={{ display: "block", color: "$neutral11", mb: "$4" }}>
+          <Box css={{ marginBottom: "$4" }}>
+            <Text
+              css={{
+                display: "block",
+                color: "$neutral11",
+                marginBottom: "$4",
+              }}
+            >
               Confirming on {CHAIN_INFO[L1_CHAIN_ID].label}
             </Text>
           </Box>
@@ -144,7 +159,10 @@ function reducer(state, action) {
         title: "Migration Complete",
         image: "/img/arbitrum.svg",
         body: (
-          <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+          <Text
+            variant="neutral"
+            css={{ display: "block", marginBottom: "$4" }}
+          >
             Your broadcaster&apos;s deposit and reserve have been migrated to{" "}
             {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -172,7 +190,7 @@ function reducer(state, action) {
         loading: false,
         receipts: null,
         body: (
-          <Text variant="neutral" css={{ mb: "$5" }}>
+          <Text variant="neutral" css={{ marginBottom: "$5" }}>
             This tool will safely migrate your broadcaster&apos;s deposit and
             reserve to {CHAIN_INFO[DEFAULT_CHAIN_ID].label}.
           </Text>
@@ -184,13 +202,13 @@ function reducer(state, action) {
   }
 }
 
-const inboxAddress = getInboxAddress();
 const l1MigratorAddress = getL1MigratorAddress();
-const nodeInterfaceAddress = getNodeInterfaceAddress();
 
 const MigrateBroadcaster = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [render, setRender] = useState(false);
 
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
@@ -210,7 +228,6 @@ const MigrateBroadcaster = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -218,7 +235,13 @@ const MigrateBroadcaster = () => {
   const time = new Date();
   time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { seconds, minutes, start, restart } = useTimer({
+  const { start } = useTimer({
+    autoStart: false,
+    expiryTimestamp: time,
+    onExpire: () => console.warn("onExpire called"),
+  });
+
+  const { seconds, minutes, restart } = useTimer({
     autoStart: false,
     expiryTimestamp: time,
     onExpire: () => console.warn("onExpire called"),
@@ -237,8 +260,11 @@ const MigrateBroadcaster = () => {
         type: "enRoute",
         payload: {
           body: (
-            <Box css={{ mb: "$4" }}>
-              <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
                 Estimated time remaining: {minutes}:
                 {seconds.toString().padStart(2, "0")}
               </Text>
@@ -249,18 +275,23 @@ const MigrateBroadcaster = () => {
     }
   }, [state.stage, minutes, seconds]);
 
+  const { writeContractAsync } = useWriteContract();
   const onApprove = async () => {
     try {
+      if (!accountAddress) {
+        throw new Error("Account address is required");
+      }
+
       dispatch({
         type: "initiate",
       });
 
-      const gasPriceBid = await l2Provider.getGasPrice();
+      const gasPriceBid = await l2PublicClient.getGasPrice();
 
       // fetching submission price
       // https://developer.offchainlabs.com/docs/l1_l2_messages#parameters
       const submissionPrice = await l1PublicClient.readContract({
-        address: inboxAddress,
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
         abi: inbox,
         functionName: "calculateRetryableSubmissionFee",
         args: [
@@ -272,116 +303,126 @@ const MigrateBroadcaster = () => {
       // overpaying submission price to account for increase
       // https://developer.offchainlabs.com/docs/l1_l2_messages#important-note-about-base-submission-fee
       // the excess will be sent back to the refund address
-      const maxSubmissionPrice = BigNumber.from(submissionPrice).mul(4);
+      const maxSubmissionPrice = submissionPrice * 4n;
 
       // calculating estimated gas for the tx
-      // const estimatedGas = await l2PublicClient.estimateContractGas({
-      //   address: nodeInterfaceAddress,
-      //   abi: nodeInterface,
-      //   functionName: "estimateRetryableTicket",
-      //   args: [
-      //     CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
-      //     ethers.utils.parseEther("0.01").toBigInt(),
-      //     CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
-      //     0n,
-      //     accountAddress,
-      //     accountAddress,
-      //     state.migrationCallData,
-      //   ],
-      // });
+      const estimatedGas = await l2PublicClient.estimateContractGas({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+        abi: nodeInterface,
+        functionName: "estimateRetryableTicket",
+        args: [
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+          ethers.utils.parseEther("0.01").toBigInt(),
+          CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l2Migrator,
+          0n,
+          accountAddress,
+          accountAddress,
+          state.migrationCallData,
+        ],
+      });
 
       // overpaying gas just in case
       // the excess will be sent back to the refund address
-      // const maxGas = BigNumber.from(estimatedGas).mul(4);
+      const maxGas = estimatedGas * 4n;
 
       // ethValue will be sent as callvalue
       // this entire amount will be used for successfully completing
       // the L2 side of the transaction
       // maxSubmissionPrice + totalGasPrice (estimatedGas * gasPrice)
-      // const ethValue = await maxSubmissionPrice.add(gasPriceBid.mul(maxGas));
+      const ethValue = maxSubmissionPrice + gasPriceBid * maxGas;
 
-      // const tx1 = await l1Migrator.migrateDelegator(
-      //   accountAddress,
-      //   accountAddress,
-      //   signature ? signature : "0x",
-      //   maxGas,
-      //   gasPriceBid,
-      //   maxSubmissionPrice,
-      //   {
-      //     value: ethValue,
-      //   }
-      // );
-      // dispatch({
-      //   type: "starting",
-      //   payload: {
-      //     receipts: {
-      //       l1: tx1.hash,
-      //     },
-      //   },
-      // });
+      const migrateDelegatorTx = await writeContractAsync({
+        address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
+        abi: l1Migrator,
+        functionName: "migrateDelegator",
+        args: [
+          accountAddress,
+          accountAddress,
+          signature ? signature : "0x",
+          maxGas,
+          gasPriceBid,
+          maxSubmissionPrice,
+        ],
+        value: ethValue,
+      });
 
-      // await tx1.wait();
+      dispatch({
+        type: "starting",
+        payload: {
+          receipts: {
+            l1: migrateDelegatorTx,
+          },
+        },
+      });
 
-      // // start timer
-      // start();
+      const txReceipt = await l1PublicClient.waitForTransactionReceipt({
+        hash: migrateDelegatorTx as `0x${string}`,
+      });
 
-      // dispatch({
-      //   type: "enRoute",
-      //   payload: {
-      //     body: (
-      //       <Box css={{ mb: "$4" }}>
-      //         <Text variant="neutral" css={{ display: "block", mb: "$4" }}>
-      //           Estimated time remaining: {minutes}:
-      //           {seconds.toString().padStart(2, "0")}
-      //         </Text>
-      //       </Box>
-      //     ),
-      //   },
-      // });
+      // start timer
+      start();
 
-      // const tx2 = await waitToRelayTxsToL2(
-      //   waitForTx(tx1),
-      //   CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
-      //   l1Provider,
-      //   l2Provider
-      // );
+      dispatch({
+        type: "enRoute",
+        payload: {
+          body: (
+            <Box css={{ marginBottom: "$4" }}>
+              <Text
+                variant="neutral"
+                css={{ display: "block", marginBottom: "$4" }}
+              >
+                Estimated time remaining: {minutes}:
+                {seconds.toString().padStart(2, "0")}
+              </Text>
+            </Box>
+          ),
+        },
+      });
 
-      // dispatch({
-      //   type: "complete",
-      //   payload: {
-      //     receipts: {
-      //       l1: tx1.hash,
-      //       l2: tx2.transactionHash,
-      //     },
-      //     cta: (
-      //       <Box css={{ textAlign: "center" }}>
-      //         <Link
-      //           href={`/accounts/${
-      //             state.signer ? state.signer : accountAddress
-      //           }/delegating`}
-      //           passHref
-      //         >
-      //           <Button
-      //             as="A"
-      //             variant="primary"
-      //             size="4"
-      //             css={{
-      //               display: "inline-flex",
-      //               ai: "center",
-      //               mt: "$2",
-      //               mb: "$2",
-      //             }}
-      //           >
-      //             View account on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
-      //             <Box as={ArrowRightIcon} css={{ ml: "$2" }} />
-      //           </Button>
-      //         </Link>
-      //       </Box>
-      //     ),
-      //     loading: false,
-      //     footnote: null,
-      //   },
-      // });
+      const tx2 = await waitToRelayTxsToL2(
+        // @ts-expect-error Incorrect type between ethers and viem transaction receipt
+        Promise.resolve(txReceipt),
+        CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.inbox,
+        l1Provider,
+        l2Provider
+      );
+
+      dispatch({
+        type: "complete",
+        payload: {
+          receipts: {
+            l1: migrateDelegatorTx,
+            l2: tx2.transactionHash,
+          },
+          cta: (
+            <Box css={{ textAlign: "center" }}>
+              <Link
+                href={`/accounts/${
+                  state.signer ? state.signer : accountAddress
+                }/delegating`}
+                passHref
+              >
+                <Button
+                  as="a"
+                  variant="primary"
+                  size="4"
+                  css={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    marginTop: "$2",
+                    marginBottom: "$2",
+                  }}
+                >
+                  View account on {CHAIN_INFO[DEFAULT_CHAIN_ID].label}
+                  <Box as={ArrowRightIcon} css={{ marginLeft: "$2" }} />
+                </Button>
+              </Link>
+            </Box>
+          ),
+          loading: false,
+          footnote: null,
+        },
+      });
     } catch (e) {
       console.log(e);
       openSnackbar((e as Error)?.message);
@@ -392,7 +433,7 @@ const MigrateBroadcaster = () => {
   useEffect(() => {
     const init = async () => {
       if (accountAddress) {
-        const [_unused, params] = await l1PublicClient.readContract({
+        const [, params] = await l1PublicClient.readContract({
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
@@ -420,8 +461,10 @@ const MigrateBroadcaster = () => {
           address: l1MigratorAddress,
           abi: l1Migrator,
           functionName: "getMigrateSenderParams",
-          args: [ state.signer ? state.signer : accountAddress,
-            state.signer ? state.signer : accountAddress],
+          args: [
+            state.signer ? state.signer : accountAddress,
+            state.signer ? state.signer : accountAddress,
+          ],
         });
 
         dispatch({
@@ -439,16 +482,15 @@ const MigrateBroadcaster = () => {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.signer, accountAddress]);
 
   useEffect(() => {
     const init = async () => {
-      if (isValidAddress(signerAddress) && state.showSigningSteps) {
+      if (isAddress(signerAddress) && state.showSigningSteps) {
         dispatch({
           type: "updateSigner",
           payload: {
-            signer: isValidAddress(signerAddress),
+            signer: getAddress(signerAddress),
           },
         });
       } else {
@@ -514,7 +556,7 @@ const MigrateBroadcaster = () => {
                 onClick={handleNext}
                 size="4"
                 variant="primary"
-                css={{ mt: "$4" }}
+                css={{ marginTop: "$4" }}
               >
                 Continue
               </Button>
@@ -563,19 +605,19 @@ const MigrateBroadcaster = () => {
         }
 
         const validSignature =
-          isValidAddress(signer) ===
-          isValidAddress(state.migrationParams.l1Addr);
+          !!signer &&
+          !!signature &&
+          getAddress(signer) === getAddress(state.migrationParams.l1Addr);
 
         return (
           <Box>
-            <Text css={{ mb: "$3" }}>
+            <Text css={{ marginBottom: "$3" }}>
               Run the Livepeer CLI and select the option to &quot;Sign typed
               data&quot;. When prompted for the typed data message to sign, copy
               and paste the following message.
             </Text>
 
             <CodeBlock
-              key={Math.random()}
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
@@ -584,7 +626,7 @@ const MigrateBroadcaster = () => {
               {JSON.stringify(payload)}
             </CodeBlock>
 
-            <Text css={{ mb: "$2" }}>
+            <Text css={{ marginBottom: "$2" }}>
               The CLI will generate a signed message signature. It should begin
               with “0x”. Paste it here.
             </Text>
@@ -595,7 +637,7 @@ const MigrateBroadcaster = () => {
               size="3"
             />
             {signature && (
-              <Text size="1" css={{ mt: "$1", mb: "$1" }}>
+              <Text size="1" css={{ marginTop: "$1", marginBottom: "$1" }}>
                 {validSignature
                   ? "Valid"
                   : `Invalid. Message must be signed by ${state.migrationParams.l1Addr}`}
@@ -607,7 +649,7 @@ const MigrateBroadcaster = () => {
                 variant={validSignature ? "primary" : "neutral"}
                 onClick={handleNext}
                 size="4"
-                css={{ mt: "$4", mr: "$2" }}
+                css={{ marginTop: "$4", marginRight: "$2" }}
               >
                 Continue
               </Button>
@@ -622,20 +664,20 @@ const MigrateBroadcaster = () => {
       case 2:
         return (
           <Box>
-            <Text css={{ mb: "$3" }}>
+            <Text css={{ marginBottom: "$3" }}>
               Approve migration on behalf of your account.
             </Text>
             {state.migrationParams && (
               <MigrationFields
                 migrationParams={state.migrationParams}
-                css={{ mb: "$5" }}
+                css={{ marginBottom: "$5" }}
               />
             )}
             <Box>
               <Button
                 size="4"
                 variant="primary"
-                css={{ mr: "$2" }}
+                css={{ marginRight: "$2" }}
                 onClick={onApprove}
               >
                 Approve Migration
@@ -656,7 +698,7 @@ const MigrateBroadcaster = () => {
       size="2"
       css={{
         maxWidth: 650,
-        mt: "$8",
+        marginTop: "$8",
         width: "100%",
         "@bp3": {
           width: 650,
@@ -665,22 +707,28 @@ const MigrateBroadcaster = () => {
     >
       <Card
         css={{
-          pt: "$5",
+          paddingTop: "$5",
           borderRadius: "$4",
           backgroundColor: "$panel",
           border: "1px solid $neutral5",
-          mb: "$8",
+          marginBottom: "$8",
         }}
       >
-        <Box css={{ px: "$5" }}>
-          <Box css={{ mx: "auto", textAlign: "center" }}>
-            <Heading size="2" css={{ mb: "$2", fontWeight: 600 }}>
+        <Box css={{ paddingLeft: "$5", paddingRight: "$5" }}>
+          <Box
+            css={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              textAlign: "center",
+            }}
+          >
+            <Heading size="2" css={{ marginBottom: "$2", fontWeight: 600 }}>
               {state.title}
             </Heading>
             {state?.body && <Box>{state.body}</Box>}
 
             {state.image && (
-              <Box css={{ textAlign: "center", mb: "$5" }}>
+              <Box css={{ textAlign: "center", marginBottom: "$5" }}>
                 <Box as="img" src={state.image} />
               </Box>
             )}
@@ -727,7 +775,7 @@ const MigrateBroadcaster = () => {
           </Box>
 
           {state.loading && (
-            <Flex css={{ justifyContent: "center", mb: "$7" }}>
+            <Flex css={{ justifyContent: "center", marginBottom: "$7" }}>
               <Spinner
                 speed="1.5s"
                 css={{
@@ -740,7 +788,7 @@ const MigrateBroadcaster = () => {
             </Flex>
           )}
           {state?.receipts && (
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               {state?.receipts?.l1 && (
                 <ReceiptLink
                   label="Etherscan"
@@ -763,7 +811,7 @@ const MigrateBroadcaster = () => {
             <Button
               size="4"
               variant="primary"
-              css={{ mr: "$2", width: "100%" }}
+              css={{ marginRight: "$2", width: "100%" }}
               onClick={onApprove}
             >
               Approve Migration
@@ -773,7 +821,7 @@ const MigrateBroadcaster = () => {
             <Text
               size="1"
               variant="neutral"
-              css={{ mt: "$3", textAlign: "center" }}
+              css={{ marginTop: "$3", textAlign: "center" }}
             >
               {state.footnote}
             </Text>
@@ -784,11 +832,13 @@ const MigrateBroadcaster = () => {
           justify="center"
           direction="column"
           css={{
-            px: "$4",
-            py: "$3",
+            paddingLeft: "$4",
+            paddingRight: "$4",
+            paddingTop: "$3",
+            paddingBottom: "$3",
             borderTop: "1px dashed $neutral4",
             textAlign: "center",
-            mt: "$5",
+            marginTop: "$5",
           }}
         >
           <Button
@@ -800,7 +850,7 @@ const MigrateBroadcaster = () => {
             ghost
           >
             Discord Support Channel{" "}
-            <Box css={{ ml: "$1" }} as={ArrowTopRightIcon} />
+            <Box css={{ marginLeft: "$1" }} as={ArrowTopRightIcon} />
           </Button>
         </Flex>
       </Card>
@@ -808,21 +858,21 @@ const MigrateBroadcaster = () => {
   );
 };
 
-function MigrationFields({ migrationParams, css = {} }) {
-  const ReadOnlyCard = styled(Box, {
-    length: {},
-    display: "flex",
-    backgroundColor: "$neutral3",
-    border: "1px solid $neutral6",
-    borderRadius: "$3",
-    justifyContent: "space-between",
-    alignItems: "center",
-    p: "$3",
-  });
+const ReadOnlyCard = styled(Box, {
+  length: {},
+  display: "flex",
+  backgroundColor: "$neutral3",
+  border: "1px solid $neutral6",
+  borderRadius: "$3",
+  justifyContent: "space-between",
+  alignItems: "center",
+  p: "$3",
+});
 
+function MigrationFields({ migrationParams, css = {} }) {
   return (
     <Box css={{ ...css }}>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
         <Box>
           {migrationParams.l1Addr.replace(
@@ -831,11 +881,11 @@ function MigrationFields({ migrationParams, css = {} }) {
           )}
         </Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Deposit</Box>
         <Box>{ethers.utils.formatEther(migrationParams.deposit)} ETH</Box>
       </ReadOnlyCard>
-      <ReadOnlyCard css={{ mb: "$2" }}>
+      <ReadOnlyCard css={{ marginBottom: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Reserve</Box>
         <Box>{ethers.utils.formatEther(migrationParams.reserve)} ETH</Box>
       </ReadOnlyCard>
@@ -851,14 +901,14 @@ function ReceiptLink({ label, hash, chainId }) {
   return (
     <Box
       css={{
-        jc: "center",
+        justifyContent: "center",
         display: "flex",
-        ai: "center",
+        alignItems: "center",
       }}
     >
       <Text variant="neutral">{label}:</Text>
       <A
-        css={{ ml: "$2", display: "flex", ai: "center" }}
+        css={{ marginLeft: "$2", display: "flex", alignItems: "center" }}
         variant="primary"
         target="_blank"
         rel="noopener noreferrer"

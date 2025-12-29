@@ -2,14 +2,15 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
-import { parseEther } from "ethers/lib/utils";
-import { useHandleTransaction } from "hooks";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useMemo, useState } from "react";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { parseEther } from "viem";
+import { useSimulateContract, useWriteContract } from "wagmi";
+
 import ProgressSteps from "../ProgressSteps";
 
 const Delegate = ({
@@ -30,8 +31,8 @@ const Delegate = ({
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
-  const { config } = usePrepareContractWrite({
-    enabled: Boolean(livepeerTokenAddress && bondingManagerAddress),
+  const { data: config } = useSimulateContract({
+    query: { enabled: Boolean(livepeerTokenAddress && bondingManagerAddress) },
     address: livepeerTokenAddress,
     abi: livepeerToken,
     functionName: "approve",
@@ -39,11 +40,11 @@ const Delegate = ({
   });
   const {
     data: approveData,
-    isLoading: approveIsLoading,
-    write: approveWrite,
+    isPending: approveIsLoading,
+    writeContract: approveWrite,
     error: approveError,
     isSuccess: approveIsSuccess,
-  } = useContractWrite(config);
+  } = useWriteContract();
 
   useHandleTransaction(
     "approve",
@@ -53,12 +54,12 @@ const Delegate = ({
     approveIsSuccess,
     {
       type: "bond",
-      amount: MAXIMUM_VALUE_UINT256,
+      amount: BigInt(MAXIMUM_VALUE_UINT256),
     }
   );
 
   const bondWithHintArgs = {
-    amount: amount?.toString() ? parseEther(amount) : "0",
+    amount: amount?.toString() ? parseEther(amount) : BigInt(0),
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
@@ -66,8 +67,8 @@ const Delegate = ({
     currDelegateNewPosNext,
   };
 
-  const { config: bondWithHintConfig } = usePrepareContractWrite({
-    enabled: Boolean(to),
+  const { data: bondWithHintConfig } = useSimulateContract({
+    query: { enabled: Boolean(to) },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "bondWithHint",
@@ -82,11 +83,11 @@ const Delegate = ({
   });
   const {
     data: bondData,
-    isLoading: bondIsLoading,
-    write: bondWrite,
+    isPending: bondIsLoading,
+    writeContract: bondWrite,
     isSuccess: bondIsSuccess,
     error: bondError,
-  } = useContractWrite(bondWithHintConfig);
+  } = useWriteContract();
 
   useHandleTransaction(
     "bond",
@@ -125,9 +126,12 @@ const Delegate = ({
 
   const onApprove = async () => {
     try {
+      if (!config) {
+        throw new Error("No config for approve");
+      }
       setApprovalSubmitted(true);
 
-      approveWrite?.();
+      approveWrite(config.request);
     } catch (e) {
       console.log(e);
     }
@@ -135,7 +139,10 @@ const Delegate = ({
 
   const onDelegate = async () => {
     try {
-      bondWrite?.();
+      if (!bondWithHintConfig) {
+        throw new Error("No config for bond with hint");
+      }
+      bondWrite(bondWithHintConfig.request);
     } catch (e) {
       console.error(e);
     }

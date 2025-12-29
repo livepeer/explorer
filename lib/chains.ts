@@ -1,17 +1,9 @@
+import { ethers } from "ethers";
+import { Address, createPublicClient, http } from "viem";
+import * as chain from "viem/chains";
+
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
 import ethereumLogoUrl from "../public/img/logos/ethereum.png";
-
-import * as chain from "@wagmi/core/chains";
-import { ethers } from "ethers";
-import {
-  Address,
-  Client,
-  HttpTransport,
-  PublicActions,
-  PublicRpcSchema,
-  createPublicClient,
-  http,
-} from "viem";
 
 export const WALLET_CONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -24,7 +16,7 @@ const SUBGRAPH_ID =
   process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
   "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
 
-// Check for required environment variables. 
+// Check for required environment variables.
 if (!INFURA_KEY || !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
@@ -92,7 +84,7 @@ export const L2_CHAIN_IDS = [chain.arbitrum, chain.arbitrumGoerli] as const;
 
 export const L1_CHAIN_IDS = [chain.mainnet, chain.goerli] as const;
 
-export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number];
+export type SupportedL2ChainId = (typeof L2_CHAIN_IDS)[number];
 
 export const TESTNET_CHAIN_IDS = [chain.goerli, chain.arbitrumGoerli] as const;
 
@@ -154,7 +146,6 @@ export const CHAIN_INFO = {
     networkType: NetworkType.L1,
     l1: chain.mainnet,
     explorer: "https://etherscan.io/",
-    explorerAPI: "https://api.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Ethereum Mainnet",
     logoUrl: ethereumLogoUrl,
@@ -170,7 +161,6 @@ export const CHAIN_INFO = {
     networkType: NetworkType.L1,
     l1: chain.goerli,
     explorer: "https://rinkeby.etherscan.io/",
-    explorerAPI: "https://api-rinkeby.etherscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Rinkeby",
     logoUrl: ethereumLogoUrl,
@@ -188,7 +178,6 @@ export const CHAIN_INFO = {
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://arbiscan.io/",
-    explorerAPI: "https://api.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum",
     logoUrl: arbitrumLogoUrl,
@@ -205,7 +194,6 @@ export const CHAIN_INFO = {
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://testnet.arbiscan.io/",
-    explorerAPI: "https://api-testnet.arbiscan.io/api",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum Goerli",
     logoUrl: arbitrumLogoUrl,

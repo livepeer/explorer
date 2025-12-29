@@ -1,16 +1,13 @@
 import Table from "@components/Table";
-import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
+import dayjs from "@lib/dayjs";
+import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numeral from "numeral";
+import numbro from "numbro";
 import { useCallback, useMemo } from "react";
-
-dayjs.extend(relativeTime);
 
 export const FILTERED_EVENT_TYPENAMES = [
   "MintEvent",
@@ -19,25 +16,42 @@ export const FILTERED_EVENT_TYPENAMES = [
 ];
 
 const getLptAmount = (number: number | string | undefined) => {
+  const amount = Number(number ?? 0) || 0;
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.00a")} LPT`}</Badge>
+    <Badge size="1">{`${numbro(amount).format(
+      amount > 0 && amount < 0.01
+        ? { mantissa: 4, trimMantissa: true }
+        : { mantissa: 2, average: true, lowPrecision: false }
+    )} LPT`}</Badge>
   );
 };
 
-const getEthAmount = (number: number | string | undefined) => {
+const getEthAmount = (number?: number | string) => {
+  const amount = Number(number ?? 0) || 0;
   return (
-    <Badge size="1">{`${numeral(number || 0).format("0.000a")} ETH`}</Badge>
+    <Badge size="1">
+      {`${numbro(amount).format(
+        amount > 0 && amount < 0.01
+          ? { mantissa: 4, trimMantissa: true }
+          : { mantissa: 2, average: true, lowPrecision: false }
+      )} ETH`}
+    </Badge>
   );
 };
 
 const getRound = (number: number | string | undefined) => {
-  return `#${numeral(number || 0).format("0")}`;
+  return `#${numbro(number || 0).format({
+    mantissa: 0,
+  })}`;
 };
 
 const getPercentAmount = (number: number | string | undefined) => {
   return (
     <Badge color="white" size="1">
-      {numeral(number || 0).format("0%")}
+      {numbro(number || 0).format({
+        output: "percent",
+        mantissa: 0,
+      })}
     </Badge>
   );
 };
@@ -66,14 +80,17 @@ const Transaction = (props: { id: string | undefined }) => {
     >
       <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
         {props.id ? props.id.replace(props.id.slice(6, 62), "…") : "N/A"}
-        <Box css={{ ml: "$1", width: 15, height: 15 }} as={ArrowTopRightIcon} />
+        <Box
+          css={{ marginLeft: "$1", width: 15, height: 15 }}
+          as={ArrowTopRightIcon}
+        />
       </Badge>
     </A>
   );
 };
 
 const renderEmoji = (emoji: string) => (
-  <Box as="span" css={{ ml: 6 }}>
+  <Box as="span" css={{ marginLeft: 6 }}>
     {emoji}
   </Box>
 );
@@ -337,9 +354,12 @@ const TransactionsList = ({
             <Box>
               {`The inflation has been set to `}
               <Badge size="1">
-                {numeral(event?.currentInflation || 0)
+                {numbro(event?.currentInflation || 0)
                   .divide(1000000000)
-                  .format("0.0000%")}
+                  .format({
+                    output: "percent",
+                    mantissa: 4,
+                  })}
               </Badge>
             </Box>
           );
@@ -534,7 +554,7 @@ const TransactionsList = ({
 
   return (
     <Table
-      data={events as any}
+      data={events as object[]}
       columns={columns}
       initialState={{
         pageSize,

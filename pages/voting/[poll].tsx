@@ -1,12 +1,12 @@
-import VotingWidget from "@components/VotingWidget";
-import { getLayout, LAYOUT_MAX_WIDTH } from "@layouts/main";
-import { useRouter } from "next/router";
-import MarkdownRenderer from "@components/MarkdownRenderer";
-import { abbreviateNumber } from "../../lib/utils";
-
 import BottomDrawer from "@components/BottomDrawer";
+import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import VotingWidget from "@components/VotingWidget";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
+import { getLayout } from "@layouts/main";
+import { getPollExtended, PollExtended } from "@lib/api/polls";
+import dayjs from "@lib/dayjs";
 import {
   Badge,
   Box,
@@ -17,25 +17,33 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import dayjs from "dayjs";
+import {
+  AccountQuery,
+  PollChoice,
+  useAccountQuery,
+  usePollQuery,
+  useVoteQuery,
+} from "apollo";
+import { sentenceCase } from "change-case";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import numbro from "numbro";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
 } from "../../hooks";
+import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
 
-import { getPollExtended, PollExtended } from "@lib/api/polls";
-import { useAccountQuery, usePollQuery, useVoteQuery } from "apollo";
-import { sentenceCase } from "change-case";
-import relativeTime from "dayjs/plugin/relativeTime";
-import numeral from "numeral";
-dayjs.extend(relativeTime);
-
-const formatPercent = (percent: number) => numeral(percent).format("0.0000%");
+const formatPercent = (percent: number) =>
+  numbro(percent).format({
+    output: "percent",
+    mantissa: 4,
+  });
 
 const Poll = () => {
   const router = useRouter();
@@ -130,25 +138,27 @@ const Poll = () => {
       <Head>
         <title>Livepeer Explorer - Voting</title>
       </Head>
-      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, mt: "$4", width: "100%" }}>
+      <Container
+        css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
+      >
         <Flex>
           <Flex
             css={{
               flexDirection: "column",
-              mb: "$6",
-              pr: "0px",
-              pt: "$2",
+              marginBottom: "$6",
+              paddingRight: "0px",
+              paddingTop: "$2",
               width: "100%",
               "@bp3": {
                 width: "75%",
-                pr: "$7",
+                paddingRight: "$7",
               },
             }}
           >
-            <Box css={{ mb: "$4" }}>
+            <Box css={{ marginBottom: "$4" }}>
               <Flex
                 css={{
-                  mb: "$2",
+                  marginBottom: "$2",
                   alignItems: "center",
                 }}
               >
@@ -193,8 +203,8 @@ const Poll = () => {
                   variant="primary"
                   css={{
                     display: "flex",
-                    mt: "$3",
-                    mr: "$3",
+                    marginTop: "$3",
+                    marginRight: "$3",
                     "@bp3": {
                       display: "none",
                     },
@@ -212,7 +222,7 @@ const Poll = () => {
                   display: "grid",
                   gridGap: "$3",
                   gridTemplateColumns: "100%",
-                  mb: "$3",
+                  marginBottom: "$3",
                   "@bp2": {
                     gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
                   },
@@ -225,11 +235,11 @@ const Poll = () => {
                   }
                   value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -268,11 +278,11 @@ const Poll = () => {
                   }
                   value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
                   meta={
-                    <Box css={{ mt: "$4" }}>
+                    <Box css={{ marginTop: "$4" }}>
                       <Flex
                         css={{
                           fontSize: "$2",
-                          mb: "$2",
+                          marginBottom: "$2",
                           justifyContent: "space-between",
                           color: "$hiContrast",
                         }}
@@ -309,12 +319,12 @@ const Poll = () => {
               </Box>
               <Card
                 css={{
-                  p: "$4",
+                  padding: "$4",
                   border: "1px solid $neutral4",
-                  mb: "$3",
+                  marginBottom: "$3",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
-                                }}
+                }}
               >
                 <MarkdownRenderer>
                   {pollData.attributes?.text ?? ""}
@@ -331,7 +341,7 @@ const Poll = () => {
                   position: "sticky",
                   alignSelf: "flex-start",
                   top: "$9",
-                  mt: "$6",
+                  marginTop: "$6",
                   width: "25%",
                   display: "flex",
                 },
@@ -340,9 +350,25 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote as any,
-                  vote: voteData?.vote as any,
-                  myAccount: myAccountData as any,
+                  delegateVote: delegateVoteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  vote: voteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  myAccount: myAccountData as AccountQuery,
                 }}
               />
             </Flex>
@@ -351,9 +377,25 @@ const Poll = () => {
               <VotingWidget
                 data={{
                   poll: pollData,
-                  delegateVote: delegateVoteData?.vote as any,
-                  vote: voteData?.vote as any,
-                  myAccount: myAccountData as any,
+                  delegateVote: delegateVoteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  vote: voteData?.vote as
+                    | {
+                        __typename: "Vote";
+                        choiceID?: PollChoice;
+                        voteStake: string;
+                        nonVoteStake: string;
+                      }
+                    | undefined
+                    | null,
+                  myAccount: myAccountData as AccountQuery,
                 }}
               />
             </BottomDrawer>

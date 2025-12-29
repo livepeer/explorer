@@ -1,17 +1,16 @@
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { poll } from "@lib/api/abis/main/Poll";
-import { getLivepeerGovernorAddress } from "@lib/api/contracts";
 import { Button } from "@livepeer/design-system";
-import { useAccountAddress, useHandleTransaction } from "hooks";
-import {
-  Address,
-  UsePrepareContractWriteConfig,
-  useContractWrite,
-  usePrepareContractWrite,
-} from "wagmi";
-
-import { useMemo } from "react";
+import { useAccountAddress } from "hooks";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { useMemo } from "react";
+import { Address } from "viem";
+import {
+  useSimulateContract,
+  UseSimulateContractParameters,
+  useWriteContract,
+} from "wagmi";
 
 type Props = React.ComponentProps<typeof Button> & {
   pollAddress?: Address;
@@ -19,7 +18,6 @@ type Props = React.ComponentProps<typeof Button> & {
   choiceId: number;
   reason?: string;
 };
-
 
 const Index = ({
   pollAddress,
@@ -32,7 +30,7 @@ const Index = ({
   const accountAddress = useAccountAddress();
   const { data: livepeerGovernorAddress } = useLivepeerGovernorAddress();
 
-  const preparedWriteConfig = useMemo<UsePrepareContractWriteConfig>(() => {
+  const preparedWriteConfig = useMemo<UseSimulateContractParameters>(() => {
     if (proposalId) {
       const hasReason = typeof reason === "string" && reason.length > 3;
       return {
@@ -61,10 +59,11 @@ const Index = ({
     reason,
   ]);
 
-  const { config } = usePrepareContractWrite(preparedWriteConfig);
-  const { data, isLoading, write, error, isSuccess } = useContractWrite(config);
+  const { data: config } = useSimulateContract(preparedWriteConfig);
+  const { data, isPending, writeContract, error, isSuccess } =
+    useWriteContract();
 
-  useHandleTransaction("vote", data, error, isLoading, isSuccess, {
+  useHandleTransaction("vote", data, error, isPending, isSuccess, {
     choiceId,
     choiceName: proposalId
       ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
@@ -77,7 +76,11 @@ const Index = ({
   }
 
   return (
-    <Button onClick={write} {...props}>
+    <Button
+      disabled={!config}
+      onClick={() => config && writeContract(config.request)}
+      {...props}
+    >
       {children}
     </Button>
   );
