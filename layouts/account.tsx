@@ -3,6 +3,7 @@ import BroadcastingView from "@components/BroadcastingView";
 import DelegatingView from "@components/DelegatingView";
 import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
+import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import Spinner from "@components/Spinner";
@@ -12,7 +13,6 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { checkAddressEquality } from "@lib/utils";
 import {
-  Box,
   Button,
   Container,
   Flex,
@@ -341,19 +341,7 @@ const AccountLayout = () => {
                 </Sheet>
               ))}
           </Flex>
-          <Box
-            css={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              position: "relative",
-              borderBottom: "1px solid",
-              borderColor: "$neutral6",
-              overflowX: "auto",
-              flexWrap: "nowrap",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
+          <HorizontalScrollContainer>
             {tabs.map((tab: TabType, i: number) => (
               <A
                 as={Link}
@@ -380,7 +368,7 @@ const AccountLayout = () => {
                 {tab.name}
               </A>
             ))}
-          </Box>
+          </HorizontalScrollContainer>
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
