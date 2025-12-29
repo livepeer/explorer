@@ -2,6 +2,7 @@ import BottomDrawer from "@components/BottomDrawer";
 import DelegatingView from "@components/DelegatingView";
 import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
+import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import Spinner from "@components/Spinner";
@@ -11,7 +12,6 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { checkAddressEquality } from "@lib/utils";
 import {
-  Box,
   Button,
   Container,
   Flex,
@@ -323,16 +323,7 @@ const AccountLayout = () => {
                 </Sheet>
               ))}
           </Flex>
-          <Box
-            css={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              position: "relative",
-              borderBottom: "1px solid",
-              borderColor: "$neutral6",
-            }}
-          >
+          <HorizontalScrollContainer>
             {tabs.map((tab: TabType, i: number) => (
               <A
                 as={Link}
@@ -347,6 +338,8 @@ const AccountLayout = () => {
                   paddingBottom: "$2",
                   fontSize: "$3",
                   fontWeight: 500,
+                  flex: "0 0 auto",
+                  whiteSpace: "nowrap",
                   borderBottom: "2px solid",
                   borderColor: tab.isActive ? "$primary11" : "transparent",
                   "&:hover": {
@@ -357,7 +350,7 @@ const AccountLayout = () => {
                 {tab.name}
               </A>
             ))}
-          </Box>
+          </HorizontalScrollContainer>
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
