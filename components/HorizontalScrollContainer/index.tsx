@@ -9,12 +9,14 @@ import {
 
 type HorizontalScrollContainerProps = {
   children: ReactNode;
+  ariaLabel?: string;
+  role?: "navigation";
 };
 
 const HorizontalScrollContainer = forwardRef<
   HTMLDivElement,
   HorizontalScrollContainerProps
->(({ children }, ref) => {
+>(({ children, ariaLabel, role }, ref) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -66,6 +68,8 @@ const HorizontalScrollContainer = forwardRef<
           WebkitOverflowScrolling: "touch",
           flexWrap: "nowrap",
         }}
+        role={role}
+        aria-label={ariaLabel}
         ref={setRefs}
       >
         {children}
