@@ -108,13 +108,11 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const [inflationGrouping, setInflationGrouping] = useState<Group>("year");
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData
-        ?.slice(inflationGrouping === "year" ? -365 : 1)
-        .map((day) => ({
-          x: Number(day.dateS),
-          y: Number(day?.inflation ?? 0) / 1000000000,
-        })) ?? [],
-    [chartData, inflationGrouping]
+      getDaySeries(
+        inflationGrouping,
+        (day) => Number(day?.inflation ?? 0) / 1000000000
+      ),
+    [getDaySeries, inflationGrouping]
   );
 
   const [delegatorsGrouping, setDelegatorsGrouping] = useState<Group>("year");
