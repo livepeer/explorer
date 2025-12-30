@@ -55,20 +55,39 @@ const Index = () => {
     [events]
   );
 
+  // Tag winning tickets (in/out/self) within the current window
+  const ticketEvents = useMemo(() => {
+    const tickets =
+      data?.winningTicketRedeemedEvents?.filter(
+        (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+      ) ?? [];
+    const accountLower = account.toLowerCase();
+    return tickets
+      .filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
+      .map((e) => ({
+        ...e,
+        direction:
+          e?.sender?.id?.toLowerCase() === accountLower &&
+          e?.recipient?.id?.toLowerCase() === accountLower
+            ? ("self" as const)
+            : e?.sender?.id?.toLowerCase() === accountLower
+            ? ("out" as const)
+            : ("in" as const),
+      }));
+  }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
+
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
   // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
   const mergedEvents = useMemo(
     () =>
       [
         ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
-        ...(data?.winningTicketRedeemedEvents?.filter(
-          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
-        ) ?? []),
+        ...ticketEvents,
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
       ),
-    [events, data, lastEventTimestamp]
+    [events, ticketEvents]
   );
 
   if (error) {
@@ -676,7 +695,16 @@ function renderSwitch(event, i: number) {
           </Flex>
         </Card>
       );
-    case "WinningTicketRedeemedEvent":
+    case "WinningTicketRedeemedEvent": {
+      const direction = event.direction;
+      const title =
+        direction === "out"
+          ? "Paid winning ticket"
+          : direction === "self"
+          ? "Self-redeemed winning ticket"
+          : "Redeemed winning ticket";
+      const amountPrefix =
+        direction === "out" ? "-" : direction === "self" ? "±" : "+";
       return (
         <Card
           as={A}
@@ -699,7 +727,7 @@ function renderSwitch(event, i: number) {
             }}
           >
             <Box>
-              <Box css={{ fontWeight: 500 }}>Redeemed winning ticket</Box>
+              <Box css={{ fontWeight: 500 }}>{title}</Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
               >
@@ -728,7 +756,7 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
+                {amountPrefix}
                 {numbro(event.faceValue).format({
                   mantissa: 3,
                   average: true,
@@ -739,6 +767,7 @@ function renderSwitch(event, i: number) {
           </Flex>
         </Card>
       );
+    }
     case "DepositFundedEvent":
       return (
         <Card

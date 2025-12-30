@@ -8,6 +8,9 @@ import {
   EventsDocument,
   EventsQuery,
   EventsQueryVariables,
+  GatewaysDocument,
+  GatewaysQuery,
+  GatewaysQueryVariables,
   getApollo,
   OrchestratorsDocument,
   OrchestratorsQuery,
@@ -24,6 +27,25 @@ export async function getProtocol(client = getApollo()) {
   return client.query<ProtocolQuery, ProtocolQueryVariables>({
     query: ProtocolDocument,
   });
+}
+
+export async function getGateways(client = getApollo()) {
+  const currentDay = Math.floor(Date.now() / 1000 / 86400);
+  const minActiveDay = Math.max(currentDay - 365, 0); // include activated last 12 months
+
+  const gateways = await client.query<GatewaysQuery, GatewaysQueryVariables>({
+    query: GatewaysDocument,
+    variables: {
+      first: 250,
+      skip: 0,
+      minActiveDay,
+    },
+  });
+
+  return {
+    fallback: {},
+    gateways,
+  };
 }
 
 export async function getCurrentRound(client = getApollo()) {
