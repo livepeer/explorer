@@ -40,7 +40,7 @@ const HorizontalScrollContainer = forwardRef<
       el.removeEventListener("scroll", handleScroll);
       observer.disconnect();
     };
-  }, []);
+  }, [children]);
 
   useLayoutEffect(() => {
     const el = innerRef.current;
