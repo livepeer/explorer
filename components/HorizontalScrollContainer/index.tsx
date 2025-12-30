@@ -22,9 +22,12 @@ const HorizontalScrollContainer = forwardRef<
     const el = innerRef.current;
     if (!el) return;
     const updateState = () => {
-      const overflow = el.scrollWidth > el.clientWidth + 1;
+      const scrollBuffer = 1;
+      const overflow = el.scrollWidth > el.clientWidth + scrollBuffer;
       const maxVisibleRight = el.scrollLeft + el.clientWidth;
-      setHasOverflow(overflow && maxVisibleRight < el.scrollWidth - 1);
+      setHasOverflow(
+        overflow && maxVisibleRight < el.scrollWidth - scrollBuffer
+      );
     };
     updateState();
     const observer = new ResizeObserver(updateState);
