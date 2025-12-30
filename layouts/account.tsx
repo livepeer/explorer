@@ -341,7 +341,10 @@ const AccountLayout = () => {
                 </Sheet>
               ))}
           </Flex>
-          <HorizontalScrollContainer>
+          <HorizontalScrollContainer
+            role="navigation"
+            ariaLabel="Account navigation tabs"
+          >
             {tabs.map((tab: TabType, i: number) => (
               <A
                 as={Link}
