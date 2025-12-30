@@ -69,9 +69,15 @@ export const useChangefeedData = () => {
 };
 
 export const useSupplyChangeData = () => {
-  const { data } = useSWR<SupplyChangeData>(`/supply-change`);
+  const { data, error, isValidating } = useSWR<SupplyChangeData>(
+    `/supply-change`
+  );
 
-  return data ?? null;
+  return {
+    data: data ?? null,
+    isLoading: Boolean(!data && isValidating && !error),
+    error,
+  };
 };
 
 export const useAvailableInferencePipelinesData = () => {
