@@ -80,7 +80,7 @@ function DataTable<T extends object>({
         <>
           <Box
             css={{
-              overflowY: "scroll",
+              overflowX: "auto",
             }}
           >
             {input && (
@@ -98,7 +98,6 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 980,
                 width: "100%",
                 "@bp4": {
                   width: "100%",
