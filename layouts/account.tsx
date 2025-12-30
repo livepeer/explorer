@@ -335,6 +335,8 @@ const AccountLayout = () => {
                 href={tab.href}
                 passHref
                 variant="subtle"
+                data-active={tab.isActive ? "true" : undefined}
+                aria-current={tab.isActive ? "page" : undefined}
                 css={{
                   color: tab.isActive ? "$hiContrast" : "$neutral11",
                   marginRight: "$4",
