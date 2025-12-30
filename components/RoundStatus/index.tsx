@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Spinner from "@components/Spinner";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { Box, Flex, getThemes, Text } from "@livepeer/design-system";
+import { Box, Flex, getThemes, Skeleton, Text } from "@livepeer/design-system";
 import {
   CheckIcon,
   Cross1Icon,
@@ -81,7 +81,10 @@ const Index = ({
     () => (protocol?.totalSupply ? Number(protocol.totalSupply) : null),
     [protocol]
   );
-  const supplyChangeData = useSupplyChangeData();
+  const {
+    data: supplyChangeData,
+    isLoading: isSupplyChangeLoading,
+  } = useSupplyChangeData();
 
   return (
     <Box
@@ -443,12 +446,16 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {supplyChangeData?.supplyChange != null
-                    ? numbro(supplyChangeData?.supplyChange ?? 0).format({
-                        output: "percent",
-                        mantissa: 2,
-                      })
-                    : "--"}
+                  {isSupplyChangeLoading ? (
+                    <Skeleton css={{ height: 16, width: 80 }} />
+                  ) : supplyChangeData?.supplyChange != null ? (
+                    numbro(supplyChangeData?.supplyChange ?? 0).format({
+                      output: "percent",
+                      mantissa: 2,
+                    })
+                  ) : (
+                    "--"
+                  )}
                 </Text>
               </Flex>
             </ExplorerTooltip>
