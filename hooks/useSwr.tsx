@@ -70,9 +70,8 @@ export const useChangefeedData = () => {
 };
 
 export const useSupplyChangeData = () => {
-  const { data, error, isValidating } = useSWR<SupplyChangeData>(
-    `/supply-change`
-  );
+  const { data, error, isValidating } =
+    useSWR<SupplyChangeData>(`/supply-change`);
 
   return {
     data: data ?? null,
