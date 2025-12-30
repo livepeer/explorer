@@ -96,7 +96,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   );
 
   const [participationGrouping, setParticipationGrouping] =
-    useState<Group>("all");
+    useState<Group>("year");
   const participationRateData = useMemo(
     () =>
       getDaySeries(participationGrouping, (day) =>
@@ -105,7 +105,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [getDaySeries, participationGrouping]
   );
 
-  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("year");
   const inflationRateData = useMemo(
     () =>
       chartData?.dayData
@@ -117,7 +117,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [chartData, inflationGrouping]
   );
 
-  const [delegatorsGrouping, setDelegatorsGrouping] = useState<Group>("all");
+  const [delegatorsGrouping, setDelegatorsGrouping] = useState<Group>("year");
   const delegatorsCountData = useMemo(
     () =>
       getDaySeries(delegatorsGrouping, (day) => Number(day.delegatorsCount)),
@@ -125,7 +125,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   );
 
   const [orchestratorsGrouping, setOrchestratorsGrouping] =
-    useState<Group>("all");
+    useState<Group>("year");
   const activeTranscoderCountData = useMemo(
     () =>
       getDaySeries(orchestratorsGrouping, (day) =>
