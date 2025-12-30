@@ -42,6 +42,15 @@ const HorizontalScrollContainer = forwardRef<
     };
   }, []);
 
+  useLayoutEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const activeTab = el.querySelector(
+      '[data-active="true"]'
+    ) as HTMLElement | null;
+    activeTab?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [children]);
+
   const setRefs = (node: HTMLDivElement | null) => {
     innerRef.current = node;
     if (typeof ref === "function") {
