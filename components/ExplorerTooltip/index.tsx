@@ -1,6 +1,14 @@
-import { Box, styled, Text } from "@livepeer/design-system";
+import {
+  Box,
+  styled,
+  Text,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@livepeer/design-system";
 import { Tooltip } from "radix-ui";
 import React from "react";
+import { isMobile } from "react-device-detect";
 
 type TooltipProps = React.ComponentProps<typeof Tooltip.Root> &
   Omit<React.ComponentProps<typeof Tooltip.Content>, "content"> & {
@@ -26,6 +34,23 @@ const Content = styled(Tooltip.Content, {
   },
 });
 
+const PopoverContentStyled = styled(PopoverContent, {
+  length: {},
+  backgroundColor: "$neutral4",
+  borderRadius: "$1",
+  padding: "$1 $2",
+  zIndex: "4",
+
+  variants: {
+    multiline: {
+      true: {
+        maxWidth: 250,
+        pb: 7,
+      },
+    },
+  },
+});
+
 export function ExplorerTooltip({
   children,
   content,
@@ -35,6 +60,41 @@ export function ExplorerTooltip({
   multiline,
   ...props
 }: TooltipProps) {
+  // Mobile: Use Popover (tap to open/close)
+  if (isMobile) {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        <PopoverTrigger asChild>{children}</PopoverTrigger>
+        <PopoverContentStyled
+          side="top"
+          align="center"
+          sideOffset={5}
+          multiline={multiline}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+          placeholder={undefined}
+          {...props}
+        >
+          <Text
+            size="1"
+            as="p"
+            css={{
+              fontSize: "$2",
+              textTransform: "none",
+              fontWeight: 600,
+              color: "white",
+              zIndex: "$4",
+              lineHeight: multiline ? "20px" : undefined,
+            }}
+          >
+            {content}
+          </Text>
+        </PopoverContentStyled>
+      </Popover>
+    );
+  }
+
+  // Desktop: Use Tooltip (hover to show)
   return (
     <Tooltip.Root
       open={open}
