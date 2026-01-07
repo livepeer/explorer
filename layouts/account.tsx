@@ -1,13 +1,13 @@
 import BottomDrawer from "@components/BottomDrawer";
 // import DelegatingView from "@components/DelegatingView";
-import DelegatingWidget from "@components/DelegatingWidget";
+// import DelegatingWidget from "@components/DelegatingWidget";
 // import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 // import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
-import { getLayout } from "@layouts/main";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
+// import { getLayout } from "@layouts/main";
+// import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
 import {
   Button,
@@ -15,7 +15,7 @@ import {
   Flex,
   Link as A,
   Sheet,
-  SheetContent,
+  // SheetContent,
   SheetTrigger,
 } from "@livepeer/design-system";
 import {
@@ -23,13 +23,13 @@ import {
   OrchestratorsSortedQueryResult,
   useAccountQuery,
 } from "apollo";
-import { useBondingManagerAddress } from "hooks/useContracts";
+// import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
-import { useReadContract } from "wagmi";
 
+// import { useReadContract } from "wagmi";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
 
 export interface TabType {
@@ -44,7 +44,6 @@ const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = ({
   account,
-  sortedOrchestrators,
 }: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
@@ -66,7 +65,7 @@ const AccountLayout = ({
   );
 
   const identity = useEnsData(accountId);
-  const myIdentity = useEnsData(accountAddress);
+  // const myIdentity = useEnsData(accountAddress);
 
   const [pollInterval, setPollInterval] = useState<number | undefined>(
     undefined
@@ -80,16 +79,16 @@ const AccountLayout = ({
     pollInterval,
   });
 
-  const { data: bondingManagerAddress } = useBondingManagerAddress();
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
-    query: { enabled: Boolean(bondingManagerAddress) },
-    address: bondingManagerAddress,
-    abi: bondingManager,
-    functionName: "treasuryRewardCutRate",
-  });
-  const treasury = {
-    treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
-  };
+  // const { data: bondingManagerAddress } = useBondingManagerAddress();
+  // const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+  //   query: { enabled: Boolean(bondingManagerAddress) },
+  //   address: bondingManagerAddress,
+  //   abi: bondingManager,
+  //   functionName: "treasuryRewardCutRate",
+  // });
+  // const treasury = {
+  //   treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+  // };
 
   // start polling when when transactions finish
   useEffect(() => {
@@ -190,7 +189,7 @@ const AccountLayout = ({
                     Delegate
                   </Button>
                 </SheetTrigger>
-                <SheetContent
+                {/* <SheetContent
                   css={{ height: "initial" }}
                   onPointerEnterCapture={undefined}
                   onPointerLeaveCapture={undefined}
@@ -207,10 +206,12 @@ const AccountLayout = ({
                         : account?.transcoder
                     }
                     protocol={account?.protocol}
-                    treasury={treasury}
+                    treasury={{
+                      treasuryRewardCutRate: 8,
+                    }}
                     delegateProfile={identity}
                   />
-                </SheetContent>
+                </SheetContent> */}
               </Sheet>
             )}
             {isMyDelegate ||
@@ -228,7 +229,7 @@ const AccountLayout = ({
                       Undelegate
                     </Button>
                   </SheetTrigger>
-                  <SheetContent
+                  {/* <SheetContent
                     side="bottom"
                     css={{ height: "initial" }}
                     placeholder={undefined}
@@ -245,10 +246,12 @@ const AccountLayout = ({
                           : account?.transcoder
                       }
                       protocol={account?.protocol}
-                      treasury={treasury}
+                      treasury={{
+                        treasuryRewardCutRate: 8,
+                      }}
                       delegateProfile={identity}
                     />
-                  </SheetContent>
+                  </SheetContent> */}
                 </Sheet>
               ))}
           </Flex>
@@ -317,7 +320,7 @@ const AccountLayout = ({
                 },
               }}
             >
-              <DelegatingWidget
+              {/* <DelegatingWidget
                 transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
@@ -327,13 +330,15 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
-                treasury={treasury}
+                treasury={{
+                  treasuryRewardCutRate: 8,
+                }}
                 delegateProfile={identity}
-              />
+              /> */}
             </Flex>
           ) : (
             <BottomDrawer>
-              <DelegatingWidget
+              {/* <DelegatingWidget
                 transcoders={sortedOrchestrators?.transcoders}
                 delegator={dataMyAccount?.delegator}
                 account={myIdentity}
@@ -343,17 +348,18 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
-                treasury={treasury}
+                treasury={{
+                  treasuryRewardCutRate: 8,
+                }}
                 delegateProfile={identity}
-              />
+              /> */}
+              Test
             </BottomDrawer>
           ))}
       </Flex>
     </Container>
   );
 };
-
-AccountLayout.getLayout = getLayout;
 
 export default AccountLayout;
 
