@@ -3,11 +3,11 @@
 // import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 // import OrchestratingView from "@components/OrchestratingView";
-import Profile from "@components/Profile";
+// import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 // import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
+// import { checkAddressEquality } from "@lib/utils";
 import { Container, Flex, Link as A } from "@livepeer/design-system";
 import {
   AccountQueryResult,
@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
 // import { useReadContract } from "wagmi";
-import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
+import { useAccountAddress, useExplorerStore } from "../hooks";
 
 export interface TabType {
   name: string;
@@ -53,7 +53,7 @@ const AccountLayout = ({
     [query]
   );
 
-  const identity = useEnsData(accountId);
+  // const identity = useEnsData(accountId);
   // const myIdentity = useEnsData(accountAddress);
 
   const [pollInterval, setPollInterval] = useState<number | undefined>(
@@ -75,15 +75,15 @@ const AccountLayout = ({
     }
   }, [latestTransaction?.step]);
 
-  const isActive = useMemo(
-    () => Boolean(account?.transcoder?.active),
-    [account?.transcoder]
-  );
+  // const isActive = useMemo(
+  //   () => Boolean(account?.transcoder?.active),
+  //   [account?.transcoder]
+  // );
 
-  const isMyAccount = useMemo(
-    () => checkAddressEquality(accountAddress ?? "", accountId ?? ""),
-    [accountAddress, accountId]
-  );
+  // const isMyAccount = useMemo(
+  //   () => checkAddressEquality(accountAddress ?? "", accountId ?? ""),
+  //   [accountAddress, accountId]
+  // );
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
@@ -121,12 +121,12 @@ const AccountLayout = ({
             },
           }}
         >
-          <Profile
+          {/* <Profile
             isActive={isActive}
             account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
             identity={identity}
-          />
+          /> */}
           <Flex
             css={{
               display: "flex",
