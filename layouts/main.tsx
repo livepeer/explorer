@@ -1,13 +1,10 @@
 import AppBar from "@components/AppBar";
-// import Claim from "@components/Claim";
-// import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-// import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
@@ -111,12 +108,22 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
+const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
+  ssr: false,
+});
+
+const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
+
 const TxConfirmedDialog = dynamic(
   () => import("../components/TxConfirmedDialog"),
   {
     ssr: false,
   }
 );
+
+const RegisterToVote = dynamic(() => import("../components/RegisterToVote"), {
+  ssr: false,
+});
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath, isReady, query } = useRouter();
@@ -678,9 +685,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
                       <Flex css={{ marginLeft: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
-                        {/* <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
+                        <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
                           <ConnectButton showBalance={false} />
-                        </Flex> */}
+                        </Flex>
                         <Search />
                       </Flex>
                     </Flex>
@@ -697,12 +704,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     {!asPath.includes("/migrate") && accountAddress && (
                       <InactiveWarning />
                     )}
-                    {/* {!asPath?.includes("/migrate") && accountAddress && (
+                    {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
-                    )} */}
-                    {/* {!asPath?.includes("/migrate") && accountAddress && (
+                    )}
+                    {!asPath?.includes("/migrate") && accountAddress && (
                       <RegisterToVote />
-                    )} */}
+                    )}
                     {children}
                   </Box>
                 </Flex>
