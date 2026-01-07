@@ -1,5 +1,5 @@
-// import AccountLayout from "@layouts/account";
-// import { getLayout } from "@layouts/main";
+import AccountLayout from "@layouts/account";
+import { getLayout } from "@layouts/main";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -14,9 +14,11 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Orchestrating = () => <div>Test</div>;
+const Orchestrating = ({ account, sortedOrchestrators }: PageProps) => (
+  <AccountLayout sortedOrchestrators={sortedOrchestrators} account={account} />
+);
 
-// Orchestrating.getLayout = getLayout;
+Orchestrating.getLayout = getLayout;
 
 export const getStaticPaths = async () => {
   const { sortedOrchestrators } = await getSortedOrchestrators();
