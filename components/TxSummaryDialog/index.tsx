@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Dialog,
+  DialogClose,
   DialogContent,
   Flex,
   keyframes,
@@ -9,8 +10,6 @@ import {
 } from "@livepeer/design-system";
 import { sentenceCase } from "change-case";
 import { useExplorerStore } from "hooks";
-
-import CloseIcon from "../../public/img/close.svg";
 
 const rotate = keyframes({
   "100%": { transform: "rotate(360deg)" },
@@ -24,7 +23,14 @@ const Index = () => {
   }
 
   return (
-    <Dialog open={true}>
+    <Dialog
+      open={!!latestTransaction}
+      onOpenChange={(open) => {
+        if (!open) {
+          clearLatestTransaction();
+        }
+      }}
+    >
       <DialogContent
         css={{ minWidth: 370 }}
         onPointerDownOutside={clearLatestTransaction}
@@ -32,24 +38,6 @@ const Index = () => {
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
-        <Flex
-          css={{
-            justifyContent: "flex-end",
-          }}
-        >
-          <Box
-            as={CloseIcon}
-            css={{
-              zIndex: 1,
-              right: 20,
-              cursor: "pointer",
-              top: 20,
-              color: "$white",
-            }}
-            onClick={clearLatestTransaction}
-          />
-        </Flex>
-
         {latestTransaction?.error ? (
           <Box />
         ) : (
@@ -96,14 +84,16 @@ const Index = () => {
                   ? `${sentenceCase(latestTransaction?.error)}.`
                   : "Error with transaction, please check your inputs and try again."}
               </Text>
-              <Button
-                onClick={clearLatestTransaction}
-                variant="primary"
-                size="4"
-                css={{ width: "100%" }}
-              >
-                Close
-              </Button>
+              <DialogClose asChild>
+                <Button
+                  onClick={clearLatestTransaction}
+                  variant="primary"
+                  size="4"
+                  css={{ width: "100%" }}
+                >
+                  Close
+                </Button>
+              </DialogClose>
             </>
           ) : (
             <Text>Confirm latest transaction in your wallet.</Text>
