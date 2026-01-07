@@ -1,5 +1,5 @@
 import BottomDrawer from "@components/BottomDrawer";
-import DelegatingView from "@components/DelegatingView";
+// import DelegatingView from "@components/DelegatingView";
 import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
@@ -292,14 +292,14 @@ const AccountLayout = ({
               transcoder={account?.transcoder}
             />
           )}
-          {view === "delegating" && (
+          {/* {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
               delegator={account?.delegator}
               protocol={account?.protocol}
               currentRound={account?.protocol?.currentRound}
             />
-          )}
+          )} */}
           {view === "history" && <HistoryView />}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&

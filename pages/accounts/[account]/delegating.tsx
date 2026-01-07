@@ -1,4 +1,4 @@
-// import AccountLayout from "@layouts/account";
+import AccountLayout from "@layouts/account";
 // import { getLayout } from "@layouts/main";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -14,7 +14,9 @@ type PageProps = {
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Delegating = () => <div>Test</div>;
+const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
+  <AccountLayout sortedOrchestrators={sortedOrchestrators} account={account} />
+);
 
 // Delegating.getLayout = getLayout;
 
