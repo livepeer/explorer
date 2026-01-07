@@ -1,5 +1,5 @@
 import AppBar from "@components/AppBar";
-// import Claim from "@components/Claim";
+import Claim from "@components/Claim";
 // import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
@@ -690,9 +690,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     {!asPath.includes("/migrate") && accountAddress && (
                       <InactiveWarning />
                     )}
-                    {/* {!asPath?.includes("/migrate") && accountAddress && (
+                    {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
-                    )} */}
+                    )}
                     {/* {!asPath?.includes("/migrate") && accountAddress && (
                       <RegisterToVote />
                     )} */}
