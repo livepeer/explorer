@@ -34,8 +34,7 @@ const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = ({
   account,
-}: // sortedOrchestrators,
-{
+}: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
@@ -68,17 +67,6 @@ const AccountLayout = ({
     skip: !accountAddress,
     pollInterval,
   });
-
-  // const { data: bondingManagerAddress } = useBondingManagerAddress();
-  // const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
-  //   query: { enabled: Boolean(bondingManagerAddress) },
-  //   address: bondingManagerAddress,
-  //   abi: bondingManager,
-  //   functionName: "treasuryRewardCutRate",
-  // });
-  // const treasury = {
-  //   treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
-  // };
 
   // start polling when when transactions finish
   useEffect(() => {
