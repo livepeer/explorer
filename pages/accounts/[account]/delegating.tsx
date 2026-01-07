@@ -1,3 +1,4 @@
+import ErrorComponent from "@components/Error";
 import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
@@ -9,14 +10,24 @@ import {
 } from "apollo";
 
 type PageProps = {
-  account: AccountQueryResult["data"] | null;
+  hadError: boolean;
+  account: AccountQueryResult["data"];
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Delegating = ({ account, sortedOrchestrators }: PageProps) => (
-  <AccountLayout sortedOrchestrators={sortedOrchestrators} account={account} />
-);
+const Delegating = ({ hadError, account, sortedOrchestrators }: PageProps) => {
+  if (hadError) {
+    return <ErrorComponent statusCode={500} />;
+  }
+
+  return (
+    <AccountLayout
+      sortedOrchestrators={sortedOrchestrators}
+      account={account}
+    />
+  );
+};
 
 Delegating.getLayout = getLayout;
 
@@ -32,7 +43,9 @@ export const getStaticPaths = async () => {
   };
 };
 
-export const getStaticProps = async (context) => {
+export const getStaticProps = async (context: {
+  params: { account: string };
+}) => {
   try {
     const client = getApollo();
     const { account, fallback } = await getAccount(
@@ -43,11 +56,12 @@ export const getStaticProps = async (context) => {
     const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =
       await getSortedOrchestrators(client);
 
-    if (!sortedOrchestrators.data) {
+    if (!account.data || !sortedOrchestrators.data) {
       return { notFound: true, revalidate: 300 };
     }
 
     const props: PageProps = {
+      hadError: false,
       account: account.data,
       sortedOrchestrators: sortedOrchestrators.data,
       fallback: {
@@ -61,7 +75,13 @@ export const getStaticProps = async (context) => {
       revalidate: 600,
     };
   } catch (e) {
-    console.error(e);
+    console.log(e);
+    return {
+      props: {
+        hadError: true,
+      },
+      revalidate: 60,
+    };
   }
 
   return { notFound: true, revalidate: 300 };
