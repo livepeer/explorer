@@ -10,12 +10,12 @@ import ProgressBar from "@components/ProgressBar";
 // import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 // import TxConfirmedDialog from "@components/TxConfirmedDialog";
-import TxStartedDialog from "@components/TxStartedDialog";
-import TxSummaryDialog from "@components/TxSummaryDialog";
+// import TxStartedDialog from "@components/TxStartedDialog";
+// import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
-import { EMPTY_ADDRESS } from "@lib/utils";
+// import { EMPTY_ADDRESS } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -24,16 +24,16 @@ import {
   DesignSystemProvider,
   Flex,
   getThemes,
-  Link as A,
+  // Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Skeleton,
+  // Skeleton,
   SnackbarProvider,
-  Text,
+  // Text,
 } from "@livepeer/design-system";
 import {
-  ArrowTopRightIcon,
+  // ArrowTopRightIcon,
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
@@ -43,9 +43,9 @@ import {
   useTreasuryProposalsQuery,
 } from "apollo";
 import { BigNumber } from "ethers";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+// import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
@@ -61,12 +61,12 @@ import React, {
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { useWindowSize } from "react-use";
-import { Chain } from "viem";
 
+// import { Chain } from "viem";
 import {
   useAccountAddress,
-  useActiveChain,
-  useContractInfoData,
+  // useActiveChain,
+  // useContractInfoData,
   useCurrentRoundData,
   useExplorerStore,
   useOnClickOutside,
@@ -117,7 +117,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { data: pollData } = usePollsQuery();
   const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
   const accountAddress = useAccountAddress();
-  const activeChain = useActiveChain();
+  // const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState<boolean>(false);
   const { width } = useWindowSize();
@@ -670,7 +670,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       </Flex>
 
                       <Flex css={{ marginLeft: "auto" }}>
-                        <ContractAddressesPopover activeChain={activeChain} />
+                        {/* <ContractAddressesPopover activeChain={activeChain} /> */}
                         {/* <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
                           <ConnectButton showBalance={false} />
                         </Flex> */}
@@ -702,8 +702,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               </Box>
             </Box>
             {/* <TxConfirmedDialog /> */}
-            <TxSummaryDialog />
-            <TxStartedDialog />
+            {/* <TxSummaryDialog /> */}
+            {/* <TxStartedDialog /> */}
             {latestTransaction && latestTransaction.step !== "confirmed" && (
               <Box
                 css={{
@@ -733,191 +733,191 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   );
 };
 
-const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+// const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
+//   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const contractAddresses = useContractInfoData(isOpen);
+//   const contractAddresses = useContractInfoData(isOpen);
 
-  return (
-    <Popover onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Flex
-          align="center"
-          css={{
-            cursor: "pointer",
-            fontWeight: 600,
-            paddingLeft: "$2",
-            paddingRight: "$2",
-            fontSize: "$2",
-            display: "none",
-            alignItems: "center",
-            marginRight: "$2",
-            "@bp1": {
-              display: "flex",
-            },
-          }}
-        >
-          <Image
-            style={{ objectFit: "contain" }}
-            width={18}
-            height={18}
-            alt={
-              (
-                CHAIN_INFO[activeChain?.id ?? ""] ??
-                CHAIN_INFO[DEFAULT_CHAIN_ID]
-              ).label
-            }
-            src={
-              (
-                CHAIN_INFO[activeChain?.id ?? ""] ??
-                CHAIN_INFO[DEFAULT_CHAIN_ID]
-              ).logoUrl
-            }
-          />
-          <Box css={{ marginLeft: "8px" }}>
-            {
-              (
-                CHAIN_INFO[activeChain?.id ?? ""] ??
-                CHAIN_INFO[DEFAULT_CHAIN_ID]
-              ).label
-            }
-          </Box>
+//   return (
+//     <Popover onOpenChange={setIsOpen}>
+//       <PopoverTrigger asChild>
+//         <Flex
+//           align="center"
+//           css={{
+//             cursor: "pointer",
+//             fontWeight: 600,
+//             paddingLeft: "$2",
+//             paddingRight: "$2",
+//             fontSize: "$2",
+//             display: "none",
+//             alignItems: "center",
+//             marginRight: "$2",
+//             "@bp1": {
+//               display: "flex",
+//             },
+//           }}
+//         >
+//           <Image
+//             style={{ objectFit: "contain" }}
+//             width={18}
+//             height={18}
+//             alt={
+//               (
+//                 CHAIN_INFO[activeChain?.id ?? ""] ??
+//                 CHAIN_INFO[DEFAULT_CHAIN_ID]
+//               ).label
+//             }
+//             src={
+//               (
+//                 CHAIN_INFO[activeChain?.id ?? ""] ??
+//                 CHAIN_INFO[DEFAULT_CHAIN_ID]
+//               ).logoUrl
+//             }
+//           />
+//           <Box css={{ marginLeft: "8px" }}>
+//             {
+//               (
+//                 CHAIN_INFO[activeChain?.id ?? ""] ??
+//                 CHAIN_INFO[DEFAULT_CHAIN_ID]
+//               ).label
+//             }
+//           </Box>
 
-          <Box
-            as={ChevronDownIcon}
-            css={{ color: "$neutral11", marginLeft: "$1" }}
-          />
-        </Flex>
-      </PopoverTrigger>
-      <PopoverContent
-        css={{
-          minWidth: 350,
-          borderRadius: "$4",
-          bc: "$neutral4",
-        }}
-        placeholder={undefined}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-      >
-        <Box
-          css={{
-            padding: "$4",
-          }}
-        >
-          <Box css={{}}>
-            <Text
-              size="1"
-              css={{
-                marginBottom: "$2",
-                fontWeight: 600,
-                textTransform: "uppercase",
-              }}
-            >
-              {`Contract Addresses`}
-            </Text>
+//           <Box
+//             as={ChevronDownIcon}
+//             css={{ color: "$neutral11", marginLeft: "$1" }}
+//           />
+//         </Flex>
+//       </PopoverTrigger>
+//       <PopoverContent
+//         css={{
+//           minWidth: 350,
+//           borderRadius: "$4",
+//           bc: "$neutral4",
+//         }}
+//         placeholder={undefined}
+//         onPointerEnterCapture={undefined}
+//         onPointerLeaveCapture={undefined}
+//       >
+//         <Box
+//           css={{
+//             padding: "$4",
+//           }}
+//         >
+//           <Box css={{}}>
+//             <Text
+//               size="1"
+//               css={{
+//                 marginBottom: "$2",
+//                 fontWeight: 600,
+//                 textTransform: "uppercase",
+//               }}
+//             >
+//               {`Contract Addresses`}
+//             </Text>
 
-            {Object.keys(contractAddresses ?? {})
-              .filter(
-                (key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS
-              )
-              .map((key) => (
-                <Flex key={key}>
-                  {contractAddresses?.[key] ? (
-                    <>
-                      <Text
-                        variant="neutral"
-                        css={{
-                          marginBottom: "$1",
-                        }}
-                        size="2"
-                      >
-                        {contractAddresses?.[
-                          key as keyof typeof contractAddresses
-                        ]?.name ?? ""}
-                      </Text>
-                      <A
-                        css={{
-                          marginLeft: "auto",
+//             {Object.keys(contractAddresses ?? {})
+//               .filter(
+//                 (key) => contractAddresses?.[key]?.address !== EMPTY_ADDRESS
+//               )
+//               .map((key) => (
+//                 <Flex key={key}>
+//                   {contractAddresses?.[key] ? (
+//                     <>
+//                       <Text
+//                         variant="neutral"
+//                         css={{
+//                           marginBottom: "$1",
+//                         }}
+//                         size="2"
+//                       >
+//                         {contractAddresses?.[
+//                           key as keyof typeof contractAddresses
+//                         ]?.name ?? ""}
+//                       </Text>
+//                       <A
+//                         css={{
+//                           marginLeft: "auto",
 
-                          marginBottom: "$1",
-                        }}
-                        target="_blank"
-                        href={
-                          contractAddresses?.[
-                            key as keyof typeof contractAddresses
-                          ]?.link
-                        }
-                      >
-                        <Text
-                          css={{
-                            display: "block",
-                            fontWeight: 600,
-                            color: "$white",
-                          }}
-                          size="2"
-                        >
-                          {contractAddresses?.[
-                            key as keyof typeof contractAddresses
-                          ]?.address?.replace(
-                            contractAddresses?.[
-                              key as keyof typeof contractAddresses
-                            ]?.address?.slice(7, 37) ?? "",
-                            "…"
-                          )}
-                        </Text>
-                      </A>
-                    </>
-                  ) : (
-                    <Skeleton
-                      css={{
-                        marginBottom: "$1",
+//                           marginBottom: "$1",
+//                         }}
+//                         target="_blank"
+//                         href={
+//                           contractAddresses?.[
+//                             key as keyof typeof contractAddresses
+//                           ]?.link
+//                         }
+//                       >
+//                         <Text
+//                           css={{
+//                             display: "block",
+//                             fontWeight: 600,
+//                             color: "$white",
+//                           }}
+//                           size="2"
+//                         >
+//                           {contractAddresses?.[
+//                             key as keyof typeof contractAddresses
+//                           ]?.address?.replace(
+//                             contractAddresses?.[
+//                               key as keyof typeof contractAddresses
+//                             ]?.address?.slice(7, 37) ?? "",
+//                             "…"
+//                           )}
+//                         </Text>
+//                       </A>
+//                     </>
+//                   ) : (
+//                     <Skeleton
+//                       css={{
+//                         marginBottom: "$1",
 
-                        marginLeft: "auto",
-                        maxWidth: "100%",
-                        width: "100%",
-                        height: 15,
-                      }}
-                    />
-                  )}
-                </Flex>
-              ))}
+//                         marginLeft: "auto",
+//                         maxWidth: "100%",
+//                         width: "100%",
+//                         height: 15,
+//                       }}
+//                     />
+//                   )}
+//                 </Flex>
+//               ))}
 
-            <Link
-              passHref
-              href="https://docs.livepeer.org/references/contract-addresses"
-            >
-              <A>
-                <Flex
-                  css={{
-                    marginTop: "$2",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
-                    size="1"
-                  >
-                    Learn more about these contracts
-                  </Text>
-                  <Box
-                    css={{
-                      marginLeft: "$1",
-                      width: 15,
-                      height: 15,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Flex>
-              </A>
-            </Link>
-          </Box>
-        </Box>
-      </PopoverContent>
-    </Popover>
-  );
-};
+//             <Link
+//               passHref
+//               href="https://docs.livepeer.org/references/contract-addresses"
+//             >
+//               <A>
+//                 <Flex
+//                   css={{
+//                     marginTop: "$2",
+//                     alignItems: "center",
+//                     justifyContent: "center",
+//                   }}
+//                 >
+//                   <Text
+//                     css={{ whiteSpace: "nowrap" }}
+//                     variant="neutral"
+//                     size="1"
+//                   >
+//                     Learn more about these contracts
+//                   </Text>
+//                   <Box
+//                     css={{
+//                       marginLeft: "$1",
+//                       width: 15,
+//                       height: 15,
+//                     }}
+//                     as={ArrowTopRightIcon}
+//                   />
+//                 </Flex>
+//               </A>
+//             </Link>
+//           </Box>
+//         </Box>
+//       </PopoverContent>
+//     </Popover>
+//   );
+// };
 
 export const getLayout = (page) => <Layout>{page}</Layout>;
 
