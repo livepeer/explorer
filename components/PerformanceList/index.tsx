@@ -2,12 +2,13 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
 import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
+import { AllPerformanceMetrics } from "@lib/api/types/get-performance";
 import { Region } from "@lib/api/types/get-regions";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { OrchestratorsQueryResult } from "apollo";
-import { useAllScoreData, useEnsData } from "hooks";
+import { useEnsData } from "hooks";
 import Link from "next/link";
 import numbro from "numbro";
 import { useMemo } from "react";
@@ -16,22 +17,25 @@ import { Column } from "react-table";
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
 const PerformanceList = ({
-  data,
+  orchestratorIds,
   pageSize = 20,
   region,
   pipeline,
   model,
+  performanceMetrics = null,
+  isLoadingMetrics = false,
 }: {
   pageSize: number;
   region: Region["id"];
   pipeline: Pipeline["id"] | null;
   model: string | null;
-  data: Pick<
+  performanceMetrics?: AllPerformanceMetrics | null;
+  isLoadingMetrics?: boolean;
+  orchestratorIds: Pick<
     NonNullable<OrchestratorsQueryResult["data"]>["transcoders"][number],
     "id"
   >[];
 }) => {
-  const { isValidating, data: allScores } = useAllScoreData(pipeline, model);
   const isAIData = pipeline !== null && model !== null;
   const scoreAccessor = `scores.${region}`; //total score
   const successRateAccessor = `successRates.${region}`; //success rate
@@ -55,8 +59,9 @@ const PerformanceList = ({
   };
 
   const mergedData = useMemo(
-    () => data.map((o) => ({ ...o, ...allScores?.[o?.id] })),
-    [allScores, data]
+    () =>
+      orchestratorIds.map((o) => ({ ...o, ...performanceMetrics?.[o?.id] })),
+    [performanceMetrics, orchestratorIds]
   );
 
   //tanstack v7's numberic sorting function incorrectly treats 0, null, and undefined as 0 (the same value).
@@ -220,9 +225,7 @@ const PerformanceList = ({
         defaultCanSort: true,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (isValidating) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
           return (
             <Box>
               {typeof value === "undefined" || value === null
@@ -259,9 +262,8 @@ const PerformanceList = ({
         accessor: `${successRateAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (isValidating) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
+
           return (
             <Box>
               {typeof value === "undefined" || value === null
@@ -300,9 +302,8 @@ const PerformanceList = ({
         accessor: `${roundTripScoreAccessor}`,
         sortType: sortTypeFn,
         Cell: ({ value }) => {
-          if (isValidating) {
-            return <EmptyData />;
-          }
+          if (isLoadingMetrics) return <EmptyData />;
+
           return (
             <Box>
               {typeof value === "undefined" || value === null
@@ -317,10 +318,10 @@ const PerformanceList = ({
     ],
     [
       isAIData,
-      isValidating,
       roundTripScoreAccessor,
       scoreAccessor,
       sortTypeFn,
+      isLoadingMetrics,
       successRateAccessor,
     ]
   );

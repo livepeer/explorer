@@ -56,7 +56,6 @@ function App({ Component, pageProps, fallback = null }) {
                   fetcher: fetcher,
                   keepPreviousData: true,
                   loadingTimeout: 40000,
-                  revalidateOnFocus: false,
                 }}
               >
                 <CookiesProvider>
