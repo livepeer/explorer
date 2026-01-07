@@ -1,6 +1,6 @@
 import { Box, styled, Text } from "@livepeer/design-system";
 import { Tooltip, Popover as RadixPopover } from "radix-ui";
-import React, { useState } from "react";
+import React from "react";
 import { isMobile } from "react-device-detect";
 
 type TooltipProps = React.ComponentProps<typeof Tooltip.Root> &
