@@ -1,26 +1,46 @@
-// import DelegatingView from "@components/DelegatingView";
-// import DelegatingWidget from "@components/DelegatingWidget";
-// import HistoryView from "@components/HistoryView";
+import BottomDrawer from "@components/BottomDrawer";
+import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
-// import OrchestratingView from "@components/OrchestratingView";
+import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
-// import { bondingManager } from "@lib/api/abis/main/BondingManager";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
-import { Container, Flex, Link as A } from "@livepeer/design-system";
+import {
+  Button,
+  Container,
+  Flex,
+  Link as A,
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@livepeer/design-system";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
   useAccountQuery,
 } from "apollo";
-// import { useBondingManagerAddress } from "hooks/useContracts";
+import { useBondingManagerAddress } from "hooks/useContracts";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
+import { useWindowSize } from "react-use";
+import { useReadContract } from "wagmi";
 
-// import { useReadContract } from "wagmi";
 import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
+
+const DelegatingView = dynamic(() => import("../components/DelegatingView"), {
+  ssr: false,
+});
+
+const DelegatingWidget = dynamic(
+  () => import("../components/DelegatingWidget"),
+  {
+    ssr: false,
+  }
+);
 
 export interface TabType {
   name: string;
@@ -34,11 +54,13 @@ const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = ({
   account,
+  sortedOrchestrators,
 }: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
   const accountAddress = useAccountAddress();
+  const { width } = useWindowSize();
   const router = useRouter();
   const { query, asPath } = router;
   const view = useMemo(
@@ -54,7 +76,7 @@ const AccountLayout = ({
   );
 
   const identity = useEnsData(accountId);
-  // const myIdentity = useEnsData(accountAddress);
+  const myIdentity = useEnsData(accountAddress);
 
   const [pollInterval, setPollInterval] = useState<number | undefined>(
     undefined
@@ -67,6 +89,17 @@ const AccountLayout = ({
     skip: !accountAddress,
     pollInterval,
   });
+
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
+    query: { enabled: Boolean(bondingManagerAddress) },
+    address: bondingManagerAddress,
+    abi: bondingManager,
+    functionName: "treasuryRewardCutRate",
+  });
+  const treasury = {
+    treasuryRewardCutRate: Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+  };
 
   // start polling when when transactions finish
   useEffect(() => {
@@ -87,6 +120,13 @@ const AccountLayout = ({
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
+    [accountId, dataMyAccount]
+  );
+
+  const isDelegatingAndIsMyAccountView = useMemo(
+    () =>
+      dataMyAccount?.delegator?.bondedAmount !== "0" &&
+      accountId === dataMyAccount?.delegator?.id.toLowerCase(),
     [accountId, dataMyAccount]
   );
 
@@ -143,6 +183,84 @@ const AccountLayout = ({
               b) the account page belongs to a deactivated orchestrator I am still delegated to
               c) the account page belongs to me and I am a delegator
             */}
+            {(isOrchestrator ||
+              isMyDelegate ||
+              isDelegatingAndIsMyAccountView) && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="primary"
+                    css={{ marginRight: "$3" }}
+                    size="4"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedStakingAction("delegate");
+                    }}
+                  >
+                    Delegate
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  css={{ height: "initial" }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
+                  side="bottom"
+                >
+                  <DelegatingWidget
+                    transcoders={sortedOrchestrators?.transcoders}
+                    delegator={dataMyAccount?.delegator}
+                    account={myIdentity}
+                    transcoder={
+                      isDelegatingAndIsMyAccountView
+                        ? dataMyAccount?.delegator?.delegate
+                        : account?.transcoder
+                    }
+                    protocol={account?.protocol}
+                    treasury={treasury}
+                    delegateProfile={identity}
+                  />
+                </SheetContent>
+              </Sheet>
+            )}
+            {isMyDelegate ||
+              (isDelegatingAndIsMyAccountView && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="red"
+                      size="4"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedStakingAction("undelegate");
+                      }}
+                    >
+                      Undelegate
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="bottom"
+                    css={{ height: "initial" }}
+                    placeholder={undefined}
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                  >
+                    <DelegatingWidget
+                      transcoders={sortedOrchestrators?.transcoders}
+                      delegator={dataMyAccount?.delegator}
+                      account={myIdentity}
+                      transcoder={
+                        isDelegatingAndIsMyAccountView
+                          ? dataMyAccount?.delegator?.delegate
+                          : account?.transcoder
+                      }
+                      protocol={account?.protocol}
+                      treasury={treasury}
+                      delegateProfile={identity}
+                    />
+                  </SheetContent>
+                </Sheet>
+              ))}
           </Flex>
           <HorizontalScrollContainer
             role="navigation"
@@ -177,23 +295,69 @@ const AccountLayout = ({
               </A>
             ))}
           </HorizontalScrollContainer>
-          {/* {view === "orchestrating" && (
+          {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
               currentRound={account?.protocol?.currentRound}
               transcoder={account?.transcoder}
             />
-          )} */}
-          {/* {view === "delegating" && (
+          )}
+          {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
               delegator={account?.delegator}
               protocol={account?.protocol}
               currentRound={account?.protocol?.currentRound}
             />
-          )} */}
-          {/* {view === "history" && <HistoryView />} */}
+          )}
+          {view === "history" && <HistoryView />}
         </Flex>
+        {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
+          (width > 1020 ? (
+            <Flex
+              css={{
+                display: "none",
+                "@bp3": {
+                  position: "sticky",
+                  alignSelf: "flex-start",
+                  top: "$9",
+                  marginTop: "$6",
+                  width: "40%",
+                  display: "flex",
+                },
+              }}
+            >
+              <DelegatingWidget
+                transcoders={sortedOrchestrators?.transcoders}
+                delegator={dataMyAccount?.delegator}
+                account={myIdentity}
+                transcoder={
+                  isDelegatingAndIsMyAccountView
+                    ? dataMyAccount?.delegator?.delegate
+                    : account?.transcoder
+                }
+                protocol={account?.protocol}
+                treasury={treasury}
+                delegateProfile={identity}
+              />
+            </Flex>
+          ) : (
+            <BottomDrawer>
+              <DelegatingWidget
+                transcoders={sortedOrchestrators?.transcoders}
+                delegator={dataMyAccount?.delegator}
+                account={myIdentity}
+                transcoder={
+                  isDelegatingAndIsMyAccountView
+                    ? dataMyAccount?.delegator?.delegate
+                    : account?.transcoder
+                }
+                protocol={account?.protocol}
+                treasury={treasury}
+                delegateProfile={identity}
+              />
+            </BottomDrawer>
+          ))}
       </Flex>
     </Container>
   );
