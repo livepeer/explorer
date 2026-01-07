@@ -7,7 +7,7 @@ import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-// import RegisterToVote from "@components/RegisterToVote";
+import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 // import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
@@ -693,9 +693,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
                     )}
-                    {/* {!asPath?.includes("/migrate") && accountAddress && (
+                    {!asPath?.includes("/migrate") && accountAddress && (
                       <RegisterToVote />
-                    )} */}
+                    )}
                     {children}
                   </Box>
                 </Flex>
