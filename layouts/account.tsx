@@ -6,7 +6,7 @@ import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 // import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
-// import { getLayout } from "@layouts/main";
+import { getLayout } from "@layouts/main";
 // import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
 import {
@@ -44,7 +44,8 @@ const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = ({
   account,
-}: {
+}: // sortedOrchestrators,
+{
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
@@ -206,9 +207,7 @@ const AccountLayout = ({
                         : account?.transcoder
                     }
                     protocol={account?.protocol}
-                    treasury={{
-                      treasuryRewardCutRate: 8,
-                    }}
+                    treasury={treasury}
                     delegateProfile={identity}
                   />
                 </SheetContent> */}
@@ -246,9 +245,7 @@ const AccountLayout = ({
                           : account?.transcoder
                       }
                       protocol={account?.protocol}
-                      treasury={{
-                        treasuryRewardCutRate: 8,
-                      }}
+                      treasury={treasury}
                       delegateProfile={identity}
                     />
                   </SheetContent> */}
@@ -330,9 +327,7 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
-                treasury={{
-                  treasuryRewardCutRate: 8,
-                }}
+                treasury={treasury}
                 delegateProfile={identity}
               /> */}
             </Flex>
@@ -348,9 +343,7 @@ const AccountLayout = ({
                     : account?.transcoder
                 }
                 protocol={account?.protocol}
-                treasury={{
-                  treasuryRewardCutRate: 8,
-                }}
+                treasury={treasury}
                 delegateProfile={identity}
               /> */}
               Test
@@ -360,6 +353,8 @@ const AccountLayout = ({
     </Container>
   );
 };
+
+AccountLayout.getLayout = getLayout;
 
 export default AccountLayout;
 
