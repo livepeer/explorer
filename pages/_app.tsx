@@ -14,7 +14,6 @@ import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
 
 import { useApollo } from "../apollo";
-import Layout from "../layouts/main";
 
 numbro.setDefaults({ spaceSeparated: false });
 
@@ -23,6 +22,8 @@ const queryClient = new QueryClient();
 const Web3Providers = dynamic(() => import("../components/Web3Providers"), {
   ssr: false,
 });
+
+const Layout = dynamic(() => import("../layouts/main"), { ssr: false });
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
