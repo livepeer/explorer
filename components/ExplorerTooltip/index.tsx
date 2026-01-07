@@ -1,5 +1,5 @@
 import { Box, styled, Text } from "@livepeer/design-system";
-import { Tooltip, Popover as RadixPopover } from "radix-ui";
+import { Popover as RadixPopover, Tooltip } from "radix-ui";
 import React from "react";
 import { isMobile } from "react-device-detect";
 
