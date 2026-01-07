@@ -9,7 +9,6 @@ import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
 // import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
-// import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
@@ -44,6 +43,7 @@ import {
 } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -110,6 +110,13 @@ export type DrawerItem = {
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
+
+const TxConfirmedDialog = dynamic(
+  () => import("../components/TxConfirmedDialog"),
+  {
+    ssr: false,
+  }
+);
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath, isReady, query } = useRouter();
@@ -701,7 +708,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                 </Flex>
               </Box>
             </Box>
-            {/* <TxConfirmedDialog /> */}
+            <TxConfirmedDialog />
             <TxSummaryDialog />
             <TxStartedDialog />
             {latestTransaction && latestTransaction.step !== "confirmed" && (
