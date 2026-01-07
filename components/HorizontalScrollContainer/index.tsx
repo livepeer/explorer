@@ -23,19 +23,25 @@ const HorizontalScrollContainer = forwardRef<
   useLayoutEffect(() => {
     const el = innerRef.current;
     if (!el) return;
+
     const updateState = () => {
       const scrollBuffer = 1;
       const overflow = el.scrollWidth > el.clientWidth + scrollBuffer;
       const maxVisibleRight = el.scrollLeft + el.clientWidth;
+
       setHasOverflow(
         overflow && maxVisibleRight < el.scrollWidth - scrollBuffer
       );
     };
+
     updateState();
+
     const observer = new ResizeObserver(updateState);
     observer.observe(el);
+
     const handleScroll = () => updateState();
     el.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => {
       el.removeEventListener("scroll", handleScroll);
       observer.disconnect();
@@ -45,10 +51,37 @@ const HorizontalScrollContainer = forwardRef<
   useLayoutEffect(() => {
     const el = innerRef.current;
     if (!el) return;
-    const activeTab = el.querySelector(
-      '[data-active="true"]'
-    ) as HTMLElement | null;
-    activeTab?.scrollIntoView({ block: "nearest", inline: "nearest" });
+
+    const raf = requestAnimationFrame(() => {
+      const activeTab = el.querySelector(
+        '[data-active="true"]'
+      ) as HTMLElement | null;
+
+      if (!activeTab) return;
+
+      const tabs = Array.from(
+        el.querySelectorAll<HTMLElement>(
+          '[role="tab"], [data-tab], button, a, [data-active="true"]'
+        )
+      ).filter((node) => el.contains(node));
+
+      if (tabs.length === 0) {
+        activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+        return;
+      }
+
+      const lastTab = tabs[tabs.length - 1];
+      const isLastActive = lastTab === activeTab;
+
+      if (isLastActive) {
+        const end = el.scrollWidth - el.clientWidth;
+        el.scrollLeft = Math.max(0, end);
+      } else {
+        activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, [children]);
 
   const setRefs = (node: HTMLDivElement | null) => {
