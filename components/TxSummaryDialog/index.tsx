@@ -24,7 +24,7 @@ const Index = () => {
 
   return (
     <Dialog
-      open={!!latestTransaction}
+      open={true}
       onOpenChange={(open) => {
         if (!open) {
           clearLatestTransaction();
@@ -85,12 +85,7 @@ const Index = () => {
                   : "Error with transaction, please check your inputs and try again."}
               </Text>
               <DialogClose asChild>
-                <Button
-                  onClick={clearLatestTransaction}
-                  variant="primary"
-                  size="4"
-                  css={{ width: "100%" }}
-                >
+                <Button variant="primary" size="4" css={{ width: "100%" }}>
                   Close
                 </Button>
               </DialogClose>
