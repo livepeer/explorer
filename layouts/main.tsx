@@ -1,5 +1,5 @@
 import AppBar from "@components/AppBar";
-import Claim from "@components/Claim";
+// import Claim from "@components/Claim";
 // import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
@@ -7,7 +7,7 @@ import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-import RegisterToVote from "@components/RegisterToVote";
+// import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
 // import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
@@ -690,12 +690,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     {!asPath.includes("/migrate") && accountAddress && (
                       <InactiveWarning />
                     )}
-                    {!asPath?.includes("/migrate") && accountAddress && (
+                    {/* {!asPath?.includes("/migrate") && accountAddress && (
                       <Claim />
-                    )}
-                    {!asPath?.includes("/migrate") && accountAddress && (
+                    )} */}
+                    {/* {!asPath?.includes("/migrate") && accountAddress && (
                       <RegisterToVote />
-                    )}
+                    )} */}
                     {children}
                   </Box>
                 </Flex>
