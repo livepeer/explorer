@@ -1,13 +1,6 @@
-import {
-  Box,
-  styled,
-  Text,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@livepeer/design-system";
-import { Tooltip } from "radix-ui";
-import React from "react";
+import { Box, styled, Text } from "@livepeer/design-system";
+import { Tooltip, Popover as RadixPopover } from "radix-ui";
+import React, { useState } from "react";
 import { isMobile } from "react-device-detect";
 
 type TooltipProps = React.ComponentProps<typeof Tooltip.Root> &
@@ -34,13 +27,15 @@ const Content = styled(Tooltip.Content, {
   },
 });
 
-const PopoverContentStyled = styled(PopoverContent, {
+const RadixPopoverContentStyled = styled(RadixPopover.Content, {
   length: {},
-  backgroundColor: "$neutral4",
+  backgroundColor: "$neutral4 !important",
   borderRadius: "$1",
   padding: "$1 $2",
   zIndex: "4",
-
+  border: "none",
+  outline: "none",
+  boxShadow: "none",
   variants: {
     multiline: {
       true: {
@@ -63,16 +58,13 @@ export function ExplorerTooltip({
   // Mobile: Use Popover (tap to open/close)
   if (isMobile) {
     return (
-      <Popover open={open} onOpenChange={onOpenChange}>
-        <PopoverTrigger asChild>{children}</PopoverTrigger>
-        <PopoverContentStyled
+      <RadixPopover.Root open={open} onOpenChange={onOpenChange}>
+        <RadixPopover.Trigger asChild>{children}</RadixPopover.Trigger>
+        <RadixPopoverContentStyled
           side="top"
           align="center"
           sideOffset={5}
-          multiline={multiline}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
+          multiline
           {...props}
         >
           <Text
@@ -81,7 +73,7 @@ export function ExplorerTooltip({
             css={{
               fontSize: "$2",
               textTransform: "none",
-              fontWeight: 600,
+              fontWeight: 400,
               color: "white",
               zIndex: "$4",
               lineHeight: multiline ? "20px" : undefined,
@@ -89,8 +81,18 @@ export function ExplorerTooltip({
           >
             {content}
           </Text>
-        </PopoverContentStyled>
-      </Popover>
+          <Box css={{ color: "$neutral4" }}>
+            <RadixPopover.Arrow
+              offset={5}
+              width={11}
+              height={5}
+              style={{
+                fill: "currentColor",
+              }}
+            />
+          </Box>
+        </RadixPopoverContentStyled>
+      </RadixPopover.Root>
     );
   }
 
