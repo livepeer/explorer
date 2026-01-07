@@ -1,9 +1,9 @@
 import BottomDrawer from "@components/BottomDrawer";
 // import DelegatingView from "@components/DelegatingView";
 import DelegatingWidget from "@components/DelegatingWidget";
-import HistoryView from "@components/HistoryView";
+// import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
-import OrchestratingView from "@components/OrchestratingView";
+// import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
@@ -285,13 +285,13 @@ const AccountLayout = ({
               </A>
             ))}
           </HorizontalScrollContainer>
-          {view === "orchestrating" && (
+          {/* {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
               currentRound={account?.protocol?.currentRound}
               transcoder={account?.transcoder}
             />
-          )}
+          )} */}
           {/* {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
@@ -300,7 +300,7 @@ const AccountLayout = ({
               currentRound={account?.protocol?.currentRound}
             />
           )} */}
-          {view === "history" && <HistoryView />}
+          {/* {view === "history" && <HistoryView />} */}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
