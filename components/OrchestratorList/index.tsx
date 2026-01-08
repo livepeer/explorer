@@ -42,6 +42,14 @@ import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
+import { useWindowSize } from "react-use";
+import {
+  useTable,
+  usePagination,
+  UsePaginationInstanceProps,
+  TableInstance,
+} from "react-table";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
@@ -966,6 +974,961 @@ const OrchestratorList = ({
     [formattedPrinciple, timeHorizon, factors]
   );
 
+  // Mobile card component
+  const OrchestratorCard = ({
+    rowData,
+    index,
+    pageIndex,
+    pageSize,
+    timeHorizon,
+    factors,
+  }: {
+    rowData: NonNullable<typeof mappedData>[0];
+    index: number;
+    pageIndex: number;
+    pageSize: number;
+    timeHorizon: ROITimeHorizon;
+    factors: ROIFactors;
+  }) => {
+    const identity = useEnsData(rowData.id);
+    const earnings = rowData.earningsComputed;
+    const isNewlyActive = earnings.isNewlyActive;
+    const feeCut = numbro(1 - Number(earnings.feeShare) / 1000000).format({
+      mantissa: 0,
+      output: "percent",
+    });
+    const rewardCut = numbro(Number(earnings.rewardCut) / 1000000).format({
+      mantissa: 0,
+      output: "percent",
+    });
+    const rewardCalls = `${numbro(earnings.rewardCalls)
+      .divide(earnings.rewardCallLength)
+      .format({ mantissa: 0, output: "percent" })}`;
+
+    return (
+      <Box
+        css={{
+          border: "1px solid $neutral4",
+          borderRadius: "$4",
+          padding: "$4",
+          backgroundColor: "$neutral2",
+        }}
+      >
+        <Flex
+          css={{
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: "$3",
+          }}
+        >
+          <Flex css={{ flexDirection: "column", flex: 1 }}>
+            <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+              <Box
+                css={{
+                  marginRight: "$2",
+                  backgroundColor: "$neutral4",
+                  borderRadius: 1000,
+                  color: "$neutral11",
+                  fontWeight: 700,
+                  width: 24,
+                  height: 24,
+                  minWidth: 24,
+                  minHeight: 24,
+                  fontSize: 11,
+                  justifyContent: "center",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {index + 1 + pageIndex * pageSize}
+              </Box>
+              <A
+                as={Link}
+                href={`/accounts/${rowData.id}/orchestrating`}
+                passHref
+                css={{
+                  display: "block",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "none" },
+                  flex: 1,
+                }}
+              >
+                <Flex css={{ alignItems: "center" }}>
+                  <IdentityAvatar
+                    identity={identity}
+                    address={rowData.id}
+                    css={{ marginRight: "$2" }}
+                  />
+                  {identity?.name ? (
+                    <Flex css={{ fontWeight: 600, alignItems: "center" }}>
+                      <Box
+                        css={{
+                          marginRight: "$2",
+                          fontSize: "$3",
+                        }}
+                      >
+                        {textTruncate(identity.name, 20, "…")}
+                      </Box>
+                      <Badge size="2" css={{ fontSize: "$2" }}>
+                        {rowData.id.substring(0, 6)}
+                      </Badge>
+                    </Flex>
+                  ) : (
+                    <Box css={{ fontWeight: 600 }}>
+                      {rowData.id.replace(rowData.id.slice(7, 37), "…")}
+                    </Box>
+                  )}
+                </Flex>
+              </A>
+            </Flex>
+          </Flex>
+          <Popover>
+            <PopoverTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              asChild
+            >
+              <IconButton
+                aria-label="Orchestrator actions"
+                css={{
+                  cursor: "pointer",
+                  opacity: 1,
+                  transition: "background-color .3s",
+                  "&:hover": {
+                    bc: "$primary5",
+                    transition: "background-color .3s",
+                  },
+                }}
+              >
+                <DotsHorizontalIcon />
+              </IconButton>
+            </PopoverTrigger>
+            <PopoverContent
+              css={{ borderRadius: "$4", bc: "$neutral4" }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
+            >
+              <Box
+                css={{
+                  borderBottom: "1px solid $neutral6",
+                  paddingLeft: "$1",
+                  paddingRight: "$1",
+                  paddingTop: "$1",
+                  paddingBottom: "$2",
+                }}
+              >
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Actions
+                </Text>
+
+                <PopoverLink href={`/accounts/${rowData.id}/orchestrating`}>
+                  Delegate
+                </PopoverLink>
+              </Box>
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  padding: "$1",
+                  borderBottom: "1px solid $neutral6",
+                }}
+              >
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    marginLeft: "$3",
+                    marginTop: "$2",
+                    marginBottom: "$2",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Account Details
+                </Text>
+
+                <PopoverLink href={`/accounts/${rowData.id}/orchestrating`}>
+                  Orchestrating
+                </PopoverLink>
+                <PopoverLink href={`/accounts/${rowData.id}/delegating`}>
+                  Delegating
+                </PopoverLink>
+                <PopoverLink href={`/accounts/${rowData.id}/history`}>
+                  History
+                </PopoverLink>
+              </Flex>
+            </PopoverContent>
+          </Popover>
+        </Flex>
+
+        <Box
+          css={{
+            borderTop: "1px solid $neutral6",
+            paddingTop: "$3",
+            marginTop: "$3",
+          }}
+        >
+          <Flex
+            css={{
+              justifyContent: "space-between",
+              marginBottom: "$2",
+            }}
+          >
+            <Text variant="neutral" size="2">
+              Forecasted Yield
+            </Text>
+            {isNewlyActive ? (
+              <Badge
+                size="2"
+                css={{
+                  color: "$white",
+                  fontSize: "$2",
+                }}
+              >
+                NEW ✨
+              </Badge>
+            ) : (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Badge
+                    size="2"
+                    css={{
+                      cursor: "pointer",
+                      color: "$white",
+                      fontSize: "$2",
+                    }}
+                  >
+                    {numbro(
+                      earnings.roi.delegatorPercent.fees +
+                        earnings.roi.delegatorPercent.rewards
+                    ).format({ mantissa: 1, output: "percent" })}
+                    <Box css={{ marginLeft: "$1" }}>
+                      <ChevronDownIcon />
+                    </Box>
+                  </Badge>
+                </PopoverTrigger>
+                <PopoverContent
+                  css={{
+                    minWidth: 300,
+                    borderRadius: "$4",
+                    bc: "$neutral4",
+                  }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                  placeholder={undefined}
+                >
+                  <Box css={{ padding: "$4" }}>
+                    <Text
+                      size="1"
+                      css={{
+                        marginBottom: "$2",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {`Yield (${formatTimeHorizon(timeHorizon)})`}
+                    </Text>
+                    {factors !== "eth" && (
+                      <Flex>
+                        <Text variant="neutral" size="2">
+                          Rewards (
+                          {numbro(earnings.roi.delegatorPercent.rewards).format({
+                            mantissa: 1,
+                            output: "percent",
+                          })}
+                          ):
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            fontWeight: 600,
+                            color: "$white",
+                          }}
+                          size="2"
+                        >
+                          {numbro(earnings.roi.delegator.rewards).format({
+                            mantissa: 1,
+                          })}{" "}
+                          LPT
+                        </Text>
+                      </Flex>
+                    )}
+                    {factors !== "lpt" && (
+                      <Flex>
+                        <Text variant="neutral" size="2">
+                          Fees (
+                          {numbro(earnings.roi.delegatorPercent.fees).format({
+                            mantissa: 1,
+                            output: "percent",
+                          })}
+                          ):
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            fontWeight: 600,
+                            color: "$white",
+                          }}
+                          size="2"
+                        >
+                          {numbro(earnings.roi.delegator.fees).format({
+                            mantissa: 3,
+                          })}{" "}
+                          ETH
+                        </Text>
+                      </Flex>
+                    )}
+                  </Box>
+                </PopoverContent>
+              </Popover>
+            )}
+          </Flex>
+
+          <Flex
+            css={{
+              justifyContent: "space-between",
+              marginBottom: "$2",
+            }}
+          >
+            <Text variant="neutral" size="2">
+              Delegated Stake
+            </Text>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              {numbro(rowData.totalStake).format({
+                mantissa: 0,
+                thousandSeparated: true,
+              })}{" "}
+              LPT
+            </Text>
+          </Flex>
+
+          <Flex
+            css={{
+              justifyContent: "space-between",
+              marginBottom: "$2",
+            }}
+          >
+            <Text variant="neutral" size="2">
+              Trailing 90D Fees
+            </Text>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$white",
+              }}
+              size="2"
+            >
+              {numbro(rowData.ninetyDayVolumeETH).format({
+                mantissa: 2,
+                average: true,
+              })}{" "}
+              ETH
+            </Text>
+          </Flex>
+
+          <Box
+            css={{
+              borderTop: "1px solid $neutral6",
+              paddingTop: "$3",
+              marginTop: "$3",
+            }}
+          >
+            <Text
+              size="1"
+              css={{
+                marginBottom: "$2",
+                fontWeight: 600,
+                textTransform: "uppercase",
+              }}
+            >
+              Orchestrator Details
+            </Text>
+
+            <Flex
+              css={{
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Text variant="neutral" size="2">
+                Reward Cut
+              </Text>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  color: "$white",
+                }}
+                size="2"
+              >
+                {rewardCut}
+              </Text>
+            </Flex>
+
+            <Flex
+              css={{
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Text variant="neutral" size="2">
+                Fee Cut
+              </Text>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  color: "$white",
+                }}
+                size="2"
+              >
+                {feeCut}
+              </Text>
+            </Flex>
+
+            <Flex
+              css={{
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Text variant="neutral" size="2">
+                Reward Call Ratio (90d)
+              </Text>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  color: "$white",
+                }}
+                size="2"
+              >
+                {rewardCalls}
+              </Text>
+            </Flex>
+          </Box>
+        </Box>
+      </Box>
+    );
+  };
+
+  // Mobile detection
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
+
+  // Extract filter controls (yield assumptions section)
+  const yieldAssumptionsControls = (
+    <Box css={{ marginBottom: "$2" }}>
+      <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+        <Box css={{ marginRight: "$1", color: "$neutral11" }}>
+          <YieldChartIcon />
+        </Box>
+        <Text
+          variant="neutral"
+          size="1"
+          css={{
+            marginLeft: "$1",
+            textTransform: "uppercase",
+            fontWeight: 600,
+          }}
+        >
+          {"Forecasted Yield Assumptions"}
+        </Text>
+      </Flex>
+      <Flex
+        css={{
+          flexWrap: "wrap",
+          marginLeft: "-$1",
+          marginTop: "-$1",
+          "& > *": {
+            marginLeft: "$1",
+            marginTop: "$1",
+          },
+        }}
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            asChild
+          >
+            <Badge
+              size="2"
+              css={{
+                cursor: "pointer",
+                color: "$white",
+                fontSize: "$2",
+              }}
+            >
+              <Box css={{ marginRight: "$1" }}>
+                <Pencil1Icon />
+              </Box>
+
+              <Text
+                variant="neutral"
+                size="1"
+                css={{
+                  marginRight: 3,
+                }}
+              >
+                {"Time horizon:"}
+              </Text>
+              <Text
+                size="1"
+                css={{
+                  color: "white",
+                  fontWeight: 600,
+                }}
+              >
+                {formatTimeHorizon(timeHorizon)}
+              </Text>
+            </Badge>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            css={{
+              width: "200px",
+              mt: "$1",
+              boxShadow:
+                "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+              bc: "$neutral4",
+            }}
+            align="center"
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+            placeholder={undefined}
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                css={{
+                  cursor: "pointer",
+                }}
+                onSelect={() => setTimeHorizon("half-year")}
+              >
+                {"6 months"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                css={{
+                  cursor: "pointer",
+                }}
+                onSelect={() => setTimeHorizon("one-year")}
+              >
+                {"1 year"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                css={{
+                  cursor: "pointer",
+                }}
+                onSelect={() => setTimeHorizon("two-years")}
+              >
+                {"2 years"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                css={{
+                  cursor: "pointer",
+                }}
+                onSelect={() => setTimeHorizon("three-years")}
+              >
+                {"3 years"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                css={{
+                  cursor: "pointer",
+                }}
+                onSelect={() => setTimeHorizon("four-years")}
+              >
+                {"4 years"}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Box>
+          <Popover>
+            <PopoverTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              asChild
+            >
+              <Badge
+                size="2"
+                css={{
+                  cursor: "pointer",
+                  color: "$white",
+                  fontSize: "$2",
+                }}
+              >
+                <Box css={{ marginRight: "$1" }}>
+                  <Pencil1Icon />
+                </Box>
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    marginRight: 3,
+                  }}
+                >
+                  {"Delegation:"}
+                </Text>
+                <Text
+                  size="1"
+                  css={{
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                >
+                  {numbro(principle).format({ mantissa: 1, average: true })}
+                  {" LPT"}
+                </Text>
+              </Badge>
+            </PopoverTrigger>
+            <PopoverContent
+              css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
+            >
+              <Box
+                css={{
+                  borderBottom: "1px solid $neutral6",
+                  padding: "$3",
+                }}
+              >
+                <Flex align="center">
+                  <TextField
+                    name="principle"
+                    placeholder="Amount in LPT"
+                    type="number"
+                    size="2"
+                    value={principle}
+                    onChange={(e) => {
+                      setPrinciple(
+                        Number(e.target.value) > maxSupplyTokens
+                          ? maxSupplyTokens
+                          : Number(e.target.value)
+                      );
+                    }}
+                    min="1"
+                    max={`${Number(
+                      protocolData?.totalSupply || 1e7
+                    ).toFixed(0)}`}
+                  />
+                  <Text
+                    variant="neutral"
+                    size="3"
+                    css={{
+                      marginLeft: "$2",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    LPT
+                  </Text>
+                </Flex>
+              </Box>
+            </PopoverContent>
+          </Popover>
+        </Box>
+        <Box>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              asChild
+            >
+              <Badge
+                size="2"
+                css={{
+                  cursor: "pointer",
+                  color: "$white",
+                  fontSize: "$2",
+                }}
+              >
+                <Box css={{ marginRight: "$1" }}>
+                  <Pencil1Icon />
+                </Box>
+
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    marginRight: 3,
+                  }}
+                >
+                  {"Factors:"}
+                </Text>
+                <Text
+                  size="1"
+                  css={{
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                >
+                  {formatFactors(factors)}
+                </Text>
+              </Badge>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              css={{
+                width: "200px",
+                mt: "$1",
+                boxShadow:
+                  "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                bc: "$neutral4",
+              }}
+              align="center"
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setFactors("lpt+eth")}
+                >
+                  {formatFactors("lpt+eth")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setFactors("lpt")}
+                >
+                  {formatFactors("lpt")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setFactors("eth")}
+                >
+                  {formatFactors("eth")}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </Box>
+        <Box>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              asChild
+            >
+              <Badge
+                size="2"
+                css={{
+                  cursor: "pointer",
+                  color: "$white",
+                  fontSize: "$2",
+                }}
+              >
+                <Box css={{ marginRight: "$1" }}>
+                  <Pencil1Icon />
+                </Box>
+
+                <Text
+                  variant="neutral"
+                  size="1"
+                  css={{
+                    marginRight: 3,
+                  }}
+                >
+                  {"Inflation change:"}
+                </Text>
+                <Text
+                  size="1"
+                  css={{
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                >
+                  {formatPercentChange(inflationChange)}
+                </Text>
+              </Badge>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              css={{
+                width: "200px",
+                mt: "$1",
+                boxShadow:
+                  "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                bc: "$neutral4",
+              }}
+              align="center"
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setInflationChange("none")}
+                >
+                  {formatPercentChange("none")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setInflationChange("positive")}
+                >
+                  {formatPercentChange("positive")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  css={{
+                    cursor: "pointer",
+                  }}
+                  onSelect={() => setInflationChange("negative")}
+                >
+                  {formatPercentChange("negative")}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </Box>
+      </Flex>
+    </Box>
+  );
+
+  // Use react-table hooks for pagination (works for both mobile and desktop)
+  const tableInstance = useTable(
+    {
+      columns: columns,
+      data: mappedData as object[],
+      initialState: {
+        pageSize,
+        hiddenColumns: ["identity"],
+        sortBy: [
+          {
+            id: "earnings",
+            desc: true,
+          },
+        ],
+      } as any,
+    },
+    usePagination
+  ) as TableInstance<object> &
+    UsePaginationInstanceProps<object> & { state: { pageIndex: number } };
+
+  const {
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageCount,
+    nextPage,
+    previousPage,
+    state: { pageIndex },
+  } = tableInstance;
+
+  // Pagination controls component (reusable)
+  const PaginationControls = () => (
+    <Flex
+      css={{
+        paddingTop: "$4",
+        paddingBottom: "$4",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Box
+        as={ArrowLeftIcon}
+        css={{
+          cursor: "pointer",
+          color: canPreviousPage ? "$primary11" : "$hiContrast",
+          opacity: canPreviousPage ? 1 : 0.5,
+        }}
+        onClick={() => {
+          if (canPreviousPage) {
+            previousPage();
+          }
+        }}
+      />
+      <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
+        Page <Box as="span">{pageIndex + 1}</Box> of{" "}
+        <Box as="span">{pageCount}</Box>
+      </Box>
+      <Box
+        as={ArrowRightIcon}
+        css={{
+          cursor: "pointer",
+          color: canNextPage ? "$primary11" : "$hiContrast",
+          opacity: canNextPage ? 1 : 0.5,
+        }}
+        onClick={() => {
+          if (canNextPage) {
+            nextPage();
+          }
+        }}
+      />
+    </Flex>
+  );
+
+  // Mobile card view
+  if (isMobile) {
+    return (
+      <Box>
+        {yieldAssumptionsControls}
+        <Box
+          css={{
+            border: "1px solid $colors$neutral4",
+            backgroundColor: "$panel",
+            borderRadius: "$4",
+            padding: "$4",
+          }}
+        >
+          <Box
+            css={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "$3",
+            }}
+          >
+            {page.map((row, index) => {
+              const rowData = row.original as NonNullable<typeof mappedData>[number];
+              return (
+                <OrchestratorCard
+                  key={rowData.id}
+                  rowData={rowData}
+                  index={index}
+                  pageIndex={pageIndex}
+                  pageSize={pageSize}
+                  timeHorizon={timeHorizon}
+                  factors={factors}
+                />
+              );
+            })}
+          </Box>
+          <PaginationControls />
+        </Box>
+      </Box>
+    );
+  }
+
+  // Desktop: use existing Table component
   return (
     <Table
       data={mappedData as object[]}
@@ -980,385 +1943,7 @@ const OrchestratorList = ({
           },
         ],
       }}
-      input={
-        <Box css={{ marginBottom: "$2" }}>
-          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
-            <Box css={{ marginRight: "$1", color: "$neutral11" }}>
-              <YieldChartIcon />
-            </Box>
-            <Text
-              variant="neutral"
-              size="1"
-              css={{
-                marginLeft: "$1",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
-            >
-              {"Forecasted Yield Assumptions"}
-            </Text>
-          </Flex>
-          <Flex
-            css={{
-              flexWrap: "wrap",
-              marginLeft: "-$1",
-              marginTop: "-$1",
-              "& > *": {
-                marginLeft: "$1",
-                marginTop: "$1",
-              },
-            }}
-          >
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                asChild
-              >
-                <Badge
-                  size="2"
-                  css={{
-                    cursor: "pointer",
-                    color: "$white",
-                    fontSize: "$2",
-                  }}
-                >
-                  <Box css={{ marginRight: "$1" }}>
-                    <Pencil1Icon />
-                  </Box>
-
-                  <Text
-                    variant="neutral"
-                    size="1"
-                    css={{
-                      marginRight: 3,
-                    }}
-                  >
-                    {"Time horizon:"}
-                  </Text>
-                  <Text
-                    size="1"
-                    css={{
-                      color: "white",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {formatTimeHorizon(timeHorizon)}
-                  </Text>
-                </Badge>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                css={{
-                  width: "200px",
-                  mt: "$1",
-                  boxShadow:
-                    "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                  bc: "$neutral4",
-                }}
-                align="center"
-                onPointerEnterCapture={undefined}
-                onPointerLeaveCapture={undefined}
-                placeholder={undefined}
-              >
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("half-year")}
-                  >
-                    {"6 months"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("one-year")}
-                  >
-                    {"1 year"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("two-years")}
-                  >
-                    {"2 years"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("three-years")}
-                  >
-                    {"3 years"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("four-years")}
-                  >
-                    {"4 years"}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Box css={{ marginLeft: "$1" }}>
-              <Popover>
-                <PopoverTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <Badge
-                    size="2"
-                    css={{
-                      cursor: "pointer",
-                      color: "$white",
-                      fontSize: "$2",
-                    }}
-                  >
-                    <Box css={{ marginRight: "$1" }}>
-                      <Pencil1Icon />
-                    </Box>
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        marginRight: 3,
-                      }}
-                    >
-                      {"Delegation:"}
-                    </Text>
-                    <Text
-                      size="1"
-                      css={{
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {numbro(principle).format({ mantissa: 1, average: true })}
-                      {" LPT"}
-                    </Text>
-                  </Badge>
-                </PopoverTrigger>
-                <PopoverContent
-                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
-                >
-                  <Box
-                    css={{
-                      borderBottom: "1px solid $neutral6",
-                      padding: "$3",
-                    }}
-                  >
-                    <Flex align="center">
-                      <TextField
-                        name="principle"
-                        placeholder="Amount in LPT"
-                        type="number"
-                        size="2"
-                        value={principle}
-                        onChange={(e) => {
-                          setPrinciple(
-                            Number(e.target.value) > maxSupplyTokens
-                              ? maxSupplyTokens
-                              : Number(e.target.value)
-                          );
-                        }}
-                        min="1"
-                        max={`${Number(
-                          protocolData?.totalSupply || 1e7
-                        ).toFixed(0)}`}
-                      />
-                      <Text
-                        variant="neutral"
-                        size="3"
-                        css={{
-                          marginLeft: "$2",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        LPT
-                      </Text>
-                    </Flex>
-                  </Box>
-                </PopoverContent>
-              </Popover>
-            </Box>
-            <Box css={{ marginLeft: "$1" }}>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <Badge
-                    size="2"
-                    css={{
-                      cursor: "pointer",
-                      color: "$white",
-                      fontSize: "$2",
-                    }}
-                  >
-                    <Box css={{ marginRight: "$1" }}>
-                      <Pencil1Icon />
-                    </Box>
-
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        marginRight: 3,
-                      }}
-                    >
-                      {"Factors:"}
-                    </Text>
-                    <Text
-                      size="1"
-                      css={{
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatFactors(factors)}
-                    </Text>
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  css={{
-                    width: "200px",
-                    mt: "$1",
-                    boxShadow:
-                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
-                  }}
-                  align="center"
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("lpt+eth")}
-                    >
-                      {formatFactors("lpt+eth")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("lpt")}
-                    >
-                      {formatFactors("lpt")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("eth")}
-                    >
-                      {formatFactors("eth")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Box>
-            <Box css={{ marginLeft: "$1" }}>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <Badge
-                    size="2"
-                    css={{
-                      cursor: "pointer",
-                      color: "$white",
-                      fontSize: "$2",
-                    }}
-                  >
-                    <Box css={{ marginRight: "$1" }}>
-                      <Pencil1Icon />
-                    </Box>
-
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        marginRight: 3,
-                      }}
-                    >
-                      {"Inflation change:"}
-                    </Text>
-                    <Text
-                      size="1"
-                      css={{
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatPercentChange(inflationChange)}
-                    </Text>
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  css={{
-                    width: "200px",
-                    mt: "$1",
-                    boxShadow:
-                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
-                  }}
-                  align="center"
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setInflationChange("none")}
-                    >
-                      {formatPercentChange("none")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setInflationChange("positive")}
-                    >
-                      {formatPercentChange("positive")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setInflationChange("negative")}
-                    >
-                      {formatPercentChange("negative")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Box>
-          </Flex>
-        </Box>
-      }
+      input={yieldAssumptionsControls}
     />
   );
 };
