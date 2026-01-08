@@ -1,4 +1,9 @@
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import {
+  AVERAGE_L1_BLOCK_TIME,
+  CHAIN_INFO,
+  DEFAULT_CHAIN_ID,
+  l2Provider,
+} from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
   getApollo,
@@ -7,9 +12,12 @@ import {
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
 } from "apollo";
+import { ethers } from "ethers";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
+
+import { nodeInterface } from "./abis/bridge/NodeInterface";
 
 export type Fm = {
   title: string;
@@ -77,9 +85,17 @@ export const getPollExtended = async (
   }
 
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
+
+  // Get L2 block number corresponding to end of poll
+  // Create NodeInterface to get L2 block number corresponding to end of poll
   const totalStakeString = await getTotalStake(
-    // TODO fix endblock to query for l2 block corresponding to end of poll
-    isActive ? undefined : +(poll?.endBlock ?? 0)
+    Number(
+      isActive
+        ? undefined
+        : (
+            await getL2BlockRangeForL1(Number(poll?.endBlock ?? "0"))
+          ).firstBlock
+    )
   );
 
   const totalStake = +(totalStakeString ?? 0);
@@ -176,4 +192,36 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   });
 
   return protocolResponse?.data?.protocol?.totalActiveStake;
+};
+
+const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
+  try {
+    const contract = new ethers.Contract(
+      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+      nodeInterface,
+      l2Provider
+    );
+    const l2BlockRangeForL1 = await contract.l2BlockRangeForL1(
+      BigInt(l1BlockNumber)
+    );
+    console.log(
+      "l2BlockRangeForL1",
+      l1BlockNumber,
+      l2BlockRangeForL1.lastBlock.toNumber(),
+      l2BlockRangeForL1.firstBlock.toNumber()
+    );
+    return {
+      lastBlock: l2BlockRangeForL1.lastBlock.toNumber(),
+      firstBlock: l2BlockRangeForL1.firstBlock.toNumber(),
+    };
+  } catch (error) {
+    console.error(
+      "Error getting L2 block range for L1 " + l1BlockNumber,
+      error
+    );
+    return {
+      lastBlock: 0,
+      firstBlock: 0,
+    };
+  }
 };
