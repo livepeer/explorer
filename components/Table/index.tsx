@@ -80,7 +80,7 @@ function DataTable<T extends object>({
         <>
           <Box
             css={{
-              overflowY: "scroll",
+              overflowY: "auto",
             }}
           >
             {input && (

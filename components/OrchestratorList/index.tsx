@@ -1001,8 +1001,6 @@ const OrchestratorList = ({
           <Flex
             css={{
               flexWrap: "wrap",
-              // gap: "$1",
-              // alignItems: "center",
             }}
           >
             <DropdownMenu>
