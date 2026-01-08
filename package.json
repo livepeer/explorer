@@ -120,7 +120,7 @@
     "recharts": "^2.15.4",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "4.0.1",
-    "sanitize-html": "^2.7.3",
+    "sanitize-html": "^2.12.1",
     "swr": "^2.3.7",
     "viem": "^2.38.5",
     "wagmi": "^2.19.1",
