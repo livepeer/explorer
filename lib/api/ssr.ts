@@ -30,8 +30,8 @@ export async function getProtocol(client = getApollo()) {
 }
 
 export async function getGateways(client = getApollo()) {
-  const currentDay = Math.floor(Date.now() / 1000 / 86400);
-  const minActiveDay = Math.max(currentDay - 365, 0); // include activated last 12 months
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const minActiveDay = Math.max(currentTimestamp - 365 * 86400, 0); // include activated last 12 months
 
   const gateways = await client.query<GatewaysQuery, GatewaysQueryVariables>({
     query: GatewaysDocument,

@@ -454,7 +454,7 @@ function getTabs(
   account: string,
   view: TabTypeEnum,
   isMyDelegate: boolean,
-  hasGateway: boolean,
+  isGateway: boolean,
   isMyAccount: boolean,
   hasDelegator: boolean
 ): Array<TabType> {
@@ -466,7 +466,7 @@ function getTabs(
       isActive: view === "orchestrating",
     });
   }
-  if (hasGateway) {
+  if (isGateway) {
     tabs.push({
       name: "Broadcasting",
       href: `/accounts/${account}/broadcasting`,
