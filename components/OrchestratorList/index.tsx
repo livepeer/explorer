@@ -996,11 +996,17 @@ const OrchestratorList = ({
               }}
             >
               {"Forecasted Yield Assumptions"}
-            </Text> 
+            </Text>
           </Flex>
           <Flex
             css={{
               flexWrap: "wrap",
+              marginLeft: "-$1",
+              marginTop: "-$1",
+              "& > *": {
+                marginLeft: "$1",
+                marginTop: "$1",
+              },
             }}
           >
             <DropdownMenu>
