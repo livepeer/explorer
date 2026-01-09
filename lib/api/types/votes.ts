@@ -15,7 +15,7 @@ export interface Vote {
 
 export const VOTING_SUPPORT = {
   "0": { text: "Against", style: { color: "$tomato11", fontWeight: 600 } },
-  "1": { text: "For", style: { color: "$sky11", fontWeight: 600 } },
+  "1": { text: "For", style: { color: "$grass11", fontWeight: 600 } },
   "2": { text: "Abstain", style: { color: "$neutral11", fontWeight: 600 } },
 } as const;
 

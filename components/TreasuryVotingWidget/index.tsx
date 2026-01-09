@@ -79,6 +79,58 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
           {/* Vote bars - read-only styled */}
           <Box css={{ marginBottom: "$3" }}>
+            {/* For bar */}
+            <Flex
+              css={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
+                For
+              </Text>
+              <Flex
+                css={{
+                  flex: 1,
+                  marginLeft: "$3",
+                  marginRight: "$3",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  css={{
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: "$neutral5",
+                    width: "100%",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    css={{
+                      height: "100%",
+                      borderRadius: 4,
+                      backgroundColor: "$grass9",
+                      width: `${proposal.votes.percent.for * 100}%`,
+                    }}
+                  />
+                </Box>
+              </Flex>
+              <Text
+                css={{
+                  fontSize: "$2",
+                  color: "$hiContrast",
+                  fontWeight: 500,
+                  fontVariantNumeric: "tabular-nums",
+                  minWidth: 55,
+                  textAlign: "right",
+                }}
+              >
+                {formatPercent(proposal.votes.percent.for)}
+              </Text>
+            </Flex>
+
             {/* Against bar */}
             <Flex
               css={{
@@ -128,58 +180,6 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 }}
               >
                 {formatPercent(proposal.votes.percent.against)}
-              </Text>
-            </Flex>
-
-            {/* For bar */}
-            <Flex
-              css={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "$2",
-              }}
-            >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                For
-              </Text>
-              <Flex
-                css={{
-                  flex: 1,
-                  marginLeft: "$3",
-                  marginRight: "$3",
-                  alignItems: "center",
-                }}
-              >
-                <Box
-                  css={{
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: "$neutral5",
-                    width: "100%",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
-                    css={{
-                      height: "100%",
-                      borderRadius: 4,
-                      backgroundColor: "$sky9",
-                      width: `${proposal.votes.percent.for * 100}%`,
-                    }}
-                  />
-                </Box>
-              </Flex>
-              <Text
-                css={{
-                  fontSize: "$2",
-                  color: "$hiContrast",
-                  fontWeight: 500,
-                  fontVariantNumeric: "tabular-nums",
-                  minWidth: 55,
-                  textAlign: "right",
-                }}
-              >
-                {formatPercent(proposal.votes.percent.for)}
               </Text>
             </Flex>
 
@@ -338,6 +338,24 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 }}
               >
                 <VoteButton
+                  choiceId={1}
+                  size="4"
+                  proposalId={proposal?.id}
+                  reason={reason}
+                  css={{
+                    backgroundColor: "$grass3",
+                    color: "$grass11",
+                    fontWeight: 600,
+                    border: "1px solid $grass4",
+                    "&:hover": {
+                      backgroundColor: "$grass4",
+                      borderColor: "$grass5",
+                    },
+                  }}
+                >
+                  For
+                </VoteButton>
+                <VoteButton
                   size="4"
                   choiceId={0}
                   proposalId={proposal?.id}
@@ -354,24 +372,6 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   }}
                 >
                   Against
-                </VoteButton>
-                <VoteButton
-                  choiceId={1}
-                  size="4"
-                  proposalId={proposal?.id}
-                  reason={reason}
-                  css={{
-                    backgroundColor: "$sky3",
-                    color: "$sky11",
-                    fontWeight: 600,
-                    border: "1px solid $sky4",
-                    "&:hover": {
-                      backgroundColor: "$sky4",
-                      borderColor: "$sky5",
-                    },
-                  }}
-                >
-                  For
                 </VoteButton>
                 <VoteButton
                   size="4"

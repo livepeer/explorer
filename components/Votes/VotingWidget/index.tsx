@@ -142,7 +142,7 @@ const Index = ({ data }: { data: Props }) => {
                       data.poll.percent.yes === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
-                    backgroundColor: "rgba(255, 255, 255, .1)",
+                    backgroundColor: "$grass9",
                     width: `${data.poll.percent.yes * 100}%`,
                   }}
                 />
@@ -154,7 +154,7 @@ const Index = ({ data }: { data: Props }) => {
                     fontSize: "$2",
                   }}
                 >
-                  Yes
+                  For
                 </Box>
                 <Box
                   css={{
@@ -183,7 +183,7 @@ const Index = ({ data }: { data: Props }) => {
                     borderBottomRightRadius: data.poll.percent.no === 1 ? 6 : 0,
                     position: "absolute",
                     height: "100%",
-                    backgroundColor: "rgba(255, 255, 255, .2)",
+                    backgroundColor: "$tomato9",
                     width: `${data.poll.percent.no * 100}%`,
                   }}
                 />
@@ -195,7 +195,7 @@ const Index = ({ data }: { data: Props }) => {
                     fontSize: "$2",
                   }}
                 >
-                  No
+                  Against
                 </Box>
                 <Box
                   css={{
@@ -444,7 +444,7 @@ const Index = ({ data }: { data: Props }) => {
             <Box as="li" css={{ marginBottom: "$4" }}>
               <Box css={{ marginBottom: "$3" }}>
                 The Livepeer CLI will prompt you for your vote. Enter 0 to vote
-                &quot;Yes&quot; or 1 to vote &quot;No&quot;.
+                &quot;For&quot; or 1 to vote &quot;Against&quot;.
               </Box>
             </Box>
             <Box as="li" css={{ marginBottom: 0 }}>
@@ -473,26 +473,46 @@ function renderVoteButton(
       return (
         <VoteButton
           disabled={!(parseFloat(pendingStake) > 0)}
-          css={{ marginTop: "$4", width: "100%" }}
-          variant="red"
+          css={{
+            marginTop: "$4",
+            width: "100%",
+            backgroundColor: "$tomato3",
+            color: "$tomato11",
+            fontWeight: 600,
+            border: "1px solid $tomato4",
+            "&:hover": {
+              backgroundColor: "$tomato4",
+              borderColor: "$tomato5",
+            },
+          }}
           size="4"
           choiceId={1}
           pollAddress={poll?.id}
         >
-          Change Vote To No
+          Change Vote To Against
         </VoteButton>
       );
     case "No":
       return (
         <VoteButton
           disabled={!(parseFloat(pendingStake) > 0)}
-          css={{ marginTop: "$4", width: "100%" }}
+          css={{
+            marginTop: "$4",
+            width: "100%",
+            backgroundColor: "$grass3",
+            color: "$grass11",
+            fontWeight: 600,
+            border: "1px solid $grass4",
+            "&:hover": {
+              backgroundColor: "$grass4",
+              borderColor: "$grass5",
+            },
+          }}
           size="4"
-          variant="primary"
           choiceId={0}
           pollAddress={poll?.id}
         >
-          Change Vote To Yes
+          Change Vote To For
         </VoteButton>
       );
     default:
@@ -500,21 +520,39 @@ function renderVoteButton(
         <Box css={{ marginTop: "$4", display: "grid", gap: "$2", columns: 2 }}>
           <VoteButton
             disabled={!(parseFloat(pendingStake) > 0)}
-            variant="primary"
+            css={{
+              backgroundColor: "$grass3",
+              color: "$grass11",
+              fontWeight: 600,
+              border: "1px solid $grass4",
+              "&:hover": {
+                backgroundColor: "$grass4",
+                borderColor: "$grass5",
+              },
+            }}
             choiceId={0}
             size="4"
             pollAddress={poll?.id}
           >
-            Yes
+            For
           </VoteButton>
           <VoteButton
             disabled={!(parseFloat(pendingStake) > 0)}
-            variant="red"
+            css={{
+              backgroundColor: "$tomato3",
+              color: "$tomato11",
+              fontWeight: 600,
+              border: "1px solid $tomato4",
+              "&:hover": {
+                backgroundColor: "$tomato4",
+                borderColor: "$tomato5",
+              },
+            }}
             size="4"
             choiceId={1}
             pollAddress={poll?.id}
           >
-            No
+            Against
           </VoteButton>
         </Box>
       );
