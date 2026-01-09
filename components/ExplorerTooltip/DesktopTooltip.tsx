@@ -2,14 +2,10 @@ import { Box, styled, Text } from "@livepeer/design-system";
 import { Tooltip } from "radix-ui";
 import React from "react";
 
-type DesktopTooltipProps = React.ComponentProps<typeof Tooltip.Root> & {
-  children: React.ReactElement;
-  content: React.ReactNode;
-  multiline?: boolean;
-  side?: "top" | "right" | "bottom" | "left";
-  align?: "start" | "center" | "end";
-  sideOffset?: number;
-};
+import { BaseTooltipProps } from "./types";
+
+type DesktopTooltipProps = BaseTooltipProps &
+  Omit<React.ComponentProps<typeof Tooltip.Root>, keyof BaseTooltipProps>;
 
 const Content = styled(Tooltip.Content, {
   length: {},

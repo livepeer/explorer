@@ -1,16 +1,10 @@
-import { Tooltip } from "radix-ui";
-import React from "react";
 import { isMobile } from "react-device-detect";
 
 import { DesktopTooltip } from "./DesktopTooltip";
 import { MobileTooltip } from "./MobileTooltip";
+import { TooltipProps } from "./types";
 
-export type TooltipProps = React.ComponentProps<typeof Tooltip.Root> &
-  Omit<React.ComponentProps<typeof Tooltip.Content>, "content"> & {
-    children: React.ReactElement;
-    content: React.ReactNode;
-    multiline?: boolean;
-  };
+export type { TooltipProps };
 
 export function ExplorerTooltip(props: TooltipProps) {
   if (isMobile) {

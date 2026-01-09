@@ -2,14 +2,10 @@ import { Box, styled, Text } from "@livepeer/design-system";
 import { Popover as RadixPopover } from "radix-ui";
 import React, { useEffect, useRef } from "react";
 
-type MobileTooltipProps = React.ComponentProps<typeof RadixPopover.Root> & {
-  children: React.ReactElement;
-  content: React.ReactNode;
-  multiline?: boolean;
-  side?: "top" | "right" | "bottom" | "left";
-  align?: "start" | "center" | "end";
-  sideOffset?: number;
-};
+import { BaseTooltipProps } from "./types";
+
+type MobileTooltipProps = BaseTooltipProps &
+  Omit<React.ComponentProps<typeof RadixPopover.Root>, keyof BaseTooltipProps>;
 
 const RadixPopoverContentStyled = styled(RadixPopover.Content, {
   length: {},
