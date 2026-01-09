@@ -1,0 +1,24 @@
+query treasuryVoteEvents($where: TreasuryVoteEvent_filter) {
+  treasuryVoteEvents(where: $where) {
+    id
+    reason
+    support
+    timestamp
+    proposal {
+      id
+      targets
+      description
+    }
+    voter {
+      id
+    }
+    weight
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}

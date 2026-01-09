@@ -286,26 +286,88 @@ export enum BondEvent_OrderBy {
 /** Broadcasters pay transcoders to do the work of transcoding in exchange for fees */
 export type Broadcaster = {
   __typename: 'Broadcaster';
+  /** Days in which this broadcaster paid out fees */
+  broadcasterDays: Array<BroadcasterDay>;
   /** Amount of funds deposited */
   deposit: Scalars['BigDecimal'];
+  /** The date this broadcaster first funded a deposit or reserve, beginning at 12:00am UTC */
+  firstActiveDay: Scalars['Int'];
   /** ETH address of a broadcaster */
   id: Scalars['ID'];
+  /** The date this broadcaster last paid fees, beginning at 12:00am UTC */
+  lastActiveDay: Scalars['Int'];
+  /** Fees paid out by this broadcaster in ETH during the last 90 days */
+  ninetyDayVolumeETH: Scalars['BigDecimal'];
   /** Amount of funds in reserve */
   reserve: Scalars['BigDecimal'];
+  /** Fees paid out by this broadcaster in ETH during the last 60 days */
+  sixtyDayVolumeETH: Scalars['BigDecimal'];
+  /** Fees paid out by this broadcaster in ETH during the last 30 days */
+  thirtyDayVolumeETH: Scalars['BigDecimal'];
+  /** Total fees paid out by this broadcaster in ETH */
+  totalVolumeETH: Scalars['BigDecimal'];
+  /** Total fees paid out by this broadcaster in USD */
+  totalVolumeUSD: Scalars['BigDecimal'];
 };
 
-export type Broadcaster_Filter = {
+
+/** Broadcasters pay transcoders to do the work of transcoding in exchange for fees */
+export type BroadcasterBroadcasterDaysArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BroadcasterDay_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<BroadcasterDay_Filter>;
+};
+
+/** Broadcaster data accumulated and condensed into day stats */
+export type BroadcasterDay = {
+  __typename: 'BroadcasterDay';
+  /** Broadcaster associated with the day */
+  broadcaster: Broadcaster;
+  /** The date beginning at 12:00am UTC */
+  date: Scalars['Int'];
+  /** Concatenation of the broadcaster address and the day timestamp (e.g. <ADDRESS>-<TIMESTAMP>) */
+  id: Scalars['ID'];
+  /** Fees paid this day in ETH */
+  volumeETH: Scalars['BigDecimal'];
+  /** Fees paid this day in USD */
+  volumeUSD: Scalars['BigDecimal'];
+};
+
+export type BroadcasterDay_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
-  deposit?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_gt?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_gte?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
-  deposit_lt?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_lte?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_not?: InputMaybe<Scalars['BigDecimal']>;
-  deposit_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  and?: InputMaybe<Array<InputMaybe<BroadcasterDay_Filter>>>;
+  broadcaster?: InputMaybe<Scalars['String']>;
+  broadcaster_?: InputMaybe<Broadcaster_Filter>;
+  broadcaster_contains?: InputMaybe<Scalars['String']>;
+  broadcaster_contains_nocase?: InputMaybe<Scalars['String']>;
+  broadcaster_ends_with?: InputMaybe<Scalars['String']>;
+  broadcaster_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  broadcaster_gt?: InputMaybe<Scalars['String']>;
+  broadcaster_gte?: InputMaybe<Scalars['String']>;
+  broadcaster_in?: InputMaybe<Array<Scalars['String']>>;
+  broadcaster_lt?: InputMaybe<Scalars['String']>;
+  broadcaster_lte?: InputMaybe<Scalars['String']>;
+  broadcaster_not?: InputMaybe<Scalars['String']>;
+  broadcaster_not_contains?: InputMaybe<Scalars['String']>;
+  broadcaster_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  broadcaster_not_ends_with?: InputMaybe<Scalars['String']>;
+  broadcaster_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  broadcaster_not_in?: InputMaybe<Array<Scalars['String']>>;
+  broadcaster_not_starts_with?: InputMaybe<Scalars['String']>;
+  broadcaster_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  broadcaster_starts_with?: InputMaybe<Scalars['String']>;
+  broadcaster_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  date?: InputMaybe<Scalars['Int']>;
+  date_gt?: InputMaybe<Scalars['Int']>;
+  date_gte?: InputMaybe<Scalars['Int']>;
+  date_in?: InputMaybe<Array<Scalars['Int']>>;
+  date_lt?: InputMaybe<Scalars['Int']>;
+  date_lte?: InputMaybe<Scalars['Int']>;
+  date_not?: InputMaybe<Scalars['Int']>;
+  date_not_in?: InputMaybe<Array<Scalars['Int']>>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -314,6 +376,94 @@ export type Broadcaster_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<BroadcasterDay_Filter>>>;
+  volumeETH?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_gt?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_gte?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  volumeETH_lt?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_lte?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_not?: InputMaybe<Scalars['BigDecimal']>;
+  volumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  volumeUSD?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_gt?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_gte?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  volumeUSD_lt?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_lte?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_not?: InputMaybe<Scalars['BigDecimal']>;
+  volumeUSD_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+};
+
+export enum BroadcasterDay_OrderBy {
+  Broadcaster = 'broadcaster',
+  BroadcasterDeposit = 'broadcaster__deposit',
+  BroadcasterFirstActiveDay = 'broadcaster__firstActiveDay',
+  BroadcasterId = 'broadcaster__id',
+  BroadcasterLastActiveDay = 'broadcaster__lastActiveDay',
+  BroadcasterNinetyDayVolumeEth = 'broadcaster__ninetyDayVolumeETH',
+  BroadcasterReserve = 'broadcaster__reserve',
+  BroadcasterSixtyDayVolumeEth = 'broadcaster__sixtyDayVolumeETH',
+  BroadcasterThirtyDayVolumeEth = 'broadcaster__thirtyDayVolumeETH',
+  BroadcasterTotalVolumeEth = 'broadcaster__totalVolumeETH',
+  BroadcasterTotalVolumeUsd = 'broadcaster__totalVolumeUSD',
+  Date = 'date',
+  Id = 'id',
+  VolumeEth = 'volumeETH',
+  VolumeUsd = 'volumeUSD'
+}
+
+export type Broadcaster_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
+  broadcasterDays?: InputMaybe<Array<Scalars['String']>>;
+  broadcasterDays_?: InputMaybe<BroadcasterDay_Filter>;
+  broadcasterDays_contains?: InputMaybe<Array<Scalars['String']>>;
+  broadcasterDays_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  broadcasterDays_not?: InputMaybe<Array<Scalars['String']>>;
+  broadcasterDays_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  broadcasterDays_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  deposit?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_gt?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_gte?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  deposit_lt?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_lte?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_not?: InputMaybe<Scalars['BigDecimal']>;
+  deposit_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  firstActiveDay?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_gt?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_gte?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstActiveDay_lt?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_lte?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_not?: InputMaybe<Scalars['Int']>;
+  firstActiveDay_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  lastActiveDay?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_gt?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_gte?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastActiveDay_lt?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_lte?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_not?: InputMaybe<Scalars['Int']>;
+  lastActiveDay_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  ninetyDayVolumeETH?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_gt?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_gte?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  ninetyDayVolumeETH_lt?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_lte?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_not?: InputMaybe<Scalars['BigDecimal']>;
+  ninetyDayVolumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   or?: InputMaybe<Array<InputMaybe<Broadcaster_Filter>>>;
   reserve?: InputMaybe<Scalars['BigDecimal']>;
   reserve_gt?: InputMaybe<Scalars['BigDecimal']>;
@@ -323,12 +473,52 @@ export type Broadcaster_Filter = {
   reserve_lte?: InputMaybe<Scalars['BigDecimal']>;
   reserve_not?: InputMaybe<Scalars['BigDecimal']>;
   reserve_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  sixtyDayVolumeETH?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_gt?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_gte?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  sixtyDayVolumeETH_lt?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_lte?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_not?: InputMaybe<Scalars['BigDecimal']>;
+  sixtyDayVolumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  thirtyDayVolumeETH?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_gt?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_gte?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  thirtyDayVolumeETH_lt?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_lte?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_not?: InputMaybe<Scalars['BigDecimal']>;
+  thirtyDayVolumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  totalVolumeETH?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_gt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_gte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  totalVolumeETH_lt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_lte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_not?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  totalVolumeUSD?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_gt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_gte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  totalVolumeUSD_lt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_lte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_not?: InputMaybe<Scalars['BigDecimal']>;
+  totalVolumeUSD_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
 };
 
 export enum Broadcaster_OrderBy {
+  BroadcasterDays = 'broadcasterDays',
   Deposit = 'deposit',
+  FirstActiveDay = 'firstActiveDay',
   Id = 'id',
-  Reserve = 'reserve'
+  LastActiveDay = 'lastActiveDay',
+  NinetyDayVolumeEth = 'ninetyDayVolumeETH',
+  Reserve = 'reserve',
+  SixtyDayVolumeEth = 'sixtyDayVolumeETH',
+  ThirtyDayVolumeEth = 'thirtyDayVolumeETH',
+  TotalVolumeEth = 'totalVolumeETH',
+  TotalVolumeUsd = 'totalVolumeUSD'
 }
 
 /** BurnEvent entities are created for every emitted Burn event. */
@@ -924,8 +1114,15 @@ export enum DepositFundedEvent_OrderBy {
   RoundVolumeUsd = 'round__volumeUSD',
   Sender = 'sender',
   SenderDeposit = 'sender__deposit',
+  SenderFirstActiveDay = 'sender__firstActiveDay',
   SenderId = 'sender__id',
+  SenderLastActiveDay = 'sender__lastActiveDay',
+  SenderNinetyDayVolumeEth = 'sender__ninetyDayVolumeETH',
   SenderReserve = 'sender__reserve',
+  SenderSixtyDayVolumeEth = 'sender__sixtyDayVolumeETH',
+  SenderThirtyDayVolumeEth = 'sender__thirtyDayVolumeETH',
+  SenderTotalVolumeEth = 'sender__totalVolumeETH',
+  SenderTotalVolumeUsd = 'sender__totalVolumeUSD',
   Timestamp = 'timestamp',
   Transaction = 'transaction',
   TransactionBlockNumber = 'transaction__blockNumber',
@@ -2678,6 +2875,8 @@ export enum Pool_OrderBy {
 /** Livepeer protocol global parameters */
 export type Protocol = {
   __typename: 'Protocol';
+  /** Broadcasters active within the current 90 day fee window */
+  activeBroadcasters: Array<Scalars['String']>;
   /** Total active transcoders (up to the limit) */
   activeTranscoderCount: Scalars['BigInt'];
   /** Current round the protocol is in */
@@ -2755,6 +2954,12 @@ export type ProtocolPendingDeactivationArgs = {
 export type Protocol_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  activeBroadcasters?: InputMaybe<Array<Scalars['String']>>;
+  activeBroadcasters_contains?: InputMaybe<Array<Scalars['String']>>;
+  activeBroadcasters_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  activeBroadcasters_not?: InputMaybe<Array<Scalars['String']>>;
+  activeBroadcasters_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  activeBroadcasters_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   activeTranscoderCount?: InputMaybe<Scalars['BigInt']>;
   activeTranscoderCount_gt?: InputMaybe<Scalars['BigInt']>;
   activeTranscoderCount_gte?: InputMaybe<Scalars['BigInt']>;
@@ -3001,6 +3206,7 @@ export type Protocol_Filter = {
 };
 
 export enum Protocol_OrderBy {
+  ActiveBroadcasters = 'activeBroadcasters',
   ActiveTranscoderCount = 'activeTranscoderCount',
   CurrentRound = 'currentRound',
   CurrentRoundActiveTranscoderCount = 'currentRound__activeTranscoderCount',
@@ -3090,6 +3296,8 @@ export type Query = {
   bondEvent?: Maybe<BondEvent>;
   bondEvents: Array<BondEvent>;
   broadcaster?: Maybe<Broadcaster>;
+  broadcasterDay?: Maybe<BroadcasterDay>;
+  broadcasterDays: Array<BroadcasterDay>;
   broadcasters: Array<Broadcaster>;
   burnEvent?: Maybe<BurnEvent>;
   burnEvents: Array<BurnEvent>;
@@ -3163,6 +3371,10 @@ export type Query = {
   transferBondEvents: Array<TransferBondEvent>;
   treasuryProposal?: Maybe<TreasuryProposal>;
   treasuryProposals: Array<TreasuryProposal>;
+  treasuryVote?: Maybe<TreasuryVote>;
+  treasuryVoteEvent?: Maybe<TreasuryVoteEvent>;
+  treasuryVoteEvents: Array<TreasuryVoteEvent>;
+  treasuryVotes: Array<TreasuryVote>;
   unbondEvent?: Maybe<UnbondEvent>;
   unbondEvents: Array<UnbondEvent>;
   unbondingLock?: Maybe<UnbondingLock>;
@@ -3211,6 +3423,24 @@ export type QueryBroadcasterArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
   subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryBroadcasterDayArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryBroadcasterDaysArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BroadcasterDay_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<BroadcasterDay_Filter>;
 };
 
 
@@ -3873,6 +4103,42 @@ export type QueryTreasuryProposalsArgs = {
 };
 
 
+export type QueryTreasuryVoteArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryTreasuryVoteEventArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryTreasuryVoteEventsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TreasuryVoteEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TreasuryVoteEvent_Filter>;
+};
+
+
+export type QueryTreasuryVotesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TreasuryVote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TreasuryVote_Filter>;
+};
+
+
 export type QueryUnbondEventArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
@@ -4395,8 +4661,15 @@ export enum ReserveClaimedEvent_OrderBy {
   Id = 'id',
   ReserveHolder = 'reserveHolder',
   ReserveHolderDeposit = 'reserveHolder__deposit',
+  ReserveHolderFirstActiveDay = 'reserveHolder__firstActiveDay',
   ReserveHolderId = 'reserveHolder__id',
+  ReserveHolderLastActiveDay = 'reserveHolder__lastActiveDay',
+  ReserveHolderNinetyDayVolumeEth = 'reserveHolder__ninetyDayVolumeETH',
   ReserveHolderReserve = 'reserveHolder__reserve',
+  ReserveHolderSixtyDayVolumeEth = 'reserveHolder__sixtyDayVolumeETH',
+  ReserveHolderThirtyDayVolumeEth = 'reserveHolder__thirtyDayVolumeETH',
+  ReserveHolderTotalVolumeEth = 'reserveHolder__totalVolumeETH',
+  ReserveHolderTotalVolumeUsd = 'reserveHolder__totalVolumeUSD',
   Round = 'round',
   RoundActiveTranscoderCount = 'round__activeTranscoderCount',
   RoundDelegatorsCount = 'round__delegatorsCount',
@@ -4543,8 +4816,15 @@ export enum ReserveFundedEvent_OrderBy {
   Id = 'id',
   ReserveHolder = 'reserveHolder',
   ReserveHolderDeposit = 'reserveHolder__deposit',
+  ReserveHolderFirstActiveDay = 'reserveHolder__firstActiveDay',
   ReserveHolderId = 'reserveHolder__id',
+  ReserveHolderLastActiveDay = 'reserveHolder__lastActiveDay',
+  ReserveHolderNinetyDayVolumeEth = 'reserveHolder__ninetyDayVolumeETH',
   ReserveHolderReserve = 'reserveHolder__reserve',
+  ReserveHolderSixtyDayVolumeEth = 'reserveHolder__sixtyDayVolumeETH',
+  ReserveHolderThirtyDayVolumeEth = 'reserveHolder__thirtyDayVolumeETH',
+  ReserveHolderTotalVolumeEth = 'reserveHolder__totalVolumeETH',
+  ReserveHolderTotalVolumeUsd = 'reserveHolder__totalVolumeUSD',
   Round = 'round',
   RoundActiveTranscoderCount = 'round__activeTranscoderCount',
   RoundDelegatorsCount = 'round__delegatorsCount',
@@ -5802,7 +6082,7 @@ export type TranscoderDay = {
   __typename: 'TranscoderDay';
   /** The date beginning at 12:00am UTC */
   date: Scalars['Int'];
-  /** Combination of the transcoder address and the timestamp rounded to current day by dividing by 86400 */
+  /** Concatenation of the transcoder address and the day timestamp (e.g. <ADDRESS>-<TIMESTAMP>) */
   id: Scalars['ID'];
   /** Transcoder associated with the day */
   transcoder: Transcoder;
@@ -7191,29 +7471,66 @@ export enum TransferBondEvent_OrderBy {
   TransactionTo = 'transaction__to'
 }
 
+/** Stake weighted treasury proposal */
 export type TreasuryProposal = {
   __typename: 'TreasuryProposal';
+  /** Total weight of abstaining votes */
+  abstainVotes: Scalars['BigDecimal'];
+  /** Total weight of votes against */
+  againstVotes: Scalars['BigDecimal'];
   /** Functions to call on the targets on proposal execution */
   calldatas: Array<Scalars['Bytes']>;
   /** Description of the proposal */
   description: Scalars['String'];
+  /** Total weight of votes in favor */
+  forVotes: Scalars['BigDecimal'];
   /** Governor proposal ID formatted as a decimal number */
   id: Scalars['ID'];
   /** Account that created the proposal */
   proposer: LivepeerAccount;
   /** Targets to be called on proposal execution */
   targets: Array<Scalars['String']>;
+  /** Sum of all vote weights */
+  totalVotes: Scalars['BigDecimal'];
   /** Values to be passed to the targets on proposal execution */
   values: Array<Scalars['BigInt']>;
   /** Round after which the proposal voting will end and, if approved, execution will be allowed */
   voteEnd: Scalars['BigInt'];
   /** Round after which the proposal voting will begin */
   voteStart: Scalars['BigInt'];
+  /** Votes cast for this proposal */
+  votes: Array<TreasuryVote>;
+};
+
+
+/** Stake weighted treasury proposal */
+export type TreasuryProposalVotesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TreasuryVote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<TreasuryVote_Filter>;
 };
 
 export type TreasuryProposal_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  abstainVotes?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_gt?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_gte?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  abstainVotes_lt?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_lte?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_not?: InputMaybe<Scalars['BigDecimal']>;
+  abstainVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  againstVotes?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_gt?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_gte?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  againstVotes_lt?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_lte?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_not?: InputMaybe<Scalars['BigDecimal']>;
+  againstVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   and?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
   calldatas?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_contains?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -7241,6 +7558,14 @@ export type TreasuryProposal_Filter = {
   description_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
   description_starts_with?: InputMaybe<Scalars['String']>;
   description_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  forVotes?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_gt?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_gte?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  forVotes_lt?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_lte?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_not?: InputMaybe<Scalars['BigDecimal']>;
+  forVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -7277,6 +7602,14 @@ export type TreasuryProposal_Filter = {
   targets_not?: InputMaybe<Array<Scalars['String']>>;
   targets_not_contains?: InputMaybe<Array<Scalars['String']>>;
   targets_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  totalVotes?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_gt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_gte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  totalVotes_lt?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_lte?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_not?: InputMaybe<Scalars['BigDecimal']>;
+  totalVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   values?: InputMaybe<Array<Scalars['BigInt']>>;
   values_contains?: InputMaybe<Array<Scalars['BigInt']>>;
   values_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -7299,19 +7632,365 @@ export type TreasuryProposal_Filter = {
   voteStart_lte?: InputMaybe<Scalars['BigInt']>;
   voteStart_not?: InputMaybe<Scalars['BigInt']>;
   voteStart_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  votes_?: InputMaybe<TreasuryVote_Filter>;
 };
 
 export enum TreasuryProposal_OrderBy {
+  AbstainVotes = 'abstainVotes',
+  AgainstVotes = 'againstVotes',
   Calldatas = 'calldatas',
   Description = 'description',
+  ForVotes = 'forVotes',
   Id = 'id',
   Proposer = 'proposer',
   ProposerId = 'proposer__id',
   ProposerLastUpdatedTimestamp = 'proposer__lastUpdatedTimestamp',
   Targets = 'targets',
+  TotalVotes = 'totalVotes',
   Values = 'values',
   VoteEnd = 'voteEnd',
-  VoteStart = 'voteStart'
+  VoteStart = 'voteStart',
+  Votes = 'votes'
+}
+
+/** Stake weighted vote on a treasury proposal */
+export type TreasuryVote = {
+  __typename: 'TreasuryVote';
+  /** Proposal ID + voter address */
+  id: Scalars['ID'];
+  /** The proposal that was voted on */
+  proposal: TreasuryProposal;
+  /** Optional reason string provided by the voter */
+  reason?: Maybe<Scalars['String']>;
+  /** The voter's position */
+  support: TreasuryVoteSupport;
+  /** Account that cast the vote */
+  voter: LivepeerAccount;
+  /** Stake-weighted voting power */
+  weight: Scalars['BigDecimal'];
+};
+
+/** TreasuryVoteEvent entities are created for every emitted VoteCast/VoteCastWithParams event. */
+export type TreasuryVoteEvent = Event & {
+  __typename: 'TreasuryVoteEvent';
+  /** Ethereum transaction hash + event log index */
+  id: Scalars['ID'];
+  /** Proposal that the vote was cast for */
+  proposal: TreasuryProposal;
+  /** Optional reason string provided by the voter */
+  reason?: Maybe<Scalars['String']>;
+  /** Reference to the round the event occured in */
+  round: Round;
+  /** The voter's position */
+  support: TreasuryVoteSupport;
+  /** Timestamp of the transaction the event was included in */
+  timestamp: Scalars['Int'];
+  /** Reference to the transaction the event was included in */
+  transaction: Transaction;
+  /** Account that cast the vote */
+  voter: LivepeerAccount;
+  /** Stake-weighted voting power */
+  weight: Scalars['BigDecimal'];
+};
+
+export type TreasuryVoteEvent_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TreasuryVoteEvent_Filter>>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<TreasuryVoteEvent_Filter>>>;
+  proposal?: InputMaybe<Scalars['String']>;
+  proposal_?: InputMaybe<TreasuryProposal_Filter>;
+  proposal_contains?: InputMaybe<Scalars['String']>;
+  proposal_contains_nocase?: InputMaybe<Scalars['String']>;
+  proposal_ends_with?: InputMaybe<Scalars['String']>;
+  proposal_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_gt?: InputMaybe<Scalars['String']>;
+  proposal_gte?: InputMaybe<Scalars['String']>;
+  proposal_in?: InputMaybe<Array<Scalars['String']>>;
+  proposal_lt?: InputMaybe<Scalars['String']>;
+  proposal_lte?: InputMaybe<Scalars['String']>;
+  proposal_not?: InputMaybe<Scalars['String']>;
+  proposal_not_contains?: InputMaybe<Scalars['String']>;
+  proposal_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  proposal_not_ends_with?: InputMaybe<Scalars['String']>;
+  proposal_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_not_in?: InputMaybe<Array<Scalars['String']>>;
+  proposal_not_starts_with?: InputMaybe<Scalars['String']>;
+  proposal_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_starts_with?: InputMaybe<Scalars['String']>;
+  proposal_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  reason?: InputMaybe<Scalars['String']>;
+  reason_contains?: InputMaybe<Scalars['String']>;
+  reason_contains_nocase?: InputMaybe<Scalars['String']>;
+  reason_ends_with?: InputMaybe<Scalars['String']>;
+  reason_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_gt?: InputMaybe<Scalars['String']>;
+  reason_gte?: InputMaybe<Scalars['String']>;
+  reason_in?: InputMaybe<Array<Scalars['String']>>;
+  reason_lt?: InputMaybe<Scalars['String']>;
+  reason_lte?: InputMaybe<Scalars['String']>;
+  reason_not?: InputMaybe<Scalars['String']>;
+  reason_not_contains?: InputMaybe<Scalars['String']>;
+  reason_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  reason_not_ends_with?: InputMaybe<Scalars['String']>;
+  reason_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_not_in?: InputMaybe<Array<Scalars['String']>>;
+  reason_not_starts_with?: InputMaybe<Scalars['String']>;
+  reason_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_starts_with?: InputMaybe<Scalars['String']>;
+  reason_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  round?: InputMaybe<Scalars['String']>;
+  round_?: InputMaybe<Round_Filter>;
+  round_contains?: InputMaybe<Scalars['String']>;
+  round_contains_nocase?: InputMaybe<Scalars['String']>;
+  round_ends_with?: InputMaybe<Scalars['String']>;
+  round_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  round_gt?: InputMaybe<Scalars['String']>;
+  round_gte?: InputMaybe<Scalars['String']>;
+  round_in?: InputMaybe<Array<Scalars['String']>>;
+  round_lt?: InputMaybe<Scalars['String']>;
+  round_lte?: InputMaybe<Scalars['String']>;
+  round_not?: InputMaybe<Scalars['String']>;
+  round_not_contains?: InputMaybe<Scalars['String']>;
+  round_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  round_not_ends_with?: InputMaybe<Scalars['String']>;
+  round_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  round_not_in?: InputMaybe<Array<Scalars['String']>>;
+  round_not_starts_with?: InputMaybe<Scalars['String']>;
+  round_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  round_starts_with?: InputMaybe<Scalars['String']>;
+  round_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  support?: InputMaybe<TreasuryVoteSupport>;
+  support_in?: InputMaybe<Array<TreasuryVoteSupport>>;
+  support_not?: InputMaybe<TreasuryVoteSupport>;
+  support_not_in?: InputMaybe<Array<TreasuryVoteSupport>>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_Filter>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  voter?: InputMaybe<Scalars['String']>;
+  voter_?: InputMaybe<LivepeerAccount_Filter>;
+  voter_contains?: InputMaybe<Scalars['String']>;
+  voter_contains_nocase?: InputMaybe<Scalars['String']>;
+  voter_ends_with?: InputMaybe<Scalars['String']>;
+  voter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_gt?: InputMaybe<Scalars['String']>;
+  voter_gte?: InputMaybe<Scalars['String']>;
+  voter_in?: InputMaybe<Array<Scalars['String']>>;
+  voter_lt?: InputMaybe<Scalars['String']>;
+  voter_lte?: InputMaybe<Scalars['String']>;
+  voter_not?: InputMaybe<Scalars['String']>;
+  voter_not_contains?: InputMaybe<Scalars['String']>;
+  voter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  voter_not_ends_with?: InputMaybe<Scalars['String']>;
+  voter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  voter_not_starts_with?: InputMaybe<Scalars['String']>;
+  voter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_starts_with?: InputMaybe<Scalars['String']>;
+  voter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  weight?: InputMaybe<Scalars['BigDecimal']>;
+  weight_gt?: InputMaybe<Scalars['BigDecimal']>;
+  weight_gte?: InputMaybe<Scalars['BigDecimal']>;
+  weight_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  weight_lt?: InputMaybe<Scalars['BigDecimal']>;
+  weight_lte?: InputMaybe<Scalars['BigDecimal']>;
+  weight_not?: InputMaybe<Scalars['BigDecimal']>;
+  weight_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+};
+
+export enum TreasuryVoteEvent_OrderBy {
+  Id = 'id',
+  Proposal = 'proposal',
+  ProposalAbstainVotes = 'proposal__abstainVotes',
+  ProposalAgainstVotes = 'proposal__againstVotes',
+  ProposalDescription = 'proposal__description',
+  ProposalForVotes = 'proposal__forVotes',
+  ProposalId = 'proposal__id',
+  ProposalTotalVotes = 'proposal__totalVotes',
+  ProposalVoteEnd = 'proposal__voteEnd',
+  ProposalVoteStart = 'proposal__voteStart',
+  Reason = 'reason',
+  Round = 'round',
+  RoundActiveTranscoderCount = 'round__activeTranscoderCount',
+  RoundDelegatorsCount = 'round__delegatorsCount',
+  RoundEndBlock = 'round__endBlock',
+  RoundId = 'round__id',
+  RoundInflation = 'round__inflation',
+  RoundInitialized = 'round__initialized',
+  RoundLength = 'round__length',
+  RoundMintableTokens = 'round__mintableTokens',
+  RoundMovedStake = 'round__movedStake',
+  RoundNewStake = 'round__newStake',
+  RoundNumActiveTranscoders = 'round__numActiveTranscoders',
+  RoundParticipationRate = 'round__participationRate',
+  RoundStartBlock = 'round__startBlock',
+  RoundStartTimestamp = 'round__startTimestamp',
+  RoundTotalActiveStake = 'round__totalActiveStake',
+  RoundTotalSupply = 'round__totalSupply',
+  RoundVolumeEth = 'round__volumeETH',
+  RoundVolumeUsd = 'round__volumeUSD',
+  Support = 'support',
+  Timestamp = 'timestamp',
+  Transaction = 'transaction',
+  TransactionBlockNumber = 'transaction__blockNumber',
+  TransactionFrom = 'transaction__from',
+  TransactionGasPrice = 'transaction__gasPrice',
+  TransactionGasUsed = 'transaction__gasUsed',
+  TransactionId = 'transaction__id',
+  TransactionTimestamp = 'transaction__timestamp',
+  TransactionTo = 'transaction__to',
+  Voter = 'voter',
+  VoterId = 'voter__id',
+  VoterLastUpdatedTimestamp = 'voter__lastUpdatedTimestamp',
+  Weight = 'weight'
+}
+
+export enum TreasuryVoteSupport {
+  Abstain = 'Abstain',
+  Against = 'Against',
+  For = 'For'
+}
+
+export type TreasuryVote_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TreasuryVote_Filter>>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<TreasuryVote_Filter>>>;
+  proposal?: InputMaybe<Scalars['String']>;
+  proposal_?: InputMaybe<TreasuryProposal_Filter>;
+  proposal_contains?: InputMaybe<Scalars['String']>;
+  proposal_contains_nocase?: InputMaybe<Scalars['String']>;
+  proposal_ends_with?: InputMaybe<Scalars['String']>;
+  proposal_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_gt?: InputMaybe<Scalars['String']>;
+  proposal_gte?: InputMaybe<Scalars['String']>;
+  proposal_in?: InputMaybe<Array<Scalars['String']>>;
+  proposal_lt?: InputMaybe<Scalars['String']>;
+  proposal_lte?: InputMaybe<Scalars['String']>;
+  proposal_not?: InputMaybe<Scalars['String']>;
+  proposal_not_contains?: InputMaybe<Scalars['String']>;
+  proposal_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  proposal_not_ends_with?: InputMaybe<Scalars['String']>;
+  proposal_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_not_in?: InputMaybe<Array<Scalars['String']>>;
+  proposal_not_starts_with?: InputMaybe<Scalars['String']>;
+  proposal_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  proposal_starts_with?: InputMaybe<Scalars['String']>;
+  proposal_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  reason?: InputMaybe<Scalars['String']>;
+  reason_contains?: InputMaybe<Scalars['String']>;
+  reason_contains_nocase?: InputMaybe<Scalars['String']>;
+  reason_ends_with?: InputMaybe<Scalars['String']>;
+  reason_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_gt?: InputMaybe<Scalars['String']>;
+  reason_gte?: InputMaybe<Scalars['String']>;
+  reason_in?: InputMaybe<Array<Scalars['String']>>;
+  reason_lt?: InputMaybe<Scalars['String']>;
+  reason_lte?: InputMaybe<Scalars['String']>;
+  reason_not?: InputMaybe<Scalars['String']>;
+  reason_not_contains?: InputMaybe<Scalars['String']>;
+  reason_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  reason_not_ends_with?: InputMaybe<Scalars['String']>;
+  reason_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_not_in?: InputMaybe<Array<Scalars['String']>>;
+  reason_not_starts_with?: InputMaybe<Scalars['String']>;
+  reason_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  reason_starts_with?: InputMaybe<Scalars['String']>;
+  reason_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  support?: InputMaybe<TreasuryVoteSupport>;
+  support_in?: InputMaybe<Array<TreasuryVoteSupport>>;
+  support_not?: InputMaybe<TreasuryVoteSupport>;
+  support_not_in?: InputMaybe<Array<TreasuryVoteSupport>>;
+  voter?: InputMaybe<Scalars['String']>;
+  voter_?: InputMaybe<LivepeerAccount_Filter>;
+  voter_contains?: InputMaybe<Scalars['String']>;
+  voter_contains_nocase?: InputMaybe<Scalars['String']>;
+  voter_ends_with?: InputMaybe<Scalars['String']>;
+  voter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_gt?: InputMaybe<Scalars['String']>;
+  voter_gte?: InputMaybe<Scalars['String']>;
+  voter_in?: InputMaybe<Array<Scalars['String']>>;
+  voter_lt?: InputMaybe<Scalars['String']>;
+  voter_lte?: InputMaybe<Scalars['String']>;
+  voter_not?: InputMaybe<Scalars['String']>;
+  voter_not_contains?: InputMaybe<Scalars['String']>;
+  voter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  voter_not_ends_with?: InputMaybe<Scalars['String']>;
+  voter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  voter_not_starts_with?: InputMaybe<Scalars['String']>;
+  voter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  voter_starts_with?: InputMaybe<Scalars['String']>;
+  voter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  weight?: InputMaybe<Scalars['BigDecimal']>;
+  weight_gt?: InputMaybe<Scalars['BigDecimal']>;
+  weight_gte?: InputMaybe<Scalars['BigDecimal']>;
+  weight_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+  weight_lt?: InputMaybe<Scalars['BigDecimal']>;
+  weight_lte?: InputMaybe<Scalars['BigDecimal']>;
+  weight_not?: InputMaybe<Scalars['BigDecimal']>;
+  weight_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
+};
+
+export enum TreasuryVote_OrderBy {
+  Id = 'id',
+  Proposal = 'proposal',
+  ProposalAbstainVotes = 'proposal__abstainVotes',
+  ProposalAgainstVotes = 'proposal__againstVotes',
+  ProposalDescription = 'proposal__description',
+  ProposalForVotes = 'proposal__forVotes',
+  ProposalId = 'proposal__id',
+  ProposalTotalVotes = 'proposal__totalVotes',
+  ProposalVoteEnd = 'proposal__voteEnd',
+  ProposalVoteStart = 'proposal__voteStart',
+  Reason = 'reason',
+  Support = 'support',
+  Voter = 'voter',
+  VoterId = 'voter__id',
+  VoterLastUpdatedTimestamp = 'voter__lastUpdatedTimestamp',
+  Weight = 'weight'
 }
 
 /** UnbondEvent entities are created for every emitted Unbond event. */
@@ -8317,8 +8996,15 @@ export enum WinningTicketRedeemedEvent_OrderBy {
   Sender = 'sender',
   SenderNonce = 'senderNonce',
   SenderDeposit = 'sender__deposit',
+  SenderFirstActiveDay = 'sender__firstActiveDay',
   SenderId = 'sender__id',
+  SenderLastActiveDay = 'sender__lastActiveDay',
+  SenderNinetyDayVolumeEth = 'sender__ninetyDayVolumeETH',
   SenderReserve = 'sender__reserve',
+  SenderSixtyDayVolumeEth = 'sender__sixtyDayVolumeETH',
+  SenderThirtyDayVolumeEth = 'sender__thirtyDayVolumeETH',
+  SenderTotalVolumeEth = 'sender__totalVolumeETH',
+  SenderTotalVolumeUsd = 'sender__totalVolumeUSD',
   Timestamp = 'timestamp',
   Transaction = 'transaction',
   TransactionBlockNumber = 'transaction__blockNumber',
@@ -8817,8 +9503,15 @@ export enum WithdrawalEvent_OrderBy {
   RoundVolumeUsd = 'round__volumeUSD',
   Sender = 'sender',
   SenderDeposit = 'sender__deposit',
+  SenderFirstActiveDay = 'sender__firstActiveDay',
   SenderId = 'sender__id',
+  SenderLastActiveDay = 'sender__lastActiveDay',
+  SenderNinetyDayVolumeEth = 'sender__ninetyDayVolumeETH',
   SenderReserve = 'sender__reserve',
+  SenderSixtyDayVolumeEth = 'sender__sixtyDayVolumeETH',
+  SenderThirtyDayVolumeEth = 'sender__thirtyDayVolumeETH',
+  SenderTotalVolumeEth = 'sender__totalVolumeETH',
+  SenderTotalVolumeUsd = 'sender__totalVolumeUSD',
   Timestamp = 'timestamp',
   Transaction = 'transaction',
   TransactionBlockNumber = 'transaction__blockNumber',
@@ -8898,7 +9591,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MigrateDelegatorFinalizedEvent', l1Addr: string, l2Addr: string, stake: string, delegatedStake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'NewRoundEvent', transaction: { __typename: 'Transaction', from: string, id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'ParameterUpdateEvent', param: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PollCreatedEvent', endBlock: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RewardEvent', rewardTokens: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ServiceURIUpdateEvent', addr: string, serviceURI: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'SetCurrentRewardTokensEvent', currentInflation: string, currentMintableTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'StakeClaimedEvent', stake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderActivatedEvent', activationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderDeactivatedEvent', deactivationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderEvictedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderResignedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TransferBondEvent', amount: string, newDelegator: { __typename: 'Delegator', id: string }, oldDelegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'VoteEvent', voter: string, choiceID: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, recipient: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawFeesEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawStakeEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawalEvent', deposit: string, reserve: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } }> | null }>, transcoders: Array<{ __typename: 'Transcoder', id: string }> };
+export type EventsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MigrateDelegatorFinalizedEvent', l1Addr: string, l2Addr: string, stake: string, delegatedStake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'NewRoundEvent', transaction: { __typename: 'Transaction', from: string, id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'ParameterUpdateEvent', param: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PollCreatedEvent', endBlock: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RewardEvent', rewardTokens: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ServiceURIUpdateEvent', addr: string, serviceURI: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'SetCurrentRewardTokensEvent', currentInflation: string, currentMintableTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'StakeClaimedEvent', stake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderActivatedEvent', activationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderDeactivatedEvent', deactivationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderEvictedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderResignedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TransferBondEvent', amount: string, newDelegator: { __typename: 'Delegator', id: string }, oldDelegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TreasuryVoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'VoteEvent', voter: string, choiceID: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, recipient: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawFeesEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawStakeEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawalEvent', deposit: string, reserve: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } }> | null }>, transcoders: Array<{ __typename: 'Transcoder', id: string }> };
 
 export type OrchestratorsQueryVariables = Exact<{
   currentRound?: InputMaybe<Scalars['BigInt']>;
@@ -8949,7 +9642,7 @@ export type TransactionsQueryVariables = Exact<{
 }>;
 
 
-export type TransactionsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MigrateDelegatorFinalizedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'NewRoundEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ParameterUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PollCreatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardEvent', rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ServiceURIUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'SetCurrentRewardTokensEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'StakeClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderActivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderDeactivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderEvictedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderResignedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TransferBondEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'VoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawFeesEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawStakeEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawalEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> | null }>, winningTicketRedeemedEvents: Array<{ __typename: 'WinningTicketRedeemedEvent', id: string, faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
+export type TransactionsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MigrateDelegatorFinalizedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'NewRoundEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ParameterUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PollCreatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardEvent', rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ServiceURIUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'SetCurrentRewardTokensEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'StakeClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderActivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderDeactivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderEvictedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderResignedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TransferBondEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TreasuryVoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'VoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawFeesEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawStakeEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawalEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> | null }>, winningTicketRedeemedEvents: Array<{ __typename: 'WinningTicketRedeemedEvent', id: string, faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
 
 export type TreasuryProposalQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -8970,12 +9663,26 @@ export type GetProposalsByIdsQueryVariables = Exact<{
 
 export type GetProposalsByIdsQuery = { __typename: 'Query', treasuryProposals: Array<{ __typename: 'TreasuryProposal', id: string, description: string, voteStart: string, voteEnd: string }> };
 
+export type TreasuryVoteEventsQueryVariables = Exact<{
+  where?: InputMaybe<TreasuryVoteEvent_Filter>;
+}>;
+
+
+export type TreasuryVoteEventsQuery = { __typename: 'Query', treasuryVoteEvents: Array<{ __typename: 'TreasuryVoteEvent', id: string, reason?: string | null, support: TreasuryVoteSupport, timestamp: number, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, targets: Array<string>, description: string }, voter: { __typename: 'LivepeerAccount', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
+
 export type VoteQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
 export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string } | null };
+
+export type VoteEventsQueryVariables = Exact<{
+  where?: InputMaybe<VoteEvent_Filter>;
+}>;
+
+
+export type VoteEventsQuery = { __typename: 'Query', voteEvents: Array<{ __typename: 'VoteEvent', voter: string, choiceID: string, id: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, round: { __typename: 'Round', id: string } }> };
 
 
 export const AccountDocument = gql`
@@ -9951,6 +10658,60 @@ export function useGetProposalsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type GetProposalsByIdsQueryHookResult = ReturnType<typeof useGetProposalsByIdsQuery>;
 export type GetProposalsByIdsLazyQueryHookResult = ReturnType<typeof useGetProposalsByIdsLazyQuery>;
 export type GetProposalsByIdsQueryResult = Apollo.QueryResult<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>;
+export const TreasuryVoteEventsDocument = gql`
+    query treasuryVoteEvents($where: TreasuryVoteEvent_filter) {
+  treasuryVoteEvents(where: $where) {
+    id
+    reason
+    support
+    timestamp
+    proposal {
+      id
+      targets
+      description
+    }
+    voter {
+      id
+    }
+    weight
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}
+    `;
+
+/**
+ * __useTreasuryVoteEventsQuery__
+ *
+ * To run a query within a React component, call `useTreasuryVoteEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTreasuryVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTreasuryVoteEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useTreasuryVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>(TreasuryVoteEventsDocument, options);
+      }
+export function useTreasuryVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>(TreasuryVoteEventsDocument, options);
+        }
+export type TreasuryVoteEventsQueryHookResult = ReturnType<typeof useTreasuryVoteEventsQuery>;
+export type TreasuryVoteEventsLazyQueryHookResult = ReturnType<typeof useTreasuryVoteEventsLazyQuery>;
+export type TreasuryVoteEventsQueryResult = Apollo.QueryResult<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>;
 export const VoteDocument = gql`
     query vote($id: ID!) {
   vote(id: $id) {
@@ -9988,3 +10749,55 @@ export function useVoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteQ
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;
 export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
+export const VoteEventsDocument = gql`
+    query voteEvents($where: VoteEvent_filter) {
+  voteEvents(where: $where) {
+    voter
+    poll {
+      id
+      proposal
+      endBlock
+      quorum
+      quota
+    }
+    transaction {
+      id
+      timestamp
+    }
+    choiceID
+    id
+    round {
+      id
+    }
+    timestamp
+  }
+}
+    `;
+
+/**
+ * __useVoteEventsQuery__
+ *
+ * To run a query within a React component, call `useVoteEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVoteEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+      }
+export function useVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+        }
+export type VoteEventsQueryHookResult = ReturnType<typeof useVoteEventsQuery>;
+export type VoteEventsLazyQueryHookResult = ReturnType<typeof useVoteEventsLazyQuery>;
+export type VoteEventsQueryResult = Apollo.QueryResult<VoteEventsQuery, VoteEventsQueryVariables>;
