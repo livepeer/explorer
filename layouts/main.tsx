@@ -11,7 +11,7 @@ import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
-import { EMPTY_ADDRESS } from "@lib/utils";
+import { EMPTY_ADDRESS, formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -870,13 +870,10 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           }}
                           size="2"
                         >
-                          {contractAddresses?.[
-                            key as keyof typeof contractAddresses
-                          ]?.address?.replace(
+                          {formatAddress(
                             contractAddresses?.[
                               key as keyof typeof contractAddresses
-                            ]?.address?.slice(7, 37) ?? "",
-                            "…"
+                            ]?.address
                           )}
                         </Text>
                       </A>

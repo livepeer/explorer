@@ -4,13 +4,14 @@ import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
 import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
+import VoteTable from "@components/Votes/VoteTable";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getProposalExtended } from "@lib/api/treasury";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
+import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -22,13 +23,17 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
+import {
+  useProtocolQuery,
+  useTreasuryProposalQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { sentenceCase } from "change-case";
 import { BigNumber } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { decodeFunctionData } from "viem";
 
@@ -61,6 +66,7 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -80,6 +86,19 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
+  // const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
+  const { data: votes, loading: votesLoading } = useTreasuryVotesQuery({
+    variables: {
+      where: {
+        proposal: proposalId ?? "",
+      },
+    },
+  });
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
+
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -93,6 +112,25 @@ const Proposal = () => {
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
   const proposerId = useEnsData(proposal?.proposer.id);
+
+  const votesContent = useCallback(() => {
+    if (votesLoading) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "$4",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      );
+    }
+    if (!votes?.treasuryVotes?.length) return <Text>No votes yet.</Text>;
+    return <VoteTable proposalId={proposal!.id} />;
+  }, [votesLoading, votes?.treasuryVotes?.length, proposal]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -155,7 +193,9 @@ const Proposal = () => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Treasury</title>
+        <title>
+          {proposal.attributes.title} | Proposal | Livepeer Explorer
+        </title>
       </Head>
       <Container
         css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
@@ -198,7 +238,7 @@ const Proposal = () => {
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 Proposed by{" "}
                 <Link href={`/accounts/${proposal.proposer.id}`}>
-                  {proposerId?.name ?? shortenAddress(proposal.proposer.id)}
+                  {proposerId?.name ?? formatAddress(proposal.proposer.id)}
                 </Link>
               </Text>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
@@ -280,7 +320,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$sky11" }}>
                             For ({formatPercent(proposal.votes.percent.for)})
                           </Box>
                         </Flex>
@@ -297,7 +337,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$tomato11" }}>
                             Against (
                             {formatPercent(proposal.votes.percent.against)})
                           </Box>
@@ -315,7 +355,7 @@ const Proposal = () => {
                         }}
                       >
                         <Flex css={{ alignItems: "center" }}>
-                          <Box>
+                          <Box css={{ color: "$neutral11" }}>
                             Abstain (
                             {formatPercent(proposal.votes.percent.abstain)})
                           </Box>
@@ -458,7 +498,7 @@ const Proposal = () => {
                               size="2"
                             >
                               {width <= 640
-                                ? shortenAddress(action.lptTransfer.receiver)
+                                ? formatAddress(action.lptTransfer.receiver)
                                 : action.lptTransfer.receiver}
                             </Text>
                           </Link>
@@ -516,7 +556,7 @@ const Proposal = () => {
                               size="2"
                             >
                               {action.contract
-                                ? `${action.contract?.name} (${shortenAddress(
+                                ? `${action.contract?.name} (${formatAddress(
                                     action.target
                                   )})`
                                 : action.target}
@@ -614,10 +654,33 @@ const Proposal = () => {
                 </Heading>
                 <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
               </Card>
+
+              <Card
+                id="votes-section"
+                css={{
+                  padding: "$4",
+                  border: "1px solid $neutral4",
+                }}
+              >
+                <Heading
+                  as="h3"
+                  css={{
+                    fontWeight: 700,
+                    fontSize: "$5",
+                    color: "$white",
+                    marginBottom: "$2",
+                  }}
+                >
+                  {votesLoading
+                    ? "Loading votes…"
+                    : `Votes (${votes?.treasuryVotes?.length ?? 0})`}
+                </Heading>
+                {votesContent()}
+              </Card>
             </Box>
           </Flex>
 
-          {width > 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",

@@ -1,0 +1,22 @@
+query voteEvents($where: VoteEvent_filter) {
+  voteEvents(where: $where) {
+    voter
+    poll {
+      id
+      proposal
+      endBlock
+      quorum
+      quota
+    }
+    transaction {
+      id
+      timestamp
+    }
+    choiceID
+    id
+    round {
+      id
+    }
+    timestamp
+  }
+}

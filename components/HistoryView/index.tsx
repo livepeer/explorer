@@ -1,5 +1,9 @@
 import Spinner from "@components/Spinner";
+import { Fm } from "@lib/api/polls";
+import { parseProposalText, Proposal } from "@lib/api/treasury";
+import { VOTING_SUPPORT, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
+import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Card as CardBase,
@@ -8,12 +12,21 @@ import {
   styled,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useTransactionsQuery } from "apollo";
+import {
+  TreasuryVoteEvent,
+  TreasuryVoteSupport,
+  useTransactionsQuery,
+  useTreasuryVoteEventsQuery,
+  useVoteEventsQuery,
+  VoteEvent,
+} from "apollo";
+import fm from "front-matter";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Card = styled(CardBase, {
   length: {},
@@ -26,6 +39,81 @@ const Index = () => {
   const router = useRouter();
   const query = router.query;
   const account = query.account as string;
+
+  const { data: treasureVoteEventsData } = useTreasuryVoteEventsQuery({
+    variables: {
+      where: {
+        voter: account.toLowerCase(),
+      },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+  const [extendedTreasureVoteEventsData, setExtendedTreasureVoteEventsData] =
+    useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
+  useEffect(() => {
+    if (treasureVoteEventsData) {
+      const extendedTreasureVoteEventsData =
+        treasureVoteEventsData?.treasuryVoteEvents.map((treasureVoteEvent) => {
+          const parsed = parseProposalText(
+            treasureVoteEvent.proposal as Proposal
+          );
+          return {
+            ...treasureVoteEvent,
+            attributes: parsed.attributes,
+          };
+        });
+      setExtendedTreasureVoteEventsData(
+        extendedTreasureVoteEventsData as (TreasuryVoteEvent & {
+          attributes: Fm | null;
+        })[]
+      );
+    }
+  }, [treasureVoteEventsData]);
+
+  const { data: voteEventsData } = useVoteEventsQuery({
+    variables: {
+      where: {
+        voter: account.toLowerCase(),
+      },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+  const [extendedVoteEventsData, setExtendedVoteEventsData] = useState<
+    (VoteEvent & { attributes: Fm | null })[]
+  >([]);
+  useEffect(() => {
+    const getExtendedVoteEventsData = async () => {
+      const extendedVoteEventsData = await Promise.all(
+        voteEventsData?.voteEvents.map(async (voteEvent) => {
+          const ipfsObject = await catIpfsJson<IpfsPoll>(
+            voteEvent.poll?.proposal
+          );
+          let attributes: Fm | null = null;
+
+          // only include proposals with valid format
+          if (ipfsObject?.text && ipfsObject?.gitCommitHash) {
+            const transformedProposal = fm<Fm>(ipfsObject.text);
+
+            attributes = {
+              title: String(transformedProposal.attributes.title),
+              lip: String(transformedProposal.attributes.lip),
+              commitHash: String(ipfsObject.gitCommitHash),
+              created: String(transformedProposal.attributes.created),
+              text: String(transformedProposal.body),
+            };
+          }
+          return {
+            ...voteEvent,
+            attributes,
+          };
+        }) || []
+      );
+      setExtendedVoteEventsData(
+        extendedVoteEventsData as (VoteEvent & { attributes: Fm | null })[]
+      );
+    };
+    getExtendedVoteEventsData();
+  }, [voteEventsData]);
 
   const { data, loading, error, fetchMore, stopPolling } = useTransactionsQuery(
     {
@@ -64,11 +152,19 @@ const Index = () => {
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),
+        ...extendedTreasureVoteEventsData,
+        ...extendedVoteEventsData,
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
       ),
-    [events, data, lastEventTimestamp]
+    [
+      events,
+      data,
+      lastEventTimestamp,
+      extendedTreasureVoteEventsData,
+      extendedVoteEventsData,
+    ]
   );
 
   if (error) {
@@ -185,11 +281,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Delegated with{" "}
-                {event.newDelegate.id.replace(
-                  event.newDelegate.id.slice(7, 37),
-                  "…"
-                )}
+                Delegated with {formatAddress(event.newDelegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -208,10 +300,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -271,10 +360,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -312,8 +398,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Redelegated with{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Redelegated with {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -332,10 +417,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -378,8 +460,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Undelegated from{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Undelegated from {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -398,10 +479,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -463,10 +541,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -526,10 +601,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -593,10 +665,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -655,10 +724,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -717,10 +783,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -780,10 +843,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -848,10 +908,7 @@ function renderSwitch(event, i: number) {
                 }}
               >
                 <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
+                  {formatTransactionHash(event.transaction.id)}
                 </Box>
                 <ExternalLinkIcon />
               </Flex>
@@ -866,6 +923,139 @@ function renderSwitch(event, i: number) {
                 })}
               </Box>{" "}
               ETH
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "TreasuryVoteEvent":
+      const supportTreasuryVoteEvent =
+        VOTING_SUPPORT_MAP[event.support] ||
+        VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`https://explorer.livepeer.org/treasury/${event.proposal?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on treasury proposal &quot;{event.attributes?.title}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Flex
+                css={{
+                  alignItems: "center",
+                  marginTop: "$2",
+                  fontSize: "$1",
+                  color: "$neutral11",
+                }}
+                as={A}
+                href={`https://explorer.livepeer.org/treasury/${event.transaction?.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Box css={{ marginRight: "$1" }}>
+                  {formatTransactionHash(event.transaction.id)}
+                </Box>
+                <ExternalLinkIcon />
+              </Flex>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              {" "}
+              <Box
+                as="span"
+                css={{ fontWeight: 600, ...supportTreasuryVoteEvent?.style }}
+              >
+                {supportTreasuryVoteEvent?.text}
+              </Box>{" "}
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "VoteEvent":
+      const supportVoteEvent =
+        VOTING_SUPPORT[event.choiceID] || VOTING_SUPPORT["2"];
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`https://explorer.livepeer.org/voting/${event.poll?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on poll &quot;{event.attributes?.title}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Flex
+                css={{
+                  alignItems: "center",
+                  marginTop: "$2",
+                  fontSize: "$1",
+                  color: "$neutral11",
+                }}
+                as={A}
+                href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Box css={{ marginRight: "$1" }}>
+                  {formatTransactionHash(event.transaction.id)}
+                </Box>
+                <ExternalLinkIcon />
+              </Flex>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              {" "}
+              <Box
+                as="span"
+                css={{ fontWeight: 600, ...supportVoteEvent?.style }}
+              >
+                {supportVoteEvent?.text}
+              </Box>{" "}
             </Box>
           </Flex>
         </Card>
