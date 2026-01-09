@@ -12,6 +12,7 @@ import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useState } from "react";
+import { useSWRConfig } from "swr";
 import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
@@ -60,11 +61,17 @@ const Undelegate = ({
     wasDeactivated: willDeactivate,
   });
 
+  const { mutate } = useSWRConfig();
   const handleUndelegate = () => {
     if (willDeactivate) {
       setShowConfirmDialog(true);
     } else if (config) {
       writeContract(config.request);
+      if (accountAddress) {
+        setTimeout(() => {
+          mutate(`/api/ssr/account/${accountAddress.toLowerCase()}`);
+        }, 15000);
+      }
     }
   };
 
