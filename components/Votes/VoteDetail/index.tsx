@@ -1,19 +1,25 @@
 "use client";
 
-import { Vote, VOTING_SUPPORT } from "@lib/api/types/votes";
+import { parseProposalText } from "@lib/api/treasury";
+import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { formatAddress, formatLpt, formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Flex, Heading, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { TreasuryVoteEvent, TreasuryVoteSupport } from "apollo";
 import React from "react";
 
 interface VoteDetailItemProps {
-  vote: Vote;
+  vote: TreasuryVoteEvent;
 }
 
 const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
-  const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
+  const support =
+    VOTING_SUPPORT_MAP[vote.support] ||
+    VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
   const hasReason =
     vote.reason && vote.reason.toLowerCase() !== "no reason provided";
+
+  const title = parseProposalText(vote.proposal).attributes.title;
 
   return (
     <Box
@@ -74,7 +80,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                 css={{ fontSize: "$2", marginBottom: "$1", color: "$white" }}
               >
                 <Link
-                  href={`https://explorer.livepeer.org/treasury/${vote.proposalId}`}
+                  href={`https://explorer.livepeer.org/treasury/${vote.proposal.id}`}
                   target="_blank"
                   css={{
                     color: "$green11",
@@ -87,7 +93,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                     },
                   }}
                 >
-                  {vote.proposalTitle}
+                  {title}
                 </Link>
               </Heading>
               <Text
@@ -98,7 +104,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                   marginBottom: "$2",
                 }}
               >
-                ID: {formatAddress(vote.proposalId)}
+                ID: {formatAddress(vote.proposal.id)}
               </Text>
 
               {hasReason && (
@@ -144,9 +150,9 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                 {formatLpt(vote.weight)}
               </Text>
 
-              {vote.transactionHash && (
+              {vote.transaction.id && (
                 <Link
-                  href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
+                  href={`https://arbiscan.io/tx/${vote.transaction.id}#eventlog`}
                   target="_blank"
                   css={{
                     display: "inline-flex",
@@ -163,7 +169,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                     },
                   }}
                 >
-                  {formatTransactionHash(vote.transactionHash)}
+                  {formatTransactionHash(vote.transaction.id)}
                   <Box as={ArrowTopRightIcon} css={{ width: 12, height: 12 }} />
                 </Link>
               )}
