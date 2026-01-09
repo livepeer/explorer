@@ -11,6 +11,10 @@ export interface BaseTooltipProps {
   sideOffset?: number;
   open?: boolean;
   defaultOpen?: boolean;
+  /**
+   * Callback when tooltip open state changes.
+   * For optimal performance, memoize this function with useCallback.
+   */
   onOpenChange?: (open: boolean) => void;
 }
 

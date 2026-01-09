@@ -39,6 +39,13 @@ export function MobileTooltip({
 }: MobileTooltipProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen ?? false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  // Ref to preserve onOpenChange reference value and protect against unstable references
+  const onOpenChangeRef = useRef(onOpenChange);
+
+  // Keep ref updated with latest callback without causing re-renders
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  }, [onOpenChange]);
 
   // Sync internal state with controlled prop
   useEffect(() => {
@@ -68,7 +75,7 @@ export function MobileTooltip({
       // If user moved their finger significantly, close the tooltip
       if (deltaX > threshold || deltaY > threshold) {
         setIsOpen(false);
-        onOpenChange?.(false);
+        onOpenChangeRef.current?.(false);
         touchStartRef.current = null;
       }
     };
@@ -89,11 +96,11 @@ export function MobileTooltip({
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [isOpen, onOpenChange]);
+  }, [isOpen]);
 
   const handleOpenChange = (newOpen: boolean) => {
     setIsOpen(newOpen);
-    onOpenChange?.(newOpen);
+    onOpenChangeRef.current?.(newOpen);
   };
 
   return (
@@ -109,7 +116,7 @@ export function MobileTooltip({
         >
           <Text
             size="1"
-            as="p"
+            as="div"
             css={{
               fontSize: "$2",
               textTransform: "none",

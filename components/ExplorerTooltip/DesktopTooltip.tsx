@@ -44,7 +44,7 @@ export function DesktopTooltip({
       <Content side="top" align="center" sideOffset={5} multiline {...props}>
         <Text
           size="1"
-          as="p"
+          as="div"
           css={{
             fontSize: "$2",
             textTransform: "none",
