@@ -4,19 +4,14 @@ import ErrorComponent from "@components/Error";
 import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
-import OrchestratorVotingList, {
-  VoterSummary,
-} from "@components/OrchestratorVotingList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
-import { getLayout } from "@layouts/main";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { OrchestratorTabs } from "@lib/orchestrator";
 import {
   Box,
   Button,
@@ -26,12 +21,9 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
-import { CUBE_TYPE, getCubeData } from "cube/cube-client";
-import { getOrchestratorsVotingHistory } from "cube/query-generator";
 import { useChartData } from "hooks";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
@@ -91,43 +83,53 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     [usageGrouping, chartData]
   );
 
+  const getDaySeries = useCallback(
+    (
+      grouping: Group,
+      accessor: (day: NonNullable<HomeChartData["dayData"]>[number]) => number
+    ) =>
+      chartData?.dayData?.slice(grouping === "year" ? -365 : 1).map((day) => ({
+        x: Number(day.dateS),
+        y: accessor(day),
+      })) ?? [],
+    [chartData]
+  );
+
+  const [participationGrouping, setParticipationGrouping] =
+    useState<Group>("year");
   const participationRateData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day.participationRate),
-      })) ?? [],
-    [chartData]
+      getDaySeries(participationGrouping, (day) =>
+        Number(day.participationRate)
+      ),
+    [getDaySeries, participationGrouping]
   );
 
-  const [inflationGrouping, setInflationGrouping] = useState<Group>("all");
+  const [inflationGrouping, setInflationGrouping] = useState<Group>("year");
   const inflationRateData = useMemo(
     () =>
-      chartData?.dayData
-        ?.slice(inflationGrouping === "year" ? -365 : 1)
-        .map((day) => ({
-          x: Number(day.dateS),
-          y: Number(day?.inflation ?? 0) / 1000000000,
-        })) ?? [],
-    [chartData, inflationGrouping]
+      getDaySeries(
+        inflationGrouping,
+        (day) => Number(day?.inflation ?? 0) / 1000000000
+      ),
+    [getDaySeries, inflationGrouping]
   );
 
+  const [delegatorsGrouping, setDelegatorsGrouping] = useState<Group>("year");
   const delegatorsCountData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day.delegatorsCount),
-      })) ?? [],
-    [chartData]
+      getDaySeries(delegatorsGrouping, (day) => Number(day.delegatorsCount)),
+    [getDaySeries, delegatorsGrouping]
   );
 
+  const [orchestratorsGrouping, setOrchestratorsGrouping] =
+    useState<Group>("year");
   const activeTranscoderCountData = useMemo(
     () =>
-      chartData?.dayData?.slice(1)?.map((day) => ({
-        x: Number(day.dateS),
-        y: Number(day.activeTranscoderCount),
-      })) ?? [],
-    [chartData]
+      getDaySeries(orchestratorsGrouping, (day) =>
+        Number(day.activeTranscoderCount)
+      ),
+    [getDaySeries, orchestratorsGrouping]
   );
 
   return (
@@ -168,6 +170,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Participation Rate"
           unit="percent"
           type="line"
+          grouping={participationGrouping}
+          onToggleGrouping={setParticipationGrouping}
         />
       </Panel>
       <Panel>
@@ -184,63 +188,31 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         />
       </Panel>
       <Panel>
-        {/* // TODO: Remove when we finished our investigation. */}
-        <Flex css={{ position: "relative", width: "100%", height: "100%" }}>
-          <Box
-            css={{
-              width: "100%",
-              height: "100%",
-              opacity: 0.45,
-              filter: "grayscale(1)",
-              pointerEvents: "none",
-            }}
-          >
-            <ExplorerChart
-              tooltip={`The ${
-                usageGrouping === "day" ? "daily" : "weekly"
-              } usage of the network in minutes.`}
-              data={
-                usageGrouping === "week"
-                  ? usageData.slice(-26)
-                  : usageData.slice(-183)
-              }
-              base={Number(
-                (usageGrouping === "day"
-                  ? chartData?.oneDayUsage
-                  : chartData?.oneWeekUsage) ?? 0
-              )}
-              basePercentChange={Number(
-                (usageGrouping === "day"
-                  ? chartData?.dailyUsageChange
-                  : chartData?.weeklyUsageChange) ?? 0
-              )}
-              title={`Estimated Usage ${
-                usageGrouping === "day" ? "(1d)" : "(7d)"
-              }`}
-              unit="minutes"
-              type="bar"
-              grouping={usageGrouping}
-              onToggleGrouping={setUsageGrouping}
-            />
-          </Box>
-          <Box
-            css={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              padding: "$4",
-              fontSize: "$1",
-              fontWeight: 500,
-              pointerEvents: "none",
-              maxWidth: 260,
-            }}
-          >
-            Data temporarily unavailable while we check the data source.
-          </Box>
-        </Flex>
+        <ExplorerChart
+          tooltip={`The ${
+            usageGrouping === "day" ? "daily" : "weekly"
+          } usage of the network in minutes.`}
+          data={
+            usageGrouping === "week"
+              ? usageData.slice(-26)
+              : usageData.slice(-183)
+          }
+          base={Number(
+            (usageGrouping === "day"
+              ? chartData?.oneDayUsage
+              : chartData?.oneWeekUsage) ?? 0
+          )}
+          basePercentChange={Number(
+            (usageGrouping === "day"
+              ? chartData?.dailyUsageChange
+              : chartData?.weeklyUsageChange) ?? 0
+          )}
+          title={`Estimated Usage ${usageGrouping === "day" ? "(1d)" : "(7d)"}`}
+          unit="minutes"
+          type="bar"
+          grouping={usageGrouping}
+          onToggleGrouping={setUsageGrouping}
+        />
       </Panel>
       <Panel>
         <ExplorerChart
@@ -251,6 +223,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Delegators"
           unit="small-unitless"
           type="line"
+          grouping={delegatorsGrouping}
+          onToggleGrouping={setDelegatorsGrouping}
         />
       </Panel>
       <Panel>
@@ -264,6 +238,8 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           title="Orchestrators"
           unit="none"
           type="line"
+          grouping={orchestratorsGrouping}
+          onToggleGrouping={setOrchestratorsGrouping}
         />
       </Panel>
     </>
@@ -276,16 +252,9 @@ type PageProps = {
   events: EventsQueryResult["data"] | null;
   protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
-  initialVoterData?: VoterSummary[];
 };
 
-const Home = ({
-  hadError,
-  orchestrators,
-  events,
-  protocol,
-  initialVoterData,
-}: PageProps) => {
+const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -428,95 +397,6 @@ const Home = ({
               </Flex>
             </Flex>
 
-            <Tabs defaultValue={OrchestratorTabs["Yield Overview"]}>
-              {({ selectedIndex, focusedIndex }) => {
-                const getTabStyle = (index) => ({
-                  borderBottom: `4px solid ${
-                    selectedIndex === index
-                      ? "#6ec08d"
-                      : focusedIndex === index
-                      ? "#141716"
-                      : "#141716"
-                  }`,
-                  backgroundColor: "#141716",
-                  borderWidth: 0,
-                  borderBottomWidth: 1,
-                  paddingBottom: 12,
-                });
-                return (
-                  <>
-                    <TabList>
-                      <Tab style={getTabStyle(0)}>Yield Overview</Tab>
-                      <Tab style={getTabStyle(1)}>Voting History</Tab>
-                    </TabList>
-                    <TabPanels>
-                      <TabPanel>
-                        <Box>
-                          <OrchestratorList
-                            data={orchestrators?.transcoders}
-                            pageSize={20}
-                            protocolData={protocol?.protocol}
-                          />
-                        </Box>
-                      </TabPanel>
-                      <TabPanel>
-                        <Box>
-                          <OrchestratorVotingList
-                            initialVoterData={initialVoterData}
-                            pageSize={20}
-                          />
-                        </Box>
-                      </TabPanel>
-                    </TabPanels>
-                  </>
-                );
-              }}
-            </Tabs>
-
-            {/* <Tabs
-              defaultValue={OrchestratorTabs["Yield Overview"]}
-              css={{ mb: "$5" }}
-            >
-              <TabsList>
-                <TabsTrigger
-                  css={{
-                    height: 40,
-                  }}
-                  value={OrchestratorTabs["Yield Overview"]}
-                >
-                  <Text size="3">Yield Overview</Text>
-                </TabsTrigger>
-                <TabsTrigger
-                  css={{
-                    height: 40,
-                  }}
-                  value={OrchestratorTabs["Voting History"]}
-                >
-                  <Text size="3">Voting History</Text>
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value={OrchestratorTabs["Yield Overview"]}>
-                {!orchestrators?.transcoders || !protocol?.protocol ? (
-                  <Flex align="center" justify="center">
-                    <Spinner />
-                  </Flex>
-                ) : (
-                  <Box>
-                    <OrchestratorList
-                      data={orchestrators?.transcoders}
-                      pageSize={10}
-                      protocolData={protocol?.protocol}
-                    />
-                  </Box>
-                )}
-              </TabsContent>
-              <TabsContent value={OrchestratorTabs["Voting History"]}>
-                <Box>
-                  <OrchestratorVotingList initialVoterData={initialVoterData} pageSize={10}/>
-                </Box>
-              </TabsContent>
-            </Tabs> */}
-
             {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
@@ -598,21 +478,6 @@ export const getStaticProps = async () => {
     const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
 
-    const query = getOrchestratorsVotingHistory();
-    // @ts-expect-error - query is a string
-    const response = await getCubeData(query, { type: CUBE_TYPE.SERVER });
-
-    // Log the response to check the structure of the data
-    if (!response) {
-      return {
-        props: {
-          initialVoterData: [],
-        },
-      };
-    }
-
-    const voterSummaries = getVoterSummaries(response);
-
     if (!orchestrators.data || !events.data || !protocol.data) {
       return {
         props: errorProps,
@@ -625,7 +490,6 @@ export const getStaticProps = async () => {
       orchestrators: orchestrators.data,
       events: events.data,
       protocol: protocol.data,
-      initialVoterData: voterSummaries,
       fallback: {},
     };
 
@@ -641,76 +505,5 @@ export const getStaticProps = async () => {
     };
   }
 };
-
-type VoteProposal = {
-  "LivepeerVoteProposals.date": string;
-  "LivepeerVoteProposals.voter": string;
-  "LivepeerVoteProposals.eventTxnsHash": string;
-  "LivepeerVoteProposals.voteType": string;
-  "LivepeerVoteProposals.count": string;
-  "LivepeerVoteProposals.numOfProposals": string;
-  "LivepeerVoteProposals.numOfVoteCasted": string;
-};
-
-// Function to get unique voter IDs
-const getUniqueVoters = (data: VoteProposal[]): string[] => {
-  const voterSet = new Set(
-    data.map((proposal) => proposal["LivepeerVoteProposals.voter"])
-  );
-  return Array.from(voterSet);
-};
-
-// Function to group data by voter
-const groupByVoter = (
-  data: VoteProposal[],
-  voterId: string
-): VoteProposal[] => {
-  return data.filter(
-    (proposal) => proposal["LivepeerVoteProposals.voter"] === voterId
-  );
-};
-
-// Function to process vote proposals and generate voter summary
-const processVoteProposals = (proposals: VoteProposal[]): VoterSummary => {
-  const sortedVotes = proposals.sort(
-    (a, b) =>
-      new Date(b["LivepeerVoteProposals.date"]).getTime() -
-      new Date(a["LivepeerVoteProposals.date"]).getTime()
-  );
-
-  const mostRecentVotes = sortedVotes
-    .slice(0, 5)
-    .map((vote) => vote["LivepeerVoteProposals.voteType"] || null);
-
-  const noOfProposalsVotedOn = Number(
-    proposals[0]["LivepeerVoteProposals.numOfProposals"] || 0
-  );
-  const noOfVotesCasted = Number(
-    proposals[0]["LivepeerVoteProposals.numOfVoteCasted"] || 0
-  );
-
-  const votingTurnout = noOfProposalsVotedOn
-    ? noOfVotesCasted / noOfProposalsVotedOn
-    : 0;
-
-  return {
-    id: proposals[0]["LivepeerVoteProposals.voter"],
-    noOfProposalsVotedOn,
-    noOfVotesCasted,
-    mostRecentVotes,
-    votingTurnout,
-  };
-};
-
-// Function to get voter summaries for all unique voters
-const getVoterSummaries = (data: VoteProposal[]): VoterSummary[] => {
-  const uniqueVoters = getUniqueVoters(data);
-  return uniqueVoters.map((voterId) => {
-    const groupedProposals = groupByVoter(data, voterId);
-    return processVoteProposals(groupedProposals);
-  });
-};
-
-Home.getLayout = getLayout;
 
 export default Home;
