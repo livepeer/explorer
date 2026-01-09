@@ -1,4 +1,5 @@
 import BottomDrawer from "@components/BottomDrawer";
+import BroadcastingView from "@components/BroadcastingView";
 import DelegatingView from "@components/DelegatingView";
 import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
@@ -43,9 +44,14 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history";
+type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS: TabTypeEnum[] = [
+  "delegating",
+  "orchestrating",
+  "broadcasting",
+  "history",
+];
 
 const AccountLayout = () => {
   /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
@@ -140,6 +146,7 @@ const AccountLayout = () => {
     [accountAddress, accountId]
   );
   const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
+  const isGateway = useMemo(() => Boolean(account?.gateway), [account]);
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
     [accountId, dataMyAccount]
@@ -158,9 +165,20 @@ const AccountLayout = () => {
         isOrchestrator,
         accountId ?? "",
         view ?? "delegating",
-        isMyDelegate
+        isMyDelegate,
+        isGateway,
+        isMyAccount,
+        Boolean(account?.delegator)
       ),
-    [isOrchestrator, accountId, view, isMyDelegate]
+    [
+      isOrchestrator,
+      accountId,
+      view,
+      isMyDelegate,
+      isGateway,
+      isMyAccount,
+      account?.delegator,
+    ]
   );
 
   useEffect(() => {
@@ -372,6 +390,9 @@ const AccountLayout = () => {
             />
           )}
           {view === "history" && <HistoryView />}
+          {view === "broadcasting" && (
+            <BroadcastingView gateway={account?.gateway} />
+          )}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
@@ -432,27 +453,38 @@ function getTabs(
   isOrchestrator: boolean,
   account: string,
   view: TabTypeEnum,
-  isMyDelegate: boolean
+  isMyDelegate: boolean,
+  isGateway: boolean,
+  isMyAccount: boolean,
+  hasDelegator: boolean
 ): Array<TabType> {
-  const tabs: Array<TabType> = [
-    {
-      name: "Delegating",
-      href: `/accounts/${account}/delegating`,
-      isActive: view === "delegating",
-    },
-    {
-      name: "History",
-      href: `/accounts/${account}/history`,
-      isActive: view === "history",
-    },
-  ];
+  const tabs: Array<TabType> = [];
   if (isOrchestrator || isMyDelegate) {
-    tabs.unshift({
+    tabs.push({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
       isActive: view === "orchestrating",
     });
   }
+  if (isGateway) {
+    tabs.push({
+      name: "Broadcasting",
+      href: `/accounts/${account}/broadcasting`,
+      isActive: view === "broadcasting",
+    });
+  }
+  if (isMyAccount || hasDelegator) {
+    tabs.push({
+      name: "Delegating",
+      href: `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
+    });
+  }
+  tabs.push({
+    name: "History",
+    href: `/accounts/${account}/history`,
+    isActive: view === "history",
+  });
 
   return tabs;
 }
