@@ -5,7 +5,6 @@ import HistoryView from "@components/HistoryView";
 import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
 import Spinner from "@components/Spinner";
-import VotingHistoryView from "@components/VotingHistoryView";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
@@ -44,18 +43,9 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum =
-  | "delegating"
-  | "orchestrating"
-  | "history"
-  | "voting-history";
+type TabTypeEnum = "delegating" | "orchestrating" | "history";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = [
-  "delegating",
-  "orchestrating",
-  "history",
-  "voting-history",
-];
+const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
 
 const AccountLayout = () => {
   /* PART OF https://github.com/livepeer/explorer/pull/427 - TODO: REMOVE ONCE SERVER-SIDE ISSUE IS FIXED */
@@ -384,7 +374,6 @@ const AccountLayout = () => {
             />
           )}
           {view === "history" && <HistoryView />}
-          {view === "voting-history" && <VotingHistoryView />}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width > 1020 ? (
@@ -457,11 +446,6 @@ function getTabs(
       name: "History",
       href: `/accounts/${account}/history`,
       isActive: view === "history",
-    },
-    {
-      name: "Voting History",
-      href: `/accounts/${account}/voting_history`,
-      isActive: view === "voting-history",
     },
   ];
   if (isOrchestrator || isMyDelegate) {
