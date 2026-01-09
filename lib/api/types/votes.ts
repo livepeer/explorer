@@ -5,19 +5,6 @@ import {
 } from "@radix-ui/react-icons";
 import { TreasuryVoteSupport } from "apollo";
 
-export interface Vote {
-  transactionHash: string;
-  voter: string;
-  choiceID: string;
-  proposalId: string;
-  weight: string;
-  reason?: string;
-  ensName?: string;
-  endVote?: number;
-  description?: string;
-  proposalTitle?: string;
-}
-
 export const VOTING_SUPPORT = {
   "0": {
     text: "Against",

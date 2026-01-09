@@ -3,9 +3,13 @@
 import Spinner from "@components/Spinner";
 import { Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
+import {
+  TreasuryVoteEvent,
+  TreasuryVoteSupport,
+  useTreasuryVoteEventsQuery,
+} from "apollo";
 import React from "react";
 
-import { useInfuraVoterVotes } from "../../../hooks/TreasuryVotes/useInfuraVoterVotes";
 import VoteDetail from "../VoteDetail";
 import VoteModal from "../VoteModal";
 
@@ -16,15 +20,27 @@ interface VoterPopoverProps {
 }
 
 const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
-  const { votes, isLoading } = useInfuraVoterVotes(voter);
+  const { data: votesData, loading: isLoading } = useTreasuryVoteEventsQuery({
+    variables: {
+      where: {
+        voter: voter,
+      },
+    },
+  });
+
+  const votes = React.useMemo(() => {
+    return votesData?.treasuryVoteEvents ?? [];
+  }, [votesData]);
 
   const stats = React.useMemo(() => {
     if (!votes.length) return null;
     return {
       total: votes.length,
-      for: votes.filter((v) => v.choiceID === "1").length,
-      against: votes.filter((v) => v.choiceID === "0").length,
-      abstain: votes.filter((v) => v.choiceID === "2").length,
+      for: votes.filter((v) => v.support === TreasuryVoteSupport.For).length,
+      against: votes.filter((v) => v.support === TreasuryVoteSupport.Against)
+        .length,
+      abstain: votes.filter((v) => v.support === TreasuryVoteSupport.Abstain)
+        .length,
     };
   }, [votes]);
 
@@ -134,10 +150,10 @@ const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
         >
           {votes.map((vote, idx) => (
             <Box
-              key={vote.transactionHash ?? idx}
+              key={vote.transaction.id ?? idx}
               css={{ position: "relative" }}
             >
-              <VoteDetail vote={vote} />
+              <VoteDetail vote={vote as TreasuryVoteEvent} />
             </Box>
           ))}
         </Box>

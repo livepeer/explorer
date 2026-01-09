@@ -23,7 +23,11 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
+import {
+  useProtocolQuery,
+  useTreasuryProposalQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { sentenceCase } from "change-case";
 import { BigNumber } from "ethers";
 import Head from "next/head";
@@ -42,7 +46,6 @@ import {
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
-import { useFetchVotes } from "../../hooks/TreasuryVotes/useFetchVotes";
 import FourZeroFour from "../404";
 
 const formatPercent = (percent: number) =>
@@ -83,7 +86,14 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
-  const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
+  // const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
+  const { data: votes, loading: votesLoading } = useTreasuryVotesQuery({
+    variables: {
+      where: {
+        proposal: proposalId ?? "",
+      },
+    },
+  });
 
   useEffect(() => {
     setIsDesktop(width >= 768);
@@ -118,9 +128,9 @@ const Proposal = () => {
         </Flex>
       );
     }
-    if (votes.length === 0) return <Text>No votes yet.</Text>;
+    if (!votes?.treasuryVotes?.length) return <Text>No votes yet.</Text>;
     return <VoteTable proposalId={proposal!.id} />;
-  }, [votesLoading, votes.length, proposal]);
+  }, [votesLoading, votes?.treasuryVotes?.length, proposal]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -661,7 +671,9 @@ const Proposal = () => {
                     marginBottom: "$2",
                   }}
                 >
-                  {votesLoading ? "Loading votes…" : `Votes (${votes.length})`}
+                  {votesLoading
+                    ? "Loading votes…"
+                    : `Votes (${votes?.treasuryVotes?.length ?? 0})`}
                 </Heading>
                 {votesContent()}
               </Card>
