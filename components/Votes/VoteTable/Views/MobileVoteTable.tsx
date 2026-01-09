@@ -26,7 +26,8 @@ export const MobileVoteCards: React.FC<VoteTableProps> = (props) => {
           marginBottom: "$3",
         }}
       >
-        Click on a vote to view a voter&apos;s proposal voting history.
+        View a voter&apos;s proposal voting history by clicking the history
+        icon.
       </Text>
 
       {votes.map((vote) => {

@@ -14,9 +14,22 @@ export interface Vote {
 }
 
 export const VOTING_SUPPORT = {
-  "0": { text: "Against", style: { color: "$tomato11", fontWeight: 600 } },
-  "1": { text: "For", style: { color: "$grass11", fontWeight: 600 } },
-  "2": { text: "Abstain", style: { color: "$neutral11", fontWeight: 600 } },
+  "0": {
+    text: "Against",
+    style: { color: "$tomato11", backgroundColor: "$tomato3", fontWeight: 600 },
+  },
+  "1": {
+    text: "For",
+    style: { color: "$grass11", backgroundColor: "$grass3", fontWeight: 600 },
+  },
+  "2": {
+    text: "Abstain",
+    style: {
+      color: "$neutral11",
+      backgroundColor: "$neutral3",
+      fontWeight: 600,
+    },
+  },
 } as const;
 
 export const VOTING_SUPPORT_MAP = {

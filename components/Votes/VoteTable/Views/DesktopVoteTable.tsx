@@ -41,19 +41,32 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         Cell: ({ row }) => (
           <Box css={{ minWidth: 120 }}>
             <Link
-              href={`https://explorer.livepeer.org/accounts/${row.original.voter}/delegating`}
+              href={`https://explorer.livepeer.org/accounts/${row.original.voter.id}/delegating`}
               target="_blank"
               css={{
-                color: "$primary11",
+                color: "$hiContrast",
                 textDecoration: "none",
-                "&:hover": { textDecoration: "underline" },
+                display: "inline-block",
+                padding: "2px 8px",
+                margin: "-2px -8px",
+                borderRadius: "6px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "$neutral3",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "4px",
+                },
+                "&:focus-visible": {
+                  outline: "2px solid $primary11",
+                  outlineOffset: "2px",
+                },
               }}
               onClick={(e) => e.stopPropagation()}
             >
               <Text
                 css={{
                   fontWeight: 600,
-                  color: "$primary11",
+                  color: "inherit",
                   whiteSpace: "nowrap",
                 }}
                 size="2"
@@ -72,17 +85,23 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
           const support =
             VOTING_SUPPORT_MAP[row.original.support] ||
             VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
+
           return (
             <Box css={{ minWidth: 80 }}>
-              <Text
+              <Badge
+                size="1"
                 css={{
-                  whiteSpace: "nowrap",
-                  ...support.style,
+                  backgroundColor: support.style.backgroundColor,
+                  color: support.style.color,
+                  fontWeight: support.style.fontWeight,
+                  border: "none",
+                  width: "72px",
+                  display: "inline-flex",
+                  justifyContent: "center",
                 }}
-                size="2"
               >
                 {support.text}
-              </Text>
+              </Badge>
             </Box>
           );
         },
@@ -145,14 +164,34 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 onClickCapture={(e) => e.stopPropagation()}
                 css={{
                   display: "inline-block",
-                  transition: "transform 0.2s ease",
-                  "&:hover": { transform: "scale(1.1)" },
+                  "&:hover .arrow-icon": {
+                    transform: "translate(2px, -2px)",
+                  },
                 }}
               >
-                <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+                <Badge
+                  css={{
+                    cursor: "pointer",
+                    backgroundColor: "$neutral3",
+                    color: "$neutral11",
+                    border: "1px solid $neutral4",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: "$neutral8",
+                      backgroundColor: "$neutral4",
+                    },
+                  }}
+                  size="1"
+                >
                   {formatTransactionHash(row.original.transactionHash)}
                   <Box
-                    css={{ marginLeft: "$1", width: 14, height: 14 }}
+                    className="arrow-icon"
+                    css={{
+                      marginLeft: "$1",
+                      width: 14,
+                      height: 14,
+                      transition: "transform 0.2s ease",
+                    }}
                     as={ArrowTopRightIcon}
                   />
                 </Badge>
@@ -176,7 +215,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect({
-                    address: row.original.voter.delegate?.id ?? "",
+                    address: row.original.voter.id,
                     ensName: row.original.ensName,
                   });
                 }}

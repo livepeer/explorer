@@ -70,21 +70,26 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
     >
       <Flex css={{ justifyContent: "space-between", alignItems: "flex-start" }}>
         <Box>
-          <Heading
-            as="h4"
-            css={{ fontSize: "$2", marginBottom: "$1", color: "$primary11" }}
-          >
+          <Heading as="h4" css={{ fontSize: "$2", marginBottom: "$1" }}>
             <Link
-              href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
+              href={`https://explorer.livepeer.org/accounts/${vote.voter.id}/delegating`}
               target="_blank"
               css={{
-                color: "$primary11",
+                color: "$hiContrast",
                 textDecoration: "none",
-                "&:hover": { textDecoration: "underline" },
+                display: "inline-block",
+                padding: "2px 8px",
+                margin: "-2px -8px",
+                borderRadius: "6px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "$neutral4",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "4px",
+                },
                 "&:focus-visible": {
                   outline: "2px solid $primary11",
                   outlineOffset: "2px",
-                  borderRadius: "2px",
                 },
               }}
               onClick={(e) => e.stopPropagation()}
@@ -102,8 +107,10 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
         <Badge
           size="1"
           css={{
+            backgroundColor: support.style.backgroundColor,
             color: support.style.color,
             fontWeight: support.style.fontWeight,
+            border: "none",
           }}
         >
           {support.text}
@@ -135,8 +142,9 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               onClickCapture={(e) => e.stopPropagation()}
               css={{
                 display: "inline-block",
-                transition: "transform 0.2s ease",
-                "&:hover": { transform: "scale(1.1)" },
+                "&:hover .arrow-icon": {
+                  transform: "translate(2px, -2px)",
+                },
                 "&:focus-visible": {
                   outline: "2px solid $primary11",
                   outlineOffset: "2px",
@@ -144,10 +152,29 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 },
               }}
             >
-              <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+              <Badge
+                css={{
+                  cursor: "pointer",
+                  backgroundColor: "$neutral3",
+                  color: "$neutral11",
+                  border: "1px solid $neutral4",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    borderColor: "$neutral8",
+                    backgroundColor: "$neutral4",
+                  },
+                }}
+                size="1"
+              >
                 {formatTransactionHash(vote.transactionHash)}
                 <Box
-                  css={{ marginLeft: "$1", width: 14, height: 14 }}
+                  className="arrow-icon"
+                  css={{
+                    marginLeft: "$1",
+                    width: 14,
+                    height: 14,
+                    transition: "transform 0.2s ease",
+                  }}
                   as={ArrowTopRightIcon}
                 />
               </Badge>
@@ -197,6 +224,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
+
   return (
     <Box
       key={vote.transactionHash || vote.voter.id}
@@ -212,21 +240,28 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
         as="td"
         css={{
           textAlign: "left",
-          color: "$primary11",
           borderBottom: "1px solid $neutral5",
         }}
       >
         <Link
-          href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
+          href={`https://explorer.livepeer.org/accounts/${vote.voter.id}/delegating`}
           target="_blank"
           css={{
-            color: "$primary11",
+            color: "$hiContrast",
             textDecoration: "none",
-            "&:hover": { textDecoration: "underline" },
+            display: "inline-block",
+            padding: "2px 8px",
+            margin: "-2px -8px",
+            borderRadius: "6px",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              backgroundColor: "$neutral4",
+              textDecoration: "underline",
+              textUnderlineOffset: "4px",
+            },
             "&:focus-visible": {
               outline: "2px solid $primary11",
               outlineOffset: "2px",
-              borderRadius: "2px",
             },
           }}
           onClick={(e) => e.stopPropagation()}
@@ -234,7 +269,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           <Text
             css={{
               fontWeight: 600,
-              color: "$primary11",
+              color: "inherit",
               whiteSpace: "nowrap",
             }}
             size="2"
@@ -250,15 +285,20 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           borderBottom: "1px solid $neutral5",
         }}
       >
-        <Text
+        <Badge
+          size="1"
           css={{
-            whiteSpace: "nowrap",
-            ...support.style,
+            backgroundColor: support.style.backgroundColor,
+            color: support.style.color,
+            fontWeight: support.style.fontWeight,
+            border: "none",
+            width: "72px",
+            display: "inline-flex",
+            justifyContent: "center",
           }}
-          size="2"
         >
           {support.text}
-        </Text>
+        </Badge>
       </Box>
       <Box
         as="td"
@@ -315,8 +355,9 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             onClickCapture={(e) => e.stopPropagation()}
             css={{
               display: "inline-block",
-              transition: "transform 0.2s ease",
-              "&:hover": { transform: "scale(1.1)" },
+              "&:hover .arrow-icon": {
+                transform: "translate(2px, -2px)",
+              },
               "&:focus-visible": {
                 outline: "2px solid $primary11",
                 outlineOffset: "2px",
@@ -324,10 +365,29 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               },
             }}
           >
-            <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
+            <Badge
+              css={{
+                cursor: "pointer",
+                backgroundColor: "$neutral3",
+                color: "$neutral11",
+                border: "1px solid $neutral4",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  borderColor: "$neutral8",
+                  backgroundColor: "$neutral4",
+                },
+              }}
+              size="1"
+            >
               {formatTransactionHash(vote.transactionHash)}
               <Box
-                css={{ marginLeft: "$1", width: 14, height: 14 }}
+                className="arrow-icon"
+                css={{
+                  marginLeft: "$1",
+                  width: 14,
+                  height: 14,
+                  transition: "transform 0.2s ease",
+                }}
                 as={ArrowTopRightIcon}
               />
             </Badge>
