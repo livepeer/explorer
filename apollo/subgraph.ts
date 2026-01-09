@@ -9644,6 +9644,16 @@ export type TransactionsQueryVariables = Exact<{
 
 export type TransactionsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MigrateDelegatorFinalizedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'NewRoundEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ParameterUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PollCreatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardEvent', rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ServiceURIUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'SetCurrentRewardTokensEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'StakeClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderActivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderDeactivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderEvictedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderResignedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TransferBondEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TreasuryVoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'VoteEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawFeesEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawStakeEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawalEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> | null }>, winningTicketRedeemedEvents: Array<{ __typename: 'WinningTicketRedeemedEvent', id: string, faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
 
+export type TranscoderActivatedEventsQueryVariables = Exact<{
+  where?: InputMaybe<TranscoderActivatedEvent_Filter>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TranscoderActivatedEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
+
+
+export type TranscoderActivatedEventsQuery = { __typename: 'Query', transcoderActivatedEvents: Array<{ __typename: 'TranscoderActivatedEvent', activationRound: string, id: string }> };
+
 export type TreasuryProposalQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -9651,7 +9661,11 @@ export type TreasuryProposalQueryVariables = Exact<{
 
 export type TreasuryProposalQuery = { __typename: 'Query', treasuryProposal?: { __typename: 'TreasuryProposal', id: string, description: string, calldatas: Array<any>, targets: Array<string>, values: Array<string>, voteEnd: string, voteStart: string, proposer: { __typename: 'LivepeerAccount', id: string } } | null };
 
-export type TreasuryProposalsQueryVariables = Exact<{ [key: string]: never; }>;
+export type TreasuryProposalsQueryVariables = Exact<{
+  where?: InputMaybe<TreasuryProposal_Filter>;
+  orderBy?: InputMaybe<TreasuryProposal_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
 
 
 export type TreasuryProposalsQuery = { __typename: 'Query', treasuryProposals: Array<{ __typename: 'TreasuryProposal', id: string, description: string, calldatas: Array<any>, targets: Array<string>, values: Array<string>, voteEnd: string, voteStart: string, proposer: { __typename: 'LivepeerAccount', id: string } }> };
@@ -9664,11 +9678,19 @@ export type GetProposalsByIdsQueryVariables = Exact<{
 export type GetProposalsByIdsQuery = { __typename: 'Query', treasuryProposals: Array<{ __typename: 'TreasuryProposal', id: string, description: string, voteStart: string, voteEnd: string }> };
 
 export type TreasuryVoteEventsQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<TreasuryVoteEvent_Filter>;
 }>;
 
 
 export type TreasuryVoteEventsQuery = { __typename: 'Query', treasuryVoteEvents: Array<{ __typename: 'TreasuryVoteEvent', id: string, reason?: string | null, support: TreasuryVoteSupport, timestamp: number, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, targets: Array<string>, description: string }, voter: { __typename: 'LivepeerAccount', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
+
+export type TreasuryVotesQueryVariables = Exact<{
+  where?: InputMaybe<TreasuryVote_Filter>;
+}>;
+
+
+export type TreasuryVotesQuery = { __typename: 'Query', treasuryVotes: Array<{ __typename: 'TreasuryVote', id: string, reason?: string | null, support: TreasuryVoteSupport, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, voteStart: string, voteEnd: string }, voter: { __typename: 'LivepeerAccount', delegate?: { __typename: 'Transcoder', activationRound: string, deactivationRound: string } | null } }> };
 
 export type VoteQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -10533,6 +10555,50 @@ export function useTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type TransactionsQueryHookResult = ReturnType<typeof useTransactionsQuery>;
 export type TransactionsLazyQueryHookResult = ReturnType<typeof useTransactionsLazyQuery>;
 export type TransactionsQueryResult = Apollo.QueryResult<TransactionsQuery, TransactionsQueryVariables>;
+export const TranscoderActivatedEventsDocument = gql`
+    query transcoderActivatedEvents($where: TranscoderActivatedEvent_filter, $first: Int, $orderBy: TranscoderActivatedEvent_orderBy, $orderDirection: OrderDirection) {
+  transcoderActivatedEvents(
+    where: $where
+    first: $first
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
+    activationRound
+    id
+  }
+}
+    `;
+
+/**
+ * __useTranscoderActivatedEventsQuery__
+ *
+ * To run a query within a React component, call `useTranscoderActivatedEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscoderActivatedEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscoderActivatedEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
+ *   },
+ * });
+ */
+export function useTranscoderActivatedEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>(TranscoderActivatedEventsDocument, options);
+      }
+export function useTranscoderActivatedEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>(TranscoderActivatedEventsDocument, options);
+        }
+export type TranscoderActivatedEventsQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsQuery>;
+export type TranscoderActivatedEventsLazyQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsLazyQuery>;
+export type TranscoderActivatedEventsQueryResult = Apollo.QueryResult<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>;
 export const TreasuryProposalDocument = gql`
     query treasuryProposal($id: ID!) {
   treasuryProposal(id: $id) {
@@ -10578,8 +10644,12 @@ export type TreasuryProposalQueryHookResult = ReturnType<typeof useTreasuryPropo
 export type TreasuryProposalLazyQueryHookResult = ReturnType<typeof useTreasuryProposalLazyQuery>;
 export type TreasuryProposalQueryResult = Apollo.QueryResult<TreasuryProposalQuery, TreasuryProposalQueryVariables>;
 export const TreasuryProposalsDocument = gql`
-    query treasuryProposals {
-  treasuryProposals(orderBy: voteStart, orderDirection: desc) {
+    query treasuryProposals($where: TreasuryProposal_filter, $orderBy: TreasuryProposal_orderBy = voteStart, $orderDirection: OrderDirection = desc) {
+  treasuryProposals(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
     id
     description
     calldatas
@@ -10606,6 +10676,9 @@ export const TreasuryProposalsDocument = gql`
  * @example
  * const { data, loading, error } = useTreasuryProposalsQuery({
  *   variables: {
+ *      where: // value for 'where'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
  *   },
  * });
  */
@@ -10659,8 +10732,8 @@ export type GetProposalsByIdsQueryHookResult = ReturnType<typeof useGetProposals
 export type GetProposalsByIdsLazyQueryHookResult = ReturnType<typeof useGetProposalsByIdsLazyQuery>;
 export type GetProposalsByIdsQueryResult = Apollo.QueryResult<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>;
 export const TreasuryVoteEventsDocument = gql`
-    query treasuryVoteEvents($where: TreasuryVoteEvent_filter) {
-  treasuryVoteEvents(where: $where) {
+    query treasuryVoteEvents($first: Int, $where: TreasuryVoteEvent_filter) {
+  treasuryVoteEvents(first: $first, where: $where) {
     id
     reason
     support
@@ -10697,6 +10770,7 @@ export const TreasuryVoteEventsDocument = gql`
  * @example
  * const { data, loading, error } = useTreasuryVoteEventsQuery({
  *   variables: {
+ *      first: // value for 'first'
  *      where: // value for 'where'
  *   },
  * });
@@ -10712,6 +10786,55 @@ export function useTreasuryVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type TreasuryVoteEventsQueryHookResult = ReturnType<typeof useTreasuryVoteEventsQuery>;
 export type TreasuryVoteEventsLazyQueryHookResult = ReturnType<typeof useTreasuryVoteEventsLazyQuery>;
 export type TreasuryVoteEventsQueryResult = Apollo.QueryResult<TreasuryVoteEventsQuery, TreasuryVoteEventsQueryVariables>;
+export const TreasuryVotesDocument = gql`
+    query treasuryVotes($where: TreasuryVote_filter) {
+  treasuryVotes(where: $where) {
+    id
+    reason
+    support
+    weight
+    proposal {
+      id
+      voteStart
+      voteEnd
+    }
+    voter {
+      delegate {
+        activationRound
+        deactivationRound
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useTreasuryVotesQuery__
+ *
+ * To run a query within a React component, call `useTreasuryVotesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTreasuryVotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTreasuryVotesQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useTreasuryVotesQuery(baseOptions?: Apollo.QueryHookOptions<TreasuryVotesQuery, TreasuryVotesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TreasuryVotesQuery, TreasuryVotesQueryVariables>(TreasuryVotesDocument, options);
+      }
+export function useTreasuryVotesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TreasuryVotesQuery, TreasuryVotesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TreasuryVotesQuery, TreasuryVotesQueryVariables>(TreasuryVotesDocument, options);
+        }
+export type TreasuryVotesQueryHookResult = ReturnType<typeof useTreasuryVotesQuery>;
+export type TreasuryVotesLazyQueryHookResult = ReturnType<typeof useTreasuryVotesLazyQuery>;
+export type TreasuryVotesQueryResult = Apollo.QueryResult<TreasuryVotesQuery, TreasuryVotesQueryVariables>;
 export const VoteDocument = gql`
     query vote($id: ID!) {
   vote(id: $id) {

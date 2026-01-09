@@ -1,0 +1,19 @@
+query treasuryVotes($where: TreasuryVote_filter) {
+  treasuryVotes(where: $where) {
+    id
+    reason
+    support
+    weight
+    proposal {
+      id
+      voteStart
+      voteEnd
+    }
+    voter {
+      delegate {
+        activationRound
+        deactivationRound
+      }
+    }
+  }
+}

@@ -2,14 +2,19 @@ import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import { AccountQueryResult } from "apollo";
-import { CUBE_TYPE, getCubeData } from "cube/cube-client";
-import { getAccountVoterSummary } from "cube/query-generator";
+import {
+  AccountQueryResult,
+  OrderDirection,
+  TranscoderActivatedEvent_OrderBy,
+  useTranscoderActivatedEventsQuery,
+  useTreasuryProposalsQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { useScoreData } from "hooks";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
 import numbro from "numbro";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 
 const breakpointColumnsObj = {
@@ -27,11 +32,6 @@ interface Props {
   isActive: boolean;
 }
 
-interface GovStats {
-  voted: number;
-  eligible: number;
-}
-
 const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
@@ -41,40 +41,51 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const [govStats, setGovStats] = useState<GovStats | null>(null);
+  const { data: firstTranscoderActivatedEventsData } =
+    useTranscoderActivatedEventsQuery({
+      variables: {
+        where: {
+          delegate: transcoder?.id,
+        },
+        first: 1,
+        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
+        orderDirection: OrderDirection.Asc,
+      },
+    });
 
-  useEffect(() => {
-    const fetchGovStats = async () => {
-      if (!transcoder?.id) return;
+  const firstActivationRound = useMemo(() => {
+    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
+      ?.activationRound;
+  }, [firstTranscoderActivatedEventsData]);
 
-      try {
-        const cubeQuery = getAccountVoterSummary(transcoder.id);
-        const response = await getCubeData(cubeQuery, {
-          type: CUBE_TYPE.SERVER,
-        });
+  const { data: treasuryVotesData } = useTreasuryVotesQuery({
+    variables: {
+      where: {
+        voter: transcoder?.id,
+      },
+    },
+  });
 
-        // Some cube responses are wrapped in [0].data, others are direct arrays
-        const data = Array.isArray(response)
-          ? response[0]?.data || response
-          : null;
+  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
+    variables: {
+      where: {
+        voteStart_gt: firstActivationRound,
+      },
+    },
+    skip: !firstActivationRound,
+  });
 
-        if (data && data.length > 0) {
-          const votedCount = Number(
-            data[0]["LivepeerVoteProposals.numOfVoteCasted"] || 0
-          );
-          const eligibleCount = Number(
-            data[0]["LivepeerVoteProposals.numOfProposals"] || 0
-          );
+  console.log(transcoder);
+  console.log(treasuryVotesData);
+  console.log(eligebleProposalsData);
 
-          setGovStats({ voted: votedCount, eligible: eligibleCount });
-        }
-      } catch (error) {
-        console.error("Error fetching governance stats:", error);
-      }
+  const govStats = useMemo(() => {
+    if (!treasuryVotesData || !eligebleProposalsData) return null;
+    return {
+      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
+      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
     };
-
-    fetchGovStats();
-  }, [transcoder?.id]);
+  }, [treasuryVotesData, eligebleProposalsData]);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -341,7 +352,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           }}
         >
           <Stat
-            label="Governance Participation"
+            label="Treasury Governance Participation"
             variant="interactive"
             tooltip={
               <Box>

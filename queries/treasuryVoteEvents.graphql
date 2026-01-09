@@ -1,5 +1,5 @@
-query treasuryVoteEvents($where: TreasuryVoteEvent_filter) {
-  treasuryVoteEvents(where: $where) {
+query treasuryVoteEvents($first: Int, $where: TreasuryVoteEvent_filter) {
+  treasuryVoteEvents(first: $first, where: $where) {
     id
     reason
     support
