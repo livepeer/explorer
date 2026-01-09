@@ -1,3 +1,8 @@
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  MinusCircledIcon,
+} from "@radix-ui/react-icons";
 import { TreasuryVoteSupport } from "apollo";
 
 export interface Vote {
@@ -16,14 +21,17 @@ export interface Vote {
 export const VOTING_SUPPORT = {
   "0": {
     text: "Against",
+    icon: CrossCircledIcon,
     style: { color: "$tomato11", backgroundColor: "$tomato3", fontWeight: 600 },
   },
   "1": {
     text: "For",
+    icon: CheckCircledIcon,
     style: { color: "$grass11", backgroundColor: "$grass3", fontWeight: 600 },
   },
   "2": {
     text: "Abstain",
+    icon: MinusCircledIcon,
     style: {
       color: "$neutral11",
       backgroundColor: "$neutral3",

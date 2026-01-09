@@ -87,7 +87,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
             VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
 
           return (
-            <Box css={{ minWidth: 80 }}>
+            <Box css={{ minWidth: 100 }}>
               <Badge
                 size="1"
                 css={{
@@ -95,11 +95,14 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                   color: support.style.color,
                   fontWeight: support.style.fontWeight,
                   border: "none",
-                  width: "72px",
+                  width: "86px",
                   display: "inline-flex",
+                  alignItems: "center",
                   justifyContent: "center",
+                  gap: "$1",
                 }}
               >
+                <Box as={support.icon} css={{ width: 12, height: 12 }} />
                 {support.text}
               </Badge>
             </Box>
@@ -134,22 +137,24 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         Header: "Reason",
         accessor: "reason",
         id: "reason",
-        Cell: ({ row }) => (
-          <Box css={{ minWidth: 100 }}>
-            <Text
-              size="1"
-              css={{
-                color:
-                  row.original.reason &&
-                  row.original.reason.toLowerCase() === "no reason provided"
-                    ? "$neutral9"
-                    : "$hiContrast",
-              }}
-            >
-              {row.original.reason}
-            </Text>
-          </Box>
-        ),
+        Cell: ({ row }) => {
+          const reason = row.original.reason?.trim();
+          const isEmpty =
+            !reason || reason.toLowerCase() === "no reason provided";
+
+          return (
+            <Box css={{ minWidth: 200 }}>
+              <Text
+                size="1"
+                css={{
+                  color: isEmpty ? "$neutral9" : "$hiContrast",
+                }}
+              >
+                {isEmpty ? "—" : reason}
+              </Text>
+            </Box>
+          );
+        },
       },
       {
         Header: "Vote Txn",

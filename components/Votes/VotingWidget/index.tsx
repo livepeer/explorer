@@ -13,7 +13,11 @@ import {
   Text,
   useSnackbar,
 } from "@livepeer/design-system";
-import { Cross1Icon } from "@modulz/radix-icons";
+import {
+  CheckCircledIcon,
+  Cross1Icon,
+  CrossCircledIcon,
+} from "@radix-ui/react-icons";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import numbro from "numbro";
@@ -50,8 +54,24 @@ type Props = {
 const formatPercent = (percent: number) =>
   numbro(percent).format({
     output: "percent",
-    mantissa: 4,
+    mantissa: 2,
   });
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <Text
+    css={{
+      fontSize: "$1",
+      fontWeight: 700,
+      color: "$neutral10",
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      marginBottom: "$3",
+      display: "block",
+    }}
+  >
+    {children}
+  </Text>
+);
 
 const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();
@@ -98,211 +118,244 @@ const Index = ({ data }: { data: Props }) => {
 
   return (
     <Box css={{ width: "100%" }}>
-      <Box>
-        <Box
-          css={{
-            width: "100%",
-            border: "1px solid $neutral4",
-            borderRadius: "$4",
-            backgroundColor: "$panel",
-            paddingLeft: "$4",
-            paddingRight: "$4",
-            paddingTop: "$3",
-            paddingBottom: "$3",
-          }}
-        >
-          <Heading size="1" css={{ fontWeight: "bold", marginBottom: "$3" }}>
-            Do you support LIP-{data?.poll?.attributes?.lip ?? "ERR"}?
-          </Heading>
+      <Box
+        css={{
+          width: "100%",
+          border: "1px solid $neutral4",
+          borderRadius: "$4",
+          backgroundColor: "$panel",
+          padding: "$4",
+        }}
+      >
+        <Heading size="1" css={{ fontWeight: "bold", marginBottom: "$4" }}>
+          Do you support LIP-{data?.poll?.attributes?.lip ?? "ERR"}?
+        </Heading>
 
-          <Box
-            css={{
-              marginBottom: "$3",
-              paddingBottom: "$3",
-              borderBottom: "1px solid $neutral4",
-            }}
-          >
-            <Box css={{ marginBottom: "$3" }}>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  position: "relative",
-                  width: "100%",
-                  height: 24,
-                  marginBottom: "8px",
-                }}
-              >
+        {/* ========== RESULTS SECTION ========== */}
+        <Box css={{ marginBottom: "$4" }}>
+          <SectionLabel>Results</SectionLabel>
+
+          <Box css={{ marginBottom: "$3" }}>
+            {/* For bar */}
+            <Flex
+              css={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
                 <Box
-                  css={{
-                    borderTopLeftRadius: 6,
-                    borderBottomLeftRadius: 6,
-                    borderTopRightRadius: data.poll.percent.yes === 1 ? 6 : 0,
-                    borderBottomRightRadius:
-                      data.poll.percent.yes === 1 ? 6 : 0,
-                    position: "absolute",
-                    height: "100%",
-                    backgroundColor: "$grass9",
-                    width: `${data.poll.percent.yes * 100}%`,
-                  }}
+                  as={CheckCircledIcon}
+                  css={{ color: "$grass11", width: 14, height: 14 }}
                 />
-                <Box
-                  css={{
-                    lineHeight: 1,
-                    fontWeight: 500,
-                    paddingLeft: data.poll.percent.yes ? "$2" : 0,
-                    fontSize: "$2",
-                  }}
-                >
-                  For
-                </Box>
-                <Box
-                  css={{
-                    lineHeight: 1,
-                    paddingRight: "$2",
-                    fontSize: "$2",
-                  }}
-                >
-                  {formatPercent(data.poll.percent.yes)}
-                </Box>
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>For</Text>
               </Flex>
               <Flex
                 css={{
+                  flex: 1,
+                  marginLeft: "$3",
+                  marginRight: "$3",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  position: "relative",
-                  height: 24,
-                  width: "100%",
                 }}
               >
                 <Box
                   css={{
-                    borderTopLeftRadius: 6,
-                    borderBottomLeftRadius: 6,
-                    borderTopRightRadius: data.poll.percent.no === 1 ? 6 : 0,
-                    borderBottomRightRadius: data.poll.percent.no === 1 ? 6 : 0,
-                    position: "absolute",
-                    height: "100%",
-                    backgroundColor: "$tomato9",
-                    width: `${data.poll.percent.no * 100}%`,
-                  }}
-                />
-                <Box
-                  css={{
-                    lineHeight: 1,
-                    paddingLeft: data.poll.percent.no ? "$2" : 0,
-                    fontWeight: 500,
-                    fontSize: "$2",
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: "$neutral5",
+                    width: "100%",
+                    overflow: "hidden",
                   }}
                 >
+                  <Box
+                    css={{
+                      height: "100%",
+                      borderRadius: 4,
+                      backgroundColor: "$grass9",
+                      width: `${data.poll.percent.yes * 100}%`,
+                    }}
+                  />
+                </Box>
+              </Flex>
+              <Text
+                css={{
+                  fontSize: "$2",
+                  color: "$hiContrast",
+                  fontWeight: 500,
+                  fontVariantNumeric: "tabular-nums",
+                  minWidth: 55,
+                  textAlign: "right",
+                }}
+              >
+                {formatPercent(data.poll.percent.yes)}
+              </Text>
+            </Flex>
+
+            {/* Against bar */}
+            <Flex
+              css={{
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={CrossCircledIcon}
+                  css={{ color: "$tomato11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
                   Against
-                </Box>
+                </Text>
+              </Flex>
+              <Flex
+                css={{
+                  flex: 1,
+                  marginLeft: "$3",
+                  marginRight: "$3",
+                  alignItems: "center",
+                }}
+              >
                 <Box
                   css={{
-                    lineHeight: 1,
-                    paddingRight: "$2",
-                    fontSize: "$2",
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: "$neutral5",
+                    width: "100%",
+                    overflow: "hidden",
                   }}
                 >
-                  {formatPercent(data.poll.percent.no)}
+                  <Box
+                    css={{
+                      height: "100%",
+                      borderRadius: 4,
+                      backgroundColor: "$tomato9",
+                      width: `${data.poll.percent.no * 100}%`,
+                    }}
+                  />
                 </Box>
               </Flex>
-            </Box>
-            <Box css={{ fontSize: "$2", color: "$neutral11" }}>
-              {data.poll.votes.length}{" "}
-              {`${
-                data.poll.votes.length > 1 || data.poll.votes.length === 0
-                  ? "votes"
-                  : "vote"
-              }`}{" "}
-              · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
-              {data.poll.status !== "active"
-                ? "Final Results"
-                : dayjs
-                    .duration(
-                      dayjs().unix() - data.poll.estimatedEndTime,
-                      "seconds"
-                    )
-                    .humanize() + " left"}
-            </Box>
+              <Text
+                css={{
+                  fontSize: "$2",
+                  color: "$hiContrast",
+                  fontWeight: 500,
+                  fontVariantNumeric: "tabular-nums",
+                  minWidth: 55,
+                  textAlign: "right",
+                }}
+              >
+                {formatPercent(data.poll.percent.no)}
+              </Text>
+            </Flex>
           </Box>
 
-          {accountAddress ? (
-            <>
-              <Box>
+          <Box css={{ fontSize: "$2", color: "$neutral11" }}>
+            {data.poll.votes.length}{" "}
+            {`${
+              data.poll.votes.length > 1 || data.poll.votes.length === 0
+                ? "votes"
+                : "vote"
+            }`}{" "}
+            · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
+            {data.poll.status !== "active"
+              ? "Final Results"
+              : dayjs
+                  .duration(
+                    dayjs().unix() - data.poll.estimatedEndTime,
+                    "seconds"
+                  )
+                  .humanize() + " left"}
+          </Box>
+        </Box>
+
+        {/* ========== YOUR VOTE SECTION ========== */}
+        {accountAddress ? (
+          <Box
+            css={{
+              borderTop: "1px solid $neutral4",
+              paddingTop: "$4",
+            }}
+          >
+            <SectionLabel>Your vote</SectionLabel>
+            <Box>
+              <Flex
+                css={{
+                  fontSize: "$2",
+                  marginBottom: "$2",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Box as="span" css={{ color: "$neutral11" }}>
+                  My Delegate Vote{" "}
+                  {delegate && `(${formatAddress(delegate?.id)})`}
+                </Box>
+                <Box as="span" css={{ fontWeight: 500, color: "white" }}>
+                  {data?.delegateVote?.choiceID
+                    ? data?.delegateVote?.choiceID
+                    : "N/A"}
+                </Box>
+              </Flex>
+              <Flex
+                css={{
+                  fontSize: "$2",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Box as="span" css={{ color: "$neutral11" }}>
+                  My Vote ({formatAddress(accountAddress)})
+                </Box>
+                <Box as="span" css={{ fontWeight: 500, color: "$hiContrast" }}>
+                  {data?.vote?.choiceID ? data?.vote?.choiceID : "N/A"}
+                </Box>
+              </Flex>
+              {((!data?.vote?.choiceID && data.poll.status === "active") ||
+                data?.vote?.choiceID) && (
                 <Flex
                   css={{
+                    marginTop: "$2",
                     fontSize: "$2",
-                    marginBottom: "$2",
                     justifyContent: "space-between",
                   }}
                 >
-                  <Box as="span" css={{ color: "$neutral11" }}>
-                    My Delegate Vote{" "}
-                    {delegate && `(${formatAddress(delegate?.id)})`}
-                  </Box>
-                  <Box as="span" css={{ fontWeight: 500, color: "white" }}>
-                    {data?.delegateVote?.choiceID
-                      ? data?.delegateVote?.choiceID
-                      : "N/A"}
-                  </Box>
-                </Flex>
-                <Flex
-                  css={{
-                    fontSize: "$2",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box as="span" css={{ color: "$neutral11" }}>
-                    My Vote ({formatAddress(accountAddress)})
+                  <Box as="span" css={{ color: "$muted" }}>
+                    My Voting Power
                   </Box>
                   <Box
                     as="span"
                     css={{ fontWeight: 500, color: "$hiContrast" }}
                   >
-                    {data?.vote?.choiceID ? data?.vote?.choiceID : "N/A"}
+                    <Box as="span">
+                      {abbreviateNumber(votingPower, 4)} LPT (
+                      {(
+                        (+votingPower /
+                          (data.poll.stake.nonVoters +
+                            data.poll.stake.voters)) *
+                        100
+                      ).toPrecision(2)}
+                      %)
+                    </Box>
                   </Box>
                 </Flex>
-                {((!data?.vote?.choiceID && data.poll.status === "active") ||
-                  data?.vote?.choiceID) && (
-                  <Flex
-                    css={{
-                      marginTop: "$2",
-                      fontSize: "$2",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box as="span" css={{ color: "$muted" }}>
-                      My Voting Power
-                    </Box>
-                    <Box
-                      as="span"
-                      css={{ fontWeight: 500, color: "$hiContrast" }}
-                    >
-                      <Box as="span">
-                        {abbreviateNumber(votingPower, 4)} LPT (
-                        {(
-                          (+votingPower /
-                            (data.poll.stake.nonVoters +
-                              data.poll.stake.voters)) *
-                          100
-                        ).toPrecision(2)}
-                        %)
-                      </Box>
-                    </Box>
-                  </Flex>
-                )}
-              </Box>
-              {data.poll.status === "active" &&
-                data &&
-                renderVoteButton(
-                  data?.myAccount,
-                  data?.vote,
-                  data?.poll,
-                  pendingFeesAndStake?.pendingStake ?? ""
-                )}
-            </>
-          ) : (
+              )}
+            </Box>
+            {data.poll.status === "active" &&
+              data &&
+              renderVoteButton(
+                data?.myAccount,
+                data?.vote,
+                data?.poll,
+                pendingFeesAndStake?.pendingStake ?? ""
+              )}
+          </Box>
+        ) : (
+          <Box
+            css={{
+              borderTop: "1px solid $neutral4",
+              paddingTop: "$4",
+            }}
+          >
+            <SectionLabel>Your vote</SectionLabel>
             <Flex align="center" direction="column">
               <Button
                 size="4"
@@ -312,16 +365,14 @@ const Index = ({ data }: { data: Props }) => {
               >
                 Vote
               </Button>
-              <Text
-                size="2"
-                css={{ marginTop: "$1", fontWeight: 600, color: "$red11" }}
-              >
+              <Text size="2" css={{ marginTop: "$2", color: "$neutral11" }}>
                 Connect your wallet to vote.
               </Text>
             </Flex>
-          )}
-        </Box>
+          </Box>
+        )}
       </Box>
+
       {data.poll.status === "active" && (
         <Box
           css={{
@@ -489,7 +540,12 @@ function renderVoteButton(
           choiceId={1}
           pollAddress={poll?.id}
         >
-          Change Vote To Against
+          <Flex
+            css={{ alignItems: "center", gap: "$2", justifyContent: "center" }}
+          >
+            <Box as={CrossCircledIcon} />
+            Change Vote To Against
+          </Flex>
         </VoteButton>
       );
     case "No":
@@ -512,7 +568,12 @@ function renderVoteButton(
           choiceId={0}
           pollAddress={poll?.id}
         >
-          Change Vote To For
+          <Flex
+            css={{ alignItems: "center", gap: "$2", justifyContent: "center" }}
+          >
+            <Box as={CheckCircledIcon} />
+            Change Vote To For
+          </Flex>
         </VoteButton>
       );
     default:
@@ -534,7 +595,16 @@ function renderVoteButton(
             size="4"
             pollAddress={poll?.id}
           >
-            For
+            <Flex
+              css={{
+                alignItems: "center",
+                gap: "$2",
+                justifyContent: "center",
+              }}
+            >
+              <Box as={CheckCircledIcon} />
+              For
+            </Flex>
           </VoteButton>
           <VoteButton
             disabled={!(parseFloat(pendingStake) > 0)}
@@ -552,7 +622,16 @@ function renderVoteButton(
             choiceId={1}
             pollAddress={poll?.id}
           >
-            Against
+            <Flex
+              css={{
+                alignItems: "center",
+                gap: "$2",
+                justifyContent: "center",
+              }}
+            >
+              <Box as={CrossCircledIcon} />
+              Against
+            </Flex>
           </VoteButton>
         </Box>
       );

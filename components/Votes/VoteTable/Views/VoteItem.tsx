@@ -292,11 +292,14 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             color: support.style.color,
             fontWeight: support.style.fontWeight,
             border: "none",
-            width: "72px",
+            width: "86px",
             display: "inline-flex",
+            alignItems: "center",
             justifyContent: "center",
+            gap: "$1",
           }}
         >
+          <Box as={support.icon} css={{ width: 12, height: 12 }} />
           {support.text}
         </Badge>
       </Box>
@@ -331,12 +334,14 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           size="1"
           css={{
             color:
-              vote.reason && vote.reason.toLowerCase() === "no reason provided"
+              !vote.reason || vote.reason.toLowerCase() === "no reason provided"
                 ? "$neutral9"
                 : "$hiContrast",
           }}
         >
-          {vote.reason}
+          {!vote.reason || vote.reason.toLowerCase() === "no reason provided"
+            ? "—"
+            : vote.reason}
         </Text>
       </Box>
       <Box

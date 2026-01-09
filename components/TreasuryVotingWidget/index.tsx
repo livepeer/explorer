@@ -5,7 +5,12 @@ import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
 import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
-import { InfoCircledIcon } from "@modulz/radix-icons";
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  InfoCircledIcon,
+  MinusCircledIcon,
+} from "@radix-ui/react-icons";
 import { useAccountAddress } from "hooks";
 import numbro from "numbro";
 import { useMemo, useState } from "react";
@@ -87,9 +92,13 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 marginBottom: "$2",
               }}
             >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                For
-              </Text>
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={CheckCircledIcon}
+                  css={{ color: "$grass11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>For</Text>
+              </Flex>
               <Flex
                 css={{
                   flex: 1,
@@ -139,9 +148,15 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 marginBottom: "$2",
               }}
             >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                Against
-              </Text>
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={CrossCircledIcon}
+                  css={{ color: "$tomato11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+                  Against
+                </Text>
+              </Flex>
               <Flex
                 css={{
                   flex: 1,
@@ -190,9 +205,15 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 justifyContent: "space-between",
               }}
             >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                Abstain
-              </Text>
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={MinusCircledIcon}
+                  css={{ color: "$neutral11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+                  Abstain
+                </Text>
+              </Flex>
               <Flex
                 css={{
                   flex: 1,
@@ -353,7 +374,10 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     },
                   }}
                 >
-                  For
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={CheckCircledIcon} />
+                    For
+                  </Flex>
                 </VoteButton>
                 <VoteButton
                   size="4"
@@ -371,7 +395,10 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     },
                   }}
                 >
-                  Against
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={CrossCircledIcon} />
+                    Against
+                  </Flex>
                 </VoteButton>
                 <VoteButton
                   size="4"
@@ -390,7 +417,10 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                     },
                   }}
                 >
-                  Abstain
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={MinusCircledIcon} />
+                    Abstain
+                  </Flex>
                 </VoteButton>
 
                 <Box css={{ gridColumn: "span 2" }}>

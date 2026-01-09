@@ -78,17 +78,18 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
       );
       const votes =
         treasuryVotesData?.treasuryVotes?.map((vote) => {
-          const voteEvent = treasuryVoteEventsData?.treasuryVoteEvents
-            ?.filter((event) => event.voter.id === vote.voter.id)
-            .slice()
-            .sort((a, b) => b.timestamp - a.timestamp)
-            .reverse()[0];
+          const events = (treasuryVoteEventsData?.treasuryVoteEvents ?? [])
+            .filter((event) => event.voter.id === vote.voter.id)
+            .sort((a, b) => b.timestamp - a.timestamp);
+
+          const latestEvent = events[0];
           const ensName = localEnsCache[vote.voter.id] ?? "";
 
           return {
             ...vote,
+            reason: latestEvent?.reason || vote.reason || "",
             ensName,
-            transactionHash: voteEvent?.transaction.id ?? "",
+            transactionHash: latestEvent?.transaction.id ?? "",
           };
         }) ?? [];
       setVotes(votes as Vote[]);
