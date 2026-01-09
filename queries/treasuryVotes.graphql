@@ -10,7 +10,9 @@ query treasuryVotes($where: TreasuryVote_filter) {
       voteEnd
     }
     voter {
+      id
       delegate {
+        id
         activationRound
         deactivationRound
       }

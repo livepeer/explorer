@@ -13,8 +13,10 @@ import {
   ArrowTopRightIcon,
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
+import { TreasuryVoteSupport } from "apollo/subgraph";
 
-import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
+import { VOTING_SUPPORT_MAP } from "../../../../lib/api/types/votes";
+import { Vote } from "./DesktopVoteTable";
 
 interface VoteViewProps {
   vote: Vote;
@@ -45,7 +47,9 @@ export function VoteView({
 }
 
 function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
-  const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
+  const support =
+    VOTING_SUPPORT_MAP[vote.support] ||
+    VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
   const hasReason =
     vote.reason && vote.reason.toLowerCase() !== "no reason provided";
 
@@ -176,7 +180,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           }}
           onClick={(e) => {
             e.stopPropagation();
-            onSelect({ address: vote.voter, ensName: vote.ensName });
+            onSelect({ address: vote.voter.id, ensName: vote.ensName });
           }}
         >
           <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
@@ -190,10 +194,12 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
 }
 
 function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
-  const support = VOTING_SUPPORT[vote.choiceID] || VOTING_SUPPORT["2"];
+  const support =
+    VOTING_SUPPORT_MAP[vote.support] ||
+    VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
   return (
     <Box
-      key={vote.transactionHash || vote.voter}
+      key={vote.transactionHash || vote.voter.id}
       as="tr"
       css={{
         backgroundColor: "$neutral3",
@@ -246,7 +252,6 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
       >
         <Text
           css={{
-            fontWeight: 600,
             whiteSpace: "nowrap",
             ...support.style,
           }}
@@ -344,7 +349,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             as="button"
             onClick={(e) => {
               e.stopPropagation();
-              onSelect({ address: vote.voter, ensName: vote.ensName });
+              onSelect({ address: vote.voter.id, ensName: vote.ensName });
             }}
             css={{
               display: "inline-flex",

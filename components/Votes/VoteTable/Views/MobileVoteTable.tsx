@@ -32,7 +32,7 @@ export const MobileVoteCards: React.FC<VoteTableProps> = (props) => {
       {votes.map((vote) => {
         return (
           <VoteView
-            key={vote.transactionHash || vote.voter}
+            key={vote.transactionHash || vote.voter.id}
             vote={vote}
             onSelect={onSelect}
             formatWeight={formatWeight}

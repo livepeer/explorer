@@ -9690,7 +9690,7 @@ export type TreasuryVotesQueryVariables = Exact<{
 }>;
 
 
-export type TreasuryVotesQuery = { __typename: 'Query', treasuryVotes: Array<{ __typename: 'TreasuryVote', id: string, reason?: string | null, support: TreasuryVoteSupport, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, voteStart: string, voteEnd: string }, voter: { __typename: 'LivepeerAccount', delegate?: { __typename: 'Transcoder', activationRound: string, deactivationRound: string } | null } }> };
+export type TreasuryVotesQuery = { __typename: 'Query', treasuryVotes: Array<{ __typename: 'TreasuryVote', id: string, reason?: string | null, support: TreasuryVoteSupport, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, voteStart: string, voteEnd: string }, voter: { __typename: 'LivepeerAccount', id: string, delegate?: { __typename: 'Transcoder', activationRound: string, deactivationRound: string } | null } }> };
 
 export type VoteQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -10799,6 +10799,7 @@ export const TreasuryVotesDocument = gql`
       voteEnd
     }
     voter {
+      id
       delegate {
         activationRound
         deactivationRound

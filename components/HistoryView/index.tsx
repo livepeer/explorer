@@ -1,7 +1,7 @@
 import Spinner from "@components/Spinner";
 import { Fm } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
-import { VOTING_SUPPORT } from "@lib/api/types/votes";
+import { VOTING_SUPPORT, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
@@ -14,6 +14,7 @@ import {
 import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
   TreasuryVoteEvent,
+  TreasuryVoteSupport,
   useTransactionsQuery,
   useTreasuryVoteEventsQuery,
   useVoteEventsQuery,
@@ -927,9 +928,9 @@ function renderSwitch(event, i: number) {
         </Card>
       );
     case "TreasuryVoteEvent":
-      const supportTreasuryVoteEvent = Object.values(VOTING_SUPPORT).find(
-        (s) => s.text === event.support
-      );
+      const supportTreasuryVoteEvent =
+        VOTING_SUPPORT_MAP[event.support] ||
+        VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
       return (
         <Card
           as={A}

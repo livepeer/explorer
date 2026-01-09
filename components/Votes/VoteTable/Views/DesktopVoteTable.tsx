@@ -1,14 +1,19 @@
 import DataTable from "@components/Table";
+import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Link, Text, Tooltip } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
+import { TreasuryVote, TreasuryVoteSupport } from "apollo";
 import React, { useMemo } from "react";
 import { Column } from "react-table";
 
-import { Vote, VOTING_SUPPORT } from "../../../../lib/api/types/votes";
+export type Vote = TreasuryVote & {
+  ensName?: string;
+  transactionHash?: string;
+};
 
 export interface VoteTableProps {
   votes: Vote[];
@@ -26,6 +31,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
   onSelect,
   pageSize = 10,
 }) => {
+  console.log(votes);
   const columns = useMemo<Column<Vote>[]>(
     () => [
       {
@@ -60,13 +66,12 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
       },
       {
         Header: "Support",
-        accessor: "choiceID",
+        accessor: "support",
         id: "support",
         Cell: ({ row }) => {
           const support =
-            VOTING_SUPPORT[
-              row.original.choiceID as keyof typeof VOTING_SUPPORT
-            ] || VOTING_SUPPORT["2"];
+            VOTING_SUPPORT_MAP[row.original.support] ||
+            VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
           return (
             <Box css={{ minWidth: 80 }}>
               <Text
@@ -171,7 +176,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect({
-                    address: row.original.voter,
+                    address: row.original.voter.delegate?.id ?? "",
                     ensName: row.original.ensName,
                   });
                 }}
