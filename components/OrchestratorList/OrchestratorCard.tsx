@@ -42,18 +42,14 @@ type OrchestratorCardProps = {
       ninetyDayVolumeETH: number;
     };
   };
-  index: number;
-  pageIndex: number;
-  pageSize: number;
+  rowId: string;
   timeHorizon: ROITimeHorizon;
   factors: ROIFactors;
 };
 
 export function OrchestratorCard({
   rowData,
-  index,
-  pageIndex,
-  pageSize,
+  rowId,
   timeHorizon,
   factors,
 }: OrchestratorCardProps) {
@@ -99,7 +95,7 @@ export function OrchestratorCard({
                 alignItems: "center",
               }}
             >
-              {index + 1 + pageIndex * pageSize}
+              {+rowId + 1}
             </Box>
             <A
               as={Link}

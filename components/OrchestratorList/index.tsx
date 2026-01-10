@@ -23,7 +23,6 @@ import { useOrchestratorViewModel } from "hooks/useOrchestratorViewModel";
 import Link from "next/link";
 import numbro from "numbro";
 import { useMemo } from "react";
-import { Row } from "react-table";
 import { useWindowSize } from "react-use";
 
 import { OrchestratorActionsMenu } from "./OrchestratorActionsMenu";
@@ -57,7 +56,11 @@ const OrchestratorList = ({
 
   const { principle, timeHorizon, factors, inflationChange } = filters;
 
-  const columns = useMemo(
+  // Mobile detection
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
+
+  const desktopColumns = useMemo(
     () => [
       {
         Header: (
@@ -689,9 +692,45 @@ const OrchestratorList = ({
     [formattedPrinciple, timeHorizon, factors]
   );
 
-  // Mobile detection
-  const { width } = useWindowSize();
-  const isMobile = width < 768;
+  const mobileColumns = useMemo(
+    () => [
+      {
+        Header: <></>,
+        id: "earnings",
+        // Use same accessor as desktop for proper sorting
+        accessor: (row) => row.earningsComputed,
+        Cell: ({ row }) => {
+          const rowData = row.original as NonNullable<
+            typeof mappedData
+          >[number];
+          return (
+            <OrchestratorCard
+              rowData={rowData}
+              rowId={row.id}
+              timeHorizon={timeHorizon}
+              factors={factors}
+            />
+          );
+        },
+        // Use same sortType as desktop earnings column
+        sortType: (rowA, rowB) => {
+          return rowA.values.earnings.isNewlyActive
+            ? -1
+            : rowB.values.earnings.isNewlyActive
+            ? 1
+            : rowA.values.earnings.roi.delegatorPercent.fees +
+                rowA.values.earnings.roi.delegatorPercent.rewards >
+              rowB.values.earnings.roi.delegatorPercent.fees +
+                rowB.values.earnings.roi.delegatorPercent.rewards
+            ? 1
+            : -1;
+        },
+      },
+    ],
+    [timeHorizon, factors]
+  );
+
+  const columns = isMobile ? mobileColumns : desktopColumns;
 
   // Yield assumptions controls
   const yieldAssumptionsControls = (
@@ -710,29 +749,13 @@ const OrchestratorList = ({
     />
   );
 
-  // Render card function for mobile view
-  const renderCard = (row: Row<object>, index: number, pageIndex: number) => {
-    const rowData = row.original as NonNullable<typeof mappedData>[number];
-    return (
-      <OrchestratorCard
-        key={rowData.id}
-        rowData={rowData}
-        index={index}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        timeHorizon={timeHorizon}
-        factors={factors}
-      />
-    );
-  };
-
   return (
     <Table
       data={mappedData as object[]}
       columns={columns}
       initialState={{
         pageSize,
-        hiddenColumns: ["identity"],
+        hiddenColumns: isMobile ? [] : ["identity"],
         sortBy: [
           {
             id: "earnings",
@@ -741,7 +764,7 @@ const OrchestratorList = ({
         ],
       }}
       input={yieldAssumptionsControls}
-      renderCard={isMobile ? renderCard : undefined}
+      constrainWidth={isMobile}
     />
   );
 };

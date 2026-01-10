@@ -13,7 +13,6 @@ import { ReactNode } from "react";
 import {
   Column,
   HeaderGroup,
-  Row,
   TableInstance,
   usePagination,
   UsePaginationInstanceProps,
@@ -30,14 +29,14 @@ function DataTable<T extends object>({
   data,
   columns,
   initialState = {},
-  renderCard,
+  constrainWidth = false,
 }: {
   heading?: ReactNode;
   input?: ReactNode;
   data: T[];
   columns: Column<T>[];
   initialState: object;
-  renderCard?: (row: Row<T>, index: number, pageIndex: number) => ReactNode;
+  constrainWidth?: boolean;
 }) {
   const {
     getTableProps,
@@ -63,65 +62,6 @@ function DataTable<T extends object>({
     UsePaginationInstanceProps<T> &
     UseSortByInstanceProps<T> & { state: { pageIndex: number } };
 
-  // Card view (if renderCard is provided)
-  if (renderCard) {
-    return (
-      <>
-        {heading && (
-          <Flex align="center" css={{ justifyContent: "space-between" }}>
-            {heading}
-          </Flex>
-        )}
-        <Box
-          css={{
-            border: "1px solid $colors$neutral4",
-            backgroundColor: "$panel",
-            borderRadius: "$4",
-            padding: "$4",
-            maxWidth: "100%",
-            overflowX: "hidden",
-          }}
-        >
-          {input && (
-            <Box
-              css={{
-                marginBottom: "$4",
-              }}
-            >
-              {input}
-            </Box>
-          )}
-          <Box
-            css={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "$3",
-              minWidth: 0,
-            }}
-          >
-            {page.map((row, index) => (
-              <Box
-                key={row.id || index}
-                css={{ minWidth: 0, maxWidth: "100%" }}
-              >
-                {renderCard(row, index, pageIndex)}
-              </Box>
-            ))}
-          </Box>
-          <PaginationControls
-            canPreviousPage={canPreviousPage}
-            canNextPage={canNextPage}
-            pageIndex={pageIndex}
-            pageCount={pageCount}
-            previousPage={previousPage}
-            nextPage={nextPage}
-          />
-        </Box>
-      </>
-    );
-  }
-
-  // Table view (default)
   return (
     <>
       {heading && (
@@ -140,6 +80,10 @@ function DataTable<T extends object>({
           <Box
             css={{
               overflowY: "auto",
+              ...(constrainWidth && {
+                overflowX: "hidden",
+                maxWidth: "100%",
+              }),
             }}
           >
             {input && (
@@ -157,11 +101,14 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 980,
                 width: "100%",
-                "@bp4": {
-                  width: "100%",
-                },
+                ...(constrainWidth
+                  ? {}
+                  : {
+                      "@bp1": {
+                        minWidth: 980,
+                      },
+                    }),
               }}
             >
               <Thead>
@@ -290,6 +237,12 @@ function DataTable<T extends object>({
                               paddingLeft: i === 0 ? "$5" : "$1",
                               paddingRight: i === 0 ? "$5" : "$1",
                               width: i === 0 ? "40px" : "auto",
+                              ...(constrainWidth && {
+                                maxWidth: "100%",
+                                minWidth: 0,
+                                boxSizing: "border-box",
+                                wordWrap: "break-word",
+                              }),
                             }}
                           >
                             {cell.render("Cell")}
