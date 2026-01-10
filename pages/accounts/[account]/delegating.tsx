@@ -53,11 +53,23 @@ export const getStaticProps = async (context: {
       context.params?.account?.toString().toLowerCase()
     );
 
+    // If we couldn't fetch account data, treat it as a temporary error
+    if (!account.data) {
+      throw new Error("Failed to fetch account data");
+    }
+
     const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =
       await getSortedOrchestrators(client);
 
-    if (!account.data || !sortedOrchestrators.data) {
-      return { notFound: true, revalidate: 300 };
+    // If we couldn't fetch orchestrators data, treat it as a temporary error
+    if (!sortedOrchestrators.data) {
+      throw new Error("Failed to fetch orchestrators data");
+    }
+
+    // Only return 404 if the account truly doesn't exist (no delegator AND no transcoder)
+    // Don't cache 404s to avoid stale 404 responses from transient failures
+    if (!account.data?.delegator && !account.data?.transcoder) {
+      return { notFound: true };
     }
 
     const props: PageProps = {
@@ -83,8 +95,6 @@ export const getStaticProps = async (context: {
       revalidate: 60,
     };
   }
-
-  return { notFound: true, revalidate: 300 };
 };
 
 export default Delegating;
