@@ -8,6 +8,12 @@ export const addIpfs = async (content: object): Promise<string> => {
     },
     body: JSON.stringify(content),
   });
+
+  if (!fetchResult.ok) {
+    const error = await fetchResult.json().catch(() => null);
+    throw new Error(error?.error || "Failed to upload to IPFS");
+  }
+
   const result = (await fetchResult.json()) as AddIpfs;
   return result.hash;
 };

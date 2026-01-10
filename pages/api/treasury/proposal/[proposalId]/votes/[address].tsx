@@ -5,6 +5,7 @@ import {
   getBondingVotesAddress,
   getLivepeerGovernorAddress,
 } from "@lib/api/contracts";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -17,24 +18,23 @@ const handler = async (
   try {
     const { method } = req;
     if (method !== "GET") {
-      res.setHeader("Allow", ["GET"]);
-      return res.status(405).end(`Method ${method} Not Allowed`);
+      return methodNotAllowed(res, method ?? "unknown", ["GET"]);
     }
     res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
     const proposalId = req.query.proposalId?.toString();
     if (!proposalId) {
-      throw new Error("Missing proposalId");
+      return badRequest(res, "Missing proposalId");
     }
     const address = req.query.address?.toString();
     if (!(!!address && isAddress(address))) {
-      throw new Error("Missing address");
+      return badRequest(res, "Invalid address format");
     }
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
     if (!livepeerGovernorAddress || !bondingVotesAddress) {
-      throw new Error("Unsupported chain");
+      return badRequest(res, "Unsupported chain");
     }
 
     const now = await l2PublicClient.readContract({
@@ -88,8 +88,7 @@ const handler = async (
           : await getVotes(delegateAddress),
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

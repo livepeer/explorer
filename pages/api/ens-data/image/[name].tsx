@@ -1,4 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
+import {
+  badRequest,
+  internalError,
+  methodNotAllowed,
+  notFound,
+} from "@lib/api/errors";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -47,18 +53,16 @@ const handler = async (
           return res.end(Buffer.from(arrayBuffer));
         } catch (e) {
           console.error(e);
-          return res.status(404).end("Invalid name");
+          return notFound(res, "ENS avatar not found");
         }
       } else {
-        return res.status(500).end("Invalid name");
+        return badRequest(res, "Invalid ENS name");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

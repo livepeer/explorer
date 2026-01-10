@@ -2,6 +2,7 @@ import { getCacheControlHeader } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { controller } from "@lib/api/abis/main/Controller";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
 import { CHAIN_INFO, L1_CHAIN_ID, l1PublicClient } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@lib/utils";
@@ -113,15 +114,13 @@ const handler = async (
 
         return res.status(200).json(l1Delegator);
       } else {
-        return res.status(500).end("Invalid ID");
+        return badRequest(res, "Invalid address format");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 
