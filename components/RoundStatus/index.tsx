@@ -163,6 +163,7 @@ const Index = ({
           <Flex
             css={{
               width: "100%",
+              minHeight: 240,
               justifyContent: "center",
               alignItems: "center",
             }}
