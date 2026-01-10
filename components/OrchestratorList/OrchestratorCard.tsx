@@ -13,7 +13,7 @@ import {
 } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useEnsData } from "hooks";
-import { useOrchestratorViewModel } from "hooks/useOrchestratorViewModel";
+import { useOrchestratorRowViewModel } from "hooks/useOrchestratorRowViewModel";
 import Link from "next/link";
 import numbro from "numbro";
 
@@ -60,7 +60,7 @@ export function OrchestratorCard({
   const identity = useEnsData(rowData.id);
   const earnings = rowData.earningsComputed;
   const { feeCut, rewardCut, rewardCalls, isNewlyActive } =
-    useOrchestratorViewModel(earnings);
+    useOrchestratorRowViewModel(earnings);
 
   return (
     <Box

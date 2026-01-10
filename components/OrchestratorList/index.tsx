@@ -1,49 +1,34 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
 import Table from "@components/Table";
-import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
-import dayjs from "@lib/dayjs";
-import {
-  calculateROI,
-  formatFactors,
-  formatTimeHorizon,
-  ROIFactors,
-  ROIInflationChange,
-  ROITimeHorizon,
-} from "@lib/roi";
+import { formatTimeHorizon } from "@lib/roi";
 import { textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Flex,
   Link as A,
   Popover,
   PopoverContent,
   PopoverTrigger,
   Text,
-  TextField,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { ChevronDownIcon, Pencil1Icon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
-import { useBondingManagerAddress } from "hooks/useContracts";
+import { useOrchestratorRowViewModel } from "hooks/useOrchestratorRowViewModel";
+import { useOrchestratorViewModel } from "hooks/useOrchestratorViewModel";
 import Link from "next/link";
 import numbro from "numbro";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Row } from "react-table";
 import { useWindowSize } from "react-use";
-import { useReadContract } from "wagmi";
 
-import YieldChartIcon from "../../public/img/yield-chart.svg";
 import { OrchestratorActionsMenu } from "./OrchestratorActionsMenu";
 import { OrchestratorCard } from "./OrchestratorCard";
+import { YieldAssumptionsControls } from "./YieldAssumptionsControls";
 
 const OrchestratorList = ({
   data,
@@ -58,143 +43,19 @@ const OrchestratorList = ({
     | NonNullable<OrchestratorsQueryResult["data"]>["transcoders"]
     | undefined;
 }) => {
-  const formatPercentChange = useCallback(
-    (change: ROIInflationChange) =>
-      change === "none"
-        ? `Fixed at ${numbro(
-            Number(protocolData?.inflation) / 1000000000
-          ).format({
-            mantissa: 3,
-            output: "percent",
-          })}`
-        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
-            mantissa: 5,
-            output: "percent",
-            forceSign: true,
-          })} per round`,
+  const {
+    filters,
+    setPrinciple,
+    setTimeHorizon,
+    setFactors,
+    setInflationChange,
+    mappedData,
+    formattedPrinciple,
+    maxSupplyTokens,
+    formatPercentChange,
+  } = useOrchestratorViewModel({ data, protocolData });
 
-    [protocolData?.inflation, protocolData?.inflationChange]
-  );
-
-  const [principle, setPrinciple] = useState<number>(150);
-  const [inflationChange, setInflationChange] =
-    useState<ROIInflationChange>("none");
-  const [factors, setFactors] = useState<ROIFactors>("lpt+eth");
-  const [timeHorizon, setTimeHorizon] = useState<ROITimeHorizon>("one-year");
-  const maxSupplyTokens = useMemo(
-    () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
-    [protocolData]
-  );
-  const formattedPrinciple = useMemo(
-    () =>
-      numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
-    [principle]
-  );
-  const { data: bondingManagerAddress } = useBondingManagerAddress();
-  const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
-    query: { enabled: Boolean(bondingManagerAddress) },
-    address: bondingManagerAddress,
-    abi: bondingManager,
-    functionName: "treasuryRewardCutRate",
-  });
-
-  const mappedData = useMemo(() => {
-    return data
-      ?.map((row) => {
-        const pools = row.pools ?? [];
-        const rewardCalls =
-          pools.length > 0 ? pools.filter((r) => r?.rewardTokens).length : 0;
-        const rewardCallRatio = rewardCalls / pools.length;
-
-        const activation = dayjs.unix(row.activationTimestamp);
-
-        const isNewlyActive = dayjs().diff(activation, "days") < 45;
-
-        const feeShareDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.feeShareUpdateTimestamp),
-          "days"
-        );
-        const rewardCutDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.rewardCutUpdateTimestamp),
-          "days"
-        );
-
-        const roi = calculateROI({
-          inputs: {
-            principle: Number(principle),
-            timeHorizon,
-            inflationChange,
-            factors,
-          },
-          orchestratorParams: {
-            totalStake: Number(row.totalStake),
-          },
-          feeParams: {
-            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-            feeShare: Number(row.feeShare) / 1000000,
-            lptPriceEth: Number(protocolData?.lptPriceEth),
-          },
-          rewardParams: {
-            inflation: Number(protocolData?.inflation) / 1000000000,
-            inflationChangePerRound:
-              Number(protocolData?.inflationChange) / 1000000000,
-            totalSupply: Number(protocolData?.totalSupply),
-            totalActiveStake: Number(protocolData?.totalActiveStake),
-            roundLength: Number(protocolData?.roundLength),
-
-            rewardCallRatio,
-            rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut:
-              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
-          },
-        });
-
-        return {
-          ...row,
-          daysSinceChangeParams:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? feeShareDaysSinceChange
-              : rewardCutDaysSinceChange) ?? 0,
-          daysSinceChangeParamsFormatted:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? dayjs.unix(row.feeShareUpdateTimestamp).fromNow()
-              : dayjs.unix(row.rewardCutUpdateTimestamp).fromNow()) ?? "",
-          earningsComputed: {
-            roi,
-            activation,
-            isNewlyActive,
-            rewardCalls,
-            rewardCallLength: pools.length,
-            rewardCallRatio,
-            feeShare: row.feeShare,
-            rewardCut: row.rewardCut,
-            ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-            totalActiveStake: Number(protocolData?.totalActiveStake),
-            totalStake: Number(row.totalStake),
-          },
-        };
-      })
-      .sort((a, b) =>
-        a.earningsComputed.isNewlyActive
-          ? 1
-          : b.earningsComputed.isNewlyActive
-          ? -1
-          : a.earningsComputed.roi.delegatorPercent.fees +
-              a.earningsComputed.roi.delegatorPercent.rewards >
-            b.earningsComputed.roi.delegatorPercent.fees +
-              b.earningsComputed.roi.delegatorPercent.rewards
-          ? -1
-          : 1
-      );
-  }, [
-    data,
-    inflationChange,
-    protocolData,
-    principle,
-    timeHorizon,
-    factors,
-    treasuryRewardCutRate,
-  ]);
+  const { principle, timeHorizon, factors, inflationChange } = filters;
 
   const columns = useMemo(
     () => [
@@ -319,35 +180,8 @@ const OrchestratorList = ({
         accessor: (row) => row.earningsComputed,
         id: "earnings",
         Cell: ({ row }) => {
-          const isNewlyActive = useMemo(
-            () => row.values.earnings.isNewlyActive,
-            [row.values?.earnings?.isNewlyActive]
-          );
-          const feeCut = useMemo(
-            () =>
-              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
-                { mantissa: 0, output: "percent" }
-              ),
-            [row.values.earnings.feeShare]
-          );
-          const rewardCut = useMemo(
-            () =>
-              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
-                mantissa: 0,
-                output: "percent",
-              }),
-            [row.values.earnings.rewardCut]
-          );
-          const rewardCalls = useMemo(
-            () =>
-              `${numbro(row.values.earnings.rewardCalls)
-                .divide(row.values.earnings.rewardCallLength)
-                .format({ mantissa: 0, output: "percent" })}`,
-            [
-              row.values.earnings.rewardCalls,
-              row.values.earnings.rewardCallLength,
-            ]
-          );
+          const { feeCut, rewardCut, rewardCalls, isNewlyActive } =
+            useOrchestratorRowViewModel(row.values.earnings);
 
           return (
             <Popover>
@@ -859,385 +693,21 @@ const OrchestratorList = ({
   const { width } = useWindowSize();
   const isMobile = width < 768;
 
-  // Extract filter controls (yield assumptions section)
+  // Yield assumptions controls
   const yieldAssumptionsControls = (
-    <Box css={{ marginBottom: "$2" }}>
-      <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
-        <Box css={{ marginRight: "$1", color: "$neutral11" }}>
-          <YieldChartIcon />
-        </Box>
-        <Text
-          variant="neutral"
-          size="1"
-          css={{
-            marginLeft: "$1",
-            textTransform: "uppercase",
-            fontWeight: 600,
-          }}
-        >
-          {"Forecasted Yield Assumptions"}
-        </Text>
-      </Flex>
-      <Flex
-        css={{
-          flexWrap: "wrap",
-          marginLeft: "-$1",
-          marginTop: "-$1",
-          "& > *": {
-            marginLeft: "$1",
-            marginTop: "$1",
-          },
-        }}
-      >
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            asChild
-          >
-            <Badge
-              size="2"
-              css={{
-                cursor: "pointer",
-                color: "$white",
-                fontSize: "$2",
-              }}
-            >
-              <Box css={{ marginRight: "$1" }}>
-                <Pencil1Icon />
-              </Box>
-
-              <Text
-                variant="neutral"
-                size="1"
-                css={{
-                  marginRight: 3,
-                }}
-              >
-                {"Time horizon:"}
-              </Text>
-              <Text
-                size="1"
-                css={{
-                  color: "white",
-                  fontWeight: 600,
-                }}
-              >
-                {formatTimeHorizon(timeHorizon)}
-              </Text>
-            </Badge>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            css={{
-              width: "200px",
-              mt: "$1",
-              boxShadow:
-                "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-              bc: "$neutral4",
-            }}
-            align="center"
-            onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}
-            placeholder={undefined}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                css={{
-                  cursor: "pointer",
-                }}
-                onSelect={() => setTimeHorizon("half-year")}
-              >
-                {"6 months"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                css={{
-                  cursor: "pointer",
-                }}
-                onSelect={() => setTimeHorizon("one-year")}
-              >
-                {"1 year"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                css={{
-                  cursor: "pointer",
-                }}
-                onSelect={() => setTimeHorizon("two-years")}
-              >
-                {"2 years"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                css={{
-                  cursor: "pointer",
-                }}
-                onSelect={() => setTimeHorizon("three-years")}
-              >
-                {"3 years"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                css={{
-                  cursor: "pointer",
-                }}
-                onSelect={() => setTimeHorizon("four-years")}
-              >
-                {"4 years"}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Box>
-          <Popover>
-            <PopoverTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              asChild
-            >
-              <Badge
-                size="2"
-                css={{
-                  cursor: "pointer",
-                  color: "$white",
-                  fontSize: "$2",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  <Pencil1Icon />
-                </Box>
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginRight: 3,
-                  }}
-                >
-                  {"Delegation:"}
-                </Text>
-                <Text
-                  size="1"
-                  css={{
-                    color: "white",
-                    fontWeight: 600,
-                  }}
-                >
-                  {numbro(principle).format({ mantissa: 1, average: true })}
-                  {" LPT"}
-                </Text>
-              </Badge>
-            </PopoverTrigger>
-            <PopoverContent
-              css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
-            >
-              <Box
-                css={{
-                  borderBottom: "1px solid $neutral6",
-                  padding: "$3",
-                }}
-              >
-                <Flex align="center">
-                  <TextField
-                    name="principle"
-                    placeholder="Amount in LPT"
-                    type="number"
-                    size="2"
-                    value={principle}
-                    onChange={(e) => {
-                      setPrinciple(
-                        Number(e.target.value) > maxSupplyTokens
-                          ? maxSupplyTokens
-                          : Number(e.target.value)
-                      );
-                    }}
-                    min="1"
-                    max={`${Number(protocolData?.totalSupply || 1e7).toFixed(
-                      0
-                    )}`}
-                  />
-                  <Text
-                    variant="neutral"
-                    size="3"
-                    css={{
-                      marginLeft: "$2",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    LPT
-                  </Text>
-                </Flex>
-              </Box>
-            </PopoverContent>
-          </Popover>
-        </Box>
-        <Box>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              asChild
-            >
-              <Badge
-                size="2"
-                css={{
-                  cursor: "pointer",
-                  color: "$white",
-                  fontSize: "$2",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  <Pencil1Icon />
-                </Box>
-
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginRight: 3,
-                  }}
-                >
-                  {"Factors:"}
-                </Text>
-                <Text
-                  size="1"
-                  css={{
-                    color: "white",
-                    fontWeight: 600,
-                  }}
-                >
-                  {formatFactors(factors)}
-                </Text>
-              </Badge>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              css={{
-                width: "200px",
-                mt: "$1",
-                boxShadow:
-                  "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                bc: "$neutral4",
-              }}
-              align="center"
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
-            >
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setFactors("lpt+eth")}
-                >
-                  {formatFactors("lpt+eth")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setFactors("lpt")}
-                >
-                  {formatFactors("lpt")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setFactors("eth")}
-                >
-                  {formatFactors("eth")}
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Box>
-        <Box>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              asChild
-            >
-              <Badge
-                size="2"
-                css={{
-                  cursor: "pointer",
-                  color: "$white",
-                  fontSize: "$2",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  <Pencil1Icon />
-                </Box>
-
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginRight: 3,
-                  }}
-                >
-                  {"Inflation change:"}
-                </Text>
-                <Text
-                  size="1"
-                  css={{
-                    color: "white",
-                    fontWeight: 600,
-                  }}
-                >
-                  {formatPercentChange(inflationChange)}
-                </Text>
-              </Badge>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              css={{
-                width: "200px",
-                mt: "$1",
-                boxShadow:
-                  "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                bc: "$neutral4",
-              }}
-              align="center"
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
-            >
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setInflationChange("none")}
-                >
-                  {formatPercentChange("none")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setInflationChange("positive")}
-                >
-                  {formatPercentChange("positive")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    cursor: "pointer",
-                  }}
-                  onSelect={() => setInflationChange("negative")}
-                >
-                  {formatPercentChange("negative")}
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Box>
-      </Flex>
-    </Box>
+    <YieldAssumptionsControls
+      principle={principle}
+      setPrinciple={setPrinciple}
+      timeHorizon={timeHorizon}
+      setTimeHorizon={setTimeHorizon}
+      factors={factors}
+      setFactors={setFactors}
+      inflationChange={inflationChange}
+      setInflationChange={setInflationChange}
+      protocolData={protocolData}
+      maxSupplyTokens={maxSupplyTokens}
+      formatPercentChange={formatPercentChange}
+    />
   );
 
   // Render card function for mobile view
