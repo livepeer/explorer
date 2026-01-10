@@ -169,6 +169,20 @@ const OrchestratorList = ({
           },
         });
 
+        // Pre-compute formatted values to avoid useMemo in Cell render functions
+        const formattedFeeCut = numbro(
+          1 - Number(row.feeShare) / 1000000
+        ).format({ mantissa: 0, output: "percent" });
+        const formattedRewardCut = numbro(
+          Number(row.rewardCut) / 1000000
+        ).format({ mantissa: 0, output: "percent" });
+        const formattedRewardCalls =
+          pools.length > 0
+            ? `${numbro(rewardCalls)
+                .divide(pools.length)
+                .format({ mantissa: 0, output: "percent" })}`
+            : "0%";
+
         return {
           ...row,
           daysSinceChangeParams:
@@ -191,6 +205,10 @@ const OrchestratorList = ({
             ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
             totalActiveStake: Number(protocolData?.totalActiveStake),
             totalStake: Number(row.totalStake),
+            // Pre-formatted values for Cell rendering
+            formattedFeeCut,
+            formattedRewardCut,
+            formattedRewardCalls,
           },
         };
       })
@@ -339,35 +357,13 @@ const OrchestratorList = ({
         accessor: (row) => row.earningsComputed,
         id: "earnings",
         Cell: ({ row }) => {
-          const isNewlyActive = useMemo(
-            () => row.values.earnings.isNewlyActive,
-            [row.values?.earnings?.isNewlyActive]
-          );
-          const feeCut = useMemo(
-            () =>
-              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
-                { mantissa: 0, output: "percent" }
-              ),
-            [row.values.earnings.feeShare]
-          );
-          const rewardCut = useMemo(
-            () =>
-              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
-                mantissa: 0,
-                output: "percent",
-              }),
-            [row.values.earnings.rewardCut]
-          );
-          const rewardCalls = useMemo(
-            () =>
-              `${numbro(row.values.earnings.rewardCalls)
-                .divide(row.values.earnings.rewardCallLength)
-                .format({ mantissa: 0, output: "percent" })}`,
-            [
-              row.values.earnings.rewardCalls,
-              row.values.earnings.rewardCallLength,
-            ]
-          );
+          // Use pre-computed values from accessor instead of useMemo in render
+          const {
+            isNewlyActive,
+            formattedFeeCut: feeCut,
+            formattedRewardCut: rewardCut,
+            formattedRewardCalls: rewardCalls,
+          } = row.values.earnings;
 
           return (
             <Popover>
