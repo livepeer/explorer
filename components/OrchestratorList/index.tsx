@@ -41,15 +41,9 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
-import { useReadContract } from "wagmi";
+import { Row } from "react-table";
 import { useWindowSize } from "react-use";
-import {
-  useTable,
-  usePagination,
-  UsePaginationInstanceProps,
-  TableInstance,
-} from "react-table";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
 
@@ -1246,10 +1240,12 @@ const OrchestratorList = ({
                       <Flex>
                         <Text variant="neutral" size="2">
                           Rewards (
-                          {numbro(earnings.roi.delegatorPercent.rewards).format({
-                            mantissa: 1,
-                            output: "percent",
-                          })}
+                          {numbro(earnings.roi.delegatorPercent.rewards).format(
+                            {
+                              mantissa: 1,
+                              output: "percent",
+                            }
+                          )}
                           ):
                         </Text>
                         <Text
@@ -1626,9 +1622,9 @@ const OrchestratorList = ({
                       );
                     }}
                     min="1"
-                    max={`${Number(
-                      protocolData?.totalSupply || 1e7
-                    ).toFixed(0)}`}
+                    max={`${Number(protocolData?.totalSupply || 1e7).toFixed(
+                      0
+                    )}`}
                   />
                   <Text
                     variant="neutral"
@@ -1814,121 +1810,22 @@ const OrchestratorList = ({
     </Box>
   );
 
-  // Use react-table hooks for pagination (works for both mobile and desktop)
-  const tableInstance = useTable(
-    {
-      columns: columns,
-      data: mappedData as object[],
-      initialState: {
-        pageSize,
-        hiddenColumns: ["identity"],
-        sortBy: [
-          {
-            id: "earnings",
-            desc: true,
-          },
-        ],
-      } as any,
-    },
-    usePagination
-  ) as TableInstance<object> &
-    UsePaginationInstanceProps<object> & { state: { pageIndex: number } };
-
-  const {
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageCount,
-    nextPage,
-    previousPage,
-    state: { pageIndex },
-  } = tableInstance;
-
-  // Pagination controls component (reusable)
-  const PaginationControls = () => (
-    <Flex
-      css={{
-        paddingTop: "$4",
-        paddingBottom: "$4",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Box
-        as={ArrowLeftIcon}
-        css={{
-          cursor: "pointer",
-          color: canPreviousPage ? "$primary11" : "$hiContrast",
-          opacity: canPreviousPage ? 1 : 0.5,
-        }}
-        onClick={() => {
-          if (canPreviousPage) {
-            previousPage();
-          }
-        }}
-      />
-      <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
-        Page <Box as="span">{pageIndex + 1}</Box> of{" "}
-        <Box as="span">{pageCount}</Box>
-      </Box>
-      <Box
-        as={ArrowRightIcon}
-        css={{
-          cursor: "pointer",
-          color: canNextPage ? "$primary11" : "$hiContrast",
-          opacity: canNextPage ? 1 : 0.5,
-        }}
-        onClick={() => {
-          if (canNextPage) {
-            nextPage();
-          }
-        }}
-      />
-    </Flex>
-  );
-
-  // Mobile card view
-  if (isMobile) {
+  // Render card function for mobile view
+  const renderCard = (row: Row<object>, index: number, pageIndex: number) => {
+    const rowData = row.original as NonNullable<typeof mappedData>[number];
     return (
-      <Box>
-        {yieldAssumptionsControls}
-        <Box
-          css={{
-            border: "1px solid $colors$neutral4",
-            backgroundColor: "$panel",
-            borderRadius: "$4",
-            padding: "$4",
-          }}
-        >
-          <Box
-            css={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "$3",
-            }}
-          >
-            {page.map((row, index) => {
-              const rowData = row.original as NonNullable<typeof mappedData>[number];
-              return (
-                <OrchestratorCard
-                  key={rowData.id}
-                  rowData={rowData}
-                  index={index}
-                  pageIndex={pageIndex}
-                  pageSize={pageSize}
-                  timeHorizon={timeHorizon}
-                  factors={factors}
-                />
-              );
-            })}
-          </Box>
-          <PaginationControls />
-        </Box>
-      </Box>
+      <OrchestratorCard
+        key={rowData.id}
+        rowData={rowData}
+        index={index}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        timeHorizon={timeHorizon}
+        factors={factors}
+      />
     );
-  }
+  };
 
-  // Desktop: use existing Table component
   return (
     <Table
       data={mappedData as object[]}
@@ -1944,6 +1841,7 @@ const OrchestratorList = ({
         ],
       }}
       input={yieldAssumptionsControls}
+      renderCard={isMobile ? renderCard : undefined}
     />
   );
 };

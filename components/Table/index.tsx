@@ -18,6 +18,7 @@ import { ReactNode } from "react";
 import {
   Column,
   HeaderGroup,
+  Row,
   TableInstance,
   usePagination,
   UsePaginationInstanceProps,
@@ -32,12 +33,14 @@ function DataTable<T extends object>({
   data,
   columns,
   initialState = {},
+  renderCard,
 }: {
   heading?: ReactNode;
   input?: ReactNode;
   data: T[];
   columns: Column<T>[];
   initialState: object;
+  renderCard?: (row: Row<T>, index: number, pageIndex: number) => ReactNode;
 }) {
   const {
     getTableProps,
@@ -53,7 +56,7 @@ function DataTable<T extends object>({
     state: { pageIndex },
   } = useTable<T>(
     {
-      columns,
+      columns: columns || [],
       data,
       initialState,
     },
@@ -63,6 +66,90 @@ function DataTable<T extends object>({
     UsePaginationInstanceProps<T> &
     UseSortByInstanceProps<T> & { state: { pageIndex: number } };
 
+  // Card view (if renderCard is provided)
+  if (renderCard) {
+    return (
+      <>
+        {heading && (
+          <Flex align="center" css={{ justifyContent: "space-between" }}>
+            {heading}
+          </Flex>
+        )}
+        <Box
+          css={{
+            border: "1px solid $colors$neutral4",
+            backgroundColor: "$panel",
+            borderRadius: "$4",
+            padding: "$4",
+          }}
+        >
+          {input && (
+            <Box
+              css={{
+                marginBottom: "$4",
+              }}
+            >
+              {input}
+            </Box>
+          )}
+          <Box
+            css={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "$3",
+            }}
+          >
+            {page.map((row, index) => (
+              <Box key={row.id || index}>
+                {renderCard(row, index, pageIndex)}
+              </Box>
+            ))}
+          </Box>
+          <Flex
+            css={{
+              paddingTop: "$4",
+              paddingBottom: "$4",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              as={ArrowLeftIcon}
+              css={{
+                cursor: "pointer",
+                color: canPreviousPage ? "$primary11" : "$hiContrast",
+                opacity: canPreviousPage ? 1 : 0.5,
+              }}
+              onClick={() => {
+                if (canPreviousPage) {
+                  previousPage();
+                }
+              }}
+            />
+            <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
+              Page <Box as="span">{pageIndex + 1}</Box> of{" "}
+              <Box as="span">{pageCount}</Box>
+            </Box>
+            <Box
+              as={ArrowRightIcon}
+              css={{
+                cursor: "pointer",
+                color: canNextPage ? "$primary11" : "$hiContrast",
+                opacity: canNextPage ? 1 : 0.5,
+              }}
+              onClick={() => {
+                if (canNextPage) {
+                  nextPage();
+                }
+              }}
+            />
+          </Flex>
+        </Box>
+      </>
+    );
+  }
+
+  // Table view (default)
   return (
     <>
       {heading && (
