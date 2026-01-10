@@ -1,6 +1,5 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
-import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
@@ -21,7 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Flex,
-  IconButton,
   Link as A,
   Popover,
   PopoverContent,
@@ -30,11 +28,7 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import {
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-  Pencil1Icon,
-} from "@radix-ui/react-icons";
+import { ChevronDownIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
@@ -46,6 +40,7 @@ import { useWindowSize } from "react-use";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
+import { OrchestratorActionsMenu } from "./OrchestratorActionsMenu";
 
 const formatTimeHorizon = (timeHorizon: ROITimeHorizon) =>
   timeHorizon === "one-year"
@@ -868,99 +863,9 @@ const OrchestratorList = ({
         Header: <></>,
         id: "actions",
         Cell: ({ row }) => (
-          <Popover>
-            <PopoverTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              asChild
-            >
-              <Flex css={{ alignItems: "center" }}>
-                <IconButton
-                  aria-label="Orchestrator actions"
-                  css={{
-                    cursor: "pointer",
-                    marginLeft: "$1",
-                    opacity: 1,
-                    transition: "background-color .3s",
-                    "&:hover": {
-                      bc: "$primary5",
-                      transition: "background-color .3s",
-                    },
-                  }}
-                >
-                  <DotsHorizontalIcon />
-                </IconButton>
-              </Flex>
-            </PopoverTrigger>
-            <PopoverContent
-              css={{ borderRadius: "$4", bc: "$neutral4" }}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
-            >
-              <Box
-                css={{
-                  borderBottom: "1px solid $neutral6",
-                  paddingLeft: "$1",
-                  paddingRight: "$1",
-                  paddingTop: "$1",
-                  paddingBottom: "$2",
-                }}
-              >
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginLeft: "$3",
-                    marginTop: "$2",
-                    marginBottom: "$2",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Actions
-                </Text>
-
-                <PopoverLink href={`/accounts/${row.values.id}/orchestrating`}>
-                  Delegate
-                </PopoverLink>
-              </Box>
-              <Flex
-                css={{
-                  flexDirection: "column",
-                  padding: "$1",
-                }}
-              >
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginLeft: "$3",
-                    marginTop: "$2",
-                    marginBottom: "$2",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Account Details
-                </Text>
-
-                <PopoverLink href={`/accounts/${row.values.id}/orchestrating`}>
-                  Orchestrating
-                </PopoverLink>
-                <PopoverLink href={`/accounts/${row.values.id}/delegating`}>
-                  Delegating
-                </PopoverLink>
-                <PopoverLink href={`/accounts/${row.values.id}/history`}>
-                  History
-                </PopoverLink>
-              </Flex>
-            </PopoverContent>
-          </Popover>
+          <Flex css={{ alignItems: "center" }}>
+            <OrchestratorActionsMenu accountId={row.values.id} />
+          </Flex>
         ),
       },
     ],
@@ -1077,101 +982,7 @@ const OrchestratorList = ({
               </A>
             </Flex>
           </Flex>
-          <Popover>
-            <PopoverTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              asChild
-            >
-              <IconButton
-                aria-label="Orchestrator actions"
-                css={{
-                  cursor: "pointer",
-                  opacity: 1,
-                  transition: "background-color .3s",
-                  "&:hover": {
-                    bc: "$primary5",
-                    transition: "background-color .3s",
-                  },
-                }}
-              >
-                <DotsHorizontalIcon />
-              </IconButton>
-            </PopoverTrigger>
-            <PopoverContent
-              css={{
-                marginLeft: "$3",
-                marginRight: "$3",
-                borderRadius: "$4",
-                bc: "$neutral4",
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
-            >
-              <Box
-                css={{
-                  borderBottom: "1px solid $neutral6",
-                  paddingLeft: "$1",
-                  paddingRight: "$1",
-                  paddingTop: "$1",
-                  paddingBottom: "$2",
-                }}
-              >
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginLeft: "$3",
-                    marginTop: "$2",
-                    marginBottom: "$2",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Actions
-                </Text>
-
-                <PopoverLink href={`/accounts/${rowData.id}/orchestrating`}>
-                  Delegate
-                </PopoverLink>
-              </Box>
-              <Flex
-                css={{
-                  flexDirection: "column",
-                  padding: "$1",
-                }}
-              >
-                <Text
-                  variant="neutral"
-                  size="1"
-                  css={{
-                    marginLeft: "$3",
-                    marginTop: "$2",
-                    marginBottom: "$2",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Account Details
-                </Text>
-
-                <PopoverLink href={`/accounts/${rowData.id}/orchestrating`}>
-                  Orchestrating
-                </PopoverLink>
-                <PopoverLink href={`/accounts/${rowData.id}/delegating`}>
-                  Delegating
-                </PopoverLink>
-                <PopoverLink href={`/accounts/${rowData.id}/history`}>
-                  History
-                </PopoverLink>
-              </Flex>
-            </PopoverContent>
-          </Popover>
+          <OrchestratorActionsMenu accountId={rowData.id} isMobile={true} />
         </Flex>
 
         <Box
