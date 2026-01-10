@@ -52,6 +52,36 @@ export const getMonthsForTimeHorizon = (timeHorizon: ROITimeHorizon) =>
     ? 48
     : 12;
 
+export function formatTimeHorizon(timeHorizon: ROITimeHorizon): string {
+  switch (timeHorizon) {
+    case "half-year":
+      return "6 months";
+    case "one-year":
+      return "1 year";
+    case "two-years":
+      return "2 years";
+    case "three-years":
+      return "3 years";
+    case "four-years":
+      return "4 years";
+    default:
+      return "1 year";
+  }
+}
+
+export function formatFactors(factors: ROIFactors): string {
+  switch (factors) {
+    case "lpt+eth":
+      return "LPT + ETH";
+    case "lpt":
+      return "LPT Only";
+    case "eth":
+      return "ETH Only";
+    default:
+      return "LPT + ETH";
+  }
+}
+
 export function calculateROI({
   inputs: {
     principle,
