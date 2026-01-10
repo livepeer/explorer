@@ -933,7 +933,6 @@ const OrchestratorList = ({
                 css={{
                   flexDirection: "column",
                   padding: "$1",
-                  borderBottom: "1px solid $neutral6",
                 }}
               >
                 <Text
@@ -1006,6 +1005,8 @@ const OrchestratorList = ({
           borderRadius: "$4",
           padding: "$4",
           backgroundColor: "$neutral2",
+          maxWidth: "100%",
+          overflowX: "hidden",
         }}
       >
         <Flex
@@ -1099,7 +1100,12 @@ const OrchestratorList = ({
               </IconButton>
             </PopoverTrigger>
             <PopoverContent
-              css={{ borderRadius: "$4", bc: "$neutral4" }}
+              css={{
+                marginLeft: "$3",
+                marginRight: "$3",
+                borderRadius: "$4",
+                bc: "$neutral4",
+              }}
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -1138,7 +1144,6 @@ const OrchestratorList = ({
                 css={{
                   flexDirection: "column",
                   padding: "$1",
-                  borderBottom: "1px solid $neutral6",
                 }}
               >
                 <Text

@@ -81,6 +81,8 @@ function DataTable<T extends object>({
             backgroundColor: "$panel",
             borderRadius: "$4",
             padding: "$4",
+            maxWidth: "100%",
+            overflowX: "hidden",
           }}
         >
           {input && (
@@ -97,10 +99,14 @@ function DataTable<T extends object>({
               display: "grid",
               gridTemplateColumns: "1fr",
               gap: "$3",
+              minWidth: 0,
             }}
           >
             {page.map((row, index) => (
-              <Box key={row.id || index}>
+              <Box
+                key={row.id || index}
+                css={{ minWidth: 0, maxWidth: "100%" }}
+              >
                 {renderCard(row, index, pageIndex)}
               </Box>
             ))}
