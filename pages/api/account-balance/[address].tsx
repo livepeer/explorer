@@ -4,6 +4,7 @@ import {
   getBondingManagerAddress,
   getLivepeerTokenAddress,
 } from "@lib/api/contracts";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -47,15 +48,13 @@ const handler = async (
 
         return res.status(200).json(accountBalance);
       } else {
-        return res.status(500).end("Invalid ID");
+        return badRequest(res, "Invalid address format");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

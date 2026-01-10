@@ -1,6 +1,7 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { getBondingManagerAddress } from "@lib/api/contracts";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -27,7 +28,7 @@ const handler = async (
         const currentRoundString = protocol?.currentRound?.id;
 
         if (!currentRoundString) {
-          return res.status(500).end("No current round found");
+          return badRequest(res, "No current round found");
         }
         const currentRound = BigInt(currentRoundString);
 
@@ -56,15 +57,13 @@ const handler = async (
 
         return res.status(200).json(roundInfo);
       } else {
-        return res.status(500).end("Invalid ID");
+        return badRequest(res, "Invalid address format");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

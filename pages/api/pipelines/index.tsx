@@ -1,4 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
+import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { AvailablePipelines } from "@lib/api/types/get-available-pipelines";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -26,11 +27,9 @@ const handler = async (
       return res.status(200).json(availablePipelines);
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json(null);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
+  } catch (err) {
+    return internalError(res, err);
   }
 };
 
