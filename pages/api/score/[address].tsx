@@ -1,5 +1,11 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
+  badRequest,
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+} from "@lib/api/errors";
+import {
   PerformanceMetrics,
   RegionalValues,
 } from "@lib/api/types/get-performance";
@@ -79,7 +85,7 @@ const handler = async (
             topScoreResponse.status,
             errorText
           );
-          return res.status(500).end("Failed to fetch top AI score");
+          return externalApiError(res, "AI metrics server");
         }
 
         if (!metricsResponse.ok) {
@@ -89,7 +95,7 @@ const handler = async (
             metricsResponse.status,
             errorText
           );
-          return res.status(500).end("Failed to fetch metrics");
+          return externalApiError(res, "metrics server");
         }
 
         if (!priceResponse.ok) {
@@ -99,7 +105,7 @@ const handler = async (
             priceResponse.status,
             errorText
           );
-          return res.status(500).end("Failed to fetch transcoders with price");
+          return externalApiError(res, "pricing server");
         }
 
         const topAIScore: ScoreResponse = await topScoreResponse.json();
@@ -163,15 +169,13 @@ const handler = async (
 
         return res.status(200).json(combined);
       } else {
-        return res.status(500).end("Invalid ID");
+        return badRequest(res, "Invalid address format");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

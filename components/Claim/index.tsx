@@ -225,11 +225,17 @@ const Claim = () => {
                       fees: migrationParams.fees.toString(),
                     }),
                   });
+
+                  if (!res.ok) {
+                    const error = await res.json().catch(() => null);
+                    throw new Error(error?.error || "Failed to generate proof");
+                  }
+
                   const proof = await res.json();
 
                   setProof(proof);
                 } catch (e) {
-                  console.log(e);
+                  console.error(e);
                   throw new Error((e as Error)?.message);
                 }
               }}

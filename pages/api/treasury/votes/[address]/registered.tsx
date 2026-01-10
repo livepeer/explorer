@@ -5,6 +5,7 @@ import {
   getBondingManagerAddress,
   getBondingVotesAddress,
 } from "@lib/api/contracts";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { RegisteredToVote } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -17,19 +18,18 @@ const handler = async (
   try {
     const { method } = req;
     if (method !== "GET") {
-      res.setHeader("Allow", ["GET"]);
-      return res.status(405).end(`Method ${method} Not Allowed`);
+      return methodNotAllowed(res, method ?? "unknown", ["GET"]);
     }
 
     const address = req.query.address?.toString();
     if (!(!!address && isAddress(address))) {
-      throw new Error("Missing address");
+      return badRequest(res, "Invalid address format");
     }
 
     const bondingManagerAddress = await getBondingManagerAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
     if (!bondingManagerAddress || !bondingVotesAddress) {
-      throw new Error("Unsupported chain");
+      return badRequest(res, "Unsupported chain");
     }
 
     const [bondedAmount, , delegateAddress] = await l2PublicClient.readContract(
@@ -85,8 +85,7 @@ const handler = async (
       },
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

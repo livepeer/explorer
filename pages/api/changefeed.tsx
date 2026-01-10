@@ -1,4 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
+import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+} from "@lib/api/errors";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -25,27 +30,41 @@ const query = `
 `;
 
 const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
-  const response = await fetchWithRetry(
-    "https://changefeed.app/graphql",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.CHANGEFEED_ACCESS_TOKEN!}`,
-      },
-      body: JSON.stringify({ query }),
-    },
-    {
-      retryOnMethods: ["POST"],
+  try {
+    const method = _req.method;
+
+    if (method === "GET") {
+      const response = await fetchWithRetry(
+        "https://changefeed.app/graphql",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.CHANGEFEED_ACCESS_TOKEN!}`,
+          },
+          body: JSON.stringify({ query }),
+        },
+        {
+          retryOnMethods: ["POST"],
+        }
+      );
+
+      if (!response.ok) {
+        return externalApiError(res, "changefeed.app");
+      }
+
+      res.setHeader("Cache-Control", getCacheControlHeader("hour"));
+
+      const {
+        data: { projectBySlugs },
+      } = await response.json();
+      return res.status(200).json(projectBySlugs);
     }
-  );
 
-  res.setHeader("Cache-Control", getCacheControlHeader("hour"));
-
-  const {
-    data: { projectBySlugs },
-  } = await response.json();
-  res.json(projectBySlugs);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
+  } catch (err) {
+    return internalError(res, err);
+  }
 };
 
 export default changefeed;
