@@ -1,0 +1,99 @@
+name: Lighthouse (Vercel Preview URL)
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  lhci-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🔎 Wait for Vercel Deployment + grab Preview URL
+        id: vercel
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.payload.pull_request.head.sha;
+
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+            // Poll up to ~10 minutes (40 * 15s)
+            for (let i = 0; i < 40; i++) {
+              const { data: deployments } = await github.rest.repos.listDeployments({
+                owner,
+                repo,
+                sha,
+                per_page: 20,
+              });
+
+              // Vercel usually uses environment "Preview". Fall back to anything for this sha.
+              const previewDeployments = deployments.filter(d =>
+                String(d.environment || "").toLowerCase().includes("preview")
+              );
+
+              const candidates = (previewDeployments.length ? previewDeployments : deployments)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+              if (candidates.length) {
+                const dep = candidates[0];
+
+                const { data: statuses } = await github.rest.repos.listDeploymentStatuses({
+                  owner,
+                  repo,
+                  deployment_id: dep.id,
+                  per_page: 20,
+                });
+
+                // Find the latest success status with a target_url
+                const success = statuses.find(s => s.state === "success" && s.target_url);
+
+                if (success?.target_url) {
+                  core.setOutput("preview_url", success.target_url);
+                  core.info(`Found preview URL: ${success.target_url}`);
+                  return;
+                }
+
+                // Optional: if it failed, surface it quickly
+                const failure = statuses.find(s => (s.state === "error" || s.state === "failure"));
+                if (failure) {
+                  throw new Error(`Deployment failed: ${failure.description || failure.state}`);
+                }
+              }
+
+              core.info(`Waiting for Vercel preview deployment... (${i + 1}/40)`);
+              await sleep(15000);
+            }
+
+            throw new Error("Timed out waiting for Vercel preview deployment URL.");
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+          run_install: false
+
+      - name: 📦 Install Lighthouse CI
+        run: pnpm add -D @lhci/cli
+
+      - name: 🧪 Run Lighthouse CI against Vercel Preview
+        env:
+          PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
+        run: |
+          echo "Running Lighthouse CI on: $PREVIEW_URL"
+          npx lhci collect --url="$PREVIEW_URL/"
+          npx lhci assert
+          npx lhci upload --target=temporary-public-storage
