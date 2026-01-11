@@ -102,6 +102,7 @@ function DataTable<T extends object>({
                 borderCollapse: "collapse",
                 tableLayout: "auto",
                 width: "100%",
+                minWidth: 0,
                 ...(constrainWidth
                   ? {}
                   : {
@@ -242,6 +243,7 @@ function DataTable<T extends object>({
                                 minWidth: 0,
                                 boxSizing: "border-box",
                                 wordWrap: "break-word",
+                                overflow: "hidden",
                               }),
                             }}
                           >

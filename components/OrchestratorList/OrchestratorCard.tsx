@@ -65,8 +65,10 @@ export function OrchestratorCard({
         borderRadius: "$4",
         padding: "$4",
         backgroundColor: "$neutral2",
+        width: "100%",
         maxWidth: "100%",
-        overflowX: "hidden",
+        boxSizing: "border-box",
+        overflow: "hidden",
       }}
     >
       <Flex
@@ -74,13 +76,20 @@ export function OrchestratorCard({
           justifyContent: "space-between",
           alignItems: "flex-start",
           marginBottom: "$3",
+          gap: "$2",
         }}
       >
-        <Flex css={{ flexDirection: "column", flex: 1 }}>
-          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+        <Flex css={{ flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <Flex
+            css={{
+              alignItems: "center",
+              marginBottom: "$2",
+              flexWrap: "wrap",
+              gap: "$2",
+            }}
+          >
             <Box
               css={{
-                marginRight: "$2",
                 backgroundColor: "$neutral4",
                 borderRadius: 1000,
                 color: "$neutral11",
@@ -93,6 +102,7 @@ export function OrchestratorCard({
                 justifyContent: "center",
                 display: "flex",
                 alignItems: "center",
+                flexShrink: 0,
               }}
             >
               {+rowId + 1}
@@ -106,30 +116,67 @@ export function OrchestratorCard({
                 textDecoration: "none",
                 "&:hover": { textDecoration: "none" },
                 flex: 1,
+                minWidth: 0,
               }}
             >
-              <Flex css={{ alignItems: "center" }}>
+              <Flex
+                css={{
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "$2",
+                  "@bp1": {
+                    flexWrap: "nowrap",
+                  },
+                }}
+              >
                 <IdentityAvatar
                   identity={identity}
                   address={rowData.id}
-                  css={{ marginRight: "$2" }}
+                  css={{ flexShrink: 0 }}
                 />
                 {identity?.name ? (
-                  <Flex css={{ fontWeight: 600, alignItems: "center" }}>
+                  <Flex
+                    css={{
+                      fontWeight: 600,
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      gap: "$1",
+                      "@bp1": {
+                        flexDirection: "row",
+                        alignItems: "center",
+                      },
+                    }}
+                  >
                     <Box
                       css={{
-                        marginRight: "$2",
                         fontSize: "$3",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100%",
                       }}
                     >
                       {textTruncate(identity.name, 20, "…")}
                     </Box>
-                    <Badge size="2" css={{ fontSize: "$2" }}>
+                    <Badge
+                      size="2"
+                      css={{
+                        fontSize: "$1",
+                        flexShrink: 0,
+                      }}
+                    >
                       {rowData.id.substring(0, 6)}
                     </Badge>
                   </Flex>
                 ) : (
-                  <Box css={{ fontWeight: 600 }}>
+                  <Box
+                    css={{
+                      fontWeight: 600,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {rowData.id.replace(rowData.id.slice(7, 37), "…")}
                   </Box>
                 )}
@@ -137,7 +184,9 @@ export function OrchestratorCard({
             </A>
           </Flex>
         </Flex>
-        <OrchestratorActionsMenu accountId={rowData.id} isMobile={true} />
+        <Box css={{ flexShrink: 0 }}>
+          <OrchestratorActionsMenu accountId={rowData.id} isMobile={true} />
+        </Box>
       </Flex>
 
       <Box
