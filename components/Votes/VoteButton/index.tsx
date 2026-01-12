@@ -67,7 +67,7 @@ const Index = ({
     choiceId,
     choiceName: proposalId
       ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
-      : { 0: "No", 1: "Yes" }[choiceId],
+      : { 0: "For", 1: "Against" }[choiceId],
     reason,
   });
 

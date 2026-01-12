@@ -292,7 +292,9 @@ const Index = ({ data }: { data: Props }) => {
                 </Box>
                 <Box as="span" css={{ fontWeight: 500, color: "white" }}>
                   {data?.delegateVote?.choiceID
-                    ? data?.delegateVote?.choiceID
+                    ? data?.delegateVote?.choiceID === "Yes"
+                      ? "For"
+                      : "Against"
                     : "N/A"}
                 </Box>
               </Flex>
@@ -306,7 +308,11 @@ const Index = ({ data }: { data: Props }) => {
                   My Vote ({formatAddress(accountAddress)})
                 </Box>
                 <Box as="span" css={{ fontWeight: 500, color: "$hiContrast" }}>
-                  {data?.vote?.choiceID ? data?.vote?.choiceID : "N/A"}
+                  {data?.vote?.choiceID
+                    ? data?.vote?.choiceID === "Yes"
+                      ? "For"
+                      : "Against"
+                    : "N/A"}
                 </Box>
               </Flex>
               {((!data?.vote?.choiceID && data.poll.status === "active") ||
