@@ -1,5 +1,6 @@
 import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
 import { UnbondingLock } from "apollo";
+import { useMemo } from "react";
 import { parseEther } from "viem";
 
 import {
@@ -12,19 +13,22 @@ import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
 
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
-  const pendingStakeTransactions: Array<UnbondingLock> =
-    delegator.unbondingLocks.filter(
-      (item: UnbondingLock) =>
-        item.withdrawRound &&
-        +item.withdrawRound > parseInt(currentRound.id, 10)
-    );
-  const completedStakeTransactions: Array<UnbondingLock> =
-    delegator.unbondingLocks.filter(
-      (item: UnbondingLock) =>
-        item.withdrawRound &&
-        +item.withdrawRound <= parseInt(currentRound.id, 10)
-    );
   const isBonded = !!delegator.delegate;
+
+  const pendingStakeTransactions = useMemo(() => {
+    const roundId = parseInt(currentRound.id, 10);
+    return delegator.unbondingLocks.filter(
+      (item: UnbondingLock) =>
+        item.withdrawRound && +item.withdrawRound > roundId
+    );
+  }, [delegator.unbondingLocks, currentRound.id]);
+  const completedStakeTransactions = useMemo(() => {
+    const roundId = parseInt(currentRound.id, 10);
+    return delegator.unbondingLocks.filter(
+      (item: UnbondingLock) =>
+        item.withdrawRound && +item.withdrawRound <= roundId
+    );
+  }, [delegator.unbondingLocks, currentRound.id]);
 
   return (
     <Box css={{ marginTop: "$6" }}>
