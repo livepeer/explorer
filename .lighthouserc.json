@@ -2,21 +2,16 @@
   "ci": {
     "collect": {
       "numberOfRuns": 2,
-      "settings": {
-        "preset": "desktop",
-        "formFactor": "desktop"
-      }
+      "settings": { "preset": "desktop", "formFactor": "desktop" }
     },
     "assert": {
       "assertions": {
-        "categories:performance": ["warn", { "minScore": 0.85 }],
-        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
-        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.1 }],
-        "total-blocking-time": ["warn", { "maxNumericValue": 300 }]
+        "categories:performance": ["error", { "minScore": 0.85 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time": ["error", { "maxNumericValue": 300 }]
       }
     },
-    "upload": {
-      "target": "temporary-public-storage"
-    }
+    "upload": { "target": "temporary-public-storage" }
   }
 }

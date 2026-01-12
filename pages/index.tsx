@@ -2,13 +2,8 @@ import "react-circular-progressbar/dist/styles.css";
 
 import ErrorComponent from "@components/Error";
 import type { Group } from "@components/ExplorerChart";
-import ExplorerChart from "@components/ExplorerChart";
-import OrchestratorList from "@components/OrchestratorList";
-import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
-import TransactionsList, {
-  FILTERED_EVENT_TYPENAMES,
-} from "@components/TransactionsList";
+import { FILTERED_EVENT_TYPENAMES } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -22,6 +17,7 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { useChartData } from "hooks";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
@@ -32,6 +28,26 @@ import {
   ProtocolQueryResult,
 } from "../apollo";
 import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
+
+const ExplorerChart = dynamic(
+  () => import("@components/ExplorerChart").then((mod) => mod.default),
+  { ssr: false }
+);
+
+const OrchestratorList = dynamic(
+  () => import("@components/OrchestratorList").then((mod) => mod.default),
+  { ssr: false }
+);
+
+const TransactionsList = dynamic(
+  () => import("@components/TransactionsList").then((mod) => mod.default),
+  { ssr: false }
+);
+
+const RoundStatus = dynamic(
+  () => import("@components/RoundStatus").then((mod) => mod.default),
+  { ssr: false }
+);
 
 const Panel = ({ children }) => (
   <Flex
