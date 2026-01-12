@@ -141,14 +141,12 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               target="_blank"
               onClickCapture={(e) => e.stopPropagation()}
               css={{
-                display: "inline-block",
-                "&:hover .arrow-icon": {
-                  transform: "translate(2px, -2px)",
-                },
-                "&:focus-visible": {
-                  outline: "2px solid $primary11",
-                  outlineOffset: "2px",
-                  borderRadius: "2px",
+                display: "inline-flex",
+                textDecoration: "none !important",
+                "&:hover > *": {
+                  border: "1.5px solid $grass7 !important",
+                  backgroundColor: "$grass3 !important",
+                  color: "$grass11 !important",
                 },
               }}
             >
@@ -158,11 +156,8 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                   backgroundColor: "$neutral3",
                   color: "$neutral11",
                   border: "1px solid $neutral4",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    borderColor: "$neutral8",
-                    backgroundColor: "$neutral4",
-                  },
+                  transition:
+                    "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
                 }}
                 size="1"
               >
@@ -173,7 +168,6 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                     marginLeft: "$1",
                     width: 14,
                     height: 14,
-                    transition: "transform 0.2s ease",
                   }}
                   as={ArrowTopRightIcon}
                 />
@@ -359,14 +353,17 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             target="_blank"
             onClickCapture={(e) => e.stopPropagation()}
             css={{
-              display: "inline-block",
-              "&:hover .arrow-icon": {
-                transform: "translate(2px, -2px)",
+              display: "inline-flex",
+              textDecoration: "none",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                transform: "scale(1.02)",
+                textDecoration: "none",
               },
-              "&:focus-visible": {
-                outline: "2px solid $primary11",
-                outlineOffset: "2px",
-                borderRadius: "2px",
+              "&:hover > *": {
+                borderColor: "$grass4 !important",
+                backgroundColor: "$grass3 !important",
+                color: "$grass11 !important",
               },
             }}
           >
@@ -376,11 +373,8 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 backgroundColor: "$neutral3",
                 color: "$neutral11",
                 border: "1px solid $neutral4",
-                transition: "all 0.2s ease",
-                "&:hover": {
-                  borderColor: "$neutral8",
-                  backgroundColor: "$neutral4",
-                },
+                transition:
+                  "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
               }}
               size="1"
             >
@@ -391,7 +385,6 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                   marginLeft: "$1",
                   width: 14,
                   height: 14,
-                  transition: "transform 0.2s ease",
                 }}
                 as={ArrowTopRightIcon}
               />

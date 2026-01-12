@@ -168,9 +168,12 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                 target="_blank"
                 onClickCapture={(e) => e.stopPropagation()}
                 css={{
-                  display: "inline-block",
-                  "&:hover .arrow-icon": {
-                    transform: "translate(2px, -2px)",
+                  display: "inline-flex",
+                  textDecoration: "none !important",
+                  "&:hover > *": {
+                    border: "1.5px solid $grass7 !important",
+                    backgroundColor: "$grass3 !important",
+                    color: "$grass11 !important",
                   },
                 }}
               >
@@ -180,11 +183,8 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                     backgroundColor: "$neutral3",
                     color: "$neutral11",
                     border: "1px solid $neutral4",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      borderColor: "$neutral8",
-                      backgroundColor: "$neutral4",
-                    },
+                    transition:
+                      "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
                   }}
                   size="1"
                 >
@@ -195,7 +195,6 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                       marginLeft: "$1",
                       width: 14,
                       height: 14,
-                      transition: "transform 0.2s ease",
                     }}
                     as={ArrowTopRightIcon}
                   />

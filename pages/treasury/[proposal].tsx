@@ -24,6 +24,11 @@ import {
   Text,
 } from "@livepeer/design-system";
 import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  MinusCircledIcon,
+} from "@radix-ui/react-icons";
+import {
   useProtocolQuery,
   useTreasuryProposalQuery,
   useTreasuryVotesQuery,
@@ -319,8 +324,12 @@ const Proposal = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box css={{ color: "$sky11" }}>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CheckCircledIcon}
+                            css={{ color: "$grass11", width: 14, height: 14 }}
+                          />
+                          <Box css={{ color: "$grass11" }}>
                             For ({formatPercent(proposal.votes.percent.for)})
                           </Box>
                         </Flex>
@@ -336,7 +345,11 @@ const Proposal = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CrossCircledIcon}
+                            css={{ color: "$tomato11", width: 14, height: 14 }}
+                          />
                           <Box css={{ color: "$tomato11" }}>
                             Against (
                             {formatPercent(proposal.votes.percent.against)})
@@ -354,7 +367,11 @@ const Proposal = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={MinusCircledIcon}
+                            css={{ color: "$neutral11", width: 14, height: 14 }}
+                          />
                           <Box css={{ color: "$neutral11" }}>
                             Abstain (
                             {formatPercent(proposal.votes.percent.abstain)})

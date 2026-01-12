@@ -139,11 +139,18 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
               <Badge
                 size="1"
                 css={{
+                  backgroundColor: support.style.backgroundColor,
                   color: support.style.color,
                   fontWeight: support.style.fontWeight,
+                  border: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
                 }}
               >
-                {support.text.toUpperCase()}
+                <Box as={support.icon} css={{ width: 12, height: 12 }} />
+                {support.text}
               </Badge>
 
               <Text size="1" css={{ fontWeight: 600, color: "$white" }}>
@@ -157,20 +164,31 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
                   css={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "$1",
-                    fontSize: "$1",
-                    color: "$neutral11",
-                    textDecoration: "none",
-                    "&:hover": { color: "$primary11" },
-                    "&:focus-visible": {
-                      outline: "2px solid $primary11",
-                      outlineOffset: "2px",
-                      borderRadius: "2px",
+                    textDecoration: "none !important",
+                    "&:hover > *": {
+                      border: "1.5px solid $grass7 !important",
+                      backgroundColor: "$grass3 !important",
+                      color: "$grass11 !important",
                     },
                   }}
                 >
-                  {formatTransactionHash(vote.transaction.id)}
-                  <Box as={ArrowTopRightIcon} css={{ width: 12, height: 12 }} />
+                  <Badge
+                    css={{
+                      cursor: "pointer",
+                      backgroundColor: "$neutral3",
+                      color: "$neutral11",
+                      border: "1px solid $neutral4",
+                      transition:
+                        "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
+                    }}
+                    size="1"
+                  >
+                    {formatTransactionHash(vote.transaction.id)}
+                    <Box
+                      as={ArrowTopRightIcon}
+                      css={{ marginLeft: "$1", width: 12, height: 12 }}
+                    />
+                  </Badge>
                 </Link>
               )}
             </Flex>
