@@ -30,7 +30,7 @@ const handler = async (
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
     if (!livepeerGovernorAddress || !bondingVotesAddress) {
-      return badRequest(res, "Unsupported chain");
+      throw new Error("Unsupported chain");
     }
 
     const proposalThreshold = await l2PublicClient

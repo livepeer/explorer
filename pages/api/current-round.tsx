@@ -1,5 +1,5 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -20,11 +20,11 @@ const handler = async (
       const currentRound = protocol?.currentRound;
 
       if (!currentRound) {
-        return badRequest(res, "No current round found");
+        throw new Error("No current round found");
       }
 
       if (!_meta?.block) {
-        return badRequest(res, "No block number found");
+        throw new Error("No block number found");
       }
 
       const { id, startBlock, initialized } = currentRound;

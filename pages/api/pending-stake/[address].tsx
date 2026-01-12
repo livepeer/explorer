@@ -28,7 +28,7 @@ const handler = async (
         const currentRoundString = protocol?.currentRound?.id;
 
         if (!currentRoundString) {
-          return badRequest(res, "No current round found");
+          throw new Error("No current round found");
         }
         const currentRound = BigInt(currentRoundString);
 

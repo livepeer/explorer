@@ -8,9 +8,11 @@ export const apiError = (
   code: ErrorCode,
   error: string,
   details?: string
-): void => {
+) => {
   console.error(`[API Error] ${code}: ${error}`, details ?? "");
-  res.status(status).json({ error, code, details } as ApiError);
+  const response = { error, code, details } as ApiError;
+  res.status(status).json(response);
+  return response;
 };
 
 export const badRequest = (
@@ -53,5 +55,10 @@ export const methodNotAllowed = (
   allowed: string[]
 ) => {
   res.setHeader("Allow", allowed);
-  apiError(res, 405, "METHOD_NOT_ALLOWED", `Method ${method} Not Allowed`);
+  return apiError(
+    res,
+    405,
+    "METHOD_NOT_ALLOWED",
+    `Method ${method} Not Allowed`
+  );
 };

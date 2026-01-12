@@ -29,7 +29,7 @@ const handler = async (
     const bondingManagerAddress = await getBondingManagerAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
     if (!bondingManagerAddress || !bondingVotesAddress) {
-      return badRequest(res, "Unsupported chain");
+      throw new Error("Unsupported chain");
     }
 
     const [bondedAmount, , delegateAddress] = await l2PublicClient.readContract(

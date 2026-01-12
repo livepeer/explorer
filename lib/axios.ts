@@ -12,7 +12,8 @@ export const fetcher = <T>(url: string) =>
     .catch((err) => {
       const apiError = err.response?.data;
       if (apiError?.code) {
-        throw new Error(`${apiError.code}: ${apiError.error}`);
+        const errorMessage = apiError.error ?? "An unknown error occurred";
+        throw new Error(`${apiError.code}: ${errorMessage}`);
       }
       throw err;
     });
