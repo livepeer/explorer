@@ -219,8 +219,8 @@ const Claim = () => {
                     body: JSON.stringify({
                       account: accountAddress,
                       delegate: migrationParams.delegate,
-                      stake: migrationParams.stake,
-                      fees: migrationParams.fees,
+                      stake: migrationParams.stake.toString(),
+                      fees: migrationParams.fees.toString(),
                     }),
                   });
                   const proof = await res.json();

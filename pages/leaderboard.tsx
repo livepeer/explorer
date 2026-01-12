@@ -9,9 +9,9 @@ import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Region } from "@lib/api/types/get-regions";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
 import { ChevronDownIcon } from "@modulz/radix-icons";
-import { useRegionsData } from "hooks/useSwr";
+import { useAllScoreData, useRegionsData } from "hooks/useSwr";
 import Head from "next/head";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { getApollo, OrchestratorsQueryResult } from "../apollo";
 
@@ -31,6 +31,43 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const knownRegions = useRegionsData();
   const [region, setRegion] = useState<Region["id"]>("GLOBAL");
+  const { data: allScores, isValidating } = useAllScoreData(
+    selectedPipeline,
+    selectedModel
+  );
+
+  // TODO: use new data when endpoint has been updated
+  // https://github.com/livepeer/explorer/pull/359#issuecomment-3690188260
+  // Filter regions to only show those with data.
+  const availableRegions = useMemo(() => {
+    if (!knownRegions?.regions) return [];
+
+    const pipelineType = selectedPipeline ? "ai" : "transcoding";
+
+    // If no scores loaded yet, just filter by pipeline type.
+    if (!allScores) {
+      return knownRegions.regions.filter((r) => r.type === pipelineType);
+    }
+
+    // Collect regions that have score data.
+    const regionsWithData = new Set<string>();
+    Object.values(allScores).forEach((orchestratorData) => {
+      if (orchestratorData?.scores) {
+        Object.entries(orchestratorData.scores).forEach(
+          ([regionKey, value]) => {
+            if (value != null) {
+              regionsWithData.add(regionKey);
+            }
+          }
+        );
+      }
+    });
+
+    // Filter regions based on pipeline type and data availability.
+    return knownRegions.regions.filter(
+      (r) => r.type === pipelineType && regionsWithData.has(r.id)
+    );
+  }, [knownRegions, allScores, selectedPipeline]);
 
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
@@ -111,18 +148,13 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                     appearance: "none",
                   }}
                 >
-                  {knownRegions?.regions
-                    .filter(
-                      (r) =>
-                        r.type === (selectedPipeline ? "ai" : "transcoding")
-                    )
-                    .map((region) => {
-                      return (
-                        <Box as="option" key={region.id} value={region.id}>
-                          {region.name}
-                        </Box>
-                      );
-                    })}
+                  {availableRegions.map((region) => {
+                    return (
+                      <Box as="option" key={region.id} value={region.id}>
+                        {region.name}
+                      </Box>
+                    );
+                  })}
                 </Box>
                 <Box
                   as={ChevronDownIcon}
@@ -154,11 +186,13 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
           </Flex>
           <Box css={{ marginBottom: "$5" }}>
             <PerformanceList
-              data={orchestratorIds}
+              orchestratorIds={orchestratorIds}
               pageSize={20}
               region={region}
               pipeline={selectedPipeline}
               model={selectedModel}
+              performanceMetrics={allScores}
+              isLoadingMetrics={isValidating}
             />
           </Box>
         </Flex>

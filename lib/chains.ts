@@ -15,6 +15,7 @@ const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 const SUBGRAPH_ID =
   process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
   "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
+const SUBGRAPH_ENDPOINT = process.env.NEXT_PUBLIC_SUBGRAPH_ENDPOINT;
 
 // Check for required environment variables.
 if (!INFURA_KEY || !NETWORK) {
@@ -22,9 +23,9 @@ if (!INFURA_KEY || !NETWORK) {
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
 }
-if (!SUBGRAPH_KEY) {
+if (!SUBGRAPH_ENDPOINT && !SUBGRAPH_KEY) {
   throw new Error(
-    `NEXT_PUBLIC_SUBGRAPH_API_KEY must be defined environment variables`
+    `NEXT_PUBLIC_SUBGRAPH_API_KEY or NEXT_PUBLIC_SUBGRAPH_ENDPOINT must be defined as an environment variable`
   );
 }
 
@@ -153,7 +154,9 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
     },
-    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
+    subgraph:
+      SUBGRAPH_ENDPOINT ||
+      `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: MAINNET_CONTRACTS,
   },
   // TODO this needs to be updated
@@ -169,6 +172,7 @@ export const CHAIN_INFO = {
       rpcUrl: INFURA_NETWORK_URLS[chain.goerli.id],
     },
     subgraph:
+      SUBGRAPH_ENDPOINT ||
       "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-goerli",
     contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
@@ -185,7 +189,9 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph: `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
+    subgraph:
+      SUBGRAPH_ENDPOINT ||
+      `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
   [chain.arbitrumGoerli.id]: {
@@ -206,6 +212,7 @@ export const CHAIN_INFO = {
       rpcUrl: "https://goerli-rollup.arbitrum.io/rpc",
     },
     subgraph:
+      SUBGRAPH_ENDPOINT ||
       "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-goerli",
     contracts: ARBITRUM_GOERLI_CONTRACTS,
   },

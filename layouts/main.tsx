@@ -1,15 +1,11 @@
 import AppBar from "@components/AppBar";
-import Claim from "@components/Claim";
-import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
-import TxConfirmedDialog from "@components/TxConfirmedDialog";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
@@ -44,6 +40,7 @@ import {
 } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -110,6 +107,23 @@ export type DrawerItem = {
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
+
+const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
+  ssr: false,
+});
+
+const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
+
+const TxConfirmedDialog = dynamic(
+  () => import("../components/TxConfirmedDialog"),
+  {
+    ssr: false,
+  }
+);
+
+const RegisterToVote = dynamic(() => import("../components/RegisterToVote"), {
+  ssr: false,
+});
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath, isReady, query } = useRouter();
