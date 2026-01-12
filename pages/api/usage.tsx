@@ -1,5 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+} from "@lib/api/errors";
+import {
   DayData,
   HomeChartData,
   WeeklyData,
@@ -76,7 +81,7 @@ const chartDataHandler = async (
           errorBody
         );
 
-        return res.status(500).json(null);
+        return externalApiError(res, "livepeer.com usage API");
       }
 
       const parsedDayData = await response
@@ -85,7 +90,7 @@ const chartDataHandler = async (
 
       if (!parsedDayData.success) {
         console.error(parsedDayData.error);
-        return res.status(500).json(null);
+        return internalError(res, new Error("Failed to parse usage data"));
       }
 
       const mergedDayData: DayData[] = [
@@ -106,141 +111,132 @@ const chartDataHandler = async (
         .sort((a, b) => (a.dateS > b.dateS ? 1 : -1))
         .filter((s) => s.activeTranscoderCount);
 
-      try {
-        let startIndexWeekly = -1;
-        let currentWeek = -1;
+      let startIndexWeekly = -1;
+      let currentWeek = -1;
 
-        const weeklyData: WeeklyData[] = [];
+      const weeklyData: WeeklyData[] = [];
 
-        for (const day of sortedDays) {
-          const week = dayjs.utc(dayjs.unix(day.dateS)).week();
-          if (week !== currentWeek) {
-            currentWeek = week;
-            startIndexWeekly++;
+      for (const day of sortedDays) {
+        const week = dayjs.utc(dayjs.unix(day.dateS)).week();
+        if (week !== currentWeek) {
+          currentWeek = week;
+          startIndexWeekly++;
 
-            weeklyData.push({
-              date: day.dateS,
-              weeklyVolumeUsd: 0,
-              weeklyVolumeEth: 0,
-              weeklyUsageMinutes: 0,
-            });
-          }
-
-          weeklyData[startIndexWeekly].weeklyVolumeUsd += day.volumeUsd;
-          weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
-          weeklyData[startIndexWeekly].weeklyUsageMinutes +=
-            day.feeDerivedMinutes;
+          weeklyData.push({
+            date: day.dateS,
+            weeklyVolumeUsd: 0,
+            weeklyVolumeEth: 0,
+            weeklyUsageMinutes: 0,
+          });
         }
 
-        // const currentWeekData = weeklyData[weeklyData.length - 1];
-        const oneWeekBackData = weeklyData[weeklyData.length - 2];
-        const twoWeekBackData = weeklyData[weeklyData.length - 3];
-
-        const currentDayData = sortedDays[sortedDays.length - 1];
-        const oneDayBackData = sortedDays[sortedDays.length - 2];
-        // const twoDayBackData = sortedDays[sortedDays.length - 3];
-
-        const dailyUsageChange = getPercentChange(
-          currentDayData.feeDerivedMinutes,
-          oneDayBackData.feeDerivedMinutes
-        );
-
-        const dailyVolumeEthChange = getPercentChange(
-          currentDayData.volumeEth,
-          oneDayBackData.volumeEth
-        );
-
-        const dailyVolumeUsdChange = getPercentChange(
-          currentDayData.volumeUsd,
-          oneDayBackData.volumeUsd
-        );
-
-        const weeklyVolumeUsdChange = getPercentChange(
-          oneWeekBackData?.weeklyVolumeUsd ?? 0,
-          twoWeekBackData?.weeklyVolumeUsd ?? 0
-        );
-
-        const weeklyVolumeEthChange = getPercentChange(
-          oneWeekBackData?.weeklyVolumeEth ?? 0,
-          twoWeekBackData?.weeklyVolumeEth ?? 0
-        );
-
-        const weeklyUsageChange = getPercentChange(
-          oneWeekBackData?.weeklyUsageMinutes ?? 0,
-          twoWeekBackData?.weeklyUsageMinutes ?? 0
-        );
-
-        const participationRateChange = getPercentChange(
-          currentDayData?.participationRate,
-          oneDayBackData?.participationRate
-        );
-        const inflationChange = getPercentChange(
-          currentDayData?.inflation,
-          oneDayBackData?.inflation
-        );
-        const activeTranscoderCountChange = getPercentChange(
-          currentDayData?.activeTranscoderCount,
-          oneDayBackData?.activeTranscoderCount
-        );
-        const delegatorsCountChange = getPercentChange(
-          currentDayData?.delegatorsCount,
-          oneDayBackData?.delegatorsCount
-        );
-
-        const data: HomeChartData = {
-          dayData: sortedDays,
-          weeklyData: weeklyData,
-          oneDayVolumeUSD: currentDayData.volumeUsd,
-          oneDayVolumeETH: currentDayData.volumeEth,
-          oneWeekVolumeUSD: oneWeekBackData.weeklyVolumeUsd,
-          oneWeekVolumeETH: oneWeekBackData.weeklyVolumeEth,
-          // totalUsage: totalFeeDerivedMinutes + totalLivepeerComUsage,
-          oneDayUsage: currentDayData.feeDerivedMinutes ?? 0,
-          oneWeekUsage: oneWeekBackData.weeklyUsageMinutes ?? 0,
-          dailyUsageChange: dailyUsageChange ?? 0,
-          weeklyUsageChange: weeklyUsageChange ?? 0,
-          weeklyVolumeChangeUSD: weeklyVolumeUsdChange,
-          weeklyVolumeChangeETH: weeklyVolumeEthChange,
-          volumeChangeUSD: dailyVolumeUsdChange,
-          volumeChangeETH: dailyVolumeEthChange,
-          participationRateChange: participationRateChange,
-          inflationChange: inflationChange,
-          delegatorsCountChange: delegatorsCountChange,
-          activeTranscoderCountChange: activeTranscoderCountChange,
-
-          participationRate:
-            sortedDays[sortedDays.length - 1].participationRate,
-          inflation: sortedDays[sortedDays.length - 1].inflation,
-          activeTranscoderCount:
-            sortedDays[sortedDays.length - 1].activeTranscoderCount,
-          delegatorsCount: sortedDays[sortedDays.length - 1].delegatorsCount,
-        };
-
-        if (
-          Number(
-            data?.dayData?.[(data?.dayData?.length ?? 1) - 1]
-              ?.activeTranscoderCount
-          ) <= 0
-        ) {
-          data.dayData = data.dayData.slice(0, -1);
-        }
-
-        res.setHeader("Cache-Control", getCacheControlHeader("day"));
-
-        return res.status(200).json(data);
-      } catch (e) {
-        console.error(e);
-        return res.status(500).json(null);
+        weeklyData[startIndexWeekly].weeklyVolumeUsd += day.volumeUsd;
+        weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
+        weeklyData[startIndexWeekly].weeklyUsageMinutes +=
+          day.feeDerivedMinutes;
       }
+
+      // const currentWeekData = weeklyData[weeklyData.length - 1];
+      const oneWeekBackData = weeklyData[weeklyData.length - 2];
+      const twoWeekBackData = weeklyData[weeklyData.length - 3];
+
+      const currentDayData = sortedDays[sortedDays.length - 1];
+      const oneDayBackData = sortedDays[sortedDays.length - 2];
+      // const twoDayBackData = sortedDays[sortedDays.length - 3];
+
+      const dailyUsageChange = getPercentChange(
+        currentDayData.feeDerivedMinutes,
+        oneDayBackData.feeDerivedMinutes
+      );
+
+      const dailyVolumeEthChange = getPercentChange(
+        currentDayData.volumeEth,
+        oneDayBackData.volumeEth
+      );
+
+      const dailyVolumeUsdChange = getPercentChange(
+        currentDayData.volumeUsd,
+        oneDayBackData.volumeUsd
+      );
+
+      const weeklyVolumeUsdChange = getPercentChange(
+        oneWeekBackData?.weeklyVolumeUsd ?? 0,
+        twoWeekBackData?.weeklyVolumeUsd ?? 0
+      );
+
+      const weeklyVolumeEthChange = getPercentChange(
+        oneWeekBackData?.weeklyVolumeEth ?? 0,
+        twoWeekBackData?.weeklyVolumeEth ?? 0
+      );
+
+      const weeklyUsageChange = getPercentChange(
+        oneWeekBackData?.weeklyUsageMinutes ?? 0,
+        twoWeekBackData?.weeklyUsageMinutes ?? 0
+      );
+
+      const participationRateChange = getPercentChange(
+        currentDayData?.participationRate,
+        oneDayBackData?.participationRate
+      );
+      const inflationChange = getPercentChange(
+        currentDayData?.inflation,
+        oneDayBackData?.inflation
+      );
+      const activeTranscoderCountChange = getPercentChange(
+        currentDayData?.activeTranscoderCount,
+        oneDayBackData?.activeTranscoderCount
+      );
+      const delegatorsCountChange = getPercentChange(
+        currentDayData?.delegatorsCount,
+        oneDayBackData?.delegatorsCount
+      );
+
+      const data: HomeChartData = {
+        dayData: sortedDays,
+        weeklyData: weeklyData,
+        oneDayVolumeUSD: currentDayData.volumeUsd,
+        oneDayVolumeETH: currentDayData.volumeEth,
+        oneWeekVolumeUSD: oneWeekBackData.weeklyVolumeUsd,
+        oneWeekVolumeETH: oneWeekBackData.weeklyVolumeEth,
+        // totalUsage: totalFeeDerivedMinutes + totalLivepeerComUsage,
+        oneDayUsage: currentDayData.feeDerivedMinutes ?? 0,
+        oneWeekUsage: oneWeekBackData.weeklyUsageMinutes ?? 0,
+        dailyUsageChange: dailyUsageChange ?? 0,
+        weeklyUsageChange: weeklyUsageChange ?? 0,
+        weeklyVolumeChangeUSD: weeklyVolumeUsdChange,
+        weeklyVolumeChangeETH: weeklyVolumeEthChange,
+        volumeChangeUSD: dailyVolumeUsdChange,
+        volumeChangeETH: dailyVolumeEthChange,
+        participationRateChange: participationRateChange,
+        inflationChange: inflationChange,
+        delegatorsCountChange: delegatorsCountChange,
+        activeTranscoderCountChange: activeTranscoderCountChange,
+
+        participationRate: sortedDays[sortedDays.length - 1].participationRate,
+        inflation: sortedDays[sortedDays.length - 1].inflation,
+        activeTranscoderCount:
+          sortedDays[sortedDays.length - 1].activeTranscoderCount,
+        delegatorsCount: sortedDays[sortedDays.length - 1].delegatorsCount,
+      };
+
+      if (
+        Number(
+          data?.dayData?.[(data?.dayData?.length ?? 1) - 1]
+            ?.activeTranscoderCount
+        ) <= 0
+      ) {
+        data.dayData = data.dayData.slice(0, -1);
+      }
+
+      res.setHeader("Cache-Control", getCacheControlHeader("day"));
+
+      return res.status(200).json(data);
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
+    return internalError(res, err);
   }
-
-  return res.status(500).json(null);
 };
 
 export default chartDataHandler;
