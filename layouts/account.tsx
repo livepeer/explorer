@@ -90,6 +90,18 @@ const AccountLayout = ({
     pollInterval,
   });
 
+  // Fetch fresh account data client-side, using static props as fallback
+  const { data: dataViewedAccount } = useAccountQuery({
+    variables: {
+      account: accountId ?? "",
+    },
+    skip: !accountId,
+    pollInterval,
+  });
+
+  // Prefer client-fetched data over static props
+  const viewedAccount = dataViewedAccount ?? account;
+
   const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
     query: { enabled: Boolean(bondingManagerAddress) },
@@ -109,15 +121,18 @@ const AccountLayout = ({
   }, [latestTransaction?.step]);
 
   const isActive = useMemo(
-    () => Boolean(account?.transcoder?.active),
-    [account?.transcoder]
+    () => Boolean(viewedAccount?.transcoder?.active),
+    [viewedAccount?.transcoder]
   );
 
   const isMyAccount = useMemo(
     () => checkAddressEquality(accountAddress ?? "", accountId ?? ""),
     [accountAddress, accountId]
   );
-  const isOrchestrator = useMemo(() => Boolean(account?.transcoder), [account]);
+  const isOrchestrator = useMemo(
+    () => Boolean(viewedAccount?.transcoder),
+    [viewedAccount]
+  );
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
     [accountId, dataMyAccount]
@@ -214,9 +229,9 @@ const AccountLayout = ({
                     transcoder={
                       isDelegatingAndIsMyAccountView
                         ? dataMyAccount?.delegator?.delegate
-                        : account?.transcoder
+                        : viewedAccount?.transcoder
                     }
-                    protocol={account?.protocol}
+                    protocol={viewedAccount?.protocol}
                     treasury={treasury}
                     delegateProfile={identity}
                   />
@@ -252,9 +267,9 @@ const AccountLayout = ({
                       transcoder={
                         isDelegatingAndIsMyAccountView
                           ? dataMyAccount?.delegator?.delegate
-                          : account?.transcoder
+                          : viewedAccount?.transcoder
                       }
-                      protocol={account?.protocol}
+                      protocol={viewedAccount?.protocol}
                       treasury={treasury}
                       delegateProfile={identity}
                     />
@@ -298,16 +313,16 @@ const AccountLayout = ({
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
-              currentRound={account?.protocol?.currentRound}
-              transcoder={account?.transcoder}
+              currentRound={viewedAccount?.protocol?.currentRound}
+              transcoder={viewedAccount?.transcoder}
             />
           )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
-              delegator={account?.delegator}
-              protocol={account?.protocol}
-              currentRound={account?.protocol?.currentRound}
+              delegator={viewedAccount?.delegator}
+              protocol={viewedAccount?.protocol}
+              currentRound={viewedAccount?.protocol?.currentRound}
             />
           )}
           {view === "history" && <HistoryView />}
@@ -334,9 +349,9 @@ const AccountLayout = ({
                 transcoder={
                   isDelegatingAndIsMyAccountView
                     ? dataMyAccount?.delegator?.delegate
-                    : account?.transcoder
+                    : viewedAccount?.transcoder
                 }
-                protocol={account?.protocol}
+                protocol={viewedAccount?.protocol}
                 treasury={treasury}
                 delegateProfile={identity}
               />
@@ -350,9 +365,9 @@ const AccountLayout = ({
                 transcoder={
                   isDelegatingAndIsMyAccountView
                     ? dataMyAccount?.delegator?.delegate
-                    : account?.transcoder
+                    : viewedAccount?.transcoder
                 }
-                protocol={account?.protocol}
+                protocol={viewedAccount?.protocol}
                 treasury={treasury}
                 delegateProfile={identity}
               />
