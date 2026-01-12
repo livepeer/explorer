@@ -1,7 +1,8 @@
 "use client";
 
 import Spinner from "@components/Spinner";
-import { Box, Flex, Link, Text } from "@livepeer/design-system";
+import { TREASURY_VOTES } from "@lib/api/types/votes";
+import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import {
   TreasuryVoteEvent,
@@ -66,8 +67,8 @@ const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
           </Link>
         </Flex>
         {stats && (
-          <Flex css={{ gap: "$4", alignItems: "center" }}>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
+          <Flex css={{ gap: "$2", alignItems: "center", flexWrap: "wrap" }}>
+            <Flex css={{ alignItems: "center", gap: "$1", marginRight: "$2" }}>
               <Text size="1" css={{ color: "$neutral11", fontWeight: 600 }}>
                 Total:
               </Text>
@@ -75,45 +76,63 @@ const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
                 {stats.total}
               </Text>
             </Flex>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
+            <Badge
+              size="1"
+              css={{
+                backgroundColor: TREASURY_VOTES.for.style.backgroundColor,
+                color: TREASURY_VOTES.for.style.color,
+                fontWeight: TREASURY_VOTES.for.style.fontWeight,
+                border: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "$1",
+              }}
+            >
               <Box
-                css={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "$sky11",
-                }}
+                as={TREASURY_VOTES.for.icon}
+                css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              <Text size="1" css={{ color: "$neutral11" }}>
-                For: {stats.for}
-              </Text>
-            </Flex>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
+              For: {stats.for}
+            </Badge>
+            <Badge
+              size="1"
+              css={{
+                backgroundColor: TREASURY_VOTES.against.style.backgroundColor,
+                color: TREASURY_VOTES.against.style.color,
+                fontWeight: TREASURY_VOTES.against.style.fontWeight,
+                border: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "$1",
+              }}
+            >
               <Box
-                css={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "$tomato11",
-                }}
+                as={TREASURY_VOTES.against.icon}
+                css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              <Text size="1" css={{ color: "$neutral11" }}>
-                Against: {stats.against}
-              </Text>
-            </Flex>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
+              Against: {stats.against}
+            </Badge>
+            <Badge
+              size="1"
+              css={{
+                backgroundColor: TREASURY_VOTES.abstain.style.backgroundColor,
+                color: TREASURY_VOTES.abstain.style.color,
+                fontWeight: TREASURY_VOTES.abstain.style.fontWeight,
+                border: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "$1",
+              }}
+            >
               <Box
-                css={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "$neutral11",
-                }}
+                as={TREASURY_VOTES.abstain.icon}
+                css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              <Text size="1" css={{ color: "$neutral11" }}>
-                Abstain: {stats.abstain}
-              </Text>
-            </Flex>
+              Abstain: {stats.abstain}
+            </Badge>
           </Flex>
         )}
       </Box>

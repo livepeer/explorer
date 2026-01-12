@@ -1,10 +1,15 @@
 import Spinner from "@components/Spinner";
 import { Fm } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
-import { VOTING_SUPPORT, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import {
+  POLL_VOTES,
+  TREASURY_VOTES,
+  VOTING_SUPPORT_MAP,
+} from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
+  Badge,
   Box,
   Card as CardBase,
   Flex,
@@ -983,20 +988,34 @@ function renderSwitch(event, i: number) {
               </Flex>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              {" "}
-              <Box
-                as="span"
-                css={{ fontWeight: 600, ...supportTreasuryVoteEvent?.style }}
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor:
+                    supportTreasuryVoteEvent.style.backgroundColor,
+                  color: supportTreasuryVoteEvent.style.color,
+                  fontWeight: supportTreasuryVoteEvent.style.fontWeight,
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
               >
-                {supportTreasuryVoteEvent?.text}
-              </Box>{" "}
+                <Box
+                  as={supportTreasuryVoteEvent.icon}
+                  css={{ width: 12, height: 12 }}
+                />
+                {supportTreasuryVoteEvent.text}
+              </Badge>
             </Box>
           </Flex>
         </Card>
       );
     case "VoteEvent":
       const supportVoteEvent =
-        VOTING_SUPPORT[event.choiceID] || VOTING_SUPPORT["2"];
+        POLL_VOTES[event.choiceID] || TREASURY_VOTES.abstain;
       return (
         <Card
           as={A}
@@ -1049,13 +1068,27 @@ function renderSwitch(event, i: number) {
               </Flex>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              {" "}
-              <Box
-                as="span"
-                css={{ fontWeight: 600, ...supportVoteEvent?.style }}
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor: supportVoteEvent.style.backgroundColor,
+                  color: supportVoteEvent.style.color,
+                  fontWeight: supportVoteEvent.style.fontWeight,
+                  fontSize: "$4",
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
               >
-                {supportVoteEvent?.text}
-              </Box>{" "}
+                <Box
+                  as={supportVoteEvent.icon}
+                  css={{ width: 16, height: 16 }}
+                />
+                {supportVoteEvent.text}
+              </Badge>
             </Box>
           </Flex>
         </Card>
