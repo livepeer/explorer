@@ -78,6 +78,9 @@ jobs:
           PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
         run: |
           echo "Running Lighthouse CI on: $PREVIEW_URL"
-          pnpm dlx @lhci/cli collect --config=./.lighthouserc.json --url="$PREVIEW_URL/"
+          pnpm dlx @lhci/cli collect --config=./.lighthouserc.json \
+            --url="$PREVIEW_URL/" \
+            --url="$PREVIEW_URL/voting" \
+            --url="$PREVIEW_URL/treasury"
           pnpm dlx @lhci/cli assert  --config=./.lighthouserc.json
           pnpm dlx @lhci/cli upload  --config=./.lighthouserc.json --target=temporary-public-storage
