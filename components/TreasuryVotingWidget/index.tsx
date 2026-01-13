@@ -97,7 +97,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   as={CheckCircledIcon}
                   css={{ color: "$grass11", width: 14, height: 14 }}
                 />
-                <Text css={{ fontSize: "$2", color: "$neutral11" }}>For</Text>
+                <Text css={{ fontSize: "$2", color: "$grass11" }}>For</Text>
               </Flex>
               <Flex
                 css={{
@@ -110,7 +110,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     height: 8,
-                    borderRadius: 4,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -119,7 +119,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 4,
+                      borderRadius: 1000,
                       backgroundColor: "$grass9",
                       width: `${proposal.votes.percent.for * 100}%`,
                     }}
@@ -153,7 +153,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   as={CrossCircledIcon}
                   css={{ color: "$tomato11", width: 14, height: 14 }}
                 />
-                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+                <Text css={{ fontSize: "$2", color: "$tomato11" }}>
                   Against
                 </Text>
               </Flex>
@@ -168,7 +168,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     height: 8,
-                    borderRadius: 4,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -177,7 +177,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 4,
+                      borderRadius: 1000,
                       backgroundColor: "$tomato9",
                       width: `${proposal.votes.percent.against * 100}%`,
                     }}
@@ -225,7 +225,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 <Box
                   css={{
                     height: 8,
-                    borderRadius: 4,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -234,7 +234,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 4,
+                      borderRadius: 1000,
                       backgroundColor: "$neutral8",
                       width: `${proposal.votes.percent.abstain * 100}%`,
                     }}

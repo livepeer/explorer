@@ -149,7 +149,7 @@ const Index = ({ data }: { data: Props }) => {
                   as={CheckCircledIcon}
                   css={{ color: "$grass11", width: 14, height: 14 }}
                 />
-                <Text css={{ fontSize: "$2", color: "$neutral11" }}>For</Text>
+                <Text css={{ fontSize: "$2", color: "$grass11" }}>For</Text>
               </Flex>
               <Flex
                 css={{
@@ -162,7 +162,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Box
                   css={{
                     height: 8,
-                    borderRadius: 4,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -171,7 +171,7 @@ const Index = ({ data }: { data: Props }) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 4,
+                      borderRadius: 1000,
                       backgroundColor: "$grass9",
                       width: `${data.poll.percent.yes * 100}%`,
                     }}
@@ -204,7 +204,7 @@ const Index = ({ data }: { data: Props }) => {
                   as={CrossCircledIcon}
                   css={{ color: "$tomato11", width: 14, height: 14 }}
                 />
-                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+                <Text css={{ fontSize: "$2", color: "$tomato11" }}>
                   Against
                 </Text>
               </Flex>
@@ -219,7 +219,7 @@ const Index = ({ data }: { data: Props }) => {
                 <Box
                   css={{
                     height: 8,
-                    borderRadius: 4,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -228,7 +228,7 @@ const Index = ({ data }: { data: Props }) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 4,
+                      borderRadius: 1000,
                       backgroundColor: "$tomato9",
                       width: `${data.poll.percent.no * 100}%`,
                     }}
