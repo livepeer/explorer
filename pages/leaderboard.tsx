@@ -147,6 +147,7 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                     position: "relative",
                     display: "inline-flex",
                     alignItems: "center",
+                    minWidth: "180px",
                   }}
                 >
                   <Box
@@ -156,11 +157,12 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                     }}
                     value={region}
                     css={{
+                      width: "100%",
                       paddingTop: "$2",
                       paddingBottom: "$2",
                       paddingLeft: "$3",
                       paddingRight: "$6",
-                      border: "1px solid $colors$neutral4",
+                      border: "none",
                       borderRadius: "$2",
                       backgroundColor: "$panel",
                       color: "$hiContrast",
@@ -170,13 +172,20 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                       cursor: "pointer",
                       transition: "all 0.2s",
                       "&:hover": {
-                        borderColor: "$neutral6",
                         backgroundColor: "$neutral2",
                       },
                       "&:focus": {
                         outline: "none",
                         borderColor: "$primary9",
                         boxShadow: "0 0 0 1px $colors$primary9",
+                      },
+                      "& option": {
+                        backgroundColor: "$panel",
+                        color: "$hiContrast",
+                      },
+                      "& option:hover, & option:focus": {
+                        backgroundColor: "rgba(0,235,136,.1)",
+                        color: "$primary",
                       },
                     }}
                   >

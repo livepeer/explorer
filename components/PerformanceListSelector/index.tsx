@@ -77,7 +77,7 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           paddingBottom: "$2",
           paddingLeft: "$3",
           paddingRight: "$6",
-          border: "1px solid $colors$neutral4",
+          border: "none",
           borderRadius: "$2",
           backgroundColor: "$panel",
           color: "$hiContrast",
@@ -91,13 +91,20 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
             maxWidth: "100%", // Remove margin-bottom for larger screens
           },
           "&:hover": {
-            borderColor: "$neutral6",
             backgroundColor: "$neutral2",
           },
           "&:focus": {
             outline: "none",
             borderColor: "$primary9",
             boxShadow: "0 0 0 1px $colors$primary9",
+          },
+          "& option": {
+            backgroundColor: "$panel",
+            color: "$hiContrast",
+          },
+          "& option:hover, & option:focus": {
+            backgroundColor: "rgba(0,235,136,.1)",
+            color: "$primary",
           },
         }}
       >
