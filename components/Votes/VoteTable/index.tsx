@@ -191,6 +191,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
           voter={selectedVoter.address}
           ensName={selectedVoter.ensName}
           onClose={() => setSelectedVoter(null)}
+          formatWeight={formatWeight}
         />
       )}
     </>

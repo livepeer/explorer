@@ -18,9 +18,15 @@ interface VoterPopoverProps {
   voter: string;
   ensName?: string;
   onClose: () => void;
+  formatWeight: (weight: string) => string;
 }
 
-const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
+const Index: React.FC<VoterPopoverProps> = ({
+  voter,
+  ensName,
+  onClose,
+  formatWeight,
+}) => {
   const { data: votesData, loading: isLoading } = useTreasuryVoteEventsQuery({
     variables: {
       where: {
@@ -172,7 +178,10 @@ const Index: React.FC<VoterPopoverProps> = ({ voter, ensName, onClose }) => {
               key={vote.transaction.id ?? idx}
               css={{ position: "relative" }}
             >
-              <VoteDetail vote={vote as TreasuryVoteEvent} />
+              <VoteDetail
+                vote={vote as TreasuryVoteEvent}
+                formatWeight={formatWeight}
+              />
             </Box>
           ))}
         </Box>

@@ -2,7 +2,7 @@
 
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
-import { formatAddress, formatLpt, formatTransactionHash } from "@lib/utils";
+import { formatAddress, formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Flex, Heading, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { TreasuryVoteEvent, TreasuryVoteSupport } from "apollo";
@@ -10,9 +10,10 @@ import React from "react";
 
 interface VoteDetailItemProps {
   vote: TreasuryVoteEvent;
+  formatWeight: (weight: string) => string;
 }
 
-const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
+const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
@@ -154,7 +155,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote }) => {
               </Badge>
 
               <Text size="1" css={{ fontWeight: 600, color: "$white" }}>
-                {formatLpt(vote.weight)}
+                {formatWeight(vote.weight)}
               </Text>
 
               {vote.transaction.id && (
