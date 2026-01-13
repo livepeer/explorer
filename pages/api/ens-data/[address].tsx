@@ -1,5 +1,6 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
+import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address, isAddress } from "viem";
@@ -30,15 +31,13 @@ const handler = async (
 
         return res.status(200).json(ens);
       } else {
-        return res.status(500).end("Invalid ID");
+        return badRequest(res, "Invalid address format");
       }
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 
