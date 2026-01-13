@@ -14,7 +14,7 @@ interface VoteTableProps {
   proposalId: string;
 }
 
-const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
+const useVotes = (proposalId: string) => {
   const {
     data: treasuryVotesData,
     loading,
@@ -27,24 +27,20 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
     },
   });
 
-  const { data: treasuryVoteEventsData } = useTreasuryVoteEventsQuery({
+  const {
+    data: treasuryVoteEventsData,
+    loading: treasuryVoteEventsLoading,
+    error: treasuryVoteEventsError,
+  } = useTreasuryVoteEventsQuery({
     variables: {
       where: {
         proposal: proposalId,
       },
     },
   });
-  const { width } = useWindowSize();
-  const isDesktop = width >= 768;
-
-  const [selectedVoter, setSelectedVoter] = useState<{
-    address: string;
-    ensName?: string;
-  } | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
 
   const [votes, setVotes] = useState<Vote[]>([]);
+  const [votesLoading, setVotesLoading] = useState(false);
   useEffect(() => {
     if (
       !treasuryVotesData?.treasuryVotes ||
@@ -53,6 +49,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
       setVotes([]);
     }
     const decorateVotes = async () => {
+      setVotesLoading(true);
       const uniqueVoters = Array.from(
         new Set(treasuryVotesData?.treasuryVotes?.map((v) => v.voter.id) ?? [])
       );
@@ -93,6 +90,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
           };
         }) ?? [];
       setVotes(votes as Vote[]);
+      setVotesLoading(false);
     };
     decorateVotes();
   }, [
@@ -100,6 +98,25 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
     treasuryVoteEventsData?.treasuryVoteEvents,
   ]);
 
+  return {
+    votes,
+    loading: loading || votesLoading || treasuryVoteEventsLoading,
+    error: error || treasuryVoteEventsError,
+  };
+};
+
+const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
+  const { width } = useWindowSize();
+  const isDesktop = width >= 768;
+
+  const [selectedVoter, setSelectedVoter] = useState<{
+    address: string;
+    ensName?: string;
+  } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const { votes, loading, error } = useVotes(proposalId);
   const totalWeight = useMemo(
     () => votes.reduce((sum, v) => sum + parseFloat(v.weight), 0),
     [votes]
