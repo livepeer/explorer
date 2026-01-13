@@ -45,7 +45,7 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
-  const { data: treasureVoteEventsData } = useTreasuryVoteEventsQuery({
+  const { data: treasuryVoteEventsData } = useTreasuryVoteEventsQuery({
     variables: {
       where: {
         voter: account.toLowerCase(),
@@ -53,27 +53,27 @@ const Index = () => {
     },
     notifyOnNetworkStatusChange: true,
   });
-  const [extendedTreasureVoteEventsData, setExtendedTreasureVoteEventsData] =
+  const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
     useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
   useEffect(() => {
-    if (treasureVoteEventsData) {
+    if (treasuryVoteEventsData) {
       const extendedTreasureVoteEventsData =
-        treasureVoteEventsData?.treasuryVoteEvents.map((treasureVoteEvent) => {
+        treasuryVoteEventsData?.treasuryVoteEvents.map((treasuryVoteEvent) => {
           const parsed = parseProposalText(
-            treasureVoteEvent.proposal as Proposal
+            treasuryVoteEvent.proposal as Proposal
           );
           return {
-            ...treasureVoteEvent,
+            ...treasuryVoteEvent,
             attributes: parsed.attributes,
           };
         });
-      setExtendedTreasureVoteEventsData(
+      setExtendedTreasuryVoteEventsData(
         extendedTreasureVoteEventsData as (TreasuryVoteEvent & {
           attributes: Fm | null;
         })[]
       );
     }
-  }, [treasureVoteEventsData]);
+  }, [treasuryVoteEventsData]);
 
   const { data: voteEventsData } = useVoteEventsQuery({
     variables: {
@@ -153,11 +153,16 @@ const Index = () => {
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
+        ...events.filter(
+          (e) =>
+            e?.__typename !== "WinningTicketRedeemedEvent" &&
+            e?.__typename !== "TreasuryVoteEvent" &&
+            e?.__typename !== "VoteEvent"
+        ),
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),
-        ...extendedTreasureVoteEventsData,
+        ...extendedTreasuryVoteEventsData,
         ...extendedVoteEventsData,
       ].sort(
         (a, b) =>
@@ -167,7 +172,7 @@ const Index = () => {
       events,
       data,
       lastEventTimestamp,
-      extendedTreasureVoteEventsData,
+      extendedTreasuryVoteEventsData,
       extendedVoteEventsData,
     ]
   );
@@ -959,7 +964,8 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Voted on treasury proposal &quot;{event.attributes?.title}&quot;
+                Voted on treasury proposal &quot;
+                {event.attributes?.title?.trim()}&quot;
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -1039,7 +1045,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Voted on poll &quot;{event.attributes?.title}&quot;
+                Voted on poll &quot;{event.attributes?.title?.trim()}&quot;
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
