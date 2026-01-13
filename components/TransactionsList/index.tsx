@@ -1,9 +1,15 @@
 import Table from "@components/Table";
+import { parseProposalText } from "@lib/api/treasury";
+import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
-import { EventsQueryResult } from "apollo";
+import {
+  EventsQueryResult,
+  TreasuryProposal,
+  useTreasuryVoteEventsQuery,
+} from "apollo";
 import { sentenceCase } from "change-case";
 import { useEnsData } from "hooks";
 import Link from "next/link";
@@ -96,6 +102,41 @@ const renderEmoji = (emoji: string) => (
   </Box>
 );
 
+const TreasuryVoteEvent = (props: {
+  event: NonNullable<
+    NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
+  >[number];
+}) => {
+  const { event } = props;
+  const { data: treasuryVoteEventsData } = useTreasuryVoteEventsQuery({
+    variables: {
+      where: {
+        transaction: event?.transaction?.id,
+      },
+    },
+  });
+  const treasuryVoteEvent = treasuryVoteEventsData?.treasuryVoteEvents[0];
+  if (!treasuryVoteEvent) {
+    return <Box>{`Error fetching treasury vote event information.`}</Box>;
+  }
+  const support = VOTING_SUPPORT_MAP[treasuryVoteEvent.support];
+  const title = parseProposalText(
+    treasuryVoteEvent.proposal as TreasuryProposal
+  ).attributes.title;
+
+  return (
+    <Box>
+      Voted{" "}
+      <Box css={{ display: "inline-block", ...support.style }}>
+        {support.text}
+      </Box>{" "}
+      on{" "}
+      <Box as={A} href={`/treasury/${treasuryVoteEvent.proposal?.id}`}>
+        {title}
+      </Box>
+    </Box>
+  );
+};
 const TransactionsList = ({
   events,
   pageSize = 10,
@@ -192,6 +233,9 @@ const TransactionsList = ({
           return <EthAddress value={event?.l2Addr} />;
 
         case "StakeClaimedEvent":
+          return <EthAddress value={event?.transaction?.from} />;
+
+        case "TreasuryVoteEvent":
           return <EthAddress value={event?.transaction?.from} />;
 
         default:
@@ -428,6 +472,8 @@ const TransactionsList = ({
               {` from L1 Ethereum`}
             </Box>
           );
+        case "TreasuryVoteEvent":
+          return <TreasuryVoteEvent event={event} />;
 
         default:
           return <Box>{`Error fetching event information.`}</Box>;
