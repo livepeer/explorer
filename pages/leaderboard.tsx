@@ -133,35 +133,73 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                   },
                 }}
               >
-                <Flex css={{ marginRight: "$2" }}>Region:</Flex>
-                <Box
-                  as="select"
-                  onChange={(e) => {
-                    setRegion(e.target.value as Region["id"]);
-                  }}
+                <Flex
                   css={{
-                    paddingTop: "$1",
-                    paddingBottom: "$1",
-                    paddingLeft: "$2",
-                    border: "none",
-                    backgroundColor: "$panel",
-                    appearance: "none",
+                    marginRight: "$2",
+                    fontSize: "$2",
+                    color: "$hiContrast",
                   }}
                 >
-                  {availableRegions.map((region) => {
-                    return (
-                      <Box as="option" key={region.id} value={region.id}>
-                        {region.name}
-                      </Box>
-                    );
-                  })}
-                </Box>
+                  Region:
+                </Flex>
                 <Box
-                  as={ChevronDownIcon}
                   css={{
-                    pointerEvents: "none",
+                    position: "relative",
+                    display: "inline-flex",
+                    alignItems: "center",
                   }}
-                />
+                >
+                  <Box
+                    as="select"
+                    onChange={(e) => {
+                      setRegion(e.target.value as Region["id"]);
+                    }}
+                    value={region}
+                    css={{
+                      paddingTop: "$2",
+                      paddingBottom: "$2",
+                      paddingLeft: "$3",
+                      paddingRight: "$6",
+                      border: "1px solid $colors$neutral4",
+                      borderRadius: "$2",
+                      backgroundColor: "$panel",
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      fontWeight: 500,
+                      appearance: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      "&:hover": {
+                        borderColor: "$neutral6",
+                        backgroundColor: "$neutral2",
+                      },
+                      "&:focus": {
+                        outline: "none",
+                        borderColor: "$primary9",
+                        boxShadow: "0 0 0 1px $colors$primary9",
+                      },
+                    }}
+                  >
+                    {availableRegions.map((region) => {
+                      return (
+                        <Box as="option" key={region.id} value={region.id}>
+                          {region.name}
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                  <Box
+                    as={ChevronDownIcon}
+                    css={{
+                      position: "absolute",
+                      right: "$2",
+                      pointerEvents: "none",
+                      color: "$neutral9",
+                      width: "$4",
+                      height: "$4",
+                    }}
+                  />
+                </Box>
               </Flex>
               <Flex
                 css={{
@@ -174,7 +212,15 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                   },
                 }}
               >
-                <Flex css={{ marginRight: "$2" }}>Type:</Flex>
+                <Flex
+                  css={{
+                    marginRight: "$2",
+                    fontSize: "$2",
+                    color: "$hiContrast",
+                  }}
+                >
+                  Type:
+                </Flex>
                 <PerformanceListSelector
                   selectedPipeline={selectedPipeline}
                   setSelectedPipeline={setSelectedPipeline}

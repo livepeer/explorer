@@ -61,22 +61,43 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
   }
 
   return (
-    <>
+    <Box
+      css={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+      }}
+    >
       <Box
         as="select"
         value={indexOfSelectedOption}
         onChange={handleSelectChange}
         css={{
-          paddingTop: "$1",
-          paddingBottom: "$1",
-          paddingLeft: "$2",
-          border: "none",
+          paddingTop: "$2",
+          paddingBottom: "$2",
+          paddingLeft: "$3",
+          paddingRight: "$6",
+          border: "1px solid $colors$neutral4",
+          borderRadius: "$2",
           backgroundColor: "$panel",
+          color: "$hiContrast",
+          fontSize: "$2",
+          fontWeight: 500,
           appearance: "none",
-          paddingRight: "$5",
+          cursor: "pointer",
+          transition: "all 0.2s",
           maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
           "@bp2": {
             maxWidth: "100%", // Remove margin-bottom for larger screens
+          },
+          "&:hover": {
+            borderColor: "$neutral6",
+            backgroundColor: "$neutral2",
+          },
+          "&:focus": {
+            outline: "none",
+            borderColor: "$primary9",
+            boxShadow: "0 0 0 1px $colors$primary9",
           },
         }}
       >
@@ -89,49 +110,13 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           </Box>
         ) : (
           <>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               ----------------
             </Box>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               AI Pipelines
             </Box>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               ----------------
             </Box>
             {availPipelines?.pipelines?.map((p, pindex) =>
@@ -151,10 +136,15 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
       <Box
         as={ChevronDownIcon}
         css={{
+          position: "absolute",
+          right: "$2",
           pointerEvents: "none",
+          color: "$neutral9",
+          width: "$4",
+          height: "$4",
         }}
       />
-    </>
+    </Box>
   );
 };
 
