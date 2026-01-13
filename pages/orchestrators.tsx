@@ -53,7 +53,15 @@ const OrchestratorsPage = ({
         >
           <Flex
             align="center"
-            css={{ marginBottom: "$3", justifyContent: "space-between" }}
+            css={{
+              marginBottom: "$3",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: "$3",
+              "@bp2": {
+                justifyContent: "space-between",
+              },
+            }}
           >
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
@@ -66,7 +74,6 @@ const OrchestratorsPage = ({
                   css={{
                     color: "$hiContrast",
                     fontSize: "$2",
-                    marginRight: "$2",
                   }}
                 >
                   Performance Leaderboard
