@@ -166,6 +166,7 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                       borderRadius: "$2",
                       backgroundColor: "$panel",
                       color: "$hiContrast",
+                      fontFamily: "$body",
                       fontSize: "$2",
                       fontWeight: 500,
                       appearance: "none",
@@ -182,6 +183,7 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                       "& option": {
                         backgroundColor: "$panel",
                         color: "$hiContrast",
+                        fontFamily: "$body",
                       },
                       "& option:hover, & option:focus": {
                         backgroundColor: "rgba(0,235,136,.1)",

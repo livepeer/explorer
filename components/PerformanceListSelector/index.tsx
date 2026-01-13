@@ -57,7 +57,18 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
   };
 
   if (isValidating) {
-    return <Skeleton css={{ height: 20, width: 100 }} />;
+    return (
+      <Skeleton
+        css={{
+          height: 30,
+          width: 200,
+          borderRadius: "$2",
+          "@bp2": {
+            width: 350,
+          },
+        }}
+      />
+    );
   }
 
   return (
@@ -66,6 +77,10 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
         position: "relative",
         display: "inline-flex",
         alignItems: "center",
+        width: 200,
+        "@bp2": {
+          width: 350,
+        },
       }}
     >
       <Box
@@ -73,6 +88,7 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
         value={indexOfSelectedOption}
         onChange={handleSelectChange}
         css={{
+          width: "100%",
           paddingTop: "$2",
           paddingBottom: "$2",
           paddingLeft: "$3",
@@ -81,15 +97,12 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           borderRadius: "$2",
           backgroundColor: "$panel",
           color: "$hiContrast",
+          fontFamily: "$body",
           fontSize: "$2",
           fontWeight: 500,
           appearance: "none",
           cursor: "pointer",
           transition: "all 0.2s",
-          maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
-          "@bp2": {
-            maxWidth: "100%", // Remove margin-bottom for larger screens
-          },
           "&:hover": {
             backgroundColor: "$neutral2",
           },
@@ -101,6 +114,7 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           "& option": {
             backgroundColor: "$panel",
             color: "$hiContrast",
+            fontFamily: "$body",
           },
           "& option:hover, & option:focus": {
             backgroundColor: "rgba(0,235,136,.1)",
@@ -108,7 +122,7 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           },
         }}
       >
-        <Box as="option" key="-1" value={-1}>
+        <Box as="option" key="-1" value={-1} css={{ fontFamily: "$body" }}>
           Transcoding
         </Box>
         {availPipelines?.pipelines?.length === 0 ? (
