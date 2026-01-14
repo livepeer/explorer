@@ -10,7 +10,7 @@ import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getProposalExtended } from "@lib/api/treasury";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
+import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -198,7 +198,7 @@ const Proposal = () => {
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
                 Proposed by{" "}
                 <Link href={`/accounts/${proposal.proposer.id}`}>
-                  {proposerId?.name ?? shortenAddress(proposal.proposer.id)}
+                  {proposerId?.name ?? formatAddress(proposal.proposer.id)}
                 </Link>
               </Text>
               <Text css={{ fontSize: "$1", color: "$neutral11" }}>
@@ -458,7 +458,7 @@ const Proposal = () => {
                               size="2"
                             >
                               {width <= 640
-                                ? shortenAddress(action.lptTransfer.receiver)
+                                ? formatAddress(action.lptTransfer.receiver)
                                 : action.lptTransfer.receiver}
                             </Text>
                           </Link>
@@ -516,7 +516,7 @@ const Proposal = () => {
                               size="2"
                             >
                               {action.contract
-                                ? `${action.contract?.name} (${shortenAddress(
+                                ? `${action.contract?.name} (${formatAddress(
                                     action.target
                                   )})`
                                 : action.target}
