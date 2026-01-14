@@ -58,7 +58,7 @@ const OrchestratorsPage = ({
               justifyContent: "center",
               flexWrap: "wrap",
               gap: "$3",
-              "@bp2": {
+              "@bp1": {
                 justifyContent: "space-between",
               },
             }}
