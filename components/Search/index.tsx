@@ -79,7 +79,7 @@ const Index = ({ css = {}, ...props }) => {
         </IconButton>
       </DialogTrigger>
       <DialogContent
-        css={{ overflow: "auto", transition: "max-height 2s" }}
+        css={{ overflow: "auto", transition: "max-height 2s", padding: "$6" }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -105,19 +105,40 @@ const Index = ({ css = {}, ...props }) => {
               alignItems: "center",
               backgroundColor: "transparent",
               padding: 0,
-              width: "$5",
-              height: "$5",
+              width: "$4",
+              height: "$4",
+              "@bp2": {
+                width: "$5",
+                height: "$5",
+              },
             }}
           >
             {accounts.length <= 0 ? (
-              <Spinner />
+              <Spinner
+                css={{
+                  width: "$4",
+                  height: "$4",
+                  maxWidth: "$4",
+                  maxHeight: "$4",
+                  "@bp2": {
+                    width: "$5",
+                    height: "$5",
+                    maxWidth: "$5",
+                    maxHeight: "$5",
+                  },
+                }}
+              />
             ) : (
               <Box
                 as={MagnifyingGlassIcon}
                 css={{
-                  width: "$5",
-                  height: "$5",
+                  width: "$4",
+                  height: "$4",
                   color: "$neutral9",
+                  "@bp2": {
+                    width: "$5",
+                    height: "$5",
+                  },
                 }}
               />
             )}
@@ -129,10 +150,15 @@ const Index = ({ css = {}, ...props }) => {
             type="search"
             css={{
               borderRadius: "$2",
-              height: "$8",
-              fontSize: "$5",
+              height: "$7",
+              fontSize: "$3",
               paddingRight: "$3",
-              paddingLeft: "$7",
+              paddingLeft: "$6",
+              "@bp1": {
+                fontSize: "$5",
+                paddingLeft: "$7",
+                height: "$8",
+              },
               "&:-webkit-autofill::first-line": {
                 fontSize: "$3",
               },
