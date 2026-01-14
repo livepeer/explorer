@@ -1,3 +1,4 @@
+import { formatAddress } from "@lib/utils";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
 import { useAccountAddress, useEnsData } from "hooks";
 import Link from "next/link";
@@ -52,11 +53,7 @@ const Account = () => {
           >
             <AccountIcon />
           </Flex>
-          <Box>
-            {ens?.name
-              ? ens.name
-              : accountAddress.replace(accountAddress.slice(6, 38), "…")}
-          </Box>
+          <Box>{ens?.name ? ens.name : formatAddress(accountAddress)}</Box>
         </A>
       </Flex>
     </Box>

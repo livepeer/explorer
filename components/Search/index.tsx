@@ -1,4 +1,5 @@
 import Spinner from "@components/Spinner";
+import { formatAddress } from "@lib/utils";
 import {
   Box,
   Dialog,
@@ -182,14 +183,10 @@ const Index = ({ css = {}, ...props }) => {
                     <Flex>
                       <Text>
                         {result.item.name
-                          ? `${result.item.name} (${result.item.id.replace(
-                              result.item.id.slice(5, 39),
-                              "…"
+                          ? `${result.item.name} (${formatAddress(
+                              result.item.id
                             )})`
-                          : result.item.id.replace(
-                              result.item.id.slice(7, 37),
-                              "…"
-                            )}
+                          : formatAddress(result.item.id, 8, 6)}
                       </Text>
                     </Flex>
                     <Box as={ArrowRightIcon} />
