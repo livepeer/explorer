@@ -3,7 +3,7 @@ import IdentityAvatar from "@components/IdentityAvatar";
 import Table from "@components/Table";
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import { formatTimeHorizon } from "@lib/roi";
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
