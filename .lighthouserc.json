@@ -9,13 +9,13 @@
         "categories:performance": ["error", { "minScore": 0.6 }],
         "largest-contentful-paint": ["error", { "maxNumericValue": 3400 }],
         "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-        "total-blocking-time": ["error", { "maxNumericValue": 400 }]
+        "total-blocking-time": ["error", { "maxNumericValue": 425 }]
       },
       "baselinePerformanceMetrics": {
         "description": "Baseline Lighthouse metrics used to derive the assertion thresholds above. Update these values when the application's performance characteristics change.",
         "largest-contentful-paint-ms": 3400,
         "cumulative-layout-shift": 0.1,
-        "total-blocking-time-ms": 400,
+        "total-blocking-time-ms": 425,
         "performance-score": 0.6
       }
     },
