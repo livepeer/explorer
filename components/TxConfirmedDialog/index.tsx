@@ -23,7 +23,7 @@ import { MdReceipt } from "react-icons/md";
 import { Address } from "viem";
 import { useReadContract } from "wagmi";
 
-import { fromWei, txMessages } from "../../lib/utils";
+import { formatAddress, fromWei, txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();
@@ -196,10 +196,7 @@ const TransactionContent = ({
               }}
             >
               You&apos;ve successfully redelegated to orchestrator{" "}
-              {tx.inputData.delegate.replace(
-                tx.inputData.delegate.slice(7, 37),
-                "…"
-              )}
+              {formatAddress(tx.inputData.delegate)}
             </Box>
           </Table>
           <DialogClose asChild>
@@ -226,10 +223,7 @@ const TransactionContent = ({
               You&apos;ve successfully checkpointed{" "}
               {!isOrchestrator
                 ? "your stake"
-                : `your orchestrator (${targetAddress?.replace(
-                    targetAddress?.slice(7, 37) ?? "",
-                    "…"
-                  )}) stake!`}
+                : `your orchestrator (${formatAddress(targetAddress)}) stake!`}
             </Box>
           </Table>
           <DialogClose asChild>

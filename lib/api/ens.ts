@@ -1,4 +1,5 @@
 import { l1Provider } from "@lib/chains";
+import { formatAddress } from "@lib/utils";
 import sanitizeHtml from "sanitize-html";
 
 import { EnsIdentity } from "./types/get-ens";
@@ -99,4 +100,16 @@ export const nl2br = (str, is_xhtml = true) => {
     /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g,
     "$1" + breakTag + "$2"
   );
+};
+
+export const getEnsForVotes = async (address: string | null | undefined) => {
+  const idShort = formatAddress(address);
+
+  const name = address ? await l1Provider.lookupAddress(address) : null;
+
+  return {
+    id: address ?? "",
+    idShort: idShort ?? "",
+    name,
+  };
 };

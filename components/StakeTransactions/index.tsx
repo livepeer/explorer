@@ -5,6 +5,7 @@ import { parseEther } from "viem";
 
 import {
   abbreviateNumber,
+  formatAddress,
   getHint,
   simulateNewActiveSetOrder,
 } from "../../lib/utils";
@@ -66,11 +67,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                 >
                   <Box>
                     <Box css={{ marginBottom: "$1" }}>
-                      Undelegating from{" "}
-                      {lock.delegate.id.replace(
-                        lock.delegate.id.slice(7, 37),
-                        "…"
-                      )}
+                      Undelegating from {formatAddress(lock.delegate.id)}
                     </Box>
                     <Text variant="neutral" size="1">
                       Tokens will be available for withdrawal in approximately{" "}
@@ -140,13 +137,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Box>
-                    Undelegated from{" "}
-                    {lock.delegate.id.replace(
-                      lock.delegate.id.slice(7, 37),
-                      "…"
-                    )}
-                  </Box>
+                  <Box>Undelegated from {formatAddress(lock.delegate.id)}</Box>
 
                   <Flex css={{ alignItems: "center" }}>
                     {isMyAccount && (

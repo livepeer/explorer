@@ -1,6 +1,7 @@
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
 import { getL2MigratorAddress } from "@lib/api/contracts";
+import { formatAddress } from "@lib/utils";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { constants, ethers } from "ethers";
@@ -202,10 +203,7 @@ const Claim = () => {
               borderBottom: "1px solid rgba(255,255,255, .2)",
             }}
           >
-            {migrationParams.delegate.replace(
-              migrationParams.delegate.slice(6, 38),
-              "…"
-            )}
+            {formatAddress(migrationParams.delegate)}
           </Box>
         </Box>
         <Flex css={{ marginTop: "$3", alignItems: "center" }}>

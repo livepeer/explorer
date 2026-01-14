@@ -1,4 +1,5 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { formatAddress } from "@lib/utils";
 import { Box, Flex, Heading } from "@livepeer/design-system";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -58,7 +59,7 @@ const Header = ({
         <Heading size="1" css={{ fontWeight: 700 }}>
           {delegateProfile?.name
             ? delegateProfile.name
-            : transcoder?.id.replace(transcoder.id.slice(7, 37), "…")}
+            : formatAddress(transcoder?.id)}
         </Heading>
         <Box
           css={{

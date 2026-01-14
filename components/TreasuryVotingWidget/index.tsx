@@ -3,7 +3,7 @@ import TreasuryVotingReason from "@components/TreasuryVotingReason";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, fromWei, shortenAddress } from "@lib/utils";
+import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
 import { InfoCircledIcon } from "@modulz/radix-icons";
 import { useAccountAddress } from "hooks";
@@ -262,7 +262,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 }}
               >
                 <Text css={{ color: "$neutral11" }}>
-                  Delegate vote ({shortenAddress(vote.delegate!.address)})
+                  Delegate vote ({formatAddress(vote.delegate!.address)})
                 </Text>
                 <Text css={{ fontWeight: 500, color: "$hiContrast" }}>
                   {vote.delegate!.hasVoted ? "Voted" : "Not voted"}

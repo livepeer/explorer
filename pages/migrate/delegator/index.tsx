@@ -11,6 +11,7 @@ import {
   l2Provider,
   l2PublicClient,
 } from "@lib/chains";
+import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Button,
@@ -884,12 +885,7 @@ function MigrationFields({ migrationParams, css = {} }) {
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
-        <Box>
-          {migrationParams.l1Addr.replace(
-            migrationParams.l1Addr.slice(6, 38),
-            "…"
-          )}
-        </Box>
+        <Box>{formatAddress(migrationParams.l1Addr)}</Box>
       </ReadOnlyCard>
       <ReadOnlyCard>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>
@@ -922,7 +918,7 @@ function ReceiptLink({ label, hash, chainId }) {
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[chainId].explorer}tx/${hash}`}
       >
-        {hash.replace(hash.slice(6, 62), "…")}
+        {formatTransactionHash(hash)}
         <Box as={ArrowTopRightIcon} />
       </A>
     </Box>
