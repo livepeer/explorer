@@ -6,12 +6,12 @@ import {
   avg,
   checkAddressEquality,
   EMPTY_ADDRESS,
+  formatAddress,
   fromWei,
   getDelegatorStatus,
   getHint,
   getPercentChange,
   isImageUrl,
-  shortenAddress,
   simulateNewActiveSetOrder,
   textTruncate,
   toWei,
@@ -336,19 +336,18 @@ describe("isImageUrl", () => {
   });
 });
 
-describe("shortenAddress", () => {
+describe("formatAddress", () => {
   it("shortens a normal ethereum address", () => {
     const addr = "0x1234567890abcdef1234567890abcdef12345678";
-    const shortened = shortenAddress(addr);
+    const shortened = formatAddress(addr);
 
     // Implementation: replace address.slice(5, 39) with "…"
-    const expected = addr.slice(0, 5) + "…" + addr.slice(39);
+    const expected = addr.slice(0, 6) + "…" + addr.slice(-4);
 
     expect(shortened).toBe(expected);
   });
 
   it("returns empty string for falsy address", () => {
-    // @ts-expect-error testing runtime behavior
-    expect(shortenAddress(null)).toBe("");
+    expect(formatAddress(null)).toBe("");
   });
 });

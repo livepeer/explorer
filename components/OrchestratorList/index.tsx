@@ -135,7 +135,7 @@ const OrchestratorList = ({
                     </Flex>
                   ) : (
                     <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      {formatAddress(row.values.id)}
                     </Box>
                   )}
                   {/* {(row?.original?.daysSinceChangeParams ??
