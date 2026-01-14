@@ -66,8 +66,8 @@ const Index = ({
   useHandleTransaction("vote", data, error, isPending, isSuccess, {
     choiceId,
     choiceName: proposalId
-      ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId]
-      : { 0: "No", 1: "Yes" }[choiceId],
+      ? { 0: "Against", 1: "For", 2: "Abstain" }[choiceId] // TreasuryVoteSupport on treasury proposals
+      : { 0: "Yes", 1: "No" }[choiceId], // PollChoice on governance polls
     reason,
   });
 
