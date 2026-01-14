@@ -80,6 +80,9 @@ jobs:
           echo "Running Lighthouse CI on: $PREVIEW_URL"
           pnpm dlx @lhci/cli collect --config=./.lighthouserc.json \
             --url="$PREVIEW_URL/" \
+            --url="$PREVIEW_URL/orchestrators" \
+            --url="$PREVIEW_URL/leaderboard" \
+            --url="$PREVIEW_URL/transactions" \
             --url="$PREVIEW_URL/voting" \
             --url="$PREVIEW_URL/treasury"
           pnpm dlx @lhci/cli assert  --config=./.lighthouserc.json
