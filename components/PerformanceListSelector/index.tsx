@@ -57,30 +57,72 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
   };
 
   if (isValidating) {
-    return <Skeleton css={{ height: 20, width: 100 }} />;
+    return (
+      <Skeleton
+        css={{
+          height: 30,
+          width: 200,
+          borderRadius: "$2",
+          "@bp2": {
+            width: 350,
+          },
+        }}
+      />
+    );
   }
 
   return (
-    <>
+    <Box
+      css={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        width: 200,
+        "@bp2": {
+          width: 350,
+        },
+      }}
+    >
       <Box
         as="select"
         value={indexOfSelectedOption}
         onChange={handleSelectChange}
         css={{
-          paddingTop: "$1",
-          paddingBottom: "$1",
-          paddingLeft: "$2",
+          width: "100%",
+          paddingTop: "$2",
+          paddingBottom: "$2",
+          paddingLeft: "$3",
+          paddingRight: "$6",
           border: "none",
+          borderRadius: "$2",
           backgroundColor: "$panel",
+          color: "$hiContrast",
+          fontFamily: "$body",
+          fontSize: "$2",
+          fontWeight: 500,
           appearance: "none",
-          paddingRight: "$5",
-          maxWidth: "50%", // Ensure the dropdown doesn't exceed the container width
-          "@bp2": {
-            maxWidth: "100%", // Remove margin-bottom for larger screens
+          cursor: "pointer",
+          transition: "all 0.2s",
+          "&:hover": {
+            backgroundColor: "$neutral2",
+          },
+          "&:focus": {
+            outline: "none",
+            borderColor: "$primary9",
+            boxShadow: "0 0 0 1px $colors$primary9",
+          },
+          "& option": {
+            backgroundColor: "$panel",
+            color: "$hiContrast",
+            fontFamily: "$body",
+          },
+          "& option:hover, & option:focus": {
+            backgroundColor: "rgba(0,235,136,.1)",
+            color: "$primary",
           },
         }}
       >
-        <Box as="option" key="-1" value={-1}>
+        <Box as="option" key="-1" value={-1} css={{ fontFamily: "$body" }}>
           Transcoding
         </Box>
         {availPipelines?.pipelines?.length === 0 ? (
@@ -89,49 +131,13 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
           </Box>
         ) : (
           <>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               ----------------
             </Box>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               AI Pipelines
             </Box>
-            <Box
-              as="option"
-              disabled
-              css={{
-                paddingTop: "$1",
-                paddingBottom: "$1",
-                paddingLeft: "$2",
-                border: "none",
-                backgroundColor: "$panel",
-                appearance: "none",
-                paddingRight: "$5",
-              }}
-            >
+            <Box as="option" disabled>
               ----------------
             </Box>
             {availPipelines?.pipelines?.map((p, pindex) =>
@@ -151,10 +157,15 @@ const PerformanceListSelector: React.FC<PerformanceSelectorProps> = ({
       <Box
         as={ChevronDownIcon}
         css={{
+          position: "absolute",
+          right: "$2",
           pointerEvents: "none",
+          color: "$neutral9",
+          width: "$4",
+          height: "$4",
         }}
       />
-    </>
+    </Box>
   );
 };
 
