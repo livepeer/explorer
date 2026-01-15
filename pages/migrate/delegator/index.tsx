@@ -33,7 +33,7 @@ import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { waitToRelayTxsToL2 } from "utils/messaging";
@@ -43,11 +43,13 @@ import { useWriteContract } from "wagmi";
 import { stepperStyles } from "../../../utils/stepperStyles";
 
 const signingSteps = [
-  `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the
-  undelegated stake of another account via the Livepeer CLI enter its address below.`,
-  "Sign message",
-  "Approve migration",
-];
+  {
+    id: "intro",
+    label: `This account has no undelegated stake on ${CHAIN_INFO[L1_CHAIN_ID].label}. If you wish to migrate the undelegated stake of another account via the Livepeer CLI enter its address below.`,
+  },
+  { id: "sign", label: "Sign message" },
+  { id: "approve", label: "Approve migration" },
+] as const;
 
 const initialState = {
   title: `Migrate Undelegated Stake to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
@@ -230,22 +232,28 @@ const MigrateUndelegatedStake = () => {
   const { register, watch } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
-  const time = new Date();
-  time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { start, restart } = useTimer({
-    autoStart: false,
-    expiryTimestamp: time,
-    onExpire: () => console.warn("onExpire called"),
-  });
+  /** Returns a Date object set to 10 minutes from now. */
+  const createExpiryTimestamp = useCallback(() => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+    return time;
+  }, []);
+
+  // Memoize initial expiry to avoid subtle hydration timing diffs.
+  const expiryTimestamp = useMemo(
+    () => createExpiryTimestamp(),
+    [createExpiryTimestamp]
+  );
 
   const l1Delegator = useL1DelegatorData(accountAddress);
   const l1SignerOrAddress = useL1DelegatorData(
     state.signer ? state.signer : accountAddress
   );
-  const { seconds, minutes } = useTimer({
+
+  const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
-    expiryTimestamp: time,
+    expiryTimestamp,
     onExpire: () => console.warn("onExpire called"),
   });
 
@@ -513,12 +521,8 @@ const MigrateUndelegatedStake = () => {
   };
 
   const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-    });
+    restart(createExpiryTimestamp(), false); // restart timer
+    dispatch({ type: "reset" });
   };
 
   if (!render) {
@@ -751,27 +755,30 @@ const MigrateUndelegatedStake = () => {
             >
               <Box css={stepperStyles}>
                 <Stepper activeStep={activeStep} orientation="vertical">
-                  {signingSteps.map((step, index) => (
-                    <Step key={step}>
-                      <Box
-                        as={StepLabel}
-                        optional={
-                          index === 2 ? (
-                            <Text variant="neutral" size="1">
-                              Last step
-                            </Text>
-                          ) : null
-                        }
-                      >
-                        {step}
-                      </Box>
-                      <StepContent
-                        slotProps={{ transition: { unmountOnExit: false } }}
-                      >
-                        {getSigningStepContent(index)}
-                      </StepContent>
-                    </Step>
-                  ))}
+                  {signingSteps.map((step, index, arr) => {
+                    const isLast = index === arr.length - 1;
+                    return (
+                      <Step key={step.id}>
+                        <Box
+                          as={StepLabel}
+                          optional={
+                            isLast ? (
+                              <Text variant="neutral" size="1">
+                                Last step
+                              </Text>
+                            ) : null
+                          }
+                        >
+                          {step.label}
+                        </Box>
+                        <StepContent
+                          slotProps={{ transition: { unmountOnExit: false } }}
+                        >
+                          {getSigningStepContent(index)}
+                        </StepContent>
+                      </Step>
+                    );
+                  })}
                 </Stepper>
               </Box>
             </Box>

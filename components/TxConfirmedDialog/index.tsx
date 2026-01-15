@@ -1,4 +1,5 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { ProposalExtended } from "@lib/api/treasury";
 import {
   Badge,
@@ -14,10 +15,13 @@ import {
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { TransactionStatus, useExplorerStore } from "hooks";
+import { useBondingManagerAddress } from "hooks/useContracts";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { MdReceipt } from "react-icons/md";
+import { Address } from "viem";
+import { useReadContract } from "wagmi";
 
 import { formatAddress, fromWei, txMessages } from "../../lib/utils";
 
@@ -73,7 +77,7 @@ const Index = () => {
             </Badge>
           </Heading>
         </DialogTitle>
-        {renderSwitch(latestTransaction, onDismiss)}
+        <TransactionContent tx={latestTransaction} onDismiss={onDismiss} />
       </DialogContent>
     </Dialog>
   );
@@ -81,7 +85,13 @@ const Index = () => {
 
 export default Index;
 
-function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
+const TransactionContent = ({
+  tx,
+  onDismiss,
+}: {
+  tx: TransactionStatus;
+  onDismiss: () => void;
+}) => {
   if (!tx.inputData) return;
   switch (tx.name) {
     case "bond":
@@ -117,40 +127,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
       );
     case "unbond":
       if (!tx.inputData.amount) return null;
-      return (
-        <Box>
-          <Table css={{ mb: "$4" }}>
-            <Header tx={tx} />
-            <Box
-              css={{
-                paddingLeft: "$3",
-                paddingRight: "$3",
-                paddingTop: "$4",
-                paddingBottom: "$4",
-              }}
-            >
-              <Box>
-                You&apos;ve successfully undelegated{" "}
-                {fromWei(tx.inputData.amount)} LPT.
-                {tx.inputData.wasDeactivated && (
-                  <Box css={{ marginTop: "$2", color: "$yellow9" }}>
-                    Your orchestrator has been deactivated.
-                  </Box>
-                )}
-                <Box css={{ marginTop: "$2" }}>
-                  The unbonding period is ~7 days after which you may withdraw
-                  the undelegated LPT into your wallet.
-                </Box>
-              </Box>
-            </Box>
-          </Table>
-          <DialogClose asChild>
-            <Button size="4" variant="primary" css={{ width: "100%" }}>
-              Close
-            </Button>
-          </DialogClose>
-        </Box>
-      );
+      return <UnbondingTransactionContent tx={tx} />;
     case "approve":
       return (
         <Box>
@@ -492,7 +469,52 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     default:
       return null;
   }
-}
+};
+
+const UnbondingTransactionContent = ({ tx }: { tx: TransactionStatus }) => {
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: unbondingPeriod } = useReadContract({
+    address: bondingManagerAddress as Address,
+    abi: bondingManager,
+    functionName: "unbondingPeriod",
+  });
+  if (!tx.inputData?.amount) return null;
+  return (
+    <Box>
+      <Table css={{ mb: "$4" }}>
+        <Header tx={tx} />
+        <Box
+          css={{
+            paddingLeft: "$3",
+            paddingRight: "$3",
+            paddingTop: "$4",
+            paddingBottom: "$4",
+          }}
+        >
+          <Box>
+            You&apos;ve successfully undelegated {fromWei(tx.inputData.amount)}{" "}
+            LPT.
+            {tx.inputData.wasDeactivated && (
+              <Box css={{ marginTop: "$2", color: "$yellow9" }}>
+                Your orchestrator has been deactivated.
+              </Box>
+            )}
+            <Box css={{ marginTop: "$2" }}>
+              The unbonding period is {unbondingPeriod?.toString()} rounds
+              (currently ~{unbondingPeriod?.toString()} days) after which you
+              may withdraw the undelegated LPT into your wallet.
+            </Box>
+          </Box>
+        </Box>
+      </Table>
+      <DialogClose asChild>
+        <Button size="4" variant="primary" css={{ width: "100%" }}>
+          Close
+        </Button>
+      </DialogClose>
+    </Box>
+  );
+};
 
 function Table({ css = {}, children, ...props }) {
   return (

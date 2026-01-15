@@ -1,3 +1,8 @@
+import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+} from "@lib/api/errors";
 import { AddIpfs } from "@lib/api/types/add-ipfs";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -20,16 +25,19 @@ const handler = async (
           body: JSON.stringify(req.body),
         }
       );
+
+      if (!fetchResult.ok) {
+        return externalApiError(res, "Pinata IPFS");
+      }
+
       const result = await fetchResult.json();
 
       return res.status(200).json({ hash: result.IpfsHash });
     }
 
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["POST"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 
