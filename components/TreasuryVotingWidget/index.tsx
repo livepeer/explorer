@@ -4,7 +4,7 @@ import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
 import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
-import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckCircledIcon,
   CrossCircledIcon,
@@ -12,6 +12,7 @@ import {
   MinusCircledIcon,
 } from "@radix-ui/react-icons";
 import { useAccountAddress } from "hooks";
+import Link, { LinkProps } from "next/link";
 import numbro from "numbro";
 import { useMemo, useState } from "react";
 import { zeroAddress } from "viem";
@@ -21,6 +22,7 @@ import VoteButton from "../Votes/VoteButton";
 type Props = {
   proposal: ProposalExtended;
   vote: ProposalVotingPower | undefined | null;
+  votesTabHref?: LinkProps["href"] | string;
 };
 
 const formatPercent = (percent: number) =>
@@ -265,17 +267,33 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
                   " left"}
             </Text>
-            <Link
-              href="#votes-section"
-              css={{
-                fontSize: "$1",
-                color: "$primary11",
-                textDecoration: "none",
-                "&:hover": { textDecoration: "underline" },
-              }}
-            >
-              View votes
-            </Link>
+            {props.votesTabHref ? (
+              <Link href={props.votesTabHref} passHref legacyBehavior>
+                <A
+                  css={{
+                    fontSize: "$1",
+                    color: "$primary11",
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                    cursor: "pointer",
+                  }}
+                >
+                  View votes
+                </A>
+              </Link>
+            ) : (
+              <A
+                href="#votes-section"
+                css={{
+                  fontSize: "$1",
+                  color: "$primary11",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                View votes
+              </A>
+            )}
           </Flex>
         </Box>
 
@@ -474,7 +492,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                       this proposal was created.
                     </Text>
                     <Flex css={{ gap: "$3" }}>
-                      <Link
+                      <A
                         href="https://github.com/livepeer/LIPs/blob/master/LIPs/LIP-89.md#governance-over-the-treasury"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -486,7 +504,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                         }}
                       >
                         Learn about stake snapshots
-                      </Link>
+                      </A>
                     </Flex>
                   </Box>
                 </Flex>
