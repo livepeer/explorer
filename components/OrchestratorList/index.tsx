@@ -41,6 +41,7 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
+import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -139,6 +140,10 @@ const OrchestratorList = ({
           "days"
         );
 
+        const treasuryCutNumber = Number(
+          formatUnits(treasuryRewardCutRate, 27)
+        );
+
         const roi = calculateROI({
           inputs: {
             principle: Number(principle),
@@ -164,7 +169,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: Number(treasuryRewardCutRate / 10n ** 18n) / 1e9,
+            treasuryRewardCut: treasuryCutNumber,
           },
         });
 
@@ -181,9 +186,10 @@ const OrchestratorList = ({
                 .divide(pools.length)
                 .format({ mantissa: 0, output: "percent" })}`
             : "0%";
-        const formattedTreasuryCut = numbro(
-          Number(treasuryRewardCutRate / 10n ** 18n) / 1e9
-        ).format({ mantissa: 0, output: "percent" });
+        const formattedTreasuryCut = numbro(treasuryCutNumber).format({
+          mantissa: 0,
+          output: "percent",
+        });
 
         return {
           ...row,
