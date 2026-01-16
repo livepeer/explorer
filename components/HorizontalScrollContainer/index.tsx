@@ -97,8 +97,14 @@ const HorizontalScrollContainer = forwardRef<
     <Box
       css={{
         position: "relative",
-        borderBottom: "1px solid",
-        borderColor: "$neutral6",
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderBottom: "1px solid $neutral6",
+        },
       }}
     >
       <Box
@@ -109,6 +115,8 @@ const HorizontalScrollContainer = forwardRef<
           overflowX: "auto",
           WebkitOverflowScrolling: "touch",
           flexWrap: "nowrap",
+          position: "relative",
+          zIndex: 1,
         }}
         role={role}
         aria-label={ariaLabel}

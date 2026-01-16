@@ -13,6 +13,7 @@ import {
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
 import { TreasuryVoteSupport } from "apollo/subgraph";
+import { useState } from "react";
 
 import { VOTING_SUPPORT_MAP } from "../../../../lib/api/types/votes";
 import { ExplorerTooltip } from "../../../ExplorerTooltip";
@@ -48,6 +49,7 @@ export function VoteView({
 }
 
 function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
@@ -68,6 +70,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           backgroundColor: "$neutral4",
         },
       }}
+      onClick={() => hasReason && setIsExpanded(!isExpanded)}
     >
       <Flex css={{ justifyContent: "space-between", alignItems: "flex-start" }}>
         <Box>
@@ -129,28 +132,34 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           }}
         >
           {(vote.reason?.length ?? 0) > 50 ? (
-            <VoteReasonPopover reason={vote.reason!} voterName={vote.ensName}>
+            <Box>
               <Text
                 css={{
                   color: "$neutral12",
                   fontStyle: "italic",
-                  display: "-webkit-box",
+                  display: isExpanded ? "block" : "-webkit-box",
                   WebkitLineClamp: 3,
                   WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
+                  overflow: isExpanded ? "visible" : "hidden",
                   textOverflow: "ellipsis",
-                  cursor: "help",
-                  textDecoration: "underline dotted",
-                  textUnderlineOffset: "2px",
-                  textDecorationColor: "$neutral8",
-                  "&:hover": {
-                    textDecorationColor: "$hiContrast",
-                  },
+                  cursor: "pointer",
                 }}
               >
                 &ldquo;{vote.reason}&rdquo;
               </Text>
-            </VoteReasonPopover>
+              {!isExpanded && (
+                <Text
+                  size="1"
+                  css={{
+                    color: "$primary11",
+                    marginTop: "$1",
+                    fontWeight: 600,
+                  }}
+                >
+                  Show more
+                </Text>
+              )}
+            </Box>
           ) : (
             <Text
               css={{

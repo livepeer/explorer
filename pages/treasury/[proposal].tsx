@@ -336,11 +336,14 @@ const Proposal = () => {
                         color: tab.isActive ? "$hiContrast" : "$neutral11",
                         marginRight: "$4",
                         paddingBottom: "$2",
+                        marginBottom: "-1px",
+                        position: "relative",
+                        zIndex: 2,
                         fontSize: "$3",
                         fontWeight: 500,
                         flex: "0 0 auto",
                         whiteSpace: "nowrap",
-                        borderBottom: "2px solid",
+                        borderBottom: "3px solid",
                         borderColor: tab.isActive
                           ? "$primary11"
                           : "transparent",
@@ -357,13 +360,9 @@ const Proposal = () => {
                       {tab.count !== undefined && (
                         <Badge
                           size="2"
-                          variant="neutral"
+                          variant="green"
                           css={{
                             marginLeft: "$1",
-                            backgroundColor: tab.isActive
-                              ? "$primary11"
-                              : "$neutral4",
-                            color: tab.isActive ? "$loContrast" : "$hiContrast",
                           }}
                         >
                           {tab.count}
@@ -811,15 +810,7 @@ const Proposal = () => {
                 </Box>
               </Box>
               <Box css={{ display: view === "votes" ? "block" : "none" }}>
-                <Card
-                  id="votes-section"
-                  css={{
-                    padding: "$4",
-                    border: "1px solid $neutral4",
-                  }}
-                >
-                  {votesContent()}
-                </Card>
+                {votesContent()}
               </Box>
             </Box>
           </Flex>
