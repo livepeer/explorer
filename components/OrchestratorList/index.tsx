@@ -140,7 +140,7 @@ const OrchestratorList = ({
           "days"
         );
 
-        const treasuryCutNumber = Number(
+        const treasuryCutDecimal = Number(
           formatUnits(treasuryRewardCutRate, 27)
         );
 
@@ -169,7 +169,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut: treasuryCutNumber,
+            treasuryRewardCut: treasuryCutDecimal,
           },
         });
 
@@ -186,7 +186,7 @@ const OrchestratorList = ({
                 .divide(pools.length)
                 .format({ mantissa: 0, output: "percent" })}`
             : "0%";
-        const formattedTreasuryCut = numbro(treasuryCutNumber).format({
+        const formattedTreasuryCut = numbro(treasuryCutDecimal).format({
           mantissa: 0,
           output: "percent",
         });
