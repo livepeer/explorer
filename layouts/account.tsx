@@ -8,6 +8,7 @@ import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { checkAddressEquality } from "@lib/utils";
 import {
+  Box,
   Button,
   Container,
   Flex,
@@ -294,22 +295,30 @@ const AccountLayout = ({
                 css={{
                   color: tab.isActive ? "$hiContrast" : "$neutral11",
                   marginRight: "$4",
-                  paddingBottom: "$2",
-                  marginBottom: "-1px",
-                  position: "relative",
-                  zIndex: 2,
                   fontSize: "$3",
                   fontWeight: 500,
                   flex: "0 0 auto",
                   whiteSpace: "nowrap",
-                  borderBottom: "3px solid",
-                  borderColor: tab.isActive ? "$primary11" : "transparent",
                   "&:hover": {
                     textDecoration: "none",
                   },
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
-                {tab.name}
+                <Box
+                  as="span"
+                  css={{
+                    paddingBottom: "$2",
+                    marginBottom: "-1px",
+                    position: "relative",
+                    zIndex: 2,
+                    borderBottom: "3px solid",
+                    borderColor: tab.isActive ? "$primary11" : "transparent",
+                  }}
+                >
+                  {tab.name}
+                </Box>
               </A>
             ))}
           </HorizontalScrollContainer>

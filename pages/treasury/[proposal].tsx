@@ -335,39 +335,41 @@ const Proposal = () => {
                       css={{
                         color: tab.isActive ? "$hiContrast" : "$neutral11",
                         marginRight: "$4",
-                        paddingBottom: "$2",
-                        marginBottom: "-1px",
-                        position: "relative",
-                        zIndex: 2,
                         fontSize: "$3",
                         fontWeight: 500,
                         flex: "0 0 auto",
                         whiteSpace: "nowrap",
-                        borderBottom: "3px solid",
-                        borderColor: tab.isActive
-                          ? "$primary11"
-                          : "transparent",
                         "&:hover": {
                           textDecoration: "none",
                           color: "$hiContrast",
                         },
                         display: "flex",
                         alignItems: "center",
-                        gap: "$0.5",
                       }}
                     >
-                      {tab.name}
-                      {tab.count !== undefined && (
-                        <Badge
-                          size="2"
-                          variant="green"
-                          css={{
-                            marginLeft: "$1",
-                          }}
-                        >
-                          {tab.count}
-                        </Badge>
-                      )}
+                      <Box
+                        as="span"
+                        css={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "$1",
+                          paddingBottom: "$2",
+                          marginBottom: "-1px",
+                          position: "relative",
+                          zIndex: 2,
+                          borderBottom: "3px solid",
+                          borderColor: tab.isActive
+                            ? "$primary11"
+                            : "transparent",
+                        }}
+                      >
+                        {tab.name}
+                        {tab.count !== undefined && (
+                          <Badge size="1" variant="green">
+                            {tab.count}
+                          </Badge>
+                        )}
+                      </Box>
                     </A>
                   </NextLink>
                 ))}
