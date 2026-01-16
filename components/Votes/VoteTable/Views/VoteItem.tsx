@@ -7,7 +7,6 @@ import {
   Heading,
   Link,
   Text,
-  Tooltip,
 } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
@@ -16,7 +15,9 @@ import {
 import { TreasuryVoteSupport } from "apollo/subgraph";
 
 import { VOTING_SUPPORT_MAP } from "../../../../lib/api/types/votes";
+import { ExplorerTooltip } from "../../../ExplorerTooltip";
 import { Vote } from "./DesktopVoteTable";
+import { VoteReasonPopover } from "./VoteReasonPopover";
 
 interface VoteViewProps {
   vote: Vote;
@@ -127,9 +128,39 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             fontSize: "$1",
           }}
         >
-          <Text css={{ color: "$neutral12", fontStyle: "italic" }}>
-            &ldquo;{vote.reason}&rdquo;
-          </Text>
+          {(vote.reason?.length ?? 0) > 50 ? (
+            <VoteReasonPopover reason={vote.reason!} voterName={vote.ensName}>
+              <Text
+                css={{
+                  color: "$neutral12",
+                  fontStyle: "italic",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  cursor: "help",
+                  textDecoration: "underline dotted",
+                  textUnderlineOffset: "2px",
+                  textDecorationColor: "$neutral8",
+                  "&:hover": {
+                    textDecorationColor: "$hiContrast",
+                  },
+                }}
+              >
+                &ldquo;{vote.reason}&rdquo;
+              </Text>
+            </VoteReasonPopover>
+          ) : (
+            <Text
+              css={{
+                color: "$neutral12",
+                fontStyle: "italic",
+              }}
+            >
+              &ldquo;{vote.reason}&rdquo;
+            </Text>
+          )}
         </Box>
       )}
 
@@ -324,19 +355,48 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           borderBottom: "1px solid $neutral5",
         }}
       >
-        <Text
-          size="1"
+        <Box
           css={{
-            color:
-              !vote.reason || vote.reason.toLowerCase() === "no reason provided"
-                ? "$neutral9"
-                : "$hiContrast",
+            minWidth: 200,
+            maxWidth: 400,
+            paddingRight: "$3",
+            paddingLeft: "$2",
           }}
         >
-          {!vote.reason || vote.reason.toLowerCase() === "no reason provided"
-            ? "—"
-            : vote.reason}
-        </Text>
+          {!vote.reason ||
+          vote.reason.toLowerCase() === "no reason provided" ? (
+            <Text size="1" css={{ color: "$neutral9" }}>
+              —
+            </Text>
+          ) : (vote.reason?.length ?? 0) > 50 ? (
+            <VoteReasonPopover reason={vote.reason} voterName={vote.ensName}>
+              <Text
+                size="1"
+                css={{
+                  color: "$hiContrast",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  cursor: "pointer",
+                  textDecoration: "underline dotted",
+                  textUnderlineOffset: "2px",
+                  textDecorationColor: "$neutral8",
+                  "&:hover": {
+                    textDecorationColor: "$hiContrast",
+                  },
+                }}
+              >
+                {vote.reason}
+              </Text>
+            </VoteReasonPopover>
+          ) : (
+            <Text size="1" css={{ color: "$hiContrast", cursor: "default" }}>
+              {vote.reason}
+            </Text>
+          )}
+        </Box>
       </Box>
       <Box
         as="td"
@@ -402,7 +462,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
           color: "$primary11",
         }}
       >
-        <Tooltip content="See their voting history">
+        <ExplorerTooltip content="See their voting history">
           <Box
             as="button"
             onClick={(e) => {
@@ -439,7 +499,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               css={{ width: 16, height: 16 }}
             />
           </Box>
-        </Tooltip>
+        </ExplorerTooltip>
       </Box>
     </Box>
   );

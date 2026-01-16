@@ -1,7 +1,8 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import DataTable from "@components/Table";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { formatTransactionHash } from "@lib/utils";
-import { Badge, Box, Link, Text, Tooltip } from "@livepeer/design-system";
+import { Badge, Box, Link, Text } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
   CounterClockwiseClockIcon,
@@ -9,6 +10,8 @@ import {
 import { TreasuryVote, TreasuryVoteSupport } from "apollo";
 import React, { useMemo } from "react";
 import { Column } from "react-table";
+
+import { VoteReasonPopover } from "./VoteReasonPopover";
 
 export type Vote = TreasuryVote & {
   ensName?: string;
@@ -142,16 +145,65 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
           const isEmpty =
             !reason || reason.toLowerCase() === "no reason provided";
 
+          const isLongReason = reason && reason.length > 50;
+
           return (
-            <Box css={{ minWidth: 200 }}>
-              <Text
-                size="1"
-                css={{
-                  color: isEmpty ? "$neutral9" : "$hiContrast",
-                }}
-              >
-                {isEmpty ? "—" : reason}
-              </Text>
+            <Box
+              css={{
+                minWidth: 200,
+                maxWidth: 400,
+                paddingRight: "$3",
+                paddingLeft: "$2",
+              }}
+            >
+              {!isEmpty ? (
+                isLongReason ? (
+                  <VoteReasonPopover
+                    reason={reason!}
+                    voterName={row.original.ensName}
+                  >
+                    <Text
+                      size="1"
+                      css={{
+                        color: "$hiContrast",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        cursor: "help",
+                        textDecoration: "underline dotted",
+                        textUnderlineOffset: "2px",
+                        textDecorationColor: "$neutral8",
+                        "&:hover": {
+                          textDecorationColor: "$hiContrast",
+                        },
+                      }}
+                    >
+                      {reason}
+                    </Text>
+                  </VoteReasonPopover>
+                ) : (
+                  <Text
+                    size="1"
+                    css={{
+                      color: "$hiContrast",
+                      cursor: "default",
+                    }}
+                  >
+                    {reason}
+                  </Text>
+                )
+              ) : (
+                <Text
+                  size="1"
+                  css={{
+                    color: "$neutral9",
+                  }}
+                >
+                  —
+                </Text>
+              )}
             </Box>
           );
         },
@@ -213,7 +265,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         id: "history",
         Cell: ({ row }) => (
           <Box css={{ minWidth: 40, textAlign: "right", color: "$primary11" }}>
-            <Tooltip content="See their voting history">
+            <ExplorerTooltip content="See their voting history">
               <Box
                 as="button"
                 onClick={(e) => {
@@ -247,7 +299,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                   css={{ width: 16, height: 16 }}
                 />
               </Box>
-            </Tooltip>
+            </ExplorerTooltip>
           </Box>
         ),
         disableSortBy: true,
