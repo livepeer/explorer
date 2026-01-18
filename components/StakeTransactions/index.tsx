@@ -60,9 +60,16 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
               >
                 <Flex
                   css={{
+                    alignItems: "flex-start",
+                    flexDirection: "column",
+                    gap: "$3",
                     width: "100%",
-                    alignItems: "center",
                     justifyContent: "space-between",
+                    "@bp2": {
+                      alignItems: "center",
+                      flexDirection: "row",
+                      gap: 0,
+                    },
                   }}
                 >
                   <Box>
@@ -75,24 +82,56 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       days.
                     </Text>
                   </Box>
-                  <Flex css={{ alignItems: "center" }}>
-                    {isMyAccount &&
-                      (isBonded ? (
-                        <Redelegate
-                          unbondingLockId={lock.unbondingLockId}
-                          newPosPrev={newPosPrev}
-                          newPosNext={newPosNext}
-                        />
-                      ) : (
-                        <RedelegateFromUndelegated
-                          unbondingLockId={lock.unbondingLockId}
-                          delegate={lock.delegate.id}
-                          newPosPrev={newPosPrev}
-                          newPosNext={newPosNext}
-                        />
-                      ))}
-                    <Box css={{ marginLeft: "$4" }}>
-                      {" "}
+                  <Flex
+                    css={{
+                      alignItems: "center",
+                      flexDirection: "column",
+                      gap: "$2",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      "@bp2": {
+                        flexDirection: "row",
+                        width: "auto",
+                        justifyContent: "flex-end",
+                        gap: 0,
+                      },
+                    }}
+                  >
+                    {isMyAccount && (
+                      <Flex
+                        css={{
+                          justifyContent: "flex-start",
+                          width: "100%",
+                          "@bp2": {
+                            width: "auto",
+                          },
+                        }}
+                      >
+                        {isBonded ? (
+                          <Redelegate
+                            unbondingLockId={lock.unbondingLockId}
+                            newPosPrev={newPosPrev}
+                            newPosNext={newPosNext}
+                          />
+                        ) : (
+                          <RedelegateFromUndelegated
+                            unbondingLockId={lock.unbondingLockId}
+                            delegate={lock.delegate.id}
+                            newPosPrev={newPosPrev}
+                            newPosNext={newPosNext}
+                          />
+                        )}
+                      </Flex>
+                    )}
+                    <Box
+                      css={{
+                        alignSelf: "flex-end",
+                        "@bp2": {
+                          alignSelf: "auto",
+                          marginLeft: "$4",
+                        },
+                      }}
+                    >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
                         {abbreviateNumber(lock.amount, 4)}
                       </Box>{" "}
@@ -132,16 +171,45 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
               >
                 <Flex
                   css={{
-                    width: "100%",
-                    alignItems: "center",
+                    alignItems: "flex-start",
+                    flexDirection: "column",
                     justifyContent: "space-between",
+                    gap: "$3",
+                    width: "100%",
+                    "@bp2": {
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 0,
+                    },
                   }}
                 >
                   <Box>Undelegated from {formatAddress(lock.delegate.id)}</Box>
 
-                  <Flex css={{ alignItems: "center" }}>
+                  <Flex
+                    css={{
+                      alignItems: "center",
+                      flexDirection: "column",
+                      gap: "$2",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      "@bp2": {
+                        flexDirection: "row",
+                        gap: 0,
+                        justifyContent: "flex-end",
+                        width: "auto",
+                      },
+                    }}
+                  >
                     {isMyAccount && (
-                      <>
+                      <Flex
+                        css={{
+                          justifyContent: "flex-start",
+                          width: "100%",
+                          "@bp2": {
+                            width: "auto",
+                          },
+                        }}
+                      >
                         {isBonded ? (
                           <Redelegate
                             unbondingLockId={lock.unbondingLockId}
@@ -157,10 +225,17 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                           />
                         )}
                         <WithdrawStake unbondingLockId={lock.unbondingLockId} />
-                      </>
+                      </Flex>
                     )}
-                    <Box css={{ marginLeft: "$4" }}>
-                      {" "}
+                    <Box
+                      css={{
+                        alignSelf: "flex-end",
+                        "@bp2": {
+                          alignSelf: "auto",
+                          marginLeft: "$4",
+                        },
+                      }}
+                    >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
                         {abbreviateNumber(lock.amount, 3)}
                       </Box>{" "}
