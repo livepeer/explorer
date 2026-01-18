@@ -352,6 +352,7 @@ const Proposal = () => {
                         css={{
                           display: "flex",
                           alignItems: "center",
+                          minHeight: 33,
                           gap: "$1",
                           paddingBottom: "$2",
                           marginBottom: "-1px",

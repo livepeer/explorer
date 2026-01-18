@@ -309,6 +309,9 @@ const AccountLayout = ({
                 <Box
                   as="span"
                   css={{
+                    display: "flex",
+                    alignItems: "center",
+                    minHeight: 33,
                     paddingBottom: "$2",
                     marginBottom: "-1px",
                     position: "relative",
