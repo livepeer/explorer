@@ -87,7 +87,6 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       alignItems: "center",
                       flexDirection: "column",
                       gap: "$2",
-                      justifyContent: "space-between",
                       width: "100%",
                       "@bp2": {
                         flexDirection: "row",
@@ -190,7 +189,6 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       alignItems: "center",
                       flexDirection: "column",
                       gap: "$2",
-                      justifyContent: "space-between",
                       width: "100%",
                       "@bp2": {
                         flexDirection: "row",
