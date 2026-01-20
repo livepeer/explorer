@@ -997,6 +997,7 @@ function renderSwitch(event, i: number) {
                     supportTreasuryVoteEvent.style.backgroundColor,
                   color: supportTreasuryVoteEvent.style.color,
                   fontWeight: supportTreasuryVoteEvent.style.fontWeight,
+                  fontSize: "$1",
                   border: "none",
                   width: "86px",
                   display: "inline-flex",
@@ -1078,7 +1079,7 @@ function renderSwitch(event, i: number) {
                   backgroundColor: supportVoteEvent.style.backgroundColor,
                   color: supportVoteEvent.style.color,
                   fontWeight: supportVoteEvent.style.fontWeight,
-                  fontSize: "$4",
+                  fontSize: "$1",
                   border: "none",
                   width: "86px",
                   display: "inline-flex",
@@ -1089,7 +1090,7 @@ function renderSwitch(event, i: number) {
               >
                 <Box
                   as={supportVoteEvent.icon}
-                  css={{ width: 16, height: 16 }}
+                  css={{ width: 12, height: 12 }}
                 />
                 {supportVoteEvent.text}
               </Badge>

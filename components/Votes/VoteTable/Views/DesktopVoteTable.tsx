@@ -34,7 +34,6 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
   onSelect,
   pageSize = 10,
 }) => {
-  console.log(votes);
   const columns = useMemo<Column<Vote>[]>(
     () => [
       {

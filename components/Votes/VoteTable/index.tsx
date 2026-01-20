@@ -5,7 +5,7 @@ import { formatAddress, lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
 import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
 import React, { useEffect, useMemo, useState } from "react";
-import { isMobile } from "react-device-detect";
+import { useWindowSize } from "react-use";
 
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
@@ -106,7 +106,8 @@ const useVotes = (proposalId: string) => {
 };
 
 const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
-  const isDesktop = !isMobile;
+  const { width } = useWindowSize();
+  const isDesktop = width >= 900;
 
   const [selectedVoter, setSelectedVoter] = useState<{
     address: string;

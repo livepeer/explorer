@@ -40,8 +40,7 @@ import { BigNumber } from "ethers";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
-import { isMobile } from "react-device-detect";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { formatPercent } from "utils/voting";
 import { decodeFunctionData } from "viem";
@@ -72,6 +71,7 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -108,6 +108,10 @@ const Proposal = () => {
     },
     fetchPolicy: "cache-first",
   });
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
 
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -810,7 +814,7 @@ const Proposal = () => {
             </Box>
           </Flex>
 
-          {!isMobile ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",

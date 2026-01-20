@@ -98,7 +98,7 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 980,
+                minWidth: 960,
                 width: "100%",
                 "@bp4": {
                   width: "100%",
