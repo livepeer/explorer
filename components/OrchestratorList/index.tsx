@@ -41,6 +41,7 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
+import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -139,6 +140,10 @@ const OrchestratorList = ({
           "days"
         );
 
+        const treasuryCutDecimal = Number(
+          formatUnits(treasuryRewardCutRate, 27)
+        );
+
         const roi = calculateROI({
           inputs: {
             principle: Number(principle),
@@ -164,8 +169,7 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut:
-              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut: treasuryCutDecimal,
           },
         });
 
@@ -182,6 +186,10 @@ const OrchestratorList = ({
                 .divide(pools.length)
                 .format({ mantissa: 0, output: "percent" })}`
             : "0%";
+        const formattedTreasuryCut = numbro(treasuryCutDecimal).format({
+          mantissa: 0,
+          output: "percent",
+        });
 
         return {
           ...row,
@@ -209,6 +217,7 @@ const OrchestratorList = ({
             formattedFeeCut,
             formattedRewardCut,
             formattedRewardCalls,
+            formattedTreasuryCut,
           },
         };
       })
@@ -363,6 +372,7 @@ const OrchestratorList = ({
             formattedFeeCut: feeCut,
             formattedRewardCut: rewardCut,
             formattedRewardCalls: rewardCalls,
+            formattedTreasuryCut: treasuryCut,
           } = row.values.earnings;
 
           return (
@@ -669,6 +679,49 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {row?.original?.daysSinceChangeParams} days ago
+                        </Text>
+                      </Flex>
+                    </Box>
+
+                    <Box
+                      css={{
+                        marginTop: "$3",
+                        paddingTop: "$3",
+                        borderTop: "1px solid $neutral6",
+                      }}
+                    >
+                      <Text
+                        size="1"
+                        css={{
+                          marginBottom: "$2",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Protocol Data
+                      </Text>
+
+                      <Flex>
+                        <Text
+                          variant="neutral"
+                          css={{
+                            marginBottom: "$1",
+                          }}
+                          size="2"
+                        >
+                          Treasury cut
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            display: "block",
+                            fontWeight: 600,
+                            color: "$white",
+                            marginBottom: "$1",
+                          }}
+                          size="2"
+                        >
+                          {treasuryCut}
                         </Text>
                       </Flex>
                     </Box>
