@@ -1,3 +1,5 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { formatTransactionHash } from "@lib/utils";
 import {
   Badge,
@@ -15,8 +17,6 @@ import {
 import { TreasuryVoteSupport } from "apollo/subgraph";
 import { useState } from "react";
 
-import { VOTING_SUPPORT_MAP } from "../../../../lib/api/types/votes";
-import { ExplorerTooltip } from "../../../ExplorerTooltip";
 import { Vote } from "./DesktopVoteTable";
 import { VoteReasonPopover } from "./VoteReasonPopover";
 

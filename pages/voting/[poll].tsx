@@ -28,9 +28,9 @@ import {
 import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+import { formatPercent } from "utils/voting";
 
 import {
   useAccountAddress,
@@ -39,12 +39,6 @@ import {
 } from "../../hooks";
 import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 4,
-  });
 
 const Poll = () => {
   const router = useRouter();

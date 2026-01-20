@@ -1,6 +1,6 @@
-"use client";
-
 import Spinner from "@components/Spinner";
+import VoteDetail from "@components/Votes/VoteDetail";
+import VoteModal from "@components/Votes/VoteModal";
 import { TREASURY_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
@@ -10,9 +10,6 @@ import {
   useTreasuryVoteEventsQuery,
 } from "apollo";
 import React from "react";
-
-import VoteDetail from "../VoteDetail";
-import VoteModal from "../VoteModal";
 
 interface VoterPopoverProps {
   voter: string;

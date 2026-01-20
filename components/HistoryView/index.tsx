@@ -1,11 +1,7 @@
 import Spinner from "@components/Spinner";
 import { Fm } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
-import {
-  POLL_VOTES,
-  TREASURY_VOTES,
-  VOTING_SUPPORT_MAP,
-} from "@lib/api/types/votes";
+import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
@@ -1020,8 +1016,10 @@ function renderSwitch(event, i: number) {
         </Card>
       );
     case "VoteEvent":
-      const supportVoteEvent =
-        POLL_VOTES[event.choiceID] || TREASURY_VOTES.abstain;
+      const supportVoteEvent = POLL_VOTES[event.choiceID];
+      if (!supportVoteEvent) {
+        return null;
+      }
       return (
         <Card
           as={A}

@@ -1,12 +1,12 @@
 import Spinner from "@components/Spinner";
+import VoterPopover from "@components/Votes/VotePopover";
 import { getEnsForVotes } from "@lib/api/ens";
 import { formatAddress, lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
 import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
 import React, { useEffect, useMemo, useState } from "react";
-import { useWindowSize } from "react-use";
+import { isMobile } from "react-device-detect";
 
-import VoterPopover from "../VotePopover";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
 
@@ -106,8 +106,7 @@ const useVotes = (proposalId: string) => {
 };
 
 const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
-  const { width } = useWindowSize();
-  const isDesktop = width >= 768;
+  const isDesktop = !isMobile;
 
   const [selectedVoter, setSelectedVoter] = useState<{
     address: string;

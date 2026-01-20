@@ -25,8 +25,8 @@ export type VotingResponse = {
   myAccount: AccountQuery;
 };
 
-export const formatPercent = (percent: number) =>
-  numbro(percent).format({ output: "percent", mantissa: 4 });
+export const formatPercent = (percent: number, mantissa = 4) =>
+  numbro(percent).format({ output: "percent", mantissa });
 
 export function getVotingPower(
   accountAddress: string,

@@ -1,5 +1,6 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
 import TreasuryVotingReason from "@components/TreasuryVotingReason";
+import VoteButton from "@components/Votes/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
@@ -13,23 +14,15 @@ import {
 } from "@radix-ui/react-icons";
 import { useAccountAddress } from "hooks";
 import Link, { LinkProps } from "next/link";
-import numbro from "numbro";
 import { useMemo, useState } from "react";
+import { formatPercent } from "utils/voting";
 import { zeroAddress } from "viem";
-
-import VoteButton from "../Votes/VoteButton";
 
 type Props = {
   proposal: ProposalExtended;
   vote: ProposalVotingPower | undefined | null;
   votesTabHref?: LinkProps["href"] | string;
 };
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 2,
-  });
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? "0"), 4);
@@ -138,7 +131,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.for)}
+                {formatPercent(proposal.votes.percent.for, 2)}
               </Text>
             </Flex>
 
@@ -196,7 +189,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.against)}
+                {formatPercent(proposal.votes.percent.against, 2)}
               </Text>
             </Flex>
 
@@ -253,7 +246,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.abstain)}
+                {formatPercent(proposal.votes.percent.abstain, 2)}
               </Text>
             </Flex>
           </Box>

@@ -1,5 +1,3 @@
-"use client";
-
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
@@ -81,7 +79,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
                 css={{ fontSize: "$2", marginBottom: "$1", color: "$white" }}
               >
                 <Link
-                  href={`https://explorer.livepeer.org/treasury/${vote.proposal.id}`}
+                  href={`/treasury/${vote.proposal.id}`}
                   target="_blank"
                   css={{
                     color: "$green11",

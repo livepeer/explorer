@@ -40,9 +40,10 @@ import { BigNumber } from "ethers";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import numbro from "numbro";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { isMobile } from "react-device-detect";
 import { useWindowSize } from "react-use";
+import { formatPercent } from "utils/voting";
 import { decodeFunctionData } from "viem";
 
 import {
@@ -55,9 +56,6 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
@@ -74,7 +72,6 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
-  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -103,7 +100,6 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
-  // const { votes, loading: votesLoading } = useFetchVotes(proposalId ?? "");
   const { data: votes, loading: votesLoading } = useTreasuryVotesQuery({
     variables: {
       where: {
@@ -112,10 +108,6 @@ const Proposal = () => {
     },
     fetchPolicy: "cache-first",
   });
-
-  useEffect(() => {
-    setIsDesktop(width >= 768);
-  }, [width]);
 
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -232,7 +224,7 @@ const Proposal = () => {
     <>
       <Head>
         <title>
-          {proposal.attributes.title} | Proposal | Livepeer Explorer
+          {proposal.attributes.title} - Proposal - Livepeer Explorer
         </title>
       </Head>
       <Container
@@ -818,7 +810,7 @@ const Proposal = () => {
             </Box>
           </Flex>
 
-          {isDesktop ? (
+          {!isMobile ? (
             <Flex
               css={{
                 display: "none",

@@ -1,6 +1,7 @@
+import VoteButton from "@components/Votes/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
+import { abbreviateNumber, formatAddress } from "@lib/utils";
 import {
   Box,
   Button,
@@ -20,13 +21,12 @@ import {
 } from "@radix-ui/react-icons";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
-import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { formatPercent, getVotingPower } from "utils/voting";
 
 import Check from "../../../public/img/check.svg";
 import Copy from "../../../public/img/copy.svg";
-import VoteButton from "../VoteButton";
 
 type Props = {
   poll: PollExtended;
@@ -50,12 +50,6 @@ type Props = {
     | null;
   myAccount: AccountQuery;
 };
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 2,
-  });
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
@@ -188,7 +182,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.yes)}
+                {formatPercent(data.poll.percent.yes, 2)}
               </Text>
             </Flex>
 
@@ -245,7 +239,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.no)}
+                {formatPercent(data.poll.percent.no, 2)}
               </Text>
             </Flex>
           </Box>
@@ -642,24 +636,4 @@ function renderVoteButton(
         </Box>
       );
   }
-}
-
-function getVotingPower(
-  accountAddress: string,
-  myAccount: Props["myAccount"],
-  vote: Props["vote"],
-  pendingStake?: string
-) {
-  // if account is a delegate its voting power is its total stake minus its delegators' vote stake (nonVoteStake)
-  if (accountAddress === myAccount?.delegator?.delegate?.id) {
-    if (vote?.voteStake) {
-      return +vote.voteStake - +vote?.nonVoteStake;
-    }
-    return (
-      +myAccount?.delegator?.delegate?.totalStake -
-      (vote?.nonVoteStake ? +vote?.nonVoteStake : 0)
-    );
-  }
-
-  return fromWei(pendingStake ? pendingStake : "0");
 }
