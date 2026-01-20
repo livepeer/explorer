@@ -113,6 +113,7 @@ const HorizontalScrollContainer = forwardRef<
           alignItems: "center",
           width: "100%",
           overflowX: "auto",
+          overflowY: "hidden",
           WebkitOverflowScrolling: "touch",
           flexWrap: "nowrap",
           position: "relative",
