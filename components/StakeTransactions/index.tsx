@@ -125,9 +125,13 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     <Box
                       css={{
                         alignSelf: "flex-end",
+                        fontWeight: 700,
+                        marginTop: "$1",
                         "@bp2": {
                           alignSelf: "auto",
+                          fontWeight: 400,
                           marginLeft: "$4",
+                          marginTop: 0,
                         },
                       }}
                     >
@@ -202,8 +206,12 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       <Flex
                         css={{
                           justifyContent: "flex-start",
+                          flexDirection: "column",
+                          gap: "$2",
                           width: "100%",
                           "@bp2": {
+                            flexDirection: "row",
+                            gap: 0,
                             width: "auto",
                           },
                         }}
@@ -228,9 +236,13 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     <Box
                       css={{
                         alignSelf: "flex-end",
+                        fontWeight: 700,
+                        marginTop: "$1",
                         "@bp2": {
                           alignSelf: "auto",
+                          fontWeight: 400,
                           marginLeft: "$4",
+                          marginTop: 0,
                         },
                       }}
                     >

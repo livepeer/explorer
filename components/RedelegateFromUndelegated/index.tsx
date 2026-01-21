@@ -40,7 +40,13 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
   return (
     <>
       <Button
-        css={{ marginRight: "$3" }}
+        css={{
+          marginRight: "$3",
+          width: "100%",
+          "@bp2": {
+            width: "auto",
+          },
+        }}
         disabled={!config}
         onClick={() => config && writeContract(config.request)}
         size="3"
