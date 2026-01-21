@@ -172,6 +172,7 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
           },
         }
       : undefined,
+    fetchPolicy: "network-only",
   });
 
   return protocolResponse?.data?.protocol?.totalActiveStake;
