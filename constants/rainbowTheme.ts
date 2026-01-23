@@ -18,8 +18,8 @@ const rainbowTheme: Theme = {
     modalMobile: "8px",
   },
   colors: {
-    accentColor: "#113123",
-    accentColorForeground: "#4cc38a",
+    accentColor: "#4cc38a",
+    accentColorForeground: "#113123",
 
     actionButtonBorder: "rgba(255, 255, 255, 0.04)",
     actionButtonBorderMobile: "rgba(255, 255, 255, 0.08)",
@@ -42,7 +42,7 @@ const rainbowTheme: Theme = {
     generalBorderDim: "rgba(255, 255, 255, 0.04)",
     menuItemBackground: "rgba(224, 232, 255, 0.1)",
     modalBackdrop: "rgba(0, 0, 0, 0.5)",
-    modalBackground: "#1A1B1F",
+    modalBackground: "#191d1b",
     modalBorder: "rgba(255, 255, 255, 0.08)",
     modalText: "#FFF",
     modalTextDim: "rgba(224, 232, 255, 0.3)",

@@ -1,4 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import "../styles/globals.css";
 
 import { ApolloProvider } from "@apollo/client";
 import { fetcher } from "@lib/axios";
