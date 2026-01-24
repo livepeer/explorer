@@ -923,24 +923,21 @@ const OrchestratorList = ({
               }}
               asChild
             >
-              <Flex css={{ alignItems: "center" }}>
-                <IconButton
-                  aria-label="Orchestrator actions"
-                  role="button"
-                  css={{
-                    cursor: "pointer",
-                    marginLeft: "$1",
-                    opacity: 1,
+              <IconButton
+                aria-label="Orchestrator actions"
+                css={{
+                  cursor: "pointer",
+                  marginLeft: "$1",
+                  opacity: 1,
+                  transition: "background-color .3s",
+                  "&:hover": {
+                    bc: "$primary5",
                     transition: "background-color .3s",
-                    "&:hover": {
-                      bc: "$primary5",
-                      transition: "background-color .3s",
-                    },
-                  }}
-                >
-                  <DotsHorizontalIcon />
-                </IconButton>
-              </Flex>
+                  },
+                }}
+              >
+                <DotsHorizontalIcon />
+              </IconButton>
             </PopoverTrigger>
             <PopoverContent
               css={{ borderRadius: "$4", bc: "$neutral4" }}
