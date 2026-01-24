@@ -380,6 +380,7 @@ const OrchestratorList = ({
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
                   size="2"
+                  role="button"
                   css={{
                     cursor: !isNewlyActive ? "pointer" : "default",
                     color: "$white",
@@ -1057,6 +1058,7 @@ const OrchestratorList = ({
               >
                 <Badge
                   size="2"
+                  role="button"
                   css={{
                     cursor: "pointer",
                     color: "$white",
@@ -1154,6 +1156,7 @@ const OrchestratorList = ({
                 >
                   <Badge
                     size="2"
+                    role="button"
                     css={{
                       cursor: "pointer",
                       color: "$white",
@@ -1241,6 +1244,7 @@ const OrchestratorList = ({
                 >
                   <Badge
                     size="2"
+                    role="button"
                     css={{
                       cursor: "pointer",
                       color: "$white",
@@ -1323,6 +1327,7 @@ const OrchestratorList = ({
                 >
                   <Badge
                     size="2"
+                    role="button"
                     css={{
                       cursor: "pointer",
                       color: "$white",
