@@ -157,10 +157,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
             >
               {!isEmpty ? (
                 isLongReason ? (
-                  <VoteReasonPopover
-                    reason={reason!}
-                    voterName={row.original.ensName}
-                  >
+                  <VoteReasonPopover reason={reason!}>
                     <Text
                       size="1"
                       css={{
@@ -208,7 +205,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         },
       },
       {
-        Header: "Vote Txn",
+        Header: "Transaction",
         accessor: "transactionHash",
         id: "transaction",
         Cell: ({ row }) => (

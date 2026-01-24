@@ -27,13 +27,11 @@ const Content = styled(HoverCardContent, {
 
 interface VoteReasonPopoverProps {
   reason: string;
-  voterName?: string;
   children?: React.ReactNode;
 }
 
 export function VoteReasonPopover({
   reason,
-  voterName,
   children,
 }: VoteReasonPopoverProps) {
   if (!reason || reason.toLowerCase() === "no reason provided") {
@@ -106,22 +104,6 @@ export function VoteReasonPopover({
         >
           {reason}
         </Text>
-        {voterName && (
-          <Box
-            css={{
-              marginTop: "$3",
-              paddingTop: "$2",
-              borderTop: "1px solid $neutral5",
-            }}
-          >
-            <Text size="1" css={{ color: "$neutral11" }}>
-              Shared by{" "}
-              <Text as="span" css={{ fontWeight: 500, color: "$hiContrast" }}>
-                {voterName}
-              </Text>
-            </Text>
-          </Box>
-        )}
         <Box css={{ color: "$neutral5" }}>
           <HoverCardArrow
             style={{ fill: "currentColor" }}

@@ -84,11 +84,35 @@ const Transaction = (props: { id: string | undefined }) => {
       href={
         props.id ? `https://arbiscan.io/tx/${props.id}` : "https://arbiscan.io"
       }
+      css={{
+        display: "inline-flex",
+        textDecoration: "none !important",
+        "&:hover > *": {
+          border: "1.5px solid $grass7 !important",
+          backgroundColor: "$grass3 !important",
+          color: "$grass11 !important",
+        },
+      }}
     >
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {props.id ? formatTransactionHash(props.id) : "N/A"}
+      <Badge
+        css={{
+          cursor: "pointer",
+          backgroundColor: "$neutral3",
+          color: "$neutral11",
+          border: "1px solid $neutral4",
+          transition:
+            "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
+        }}
+        size="1"
+      >
+        {formatTransactionHash(props.id)}
         <Box
-          css={{ marginLeft: "$1", width: 15, height: 15 }}
+          className="arrow-icon"
+          css={{
+            marginLeft: "$1",
+            width: 14,
+            height: 14,
+          }}
           as={ArrowTopRightIcon}
         />
       </Badge>
@@ -127,9 +151,14 @@ const TreasuryVoteEvent = (props: {
   return (
     <Box>
       Voted{" "}
-      <Box css={{ display: "inline-block", ...support.style }}>
-        {support.text}
-      </Box>{" "}
+      <Badge
+        css={{
+          ...support.style,
+        }}
+        size="1"
+      >
+        &quot;{support.text}&quot;
+      </Badge>{" "}
       on{" "}
       <Box as={A} href={`/treasury/${treasuryVoteEvent.proposal?.id}`}>
         {title}
@@ -425,7 +454,8 @@ const TransactionsList = ({
               <Badge
                 css={{
                   backgroundColor:
-                    +event?.choiceID === 0 ? "$sky9" : "$tomato9",
+                    +event?.choiceID === 0 ? "$grass3" : "$tomato9",
+                  color: +event?.choiceID === 0 ? "$grass11" : "$tomato11",
                 }}
                 size="1"
               >

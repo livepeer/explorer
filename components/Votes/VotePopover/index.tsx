@@ -33,7 +33,11 @@ const Index: React.FC<VoterPopoverProps> = ({
   });
 
   const votes = React.useMemo(() => {
-    return votesData?.treasuryVoteEvents ?? [];
+    return votesData?.treasuryVoteEvents
+      ? [...votesData.treasuryVoteEvents].sort(
+          (a, b) => b.transaction.timestamp - a.transaction.timestamp
+        )
+      : [];
   }, [votesData]);
 
   const stats = React.useMemo(() => {

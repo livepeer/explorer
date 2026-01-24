@@ -378,7 +378,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               —
             </Text>
           ) : (vote.reason?.length ?? 0) > 50 ? (
-            <VoteReasonPopover reason={vote.reason} voterName={vote.ensName}>
+            <VoteReasonPopover reason={vote.reason}>
               <Text
                 size="1"
                 css={{
