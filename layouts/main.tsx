@@ -857,11 +857,17 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           marginBottom: "$1",
                         }}
                         target="_blank"
+                        rel="noopener noreferrer"
                         href={
                           contractAddresses?.[
                             key as keyof typeof contractAddresses
                           ]?.link
                         }
+                        aria-label={`View ${
+                          contractAddresses?.[
+                            key as keyof typeof contractAddresses
+                          ]?.name ?? "contract"
+                        } on block explorer`}
                       >
                         <Text
                           css={{
@@ -898,7 +904,11 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
             >
-              <A>
+              <A
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Learn more about these contracts (opens in new tab)"
+              >
                 <Flex
                   css={{
                     marginTop: "$2",
@@ -920,6 +930,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                       height: 15,
                     }}
                     as={ArrowTopRightIcon}
+                    aria-hidden="true"
                   />
                 </Flex>
               </A>
