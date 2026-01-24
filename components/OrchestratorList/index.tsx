@@ -256,7 +256,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Orchestrator</Box>
+            <Box role="button">Orchestrator</Box>
           </ExplorerTooltip>
         ),
         accessor: "id",
@@ -359,7 +359,7 @@ const OrchestratorList = ({
                 </Box>
               }
             >
-              <Box>Forecasted Yield</Box>
+              <Box role="button">Forecasted Yield</Box>
             </ExplorerTooltip>
           </Flex>
         ),
@@ -855,7 +855,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Delegated Stake</Box>
+            <Box role="button">Delegated Stake</Box>
           </ExplorerTooltip>
         ),
         accessor: "totalStake",
@@ -889,7 +889,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Trailing 90D Fees</Box>
+            <Box role="button">Trailing 90D Fees</Box>
           </ExplorerTooltip>
         ),
         accessor: "ninetyDayVolumeETH",
@@ -926,6 +926,7 @@ const OrchestratorList = ({
               <Flex css={{ alignItems: "center" }}>
                 <IconButton
                   aria-label="Orchestrator actions"
+                  role="button"
                   css={{
                     cursor: "pointer",
                     marginLeft: "$1",
