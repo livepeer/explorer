@@ -617,6 +617,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
