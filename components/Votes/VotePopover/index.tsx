@@ -55,7 +55,16 @@ const Index: React.FC<VoterPopoverProps> = ({
   const summaryHeader = React.useMemo(() => {
     return (
       <Box>
-        <Flex css={{ alignItems: "center", gap: "$2", marginBottom: "$2" }}>
+        <Flex
+          css={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "$2",
+            marginBottom: "$3",
+            flexWrap: "wrap",
+            "@bp2": { marginBottom: "$2", justifyContent: "flex-start" },
+          }}
+        >
           <Link
             href={`https://explorer.livepeer.org/accounts/${voter}/delegating`}
             target="_blank"
@@ -72,10 +81,43 @@ const Index: React.FC<VoterPopoverProps> = ({
             {ensName || voter}
             <Box as={ArrowTopRightIcon} css={{ width: 12, height: 12 }} />
           </Link>
+          {stats && (
+            <Flex
+              css={{
+                alignItems: "center",
+                gap: "$1",
+                display: "flex",
+                "@bp2": { display: "none" },
+              }}
+            >
+              <Text size="1" css={{ color: "$neutral11", fontWeight: 600 }}>
+                Total:
+              </Text>
+              <Text size="1" css={{ color: "$white", fontWeight: 700 }}>
+                {stats.total}
+              </Text>
+            </Flex>
+          )}
         </Flex>
         {stats && (
-          <Flex css={{ gap: "$2", alignItems: "center", flexWrap: "wrap" }}>
-            <Flex css={{ alignItems: "center", gap: "$1", marginRight: "$2" }}>
+          <Flex
+            css={{
+              gap: "$2",
+              alignItems: "center",
+              flexWrap: "wrap",
+              marginTop: "$2",
+              "@bp2": { marginTop: 0 },
+            }}
+          >
+            <Flex
+              css={{
+                alignItems: "center",
+                gap: "$1",
+                marginRight: "$2",
+                display: "none",
+                "@bp2": { display: "flex" },
+              }}
+            >
               <Text size="1" css={{ color: "$neutral11", fontWeight: 600 }}>
                 Total:
               </Text>
@@ -159,13 +201,16 @@ const Index: React.FC<VoterPopoverProps> = ({
           <Spinner />
         </Flex>
       ) : votes.length > 0 ? (
-        <Box
+        <Flex
           css={{
+            flexDirection: "column",
+            gap: "$4",
             position: "relative",
             "&::before": {
               content: '""',
               position: "absolute",
-              left: "7px",
+              left: "4px",
+              "@bp2": { left: "7px" },
               top: 0,
               bottom: 0,
               width: "2px",
@@ -185,7 +230,7 @@ const Index: React.FC<VoterPopoverProps> = ({
               />
             </Box>
           ))}
-        </Box>
+        </Flex>
       ) : (
         <Text
           css={{ color: "$neutral11", textAlign: "center", marginTop: "$4" }}

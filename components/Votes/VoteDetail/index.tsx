@@ -24,14 +24,13 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
     <Box
       css={{
         position: "relative",
-        paddingBottom: "$6",
-        "&:last-child": { paddingBottom: 0 },
       }}
     >
       <Flex
         css={{
           position: "relative",
-          paddingLeft: "$6",
+          paddingLeft: "$4",
+          "@bp2": { paddingLeft: "$6" },
           alignItems: "center",
         }}
       >
@@ -42,11 +41,16 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
             left: 0,
             top: "50%",
             transform: "translateY(-50%)",
-            width: 16,
-            height: 16,
+            width: 10,
+            height: 10,
             borderRadius: "50%",
             backgroundColor: "$neutral3",
-            border: `3px solid ${support.style.color}`,
+            border: `2px solid ${support.style.color}`,
+            "@bp2": {
+              width: 16,
+              height: 16,
+              border: `3px solid ${support.style.color}`,
+            },
             zIndex: 1,
           }}
         />
@@ -54,8 +58,10 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
         <Box
           css={{
             backgroundColor: "$neutral4",
-            padding: "$4",
+            padding: "$5",
+            "@bp2": { padding: "$4" },
             borderRadius: "$2",
+            border: "1px solid $neutral5",
             width: "100%",
             transition: "all 0.2s ease",
             "&:hover, &:focus-within": {
