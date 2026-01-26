@@ -108,8 +108,11 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
+import ConnectButtonSkeleton from "../components/ConnectButton/Skeleton";
+
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  loading: () => <ConnectButtonSkeleton />,
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });

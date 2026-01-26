@@ -449,8 +449,10 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                 marginBottom: "$4",
                 marginTop: "$7",
                 alignItems: "center",
+                gap: "$4",
                 "@bp1": {
                   flexDirection: "row",
+                  gap: "$5",
                 },
               }}
             >
@@ -467,11 +469,23 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   Transactions
                 </Heading>
               </Flex>
-              <Flex align="center">
+              <Flex align="center" css={{ gap: "$3" }}>
                 <A as={Link} href="/transactions" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      minHeight: "44px",
+                      padding: "$2 $3",
+                    }}
+                  >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box
+                      as={ArrowRightIcon}
+                      css={{ marginLeft: "$1" }}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </A>
               </Flex>

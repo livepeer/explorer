@@ -244,6 +244,7 @@ const Index = ({
               </Text>
             </Box>
             <ExplorerTooltip
+              role="group"
               multiline
               content={
                 <Box>
@@ -303,6 +304,7 @@ const Index = ({
             </ExplorerTooltip>
             <ExplorerTooltip
               multiline
+              role="group"
               content={
                 <Box>
                   The amount of rewards which have been claimed by orchestrators
