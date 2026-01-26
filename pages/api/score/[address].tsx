@@ -100,9 +100,14 @@ const handler = async (
         console.error(
           "Top AI score fetch error:",
           topScoreResponse.status,
-          errorText
+          errorText,
+          `URL: ${topScoreUrl}`
         );
-        return externalApiError(res, "AI metrics server");
+        return externalApiError(
+          res,
+          "AI metrics server",
+          `Status ${topScoreResponse.status}: ${errorText}`
+        );
       }
 
       if (!metricsResponse.ok) {
@@ -110,9 +115,14 @@ const handler = async (
         console.error(
           "Metrics fetch error:",
           metricsResponse.status,
-          errorText
+          errorText,
+          `URL: ${metricsUrl}`
         );
-        return externalApiError(res, "metrics server");
+        return externalApiError(
+          res,
+          "metrics server",
+          `Status ${metricsResponse.status}: ${errorText}`
+        );
       }
 
       if (!priceResponse.ok) {

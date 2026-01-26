@@ -5,12 +5,12 @@ import {
   getLivepeerTokenAddress,
 } from "@lib/api/contracts";
 import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
-import { AddressSchema, AccountBalanceSchema } from "@lib/api/schemas";
+import { validateOutput } from "@lib/api/errors";
+import { AccountBalanceSchema, AddressSchema } from "@lib/api/schemas";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
-import { validateOutput } from "@lib/api/errors";
 
 const handler = async (
   req: NextApiRequest,

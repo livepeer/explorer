@@ -1,6 +1,11 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
-import { badRequest, internalError, methodNotAllowed, validateOutput } from "@lib/api/errors";
+import {
+  badRequest,
+  internalError,
+  methodNotAllowed,
+  validateOutput,
+} from "@lib/api/errors";
 import { EnsAddressSchema, EnsIdentitySchema } from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";

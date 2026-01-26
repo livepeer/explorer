@@ -5,12 +5,11 @@ import {
   methodNotAllowed,
   notFound,
 } from "@lib/api/errors";
+import { EnsNameSchema } from "@lib/api/schemas";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { normalize } from "viem/ens";
-
-const blacklist = ["salty-minning.eth"];
 
 const handler = async (
   req: NextApiRequest,
@@ -22,41 +21,51 @@ const handler = async (
     if (method === "GET") {
       const { name } = req.query;
 
-      if (
-        name &&
-        typeof name === "string" &&
-        name.length > 0 &&
-        !blacklist.includes(name)
-      ) {
-        try {
-          const avatar = await l1PublicClient.getEnsAvatar({
-            name: normalize(name),
-          });
+      // Validate input: ENS name query parameter
+      if (!name || Array.isArray(name)) {
+        return badRequest(
+          res,
+          "ENS name query parameter is required and must be a single value"
+        );
+      }
 
-          const cid = parseCid(avatar);
-          const arweaveId = parseArweaveTxId(avatar);
+      const nameResult = EnsNameSchema.safeParse(name);
+      if (!nameResult.success) {
+        return badRequest(
+          res,
+          "Invalid ENS name",
+          nameResult.error.issues.map((e) => e.message).join(", ")
+        );
+      }
 
-          const imageUrl = cid?.id
-            ? `https://dweb.link/ipfs/${cid.id}`
-            : arweaveId?.id
-            ? arweaveId.url
-            : avatar?.startsWith("https://")
-            ? avatar
-            : `https://metadata.ens.domains/mainnet/avatar/${name}`;
+      const validatedName = nameResult.data;
 
-          const response = await fetch(imageUrl);
+      try {
+        const avatar = await l1PublicClient.getEnsAvatar({
+          name: normalize(validatedName),
+        });
 
-          const arrayBuffer = await response.arrayBuffer();
+        const cid = parseCid(avatar);
+        const arweaveId = parseArweaveTxId(avatar);
 
-          res.setHeader("Cache-Control", getCacheControlHeader("week"));
+        const imageUrl = cid?.id
+          ? `https://dweb.link/ipfs/${cid.id}`
+          : arweaveId?.id
+          ? arweaveId.url
+          : avatar?.startsWith("https://")
+          ? avatar
+          : `https://metadata.ens.domains/mainnet/avatar/${validatedName}`;
 
-          return res.end(Buffer.from(arrayBuffer));
-        } catch (e) {
-          console.error(e);
-          return notFound(res, "ENS avatar not found");
-        }
-      } else {
-        return badRequest(res, "Invalid ENS name");
+        const response = await fetch(imageUrl);
+
+        const arrayBuffer = await response.arrayBuffer();
+
+        res.setHeader("Cache-Control", getCacheControlHeader("week"));
+
+        return res.end(Buffer.from(arrayBuffer));
+      } catch (e) {
+        console.error(e);
+        return notFound(res, "ENS avatar not found");
       }
     }
 

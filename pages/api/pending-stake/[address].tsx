@@ -1,7 +1,12 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { getBondingManagerAddress } from "@lib/api/contracts";
-import { badRequest, methodNotAllowed, validateOutput } from "@lib/api/errors";
+import {
+  badRequest,
+  internalError,
+  methodNotAllowed,
+  validateOutput,
+} from "@lib/api/errors";
 import { AddressSchema, PendingFeesAndStakeSchema } from "@lib/api/schemas";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";

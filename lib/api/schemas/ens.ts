@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { AddressSchema } from "./common";
 
 /**
@@ -28,6 +29,11 @@ const ENS_BLACKLIST = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"].map((a) =>
 );
 
 /**
+ * Blacklist of ENS names that should be rejected
+ */
+const ENS_NAME_BLACKLIST = ["salty-minning.eth"];
+
+/**
  * Address schema with blacklist validation for ENS endpoints
  */
 export const EnsAddressSchema = AddressSchema.refine(
@@ -36,3 +42,13 @@ export const EnsAddressSchema = AddressSchema.refine(
     message: "Address is blacklisted",
   }
 );
+
+/**
+ * Schema for ENS name validation (with blacklist check)
+ */
+export const EnsNameSchema = z
+  .string()
+  .min(1, "ENS name cannot be empty")
+  .refine((name) => !ENS_NAME_BLACKLIST.includes(name), {
+    message: "ENS name is blacklisted",
+  });
