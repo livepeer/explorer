@@ -1,6 +1,6 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import { badRequest, internalError, methodNotAllowed, validateOutput } from "@lib/api/errors";
 import { EnsAddressSchema, EnsIdentitySchema } from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -41,24 +41,8 @@ const handler = async (
 
       // Validate output: ENS identity response
       const outputResult = EnsIdentitySchema.safeParse(ens);
-      if (!outputResult.success) {
-        console.error(
-          "[api/ens-data] Output validation failed:",
-          outputResult.error
-        );
-        // In production, we might still return the data, but log the error
-        // In development, this helps catch API changes early
-        if (process.env.NODE_ENV === "development") {
-          return internalError(
-            res,
-            new Error(
-              `Output validation failed: ${outputResult.error.issues
-                .map((e) => e.message)
-                .join(", ")}`
-            )
-          );
-        }
-      }
+      const validationError = validateOutput(outputResult, res, "api/ens-data");
+      if (validationError) return validationError;
 
       return res.status(200).json(ens);
     }

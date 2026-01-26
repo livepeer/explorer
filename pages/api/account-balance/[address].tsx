@@ -10,6 +10,7 @@ import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
+import { validateOutput } from "@lib/api/errors";
 
 const handler = async (
   req: NextApiRequest,
@@ -66,24 +67,12 @@ const handler = async (
 
       // Validate output: account balance response
       const outputResult = AccountBalanceSchema.safeParse(accountBalance);
-      if (!outputResult.success) {
-        console.error(
-          "[api/account-balance] Output validation failed:",
-          outputResult.error
-        );
-        // In production, we might still return the data, but log the error
-        // In development, this helps catch contract changes early
-        if (process.env.NODE_ENV === "development") {
-          return internalError(
-            res,
-            new Error(
-              `Output validation failed: ${outputResult.error.issues
-                .map((e) => e.message)
-                .join(", ")}`
-            )
-          );
-        }
-      }
+      const validationError = validateOutput(
+        outputResult,
+        res,
+        "api/account-balance"
+      );
+      if (validationError) return validationError;
 
       return res.status(200).json(accountBalance);
     }

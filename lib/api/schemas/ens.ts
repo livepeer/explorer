@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AddressSchema } from "./address";
+import { AddressSchema } from "./common";
 
 /**
  * ENS-related schemas

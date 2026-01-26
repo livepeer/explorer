@@ -31,3 +31,19 @@ export const ScoreResponseSchema = z.object({
   pipeline: z.string(),
   orchestrator: z.string(),
 });
+
+/**
+ * Schema for regional values (key-value pairs of region to number)
+ */
+export const RegionalValuesSchema = z.record(z.string(), z.number());
+
+/**
+ * Schema for performance metrics response
+ */
+export const PerformanceMetricsSchema = z.object({
+  successRates: RegionalValuesSchema,
+  roundTripScores: RegionalValuesSchema,
+  scores: RegionalValuesSchema,
+  pricePerPixel: z.number(),
+  topAIScore: ScoreResponseSchema,
+});

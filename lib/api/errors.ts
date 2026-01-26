@@ -1,4 +1,5 @@
 import { NextApiResponse } from "next";
+import { z } from "zod";
 
 import { ApiError, ErrorCode } from "./types/api-error";
 
@@ -61,4 +62,43 @@ export const methodNotAllowed = (
     "METHOD_NOT_ALLOWED",
     `Method ${method} Not Allowed`
   );
+};
+
+/**
+ * Validates output data against a Zod schema.
+ * In development, returns an error response if validation fails.
+ * In production, logs the error but allows execution to continue.
+ *
+ * @param outputResult - The result from Zod's safeParse()
+ * @param res - Next.js API response object
+ * @param endpointName - Name of the endpoint for logging (e.g., "api/account-balance")
+ * @returns The error response if validation failed in development, undefined otherwise
+ */
+export const validateOutput = <T>(
+  outputResult:
+    | { success: true; data: T }
+    | { success: false; error: z.ZodError<T> },
+  res: NextApiResponse,
+  endpointName: string
+): NextApiResponse | undefined => {
+  if (!outputResult.success) {
+    console.error(
+      `[${endpointName}] Output validation failed:`,
+      outputResult.error
+    );
+    // In production, we might still return the data, but log the error
+    // In development, this helps catch contract/API changes early
+    if (process.env.NODE_ENV === "development") {
+      internalError(
+        res,
+        new Error(
+          `Output validation failed: ${outputResult.error.issues
+            .map((e) => e.message)
+            .join(", ")}`
+        )
+      );
+      return res;
+    }
+  }
+  return undefined;
 };
