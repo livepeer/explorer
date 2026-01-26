@@ -4,6 +4,7 @@ import ErrorComponent from "@components/Error";
 import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
+import OrchestratorListSkeleton from "@components/OrchestratorList/Skeleton";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
@@ -433,11 +434,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                     protocolData={protocol?.protocol}
                   />
                 ) : (
-                  <Box
-                    css={{ padding: "$4", textAlign: "center", opacity: 0.6 }}
-                  >
-                    Loading orchestrators…
-                  </Box>
+                  <OrchestratorListSkeleton />
                 )}
               </Box>
             )}
