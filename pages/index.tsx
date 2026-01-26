@@ -23,7 +23,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { useChartData } from "hooks";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
@@ -255,6 +255,14 @@ type PageProps = {
 };
 
 const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
+  const [showOrchList, setShowOrchList] = useState(false);
+
+  useEffect(() => {
+    // Let the browser paint the new route first
+    const id = requestAnimationFrame(() => setShowOrchList(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -403,11 +411,19 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               </Flex>
             ) : (
               <Box>
-                <OrchestratorList
-                  data={orchestrators?.transcoders}
-                  pageSize={10}
-                  protocolData={protocol?.protocol}
-                />
+                {showOrchList ? (
+                  <OrchestratorList
+                    data={orchestrators?.transcoders}
+                    pageSize={10}
+                    protocolData={protocol?.protocol}
+                  />
+                ) : (
+                  <Box
+                    css={{ padding: "$4", textAlign: "center", opacity: 0.6 }}
+                  >
+                    Loading orchestrators…
+                  </Box>
+                )}
               </Box>
             )}
 

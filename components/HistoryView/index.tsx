@@ -118,6 +118,13 @@ const Index = () => {
                     ...previousResult.transactions,
                     ...fetchMoreResult.transactions,
                   ],
+                  // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
+                  // So, we will always have winning ticket events that are older than the last transaction timestamp
+                  // Allowing mergedEvents to filter correctly
+                  winningTicketRedeemedEvents: [
+                    ...previousResult.winningTicketRedeemedEvents,
+                    ...fetchMoreResult.winningTicketRedeemedEvents,
+                  ],
                 };
               },
             });

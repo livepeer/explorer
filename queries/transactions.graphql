@@ -73,6 +73,8 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
     orderBy: timestamp
     orderDirection: desc
     where: { recipient: $account }
+    first: $first
+    skip: $skip
   ) {
     __typename
     id
