@@ -362,8 +362,10 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                 justifyContent: "space-between",
                 marginBottom: "$4",
                 alignItems: "center",
+                gap: "$4",
                 "@bp1": {
                   flexDirection: "row",
+                  gap: "$5",
                 },
               }}
             >
@@ -380,7 +382,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   Orchestrators
                 </Heading>
               </Flex>
-              <Flex align="center">
+              <Flex align="center" css={{ gap: "$3" }}>
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
                   <A as={Link} href="/leaderboard" passHref>
@@ -389,7 +391,8 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                       css={{
                         color: "$hiContrast",
                         fontSize: "$2",
-                        marginRight: "$2",
+                        minHeight: "44px",
+                        padding: "$2 $3",
                       }}
                     >
                       Performance Leaderboard
@@ -397,9 +400,21 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   </A>
                 )}
                 <A as={Link} href="/orchestrators" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      minHeight: "44px",
+                      padding: "$2 $3",
+                    }}
+                  >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box
+                      as={ArrowRightIcon}
+                      css={{ marginLeft: "$1" }}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </A>
               </Flex>
