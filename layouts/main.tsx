@@ -57,7 +57,6 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
-import { useWindowSize } from "react-use";
 import { Chain } from "viem";
 
 import {
@@ -137,7 +136,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState<boolean>(false);
-  const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
@@ -210,16 +208,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, [isReady, isBannerDisabledByQuery]);
-
-  useEffect(() => {
-    if (width > 1020) {
-      document.body.removeAttribute("style");
-    }
-
-    if (width < 1020 && drawerOpen) {
-      document.body.style.overflow = "hidden";
-    }
-  }, [drawerOpen, width]);
 
   useEffect(() => {
     ReactGA.set({
