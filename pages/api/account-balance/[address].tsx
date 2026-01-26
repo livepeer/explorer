@@ -5,10 +5,10 @@ import {
   getLivepeerTokenAddress,
 } from "@lib/api/contracts";
 import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import { AddressSchema, AccountBalanceSchema } from "@lib/api/schemas";
 import { AccountBalance } from "@lib/api/types/get-account-balance";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isAddress } from "viem";
 import { Address } from "viem";
 
 const handler = async (
@@ -23,33 +23,69 @@ const handler = async (
 
       const { address } = req.query;
 
-      if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const livepeerTokenAddress = await getLivepeerTokenAddress();
-        const bondingManagerAddress = await getBondingManagerAddress();
-
-        const balance = await l2PublicClient.readContract({
-          address: livepeerTokenAddress,
-          abi: livepeerToken,
-          functionName: "balanceOf",
-          args: [address as Address],
-        });
-
-        const allowance = await l2PublicClient.readContract({
-          address: livepeerTokenAddress,
-          abi: livepeerToken,
-          functionName: "allowance",
-          args: [address as Address, bondingManagerAddress as Address],
-        });
-
-        const accountBalance: AccountBalance = {
-          balance: balance.toString(),
-          allowance: allowance.toString(),
-        };
-
-        return res.status(200).json(accountBalance);
-      } else {
-        return badRequest(res, "Invalid address format");
+      // Validate input: address query parameter
+      if (!address || Array.isArray(address)) {
+        return badRequest(
+          res,
+          "Address query parameter is required and must be a single value"
+        );
       }
+
+      const addressResult = AddressSchema.safeParse(address);
+      if (!addressResult.success) {
+        return badRequest(
+          res,
+          "Invalid address format",
+          addressResult.error.issues.map((e) => e.message).join(", ")
+        );
+      }
+
+      const validatedAddress = addressResult.data;
+
+      const livepeerTokenAddress = await getLivepeerTokenAddress();
+      const bondingManagerAddress = await getBondingManagerAddress();
+
+      const balance = await l2PublicClient.readContract({
+        address: livepeerTokenAddress,
+        abi: livepeerToken,
+        functionName: "balanceOf",
+        args: [validatedAddress as Address],
+      });
+
+      const allowance = await l2PublicClient.readContract({
+        address: livepeerTokenAddress,
+        abi: livepeerToken,
+        functionName: "allowance",
+        args: [validatedAddress as Address, bondingManagerAddress as Address],
+      });
+
+      const accountBalance: AccountBalance = {
+        balance: balance.toString(),
+        allowance: allowance.toString(),
+      };
+
+      // Validate output: account balance response
+      const outputResult = AccountBalanceSchema.safeParse(accountBalance);
+      if (!outputResult.success) {
+        console.error(
+          "[api/account-balance] Output validation failed:",
+          outputResult.error
+        );
+        // In production, we might still return the data, but log the error
+        // In development, this helps catch contract changes early
+        if (process.env.NODE_ENV === "development") {
+          return internalError(
+            res,
+            new Error(
+              `Output validation failed: ${outputResult.error.issues
+                .map((e) => e.message)
+                .join(", ")}`
+            )
+          );
+        }
+      }
+
+      return res.status(200).json(accountBalance);
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);
