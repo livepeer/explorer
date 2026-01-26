@@ -39,3 +39,19 @@ export const ProposalIdSchema = z.string().regex(/^\d+$/, {
  * Validates optional query parameters
  */
 export const OptionalStringSchema = z.string().optional();
+
+/**
+ * Schema for subgraph livepeer account response
+ */
+export const LivepeerAccountSchema = z.object({
+  id: z.string(),
+});
+
+/**
+ * Schema for subgraph response structure
+ */
+export const SubgraphResponseSchema = z.object({
+  data: z.object({
+    livepeerAccounts: z.array(LivepeerAccountSchema).nullable().optional(),
+  }),
+});

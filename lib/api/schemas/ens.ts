@@ -52,3 +52,8 @@ export const EnsNameSchema = z
   .refine((name) => !ENS_NAME_BLACKLIST.includes(name), {
     message: "ENS name is blacklisted",
   });
+
+/**
+ * Schema for array of ENS identities
+ */
+export const EnsIdentityArraySchema = z.array(EnsIdentitySchema);
