@@ -55,7 +55,6 @@ const handler = async (
             height: 96,
             quality: 75,
             effort: 6,
-            logName: name,
           });
 
           // Set appropriate content type (fallback to original if optimization failed)
@@ -67,7 +66,10 @@ const handler = async (
             res.setHeader("Content-Type", optimizationResult.contentType);
           }
 
-          res.setHeader("Content-Length", optimizationResult.buffer.length.toString());
+          res.setHeader(
+            "Content-Length",
+            optimizationResult.buffer.length.toString()
+          );
           res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
           return res.end(optimizationResult.buffer);

@@ -15,7 +15,6 @@ export interface OptimizeImageOptions {
   height?: number;
   quality?: number;
   effort?: number;
-  logName?: string;
 }
 
 /**
@@ -28,13 +27,7 @@ export async function optimizeImage(
   imageBuffer: ArrayBuffer,
   options: OptimizeImageOptions = {}
 ): Promise<OptimizeImageResult> {
-  const {
-    width = 96,
-    height = 96,
-    quality = 75,
-    effort = 6,
-    logName = "image",
-  } = options;
+  const { width = 96, height = 96, quality = 75, effort = 6 } = options;
 
   const originalSize = imageBuffer.byteLength;
   const originalBuffer = Buffer.from(imageBuffer);
@@ -43,14 +36,9 @@ export async function optimizeImage(
   let originalMetadata;
   try {
     originalMetadata = await sharp(originalBuffer).metadata();
-    console.log(`[Image Opt] Processing ${logName}`);
-    console.log(
-      `[Image Opt] Original: ${originalMetadata.width}x${originalMetadata.height}px, ${(originalSize / 1024).toFixed(1)}KB, format: ${originalMetadata.format}`
-    );
   } catch {
-    console.log(
-      `[Image Opt] Processing ${logName}, original size: ${(originalSize / 1024).toFixed(1)}KB (metadata unavailable)`
-    );
+    // Metadata extraction failed, but we can still proceed with optimization
+    originalMetadata = undefined;
   }
 
   // Optimize image: resize and convert to WebP
@@ -64,18 +52,6 @@ export async function optimizeImage(
       .toBuffer();
 
     const optimizedMetadata = await sharp(optimizedBuffer).metadata();
-    const reduction = (
-      (1 - optimizedBuffer.length / originalSize) *
-      100
-    ).toFixed(1);
-
-    console.log(`[Image Opt] ✅ Success! ${logName}`);
-    console.log(
-      `[Image Opt] Optimized: ${optimizedMetadata.width}x${optimizedMetadata.height}px, ${(optimizedBuffer.length / 1024).toFixed(1)}KB, format: ${optimizedMetadata.format}`
-    );
-    console.log(
-      `[Image Opt] Size reduction: ${(originalSize / 1024).toFixed(1)}KB → ${(optimizedBuffer.length / 1024).toFixed(1)}KB (${reduction}% smaller)`
-    );
 
     return {
       buffer: optimizedBuffer,
@@ -96,14 +72,10 @@ export async function optimizeImage(
         : undefined,
       format: optimizedMetadata?.format,
     };
-  } catch (error) {
+  } catch {
     // Fallback to original image if optimization fails
-    console.error(`[Image Opt] ❌ Failed for ${logName}:`, error);
-    if (error instanceof Error) {
-      console.error(`[Image Opt] Error message: ${error.message}`);
-      console.error(`[Image Opt] Error stack: ${error.stack}`);
-    }
-
+    // This is expected for some edge cases (unsupported formats, corrupted images, etc.
+    // Return original image as fallback
     return {
       buffer: originalBuffer,
       contentType: "image/jpeg", // Default fallback
@@ -118,4 +90,3 @@ export async function optimizeImage(
     };
   }
 }
-
