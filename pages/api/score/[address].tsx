@@ -1,9 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  badRequest,
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateInput,
   validateOutput,
 } from "@lib/api/errors";
 import { AddressSchema, PerformanceMetricsSchema } from "@lib/api/schemas";
@@ -65,21 +65,17 @@ const handler = async (
 
       const { address } = req.query;
 
-      // Validate input: address query parameter
-      if (!address || Array.isArray(address)) {
-        return badRequest(
-          res,
-          "Address query parameter is required and must be a single value"
-        );
-      }
-
+      // AddressSchema handles undefined, arrays, and validates format
       const addressResult = AddressSchema.safeParse(address);
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
+
       if (!addressResult.success) {
-        return badRequest(
-          res,
-          "Invalid address format",
-          addressResult.error.issues.map((e) => e.message).join(", ")
-        );
+        return internalError(res, new Error("Address validation failed"));
       }
 
       const transcoderId = addressResult.data.toLowerCase();
@@ -196,8 +192,12 @@ const handler = async (
 
       // Validate output: performance metrics response
       const outputResult = PerformanceMetricsSchema.safeParse(combined);
-      const validationError = validateOutput(outputResult, res, "api/score");
-      if (validationError) return validationError;
+      const outputValidationError = validateOutput(
+        outputResult,
+        res,
+        "api/score"
+      );
+      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(combined);
     }

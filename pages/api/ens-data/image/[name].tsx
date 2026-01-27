@@ -1,9 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  badRequest,
   internalError,
   methodNotAllowed,
   notFound,
+  validateInput,
 } from "@lib/api/errors";
 import { EnsNameSchema } from "@lib/api/schemas";
 import { l1PublicClient } from "@lib/chains";
@@ -21,21 +21,17 @@ const handler = async (
     if (method === "GET") {
       const { name } = req.query;
 
-      // Validate input: ENS name query parameter
-      if (!name || Array.isArray(name)) {
-        return badRequest(
-          res,
-          "ENS name query parameter is required and must be a single value"
-        );
-      }
-
+      // EnsNameSchema handles undefined, arrays, and validates format + blacklist
       const nameResult = EnsNameSchema.safeParse(name);
+      const inputValidationError = validateInput(
+        nameResult,
+        res,
+        "Invalid ENS name"
+      );
+      if (inputValidationError) return inputValidationError;
+
       if (!nameResult.success) {
-        return badRequest(
-          res,
-          "Invalid ENS name",
-          nameResult.error.issues.map((e) => e.message).join(", ")
-        );
+        return internalError(res, new Error("ENS name validation failed"));
       }
 
       const validatedName = nameResult.data;

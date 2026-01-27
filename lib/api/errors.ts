@@ -65,6 +65,33 @@ export const methodNotAllowed = (
 };
 
 /**
+ * Validates input data against a Zod schema.
+ * Returns an error response if validation fails.
+ *
+ * @param inputResult - The result from Zod's safeParse()
+ * @param res - Next.js API response object
+ * @param errorMessage - Error message to return if validation fails (e.g., "Invalid address format")
+ * @returns The error response if validation failed, undefined otherwise
+ */
+export const validateInput = <T>(
+  inputResult:
+    | { success: true; data: T }
+    | { success: false; error: z.ZodError<T> },
+  res: NextApiResponse,
+  errorMessage: string
+): NextApiResponse | undefined => {
+  if (!inputResult.success) {
+    badRequest(
+      res,
+      errorMessage,
+      inputResult.error.issues.map((e) => e.message).join(", ")
+    );
+    return res;
+  }
+  return undefined;
+};
+
+/**
  * Validates output data against a Zod schema.
  * In development, returns an error response if validation fails.
  * In production, logs the error but allows execution to continue.

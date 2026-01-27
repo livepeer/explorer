@@ -47,3 +47,19 @@ export const PerformanceMetricsSchema = z.object({
   pricePerPixel: z.number(),
   topAIScore: ScoreResponseSchema,
 });
+
+/**
+ * Schema for pipeline
+ */
+export const PipelineSchema = z.object({
+  id: z.string(),
+  models: z.array(z.string()),
+  regions: z.array(z.string()),
+});
+
+/**
+ * Schema for available pipelines response
+ */
+export const AvailablePipelinesSchema = z.object({
+  pipelines: z.array(PipelineSchema),
+});

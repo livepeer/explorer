@@ -3,9 +3,9 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { controller } from "@lib/api/abis/main/Controller";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import {
-  badRequest,
   internalError,
   methodNotAllowed,
+  validateInput,
   validateOutput,
 } from "@lib/api/errors";
 import { AddressSchema, L1DelegatorSchema } from "@lib/api/schemas";
@@ -28,22 +28,14 @@ const handler = async (
 
       const { address } = req.query;
 
-      // Validate input: address query parameter
-      if (!address || Array.isArray(address)) {
-        return badRequest(
-          res,
-          "Address query parameter is required and must be a single value"
-        );
-      }
-
+      // AddressSchema handles undefined, arrays, and validates format
       const addressResult = AddressSchema.safeParse(address);
-      if (!addressResult.success) {
-        return badRequest(
-          res,
-          "Invalid address format",
-          addressResult.error.issues.map((e) => e.message).join(", ")
-        );
-      }
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
 
       const validatedAddress = addressResult.data;
 
@@ -136,12 +128,12 @@ const handler = async (
 
       // Validate output: L1 delegator response
       const outputResult = L1DelegatorSchema.safeParse(l1Delegator);
-      const validationError = validateOutput(
+      const outputValidationError = validateOutput(
         outputResult,
         res,
         "api/l1-delegator"
       );
-      if (validationError) return validationError;
+      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(l1Delegator);
     }

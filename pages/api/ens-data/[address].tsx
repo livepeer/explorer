@@ -1,9 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
 import {
-  badRequest,
   internalError,
   methodNotAllowed,
+  validateInput,
   validateOutput,
 } from "@lib/api/errors";
 import { EnsAddressSchema, EnsIdentitySchema } from "@lib/api/schemas";
@@ -23,22 +23,14 @@ const handler = async (
 
       const { address } = req.query;
 
-      // Validate input: address query parameter
-      if (!address || Array.isArray(address)) {
-        return badRequest(
-          res,
-          "Address query parameter is required and must be a single value"
-        );
-      }
-
+      // EnsAddressSchema handles undefined, arrays, and validates format + blacklist
       const addressResult = EnsAddressSchema.safeParse(address);
-      if (!addressResult.success) {
-        return badRequest(
-          res,
-          "Invalid address format",
-          addressResult.error.issues.map((e) => e.message).join(", ")
-        );
-      }
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
 
       const validatedAddress = addressResult.data;
 
@@ -46,8 +38,12 @@ const handler = async (
 
       // Validate output: ENS identity response
       const outputResult = EnsIdentitySchema.safeParse(ens);
-      const validationError = validateOutput(outputResult, res, "api/ens-data");
-      if (validationError) return validationError;
+      const outputValidationError = validateOutput(
+        outputResult,
+        res,
+        "api/ens-data"
+      );
+      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(ens);
     }

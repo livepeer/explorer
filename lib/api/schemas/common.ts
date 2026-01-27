@@ -41,6 +41,11 @@ export const ProposalIdSchema = z.string().regex(/^\d+$/, {
 export const OptionalStringSchema = z.string().optional();
 
 /**
+ * Validates a region string (non-empty)
+ */
+export const RegionSchema = z.string().min(1, "Region cannot be empty");
+
+/**
  * Schema for subgraph livepeer account response
  */
 export const LivepeerAccountSchema = z.object({
