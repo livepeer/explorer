@@ -46,6 +46,22 @@ export const OptionalStringSchema = z.string().optional();
 export const RegionSchema = z.string().min(1, "Region cannot be empty");
 
 /**
+ * Schema for a single region object
+ */
+export const RegionObjectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.enum(["transcoding", "ai"]),
+});
+
+/**
+ * Schema for regions API response
+ */
+export const RegionsSchema = z.object({
+  regions: z.array(RegionObjectSchema),
+});
+
+/**
  * Schema for subgraph livepeer account response
  */
 export const LivepeerAccountSchema = z.object({
