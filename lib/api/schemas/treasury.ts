@@ -5,6 +5,13 @@ import { z } from "zod";
  */
 
 /**
+ * Validates a proposal ID (numeric string)
+ */
+export const ProposalIdSchema = z.string().regex(/^\d+$/, {
+  message: "Proposal ID must be a numeric string",
+});
+
+/**
  * Schema for treasury proposal state
  */
 export const TreasuryProposalStateSchema = z.object({
@@ -45,6 +52,25 @@ export const ProposalStateSchema = z.object({
     for: z.string(),
     abstain: z.string(),
   }),
+});
+
+/**
+ * Schema for proposal voting power API response
+ * Matches the ProposalVotingPower type from get-treasury-proposal.ts
+ */
+export const ProposalVotingPowerSchema = z.object({
+  self: z.object({
+    address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+    votes: z.string(),
+    hasVoted: z.boolean(),
+  }),
+  delegate: z
+    .object({
+      address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+      votes: z.string(),
+      hasVoted: z.boolean(),
+    })
+    .optional(),
 });
 
 /**
