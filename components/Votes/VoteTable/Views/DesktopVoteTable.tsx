@@ -168,7 +168,14 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         accessor: "transactionHash",
         id: "transaction",
         Cell: ({ row }) => (
-          <Box css={{ minWidth: 130 }}>
+          <Box
+            css={{
+              minWidth: 130,
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
             {row.original.transactionHash ? (
               <TransactionBadge id={row.original.transactionHash} />
             ) : (
