@@ -1,12 +1,10 @@
+import EthAddressBadge from "@components/EthAddressBadge";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import DataTable from "@components/Table";
+import TransactionBadge from "@components/TransactionBadge";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
-import { formatTransactionHash } from "@lib/utils";
-import { Badge, Box, Link, Text } from "@livepeer/design-system";
-import {
-  ArrowTopRightIcon,
-  CounterClockwiseClockIcon,
-} from "@radix-ui/react-icons";
+import { Badge, Box, Text } from "@livepeer/design-system";
+import { CounterClockwiseClockIcon } from "@radix-ui/react-icons";
 import { TreasuryVote, TreasuryVoteSupport } from "apollo";
 import React, { useMemo } from "react";
 import { Column } from "react-table";
@@ -42,40 +40,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         id: "voter",
         Cell: ({ row }) => (
           <Box css={{ minWidth: 120 }}>
-            <Link
-              href={`https://explorer.livepeer.org/accounts/${row.original.voter.id}/delegating`}
-              target="_blank"
-              css={{
-                color: "$hiContrast",
-                textDecoration: "none",
-                display: "inline-block",
-                padding: "2px 8px",
-                margin: "-2px -8px",
-                borderRadius: "6px",
-                transition: "all 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "$neutral3",
-                  textDecoration: "underline",
-                  textUnderlineOffset: "4px",
-                },
-                "&:focus-visible": {
-                  outline: "2px solid $primary11",
-                  outlineOffset: "2px",
-                },
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Text
-                css={{
-                  fontWeight: 600,
-                  color: "inherit",
-                  whiteSpace: "nowrap",
-                }}
-                size="2"
-              >
-                {row.original.ensName}
-              </Text>
-            </Link>
+            <EthAddressBadge value={row.original.voter.id} />
           </Box>
         ),
       },
@@ -211,43 +176,7 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         Cell: ({ row }) => (
           <Box css={{ minWidth: 130 }}>
             {row.original.transactionHash ? (
-              <Link
-                href={`https://arbiscan.io/tx/${row.original.transactionHash}#eventlog`}
-                target="_blank"
-                onClickCapture={(e) => e.stopPropagation()}
-                css={{
-                  display: "inline-flex",
-                  textDecoration: "none !important",
-                  "&:hover > *": {
-                    border: "1.5px solid $grass7 !important",
-                    backgroundColor: "$grass3 !important",
-                    color: "$grass11 !important",
-                  },
-                }}
-              >
-                <Badge
-                  css={{
-                    cursor: "pointer",
-                    backgroundColor: "$neutral3",
-                    color: "$neutral11",
-                    border: "1px solid $neutral4",
-                    transition:
-                      "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                  }}
-                  size="1"
-                >
-                  {formatTransactionHash(row.original.transactionHash)}
-                  <Box
-                    className="arrow-icon"
-                    css={{
-                      marginLeft: "$1",
-                      width: 14,
-                      height: 14,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Badge>
-              </Link>
+              <TransactionBadge id={row.original.transactionHash} />
             ) : (
               <Text css={{ color: "$neutral9" }} size="2">
                 N/A
