@@ -17,8 +17,6 @@ import {
   TreasuryVoteEvent,
   TreasuryVoteSupport,
   useTransactionsQuery,
-  useTreasuryVoteEventsQuery,
-  useVoteEventsQuery,
   VoteEvent,
 } from "apollo";
 import fm from "front-matter";
@@ -41,51 +39,48 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
-  const { data: treasuryVoteEventsData } = useTreasuryVoteEventsQuery({
+  const {
+    data,
+    loading,
+    error,
+    fetchMore: fetchMoreTransactions,
+    stopPolling,
+  } = useTransactionsQuery({
     variables: {
-      where: {
-        voter: account.toLowerCase(),
-      },
+      account: account.toLowerCase(),
+      first: 10,
+      skip: 0,
     },
     notifyOnNetworkStatusChange: true,
   });
-  const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
-    useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
-  useEffect(() => {
-    if (treasuryVoteEventsData) {
-      const extendedTreasureVoteEventsData =
-        treasuryVoteEventsData?.treasuryVoteEvents.map((treasuryVoteEvent) => {
-          const parsed = parseProposalText(
-            treasuryVoteEvent.proposal as Proposal
-          );
-          return {
-            ...treasuryVoteEvent,
-            attributes: parsed.attributes,
-          };
-        });
-      setExtendedTreasuryVoteEventsData(
-        extendedTreasureVoteEventsData as (TreasuryVoteEvent & {
-          attributes: Fm | null;
-        })[]
-      );
-    }
-  }, [treasuryVoteEventsData]);
 
-  const { data: voteEventsData } = useVoteEventsQuery({
-    variables: {
-      where: {
-        voter: account.toLowerCase(),
-      },
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  const events = useMemo(() => {
+    // First reverse the order of the array of events per transaction to have events in descending order
+    const reversedEvents = data?.transactions?.map((tx) => {
+      return {
+        ...tx,
+        events: tx.events ? tx.events.slice().reverse() : [],
+      };
+    });
+    return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
+  }, [data]);
+
+  const lastEventTimestamp = useMemo(
+    () =>
+      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
+    [events]
+  );
+
   const [extendedVoteEventsData, setExtendedVoteEventsData] = useState<
     (VoteEvent & { attributes: Fm | null })[]
   >([]);
   useEffect(() => {
     const getExtendedVoteEventsData = async () => {
-      const extendedVoteEventsData = await Promise.all(
-        voteEventsData?.voteEvents.map(async (voteEvent) => {
+      const newVoteEvents = events
+        .filter((e) => e.__typename === "VoteEvent")
+        .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
+      const newExtendedVoteEventsData = await Promise.all(
+        newVoteEvents.map(async (voteEvent) => {
           const ipfsObject = await catIpfsJson<IpfsPoll>(
             voteEvent.poll?.proposal
           );
@@ -110,39 +105,44 @@ const Index = () => {
         }) || []
       );
       setExtendedVoteEventsData(
-        extendedVoteEventsData as (VoteEvent & { attributes: Fm | null })[]
+        (current) =>
+          [...current, ...newExtendedVoteEventsData] as (VoteEvent & {
+            attributes: Fm | null;
+          })[]
       );
     };
     getExtendedVoteEventsData();
-  }, [voteEventsData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
 
-  const { data, loading, error, fetchMore, stopPolling } = useTransactionsQuery(
-    {
-      variables: {
-        account: account.toLowerCase(),
-        first: 10,
-        skip: 0,
-      },
-      notifyOnNetworkStatusChange: true,
-    }
-  );
-
-  const events = useMemo(() => {
-    // First reverse the order of the array of events per transaction to have events in descending order
-    const reversedEvents = data?.transactions?.map((tx) => {
-      return {
-        ...tx,
-        events: tx.events ? tx.events.slice().reverse() : [],
-      };
-    });
-    return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
-  }, [data]);
-
-  const lastEventTimestamp = useMemo(
-    () =>
-      Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
-    [events]
-  );
+  const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
+    useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
+  useEffect(() => {
+    const newTreasuryVoteEvents = events
+      .filter((e) => e.__typename === "TreasuryVoteEvent")
+      .filter(
+        (e) => !extendedTreasuryVoteEventsData.find((te) => te.id === e.id)
+      );
+    const newExtendedTreasureVoteEventsData = newTreasuryVoteEvents
+      .filter((e) => e.__typename === "TreasuryVoteEvent")
+      .map((treasuryVoteEvent) => {
+        const parsed = parseProposalText(
+          treasuryVoteEvent.proposal as Proposal
+        );
+        return {
+          ...treasuryVoteEvent,
+          attributes: parsed.attributes,
+        };
+      });
+    setExtendedTreasuryVoteEventsData(
+      (current) =>
+        [
+          ...current,
+          ...newExtendedTreasureVoteEventsData,
+        ] as (TreasuryVoteEvent & { attributes: Fm | null })[]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
 
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
   // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
@@ -158,8 +158,12 @@ const Index = () => {
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),
-        ...extendedTreasuryVoteEventsData,
-        ...extendedVoteEventsData,
+        ...extendedTreasuryVoteEventsData.filter(
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+        ),
+        ...extendedVoteEventsData.filter(
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+        ),
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
@@ -205,7 +209,7 @@ const Index = () => {
         stopPolling();
         if (!loading && data.transactions.length >= 10) {
           try {
-            await fetchMore({
+            await fetchMoreTransactions({
               variables: {
                 skip: data.transactions.length,
               },
@@ -213,6 +217,7 @@ const Index = () => {
                 if (!fetchMoreResult) {
                   return previousResult;
                 }
+
                 return {
                   ...previousResult,
                   transactions: [
