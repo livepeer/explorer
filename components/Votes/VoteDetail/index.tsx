@@ -1,8 +1,16 @@
+import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
-import { formatAddress, formatTransactionHash } from "@lib/utils";
-import { Badge, Box, Flex, Heading, Link, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { formatAddress } from "@lib/utils";
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Link,
+  Text,
+} from "@livepeer/design-system";
 import { TreasuryVoteEvent, TreasuryVoteSupport } from "apollo";
 import React from "react";
 
@@ -26,11 +34,127 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
         position: "relative",
       }}
     >
+      {/* Mobile Card Layout */}
+      <Card
+        css={{
+          display: "block",
+          "@bp2": { display: "none" },
+          padding: "$4",
+          position: "relative",
+          zIndex: 2,
+          backgroundColor: "$neutral3",
+          borderLeft: `4px solid ${support.style.color}`,
+          transition: "all 0.2s ease",
+          "&:hover, &:focus-within": {
+            backgroundColor: "$neutral4",
+          },
+        }}
+      >
+        <Flex
+          css={{ justifyContent: "space-between", alignItems: "flex-start" }}
+        >
+          <Box>
+            <Heading as="h4" css={{ fontSize: "$2", marginBottom: "$1" }}>
+              <Link
+                href={`/treasury/${vote.proposal.id}`}
+                target="_blank"
+                css={{
+                  color: "$hiContrast",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  padding: "2px 8px",
+                  margin: "-2px -8px",
+                  borderRadius: "6px",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "$neutral4",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "4px",
+                  },
+                  "&:focus-visible": {
+                    outline: "2px solid $primary11",
+                    outlineOffset: "2px",
+                  },
+                }}
+              >
+                {title}
+              </Link>
+            </Heading>
+            <Text
+              size="1"
+              css={{
+                color: "$neutral11",
+                marginBottom: "$2",
+                display: "block",
+              }}
+            >
+              ID: {formatAddress(vote.proposal.id)}
+            </Text>
+            <Text
+              size="1"
+              css={{
+                color: "$neutral11",
+                marginBottom: "$3",
+                display: "block",
+              }}
+            >
+              {formatWeight(vote.weight)}
+            </Text>
+          </Box>
+          <Badge
+            size="1"
+            css={{
+              backgroundColor: support.style.backgroundColor,
+              color: support.style.color,
+              fontWeight: support.style.fontWeight,
+              border: "none",
+            }}
+          >
+            {support.text}
+          </Badge>
+        </Flex>
+
+        {hasReason && (
+          <Box
+            css={{
+              marginBottom: "$3",
+              padding: "$2",
+              backgroundColor: "$neutral2",
+              borderRadius: "$1",
+              fontSize: "$1",
+            }}
+          >
+            <Text
+              css={{
+                color: "$neutral12",
+                fontStyle: "italic",
+              }}
+            >
+              &ldquo;{vote.reason}&rdquo;
+            </Text>
+          </Box>
+        )}
+
+        <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            {vote.transaction.id ? (
+              <TransactionBadge id={vote.transaction.id} />
+            ) : (
+              <Text css={{ color: "$neutral9" }} size="1">
+                N/A
+              </Text>
+            )}
+          </Box>
+        </Flex>
+      </Card>
+
+      {/* Desktop Timeline Layout */}
       <Flex
         css={{
+          display: "none",
+          "@bp2": { display: "flex" },
           position: "relative",
-          paddingLeft: "$4",
-          "@bp2": { paddingLeft: "$6" },
+          paddingLeft: "$6",
           alignItems: "center",
         }}
       >
@@ -41,16 +165,11 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
             left: 0,
             top: "50%",
             transform: "translateY(-50%)",
-            width: 10,
-            height: 10,
+            width: 16,
+            height: 16,
             borderRadius: "50%",
             backgroundColor: "$neutral3",
-            border: `2px solid ${support.style.color}`,
-            "@bp2": {
-              width: 16,
-              height: 16,
-              border: `3px solid ${support.style.color}`,
-            },
+            border: `3px solid ${support.style.color}`,
             zIndex: 1,
           }}
         />
@@ -58,15 +177,13 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
         <Box
           css={{
             backgroundColor: "$neutral4",
-            padding: "$5",
-            "@bp2": { padding: "$4" },
+            padding: "$4",
             borderRadius: "$2",
             border: "1px solid $neutral5",
             width: "100%",
-            transition: "all 0.2s ease",
+            transition: "background-color 0.2s ease",
             "&:hover, &:focus-within": {
               backgroundColor: "$neutral5",
-              transform: "translateX(4px)",
             },
           }}
         >
@@ -75,8 +192,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               justifyContent: "space-between",
               alignItems: "flex-start",
               gap: "$4",
-              flexDirection: "column",
-              "@bp2": { flexDirection: "row" },
+              flexDirection: "row",
             }}
           >
             <Box css={{ flex: 1 }}>
@@ -137,8 +253,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
                 flexDirection: "column",
                 gap: "$2",
                 minWidth: "140px",
-                alignItems: "flex-start",
-                "@bp2": { alignItems: "flex-end" },
+                alignItems: "flex-end",
               }}
             >
               <Badge
@@ -163,38 +278,7 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               </Text>
 
               {vote.transaction.id && (
-                <Link
-                  href={`https://arbiscan.io/tx/${vote.transaction.id}#eventlog`}
-                  target="_blank"
-                  css={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    textDecoration: "none !important",
-                    "&:hover > *": {
-                      border: "1.5px solid $grass7 !important",
-                      backgroundColor: "$grass3 !important",
-                      color: "$grass11 !important",
-                    },
-                  }}
-                >
-                  <Badge
-                    css={{
-                      cursor: "pointer",
-                      backgroundColor: "$neutral3",
-                      color: "$neutral11",
-                      border: "1px solid $neutral4",
-                      transition:
-                        "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                    }}
-                    size="1"
-                  >
-                    {formatTransactionHash(vote.transaction.id)}
-                    <Box
-                      as={ArrowTopRightIcon}
-                      css={{ marginLeft: "$1", width: 12, height: 12 }}
-                    />
-                  </Badge>
-                </Link>
+                <TransactionBadge id={vote.transaction.id} />
               )}
             </Flex>
           </Flex>

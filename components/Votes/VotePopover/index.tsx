@@ -204,18 +204,20 @@ const Index: React.FC<VoterPopoverProps> = ({
         <Flex
           css={{
             flexDirection: "column",
-            gap: "$4",
+            gap: "$3",
+            "@bp2": { gap: "$4" },
             position: "relative",
             "&::before": {
-              content: '""',
-              position: "absolute",
-              left: "4px",
-              "@bp2": { left: "7px" },
-              top: 0,
-              bottom: 0,
-              width: "2px",
-              backgroundColor: "$neutral5",
-              zIndex: 0,
+              "@bp2": {
+                content: '""',
+                position: "absolute",
+                left: "7px",
+                top: 0,
+                bottom: 0,
+                width: "2px",
+                backgroundColor: "$neutral5",
+                zIndex: 0,
+              },
             },
           }}
         >

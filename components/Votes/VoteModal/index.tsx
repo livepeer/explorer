@@ -95,7 +95,7 @@ const Index: React.FC<VoteModalProps> = ({
         aria-labelledby="modal-title"
         css={{
           position: "relative",
-          backgroundColor: "$neutral3",
+          backgroundColor: "$loContrast",
           borderRadius: "$2",
           width: "calc(100vw - 24px)",
           maxHeight: "90vh",
@@ -112,7 +112,7 @@ const Index: React.FC<VoteModalProps> = ({
             position: "sticky",
             top: 0,
             zIndex: 10,
-            backgroundColor: "$neutral3",
+            backgroundColor: "$loContrast",
             paddingLeft: "$5",
             paddingRight: "$5",
             paddingTop: "$5",
