@@ -95,18 +95,6 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               size="1"
               css={{
                 color: "$neutral11",
-                marginBottom: "$2",
-                display: "block",
-              }}
-            >
-              {dayjs
-                .unix(vote.transaction.timestamp)
-                .format("MM/DD/YYYY h:mm a")}
-            </Text>
-            <Text
-              size="1"
-              css={{
-                color: "$neutral11",
                 marginBottom: "$3",
                 display: "block",
               }}
@@ -149,7 +137,13 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
         )}
 
         <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-          <Box>
+          <Flex
+            css={{
+              flexDirection: "column",
+              gap: "$1",
+              alignItems: "flex-start",
+            }}
+          >
             {vote.transaction.id ? (
               <TransactionBadge id={vote.transaction.id} />
             ) : (
@@ -157,7 +151,17 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
                 N/A
               </Text>
             )}
-          </Box>
+            <Text
+              size="1"
+              css={{
+                color: "$neutral11",
+              }}
+            >
+              {dayjs
+                .unix(vote.transaction.timestamp)
+                .format("MM/DD/YYYY h:mm a")}
+            </Text>
+          </Flex>
         </Flex>
       </Card>
 
@@ -240,18 +244,6 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               >
                 ID: {formatAddress(vote.proposal.id)}
               </Text>
-              <Text
-                size="1"
-                css={{
-                  color: "$neutral11",
-                  display: "block",
-                  marginBottom: "$2",
-                }}
-              >
-                {dayjs
-                  .unix(vote.transaction.timestamp)
-                  .format("MM/DD/YYYY h:mm a")}
-              </Text>
 
               {hasReason && (
                 <Box
@@ -303,7 +295,25 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               </Text>
 
               {vote.transaction.id && (
-                <TransactionBadge id={vote.transaction.id} />
+                <Flex
+                  css={{
+                    flexDirection: "column",
+                    gap: "$1",
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <TransactionBadge id={vote.transaction.id} />
+                  <Text
+                    size="1"
+                    css={{
+                      color: "$neutral11",
+                    }}
+                  >
+                    {dayjs
+                      .unix(vote.transaction.timestamp)
+                      .format("MM/DD/YYYY h:mm a")}
+                  </Text>
+                </Flex>
               )}
             </Flex>
           </Flex>

@@ -101,7 +101,7 @@ const Index: React.FC<VoteModalProps> = ({
           maxHeight: "90vh",
           display: "flex",
           flexDirection: "column",
-          "@bp2": { width: "50%" },
+          "@bp2": { width: "40%", maxWidth: "600px" },
           borderTop: "4px solid $primary11",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
         }}
