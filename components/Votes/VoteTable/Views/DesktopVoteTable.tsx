@@ -133,12 +133,6 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         cursor: "help",
-                        textDecoration: "underline dotted",
-                        textUnderlineOffset: "2px",
-                        textDecorationColor: "$neutral8",
-                        "&:hover": {
-                          textDecorationColor: "$hiContrast",
-                        },
                       }}
                     >
                       {reason}

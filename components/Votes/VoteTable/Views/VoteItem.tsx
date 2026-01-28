@@ -388,13 +388,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  cursor: "pointer",
-                  textDecoration: "underline dotted",
-                  textUnderlineOffset: "2px",
-                  textDecorationColor: "$neutral8",
-                  "&:hover": {
-                    textDecorationColor: "$hiContrast",
-                  },
+                  cursor: "help",
                 }}
               >
                 {vote.reason}
