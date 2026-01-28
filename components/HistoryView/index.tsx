@@ -2,10 +2,16 @@ import HistoryFilter from "@components/HistoryView/HistoryFilter";
 import Spinner from "@components/Spinner";
 import dayjs from "@lib/dayjs";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
-import { Box, Card as CardBase, Flex, Link as A, styled } from "@livepeer/design-system";
+import {
+  Box,
+  Card as CardBase,
+  Flex,
+  Link as A,
+  styled,
+} from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useHistoryFilter } from "hooks";
 import { useTransactionsQuery } from "apollo";
+import { useHistoryFilter } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
