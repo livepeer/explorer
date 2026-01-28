@@ -1,9 +1,4 @@
-import {
-  AVERAGE_L1_BLOCK_TIME,
-  CHAIN_INFO,
-  DEFAULT_CHAIN_ID,
-  l2Provider,
-} from "@lib/chains";
+import { AVERAGE_L1_BLOCK_TIME, CHAIN_INFO, l2Provider } from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
   getApollo,
@@ -94,7 +89,7 @@ export const getPollExtended = async (
         ? undefined
         : (
             await getL2BlockRangeForL1(Number(poll?.endBlock ?? "0"))
-          ).firstBlock
+          ).lastBlock
     )
   );
 
@@ -197,18 +192,16 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
 const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
   try {
     const contract = new ethers.Contract(
-      CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.nodeInterface,
+      CHAIN_INFO[l2Provider.network.chainId].contracts.nodeInterface,
       nodeInterface,
       l2Provider
     );
+    // TODO: Block number 18328665 throws an error, so we add 1 to the block number
+    // TODO: Monitor if this is invalid data or if it shows up again
     const l2BlockRangeForL1 = await contract.l2BlockRangeForL1(
-      BigInt(l1BlockNumber)
-    );
-    console.log(
-      "l2BlockRangeForL1",
-      l1BlockNumber,
-      l2BlockRangeForL1.lastBlock.toNumber(),
-      l2BlockRangeForL1.firstBlock.toNumber()
+      l1BlockNumber === 18328665
+        ? BigInt(l1BlockNumber + 1)
+        : BigInt(l1BlockNumber)
     );
     return {
       lastBlock: l2BlockRangeForL1.lastBlock.toNumber(),
