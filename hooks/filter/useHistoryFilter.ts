@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Event = {
   __typename: string;
@@ -28,7 +28,6 @@ export const ALL_EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS);
 export const useHistoryFilter = (mergedEvents: Event[]) => {
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const scrollPositionRef = useRef<number>(0);
 
   const filteredEvents = useMemo(() => {
     if (selectedEventTypes.length === 0) {
@@ -50,45 +49,6 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
   const clearFilters = () => {
     setSelectedEventTypes([]);
   };
-
-  // Save scroll position when scrolling inside the popover
-  useEffect(() => {
-    if (!isFilterOpen) return;
-
-    const scrollableContainer = document.querySelector(
-      "[data-history-filter-scrollable]"
-    ) as HTMLElement;
-
-    if (!scrollableContainer) return;
-
-    const handleScrollSave = () => {
-      scrollPositionRef.current = scrollableContainer.scrollTop;
-    };
-
-    scrollableContainer.addEventListener("scroll", handleScrollSave);
-
-    return () => {
-      scrollableContainer.removeEventListener("scroll", handleScrollSave);
-    };
-  }, [isFilterOpen]);
-
-  // Restore scroll position when popover opens
-  useEffect(() => {
-    if (!isFilterOpen) return;
-
-    // Use requestAnimationFrame to ensure the DOM is painted before restoring scroll
-    const rafId = requestAnimationFrame(() => {
-      const scrollableContainer = document.querySelector(
-        "[data-history-filter-scrollable]"
-      ) as HTMLElement;
-
-      if (scrollableContainer && scrollPositionRef.current > 0) {
-        scrollableContainer.scrollTop = scrollPositionRef.current;
-      }
-    });
-
-    return () => cancelAnimationFrame(rafId);
-  }, [isFilterOpen]);
 
   // Close filter when scrolling outside the filter area (page scroll)
   useEffect(() => {
