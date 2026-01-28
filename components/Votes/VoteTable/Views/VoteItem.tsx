@@ -1,5 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import dayjs from "@lib/dayjs";
 import { formatTransactionHash } from "@lib/utils";
 import {
   Badge,
@@ -12,6 +13,8 @@ import {
 } from "@livepeer/design-system";
 import {
   ArrowTopRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
 import { TreasuryVoteSupport } from "apollo/subgraph";
@@ -55,6 +58,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
   const hasReason =
     vote.reason && vote.reason.toLowerCase() !== "no reason provided";
+  const reasonId = `reason-${vote.transactionHash || vote.voter.id}`;
 
   return (
     <Card
@@ -63,18 +67,35 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
         marginBottom: "$3",
         position: "relative",
         zIndex: 2,
-        backgroundColor: "$neutral3",
-        borderLeft: `4px solid ${support.style.color}`,
-        transition: "all 0.2s ease",
-        "&:hover, &:focus-within": {
-          backgroundColor: "$neutral4",
+        backgroundColor: "$panel",
+        border: "1px solid $neutral5",
+        "&:focus-within": {
+          borderColor: "$neutral6",
         },
       }}
-      onClick={() => hasReason && setIsExpanded(!isExpanded)}
     >
-      <Flex css={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-        <Box>
-          <Heading as="h4" css={{ fontSize: "$2", marginBottom: "$1" }}>
+      <Flex css={{ flexDirection: "column", gap: "$3" }}>
+        {/* Hero: Vote badge */}
+        <Badge
+          size="2"
+          css={{
+            backgroundColor: support.style.backgroundColor,
+            color: support.style.color,
+            fontWeight: support.style.fontWeight,
+            border: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "$1",
+            alignSelf: "flex-start",
+          }}
+        >
+          <Box as={support.icon} css={{ width: 14, height: 14 }} />
+          {support.text}
+        </Badge>
+
+        {/* Voter name + History */}
+        <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
+          <Heading as="h4" css={{ fontSize: "$2" }}>
             <Link
               href={`https://explorer.livepeer.org/accounts/${vote.voter.id}/delegating`}
               target="_blank"
@@ -96,90 +117,122 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                   outlineOffset: "2px",
                 },
               }}
-              onClick={(e) => e.stopPropagation()}
             >
               {vote.ensName}
             </Link>
           </Heading>
-          <Text
-            size="1"
-            css={{ color: "$neutral11", marginBottom: "$3", display: "block" }}
+          <Box
+            as="button"
+            aria-label={`See ${vote.ensName || vote.voter.id}'s voting history`}
+            css={{
+              display: "flex",
+              alignItems: "center",
+              gap: "$1",
+              color: "$neutral10",
+              cursor: "pointer",
+              border: "none",
+              backgroundColor: "transparent",
+              padding: "$2",
+              minHeight: "44px",
+              borderRadius: "$1",
+              transition: "all 0.2s",
+              "&:hover": {
+                color: "$primary11",
+                backgroundColor: "$neutral3",
+              },
+              "&:focus-visible": {
+                outline: "2px solid $primary11",
+                outlineOffset: "2px",
+                color: "$primary11",
+              },
+            }}
+            onClick={() =>
+              onSelect({ address: vote.voter.id, ensName: vote.ensName })
+            }
           >
-            {formatWeight(vote.weight)}
-          </Text>
-        </Box>
-        <Badge
-          size="1"
-          css={{
-            backgroundColor: support.style.backgroundColor,
-            color: support.style.color,
-            fontWeight: support.style.fontWeight,
-            border: "none",
-          }}
-        >
-          {support.text}
-        </Badge>
-      </Flex>
+            <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
+              History
+            </Text>
+            <Box
+              as={CounterClockwiseClockIcon}
+              css={{ width: 14, height: 14 }}
+            />
+          </Box>
+        </Flex>
 
-      {hasReason && (
-        <Box
-          css={{
-            marginBottom: "$3",
-            padding: "$2",
-            backgroundColor: "$neutral2",
-            borderRadius: "$1",
-            fontSize: "$1",
-          }}
-        >
-          {(vote.reason?.length ?? 0) > 50 ? (
-            <Box>
-              <Text
-                css={{
-                  color: "$neutral12",
-                  fontStyle: "italic",
-                  display: isExpanded ? "block" : "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                  overflow: isExpanded ? "visible" : "hidden",
-                  textOverflow: "ellipsis",
-                  cursor: "pointer",
-                }}
-              >
-                &ldquo;{vote.reason}&rdquo;
-              </Text>
-              {!isExpanded && (
-                <Text
-                  size="1"
-                  css={{
-                    color: "$primary11",
-                    marginTop: "$1",
-                    fontWeight: 600,
-                  }}
-                >
-                  Show more
-                </Text>
-              )}
-            </Box>
-          ) : (
-            <Text
+        {/* Weight */}
+        <Text size="1" css={{ color: "$neutral11" }}>
+          {formatWeight(vote.weight)}
+        </Text>
+
+        {/* Collapsible Reason */}
+        {hasReason && (
+          <Box>
+            <Box
+              as="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              aria-expanded={isExpanded}
+              aria-controls={reasonId}
               css={{
-                color: "$neutral12",
-                fontStyle: "italic",
+                display: "flex",
+                alignItems: "center",
+                gap: "$1",
+                color: "$primary11",
+                cursor: "pointer",
+                border: "none",
+                backgroundColor: "transparent",
+                padding: "$2",
+                margin: "-$2",
+                borderRadius: "$1",
+                minHeight: "44px",
+                fontSize: "$1",
+                fontWeight: 600,
+                transition: "background-color 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "$neutral3",
+                },
+                "&:focus-visible": {
+                  outline: "2px solid $primary11",
+                  outlineOffset: "2px",
+                },
               }}
             >
-              &ldquo;{vote.reason}&rdquo;
-            </Text>
-          )}
-        </Box>
-      )}
+              <Box
+                as={isExpanded ? ChevronUpIcon : ChevronDownIcon}
+                css={{ width: 16, height: 16 }}
+              />
+              {isExpanded ? "Hide reason" : "Show reason"}
+            </Box>
+            {isExpanded && (
+              <Box
+                id={reasonId}
+                css={{
+                  marginTop: "$3",
+                  padding: "$2",
+                  backgroundColor: "$neutral3",
+                  borderRadius: "$1",
+                  fontSize: "$1",
+                }}
+              >
+                <Text
+                  css={{
+                    color: "$neutral12",
+                    fontStyle: "italic",
+                  }}
+                >
+                  &ldquo;{vote.reason}&rdquo;
+                </Text>
+              </Box>
+            )}
+          </Box>
+        )}
 
-      <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
-        <Box>
+        {/* Footer: Transaction + Timestamp */}
+        <Flex css={{ alignItems: "center", gap: "$2" }}>
           {vote.transactionHash ? (
             <Link
               href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
               target="_blank"
-              onClickCapture={(e) => e.stopPropagation()}
               css={{
                 display: "inline-flex",
                 textDecoration: "none !important",
@@ -187,6 +240,10 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                   border: "1.5px solid $grass7 !important",
                   backgroundColor: "$grass3 !important",
                   color: "$grass11 !important",
+                },
+                "&:focus-visible > *": {
+                  outline: "2px solid $primary11",
+                  outlineOffset: "2px",
                 },
               }}
             >
@@ -203,7 +260,6 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               >
                 {formatTransactionHash(vote.transactionHash)}
                 <Box
-                  className="arrow-icon"
                   css={{
                     marginLeft: "$1",
                     width: 14,
@@ -218,37 +274,17 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
               N/A
             </Text>
           )}
-        </Box>
-        <Box
-          as="button"
-          css={{
-            display: "flex",
-            alignItems: "center",
-            gap: "$1",
-            color: "$neutral10",
-            cursor: "pointer",
-            border: "none",
-            backgroundColor: "transparent",
-            "&:hover": { color: "$primary11" },
-            "&:focus-visible": {
-              outline: "2px solid $primary11",
-              outlineOffset: "2px",
-              borderRadius: "4px",
-              color: "$primary11",
-            },
-            padding: "$1",
-            transition: "all 0.2s",
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect({ address: vote.voter.id, ensName: vote.ensName });
-          }}
-        >
-          <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
-            History
-          </Text>
-          <Box as={CounterClockwiseClockIcon} css={{ width: 14, height: 14 }} />
-        </Box>
+          {vote.timestamp && (
+            <>
+              <Text size="1" css={{ color: "$neutral9" }}>
+                ·
+              </Text>
+              <Text size="1" css={{ color: "$neutral11" }}>
+                {dayjs.unix(vote.timestamp).format("MMM D, h:mm a")}
+              </Text>
+            </>
+          )}
+        </Flex>
       </Flex>
     </Card>
   );

@@ -14,6 +14,7 @@ import { VoteReasonPopover } from "./VoteReasonPopover";
 export type Vote = TreasuryVote & {
   ensName?: string;
   transactionHash?: string;
+  timestamp?: number;
 };
 
 export interface VoteTableProps {

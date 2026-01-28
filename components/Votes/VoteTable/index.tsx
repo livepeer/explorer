@@ -87,6 +87,7 @@ const useVotes = (proposalId: string) => {
             reason: latestEvent?.reason || vote.reason || "",
             ensName,
             transactionHash: latestEvent?.transaction.id ?? "",
+            timestamp: latestEvent?.timestamp,
           };
         }) ?? [];
       setVotes(votes as Vote[]);
