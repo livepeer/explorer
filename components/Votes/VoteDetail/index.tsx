@@ -1,6 +1,7 @@
 import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import dayjs from "@lib/dayjs";
 import { formatAddress } from "@lib/utils";
 import {
   Badge,
@@ -89,6 +90,18 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
               }}
             >
               ID: {formatAddress(vote.proposal.id)}
+            </Text>
+            <Text
+              size="1"
+              css={{
+                color: "$neutral11",
+                marginBottom: "$2",
+                display: "block",
+              }}
+            >
+              {dayjs
+                .unix(vote.transaction.timestamp)
+                .format("MM/DD/YYYY h:mm a")}
             </Text>
             <Text
               size="1"
@@ -226,6 +239,18 @@ const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
                 }}
               >
                 ID: {formatAddress(vote.proposal.id)}
+              </Text>
+              <Text
+                size="1"
+                css={{
+                  color: "$neutral11",
+                  display: "block",
+                  marginBottom: "$2",
+                }}
+              >
+                {dayjs
+                  .unix(vote.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm a")}
               </Text>
 
               {hasReason && (
