@@ -82,6 +82,9 @@ const HistoryFilter = ({
             "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
           border: "1px solid $neutral6",
           zIndex: 9,
+          "@bp2": {
+            marginRight: "$3",
+          },
         }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
