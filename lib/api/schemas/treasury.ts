@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { AddressSchema } from "./common";
+
 /**
  * Treasury and proposal-related schemas
  */
@@ -84,3 +86,33 @@ export const TreasuryVoteSchema = z
     hasVoted: z.boolean(),
   })
   .optional();
+
+/**
+ * Schema for treasury voting power response
+ * Matches the VotingPower type from get-treasury-proposal.ts
+ */
+export const VotingPowerSchema = z.object({
+  proposalThreshold: z.string(),
+  self: z.object({
+    address: AddressSchema,
+    votes: z.string(),
+  }),
+  delegate: z
+    .object({
+      address: AddressSchema,
+      votes: z.string(),
+    })
+    .optional(),
+});
+
+/**
+ * Schema for registered to vote response
+ * Matches the RegisteredToVote type from get-treasury-proposal.ts
+ */
+export const RegisteredToVoteSchema = z.object({
+  registered: z.boolean(),
+  delegate: z.object({
+    address: AddressSchema,
+    registered: z.boolean(),
+  }),
+});
