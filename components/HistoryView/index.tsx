@@ -1,14 +1,10 @@
+import HistoryFilter from "@components/HistoryView/HistoryFilter";
 import Spinner from "@components/Spinner";
 import dayjs from "@lib/dayjs";
 import { formatAddress, formatTransactionHash } from "@lib/utils";
-import {
-  Box,
-  Card as CardBase,
-  Flex,
-  Link as A,
-  styled,
-} from "@livepeer/design-system";
+import { Box, Card as CardBase, Flex, Link as A, styled } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { useHistoryFilter } from "hooks";
 import { useTransactionsQuery } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
@@ -71,6 +67,18 @@ const Index = () => {
       ),
     [events, data, lastEventTimestamp]
   );
+
+  // Filter events using history hook
+  const {
+    filteredEvents,
+    selectedEventTypes,
+    toggleEventType,
+    clearFilters,
+    isFilterOpen,
+    setIsFilterOpen,
+    allEventTypes,
+    eventTypeLabels,
+  } = useHistoryFilter(mergedEvents);
 
   if (error) {
     console.error(error);
@@ -143,8 +151,31 @@ const Index = () => {
           position: "relative",
         }}
       >
+        <Flex
+          css={{
+            justifyContent: "flex-end",
+            marginBottom: "$3",
+            alignItems: "center",
+          }}
+        >
+          <HistoryFilter
+            selectedEventTypes={selectedEventTypes}
+            isOpen={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            onToggleEventType={toggleEventType}
+            onClearFilters={clearFilters}
+            allEventTypes={allEventTypes}
+            eventTypeLabels={eventTypeLabels}
+          />
+        </Flex>
         <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event, i: number) => renderSwitch(event, i))
+          ) : (
+            <Box css={{ paddingTop: "$3", color: "$neutral11" }}>
+              No events match the selected filters
+            </Box>
+          )}
         </Box>
         {loading && data.transactions.length >= 10 && (
           <Flex
