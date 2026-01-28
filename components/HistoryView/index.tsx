@@ -1,9 +1,10 @@
 import Spinner from "@components/Spinner";
+import TransactionBadge from "@components/TransactionBadge";
 import { Fm } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { formatAddress, formatTransactionHash } from "@lib/utils";
+import { formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -12,7 +13,6 @@ import {
   Link as A,
   styled,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
 import {
   TreasuryVoteEvent,
   TreasuryVoteSupport,
@@ -20,7 +20,6 @@ import {
   VoteEvent,
 } from "apollo";
 import fm from "front-matter";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
@@ -277,19 +276,7 @@ function renderSwitch(event, i: number) {
   switch (event.__typename) {
     case "BondEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -309,19 +296,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -339,19 +316,7 @@ function renderSwitch(event, i: number) {
       );
     case "NewRoundEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -369,19 +334,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               Round #
@@ -394,19 +349,7 @@ function renderSwitch(event, i: number) {
       );
     case "RebondEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -426,19 +369,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -456,19 +389,7 @@ function renderSwitch(event, i: number) {
       );
     case "UnbondEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -488,19 +409,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -518,19 +429,7 @@ function renderSwitch(event, i: number) {
       );
     case "RewardEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -550,19 +449,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -580,19 +469,7 @@ function renderSwitch(event, i: number) {
       );
     case "TranscoderUpdateEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -610,19 +487,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
@@ -644,19 +511,7 @@ function renderSwitch(event, i: number) {
       );
     case "WithdrawStakeEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -674,19 +529,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -703,19 +548,7 @@ function renderSwitch(event, i: number) {
       );
     case "WithdrawFeesEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -733,19 +566,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -762,19 +585,7 @@ function renderSwitch(event, i: number) {
       );
     case "WinningTicketRedeemedEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -792,19 +603,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -822,19 +623,7 @@ function renderSwitch(event, i: number) {
       );
     case "DepositFundedEvent":
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -852,19 +641,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -887,19 +666,7 @@ function renderSwitch(event, i: number) {
         return;
       }
       return (
-        <Card
-          as={A}
-          key={i}
-          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          css={{
-            textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-            },
-          }}
-        >
+        <Card key={i}>
           <Flex
             css={{
               width: "100%",
@@ -917,19 +684,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -983,23 +740,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-                as={A}
-                href={`https://explorer.livepeer.org/treasury/${event.transaction?.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               <Badge
@@ -1066,23 +809,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-                as={A}
-                href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               <Badge
