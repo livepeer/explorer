@@ -190,7 +190,14 @@ export const DesktopVoteTable: React.FC<VoteTableProps> = ({
         Header: "",
         id: "history",
         Cell: ({ row }) => (
-          <Box css={{ minWidth: 40, textAlign: "right", color: "$primary11" }}>
+          <Box
+            css={{
+              minWidth: 40,
+              textAlign: "right",
+              color: "$primary11",
+              paddingRight: "$2",
+            }}
+          >
             <ExplorerTooltip content="See their voting history">
               <Box
                 as="button"
