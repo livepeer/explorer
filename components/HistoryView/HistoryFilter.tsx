@@ -82,63 +82,75 @@ const HistoryFilter = ({
             "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
           border: "1px solid $neutral6",
           zIndex: 9,
-          "@bp2": {
-            marginRight: "$3",
-          },
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "400px",
+          marginRight: "$3",
+          overflow: "hidden",
         }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
+        {/* Header - Sticky */}
         <Flex
           css={{
-            flexDirection: "column",
-            maxHeight: "400px",
-            overflowY: "auto",
+            padding: "$3",
+            borderBottom: "1px solid $neutral6",
+            borderTopLeftRadius: "$3",
+            borderTopRightRadius: "$3",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+            backgroundColor: "$neutral4",
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
           }}
         >
-          {/* Header */}
-          <Flex
+          <Button
+            onClick={onClearFilters}
             css={{
-              padding: "$3",
-              borderBottom: "1px solid $neutral6",
-              alignItems: "center",
-              justifyContent: "space-between",
+              color: "$neutral11",
+              fontSize: "$2",
+              padding: "$1",
+              backgroundColor: "transparent",
+              "&:hover": {
+                color: "$hiContrast",
+                backgroundColor: "transparent",
+              },
             }}
           >
-            <Button
-              onClick={onClearFilters}
-              css={{
-                color: "$neutral11",
-                fontSize: "$2",
-                padding: "$1",
+            Clear
+          </Button>
+          <Text css={{ fontWeight: 600, fontSize: "$3" }}>Filters</Text>
+          <Button
+            onClick={() => onOpenChange(false)}
+            css={{
+              color: "$primary11",
+              fontSize: "$2",
+              padding: "$1",
+              backgroundColor: "transparent",
+              "&:hover": {
                 backgroundColor: "transparent",
-                "&:hover": {
-                  color: "$hiContrast",
-                  backgroundColor: "transparent",
-                },
-              }}
-            >
-              Clear
-            </Button>
-            <Text css={{ fontWeight: 600, fontSize: "$3" }}>Filters</Text>
-            <Button
-              onClick={() => onOpenChange(false)}
-              css={{
-                color: "$primary11",
-                fontSize: "$2",
-                padding: "$1",
-                backgroundColor: "transparent",
-                "&:hover": {
-                  backgroundColor: "transparent",
-                },
-              }}
-            >
-              Done
-            </Button>
-          </Flex>
+              },
+            }}
+          >
+            Done
+          </Button>
+        </Flex>
 
-          {/* Event type section */}
+        {/* Event type section - Scrollable */}
+        <Flex
+          data-history-filter-scrollable
+          css={{
+            flexDirection: "column",
+            overflowY: "auto",
+            flex: 1,
+            borderBottomLeftRadius: "$3",
+            borderBottomRightRadius: "$3",
+          }}
+        >
           <Box css={{ padding: "$3" }}>
             <Text
               css={{
