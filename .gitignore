@@ -49,3 +49,6 @@ usage.backup.json
 .gitignore
 bquxjob_1944883c_19a4f7cd5f0.json
 usage.json
+
+# typescript
+*.tsbuildinfo

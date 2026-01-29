@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { AddressSchema } from "./common";
+
 /**
  * Performance metrics and scoring schemas
  */
@@ -45,7 +47,13 @@ export const PerformanceMetricsSchema = z.object({
   roundTripScores: RegionalValuesSchema,
   scores: RegionalValuesSchema,
   pricePerPixel: z.number(),
-  topAIScore: ScoreResponseSchema,
+  topAIScore: z.preprocess(
+    (val) =>
+      typeof val === "object" && val !== null && Object.keys(val).length === 0
+        ? undefined
+        : val,
+    ScoreResponseSchema.optional().nullable()
+  ),
 });
 
 /**
@@ -62,4 +70,20 @@ export const PipelineSchema = z.object({
  */
 export const AvailablePipelinesSchema = z.object({
   pipelines: z.array(PipelineSchema),
+});
+
+/**
+ * Schema for all performance metrics (record of address to performance metrics)
+ */
+export const AllPerformanceMetricsSchema = z.record(
+  AddressSchema,
+  PerformanceMetricsSchema
+);
+
+/**
+ * Schema for pipeline query parameters
+ */
+export const PipelineQuerySchema = z.object({
+  pipeline: z.string().optional(),
+  model: z.string().optional(),
 });

@@ -1,5 +1,14 @@
 import { getCacheControlHeader } from "@lib/api";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+  validateOutput,
+} from "@lib/api/errors";
+import {
+  AllPerformanceMetricsSchema,
+  PipelineQuerySchema,
+} from "@lib/api/schemas";
 import {
   AllPerformanceMetrics,
   RegionalValues,
@@ -19,7 +28,15 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { pipeline, model } = req.query;
+      const queryResult = PipelineQuerySchema.safeParse(req.query);
+      const inputValidationError = validateInput(
+        queryResult,
+        res,
+        "Invalid query parameters"
+      );
+      if (inputValidationError) return inputValidationError;
+
+      const { pipeline, model } = queryResult.data || {};
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
@@ -102,6 +119,13 @@ const handler = async (
         }),
         {}
       );
+
+      const outputValidationError = validateOutput(
+        AllPerformanceMetricsSchema.safeParse(combined),
+        res,
+        "api/score"
+      );
+      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(combined);
     }
