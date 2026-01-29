@@ -3,7 +3,9 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateOutput,
 } from "@lib/api/errors";
+import { ChangefeedResponseSchema } from "@lib/api/schemas/changefeed";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -58,6 +60,13 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
       const {
         data: { projectBySlugs },
       } = await response.json();
+
+      const validationResult =
+        ChangefeedResponseSchema.safeParse(projectBySlugs);
+      if (validateOutput(validationResult, res, "changefeed")) {
+        return;
+      }
+
       return res.status(200).json(projectBySlugs);
     }
 
