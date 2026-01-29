@@ -1,5 +1,5 @@
-import { Box, Button, Flex, Text } from "@livepeer/design-system";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import Pagination from "@components/Table/Pagination";
+import { Box, Text } from "@livepeer/design-system";
 import React from "react";
 
 import { VoteTableProps } from "./DesktopVoteTable";
@@ -44,44 +44,14 @@ export const MobileVoteCards: React.FC<VoteTableProps> = (props) => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Flex
-          css={{
-            marginTop: "$4",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "$4",
-          }}
-        >
-          <Button
-            size="1"
-            disabled={currentPage === 1}
-            onClick={() => onPageChange?.(currentPage - 1)}
-            css={{
-              display: "flex",
-              alignItems: "center",
-              gap: "$1",
-              color: currentPage === 1 ? "$neutral8" : "$white",
-            }}
-          >
-            <ArrowLeftIcon /> Previous
-          </Button>
-          <Text css={{ fontSize: "$1", color: "$neutral11" }}>
-            Page {currentPage} of {totalPages}
-          </Text>
-          <Button
-            size="1"
-            disabled={currentPage === totalPages}
-            onClick={() => onPageChange?.(currentPage + 1)}
-            css={{
-              display: "flex",
-              alignItems: "center",
-              gap: "$1",
-              color: currentPage === totalPages ? "$neutral8" : "$white",
-            }}
-          >
-            Next <ArrowRightIcon />
-          </Button>
-        </Flex>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          canPrevious={currentPage > 1}
+          canNext={currentPage < totalPages}
+          onPrevious={() => onPageChange?.(currentPage - 1)}
+          onNext={() => onPageChange?.(currentPage + 1)}
+        />
       )}
     </Box>
   );

@@ -183,13 +183,11 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 fontWeight: 600,
               }}
             >
-              <Flex align="center" gap={1}>
-                <Box
-                  as={isExpanded ? ChevronUpIcon : ChevronDownIcon}
-                  css={{ width: 16, height: 16 }}
-                />
-                {isExpanded ? "Hide reason" : "Show reason"}
-              </Flex>
+              <Box
+                as={isExpanded ? ChevronUpIcon : ChevronDownIcon}
+                css={{ width: 16, height: 16 }}
+              />
+              {isExpanded ? "Hide reason" : "Show reason"}
             </Box>
             {isExpanded && (
               <Box
