@@ -710,7 +710,7 @@ function renderSwitch(event, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://explorer.livepeer.org/treasury/${event.proposal?.id}`}
+          href={`/treasury/${event.proposal?.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
@@ -780,7 +780,7 @@ function renderSwitch(event, i: number) {
         <Card
           as={A}
           key={i}
-          href={`https://explorer.livepeer.org/voting/${event.poll?.id}`}
+          href={`/voting/${event.poll?.id}`}
           target="_blank"
           rel="noopener noreferrer"
           css={{
