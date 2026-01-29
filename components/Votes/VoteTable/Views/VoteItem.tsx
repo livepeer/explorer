@@ -106,12 +106,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 padding: "2px 8px",
                 margin: "-2px -8px",
                 borderRadius: "6px",
-                transition: "all 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "$neutral4",
-                  textDecoration: "underline",
-                  textUnderlineOffset: "4px",
-                },
+                cursor: "pointer",
                 "&:focus-visible": {
                   outline: "2px solid $primary11",
                   outlineOffset: "2px",
@@ -183,18 +178,9 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 backgroundColor: "transparent",
                 padding: "$2",
                 margin: "-$2",
-                borderRadius: "$1",
                 minHeight: "44px",
                 fontSize: "$1",
                 fontWeight: 600,
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "$neutral3",
-                },
-                "&:focus-visible": {
-                  outline: "2px solid $primary11",
-                  outlineOffset: "2px",
-                },
               }}
             >
               <Box
