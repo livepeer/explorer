@@ -2,9 +2,16 @@ import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Button } from "@livepeer/design-system";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { useDelegationReview } from "hooks/useDelegationReview";
+import DelegationReview from "@components/DelegationReview";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
-const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
+const Index = ({ unbondingLockId, newPosPrev, newPosNext, delegator, currentRound }) => {
+  const { warnings } = useDelegationReview({
+    action: "transfer",
+    delegator,
+    currentRound,
+  });
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { data: config } = useSimulateContract({
@@ -24,6 +31,7 @@ const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
 
   return (
     <>
+      <DelegationReview warnings={warnings} />
       <Button
         css={{
           marginRight: "$3",

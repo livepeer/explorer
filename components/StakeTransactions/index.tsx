@@ -111,6 +111,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         ) : (
                           <RedelegateFromUndelegated
@@ -118,6 +120,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             delegate={lock.delegate.id}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                              delegator={delegator}
+                              currentRound={currentRound}
                           />
                         )}
                       </Flex>
@@ -221,6 +225,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         ) : (
                           <RedelegateFromUndelegated
@@ -228,9 +234,15 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             delegate={lock.delegate.id}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                              delegator={delegator}
+                              currentRound={currentRound}
                           />
                         )}
-                        <WithdrawStake unbondingLockId={lock.unbondingLockId} />
+                        <WithdrawStake
+                          unbondingLockId={lock.unbondingLockId}
+                          delegator={delegator}
+                          currentRound={currentRound}
+                        />
                       </Flex>
                     )}
                     <Box

@@ -3,9 +3,23 @@ import { Button } from "@livepeer/design-system";
 import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { useDelegationReview } from "hooks/useDelegationReview";
+import DelegationReview from "../DelegationReview";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
-const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
+const Index = ({
+  unbondingLockId,
+  delegate,
+  newPosPrev,
+  newPosNext,
+  delegator,
+  currentRound,
+}) => {
+  const { warnings } = useDelegationReview({
+    action: "transfer",
+    delegator,
+    currentRound,
+  });
   const accountAddress = useAccountAddress();
 
   const { data: bondingManagerAddress } = useBondingManagerAddress();
@@ -39,6 +53,7 @@ const Index = ({ unbondingLockId, delegate, newPosPrev, newPosNext }) => {
 
   return (
     <>
+      <DelegationReview warnings={warnings} />
       <Button
         css={{
           marginRight: "$3",

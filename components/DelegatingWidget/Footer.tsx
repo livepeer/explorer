@@ -12,13 +12,14 @@ import {
   useAccountAddress,
   useAccountBalanceData,
   usePendingFeesAndStakeData,
+  useDelegationReview,
 } from "hooks";
 import { useMemo } from "react";
-import { parseEther } from "viem";
-
+import DelegationReview from "../DelegationReview";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
+import { parseEther } from "viem";
 
 type FooterData = {
   isTransferStake: boolean;
@@ -78,6 +79,11 @@ const Footer = ({
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
+  const { warnings } = useDelegationReview({
+    action: action || "delegate",
+    delegator,
+    currentRound,
+  });
   const stakeWei = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
@@ -161,6 +167,7 @@ const Footer = ({
   if (action === "delegate") {
     return (
       <Box css={{ ...css }}>
+        <DelegationReview warnings={warnings} />
         <Delegate
           to={transcoder?.id}
           amount={amount}
@@ -180,6 +187,7 @@ const Footer = ({
   }
   return (
     <Box css={{ ...css }}>
+      <DelegationReview warnings={warnings} />
       <Undelegate
         amount={amount}
         newPosPrev={newPosPrev}

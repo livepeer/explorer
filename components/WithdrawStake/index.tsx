@@ -4,10 +4,17 @@ import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useSimulateContract, useWriteContract } from "wagmi";
+import { useDelegationReview } from "hooks/useDelegationReview";
+import DelegationReview from "@components/DelegationReview";
 
-const Index = ({ unbondingLockId }) => {
+const Index = ({ unbondingLockId, delegator, currentRound }) => {
   const accountAddress = useAccountAddress();
 
+  const { warnings } = useDelegationReview({
+    action: "undelegate",
+    delegator,
+    currentRound,
+  });
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { data: config } = useSimulateContract({
@@ -29,6 +36,7 @@ const Index = ({ unbondingLockId }) => {
 
   return (
     <>
+      <DelegationReview warnings={warnings} />
       <Button
         css={{
           paddingTop: "$2",
