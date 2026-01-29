@@ -33,6 +33,7 @@ const useVotes = (proposalId: string) => {
     error: treasuryVoteEventsError,
   } = useTreasuryVoteEventsQuery({
     variables: {
+      first: 200,
       where: {
         proposal: proposalId,
       },

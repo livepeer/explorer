@@ -1,5 +1,10 @@
 query treasuryVoteEvents($first: Int, $where: TreasuryVoteEvent_filter) {
-  treasuryVoteEvents(first: $first, where: $where) {
+  treasuryVoteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
     id
     reason
     support
