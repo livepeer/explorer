@@ -2,6 +2,7 @@ import { getCacheControlHeader } from "@lib/api";
 import {
   internalError,
   methodNotAllowed,
+  validateExternalResponse,
   validateOutput,
 } from "@lib/api/errors";
 import { RegionObjectSchema, RegionsSchema } from "@lib/api/schemas";
@@ -30,16 +31,11 @@ const fetchRegions = async (
 
   // Validate external API response: regions response structure
   const apiResult = RegionsSchema.safeParse(responseData);
-  if (!apiResult.success) {
-    console.error(
-      "[api/regions] External API response validation failed:",
-      apiResult.error,
-      `URL: ${url}/api/regions`
-    );
-    return null;
-  }
-
-  return apiResult.data;
+  return validateExternalResponse(
+    apiResult,
+    "api/regions",
+    `URL: ${url}/api/regions`
+  );
 };
 
 const handler = async (

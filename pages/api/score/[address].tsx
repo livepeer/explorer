@@ -6,7 +6,13 @@ import {
   validateInput,
   validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, PerformanceMetricsSchema } from "@lib/api/schemas";
+import {
+  AddressSchema,
+  MetricsResponseSchema,
+  PerformanceMetricsSchema,
+  PriceResponseSchema,
+  ScoreResponseSchema,
+} from "@lib/api/schemas";
 import {
   PerformanceMetrics,
   RegionalValues,
@@ -131,9 +137,39 @@ const handler = async (
         return externalApiError(res, "pricing server");
       }
 
-      const topAIScore: ScoreResponse = await topScoreResponse.json();
-      const metrics: MetricsResponse = await metricsResponse.json();
-      const transcodersWithPrice: PriceResponse = await priceResponse.json();
+      const topScoreResult = ScoreResponseSchema.safeParse(
+        await topScoreResponse.json()
+      );
+      const topScoreError = validateInput(
+        topScoreResult,
+        res,
+        "Invalid response from AI metrics server"
+      );
+      if (topScoreError) return topScoreError;
+      const topAIScore: ScoreResponse = topScoreResult.data as ScoreResponse;
+
+      const metricsResult = MetricsResponseSchema.safeParse(
+        await metricsResponse.json()
+      );
+      const metricsError = validateInput(
+        metricsResult,
+        res,
+        "Invalid response from metrics server"
+      );
+      if (metricsError) return metricsError;
+      const metrics: MetricsResponse = metricsResult.data as MetricsResponse;
+
+      const priceResult = PriceResponseSchema.safeParse(
+        await priceResponse.json()
+      );
+      const priceError = validateInput(
+        priceResult,
+        res,
+        "Invalid response from pricing server"
+      );
+      if (priceError) return priceError;
+      const transcodersWithPrice: PriceResponse =
+        priceResult.data as unknown as PriceResponse;
 
       const transcoderWithPrice = transcodersWithPrice.find((t) =>
         checkAddressEquality(t.Address, transcoderId)

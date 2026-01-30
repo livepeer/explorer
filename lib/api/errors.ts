@@ -129,3 +129,28 @@ export const validateOutput = <T>(
   }
   return undefined;
 };
+
+/**
+ * Validates data from an external API against a Zod schema.
+ * Returns null if validation fails and logs the error.
+ *
+ * @param result - The result from Zod's safeParse()
+ * @param context - Context for logging (e.g. "api/regions")
+ * @param extraInfo - Additional info for logging (e.g. URL)
+ * @returns The validated data or null if validation failed
+ */
+export const validateExternalResponse = <T>(
+  result: { success: true; data: T } | { success: false; error: z.ZodError<T> },
+  context: string,
+  extraInfo?: string
+): T | null => {
+  if (!result.success) {
+    console.error(
+      `[${context}] External API response validation failed:`,
+      result.error,
+      extraInfo || ""
+    );
+    return null;
+  }
+  return result.data;
+};

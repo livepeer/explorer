@@ -87,3 +87,23 @@ export const PipelineQuerySchema = z.object({
   pipeline: z.string().optional(),
   model: z.string().optional(),
 });
+
+/**
+ * Schema for pricing API response
+ */
+export const PriceResponseSchema = z.array(
+  z.object({
+    Address: z.string(),
+    ServiceURI: z.string().optional(),
+    LastRewardRound: z.number().optional(),
+    RewardCut: z.number().optional(),
+    FeeShare: z.number().optional(),
+    DelegatedStake: z.coerce.string().optional(),
+    ActivationRound: z.number().optional(),
+    DeactivationRound: z.coerce.string().optional(),
+    Active: z.boolean().optional(),
+    Status: z.string().optional(),
+    PricePerPixel: z.number(),
+    UpdatedAt: z.number().optional(),
+  })
+);

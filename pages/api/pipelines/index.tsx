@@ -70,19 +70,14 @@ const handler = async (
 
         // Validate external API response: pipelines response structure
         const apiResult = AvailablePipelinesSchema.safeParse(responseData);
-        if (!apiResult.success) {
-          console.error(
-            "[api/pipelines] External API response validation failed:",
-            apiResult.error
-          );
-          return externalApiError(
-            res,
-            "AI metrics server",
-            "Invalid response structure from AI metrics server"
-          );
-        }
+        const validationError = validateInput(
+          apiResult,
+          res,
+          "Invalid response structure from AI metrics server"
+        );
+        if (validationError) return validationError;
 
-        pipelinesResponse = apiResult.data;
+        pipelinesResponse = apiResult.data as AvailablePipelines;
       } catch (err) {
         console.error("[api/pipelines] Fetch error:", err);
         // Fallback to empty pipelines on error (existing behavior)
