@@ -8,6 +8,7 @@ import {
 import { ChangefeedResponseSchema } from "@lib/api/schemas/changefeed";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { z } from "zod";
 
 const query = `
   {
@@ -57,9 +58,25 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
-      const {
-        data: { projectBySlugs },
-      } = await response.json();
+      const json = await response.json();
+
+      // Validate GraphQL envelope structure
+      const EnvelopeSchema = z.object({
+        data: z.object({
+          projectBySlugs: z.unknown(),
+        }),
+      });
+
+      const envelopeResult = EnvelopeSchema.safeParse(json);
+      if (!envelopeResult.success) {
+        return externalApiError(
+          res,
+          "changefeed.app",
+          "Invalid GraphQL structure"
+        );
+      }
+
+      const { projectBySlugs } = envelopeResult.data.data;
 
       const validationResult =
         ChangefeedResponseSchema.safeParse(projectBySlugs);
