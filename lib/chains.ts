@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Address, createPublicClient, http } from "viem";
+import { Address, createPublicClient, fallback, http } from "viem";
 import * as chain from "viem/chains";
 
 import arbitrumLogoUrl from "../public/img/logos/arbitrum.png";
@@ -125,16 +125,16 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  * These are the network URLs used by the Livepeer Explorer when there is not another available source of chain data
  * configured in the environment variables.
  */
-export const INFURA_NETWORK_URLS = {
-  [chain.mainnet.id]:
-    process.env.NEXT_PUBLIC_L1_RPC_URL ||
+export const NETWORK_RPC_URLS = {
+  [chain.mainnet.id]: [
+    process.env.NEXT_PUBLIC_L1_RPC_URL,
     `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-  // [chain.goerli.id]: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [chain.arbitrum.id]:
-    process.env.NEXT_PUBLIC_L2_RPC_URL ||
+  ].filter(Boolean) as string[],
+
+  [chain.arbitrum.id]: [
+    process.env.NEXT_PUBLIC_L2_RPC_URL,
     `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
-  // [chain.arbitrumGoerli
-  //   .id]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
+  ].filter(Boolean) as string[],
 };
 
 export enum NetworkType {
@@ -152,29 +152,12 @@ export const CHAIN_INFO = {
     logoUrl: ethereumLogoUrl,
     addNetworkInfo: {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-      rpcUrl: INFURA_NETWORK_URLS[chain.mainnet.id],
+      rpcUrl: NETWORK_RPC_URLS[chain.mainnet.id][0],
     },
     subgraph:
       SUBGRAPH_ENDPOINT ||
       `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
     contracts: MAINNET_CONTRACTS,
-  },
-  // TODO this needs to be updated
-  [chain.goerli.id]: {
-    networkType: NetworkType.L1,
-    l1: chain.goerli,
-    explorer: "https://rinkeby.etherscan.io/",
-    pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
-    label: "Rinkeby",
-    logoUrl: ethereumLogoUrl,
-    addNetworkInfo: {
-      nativeCurrency: { name: "Rinkeby Ether", symbol: "rETH", decimals: 18 },
-      rpcUrl: INFURA_NETWORK_URLS[chain.goerli.id],
-    },
-    subgraph:
-      SUBGRAPH_ENDPOINT ||
-      "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-goerli",
-    contracts: ARBITRUM_GOERLI_CONTRACTS,
   },
   [chain.arbitrum.id]: {
     networkType: NetworkType.L2,
@@ -229,7 +212,9 @@ export const l1PublicClient = createPublicClient({
     },
   },
   chain: L1_CHAIN as unknown as typeof chain.arbitrum,
-  transport: http(INFURA_NETWORK_URLS[L1_CHAIN_ID]),
+  transport: fallback(
+    NETWORK_RPC_URLS[L1_CHAIN_ID].map((url: string) => http(url))
+  ),
 });
 
 export const l2PublicClient = createPublicClient({
@@ -239,15 +224,17 @@ export const l2PublicClient = createPublicClient({
     },
   },
   chain: DEFAULT_CHAIN as unknown as typeof chain.mainnet,
-  transport: http(INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]),
+  transport: fallback(
+    NETWORK_RPC_URLS[DEFAULT_CHAIN_ID].map((url: string) => http(url))
+  ),
 });
 
 export const l1Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[L1_CHAIN_ID]
+  NETWORK_RPC_URLS[L1_CHAIN_ID][0]
 );
 
 export const l2Provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
+  NETWORK_RPC_URLS[DEFAULT_CHAIN_ID][0]
 );
 
 export function isL2ChainId(chainId: number | undefined): boolean {
