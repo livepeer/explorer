@@ -77,6 +77,14 @@ const chartDataHandler = async (
         .sort((a, b) => (a.dateS > b.dateS ? 1 : -1))
         .filter((s) => s.activeTranscoderCount);
 
+      // Ensure we have enough data for calculations
+      if (sortedDays.length < 2) {
+        return internalError(
+          res,
+          new Error("Insufficient daily data for calculations")
+        );
+      }
+
       let startIndexWeekly = -1;
       let currentWeek = -1;
 
@@ -100,6 +108,14 @@ const chartDataHandler = async (
         weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
         weeklyData[startIndexWeekly].weeklyUsageMinutes +=
           day.feeDerivedMinutes;
+      }
+
+      // Ensure we have enough weekly data for calculations
+      if (weeklyData.length < 3) {
+        return internalError(
+          res,
+          new Error("Insufficient weekly data for calculations")
+        );
       }
 
       // const currentWeekData = weeklyData[weeklyData.length - 1];
