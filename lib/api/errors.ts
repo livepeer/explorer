@@ -10,6 +10,7 @@ export const apiError = (
   error: string,
   details?: string
 ) => {
+  console.error(`[API Error] ${code}: ${error}`, details ?? "");
   logger.error({ code, error, details: details ?? "" }, "API Error");
   const response = { error, code, details } as ApiError;
   res.status(status).json(response);
