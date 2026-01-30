@@ -1,10 +1,11 @@
 import { z } from "zod";
 
-import { AddressSchema } from "./common";
-
-/**
- * ENS-related schemas
- */
+import {
+  AddressSchema,
+  GithubHandleSchema,
+  TwitterHandleSchema,
+  WebUrlSchema,
+} from "./common";
 
 /**
  * Schema for ENS identity data
@@ -14,9 +15,10 @@ export const EnsIdentitySchema = z.object({
   idShort: z.string(),
   avatar: z.string().nullable().optional(),
   name: z.string().nullable().optional(),
-  url: z.string().nullable().optional(),
-  twitter: z.string().nullable().optional(),
-  github: z.string().nullable().optional(),
+  // Strict validation that falls back to null if invalid
+  url: WebUrlSchema.nullable().optional().catch(null),
+  twitter: TwitterHandleSchema.nullable().optional().catch(null),
+  github: GithubHandleSchema.nullable().optional().catch(null),
   description: z.string().nullable().optional(),
   isLoading: z.boolean().optional(),
 });
@@ -59,15 +61,3 @@ export const EnsNameSchema = z
 export const EnsIdentityArraySchema = z.array(EnsIdentitySchema);
 
 export const EnsAvatarResultSchema = z.string().nullable();
-
-export const AvatarUrlSchema = z.string().refine(
-  (val) => {
-    try {
-      new URL(val); // Use native URL constructor as primary check
-      return true;
-    } catch {
-      return false;
-    }
-  },
-  { message: "Invalid URL format" }
-);

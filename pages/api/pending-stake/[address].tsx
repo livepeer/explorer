@@ -33,10 +33,6 @@ const handler = async (
       );
       if (inputValidationError) return inputValidationError;
 
-      if (!addressResult.success) {
-        return internalError(res, new Error("Address validation failed"));
-      }
-
       const validatedAddress = addressResult.data;
 
       const bondingManagerAddress = await getBondingManagerAddress();

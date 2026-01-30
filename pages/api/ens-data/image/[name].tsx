@@ -5,11 +5,8 @@ import {
   notFound,
   validateInput,
 } from "@lib/api/errors";
-import {
-  AvatarUrlSchema,
-  EnsAvatarResultSchema,
-  EnsNameSchema,
-} from "@lib/api/schemas";
+import { EnsAvatarResultSchema, EnsNameSchema } from "@lib/api/schemas";
+import { WebUrlSchema } from "@lib/api/schemas/common";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -68,7 +65,7 @@ const handler = async (
           : `https://metadata.ens.domains/mainnet/avatar/${validatedName}`;
 
         // Extra validation to prevent SSRF - Server Side Request Forgery
-        const urlValidation = AvatarUrlSchema.safeParse(imageUrl);
+        const urlValidation = WebUrlSchema.safeParse(imageUrl);
 
         if (!urlValidation.success) {
           return notFound(res, "Invalid or missing ENS avatar URL");

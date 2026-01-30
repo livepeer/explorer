@@ -69,3 +69,32 @@ export const SubgraphResponseSchema = z.object({
     livepeerAccounts: z.array(LivepeerAccountSchema).nullable().optional(),
   }),
 });
+
+/**
+ * Schema for strict Web URL validation
+ */
+export const WebUrlSchema = z.string().refine(
+  (val) => {
+    try {
+      new URL(val); // Use native URL constructor
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "Invalid URL format" }
+);
+
+/**
+ * Standard Twitter/X handle check: alphanumeric + underscore, max 15 chars (excludes @)
+ */
+export const TwitterHandleSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9_]{1,15}$/, "Invalid Twitter handle");
+
+/**
+ * Standard GitHub handle check: alphanumeric + hyphens, max 39 chars
+ */
+export const GithubHandleSchema = z
+  .string()
+  .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, "Invalid GitHub handle");
