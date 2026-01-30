@@ -5,10 +5,12 @@ import {
   methodNotAllowed,
   validateOutput,
 } from "@lib/api/errors";
-import { ChangefeedResponseSchema } from "@lib/api/schemas/changefeed";
+import {
+  ChangefeedGraphQLResultSchema,
+  ChangefeedResponseSchema,
+} from "@lib/api/schemas/changefeed";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { z } from "zod";
 
 const query = `
   {
@@ -61,13 +63,7 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
       const json = await response.json();
 
       // Validate GraphQL envelope structure
-      const EnvelopeSchema = z.object({
-        data: z.object({
-          projectBySlugs: z.unknown(),
-        }),
-      });
-
-      const envelopeResult = EnvelopeSchema.safeParse(json);
+      const envelopeResult = ChangefeedGraphQLResultSchema.safeParse(json);
       if (!envelopeResult.success) {
         return externalApiError(
           res,

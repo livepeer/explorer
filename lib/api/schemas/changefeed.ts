@@ -23,3 +23,9 @@ export const ChangefeedResponseSchema = z.object({
     ),
   }),
 });
+
+export const ChangefeedGraphQLResultSchema = z.object({
+  data: z.object({
+    projectBySlugs: z.unknown(),
+  }),
+});

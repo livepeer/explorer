@@ -6,11 +6,8 @@ import {
   methodNotAllowed,
   validateOutput,
 } from "@lib/api/errors";
-import {
-  AddressSchema,
-  EnsIdentityArraySchema,
-  SubgraphResponseSchema,
-} from "@lib/api/schemas";
+import { AddressSchema, EnsIdentityArraySchema } from "@lib/api/schemas";
+import { LivepeerAccountsSubgraphSchema } from "@lib/api/schemas/subgraph";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
@@ -71,7 +68,8 @@ const handler = async (
       const responseData = await response.json();
 
       // Validate external API response: subgraph response structure
-      const subgraphResult = SubgraphResponseSchema.safeParse(responseData);
+      const subgraphResult =
+        LivepeerAccountsSubgraphSchema.safeParse(responseData);
       if (!subgraphResult.success) {
         console.error(
           "[api/ens-data] Subgraph response validation failed:",

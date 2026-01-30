@@ -1,10 +1,12 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import {
+  externalApiError,
   internalError,
   methodNotAllowed,
   validateOutput,
 } from "@lib/api/errors";
 import { CurrentRoundInfoSchema } from "@lib/api/schemas/current-round";
+import { CurrentRoundSubgraphResultSchema } from "@lib/api/schemas/subgraph";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -19,9 +21,21 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
+      const response = await getCurrentRound();
+
+      const subgraphValidationResult =
+        CurrentRoundSubgraphResultSchema.safeParse(response);
+      if (!subgraphValidationResult.success) {
+        return externalApiError(
+          res,
+          "subgraph",
+          "Invalid response structure from subgraph"
+        );
+      }
+
       const {
         data: { protocol, _meta },
-      } = await getCurrentRound();
+      } = subgraphValidationResult.data;
       const currentRound = protocol?.currentRound;
 
       if (!currentRound) {

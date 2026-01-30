@@ -55,22 +55,6 @@ export const RegionsSchema = z.object({
 });
 
 /**
- * Schema for subgraph livepeer account response
- */
-export const LivepeerAccountSchema = z.object({
-  id: z.string(),
-});
-
-/**
- * Schema for subgraph response structure
- */
-export const SubgraphResponseSchema = z.object({
-  data: z.object({
-    livepeerAccounts: z.array(LivepeerAccountSchema).nullable().optional(),
-  }),
-});
-
-/**
  * Schema for strict Web URL validation
  */
 export const WebUrlSchema = z.string().refine(
