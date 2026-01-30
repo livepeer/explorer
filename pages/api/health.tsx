@@ -1,32 +1,44 @@
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
-import { createApolloFetch } from "apollo-fetch";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const health = async (_req: NextApiRequest, res: NextApiResponse) => {
-  const apolloSubgraphFetch = createApolloFetch({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  });
-  const checks = await Promise.allSettled([
-    apolloSubgraphFetch({
-      query: `{ _meta { hasIndexingErrors } }`,
-    }),
-  ]);
+import { getApollo, MetaDocument, MetaQuery } from "../../apollo";
 
-  const subgraphOk =
-    checks[0].status === "fulfilled" &&
-    checks[0].value.data._meta.hasIndexingErrors === false;
+const health = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const method = req.method;
+    if (method !== "GET") {
+      res.setHeader("Allow", "GET");
+      return res.status(405).end(`Method ${method} Not Allowed`);
+    }
 
-  const allHealthy = subgraphOk;
+    const client = getApollo();
+    const apolloSubgraphFetch = client.query<MetaQuery>({
+      query: MetaDocument,
+    });
+    const checks = await Promise.allSettled([apolloSubgraphFetch]);
 
-  const response = {
-    status: allHealthy ? "healthy" : "degraded",
-    timestamp: new Date().toISOString(),
-    checks: {
-      subgraph: subgraphOk ? "ok" : "error",
-    },
-  };
+    const subgraphOk =
+      checks[0].status === "fulfilled" &&
+      checks[0].value.data._meta &&
+      checks[0].value.data._meta.hasIndexingErrors === false;
 
-  return res.status(allHealthy ? 200 : 503).json(response);
+    const allHealthy = subgraphOk;
+
+    const response = {
+      status: allHealthy ? "healthy" : "degraded",
+      timestamp: new Date().toISOString(),
+      checks: {
+        subgraph: subgraphOk ? "ok" : "error",
+      },
+    };
+
+    return res.status(allHealthy ? 200 : 503).json(response);
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      timestamp: new Date().toISOString(),
+      error: (error as Error).message,
+    });
+  }
 };
 
 export default health;
