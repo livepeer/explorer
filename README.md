@@ -85,14 +85,6 @@ To run the application in production mode, follow these steps:
 | `NEXT_PUBLIC_METRICS_SERVER_URL`        | The Transcoding performance API server used by Explorer.                                                                                                                                                          |
 | `NEXT_PUBLIC_AI_METRICS_SERVER_URL`     | The AI performance API server used by Explorer.                                                                                                                                                                   |
 
-## Developing on Arbitrum Rinkeby
-
-To develop on the Arbitrum Rinkeby network, set the `NEXT_PUBLIC_NETWORK` variable to `ARBITRUM_RINKEBY` in your `.env` file:
-
-```env
-NEXT_PUBLIC_NETWORK=ARBITRUM_RINKEBY
-```
-
 ## Testing LIPs
 
 To test Livepeer Improvement Proposals (LIPs), follow these steps:
