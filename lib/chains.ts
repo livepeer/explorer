@@ -106,13 +106,13 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  */
 export const NETWORK_RPC_URLS = {
   [chain.mainnet.id]: [
-    process.env.NEXT_PUBLIC_L1_RPC_URL,
     `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+    process.env.NEXT_PUBLIC_L1_RPC_URL,
   ].filter(Boolean) as string[],
 
   [chain.arbitrum.id]: [
-    process.env.NEXT_PUBLIC_L2_RPC_URL,
     `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
+    process.env.NEXT_PUBLIC_L2_RPC_URL,
   ].filter(Boolean) as string[],
 };
 
