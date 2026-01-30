@@ -61,3 +61,19 @@ export const EnsNameSchema = z
 export const EnsIdentityArraySchema = z.array(EnsIdentitySchema);
 
 export const EnsAvatarResultSchema = z.string().nullable();
+
+/**
+ * Schema for ENS text record responses from provider
+ * Validates that text records are strings (or null if not set)
+ */
+export const EnsTextRecordSchema = z.string().nullable();
+
+/**
+ * Schema for ENS avatar response from provider
+ * Validates the avatar object structure returned by getAvatar()
+ */
+export const EnsAvatarProviderSchema = z
+  .object({
+    url: z.string(),
+  })
+  .nullable();
