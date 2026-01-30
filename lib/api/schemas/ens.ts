@@ -57,3 +57,17 @@ export const EnsNameSchema = z
  * Schema for array of ENS identities
  */
 export const EnsIdentityArraySchema = z.array(EnsIdentitySchema);
+
+export const EnsAvatarResultSchema = z.string().nullable();
+
+export const AvatarUrlSchema = z.string().refine(
+  (val) => {
+    try {
+      new URL(val); // Use native URL constructor as primary check
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "Invalid URL format" }
+);

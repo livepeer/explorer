@@ -5,7 +5,11 @@ import {
   notFound,
   validateInput,
 } from "@lib/api/errors";
-import { EnsNameSchema } from "@lib/api/schemas";
+import {
+  AvatarUrlSchema,
+  EnsAvatarResultSchema,
+  EnsNameSchema,
+} from "@lib/api/schemas";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -37,9 +41,20 @@ const handler = async (
       const validatedName = nameResult.data;
 
       try {
-        const avatar = await l1PublicClient.getEnsAvatar({
+        const rawAvatar = await l1PublicClient.getEnsAvatar({
           name: normalize(validatedName),
         });
+
+        const avatarValidation = EnsAvatarResultSchema.safeParse(rawAvatar);
+
+        if (!avatarValidation.success) {
+          return internalError(
+            res,
+            new Error("Invalid avatar data from RPC provider")
+          );
+        }
+
+        const avatar = avatarValidation.data;
 
         const cid = parseCid(avatar);
         const arweaveId = parseArweaveTxId(avatar);
@@ -52,7 +67,14 @@ const handler = async (
           ? avatar
           : `https://metadata.ens.domains/mainnet/avatar/${validatedName}`;
 
-        const response = await fetch(imageUrl);
+        // Extra validation to prevent SSRF - Server Side Request Forgery
+        const urlValidation = AvatarUrlSchema.safeParse(imageUrl);
+
+        if (!urlValidation.success) {
+          return notFound(res, "Invalid or missing ENS avatar URL");
+        }
+
+        const response = await fetch(urlValidation.data);
 
         const arrayBuffer = await response.arrayBuffer();
 
