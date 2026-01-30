@@ -19,7 +19,7 @@ const health = async (req: NextApiRequest, res: NextApiResponse) => {
     const subgraphOk =
       checks[0].status === "fulfilled" &&
       checks[0].value.data._meta &&
-      checks[0].value.data._meta.hasIndexingErrors === false;
+      checks[0].value.data._meta?.hasIndexingErrors === false;
 
     const allHealthy = subgraphOk;
 
