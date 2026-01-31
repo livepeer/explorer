@@ -120,19 +120,19 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             delegate={lock.delegate.id}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
-                              delegator={delegator}
-                              currentRound={currentRound}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         )}
                       </Flex>
                     )}
                     <Box
                       css={{
-                        alignSelf: "flex-end",
+                        alignSelf: "flex-start",
                         fontWeight: 700,
                         marginTop: "$1",
                         "@bp2": {
-                          alignSelf: "auto",
+                          alignSelf: "center",
                           fontWeight: 400,
                           marginLeft: "$4",
                           marginTop: 0,
@@ -234,24 +234,20 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             delegate={lock.delegate.id}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
-                              delegator={delegator}
-                              currentRound={currentRound}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         )}
-                        <WithdrawStake
-                          unbondingLockId={lock.unbondingLockId}
-                          delegator={delegator}
-                          currentRound={currentRound}
-                        />
+                        <WithdrawStake unbondingLockId={lock.unbondingLockId} />
                       </Flex>
                     )}
                     <Box
                       css={{
-                        alignSelf: "flex-end",
+                        alignSelf: "flex-start",
                         fontWeight: 700,
                         marginTop: "$1",
                         "@bp2": {
-                          alignSelf: "auto",
+                          alignSelf: "flex-end",
                           fontWeight: 400,
                           marginLeft: "$4",
                           marginTop: 0,

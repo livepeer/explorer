@@ -1,11 +1,13 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@livepeer/design-system";
+import { Box, Button, Flex } from "@livepeer/design-system";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useDelegationReview } from "hooks/useDelegationReview";
-import DelegationReview from "../DelegationReview";
+import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useSimulateContract, useWriteContract } from "wagmi";
+
+import { ExplorerTooltip } from "../ExplorerTooltip";
 
 const Index = ({
   unbondingLockId,
@@ -15,10 +17,10 @@ const Index = ({
   delegator,
   currentRound,
 }) => {
-  const { warnings } = useDelegationReview({
-    action: "transfer",
+  const { delegationWarning } = useDelegationReview({
     delegator,
     currentRound,
+    action: "redelegateFromUndelegated",
   });
   const accountAddress = useAccountAddress();
 
@@ -52,14 +54,20 @@ const Index = ({
   }
 
   return (
-    <>
-      <DelegationReview warnings={warnings} />
+    <Flex
+      css={{
+        gap: "$2",
+        alignItems: "center",
+        flexDirection: "row-reverse",
+        "@bp2": {
+          flexDirection: "row",
+        },
+      }}
+    >
       <Button
         css={{
-          marginRight: "$3",
-          width: "100%",
           "@bp2": {
-            width: "auto",
+            marginRight: "$3",
           },
         }}
         disabled={!config}
@@ -69,7 +77,20 @@ const Index = ({
       >
         Redelegate
       </Button>
-    </>
+      {delegationWarning && (
+        <ExplorerTooltip content={delegationWarning} multiline>
+          <Box
+            css={{
+              display: "inline-flex",
+              color: "$yellow11",
+              cursor: "help",
+            }}
+          >
+            <ExclamationTriangleIcon width={18} height={18} />
+          </Box>
+        </ExplorerTooltip>
+      )}
+    </Flex>
   );
 };
 

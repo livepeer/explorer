@@ -11,15 +11,16 @@ import {
   StakingAction,
   useAccountAddress,
   useAccountBalanceData,
-  usePendingFeesAndStakeData,
   useDelegationReview,
+  usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo } from "react";
+import { parseEther } from "viem";
+
 import DelegationReview from "../DelegationReview";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
-import { parseEther } from "viem";
 
 type FooterData = {
   isTransferStake: boolean;
@@ -70,19 +71,21 @@ const Footer = ({
   );
   const accountBalance = useAccountBalanceData(accountAddress);
 
-  const tokenBalance = useMemo(() => accountBalance?.balance, [accountBalance]);
-  const transferAllowance = useMemo(
-    () => accountBalance?.allowance,
-    [accountBalance]
-  );
+  const tokenBalance = accountBalance?.balance;
+  const transferAllowance = accountBalance?.allowance;
   const delegatorStatus = useMemo(
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
-  const { warnings } = useDelegationReview({
-    action: action || "delegate",
+  const { delegationWarning } = useDelegationReview({
     delegator,
     currentRound,
+    action: isTransferStake
+      ? "moveStake"
+      : action === "delegate"
+      ? "delegate"
+      : "undelegate",
+    targetOrchestrator: action === "delegate" ? transcoder : undefined,
   });
   const stakeWei = useMemo(
     () =>
@@ -167,7 +170,6 @@ const Footer = ({
   if (action === "delegate") {
     return (
       <Box css={{ ...css }}>
-        <DelegationReview warnings={warnings} />
         <Delegate
           to={transcoder?.id}
           amount={amount}
@@ -182,12 +184,17 @@ const Footer = ({
             currDelegateNewPosNext: currDelegateNewPosNext,
           }}
         />
+        {delegationWarning && (isTransferStake || amount) && (
+          <DelegationReview
+            warning={delegationWarning}
+            css={{ marginTop: "$3" }}
+          />
+        )}
       </Box>
     );
   }
   return (
     <Box css={{ ...css }}>
-      <DelegationReview warnings={warnings} />
       <Undelegate
         amount={amount}
         newPosPrev={newPosPrev}
@@ -201,6 +208,12 @@ const Footer = ({
         isDelegated,
         sufficientStake,
         isMyTranscoder
+      )}
+      {delegationWarning && amount && (
+        <DelegationReview
+          warning={delegationWarning}
+          css={{ marginTop: "$3" }}
+        />
       )}
     </Box>
   );

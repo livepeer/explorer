@@ -6,50 +6,68 @@ type CurrentRound = NonNullable<
   NonNullable<AccountQueryResult["data"]>["protocol"]
 >["currentRound"];
 
+type DelegationAction =
+  | "delegate"
+  | "undelegate"
+  | "moveStake"
+  | "redelegate"
+  | "redelegateFromUndelegated"
+  | "withdrawFees";
+
 export const useDelegationReview = ({
-  action,
   delegator,
   currentRound,
+  action,
+  targetOrchestrator,
 }: {
-  action: "delegate" | "undelegate" | "transfer";
   delegator?: Delegator | null;
   currentRound?: CurrentRound | null;
+  action: DelegationAction;
+  targetOrchestrator?: { lastRewardRound?: { id: string } | null } | null;
 }) => {
-  const warnings = useMemo(() => {
-    const list: string[] = [];
-
+  const delegationWarning = useMemo(() => {
     // Safety check
-    if (!delegator || !currentRound) return list;
-
-    const isDelegated =
-      delegator?.bondedAmount && delegator?.bondedAmount !== "0";
-
-    const lastClaimRound = delegator?.lastClaimRound?.id
-      ? parseInt(delegator.lastClaimRound.id, 10)
-      : 0;
-
-    // Handle currentRound being an object or number. Types suggest it's likely an object with ID.
-    const currentRoundNum = currentRound?.id
-      ? parseInt(currentRound.id, 10)
-      : 0;
-
-    // Logic: Warn ONLY if lastClaimRound == currentRound
-    const isCurrentRoundClaim = lastClaimRound === currentRoundNum;
-
-    if (
-      isDelegated &&
-      (action === "undelegate" || action === "transfer") &&
-      isCurrentRoundClaim
-    ) {
-      list.push(
-        "You will lose all rewards for the current round if you proceed."
-      );
+    if (!delegator || !currentRound) {
+      return null;
     }
 
-    return list;
-  }, [action, delegator, currentRound]);
+    const isDelegated =
+      delegator.bondedAmount && delegator.bondedAmount !== "0";
+
+    // Get orchestrator's last reward round
+    // Use targetOrchestrator if provided (for moving stake), otherwise use current delegate
+    const orchestratorToCheck = targetOrchestrator || delegator.delegate;
+    const orchestratorLastRewardRound = orchestratorToCheck?.lastRewardRound?.id
+      ? parseInt(orchestratorToCheck.lastRewardRound.id, 10)
+      : 0;
+
+    const currentRoundNum = currentRound.id ? parseInt(currentRound.id, 10) : 0;
+
+    // Per LIP-36: Warn if orchestrator hasn't called reward() yet this round
+    // This affects bond(), unbond(), rebond(), rebondFromUnbonded(), and withdrawFees()
+    // Only warn if we have valid delegate data to avoid false positives
+    const orchestratorHasntCalledReward =
+      isDelegated &&
+      orchestratorToCheck?.lastRewardRound?.id &&
+      orchestratorLastRewardRound < currentRoundNum;
+
+    if (!orchestratorHasntCalledReward) {
+      return null;
+    }
+
+    // Action-specific warning messages
+    switch (action) {
+      case "redelegate":
+        return "Rebonding will forfeit rewards and fees for the current round on your entire stake.";
+      case "moveStake":
+      case "redelegateFromUndelegated":
+        return "Moving stake to a different orchestrator will forfeit rewards and fees for the current round.";
+      default:
+        return "Performing this action before your orchestrator calls reward will forfeit rewards and fees for the current round.";
+    }
+  }, [delegator, currentRound, action, targetOrchestrator]);
 
   return {
-    warnings,
+    delegationWarning,
   };
 };
