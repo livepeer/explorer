@@ -20,6 +20,11 @@ const Pagination = ({
   onNext,
   css,
 }: PaginationProps) => {
+  // Don't render pagination when there are no pages
+  if (totalPages === 0) {
+    return null;
+  }
+
   return (
     <Flex
       css={{
