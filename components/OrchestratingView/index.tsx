@@ -75,10 +75,6 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
     skip: !firstActivationRound,
   });
 
-  console.log(transcoder);
-  console.log(treasuryVotesData);
-  console.log(eligebleProposalsData);
-
   const govStats = useMemo(() => {
     if (!treasuryVotesData || !eligebleProposalsData) return null;
     return {

@@ -9681,13 +9681,6 @@ export type TreasuryProposalsQueryVariables = Exact<{
 
 export type TreasuryProposalsQuery = { __typename: 'Query', treasuryProposals: Array<{ __typename: 'TreasuryProposal', id: string, description: string, calldatas: Array<any>, targets: Array<string>, values: Array<string>, voteEnd: string, voteStart: string, proposer: { __typename: 'LivepeerAccount', id: string } }> };
 
-export type GetProposalsByIdsQueryVariables = Exact<{
-  ids: Array<Scalars['ID']> | Scalars['ID'];
-}>;
-
-
-export type GetProposalsByIdsQuery = { __typename: 'Query', treasuryProposals: Array<{ __typename: 'TreasuryProposal', id: string, description: string, voteStart: string, voteEnd: string }> };
-
 export type TreasuryVoteEventsQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<TreasuryVoteEvent_Filter>;
@@ -9709,13 +9702,6 @@ export type VoteQueryVariables = Exact<{
 
 
 export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string } | null };
-
-export type VoteEventsQueryVariables = Exact<{
-  where?: InputMaybe<VoteEvent_Filter>;
-}>;
-
-
-export type VoteEventsQuery = { __typename: 'Query', voteEvents: Array<{ __typename: 'VoteEvent', voter: string, choiceID: string, id: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, round: { __typename: 'Round', id: string } }> };
 
 
 export const AccountDocument = gql`
@@ -10782,44 +10768,6 @@ export function useTreasuryProposalsLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type TreasuryProposalsQueryHookResult = ReturnType<typeof useTreasuryProposalsQuery>;
 export type TreasuryProposalsLazyQueryHookResult = ReturnType<typeof useTreasuryProposalsLazyQuery>;
 export type TreasuryProposalsQueryResult = Apollo.QueryResult<TreasuryProposalsQuery, TreasuryProposalsQueryVariables>;
-export const GetProposalsByIdsDocument = gql`
-    query getProposalsByIds($ids: [ID!]!) {
-  treasuryProposals(where: {id_in: $ids}) {
-    id
-    description
-    voteStart
-    voteEnd
-  }
-}
-    `;
-
-/**
- * __useGetProposalsByIdsQuery__
- *
- * To run a query within a React component, call `useGetProposalsByIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetProposalsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetProposalsByIdsQuery({
- *   variables: {
- *      ids: // value for 'ids'
- *   },
- * });
- */
-export function useGetProposalsByIdsQuery(baseOptions: Apollo.QueryHookOptions<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>(GetProposalsByIdsDocument, options);
-      }
-export function useGetProposalsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>(GetProposalsByIdsDocument, options);
-        }
-export type GetProposalsByIdsQueryHookResult = ReturnType<typeof useGetProposalsByIdsQuery>;
-export type GetProposalsByIdsLazyQueryHookResult = ReturnType<typeof useGetProposalsByIdsLazyQuery>;
-export type GetProposalsByIdsQueryResult = Apollo.QueryResult<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>;
 export const TreasuryVoteEventsDocument = gql`
     query treasuryVoteEvents($first: Int, $where: TreasuryVoteEvent_filter) {
   treasuryVoteEvents(
@@ -10968,55 +10916,3 @@ export function useVoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteQ
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;
 export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
-export const VoteEventsDocument = gql`
-    query voteEvents($where: VoteEvent_filter) {
-  voteEvents(where: $where) {
-    voter
-    poll {
-      id
-      proposal
-      endBlock
-      quorum
-      quota
-    }
-    transaction {
-      id
-      timestamp
-    }
-    choiceID
-    id
-    round {
-      id
-    }
-    timestamp
-  }
-}
-    `;
-
-/**
- * __useVoteEventsQuery__
- *
- * To run a query within a React component, call `useVoteEventsQuery` and pass it any options that fit your needs.
- * When your component renders, `useVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVoteEventsQuery({
- *   variables: {
- *      where: // value for 'where'
- *   },
- * });
- */
-export function useVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
-      }
-export function useVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
-        }
-export type VoteEventsQueryHookResult = ReturnType<typeof useVoteEventsQuery>;
-export type VoteEventsLazyQueryHookResult = ReturnType<typeof useVoteEventsLazyQuery>;
-export type VoteEventsQueryResult = Apollo.QueryResult<VoteEventsQuery, VoteEventsQueryVariables>;

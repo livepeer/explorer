@@ -1,8 +1,0 @@
-query getProposalsByIds($ids: [ID!]!) {
-  treasuryProposals(where: { id_in: $ids }) {
-    id
-    description
-    voteStart
-    voteEnd
-  }
-}
