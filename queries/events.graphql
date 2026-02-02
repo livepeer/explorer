@@ -1,5 +1,10 @@
 query events($first: Int) {
-  transactions(first: $first, orderBy: timestamp, orderDirection: desc) {
+  transactions(
+    first: $first
+    orderBy: timestamp
+    orderDirection: desc
+    where: { timestamp_lt: 1768380104 }
+  ) {
     events {
       __typename
       round {
@@ -187,6 +192,13 @@ query events($first: Int) {
         # delegate
         stake
         fees
+      }
+      ... on TreasuryVoteEvent {
+        support
+        proposal {
+          id
+          description
+        }
       }
     }
   }

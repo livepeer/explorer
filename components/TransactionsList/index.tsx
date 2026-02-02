@@ -5,11 +5,7 @@ import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
-import {
-  EventsQueryResult,
-  TreasuryProposal,
-  useTreasuryVoteEventsQuery,
-} from "apollo";
+import { EventsQueryResult, TreasuryProposal } from "apollo";
 import { sentenceCase } from "change-case";
 import numbro from "numbro";
 import { useCallback, useMemo } from "react";
@@ -67,46 +63,6 @@ const renderEmoji = (emoji: string) => (
   </Box>
 );
 
-const TreasuryVoteEvent = (props: {
-  event: NonNullable<
-    NonNullable<EventsQueryResult["data"]>["transactions"][number]["events"]
-  >[number];
-}) => {
-  const { event } = props;
-  const { data: treasuryVoteEventsData } = useTreasuryVoteEventsQuery({
-    variables: {
-      where: {
-        transaction: event?.transaction?.id,
-      },
-    },
-  });
-  const treasuryVoteEvent = treasuryVoteEventsData?.treasuryVoteEvents[0];
-  if (!treasuryVoteEvent) {
-    return <Box>{`Error fetching treasury vote event information.`}</Box>;
-  }
-  const support = VOTING_SUPPORT_MAP[treasuryVoteEvent.support];
-  const title = parseProposalText(
-    treasuryVoteEvent.proposal as TreasuryProposal
-  ).attributes.title;
-
-  return (
-    <Box>
-      Voted{" "}
-      <Badge
-        css={{
-          ...support.style,
-        }}
-        size="1"
-      >
-        &quot;{support.text}&quot;
-      </Badge>{" "}
-      on{" "}
-      <Box as={A} href={`/treasury/${treasuryVoteEvent.proposal?.id}`}>
-        {title}
-      </Box>
-    </Box>
-  );
-};
 const TransactionsList = ({
   events,
   pageSize = 10,
@@ -443,9 +399,24 @@ const TransactionsList = ({
               {` from L1 Ethereum`}
             </Box>
           );
-        case "TreasuryVoteEvent":
-          return <TreasuryVoteEvent event={event} />;
+        case "TreasuryVoteEvent": {
+          const support = VOTING_SUPPORT_MAP[event.support];
+          const title = parseProposalText(event.proposal as TreasuryProposal)
+            .attributes.title;
 
+          return (
+            <Box>
+              Voted{" "}
+              <Badge css={{ ...support.style }} size="1">
+                &quot;{support.text}&quot;
+              </Badge>{" "}
+              on{" "}
+              <Box as={A} href={`/treasury/${event.proposal?.id}`}>
+                {title}
+              </Box>
+            </Box>
+          );
+        }
         default:
           return <Box>{`Error fetching event information.`}</Box>;
       }
