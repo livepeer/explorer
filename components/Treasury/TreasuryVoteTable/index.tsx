@@ -1,5 +1,4 @@
 import Spinner from "@components/Spinner";
-import TreasuryVotePopover from "@components/Treasury/TreasuryVotePopover";
 import { getEnsForVotes } from "@lib/api/ens";
 import { formatAddress, lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
@@ -7,6 +6,7 @@ import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
 import React, { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
+import TreasuryVotePopover from "./TreasuryVotePopover";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
 

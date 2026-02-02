@@ -1,5 +1,4 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
-import TreasuryVotingReason from "@components/Treasury/TreasuryVotingReason";
 import VoteButton from "@components/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
@@ -17,6 +16,8 @@ import Link, { LinkProps } from "next/link";
 import { useMemo, useState } from "react";
 import { formatPercent } from "utils/voting";
 import { zeroAddress } from "viem";
+
+import TreasuryVotingReason from "./TreasuryVotingReason";
 
 type Props = {
   proposal: ProposalExtended;

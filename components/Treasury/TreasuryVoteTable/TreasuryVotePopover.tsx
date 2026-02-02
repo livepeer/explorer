@@ -9,8 +9,8 @@ import {
 } from "apollo";
 import React from "react";
 
-import TreasuryVoteDetail from "../TreasuryVoteDetail";
-import TreasuryVoteHistoryModal from "../TreasuryVoteHistoryModal";
+import TreasuryVoteDetail from "./TreasuryVoteDetail";
+import TreasuryVoteHistoryModal from "./TreasuryVoteHistoryModal";
 
 interface TreasuryVotePopoverProps {
   voter: string;

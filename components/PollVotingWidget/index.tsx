@@ -25,8 +25,8 @@ import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { formatPercent, getVotingPower } from "utils/voting";
 
-import Check from "../../../public/img/check.svg";
-import Copy from "../../../public/img/copy.svg";
+import Check from "../../public/img/check.svg";
+import Copy from "../../public/img/copy.svg";
 
 type Props = {
   poll: PollExtended;

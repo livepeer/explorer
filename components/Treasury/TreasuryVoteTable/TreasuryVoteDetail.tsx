@@ -1,4 +1,3 @@
-import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
@@ -14,6 +13,8 @@ import {
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { TreasuryVoteEvent, TreasuryVoteSupport } from "apollo";
 import React, { useState } from "react";
+
+import TransactionBadge from "./TransactionBadge";
 
 interface TreasuryVoteDetailProps {
   vote: TreasuryVoteEvent;
