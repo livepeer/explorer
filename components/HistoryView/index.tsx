@@ -1,6 +1,6 @@
 import Spinner from "@components/Spinner";
 import TransactionBadge from "@components/TransactionBadge";
-import { Fm } from "@lib/api/polls";
+import { Fm, parsePollIpfs } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
@@ -20,7 +20,7 @@ import {
   useTransactionsQuery,
   VoteEvent,
 } from "apollo";
-import fm from "front-matter";
+import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
@@ -85,6 +85,7 @@ const Index = () => {
     (VoteEvent & { attributes: Fm | null })[]
   >([]);
   useEffect(() => {
+    // Enrich poll vote events with parsed IPFS proposal metadata.
     const getExtendedVoteEventsData = async () => {
       const newVoteEvents = events
         .filter(isVoteEvent)
@@ -94,20 +95,7 @@ const Index = () => {
           const ipfsObject = await catIpfsJson<IpfsPoll>(
             voteEvent.poll?.proposal
           );
-          let attributes: Fm | null = null;
-
-          // only include proposals with valid format
-          if (ipfsObject?.text && ipfsObject?.gitCommitHash) {
-            const transformedProposal = fm<Fm>(ipfsObject.text);
-
-            attributes = {
-              title: String(transformedProposal.attributes.title),
-              lip: String(transformedProposal.attributes.lip),
-              commitHash: String(ipfsObject.gitCommitHash),
-              created: String(transformedProposal.attributes.created),
-              text: String(transformedProposal.body),
-            };
-          }
+          const attributes = parsePollIpfs(ipfsObject);
           return {
             ...voteEvent,
             attributes,
@@ -128,6 +116,7 @@ const Index = () => {
   const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
     useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
   useEffect(() => {
+    // Attach parsed treasury proposal attributes to treasury vote events.
     const newTreasuryVoteEvents = events
       .filter(isTreasuryVoteEvent)
       .filter(
@@ -287,7 +276,19 @@ function renderSwitch(event, i: number) {
   switch (event.__typename) {
     case "BondEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -327,7 +328,19 @@ function renderSwitch(event, i: number) {
       );
     case "NewRoundEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -360,7 +373,19 @@ function renderSwitch(event, i: number) {
       );
     case "RebondEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -400,7 +425,19 @@ function renderSwitch(event, i: number) {
       );
     case "UnbondEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -440,7 +477,19 @@ function renderSwitch(event, i: number) {
       );
     case "RewardEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -480,7 +529,19 @@ function renderSwitch(event, i: number) {
       );
     case "TranscoderUpdateEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -522,7 +583,19 @@ function renderSwitch(event, i: number) {
       );
     case "WithdrawStakeEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -559,7 +632,19 @@ function renderSwitch(event, i: number) {
       );
     case "WithdrawFeesEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -596,7 +681,19 @@ function renderSwitch(event, i: number) {
       );
     case "WinningTicketRedeemedEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -634,7 +731,19 @@ function renderSwitch(event, i: number) {
       );
     case "DepositFundedEvent":
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
@@ -677,7 +786,19 @@ function renderSwitch(event, i: number) {
         return;
       }
       return (
-        <Card key={i}>
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
           <Flex
             css={{
               width: "100%",
