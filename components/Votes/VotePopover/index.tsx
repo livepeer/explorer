@@ -1,6 +1,6 @@
 import Spinner from "@components/Spinner";
 import VoteDetail from "@components/Votes/VoteDetail";
-import VoteModal from "@components/Votes/VoteModal";
+import VoteModal from "@components/Votes/VoteHistoryModal";
 import { TREASURY_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
