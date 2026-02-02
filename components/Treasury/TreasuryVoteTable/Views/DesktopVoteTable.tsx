@@ -17,7 +17,7 @@ export type Vote = TreasuryVote & {
   timestamp?: number;
 };
 
-export interface VoteTableProps {
+export interface TreasuryVoteTableProps {
   votes: Vote[];
   formatWeight: (weight: string) => string;
   onSelect: (voter: { address: string; ensName?: string }) => void;
@@ -27,7 +27,7 @@ export interface VoteTableProps {
   onPageChange?: (page: number) => void;
 }
 
-export const DesktopVoteTable: React.FC<VoteTableProps> = ({
+export const DesktopVoteTable: React.FC<TreasuryVoteTableProps> = ({
   votes,
   formatWeight,
   onSelect,

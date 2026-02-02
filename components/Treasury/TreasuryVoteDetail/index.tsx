@@ -15,12 +15,12 @@ import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { TreasuryVoteEvent, TreasuryVoteSupport } from "apollo";
 import React, { useState } from "react";
 
-interface VoteDetailItemProps {
+interface TreasuryVoteDetailProps {
   vote: TreasuryVoteEvent;
   formatWeight: (weight: string) => string;
 }
 
-const Index: React.FC<VoteDetailItemProps> = ({ vote, formatWeight }) => {
+const Index: React.FC<TreasuryVoteDetailProps> = ({ vote, formatWeight }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||

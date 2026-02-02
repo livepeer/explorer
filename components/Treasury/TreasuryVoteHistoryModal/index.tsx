@@ -3,14 +3,14 @@ import { Cross1Icon } from "@radix-ui/react-icons";
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-interface VoteModalProps {
+interface TreasuryVoteHistoryModalProps {
   onClose: () => void;
   children: React.ReactNode;
   title?: string;
   header?: React.ReactNode;
 }
 
-const Index: React.FC<VoteModalProps> = ({
+const Index: React.FC<TreasuryVoteHistoryModalProps> = ({
   onClose,
   children,
   title,

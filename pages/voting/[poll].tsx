@@ -1,8 +1,8 @@
 import BottomDrawer from "@components/BottomDrawer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import VotingWidget from "@components/Poll/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import VotingWidget from "@components/Votes/VotingWidget";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";

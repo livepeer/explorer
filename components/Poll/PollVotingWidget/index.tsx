@@ -1,4 +1,4 @@
-import VoteButton from "@components/Votes/VoteButton";
+import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
 import { abbreviateNumber, formatAddress } from "@lib/utils";
@@ -339,14 +339,13 @@ const Index = ({ data }: { data: Props }) => {
                 </Flex>
               )}
             </Box>
-            {data.poll.status === "active" &&
-              data &&
-              renderVoteButton(
-                data?.myAccount,
-                data?.vote,
-                data?.poll,
-                pendingFeesAndStake?.pendingStake ?? ""
-              )}
+            {data.poll.status === "active" && (
+              <PollVoteButton
+                vote={data.vote}
+                poll={data.poll}
+                pendingStake={pendingFeesAndStake?.pendingStake ?? ""}
+              />
+            )}
           </Box>
         ) : (
           <Box
@@ -513,12 +512,15 @@ const Index = ({ data }: { data: Props }) => {
 
 export default Index;
 
-function renderVoteButton(
-  myAccount: Props["myAccount"],
-  vote: Props["vote"],
-  poll: Props["poll"],
-  pendingStake: string
-) {
+function PollVoteButton({
+  vote,
+  poll,
+  pendingStake,
+}: {
+  vote: Props["vote"];
+  poll: Props["poll"];
+  pendingStake: string;
+}) {
   switch (vote?.choiceID) {
     case "Yes":
       return (

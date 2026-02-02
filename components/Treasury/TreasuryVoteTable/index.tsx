@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import VoterPopover from "@components/Votes/VotePopover";
+import TreasuryVotePopover from "@components/Treasury/TreasuryVotePopover";
 import { getEnsForVotes } from "@lib/api/ens";
 import { formatAddress, lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
@@ -10,7 +10,7 @@ import { useWindowSize } from "react-use";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
 
-interface VoteTableProps {
+interface TreasuryVoteTableProps {
   proposalId: string;
 }
 
@@ -107,7 +107,7 @@ const useVotes = (proposalId: string) => {
   };
 };
 
-const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
+const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
   const { width } = useWindowSize();
   const isDesktop = width >= 900;
 
@@ -189,7 +189,7 @@ const Index: React.FC<VoteTableProps> = ({ proposalId }) => {
         />
       )}
       {selectedVoter && (
-        <VoterPopover
+        <TreasuryVotePopover
           voter={selectedVoter.address}
           ensName={selectedVoter.ensName}
           onClose={() => setSelectedVoter(null)}

@@ -1,6 +1,4 @@
 import Spinner from "@components/Spinner";
-import VoteDetail from "@components/Votes/VoteDetail";
-import VoteModal from "@components/Votes/VoteHistoryModal";
 import { TREASURY_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
@@ -11,14 +9,17 @@ import {
 } from "apollo";
 import React from "react";
 
-interface VoterPopoverProps {
+import TreasuryVoteDetail from "../TreasuryVoteDetail";
+import TreasuryVoteHistoryModal from "../TreasuryVoteHistoryModal";
+
+interface TreasuryVotePopoverProps {
   voter: string;
   ensName?: string;
   onClose: () => void;
   formatWeight: (weight: string) => string;
 }
 
-const Index: React.FC<VoterPopoverProps> = ({
+const Index: React.FC<TreasuryVotePopoverProps> = ({
   voter,
   ensName,
   onClose,
@@ -189,7 +190,11 @@ const Index: React.FC<VoterPopoverProps> = ({
   }, [stats, voter, ensName]);
 
   return (
-    <VoteModal onClose={onClose} title="Voting History" header={summaryHeader}>
+    <TreasuryVoteHistoryModal
+      onClose={onClose}
+      title="Voting History"
+      header={summaryHeader}
+    >
       {isLoading ? (
         <Flex
           css={{
@@ -226,7 +231,7 @@ const Index: React.FC<VoterPopoverProps> = ({
               key={vote.transaction.id ?? idx}
               css={{ position: "relative" }}
             >
-              <VoteDetail
+              <TreasuryVoteDetail
                 vote={vote as TreasuryVoteEvent}
                 formatWeight={formatWeight}
               />
@@ -240,7 +245,7 @@ const Index: React.FC<VoterPopoverProps> = ({
           No votes found for this voter.
         </Text>
       )}
-    </VoteModal>
+    </TreasuryVoteHistoryModal>
   );
 };
 

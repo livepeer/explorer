@@ -2,10 +2,10 @@ import Pagination from "@components/Table/Pagination";
 import { Box, Text } from "@livepeer/design-system";
 import React from "react";
 
-import { VoteTableProps } from "./DesktopVoteTable";
+import { TreasuryVoteTableProps } from "./DesktopVoteTable";
 import { VoteView } from "./VoteItem";
 
-export const MobileVoteCards: React.FC<VoteTableProps> = (props) => {
+export const MobileVoteCards: React.FC<TreasuryVoteTableProps> = (props) => {
   const {
     votes,
     formatWeight,

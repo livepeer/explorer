@@ -1,6 +1,6 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
-import TreasuryVotingReason from "@components/TreasuryVotingReason";
-import VoteButton from "@components/Votes/VoteButton";
+import TreasuryVotingReason from "@components/Treasury/TreasuryVotingReason";
+import VoteButton from "@components/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";

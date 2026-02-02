@@ -3,9 +3,9 @@ import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
+import TreasuryVoteTable from "@components/Treasury/TreasuryVoteTable";
+import TreasuryVotingWidget from "@components/Treasury/TreasuryVotingWidget";
 import { BadgeVariantByState } from "@components/TreasuryProposalRow";
-import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
-import VoteTable from "@components/Votes/VoteTable";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
@@ -143,7 +143,7 @@ const Proposal = () => {
       );
     }
     if (!votes?.treasuryVotes?.length) return <Text>No votes yet.</Text>;
-    return <VoteTable proposalId={proposal!.id} />;
+    return <TreasuryVoteTable proposalId={proposal!.id} />;
   }, [votesLoading, votes?.treasuryVotes?.length, proposal]);
 
   const actions = useMemo(() => {
