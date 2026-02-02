@@ -20,6 +20,8 @@ const Pagination = ({
   onNext,
   css,
 }: PaginationProps) => {
+  if (totalPages <= 0) return null;
+
   return (
     <Flex
       css={{
@@ -31,8 +33,12 @@ const Pagination = ({
       }}
     >
       <Box
-        as={ArrowLeftIcon}
+        aria-label="Previous Page"
+        as="button"
+        type="button"
         css={{
+          background: "none",
+          border: "none",
           cursor: "pointer",
           color: canPrevious ? "$primary11" : "$hiContrast",
           opacity: canPrevious ? 1 : 0.5,
@@ -42,14 +48,20 @@ const Pagination = ({
             onPrevious();
           }
         }}
-      />
+      >
+        <ArrowLeftIcon />
+      </Box>
       <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
         Page <Box as="span">{currentPage}</Box> of{" "}
         <Box as="span">{totalPages}</Box>
       </Box>
       <Box
-        as={ArrowRightIcon}
+        aria-label="Next Page"
+        as="button"
+        type="button"
         css={{
+          background: "none",
+          border: "none",
           cursor: "pointer",
           color: canNext ? "$primary11" : "$hiContrast",
           opacity: canNext ? 1 : 0.5,
@@ -59,7 +71,9 @@ const Pagination = ({
             onNext();
           }
         }}
-      />
+      >
+        <ArrowRightIcon />
+      </Box>
     </Flex>
   );
 };
