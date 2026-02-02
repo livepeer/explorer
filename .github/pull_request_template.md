@@ -27,7 +27,8 @@ Link issues this PR addresses.
 Use "Closes #123" or "Fixes #123" to auto-close issues on merge.
 -->
 
-Closes #
+Related: #
+Closes: # (only if it should auto-close)
 
 ## Changes Made
 
@@ -48,11 +49,22 @@ Keep this high-level and scannable.
 - [ ] Added/updated tests
 - [ ] All tests passing
 
-### Test Notes (optional)
+### How to test (optional unless test is not trivial)
 
 <!--
 Describe how this was tested, edge cases covered, or things reviewers should try.
 -->
+
+## Impact / Risk
+<!-- Required for all non-trivial PRs. Helps reviewers understand blast radius and safety. -->
+
+Risk level: Low / Medium / High
+
+Impacted areas: UI / API / DB / Infra / Config / ...
+
+User impact: What changes for users (if any)?
+
+Rollback plan: How to revert safely if this breaks (PR revert, flag off, config change, etc.)
 
 ## Screenshots / Recordings (if applicable)
 
