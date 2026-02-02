@@ -14,6 +14,7 @@ import {
   styled,
 } from "@livepeer/design-system";
 import {
+  TransactionsQuery,
   TreasuryVoteEvent,
   TreasuryVoteSupport,
   useTransactionsQuery,
@@ -64,6 +65,16 @@ const Index = () => {
     return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
   }, [data]);
 
+  type TransactionEvent = NonNullable<
+    TransactionsQuery["transactions"][number]["events"]
+  >[number];
+  const isType =
+    <T extends TransactionEvent["__typename"]>(t: T) =>
+    (e: TransactionEvent): e is Extract<TransactionEvent, { __typename: T }> =>
+      e.__typename === t;
+  const isVoteEvent = isType("VoteEvent");
+  const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
+
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
@@ -76,7 +87,7 @@ const Index = () => {
   useEffect(() => {
     const getExtendedVoteEventsData = async () => {
       const newVoteEvents = events
-        .filter((e) => e.__typename === "VoteEvent")
+        .filter(isVoteEvent)
         .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
       const newExtendedVoteEventsData = await Promise.all(
         newVoteEvents.map(async (voteEvent) => {
@@ -118,13 +129,12 @@ const Index = () => {
     useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
   useEffect(() => {
     const newTreasuryVoteEvents = events
-      .filter((e) => e.__typename === "TreasuryVoteEvent")
+      .filter(isTreasuryVoteEvent)
       .filter(
         (e) => !extendedTreasuryVoteEventsData.find((te) => te.id === e.id)
       );
-    const newExtendedTreasureVoteEventsData = newTreasuryVoteEvents
-      .filter((e) => e.__typename === "TreasuryVoteEvent")
-      .map((treasuryVoteEvent) => {
+    const newExtendedTreasureVoteEventsData = newTreasuryVoteEvents.map(
+      (treasuryVoteEvent) => {
         const parsed = parseProposalText(
           treasuryVoteEvent.proposal as Proposal
         );
@@ -132,7 +142,8 @@ const Index = () => {
           ...treasuryVoteEvent,
           attributes: parsed.attributes,
         };
-      });
+      }
+    );
     setExtendedTreasuryVoteEventsData(
       (current) =>
         [
