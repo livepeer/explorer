@@ -63,16 +63,23 @@ const Index = () => {
               mb: "$4",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
             }}
           >
-            Confirmed
             <Badge
               variant="primary"
-              size="1"
-              css={{ display: "flex", alignItems: "center" }}
+              size="2"
+              css={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: "$5",
+                paddingLeft: "$3",
+                paddingRight: "$3",
+                paddingTop: "$4",
+                paddingBottom: "$4",
+              }}
             >
-              <CheckIcon />
+              <CheckIcon width={20} height={20} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
