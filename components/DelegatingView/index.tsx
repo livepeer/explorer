@@ -99,7 +99,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     () => Math.abs(pendingFees) + Math.abs(+(delegator?.withdrawnFees ?? 0)),
     [delegator, pendingFees]
   );
-  const withdrawButtonDisabled = false; // TEMP: disabled for testing
+  const withdrawButtonDisabled = useMemo(
+    () => pendingFees === 0,
+    [pendingFees]
+  );
 
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
