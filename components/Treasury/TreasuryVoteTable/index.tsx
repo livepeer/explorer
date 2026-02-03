@@ -10,6 +10,9 @@ import { useWindowSize } from "react-use";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
 
+// Module-level cache to avoid repeated ENS lookups across renders/navigations
+const ensCache: Record<string, string> = {};
+
 interface TreasuryVoteTableProps {
   proposalId: string;
 }
@@ -25,6 +28,7 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const {
@@ -38,6 +42,7 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const [votes, setVotes] = useState<Vote[]>([]);
@@ -62,6 +67,11 @@ const useVotes = (proposalId: string) => {
             if (localEnsCache[address]) {
               return;
             }
+            if (ensCache[address]) {
+              localEnsCache[address] = ensCache[address];
+              return;
+            }
+
             const ensAddress = await getEnsForVotes(address);
 
             if (ensAddress && ensAddress.name) {
@@ -69,6 +79,7 @@ const useVotes = (proposalId: string) => {
             } else {
               localEnsCache[address] = formatAddress(address);
             }
+            ensCache[address] = localEnsCache[address];
           } catch (e) {
             console.warn(`Failed to fetch ENS for ${address}`, e);
           }
