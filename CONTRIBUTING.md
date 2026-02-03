@@ -20,7 +20,7 @@ As best as possible, try to follow Conventional Commit patterns as described [he
 
 ### Code Conventions
 
-Many style conventions are enforced by a combination of ESLint and Prettier. These tools run automatically during the commit phase via a `husky` and are rechecked in the CI pipeline.  
+Many style conventions are enforced by a combination of ESLint and Prettier. These tools run automatically during the commit phase via `husky` hooks and are rechecked in the CI pipeline.  
 Additional conventions, not yet enforced at the time of writing, include:
 
 #### JSDoc
@@ -37,7 +37,7 @@ In general, PRs should:
 
 In general, we follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr)
 
-1. Fork the repository to your own Github account
+1. Fork the repository to your own GitHub account
 2. Clone the project to your machine
 3. Create a branch locally with a succinct but descriptive name
 4. Commit changes to the branch (see Commits instructions)
