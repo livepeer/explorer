@@ -2,15 +2,9 @@ import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import {
-  AccountQueryResult,
-  OrderDirection,
-  TranscoderActivatedEvent_OrderBy,
-  useTranscoderActivatedEventsQuery,
-  useTreasuryProposalsQuery,
-  useTreasuryVotesQuery,
-} from "apollo";
+import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
+import { useGovernanceParticipation } from "hooks/useGovernanceParticipation";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
 import numbro from "numbro";
@@ -40,48 +34,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
-
-  const { data: firstTranscoderActivatedEventsData } =
-    useTranscoderActivatedEventsQuery({
-      variables: {
-        where: {
-          delegate: transcoder?.id,
-        },
-        first: 1,
-        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
-        orderDirection: OrderDirection.Asc,
-      },
-    });
-
-  const firstActivationRound = useMemo(() => {
-    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
-      ?.activationRound;
-  }, [firstTranscoderActivatedEventsData]);
-
-  const { data: treasuryVotesData } = useTreasuryVotesQuery({
-    variables: {
-      where: {
-        voter: transcoder?.id,
-      },
-    },
-  });
-
-  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
-    variables: {
-      where: {
-        voteStart_gt: firstActivationRound,
-      },
-    },
-    skip: !firstActivationRound,
-  });
-
-  const govStats = useMemo(() => {
-    if (!treasuryVotesData || !eligebleProposalsData) return null;
-    return {
-      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
-      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
-    };
-  }, [treasuryVotesData, eligebleProposalsData]);
+  const { treasury: govStats } = useGovernanceParticipation(transcoder?.id);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -144,6 +97,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         }
       : { score: "N/A", modelText: "" };
   }, [knownRegions?.regions, maxScore]);
+
+  const govParticipation =
+    govStats && govStats.eligible > 0 ? govStats.voted / govStats.eligible : 0;
 
   return (
     <Box
@@ -389,7 +345,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                   >
                     <Box
                       css={{
-                        width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                        width: `${govParticipation * 100}%`,
                         height: "100%",
                         backgroundColor: "$primary11",
                       }}
@@ -408,7 +364,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                       size="2"
                       css={{ color: "$neutral11", fontWeight: 600 }}
                     >
-                      {numbro(govStats.voted / govStats.eligible).format({
+                      {numbro(govParticipation).format({
                         output: "percent",
                         mantissa: 0,
                       })}{" "}
