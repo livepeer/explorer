@@ -39,11 +39,15 @@ Not all work is guaranteed to be scheduled, but the board reflects current focus
 - Larger features require oversight from appropriate stakeholders (such as the Livepeer Foundation)
 - Breaking changes should be clearly called out in the PR description
 
+## Decision-Making Process
+
+Maintenance decisions are made by the maintainers, aiming for consensus whenever possible. For controversial changes or those with broad impact, maintainers discuss options in the relevant issue or pull request. If consensus cannot be reached in a reasonable time, @rickstaa has the final say. The Livepeer Foundation, or other stakeholders, may also be called upon to provide direction.
+
 ## Releases
 
 - Releases are made on an as-needed basis
 - Patch releases may be issued for critical fixes
-- Breaking changes are documented clearly in release notes and changelogs
+- Breaking changes are documented clearly in GitHub release notes
 
 ## Project Status
 
