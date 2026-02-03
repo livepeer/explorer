@@ -12,6 +12,10 @@
 /.next/
 /out/
 
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
 # production
 /build
 

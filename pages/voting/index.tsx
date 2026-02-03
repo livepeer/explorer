@@ -210,6 +210,10 @@ const Voting = () => {
                           css={{
                             textTransform: "capitalize",
                             fontWeight: 700,
+                            marginBottom: "$1",
+                            "@bp2": {
+                              marginBottom: 0,
+                            },
                           }}
                         >
                           {sentenceCase(poll.status)}
