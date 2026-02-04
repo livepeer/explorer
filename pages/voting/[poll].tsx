@@ -1,6 +1,6 @@
 import BottomDrawer from "@components/BottomDrawer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
-import VotingWidget from "@components/Poll/PollVotingWidget";
+import PollVotingWidget from "@components/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
@@ -354,7 +354,7 @@ const Poll = () => {
                 },
               }}
             >
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as
@@ -381,7 +381,7 @@ const Poll = () => {
             </Flex>
           ) : (
             <BottomDrawer>
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as
