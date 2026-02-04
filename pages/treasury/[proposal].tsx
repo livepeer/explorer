@@ -666,13 +666,15 @@ const Proposal = () => {
                           </>
                         ) : (
                           <>
-                            <Text
-                              css={{ marginBottom: "0.4em" }}
-                              variant="neutral"
-                              size="3"
+                            <Badge
+                              size="1"
+                              variant="green"
+                              css={{
+                                marginBottom: "0.4em",
+                              }}
                             >
-                              Custom:
-                            </Text>
+                              Custom
+                            </Badge>
                             <Flex
                               css={{
                                 paddingLeft: "$2",
