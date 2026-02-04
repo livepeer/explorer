@@ -601,13 +601,15 @@ const Proposal = () => {
                       >
                         {action.lptTransfer ? (
                           <>
-                            <Text
-                              css={{ marginBottom: "0.4em" }}
-                              variant="neutral"
-                              size="3"
+                            <Badge
+                              size="1"
+                              variant="green"
+                              css={{
+                                marginBottom: "0.4em",
+                              }}
                             >
-                              LPT Transfer:
-                            </Text>
+                              LPT Transfer
+                            </Badge>
                             <Flex
                               css={{
                                 paddingLeft: "$2",
