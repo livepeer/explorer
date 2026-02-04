@@ -3,11 +3,11 @@ import TreasuryVotingReason from "@components/TreasuryVotingReason";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
 import { InfoCircledIcon } from "@modulz/radix-icons";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import { formatAddress, fromWei } from "@utils/web3";
 import { useAccountAddress } from "hooks";
-import numbro from "numbro";
 import { useMemo, useState } from "react";
 import { zeroAddress } from "viem";
 
@@ -17,15 +17,6 @@ type Props = {
   proposal: ProposalExtended;
   vote: ProposalVotingPower | undefined | null;
 };
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 2,
-  });
-
-const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? "0"), 4);
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
@@ -234,7 +225,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
           {/* Summary line */}
           <Text css={{ fontSize: "$2", color: "$neutral11" }}>
-            {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
+            {formatVotingPower(proposal.votes.total.voters)} voted ·{" "}
             {proposal.state !== "Pending" && proposal.state !== "Active"
               ? "Final Results"
               : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
@@ -304,7 +295,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {vote?.self ? formatLPT(vote.self.votes) : "0"} LPT
+                {formatVotingPower(fromWei(vote?.self?.votes))}
               </Text>
             </Flex>
 

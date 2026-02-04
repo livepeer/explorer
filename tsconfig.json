@@ -4,7 +4,8 @@
       "@components/*": ["components/*"],
       "@layouts/*": ["layouts/*"],
       "@lib/*": ["lib/*"],
-      "@api/*": ["lib/api/*"]
+      "@api/*": ["lib/api/*"],
+      "@utils/*": ["utils/*"]
     },
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
