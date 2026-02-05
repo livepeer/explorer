@@ -257,7 +257,10 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
           {/* Summary line */}
           <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
             <Text css={{ fontSize: "$2", color: "$neutral11" }}>
-              {formatNumber(proposal.votes.total.voters, { precision: 0 })}{" "}
+              {formatNumber(proposal.votes.total.voters, {
+                precision: 0,
+                abbreviate: true,
+              })}{" "}
               voted ·{" "}
               {proposal.state !== "Pending" && proposal.state !== "Active"
                 ? "Final Results"
