@@ -4,8 +4,7 @@ import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
-
+import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import {
   formatETH,
   formatLPT,

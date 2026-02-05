@@ -1,5 +1,7 @@
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import {
   formatETH,
   formatNumber,
@@ -7,8 +9,6 @@ import {
   formatStakeAmount,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
-import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import {
   AccountQueryResult,
   OrderDirection,

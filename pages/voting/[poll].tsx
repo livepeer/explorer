@@ -17,12 +17,12 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   formatLPT,
   formatPercent,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
-import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   AccountQuery,
   PollChoice,
@@ -35,6 +35,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+
 import {
   useAccountAddress,
   useCurrentRoundData,
