@@ -8,10 +8,14 @@ import {
   Cross1Icon,
   QuestionMarkCircledIcon,
 } from "@modulz/radix-icons";
+import {
+  formatETH,
+  formatNumber,
+  formatUSD,
+} from "@utils/numberFormatters";
 import { ProtocolQueryResult } from "apollo";
 import { useCurrentRoundData } from "hooks";
 import { useTheme } from "next-themes";
-import numbro from "numbro";
 import { useMemo } from "react";
 import { buildStyles } from "react-circular-progressbar";
 
@@ -77,6 +81,12 @@ const Index = ({
       ) || 0,
     [protocol]
   );
+
+  const rewards = `${formatNumber(rewardTokensClaimed, {
+    precision: 0,
+  })} / ${formatNumber(Number(protocol?.currentRound?.mintableTokens), {
+    precision: 0,
+  })} LPT`;
 
   return (
     <Box
@@ -247,11 +257,9 @@ const Index = ({
                 <Box>
                   The amount of fees that have been paid out in the current
                   round. Equivalent to{" "}
-                  {numbro(
-                    protocol?.currentRound?.volumeUSD || 0
-                  ).formatCurrency({
-                    mantissa: 0,
-                    average: true,
+                  {formatUSD(protocol?.currentRound?.volumeUSD, {
+                    precision: 0,
+                    abbreviate: true,
                   })}{" "}
                   at recent prices of ETH.
                 </Box>
@@ -291,11 +299,9 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numbro(protocol?.currentRound?.volumeETH || 0).format({
-                    mantissa: 2,
-                    average: true,
-                  })}{" "}
-                  ETH
+                    {formatETH(protocol?.currentRound?.volumeETH, {
+                      precision: 2,
+                    })}
                 </Text>
               </Flex>
             </ExplorerTooltip>
@@ -342,14 +348,7 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                  {numbro(rewardTokensClaimed).format({
-                    mantissa: 0,
-                  })}
-                  /
-                  {numbro(protocol?.currentRound?.mintableTokens || 0).format({
-                    mantissa: 0,
-                  })}{" "}
-                  LPT
+                    {rewards}
                 </Text>
               </Flex>
             </ExplorerTooltip>

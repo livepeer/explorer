@@ -1,5 +1,9 @@
 import { calculateROI } from "@lib/roi";
 import { Box } from "@livepeer/design-system";
+import {
+  PERCENTAGE_PRECISION_BILLION,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import { useExplorerStore } from "hooks";
 import { useEffect, useMemo } from "react";
 import { useWindowSize } from "react-use";
@@ -36,19 +40,20 @@ const Input = ({
         },
         feeParams: {
           ninetyDayVolumeETH: Number(transcoder.ninetyDayVolumeETH),
-          feeShare: Number(transcoder.feeShare) / 1000000,
+          feeShare: Number(transcoder.feeShare) / PERCENTAGE_PRECISION_MILLION,
           lptPriceEth: Number(protocol.lptPriceEth),
         },
         rewardParams: {
-          inflation: Number(protocol.inflation) / 1000000000,
+          inflation: Number(protocol.inflation) / PERCENTAGE_PRECISION_BILLION,
           inflationChangePerRound:
-            Number(protocol.inflationChange) / 1000000000,
+            Number(protocol.inflationChange) / PERCENTAGE_PRECISION_BILLION,
           totalSupply: Number(protocol.totalSupply),
           totalActiveStake: Number(protocol.totalActiveStake),
           roundLength: Number(protocol.roundLength),
 
           rewardCallRatio,
-          rewardCut: Number(transcoder.rewardCut) / 1000000,
+          rewardCut:
+            Number(transcoder.rewardCut) / PERCENTAGE_PRECISION_MILLION,
           treasuryRewardCut: treasury.treasuryRewardCutRate,
         },
       }),

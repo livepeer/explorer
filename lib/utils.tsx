@@ -1,8 +1,8 @@
+import { EMPTY_ADDRESS } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, NETWORK_RPC_URLS } from "lib/chains";
-import { formatEther, getAddress, parseEther } from "viem";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   NETWORK_RPC_URLS[DEFAULT_CHAIN_ID][0]
@@ -16,23 +16,6 @@ export function avg(obj, key) {
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
   return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
 }
-
-export const EMPTY_ADDRESS = ethers.constants.AddressZero;
-
-export const abbreviateNumber = (value, precision = 3) => {
-  let newValue = value;
-  const suffixes = ["", "K", "M", "B", "T"];
-  let suffixNum = 0;
-  while (newValue >= 1000) {
-    newValue /= 1000;
-    suffixNum++;
-  }
-
-  newValue = Number.parseFloat(newValue).toPrecision(precision);
-  newValue += suffixes[suffixNum];
-
-  return newValue;
-};
 
 export const getDelegatorStatus = (
   delegator: NonNullable<AccountQueryResult["data"]>["delegator"],
@@ -78,17 +61,6 @@ export const textTruncate = (str, length, ending) => {
     return str.substring(0, length - ending.length) + ending;
   } else {
     return str;
-  }
-};
-
-export const checkAddressEquality = (address1: string, address2: string) => {
-  try {
-    const formattedAddress1 = getAddress(address1.toLowerCase());
-    const formattedAddress2 = getAddress(address2.toLowerCase());
-
-    return formattedAddress1 === formattedAddress2;
-  } catch {
-    return false;
   }
 };
 
@@ -254,15 +226,6 @@ export const getPercentChange = (valueNow, value24HoursAgo) => {
   return adjustedPercentChange;
 };
 
-export const fromWei = (wei: bigint | string) => {
-  if (typeof wei === "string") {
-    return formatEther(BigInt(wei));
-  }
-  return formatEther(wei);
-};
-
-export const toWei = (ether: number) => parseEther(ether.toString());
-
 /**
  * Check if a URL is an image URL.
  * @param url - The URL to check
@@ -270,43 +233,4 @@ export const toWei = (ether: number) => parseEther(ether.toString());
  **/
 export const isImageUrl = (url: string): boolean => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-};
-
-/**
- * Shorten an Ethereum address for display.
- * @param address - The address to shorten.
- * @returns The shortened address.
- */
-export const shortenAddress = (address: string) =>
-  address?.replace(address.slice(5, 39), "…") ?? "";
-
-export const lptFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-export const formatLpt = (w: string) => {
-  return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
-};
-
-export const formatAddress = (
-  addr: string | null | undefined,
-  startLength = 6,
-  endLength = 4
-): string => {
-  if (!addr) return "";
-  if (addr.endsWith(".xyz")) {
-    return addr.length > 21 ? `${addr.slice(0, 6)}...${addr.slice(-6)}` : addr;
-  }
-  if (addr.endsWith(".eth") && addr.length < 21) {
-    return addr;
-  }
-  return addr.length > 21
-    ? `${addr.slice(0, startLength)}…${addr.slice(-endLength)}`
-    : addr;
-};
-
-export const formatTransactionHash = (id: string | null | undefined) => {
-  if (!id) return "";
-  return id.replace(id.slice(6, 62), "…");
 };

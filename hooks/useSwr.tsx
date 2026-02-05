@@ -21,7 +21,7 @@ import {
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
-import { formatAddress } from "@lib/utils";
+import { formatAddress } from "@utils/web3";
 import useSWR from "swr";
 import { Address } from "viem";
 

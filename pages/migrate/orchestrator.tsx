@@ -6,7 +6,6 @@ import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
-import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Button,
@@ -23,6 +22,7 @@ import {
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { formatAddress, formatTransactionHash } from "@utils/web3";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";

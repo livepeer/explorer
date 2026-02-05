@@ -3,7 +3,6 @@ import VoteButton from "@components/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import {
   CheckCircledIcon,
@@ -11,10 +10,16 @@ import {
   InfoCircledIcon,
   MinusCircledIcon,
 } from "@radix-ui/react-icons";
+import {
+  formatLPT,
+  formatNumber,
+  formatPercent,
+  formatVotingPower,
+} from "@utils/numberFormatters";
+import { formatAddress, fromWei } from "@utils/web3";
 import { useAccountAddress } from "hooks";
 import Link, { LinkProps } from "next/link";
 import { useMemo, useState } from "react";
-import { formatPercent } from "utils/voting";
 import { zeroAddress } from "viem";
 
 import TreasuryVotingReason from "./TreasuryVotingReason";
@@ -24,9 +29,6 @@ type Props = {
   vote: ProposalVotingPower | undefined | null;
   votesTabHref?: LinkProps["href"] | string;
 };
-
-const formatLPT = (lpt: string | undefined) =>
-  abbreviateNumber(fromWei(lpt ?? "0"), 4);
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
@@ -132,7 +134,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.for, 2)}
+                {formatPercent(proposal.votes.percent.for)}
               </Text>
             </Flex>
 
@@ -190,7 +192,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.against, 2)}
+                {formatPercent(proposal.votes.percent.against)}
               </Text>
             </Flex>
 
@@ -247,7 +249,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.abstain, 2)}
+                {formatPercent(proposal.votes.percent.abstain)}
               </Text>
             </Flex>
           </Box>
@@ -255,7 +257,11 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
           {/* Summary line */}
           <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
             <Text css={{ fontSize: "$2", color: "$neutral11" }}>
-              {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
+              {formatNumber(proposal.votes.total.voters, {
+                precision: 0,
+                abbreviate: true,
+              })}{" "}
+              voted ·{" "}
               {proposal.state !== "Pending" && proposal.state !== "Active"
                 ? "Final Results"
                 : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
@@ -354,7 +360,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {vote?.self ? formatLPT(vote.self.votes) : "0"} LPT
+                {formatVotingPower(fromWei(vote?.self?.votes))}
               </Text>
             </Flex>
 
@@ -481,7 +487,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                         marginBottom: "$3",
                       }}
                     >
-                      You had 0 LPT staked on{" "}
+                      You had {formatLPT(0)} staked on{" "}
                       {proposal.votes.voteStartTime.format("MMM D, YYYY")} when
                       this proposal was created.
                     </Text>

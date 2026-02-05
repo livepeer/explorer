@@ -1,7 +1,6 @@
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress } from "@lib/utils";
 import {
   Box,
   Button,
@@ -19,11 +18,13 @@ import {
   Cross1Icon,
   CrossCircledIcon,
 } from "@radix-ui/react-icons";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { formatPercent, getVotingPower } from "utils/voting";
+import { getVotingPower } from "utils/voting";
 
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
@@ -182,7 +183,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.yes, 2)}
+                {formatPercent(data.poll.percent.yes)}
               </Text>
             </Flex>
 
@@ -239,7 +240,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.no, 2)}
+                {formatPercent(data.poll.percent.no)}
               </Text>
             </Flex>
           </Box>
@@ -251,7 +252,7 @@ const Index = ({ data }: { data: Props }) => {
                 ? "votes"
                 : "vote"
             }`}{" "}
-            · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
+            · {formatVotingPower(data.poll.stake.voters)} ·{" "}
             {data.poll.status !== "active"
               ? "Final Results"
               : dayjs
@@ -326,14 +327,12 @@ const Index = ({ data }: { data: Props }) => {
                     css={{ fontWeight: 500, color: "$hiContrast" }}
                   >
                     <Box as="span">
-                      {abbreviateNumber(votingPower, 4)} LPT (
-                      {(
-                        (+votingPower /
-                          (data.poll.stake.nonVoters +
-                            data.poll.stake.voters)) *
-                        100
-                      ).toPrecision(2)}
-                      %)
+                      {formatVotingPower(votingPower)} (
+                      {formatPercent(
+                        +votingPower /
+                          (data.poll.stake.nonVoters + data.poll.stake.voters)
+                      )}
+                      )
                     </Box>
                   </Box>
                 </Flex>
