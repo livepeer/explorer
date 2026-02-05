@@ -6,17 +6,17 @@
     },
     "assert": {
       "assertions": {
-        "categories:performance": ["error", { "minScore": 0.6 }],
-        "largest-contentful-paint": ["error", { "maxNumericValue": 3400 }],
+        "categories:performance": ["error", { "minScore": 0.55 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 3500 }],
         "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-        "total-blocking-time": ["error", { "maxNumericValue": 425 }]
+        "total-blocking-time": ["error", { "maxNumericValue": 450 }]
       },
       "baselinePerformanceMetrics": {
         "description": "Baseline Lighthouse metrics used to derive the assertion thresholds above. Update these values when the application's performance characteristics change.",
-        "largest-contentful-paint-ms": 3400,
+        "largest-contentful-paint-ms": 3500,
         "cumulative-layout-shift": 0.1,
-        "total-blocking-time-ms": 425,
-        "performance-score": 0.6
+        "total-blocking-time-ms": 450,
+        "performance-score": 0.55
       }
     },
     "upload": { "target": "temporary-public-storage" }

@@ -1,8 +1,13 @@
 import HistoryFilter from "@components/HistoryView/HistoryFilter";
 import Spinner from "@components/Spinner";
+import TransactionBadge from "@components/TransactionBadge";
+import { Fm, parsePollIpfs } from "@lib/api/polls";
+import { parseProposalText, Proposal } from "@lib/api/treasury";
+import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { formatAddress, formatTransactionHash } from "@lib/utils";
+import { formatAddress } from "@lib/utils";
 import {
+  Badge,
   Box,
   Card as CardBase,
   Flex,
@@ -10,13 +15,20 @@ import {
   styled,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useTransactionsQuery } from "apollo";
 import { useHistoryFilter } from "hooks";
+import {
+  TransactionsQuery,
+  TreasuryVoteEvent,
+  TreasuryVoteSupport,
+  useTransactionsQuery,
+  VoteEvent,
+} from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Card = styled(CardBase, {
   length: {},
@@ -30,16 +42,20 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
-  const { data, loading, error, fetchMore, stopPolling } = useTransactionsQuery(
-    {
-      variables: {
-        account: account.toLowerCase(),
-        first: 10,
-        skip: 0,
-      },
-      notifyOnNetworkStatusChange: true,
-    }
-  );
+  const {
+    data,
+    loading,
+    error,
+    fetchMore: fetchMoreTransactions,
+    stopPolling,
+  } = useTransactionsQuery({
+    variables: {
+      account: account.toLowerCase(),
+      first: 10,
+      skip: 0,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -52,26 +68,115 @@ const Index = () => {
     return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
   }, [data]);
 
+  type TransactionEvent = NonNullable<
+    TransactionsQuery["transactions"][number]["events"]
+  >[number];
+  const isType =
+    <T extends TransactionEvent["__typename"]>(t: T) =>
+    (e: TransactionEvent): e is Extract<TransactionEvent, { __typename: T }> =>
+      e.__typename === t;
+  const isVoteEvent = isType("VoteEvent");
+  const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
+
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
     [events]
   );
 
+  const [extendedVoteEventsData, setExtendedVoteEventsData] = useState<
+    (VoteEvent & { attributes: Fm | null })[]
+  >([]);
+  useEffect(() => {
+    // Enrich poll vote events with parsed IPFS proposal metadata.
+    const getExtendedVoteEventsData = async () => {
+      const newVoteEvents = events
+        .filter(isVoteEvent)
+        .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
+      const newExtendedVoteEventsData = await Promise.all(
+        newVoteEvents.map(async (voteEvent) => {
+          const ipfsObject = await catIpfsJson<IpfsPoll>(
+            voteEvent.poll?.proposal
+          );
+          const attributes = parsePollIpfs(ipfsObject);
+          return {
+            ...voteEvent,
+            attributes,
+          };
+        }) || []
+      );
+      setExtendedVoteEventsData(
+        (current) =>
+          [...current, ...newExtendedVoteEventsData] as (VoteEvent & {
+            attributes: Fm | null;
+          })[]
+      );
+    };
+    getExtendedVoteEventsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
+
+  const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
+    useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
+  useEffect(() => {
+    // Attach parsed treasury proposal attributes to treasury vote events.
+    const newTreasuryVoteEvents = events
+      .filter(isTreasuryVoteEvent)
+      .filter(
+        (e) => !extendedTreasuryVoteEventsData.find((te) => te.id === e.id)
+      );
+    const newExtendedTreasureVoteEventsData = newTreasuryVoteEvents.map(
+      (treasuryVoteEvent) => {
+        const parsed = parseProposalText(
+          treasuryVoteEvent.proposal as Proposal
+        );
+        return {
+          ...treasuryVoteEvent,
+          attributes: parsed.attributes,
+        };
+      }
+    );
+    setExtendedTreasuryVoteEventsData(
+      (current) =>
+        [
+          ...current,
+          ...newExtendedTreasureVoteEventsData,
+        ] as (TreasuryVoteEvent & { attributes: Fm | null })[]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
+
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
   // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
+        ...events.filter(
+          (e) =>
+            e?.__typename !== "WinningTicketRedeemedEvent" &&
+            e?.__typename !== "TreasuryVoteEvent" &&
+            e?.__typename !== "VoteEvent"
+        ),
         ...(data?.winningTicketRedeemedEvents?.filter(
           (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
         ) ?? []),
+        ...extendedTreasuryVoteEventsData.filter(
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+        ),
+        ...extendedVoteEventsData.filter(
+          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+        ),
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
       ),
-    [events, data, lastEventTimestamp]
+    [
+      events,
+      data,
+      lastEventTimestamp,
+      extendedTreasuryVoteEventsData,
+      extendedVoteEventsData,
+    ]
   );
 
   // Filter events using history hook
@@ -118,7 +223,7 @@ const Index = () => {
         stopPolling();
         if (!loading && data.transactions.length >= 10) {
           try {
-            await fetchMore({
+            await fetchMoreTransactions({
               variables: {
                 skip: data.transactions.length,
               },
@@ -126,6 +231,7 @@ const Index = () => {
                 if (!fetchMoreResult) {
                   return previousResult;
                 }
+
                 return {
                   ...previousResult,
                   transactions: [
@@ -240,19 +346,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -300,19 +396,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               Round #
@@ -357,19 +443,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -419,19 +495,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -481,19 +547,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -541,19 +597,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
@@ -605,19 +651,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -664,19 +700,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -723,19 +749,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -783,19 +799,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -848,19 +854,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {formatTransactionHash(event.transaction.id)}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -872,6 +868,143 @@ function renderSwitch(event, i: number) {
                 })}
               </Box>{" "}
               ETH
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "TreasuryVoteEvent":
+      const supportTreasuryVoteEvent =
+        VOTING_SUPPORT_MAP[event.support] ||
+        VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`/treasury/${event.proposal?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on treasury proposal &quot;
+                {event.attributes?.title?.trim()}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor:
+                    supportTreasuryVoteEvent.style.backgroundColor,
+                  color: supportTreasuryVoteEvent.style.color,
+                  fontWeight: supportTreasuryVoteEvent.style.fontWeight,
+                  fontSize: "$1",
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
+              >
+                <Box
+                  as={supportTreasuryVoteEvent.icon}
+                  css={{ width: 12, height: 12 }}
+                />
+                {supportTreasuryVoteEvent.text}
+              </Badge>
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "VoteEvent":
+      const supportVoteEvent = POLL_VOTES[event.choiceID];
+      if (!supportVoteEvent) {
+        return null;
+      }
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`/voting/${event.poll?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on poll &quot;{event.attributes?.title?.trim()}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor: supportVoteEvent.style.backgroundColor,
+                  color: supportVoteEvent.style.color,
+                  fontWeight: supportVoteEvent.style.fontWeight,
+                  fontSize: "$1",
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
+              >
+                <Box
+                  as={supportVoteEvent.icon}
+                  css={{ width: 12, height: 12 }}
+                />
+                {supportVoteEvent.text}
+              </Badge>
             </Box>
           </Flex>
         </Card>
