@@ -353,7 +353,6 @@ const Proposal = () => {
                           paddingBottom: "$2",
                           marginBottom: "-1px",
                           position: "relative",
-                          zIndex: 2,
                           borderBottom: "3px solid",
                           borderColor: tab.isActive
                             ? "$primary11"
@@ -376,6 +375,8 @@ const Proposal = () => {
                   <Box
                     css={{
                       display: "grid",
+                      position: "relative",
+                      zIndex: 10,
                       gridGap: "$3",
                       gridTemplateColumns: "100%",
                       marginBottom: "$3",
