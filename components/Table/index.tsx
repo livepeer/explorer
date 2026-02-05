@@ -8,12 +8,7 @@ import {
   Thead,
   Tr,
 } from "@livepeer/design-system";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@radix-ui/react-icons";
+import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
 import {
   Column,
@@ -25,6 +20,8 @@ import {
   UseSortByInstanceProps,
   useTable,
 } from "react-table";
+
+import Pagination from "./Pagination";
 
 function DataTable<T extends object>({
   heading = null,
@@ -80,7 +77,7 @@ function DataTable<T extends object>({
         <>
           <Box
             css={{
-              overflowY: "scroll",
+              overflowX: "auto",
             }}
           >
             {input && (
@@ -98,7 +95,7 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 980,
+                minWidth: 960,
                 width: "100%",
                 "@bp4": {
                   width: "100%",
@@ -243,45 +240,14 @@ function DataTable<T extends object>({
               </Tbody>
             </Table>
           </Box>
-          <Flex
-            css={{
-              paddingTop: "$4",
-              paddingBottom: "$4",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Box
-              as={ArrowLeftIcon}
-              css={{
-                cursor: "pointer",
-                color: canPreviousPage ? "$primary11" : "$hiContrast",
-                opacity: canPreviousPage ? 1 : 0.5,
-              }}
-              onClick={() => {
-                if (canPreviousPage) {
-                  previousPage();
-                }
-              }}
-            />
-            <Box css={{ fontSize: "$2", marginLeft: "$3", marginRight: "$3" }}>
-              Page <Box as="span">{pageIndex + 1}</Box> of{" "}
-              <Box as="span">{pageCount}</Box>
-            </Box>
-            <Box
-              as={ArrowRightIcon}
-              css={{
-                cursor: "pointer",
-                color: canNextPage ? "$primary11" : "$hiContrast",
-                opacity: canNextPage ? 1 : 0.5,
-              }}
-              onClick={() => {
-                if (canNextPage) {
-                  nextPage();
-                }
-              }}
-            />
-          </Flex>
+          <Pagination
+            currentPage={pageIndex + 1}
+            totalPages={pageCount}
+            canPrevious={canPreviousPage}
+            canNext={canNextPage}
+            onPrevious={previousPage}
+            onNext={nextPage}
+          />
         </>
       </Box>
     </>

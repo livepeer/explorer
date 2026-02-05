@@ -67,6 +67,48 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
         }
         amount
       }
+      ... on TreasuryVoteEvent {
+        id
+        reason
+        support
+        timestamp
+        proposal {
+          id
+          targets
+          description
+        }
+        treasuryVoter: voter {
+          id
+        }
+        weight
+        round {
+          id
+        }
+        transaction {
+          id
+          timestamp
+        }
+      }
+      ... on VoteEvent {
+        voter
+        poll {
+          id
+          proposal
+          endBlock
+          quorum
+          quota
+        }
+        transaction {
+          id
+          timestamp
+        }
+        choiceID
+        id
+        round {
+          id
+        }
+        timestamp
+      }
     }
   }
   winningTicketRedeemedEvents(

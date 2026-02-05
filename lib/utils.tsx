@@ -1,11 +1,11 @@
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import { StakingAction } from "hooks";
-import { DEFAULT_CHAIN_ID, INFURA_NETWORK_URLS } from "lib/chains";
+import { DEFAULT_CHAIN_ID, NETWORK_RPC_URLS } from "lib/chains";
 import { formatEther, getAddress, parseEther } from "viem";
 
 export const provider = new ethers.providers.JsonRpcProvider(
-  INFURA_NETWORK_URLS[DEFAULT_CHAIN_ID]
+  NETWORK_RPC_URLS[DEFAULT_CHAIN_ID][0]
 );
 
 export function avg(obj, key) {

@@ -188,6 +188,13 @@ query events($first: Int) {
         stake
         fees
       }
+      ... on TreasuryVoteEvent {
+        support
+        proposal {
+          id
+          description
+        }
+      }
     }
   }
   transcoders(where: { active: true }) {

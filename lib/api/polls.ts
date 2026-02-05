@@ -1,4 +1,4 @@
-import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
+import { AVERAGE_L1_BLOCK_TIME, CHAIN_INFO, l2Provider } from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
   getApollo,
@@ -7,9 +7,12 @@ import {
   ProtocolByBlockQuery,
   ProtocolByBlockQueryVariables,
 } from "apollo";
+import { ethers } from "ethers";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 import { Address } from "viem";
+
+import { nodeInterface } from "./abis/bridge/NodeInterface";
 
 export type Fm = {
   title: string;
@@ -44,6 +47,20 @@ export type PollExtended = NonNullable<
   };
 };
 
+export const parsePollIpfs = (ipfsObject?: IpfsPoll | null): Fm | null => {
+  if (!ipfsObject?.text || !ipfsObject?.gitCommitHash) return null;
+
+  const transformedProposal = fm<Fm>(ipfsObject.text);
+
+  return {
+    title: String(transformedProposal.attributes.title),
+    lip: String(transformedProposal.attributes.lip),
+    commitHash: String(ipfsObject.gitCommitHash),
+    created: String(transformedProposal.attributes.created),
+    text: String(transformedProposal.body),
+  };
+};
+
 export const getPollExtended = async (
   poll:
     | NonNullable<PollsQueryResult["data"]>["polls"][number]
@@ -53,20 +70,9 @@ export const getPollExtended = async (
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
-  let attributes: Fm | null = null;
+  let attributes = parsePollIpfs(ipfsObject);
 
-  // only include proposals with valid format
-  if (ipfsObject?.text && ipfsObject?.gitCommitHash) {
-    const transformedProposal = fm<Fm>(ipfsObject.text);
-
-    attributes = {
-      title: String(transformedProposal.attributes.title),
-      lip: String(transformedProposal.attributes.lip),
-      commitHash: String(ipfsObject.gitCommitHash),
-      created: String(transformedProposal.attributes.created),
-      text: String(transformedProposal.body),
-    };
-
+  if (attributes) {
     const commitOrBranch = attributes.commitHash ?? "master";
     const lipNum = attributes.lip ?? "1";
     const baseUrl = `https://github.com/livepeer/LIPs/blob/${commitOrBranch}/LIPs/LIP-${lipNum}.md`;
@@ -77,9 +83,17 @@ export const getPollExtended = async (
   }
 
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
+
+  // Get L2 block number corresponding to end of poll
+  // Create NodeInterface to get L2 block number corresponding to end of poll
   const totalStakeString = await getTotalStake(
-    // TODO fix endblock to query for l2 block corresponding to end of poll
-    isActive ? undefined : +(poll?.endBlock ?? 0)
+    Number(
+      isActive
+        ? undefined
+        : (
+            await getL2BlockRangeForL1(Number(poll?.endBlock ?? "0"))
+          ).lastBlock
+    )
   );
 
   const totalStake = +(totalStakeString ?? 0);
@@ -176,4 +190,34 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
   });
 
   return protocolResponse?.data?.protocol?.totalActiveStake;
+};
+
+const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
+  try {
+    const contract = new ethers.Contract(
+      CHAIN_INFO[l2Provider.network.chainId].contracts.nodeInterface,
+      nodeInterface,
+      l2Provider
+    );
+    // TODO: Block number 18328665 throws an error, so we add 1 to the block number
+    // TODO: Monitor if this is invalid data or if it shows up again
+    const l2BlockRangeForL1 = await contract.l2BlockRangeForL1(
+      l1BlockNumber === 18328665
+        ? BigInt(l1BlockNumber + 1)
+        : BigInt(l1BlockNumber)
+    );
+    return {
+      lastBlock: l2BlockRangeForL1.lastBlock.toNumber(),
+      firstBlock: l2BlockRangeForL1.firstBlock.toNumber(),
+    };
+  } catch (error) {
+    console.error(
+      "Error getting L2 block range for L1 " + l1BlockNumber,
+      error
+    );
+    return {
+      lastBlock: 0,
+      firstBlock: 0,
+    };
+  }
 };
