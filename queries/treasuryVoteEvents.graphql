@@ -1,0 +1,29 @@
+query treasuryVoteEvents($first: Int, $where: TreasuryVoteEvent_filter) {
+  treasuryVoteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
+    id
+    reason
+    support
+    timestamp
+    proposal {
+      id
+      targets
+      description
+    }
+    voter {
+      id
+    }
+    weight
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}

@@ -1,28 +1,29 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
-import TreasuryVotingReason from "@components/TreasuryVotingReason";
+import VoteButton from "@components/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
 import { ProposalVotingPower } from "@lib/api/types/get-treasury-proposal";
 import dayjs from "@lib/dayjs";
 import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
-import { Box, Button, Flex, Link, Text } from "@livepeer/design-system";
-import { InfoCircledIcon } from "@modulz/radix-icons";
+import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  InfoCircledIcon,
+  MinusCircledIcon,
+} from "@radix-ui/react-icons";
 import { useAccountAddress } from "hooks";
-import numbro from "numbro";
+import Link, { LinkProps } from "next/link";
 import { useMemo, useState } from "react";
+import { formatPercent } from "utils/voting";
 import { zeroAddress } from "viem";
 
-import VoteButton from "../VoteButton";
+import TreasuryVotingReason from "./TreasuryVotingReason";
 
 type Props = {
   proposal: ProposalExtended;
   vote: ProposalVotingPower | undefined | null;
+  votesTabHref?: LinkProps["href"] | string;
 };
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 2,
-  });
 
 const formatLPT = (lpt: string | undefined) =>
   abbreviateNumber(fromWei(lpt ?? "0"), 4);
@@ -31,11 +32,11 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
     css={{
       fontSize: "$1",
-      fontWeight: 600,
+      fontWeight: 700,
       color: "$neutral10",
       textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      marginBottom: "$2",
+      letterSpacing: "0.08em",
+      marginBottom: "$3",
     }}
   >
     {children}
@@ -79,57 +80,6 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
 
           {/* Vote bars - read-only styled */}
           <Box css={{ marginBottom: "$3" }}>
-            {/* Against bar */}
-            <Flex
-              css={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "$2",
-              }}
-            >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                Against
-              </Text>
-              <Flex
-                css={{
-                  flex: 1,
-                  marginLeft: "$3",
-                  marginRight: "$3",
-                  alignItems: "center",
-                }}
-              >
-                <Box
-                  css={{
-                    height: 6,
-                    borderRadius: 3,
-                    backgroundColor: "$neutral5",
-                    width: "100%",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
-                    css={{
-                      height: "100%",
-                      borderRadius: 3,
-                      backgroundColor: "$neutral9",
-                      width: `${proposal.votes.percent.against * 100}%`,
-                    }}
-                  />
-                </Box>
-              </Flex>
-              <Text
-                css={{
-                  fontSize: "$2",
-                  color: "$hiContrast",
-                  fontVariantNumeric: "tabular-nums",
-                  minWidth: 55,
-                  textAlign: "right",
-                }}
-              >
-                {formatPercent(proposal.votes.percent.against)}
-              </Text>
-            </Flex>
-
             {/* For bar */}
             <Flex
               css={{
@@ -138,9 +88,13 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 marginBottom: "$2",
               }}
             >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                For
-              </Text>
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={CheckCircledIcon}
+                  css={{ color: "$grass11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$grass11" }}>For</Text>
+              </Flex>
               <Flex
                 css={{
                   flex: 1,
@@ -151,8 +105,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               >
                 <Box
                   css={{
-                    height: 6,
-                    borderRadius: 3,
+                    height: 8,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -161,8 +115,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 3,
-                      backgroundColor: "$green9",
+                      borderRadius: 1000,
+                      backgroundColor: "$grass9",
                       width: `${proposal.votes.percent.for * 100}%`,
                     }}
                   />
@@ -172,12 +126,71 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
+                  fontWeight: 500,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.for)}
+                {formatPercent(proposal.votes.percent.for, 2)}
+              </Text>
+            </Flex>
+
+            {/* Against bar */}
+            <Flex
+              css={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "$2",
+              }}
+            >
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={CrossCircledIcon}
+                  css={{ color: "$tomato11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$tomato11" }}>
+                  Against
+                </Text>
+              </Flex>
+              <Flex
+                css={{
+                  flex: 1,
+                  marginLeft: "$3",
+                  marginRight: "$3",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  css={{
+                    height: 8,
+                    borderRadius: 1000,
+                    backgroundColor: "$neutral5",
+                    width: "100%",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    css={{
+                      height: "100%",
+                      borderRadius: 1000,
+                      backgroundColor: "$tomato9",
+                      width: `${proposal.votes.percent.against * 100}%`,
+                    }}
+                  />
+                </Box>
+              </Flex>
+              <Text
+                css={{
+                  fontSize: "$2",
+                  color: "$hiContrast",
+                  fontWeight: 500,
+                  fontVariantNumeric: "tabular-nums",
+                  minWidth: 55,
+                  textAlign: "right",
+                }}
+              >
+                {formatPercent(proposal.votes.percent.against, 2)}
               </Text>
             </Flex>
 
@@ -188,9 +201,15 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 justifyContent: "space-between",
               }}
             >
-              <Text css={{ fontSize: "$2", color: "$neutral11", minWidth: 60 }}>
-                Abstain
-              </Text>
+              <Flex css={{ alignItems: "center", gap: "$1", minWidth: 60 }}>
+                <Box
+                  as={MinusCircledIcon}
+                  css={{ color: "$neutral11", width: 14, height: 14 }}
+                />
+                <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+                  Abstain
+                </Text>
+              </Flex>
               <Flex
                 css={{
                   flex: 1,
@@ -201,8 +220,8 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               >
                 <Box
                   css={{
-                    height: 6,
-                    borderRadius: 3,
+                    height: 8,
+                    borderRadius: 1000,
                     backgroundColor: "$neutral5",
                     width: "100%",
                     overflow: "hidden",
@@ -211,7 +230,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                   <Box
                     css={{
                       height: "100%",
-                      borderRadius: 3,
+                      borderRadius: 1000,
                       backgroundColor: "$neutral8",
                       width: `${proposal.votes.percent.abstain * 100}%`,
                     }}
@@ -222,24 +241,54 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   fontSize: "$2",
                   color: "$hiContrast",
+                  fontWeight: 500,
                   fontVariantNumeric: "tabular-nums",
                   minWidth: 55,
                   textAlign: "right",
                 }}
               >
-                {formatPercent(proposal.votes.percent.abstain)}
+                {formatPercent(proposal.votes.percent.abstain, 2)}
               </Text>
             </Flex>
           </Box>
 
           {/* Summary line */}
-          <Text css={{ fontSize: "$2", color: "$neutral11" }}>
-            {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
-            {proposal.state !== "Pending" && proposal.state !== "Active"
-              ? "Final Results"
-              : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
-                " left"}
-          </Text>
+          <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
+            <Text css={{ fontSize: "$2", color: "$neutral11" }}>
+              {abbreviateNumber(proposal.votes.total.voters, 4)} LPT voted ·{" "}
+              {proposal.state !== "Pending" && proposal.state !== "Active"
+                ? "Final Results"
+                : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +
+                  " left"}
+            </Text>
+            {props.votesTabHref ? (
+              <Link href={props.votesTabHref} passHref legacyBehavior>
+                <A
+                  css={{
+                    fontSize: "$1",
+                    color: "$primary11",
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                    cursor: "pointer",
+                  }}
+                >
+                  View votes
+                </A>
+              </Link>
+            ) : (
+              <A
+                href="#votes-section"
+                css={{
+                  fontSize: "$1",
+                  color: "$primary11",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                View votes
+              </A>
+            )}
+          </Flex>
         </Box>
 
         {/* ========== YOUR VOTE SECTION ========== */}
@@ -257,7 +306,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               <Flex
                 css={{
                   fontSize: "$2",
-                  marginBottom: "$2",
+                  marginBottom: "$3",
                   justifyContent: "space-between",
                 }}
               >
@@ -274,7 +323,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
             <Flex
               css={{
                 fontSize: "$2",
-                marginBottom: "$2",
+                marginBottom: "$3",
                 justifyContent: "space-between",
               }}
             >
@@ -294,6 +343,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
               css={{
                 fontSize: "$2",
                 justifyContent: "space-between",
+                marginBottom: "$4",
               }}
             >
               <Text css={{ color: "$neutral11" }}>Voting power</Text>
@@ -316,37 +366,73 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 css={{
                   marginTop: "$4",
                   display: "grid",
-                  gap: "$2",
+                  gap: "$3",
                   gridTemplateColumns: "1fr 1fr",
                 }}
               >
                 <VoteButton
-                  variant="red"
-                  size="4"
-                  choiceId={0}
-                  proposalId={proposal?.id}
-                  reason={reason}
-                >
-                  Against
-                </VoteButton>
-                <VoteButton
-                  variant="primary"
                   choiceId={1}
                   size="4"
                   proposalId={proposal?.id}
                   reason={reason}
+                  css={{
+                    backgroundColor: "$grass3",
+                    color: "$grass11",
+                    fontWeight: 600,
+                    border: "1px solid $grass4",
+                    "&:hover": {
+                      backgroundColor: "$grass4",
+                      borderColor: "$grass5",
+                    },
+                  }}
                 >
-                  For
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={CheckCircledIcon} />
+                    For
+                  </Flex>
                 </VoteButton>
                 <VoteButton
-                  variant="gray"
+                  size="4"
+                  choiceId={0}
+                  proposalId={proposal?.id}
+                  reason={reason}
+                  css={{
+                    backgroundColor: "$tomato3",
+                    color: "$tomato11",
+                    fontWeight: 600,
+                    border: "1px solid $tomato4",
+                    "&:hover": {
+                      backgroundColor: "$tomato4",
+                      borderColor: "$tomato5",
+                    },
+                  }}
+                >
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={CrossCircledIcon} />
+                    Against
+                  </Flex>
+                </VoteButton>
+                <VoteButton
                   size="4"
                   choiceId={2}
                   proposalId={proposal?.id}
                   reason={reason}
-                  css={{ gridColumn: "span 2" }}
+                  css={{
+                    gridColumn: "span 2",
+                    backgroundColor: "$neutral3",
+                    color: "$neutral11",
+                    fontWeight: 600,
+                    border: "1px solid $neutral4",
+                    "&:hover": {
+                      backgroundColor: "$neutral4",
+                      borderColor: "$neutral5",
+                    },
+                  }}
                 >
-                  Abstain
+                  <Flex css={{ alignItems: "center", gap: "$2" }}>
+                    <Box as={MinusCircledIcon} />
+                    Abstain
+                  </Flex>
                 </VoteButton>
 
                 <Box css={{ gridColumn: "span 2" }}>
@@ -400,7 +486,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                       this proposal was created.
                     </Text>
                     <Flex css={{ gap: "$3" }}>
-                      <Link
+                      <A
                         href="https://github.com/livepeer/LIPs/blob/master/LIPs/LIP-89.md#governance-over-the-treasury"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -412,7 +498,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                         }}
                       >
                         Learn about stake snapshots
-                      </Link>
+                      </A>
                     </Flex>
                   </Box>
                 </Flex>
