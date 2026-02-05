@@ -46,8 +46,9 @@ const Index = ({
         transform: `translateX(${open ? 0 : "-100%"})`,
         position: "fixed",
         flexDirection: "column",
-        height: "100vh",
-        paddingTop: "$4",
+        height: "100dvh",
+        paddingTop: "calc($4 + env(safe-area-inset-top))",
+        paddingBottom: "env(safe-area-inset-bottom)",
         paddingLeft: 24,
         paddingRight: 24,
         borderRight: "1px solid $colors$neutral4",
@@ -63,7 +64,7 @@ const Index = ({
           width: "100%",
         },
         "@bp2": {
-          paddingTop: "$4",
+          paddingTop: "calc($4 + env(safe-area-inset-top))",
         },
         "@bp3": {
           boxShadow: "none",
@@ -130,7 +131,7 @@ const Index = ({
         <Box css={{ marginBottom: "$4" }}>
           <Box
             css={{
-              paddingBottom: "$4",
+              paddingBottom: "calc($4 + env(safe-area-inset-bottom))",
             }}
           >
             <A
