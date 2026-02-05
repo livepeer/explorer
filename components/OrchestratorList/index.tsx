@@ -687,7 +687,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {row?.original?.daysSinceChangeParams} days ago
+                          {formatNumber(row?.original?.daysSinceChangeParams, {
+                            precision: 0,
+                          })}{" "}
+                          days ago
                         </Text>
                       </Flex>
                     </Box>

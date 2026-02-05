@@ -150,7 +150,7 @@ const PerformanceList = ({
                         },
                       }}
                     >
-                      {row.values.id.substring(0, 6)}
+                      {formatAddress(row.values.id.substring(0, 6))}
                     </Badge>
                   </Flex>
                 ) : (

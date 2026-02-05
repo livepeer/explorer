@@ -1,8 +1,8 @@
 import BottomDrawer from "@components/BottomDrawer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import PollVotingWidget from "@components/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import VotingWidget from "@components/VotingWidget";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
@@ -17,7 +17,13 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
-import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import {
+  formatLPT,
+  formatPercent,
+  formatVotingPower,
+} from "@utils/numberFormatters";
+import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   AccountQuery,
   PollChoice,
@@ -30,13 +36,13 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
-
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
 } from "../../hooks";
 import FourZeroFour from "../404";
+
 
 const Poll = () => {
   const router = useRouter();
@@ -224,7 +230,7 @@ const Poll = () => {
                 <Stat
                   css={{ flex: 1, mb: 0 }}
                   label={
-                    <Box>Total Support ({+pollData.quota / 10000}% needed)</Box>
+                    <Box>Total Support ({+pollData.quota / PERCENTAGE_PRECISION_TEN_THOUSAND}% needed)</Box>
                   }
                   value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
                   meta={
@@ -237,11 +243,17 @@ const Poll = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>Yes ({formatPercent(pollData.percent.yes)})</Box>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CheckCircledIcon}
+                            css={{ color: "$grass11", width: 14, height: 14 }}
+                          />
+                          <Box css={{ color: "$grass11" }}>
+                            For ({formatPercent(pollData.percent.yes)})
+                          </Box>
                         </Flex>
-                        <Box as="span">
-                          {formatVotingPower(pollData.stake.yes)}
+                         <Box as="span">
+                          {formatLPT(pollData.stake.yes, { precision: 4 })}
                         </Box>
                       </Flex>
                       <Flex
@@ -251,11 +263,17 @@ const Poll = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>No ({formatPercent(pollData.percent.no)})</Box>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CrossCircledIcon}
+                            css={{ color: "$tomato11", width: 14, height: 14 }}
+                          />
+                          <Box css={{ color: "$tomato11" }}>
+                            Against ({formatPercent(pollData.percent.no)})
+                          </Box>
                         </Flex>
                         <Box as="span">
-                          {formatVotingPower(pollData.stake.no)}
+                          {formatLPT(pollData.stake.no, { precision: 4 })}
                         </Box>
                       </Flex>
                     </Box>
@@ -266,7 +284,7 @@ const Poll = () => {
                   css={{ flex: 1, mb: 0 }}
                   label={
                     <Box>
-                      Total Participation ({+pollData.quorum / 10000}% needed)
+                      Total Participation ({+pollData.quorum / PERCENTAGE_PRECISION_TEN_THOUSAND}% needed)
                     </Box>
                   }
                   value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
@@ -285,7 +303,7 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {formatVotingPower(pollData.stake.voters)}
+                            {formatLPT(pollData.stake.voters, { precision: 4 })}
                           </Box>
                         </Box>
                       </Flex>
@@ -302,7 +320,9 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {formatVotingPower(pollData.stake.nonVoters)}
+                            {formatLPT(pollData.stake.nonVoters, {
+                              precision: 4,
+                            })}
                           </Box>
                         </Box>
                       </Flex>
@@ -340,7 +360,7 @@ const Poll = () => {
                 },
               }}
             >
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as
@@ -367,7 +387,7 @@ const Poll = () => {
             </Flex>
           ) : (
             <BottomDrawer>
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as

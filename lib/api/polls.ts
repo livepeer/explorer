@@ -47,6 +47,20 @@ export type PollExtended = NonNullable<
   };
 };
 
+export const parsePollIpfs = (ipfsObject?: IpfsPoll | null): Fm | null => {
+  if (!ipfsObject?.text || !ipfsObject?.gitCommitHash) return null;
+
+  const transformedProposal = fm<Fm>(ipfsObject.text);
+
+  return {
+    title: String(transformedProposal.attributes.title),
+    lip: String(transformedProposal.attributes.lip),
+    commitHash: String(ipfsObject.gitCommitHash),
+    created: String(transformedProposal.attributes.created),
+    text: String(transformedProposal.body),
+  };
+};
+
 export const getPollExtended = async (
   poll:
     | NonNullable<PollsQueryResult["data"]>["polls"][number]
@@ -56,20 +70,9 @@ export const getPollExtended = async (
 ): Promise<PollExtended> => {
   const ipfsObject = await catIpfsJson<IpfsPoll>(poll?.proposal);
 
-  let attributes: Fm | null = null;
+  let attributes = parsePollIpfs(ipfsObject);
 
-  // only include proposals with valid format
-  if (ipfsObject?.text && ipfsObject?.gitCommitHash) {
-    const transformedProposal = fm<Fm>(ipfsObject.text);
-
-    attributes = {
-      title: String(transformedProposal.attributes.title),
-      lip: String(transformedProposal.attributes.lip),
-      commitHash: String(ipfsObject.gitCommitHash),
-      created: String(transformedProposal.attributes.created),
-      text: String(transformedProposal.body),
-    };
-
+  if (attributes) {
     const commitOrBranch = attributes.commitHash ?? "master";
     const lipNum = attributes.lip ?? "1";
     const baseUrl = `https://github.com/livepeer/LIPs/blob/${commitOrBranch}/LIPs/LIP-${lipNum}.md`;

@@ -1,22 +1,23 @@
+import EthAddressBadge from "@components/EthAddressBadge";
 import Table from "@components/Table";
+import TransactionBadge from "@components/TransactionBadge";
+import { parseProposalText } from "@lib/api/treasury";
+import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { Badge, Box, Flex, Text, Link as A } from "@livepeer/design-system";
+
 import {
   formatETH,
   formatLPT,
   formatPercent,
   formatRound,
 } from "@utils/numberFormatters";
-import { formatTransactionHash } from "@utils/web3";
 import {
   PERCENTAGE_PRECISION_BILLION,
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
-import { EventsQueryResult } from "apollo";
+import { EventsQueryResult, TreasuryProposal } from "apollo";
 import { sentenceCase } from "change-case";
-import { useEnsData } from "hooks";
-import Link from "next/link";
 import { useCallback, useMemo } from "react";
 
 export const FILTERED_EVENT_TYPENAMES = [
@@ -61,39 +62,6 @@ const getPercentAmount = (number: number | string | undefined) => {
   );
 };
 
-const EthAddress = (props: { value: string | undefined }) => {
-  const ensName = useEnsData(props.value);
-
-  return (
-    <Link passHref href={`/accounts/${props.value}/delegating`}>
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {ensName?.name ? ensName?.name : ensName?.idShort ?? ""}
-      </Badge>
-    </Link>
-  );
-};
-
-const Transaction = (props: { id: string | undefined }) => {
-  return (
-    <A
-      target="_blank"
-      rel="noopener noreferrer"
-      variant="primary"
-      href={
-        props.id ? `https://arbiscan.io/tx/${props.id}` : "https://arbiscan.io"
-      }
-    >
-      <Badge css={{ cursor: "pointer" }} variant="primary" size="1">
-        {props.id ? formatTransactionHash(props.id) : "N/A"}
-        <Box
-          css={{ marginLeft: "$1", width: 15, height: 15 }}
-          as={ArrowTopRightIcon}
-        />
-      </Badge>
-    </A>
-  );
-};
-
 const renderEmoji = (emoji: string) => (
   <Box as="span" css={{ marginLeft: 6 }}>
     {emoji}
@@ -117,86 +85,89 @@ const TransactionsList = ({
     ) => {
       switch (event.__typename) {
         case "BondEvent":
-          return <EthAddress value={event?.delegator?.id} />;
+          return <EthAddressBadge value={event?.delegator?.id} />;
 
         case "UnbondEvent":
-          return <EthAddress value={event?.delegator?.id} />;
+          return <EthAddressBadge value={event?.delegator?.id} />;
 
         case "RebondEvent":
-          return <EthAddress value={event?.delegator?.id} />;
+          return <EthAddressBadge value={event?.delegator?.id} />;
 
         case "TranscoderUpdateEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "RewardEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "WithdrawStakeEvent":
-          return <EthAddress value={event?.delegator?.id} />;
+          return <EthAddressBadge value={event?.delegator?.id} />;
 
         case "WithdrawFeesEvent":
-          return <EthAddress value={event?.delegator?.id} />;
+          return <EthAddressBadge value={event?.delegator?.id} />;
 
         case "WinningTicketRedeemedEvent":
-          return <EthAddress value={event?.recipient?.id} />;
+          return <EthAddressBadge value={event?.recipient?.id} />;
 
         case "DepositFundedEvent":
-          return <EthAddress value={event?.sender?.id} />;
+          return <EthAddressBadge value={event?.sender?.id} />;
 
         case "ReserveFundedEvent":
-          return <EthAddress value={event?.reserveHolder?.id} />;
+          return <EthAddressBadge value={event?.reserveHolder?.id} />;
 
         case "TransferBondEvent":
-          return <EthAddress value={event?.newDelegator?.id} />;
+          return <EthAddressBadge value={event?.newDelegator?.id} />;
 
         case "TranscoderActivatedEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "TranscoderDeactivatedEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         // case "EarningsClaimedEvent":
-        //   return <EthAddress value={event?.transaction?.from} />;
+        //   return <EthAddressBadge value={event?.transaction?.from} />;
 
         case "TranscoderResignedEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "TranscoderEvictedEvent":
-          return <EthAddress value={event?.delegate?.id} />;
+          return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "NewRoundEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
 
         case "WithdrawalEvent":
-          return <EthAddress value={event?.sender?.id} />;
+          return <EthAddressBadge value={event?.sender?.id} />;
 
         case "SetCurrentRewardTokensEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
         case "PauseEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
         case "UnpauseEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
         case "ParameterUpdateEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
         case "VoteEvent":
-          return <EthAddress value={event?.voter} />;
+          return <EthAddressBadge value={event?.voter} />;
 
         case "PollCreatedEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
 
         case "ServiceURIUpdateEvent":
-          return <EthAddress value={event?.addr} />;
+          return <EthAddressBadge value={event?.addr} />;
 
         // case "MintEvent":
-        //   return <EthAddress value={event?.to} />;
+        //   return <EthAddressBadge value={event?.to} />;
 
         case "BurnEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
         case "MigrateDelegatorFinalizedEvent":
-          return <EthAddress value={event?.l2Addr} />;
+          return <EthAddressBadge value={event?.l2Addr} />;
 
         case "StakeClaimedEvent":
-          return <EthAddress value={event?.transaction?.from} />;
+          return <EthAddressBadge value={event?.transaction?.from} />;
+
+        case "TreasuryVoteEvent":
+          return <EthAddressBadge value={event?.transaction?.from} />;
 
         default:
           return <Box>{`Error fetching event information.`}</Box>;
@@ -216,16 +187,16 @@ const TransactionsList = ({
           return event?.additionalAmount === "0" && event?.oldDelegate?.id ? (
             <Box>
               {`Migrated from `}
-              <EthAddress value={event?.oldDelegate?.id} />
+              <EthAddressBadge value={event?.oldDelegate?.id} />
               {` to `}
-              <EthAddress value={event?.newDelegate?.id} />
+              <EthAddressBadge value={event?.newDelegate?.id} />
             </Box>
           ) : (
             <Box>
               {`Delegated `}
               {getLptAmount(event?.additionalAmount)}
               {` to `}
-              <EthAddress value={event?.newDelegate?.id} />
+              <EthAddressBadge value={event?.newDelegate?.id} />
             </Box>
           );
         case "UnbondEvent":
@@ -234,7 +205,7 @@ const TransactionsList = ({
               {`Undelegated `}
               {getLptAmount(event.amount)}
               {` from `}
-              <EthAddress value={event?.delegate?.id} />
+              <EthAddressBadge value={event?.delegate?.id} />
             </Box>
           );
         case "RebondEvent":
@@ -243,7 +214,7 @@ const TransactionsList = ({
               {`Rebonded `}
               {getLptAmount(event.amount)}
               {` to `}
-              <EthAddress value={event?.delegate?.id} />
+              <EthAddressBadge value={event?.delegate?.id} />
             </Box>
           );
         case "TranscoderUpdateEvent":
@@ -311,9 +282,9 @@ const TransactionsList = ({
             <Box>
               {getLptAmount(Number(event?.amount))}
               {` was transferred between `}
-              <EthAddress value={event?.newDelegator?.id} />
+              <EthAddressBadge value={event?.newDelegator?.id} />
               {` and `}
-              <EthAddress value={event?.oldDelegator?.id} />
+              <EthAddressBadge value={event?.oldDelegator?.id} />
             </Box>
           );
         case "TranscoderActivatedEvent":
@@ -386,10 +357,14 @@ const TransactionsList = ({
             <Box>
               {`Voted `}
               <Badge
-                variant={+event?.choiceID === 0 ? "primary" : "red"}
+                css={{
+                  backgroundColor:
+                    +event?.choiceID === 0 ? "$grass3" : "$tomato9",
+                  color: +event?.choiceID === 0 ? "$grass11" : "$tomato11",
+                }}
                 size="1"
               >
-                {+event?.choiceID === 0 ? '"Yes"' : '"No"'}
+                {+event?.choiceID === 0 ? '"For"' : '"Against"'}
               </Badge>
               {` on a proposal`}
               {renderEmoji("👩‍⚖️")}
@@ -399,7 +374,7 @@ const TransactionsList = ({
           return (
             <Box>
               {`Poll `}
-              <EthAddress value={event?.poll?.id} />
+              <EthAddressBadge value={event?.poll?.id} />
               {` has been created and will end on block ${formatRound(
                 event?.endBlock
               )}`}
@@ -432,7 +407,24 @@ const TransactionsList = ({
               {` from L1 Ethereum`}
             </Box>
           );
+        case "TreasuryVoteEvent": {
+          const support = VOTING_SUPPORT_MAP[event.support];
+          const title = parseProposalText(event.proposal as TreasuryProposal)
+            .attributes.title;
 
+          return (
+            <Box>
+              Voted{" "}
+              <Badge css={{ ...support.style }} size="1">
+                &quot;{support.text}&quot;
+              </Badge>{" "}
+              on{" "}
+              <Box as={A} href={`/treasury/${event.proposal?.id}`}>
+                {title}
+              </Box>
+            </Box>
+          );
+        }
         default:
           return <Box>{`Error fetching event information.`}</Box>;
       }
@@ -551,7 +543,7 @@ const TransactionsList = ({
               }}
               size="2"
             >
-              <Transaction id={row.values.transaction} />
+              <TransactionBadge id={row.values.transaction} />
             </Text>
           </Box>
         ),

@@ -142,7 +142,9 @@ function Inputs({ tx }: { tx: TransactionStatus }) {
       return (
         <>
           <Row>
-            <Box>Vote</Box> {inputData.choiceId === 0 ? "Yes" : "No"}
+            <Box>Vote</Box>{" "}
+            {inputData.choiceName ||
+              (inputData.choiceId === 0 ? "For" : "Against")}
           </Row>
         </>
       );

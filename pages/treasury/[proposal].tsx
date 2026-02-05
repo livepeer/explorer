@@ -1,9 +1,11 @@
 import BottomDrawer from "@components/BottomDrawer";
+import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import { BadgeVariantByState } from "@components/TreasuryProposalRow";
-import TreasuryVotingWidget from "@components/TreasuryVotingWidget";
+import { BadgeVariantByState } from "@components/Treasury/TreasuryProposalRow";
+import TreasuryVoteTable from "@components/Treasury/TreasuryVoteTable";
+import TreasuryVotingWidget from "@components/Treasury/TreasuryVotingWidget";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
@@ -18,6 +20,7 @@ import {
   Container,
   Flex,
   Heading,
+  Link as A,
   Link,
   Text,
 } from "@livepeer/design-system";
@@ -31,12 +34,22 @@ import {
   fromWei,
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
-import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  MinusCircledIcon,
+} from "@radix-ui/react-icons";
+import {
+  useProtocolQuery,
+  useTreasuryProposalQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { sentenceCase } from "change-case";
 import { BigNumber } from "ethers";
 import Head from "next/head";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { decodeFunctionData } from "viem";
 
@@ -66,11 +79,21 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 const Proposal = () => {
   const router = useRouter();
   const { width } = useWindowSize();
+  const [isDesktop, setIsDesktop] = useState(false);
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
 
   const proposalId = query?.proposal?.toString().toLowerCase();
+  const view = query?.view?.toString().toLowerCase() || "overview";
+
+  const votesTabHref = useMemo(
+    () => ({
+      pathname: router.pathname,
+      query: { ...query, view: "votes" },
+    }),
+    [router.pathname, query]
+  );
 
   const accountAddress = useAccountAddress();
   const contractAddresses = useContractInfoData();
@@ -85,6 +108,19 @@ const Proposal = () => {
   const { data: protocolQuery } = useProtocolQuery();
   const currentRound = useCurrentRoundData();
 
+  const { data: votes, loading: votesLoading } = useTreasuryVotesQuery({
+    variables: {
+      where: {
+        proposal: proposalId ?? "",
+      },
+    },
+    fetchPolicy: "cache-first",
+  });
+
+  useEffect(() => {
+    setIsDesktop(width >= 768);
+  }, [width]);
+
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
       return null;
@@ -98,6 +134,25 @@ const Proposal = () => {
   }, [proposalQuery, state, currentRound, protocolQuery]);
 
   const proposerId = useEnsData(proposal?.proposer.id);
+
+  const votesContent = useCallback(() => {
+    if (votesLoading) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "$4",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      );
+    }
+    if (!votes?.treasuryVotes?.length) return <Text>No votes yet.</Text>;
+    return <TreasuryVoteTable proposalId={proposal!.id} />;
+  }, [votesLoading, votes?.treasuryVotes?.length, proposal]);
 
   const actions = useMemo(() => {
     if (!proposal || !contractAddresses) {
@@ -130,6 +185,26 @@ const Proposal = () => {
     });
   }, [contractAddresses, proposal]);
 
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Overview",
+        href: {
+          pathname: router.pathname,
+          query: { ...query, view: "overview" },
+        },
+        isActive: view === "overview",
+      },
+      {
+        name: "Votes",
+        href: votesTabHref,
+        isActive: view === "votes",
+        count: votes?.treasuryVotes?.length,
+      },
+    ],
+    [router.pathname, query, view, votes?.treasuryVotes?.length, votesTabHref]
+  );
+
   if (stateError || proposalError) {
     return <FourZeroFour />;
   }
@@ -160,7 +235,9 @@ const Proposal = () => {
   return (
     <>
       <Head>
-        <title>Livepeer Explorer - Treasury</title>
+        <title>
+          {proposal.attributes.title} - Proposal - Livepeer Explorer
+        </title>
       </Head>
       <Container
         css={{ maxWidth: LAYOUT_MAX_WIDTH, marginTop: "$4", width: "100%" }}
@@ -243,335 +320,337 @@ const Proposal = () => {
             </Box>
 
             <Box>
-              <Box
-                css={{
-                  display: "grid",
-                  gridGap: "$3",
-                  gridTemplateColumns: "100%",
-                  marginBottom: "$3",
-                  "@bp2": {
-                    gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
-                  },
-                }}
+              <HorizontalScrollContainer
+                role="navigation"
+                ariaLabel="Proposal navigation tabs"
               >
-                <Stat
-                  css={{ flex: 1, mb: 0 }}
-                  tooltip={`
+                {tabs.map((tab, i) => (
+                  <NextLink
+                    key={i}
+                    href={tab.href}
+                    passHref
+                    legacyBehavior
+                    scroll={false}
+                  >
+                    <A
+                      variant="subtle"
+                      data-active={tab.isActive ? "true" : undefined}
+                      aria-current={tab.isActive ? "page" : undefined}
+                      css={{
+                        color: tab.isActive ? "$hiContrast" : "$neutral11",
+                        marginRight: "$4",
+                        fontSize: "$3",
+                        fontWeight: 500,
+                        flex: "0 0 auto",
+                        whiteSpace: "nowrap",
+                        "&:hover": {
+                          textDecoration: "none",
+                          color: "$hiContrast",
+                        },
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        as="span"
+                        css={{
+                          display: "flex",
+                          alignItems: "center",
+                          minHeight: 33,
+                          gap: "$1",
+                          paddingBottom: "$2",
+                          marginBottom: "-1px",
+                          position: "relative",
+                          zIndex: 2,
+                          borderBottom: "3px solid",
+                          borderColor: tab.isActive
+                            ? "$primary11"
+                            : "transparent",
+                        }}
+                      >
+                        {tab.name}
+                        {tab.count !== undefined && (
+                          <Badge size="1" variant="green">
+                            {tab.count}
+                          </Badge>
+                        )}
+                      </Box>
+                    </A>
+                  </NextLink>
+                ))}
+              </HorizontalScrollContainer>
+              <Box css={{ marginTop: "$4" }}>
+                <Box css={{ display: view === "overview" ? "block" : "none" }}>
+                  <Box
+                    css={{
+                      display: "grid",
+                      gridGap: "$3",
+                      gridTemplateColumns: "100%",
+                      marginBottom: "$3",
+                      "@bp2": {
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(128px, 1fr))",
+                      },
+                    }}
+                  >
+                    <Stat
+                      css={{ flex: 1, mb: 0 }}
+                      tooltip={`
                     Total Support = (For votes) ÷ (For votes + Against votes).
                     Abstentions are not included in the Total Support calculation.
                   `}
-                  label={
-                    <Box>
-                      Total Support (
-                      {formatPercent(
-                        +proposal.quota / PERCENTAGE_PRECISION_MILLION
-                      )}
-                      needed)
-                    </Box>
-                  }
-                  value={
-                    <Box>
-                      {formatPercent(
-                        proposal.votes.total.for /
-                          proposal.votes.total.quotaVoters
-                      )}
-                    </Box>
-                  }
-                  meta={
-                    <Box css={{ marginTop: "$4" }}>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          marginBottom: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>
-                            For ({formatPercent(proposal.votes.percent.for)})
-                          </Box>
-                        </Flex>
-                        <Box as="span">
-                          {formatVotingPower(proposal.votes.total.for)}
+                      label={
+                        <Box>
+                          Total Support (
+                          {formatPercent(+proposal.quota / PERCENTAGE_PRECISION_MILLION)}
+                          needed)
                         </Box>
-                      </Flex>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          marginBottom: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>
-                            Against (
-                            {formatPercent(proposal.votes.percent.against)})
-                          </Box>
-                        </Flex>
-                        <Box as="span">
-                          {formatVotingPower(proposal.votes.total.against)}
+                      }
+                      value={
+                        <Box>
+                          {formatPercent(
+                            proposal.votes.total.for /
+                              proposal.votes.total.quotaVoters
+                          )}
                         </Box>
-                      </Flex>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>
-                            Abstain (
-                            {formatPercent(proposal.votes.percent.abstain)})
-                          </Box>
-                        </Flex>
-                        <Box as="span">
-                          {formatVotingPower(proposal.votes.total.abstain)}
+                      }
+                      meta={
+                        <Box css={{ marginTop: "$4" }}>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              marginBottom: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Flex css={{ alignItems: "center", gap: "$1" }}>
+                              <Box
+                                as={CheckCircledIcon}
+                                css={{
+                                  color: "$grass11",
+                                  width: 14,
+                                  height: 14,
+                                }}
+                              />
+                              <Box css={{ color: "$grass11" }}>
+                                For ({formatPercent(proposal.votes.percent.for)}
+                                )
+                              </Box>
+                            </Flex>
+                            <Box as="span">
+                              {formatLPT(proposal.votes.total.for, { precision: 4 })}
+                            </Box>
+                          </Flex>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              marginBottom: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Flex css={{ alignItems: "center", gap: "$1" }}>
+                              <Box
+                                as={CrossCircledIcon}
+                                css={{
+                                  color: "$tomato11",
+                                  width: 14,
+                                  height: 14,
+                                }}
+                              />
+                              <Box css={{ color: "$tomato11" }}>
+                                Against (
+                                {formatPercent(proposal.votes.percent.against)})
+                              </Box>
+                            </Flex>
+                            <Box as="span">
+                              {formatLPT(
+                                proposal.votes.total.against,
+                                { precision: 4 }
+                              )}
+                            </Box>
+                          </Flex>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Flex css={{ alignItems: "center", gap: "$1" }}>
+                              <Box
+                                as={MinusCircledIcon}
+                                css={{
+                                  color: "$neutral11",
+                                  width: 14,
+                                  height: 14,
+                                }}
+                              />
+                              <Box css={{ color: "$neutral11" }}>
+                                Abstain (
+                                {formatPercent(proposal.votes.percent.abstain)})
+                              </Box>
+                            </Flex>
+                            <Box as="span">
+                              {formatLPT(
+                                proposal.votes.total.abstain,
+                                { precision: 4 }
+                              )}
+                            </Box>
+                          </Flex>
                         </Box>
-                      </Flex>
-                    </Box>
-                  }
-                />
+                      }
+                    />
 
-                <Stat
-                  css={{ flex: 1, mb: 0 }}
-                  tooltip={`
+                    <Stat
+                      css={{ flex: 1, mb: 0 }}
+                      tooltip={`
                     Total Participation = (For votes + Against votes + Abstain votes) ÷
                     (Voters + Nonvoters).
                   `}
-                  label={
-                    <Box>
-                      Total Participation (
-                      {formatPercent(
-                        +proposal.quorum / +proposal.totalVoteSupply
-                      )}
-                      needed)
-                    </Box>
-                  }
-                  value={
-                    <Box>{formatPercent(proposal.votes.percent.voters)}</Box>
-                  }
-                  meta={
-                    <Box css={{ marginTop: "$4" }}>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          marginBottom: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Box as="span" css={{ color: "$muted" }}>
-                          Voters ({formatPercent(proposal.votes.percent.voters)}
-                          )
+                      label={
+                        <Box>
+                          Total Participation (
+                          {formatPercent(
+                            +proposal.quorum / +proposal.totalVoteSupply
+                          )}
+                          needed)
                         </Box>
-                        <Box as="span">
-                          <Box as="span">
-                            {formatVotingPower(proposal.votes.total.voters)}
-                          </Box>
+                      }
+                      value={
+                        <Box>
+                          {formatPercent(proposal.votes.percent.voters)}
                         </Box>
-                      </Flex>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Box as="span" css={{ color: "$muted" }}>
-                          Nonvoters (
-                          {formatPercent(proposal.votes.percent.nonVoters)})
-                        </Box>
-                        <Box as="span">
-                          <Box as="span">
-                            {formatVotingPower(proposal.votes.total.nonVoters)}
-                          </Box>
-                        </Box>
-                      </Flex>
-                    </Box>
-                  }
-                />
-              </Box>
-              <Card
-                css={{
-                  marginBottom: "$3",
-                  color: "$neutral9",
-                  padding: "$3",
-                  boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
-                }}
-              >
-                <Heading
-                  css={{
-                    fontSize: "$2",
-                    color: "$neutral9",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    mb: "$2",
-                  }}
-                >
-                  Actions
-                </Heading>
-
-                {!actions && <Spinner css={{ ml: "$3" }} />}
-
-                {actions?.map((action, idx) => (
-                  <Box
-                    css={{
-                      borderBottom:
-                        idx + 1 < proposal.targets.length
-                          ? "1px solid $neutral4"
-                          : "",
-                    }}
-                    key={"target-" + idx}
-                  >
-                    {action.lptTransfer ? (
-                      <>
-                        <Text
-                          css={{ marginBottom: "0.4em" }}
-                          variant="neutral"
-                          size="3"
-                        >
-                          LPT Transfer:
-                        </Text>
-                        <Flex
-                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
-                        >
-                          <Text variant="neutral" size="3">
-                            Receiver:
-                          </Text>
-                          <Link
-                            css={{
-                              marginLeft: "auto",
-                            }}
-                            href={blockExplorerLink(
-                              action.lptTransfer.receiver
-                            )}
-                            target="_blank"
-                          >
-                            <Text
-                              css={{
-                                display: "block",
-                                fontWeight: 600,
-                                color: "$white",
-                              }}
-                              size="2"
-                            >
-                              {width <= 640
-                                ? formatAddress(action.lptTransfer.receiver)
-                                : action.lptTransfer.receiver}
-                            </Text>
-                          </Link>
-                        </Flex>
-                        <Flex
-                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
-                        >
-                          <Text variant="neutral" size="3">
-                            Amount:
-                          </Text>
-                          <Text
-                            css={{
-                              display: "block",
-                              fontWeight: 600,
-                              color: "$white",
-                              marginLeft: "auto",
-                            }}
-                            size="2"
-                          >
-                            {formatLPT(fromWei(action.lptTransfer.amount))}
-                          </Text>
-                        </Flex>
-                      </>
-                    ) : (
-                      <>
-                        <Text
-                          css={{ marginBottom: "0.4em" }}
-                          variant="neutral"
-                          size="3"
-                        >
-                          Custom:
-                        </Text>
-                        <Flex
-                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
-                        >
-                          <Text variant="neutral" size="3">
-                            Target:
-                          </Text>
-                          <Link
-                            css={{
-                              marginLeft: "auto",
-                            }}
-                            href={
-                              action.contract?.link ??
-                              blockExplorerLink(action.target)
-                            }
-                            target="_blank"
-                          >
-                            <Text
-                              css={{
-                                display: "block",
-                                fontWeight: 600,
-                                color: "$white",
-                              }}
-                              size="2"
-                            >
-                              {action.contract
-                                ? `${action.contract?.name} (${formatAddress(
-                                    action.target
-                                  )})`
-                                : action.target}
-                            </Text>
-                          </Link>
-                        </Flex>
-                        <Flex
-                          css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
-                        >
-                          <Text variant="neutral" size="3">
-                            Value:
-                          </Text>
-                          <Text
-                            css={{
-                              display: "block",
-                              fontWeight: 600,
-                              color: "$white",
-                              marginLeft: "auto",
-                            }}
-                            size="2"
-                          >
-                            {fromWei(action.value)}{" "}
-                            {DEFAULT_CHAIN.nativeCurrency.symbol}
-                          </Text>
-                        </Flex>
-                        {action.functionName ? (
+                      }
+                      meta={
+                        <Box css={{ marginTop: "$4" }}>
                           <Flex
-                            css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                            css={{
+                              fontSize: "$2",
+                              marginBottom: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
                           >
-                            <Text variant="neutral" size="3">
-                              Function:
-                            </Text>
-                            <Text
-                              css={{
-                                display: "block",
-                                fontWeight: 600,
-                                color: "$white",
-                                marginLeft: "auto",
-                                maxWidth: "50%",
-                                textAlign: "right",
-                              }}
-                              size="2"
-                            >
-                              {action.functionName}(
-                              {action.args?.join(", ") ?? ""})
-                            </Text>
+                            <Box as="span" css={{ color: "$muted" }}>
+                              Voters (
+                              {formatPercent(proposal.votes.percent.voters)})
+                            </Box>
+                            <Box as="span">
+                              <Box as="span">
+                                {formatLPT(
+                                  proposal.votes.total.voters,
+                                  { precision: 4 }
+                                )}
+                              </Box>
+                            </Box>
                           </Flex>
-                        ) : (
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Box as="span" css={{ color: "$muted" }}>
+                              Nonvoters (
+                              {formatPercent(proposal.votes.percent.nonVoters)})
+                            </Box>
+                            <Box as="span">
+                              <Box as="span">
+                                {formatLPT(
+                                  proposal.votes.total.nonVoters,
+                                  { precision: 4 }
+                                )}
+                              </Box>
+                            </Box>
+                          </Flex>
+                        </Box>
+                      }
+                    />
+                  </Box>
+                  <Card
+                    css={{
+                      marginBottom: "$3",
+                      color: "$neutral9",
+                      padding: "$3",
+                      boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
+                    }}
+                  >
+                    <Heading
+                      css={{
+                        fontSize: "$2",
+                        color: "$neutral9",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        mb: "$2",
+                      }}
+                    >
+                      Actions
+                    </Heading>
+
+                    {!actions && <Spinner css={{ ml: "$3" }} />}
+
+                    {actions?.map((action, idx) => (
+                      <Box
+                        css={{
+                          borderBottom:
+                            idx + 1 < proposal.targets.length
+                              ? "1px solid $neutral4"
+                              : "",
+                        }}
+                        key={"target-" + idx}
+                      >
+                        {action.lptTransfer ? (
                           <>
+                            <Text
+                              css={{ marginBottom: "0.4em" }}
+                              variant="neutral"
+                              size="3"
+                            >
+                              LPT Transfer:
+                            </Text>
                             <Flex
-                              css={{ paddingLeft: "$2", marginBottom: "0.2em" }}
+                              css={{
+                                paddingLeft: "$2",
+                                marginBottom: "0.2em",
+                              }}
                             >
                               <Text variant="neutral" size="3">
-                                Calldata:
+                                Receiver:
+                              </Text>
+                              <Link
+                                css={{
+                                  marginLeft: "auto",
+                                }}
+                                href={blockExplorerLink(
+                                  action.lptTransfer.receiver
+                                )}
+                                target="_blank"
+                              >
+                                <Text
+                                  css={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    color: "$white",
+                                  }}
+                                  size="2"
+                                >
+                                  {width <= 640
+                                    ? formatAddress(action.lptTransfer.receiver)
+                                    : action.lptTransfer.receiver}
+                                </Text>
+                              </Link>
+                            </Flex>
+                            <Flex
+                              css={{
+                                paddingLeft: "$2",
+                                marginBottom: "0.2em",
+                              }}
+                            >
+                              <Text variant="neutral" size="3">
+                                Amount:
                               </Text>
                               <Text
                                 css={{
@@ -579,46 +658,166 @@ const Proposal = () => {
                                   fontWeight: 600,
                                   color: "$white",
                                   marginLeft: "auto",
-                                  maxWidth: "50%",
-                                  wordBreak: "break-all",
-                                  textAlign: "right",
                                 }}
                                 size="2"
                               >
-                                {action.calldata}
+                                {fromWei(action.lptTransfer.amount)} LPT
                               </Text>
                             </Flex>
                           </>
+                        ) : (
+                          <>
+                            <Text
+                              css={{ marginBottom: "0.4em" }}
+                              variant="neutral"
+                              size="3"
+                            >
+                              Custom:
+                            </Text>
+                            <Flex
+                              css={{
+                                paddingLeft: "$2",
+                                marginBottom: "0.2em",
+                              }}
+                            >
+                              <Text variant="neutral" size="3">
+                                Target:
+                              </Text>
+                              <Link
+                                css={{
+                                  marginLeft: "auto",
+                                }}
+                                href={
+                                  action.contract?.link ??
+                                  blockExplorerLink(action.target)
+                                }
+                                target="_blank"
+                              >
+                                <Text
+                                  css={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    color: "$white",
+                                  }}
+                                  size="2"
+                                >
+                                  {action.contract
+                                    ? `${
+                                        action.contract?.name
+                                      } (${formatAddress(action.target)})`
+                                    : action.target}
+                                </Text>
+                              </Link>
+                            </Flex>
+                            <Flex
+                              css={{
+                                paddingLeft: "$2",
+                                marginBottom: "0.2em",
+                              }}
+                            >
+                              <Text variant="neutral" size="3">
+                                Value:
+                              </Text>
+                              <Text
+                                css={{
+                                  display: "block",
+                                  fontWeight: 600,
+                                  color: "$white",
+                                  marginLeft: "auto",
+                                }}
+                                size="2"
+                              >
+                                {fromWei(action.value)}{" "}
+                                {DEFAULT_CHAIN.nativeCurrency.symbol}
+                              </Text>
+                            </Flex>
+                            {action.functionName ? (
+                              <Flex
+                                css={{
+                                  paddingLeft: "$2",
+                                  marginBottom: "0.2em",
+                                }}
+                              >
+                                <Text variant="neutral" size="3">
+                                  Function:
+                                </Text>
+                                <Text
+                                  css={{
+                                    display: "block",
+                                    fontWeight: 600,
+                                    color: "$white",
+                                    marginLeft: "auto",
+                                    maxWidth: "50%",
+                                    textAlign: "right",
+                                  }}
+                                  size="2"
+                                >
+                                  {action.functionName}(
+                                  {action.args?.join(", ") ?? ""})
+                                </Text>
+                              </Flex>
+                            ) : (
+                              <>
+                                <Flex
+                                  css={{
+                                    paddingLeft: "$2",
+                                    marginBottom: "0.2em",
+                                  }}
+                                >
+                                  <Text variant="neutral" size="3">
+                                    Calldata:
+                                  </Text>
+                                  <Text
+                                    css={{
+                                      display: "block",
+                                      fontWeight: 600,
+                                      color: "$white",
+                                      marginLeft: "auto",
+                                      maxWidth: "50%",
+                                      wordBreak: "break-all",
+                                      textAlign: "right",
+                                    }}
+                                    size="2"
+                                  >
+                                    {action.calldata}
+                                  </Text>
+                                </Flex>
+                              </>
+                            )}
+                          </>
                         )}
-                      </>
-                    )}
-                  </Box>
-                ))}
-              </Card>
-              <Card
-                css={{
-                  padding: "$4",
-                  border: "1px solid $neutral4",
-                  marginBottom: "$3",
-                }}
-              >
-                <Heading
-                  css={{
-                    fontSize: "$2",
-                    color: "$neutral9",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    marginBottom: "$2",
-                  }}
-                >
-                  Description
-                </Heading>
-                <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
-              </Card>
+                      </Box>
+                    ))}
+                  </Card>
+                  <Card
+                    css={{
+                      padding: "$4",
+                      border: "1px solid $neutral4",
+                      marginBottom: "$3",
+                    }}
+                  >
+                    <Heading
+                      css={{
+                        fontSize: "$2",
+                        color: "$neutral9",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        marginBottom: "$2",
+                      }}
+                    >
+                      Description
+                    </Heading>
+                    <MarkdownRenderer>{proposal.description}</MarkdownRenderer>
+                  </Card>
+                </Box>
+              </Box>
+              <Box css={{ display: view === "votes" ? "block" : "none" }}>
+                {votesContent()}
+              </Box>
             </Box>
           </Flex>
 
-          {width > 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",
@@ -632,11 +831,19 @@ const Proposal = () => {
                 },
               }}
             >
-              <TreasuryVotingWidget proposal={proposal} vote={votingPower} />
+              <TreasuryVotingWidget
+                proposal={proposal}
+                vote={votingPower}
+                votesTabHref={votesTabHref}
+              />
             </Flex>
           ) : (
             <BottomDrawer>
-              <TreasuryVotingWidget proposal={proposal} vote={votingPower} />
+              <TreasuryVotingWidget
+                proposal={proposal}
+                vote={votingPower}
+                votesTabHref={votesTabHref}
+              />
             </BottomDrawer>
           )}
         </Flex>
