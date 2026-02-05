@@ -1,4 +1,4 @@
-import { Text, TextArea } from "@livepeer/design-system";
+import { Box, Text, TextArea } from "@livepeer/design-system";
 
 const MAX_INPUT_LENGTH = 256;
 const MIN_INPUT_LENGTH = 3;
@@ -22,17 +22,30 @@ const Index = ({
   const charsLeft = MAX_INPUT_LENGTH - reason.length;
 
   return (
-    <>
-      <Text size="2" css={{ fontWeight: 600 }}>
+    <Box css={{ marginTop: "$2" }}>
+      <Text
+        size="2"
+        css={{
+          fontWeight: 600,
+          display: "block",
+          marginBottom: "$2",
+          color: "$hiContrast",
+        }}
+      >
         Reason (optional)
       </Text>
       <TextArea
         css={{
           borderRadius: "$2",
           fontSize: "$2",
-          paddingRight: "$3",
-          paddingLeft: "$3",
+          padding: "$3",
           width: "100%",
+          backgroundColor: "$neutral3",
+          border: "1px solid $neutral4",
+          "&:focus": {
+            outline: "none",
+            borderColor: "$neutral6",
+          },
         }}
         placeholder="Please provide reasoning behind your vote..."
         value={reason}
@@ -41,21 +54,18 @@ const Index = ({
         maxLength={MAX_INPUT_LENGTH}
         minLength={MIN_INPUT_LENGTH}
         onChange={(e) => setReason(e.target.value)}
-        rows={3}
-        size="3"
+        rows={4}
       />
       <Text
         css={{
           fontSize: "$1",
-          paddingTop: "$1",
-          paddingBottom: "$1",
-          paddingLeft: "$1",
-          color: "$gray",
+          marginTop: "$1",
+          color: "$neutral11",
         }}
       >
         {charsLeft} characters left
       </Text>
-    </>
+    </Box>
   );
 };
 
