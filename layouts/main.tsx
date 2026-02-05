@@ -57,7 +57,6 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
-import { useWindowSize } from "react-use";
 import { Chain } from "viem";
 
 import {
@@ -108,8 +107,11 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
+import ConnectButtonSkeleton from "../components/ConnectButton/Skeleton";
+
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  loading: () => <ConnectButtonSkeleton />,
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
@@ -134,7 +136,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerActive, setBannerActive] = useState<boolean>(false);
-  const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
@@ -207,16 +208,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, [isReady, isBannerDisabledByQuery]);
-
-  useEffect(() => {
-    if (width > 1020) {
-      document.body.removeAttribute("style");
-    }
-
-    if (width < 1020 && drawerOpen) {
-      document.body.style.overflow = "hidden";
-    }
-  }, [drawerOpen, width]);
 
   useEffect(() => {
     ReactGA.set({
@@ -617,6 +608,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
@@ -693,7 +685,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     </Flex>
                   </Container>
                 </AppBar>
-                <Flex
+                <Box
+                  as="main"
                   css={{
                     position: "relative",
                     width: "100%",
@@ -712,7 +705,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     )}
                     {children}
                   </Box>
-                </Flex>
+                </Box>
               </Box>
             </Box>
             <TxConfirmedDialog />
@@ -856,11 +849,17 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           marginBottom: "$1",
                         }}
                         target="_blank"
+                        rel="noopener noreferrer"
                         href={
                           contractAddresses?.[
                             key as keyof typeof contractAddresses
                           ]?.link
                         }
+                        aria-label={`View ${
+                          contractAddresses?.[
+                            key as keyof typeof contractAddresses
+                          ]?.name ?? "contract"
+                        } on block explorer`}
                       >
                         <Text
                           css={{
@@ -897,7 +896,11 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
             >
-              <A>
+              <A
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Learn more about these contracts (opens in new tab)"
+              >
                 <Flex
                   css={{
                     marginTop: "$2",
@@ -919,6 +922,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                       height: 15,
                     }}
                     as={ArrowTopRightIcon}
+                    aria-hidden="true"
                   />
                 </Flex>
               </A>

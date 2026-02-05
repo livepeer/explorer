@@ -117,7 +117,7 @@ const Index = ({
             </Box>
           }
         >
-          <Flex>
+          <Flex role="group">
             <Text
               css={{
                 fontWeight: 600,
@@ -131,6 +131,7 @@ const Index = ({
             {isRoundLocked ? (
               <Box
                 as={Cross1Icon}
+                aria-hidden="true"
                 css={{
                   marginLeft: "$2",
                   width: 20,
@@ -141,6 +142,7 @@ const Index = ({
             ) : (
               <Box
                 as={CheckIcon}
+                aria-hidden="true"
                 css={{
                   marginLeft: "$1",
                   width: 20,
@@ -242,6 +244,7 @@ const Index = ({
               </Text>
             </Box>
             <ExplorerTooltip
+              role="group"
               multiline
               content={
                 <Box>
@@ -301,6 +304,7 @@ const Index = ({
             </ExplorerTooltip>
             <ExplorerTooltip
               multiline
+              role="group"
               content={
                 <Box>
                   The amount of rewards which have been claimed by orchestrators
