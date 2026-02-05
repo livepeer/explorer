@@ -1,8 +1,8 @@
 import BottomDrawer from "@components/BottomDrawer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import PollVotingWidget from "@components/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import VotingWidget from "@components/VotingWidget";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
@@ -17,6 +17,7 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   AccountQuery,
   PollChoice,
@@ -27,9 +28,9 @@ import {
 import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+import { formatPercent } from "utils/voting";
 
 import {
   useAccountAddress,
@@ -38,12 +39,6 @@ import {
 } from "../../hooks";
 import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 4,
-  });
 
 const Poll = () => {
   const router = useRouter();
@@ -244,8 +239,14 @@ const Poll = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>Yes ({formatPercent(pollData.percent.yes)})</Box>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CheckCircledIcon}
+                            css={{ color: "$grass11", width: 14, height: 14 }}
+                          />
+                          <Box css={{ color: "$grass11" }}>
+                            For ({formatPercent(pollData.percent.yes)})
+                          </Box>
                         </Flex>
                         <Box as="span">
                           {abbreviateNumber(pollData.stake.yes, 4)} LPT
@@ -258,8 +259,14 @@ const Poll = () => {
                           color: "$hiContrast",
                         }}
                       >
-                        <Flex css={{ alignItems: "center" }}>
-                          <Box>No ({formatPercent(pollData.percent.no)})</Box>
+                        <Flex css={{ alignItems: "center", gap: "$1" }}>
+                          <Box
+                            as={CrossCircledIcon}
+                            css={{ color: "$tomato11", width: 14, height: 14 }}
+                          />
+                          <Box css={{ color: "$tomato11" }}>
+                            Against ({formatPercent(pollData.percent.no)})
+                          </Box>
                         </Flex>
                         <Box as="span">
                           {abbreviateNumber(pollData.stake.no, 4)} LPT
@@ -347,7 +354,7 @@ const Poll = () => {
                 },
               }}
             >
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as
@@ -374,7 +381,7 @@ const Poll = () => {
             </Flex>
           ) : (
             <BottomDrawer>
-              <VotingWidget
+              <PollVotingWidget
                 data={{
                   poll: pollData,
                   delegateVote: delegateVoteData?.vote as

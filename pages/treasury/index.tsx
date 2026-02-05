@@ -1,5 +1,5 @@
 import Spinner from "@components/Spinner";
-import TreasuryProposalRow from "@components/TreasuryProposalRow";
+import TreasuryProposalRow from "@components/Treasury/TreasuryProposalRow";
 import { parseProposalText } from "@lib/api/treasury";
 import {
   Box,
