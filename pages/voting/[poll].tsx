@@ -20,7 +20,6 @@ import {
 import {
   formatLPT,
   formatPercent,
-  formatVotingPower,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
@@ -42,7 +41,6 @@ import {
   useExplorerStore,
 } from "../../hooks";
 import FourZeroFour from "../404";
-
 
 const Poll = () => {
   const router = useRouter();

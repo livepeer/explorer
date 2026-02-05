@@ -1,5 +1,5 @@
 import { PollExtended } from "@lib/api/polls";
-import { fromWei } from "@lib/utils";
+import { fromWei } from "@utils/web3";
 import { AccountQuery, PollChoice } from "apollo";
 import numbro from "numbro";
 export type VotingResponse = {
