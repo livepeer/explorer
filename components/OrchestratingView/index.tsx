@@ -2,9 +2,13 @@ import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import { AccountQueryResult } from "apollo";
+import {
+  AccountQueryResult,
+  useTranscoderActivationHistoryQuery,
+  useTreasuryProposalsQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { useScoreData } from "hooks";
-import { useGovernanceParticipation } from "hooks/useGovernanceParticipation";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
 import numbro from "numbro";
@@ -25,6 +29,108 @@ interface Props {
   >["currentRound"];
   isActive: boolean;
 }
+
+type ActivationWindow = { start: number; end: number };
+type Participation = { voted: number; eligible: number };
+
+const buildActiveWindows = (
+  activations: { activationRound: string }[],
+  deactivations: { deactivationRound: string }[]
+): ActivationWindow[] => {
+  const timeline = [
+    ...activations.map((a) => ({
+      round: Number(a.activationRound),
+      type: "activation" as const,
+    })),
+    ...deactivations.map((d) => ({
+      round: Number(d.deactivationRound),
+      type: "deactivation" as const,
+    })),
+  ].sort((a, b) => a.round - b.round || (a.type === "deactivation" ? -1 : 1));
+
+  const windows: ActivationWindow[] = [];
+  let start: number | null = null;
+
+  for (const { type, round } of timeline) {
+    if (type === "activation") {
+      if (start === null) {
+        start = round;
+      }
+    } else if (start !== null && round >= start) {
+      windows.push({ start, end: round });
+      start = null;
+    }
+  }
+
+  return start !== null
+    ? [...windows, { start, end: Number.POSITIVE_INFINITY }]
+    : windows;
+};
+
+const isDuringWindow = (round: number, windows: ActivationWindow[]) =>
+  windows.some((w) => round >= w.start && round < w.end);
+
+const useGovernanceParticipation = (
+  delegateId?: string
+): { treasury: Participation | null; loading: boolean } => {
+  const hasDelegate = Boolean(delegateId);
+
+  const { data: activationData, loading: activationLoading } =
+    useTranscoderActivationHistoryQuery({
+      ...(hasDelegate ? { variables: { delegate: delegateId! } } : {}),
+      fetchPolicy: "cache-and-network",
+      skip: !hasDelegate,
+    });
+
+  const { data: votesData, loading: votesLoading } = useTreasuryVotesQuery({
+    ...(hasDelegate ? { variables: { where: { voter: delegateId! } } } : {}),
+    fetchPolicy: "cache-and-network",
+    skip: !hasDelegate,
+  });
+
+  const activations = useMemo(
+    () => activationData?.transcoderActivatedEvents ?? [],
+    [activationData?.transcoderActivatedEvents]
+  );
+  const deactivations = useMemo(
+    () => activationData?.transcoderDeactivatedEvents ?? [],
+    [activationData?.transcoderDeactivatedEvents]
+  );
+
+  const firstActivationRound = activations[0]?.activationRound;
+
+  const windows = useMemo(
+    () => buildActiveWindows(activations, deactivations),
+    [activations, deactivations]
+  );
+
+  const { data: proposalsData, loading: proposalsLoading } =
+    useTreasuryProposalsQuery({
+      variables: firstActivationRound
+        ? { where: { voteStart_gte: firstActivationRound } }
+        : undefined,
+      skip: !firstActivationRound,
+      fetchPolicy: "cache-and-network",
+    });
+
+  const treasuryParticipation = useMemo<Participation | null>(() => {
+    if (!proposalsData || !votesData) return null;
+    if (!firstActivationRound) return null;
+
+    const eligible = proposalsData.treasuryProposals.filter((proposal) =>
+      isDuringWindow(Number(proposal.voteStart), windows)
+    ).length;
+    const voted = votesData.treasuryVotes.filter((vote) =>
+      isDuringWindow(Number(vote.proposal.voteStart), windows)
+    ).length;
+    return { voted, eligible };
+  }, [proposalsData, votesData, firstActivationRound, windows]);
+
+  return {
+    treasury: treasuryParticipation,
+    loading: activationLoading || votesLoading || proposalsLoading,
+  };
+};
 
 const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
