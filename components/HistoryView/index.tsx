@@ -14,8 +14,6 @@ import {
   Link as A,
   styled,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useHistoryFilter } from "hooks";
 import {
   TransactionsQuery,
   TreasuryVoteEvent,
@@ -23,6 +21,7 @@ import {
   useTransactionsQuery,
   VoteEvent,
 } from "apollo";
+import { useHistoryFilter } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
