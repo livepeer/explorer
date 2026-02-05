@@ -1,6 +1,5 @@
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -14,9 +13,10 @@ import {
   useSnackbar,
 } from "@livepeer/design-system";
 import { Cross1Icon } from "@modulz/radix-icons";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import { formatAddress, fromWei } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
-import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
@@ -46,12 +46,6 @@ type Props = {
     | null;
   myAccount: AccountQuery;
 };
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 4,
-  });
 
 const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();
@@ -215,7 +209,7 @@ const Index = ({ data }: { data: Props }) => {
                   ? "votes"
                   : "vote"
               }`}{" "}
-              · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
+              · {formatVotingPower(data.poll.stake.voters)} ·{" "}
               {data.poll.status !== "active"
                 ? "Final Results"
                 : dayjs
@@ -280,7 +274,7 @@ const Index = ({ data }: { data: Props }) => {
                       css={{ fontWeight: 500, color: "$hiContrast" }}
                     >
                       <Box as="span">
-                        {abbreviateNumber(votingPower, 4)} LPT (
+                        {formatVotingPower(votingPower)} (
                         {(
                           (+votingPower /
                             (data.poll.stake.nonVoters +

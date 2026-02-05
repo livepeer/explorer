@@ -7,6 +7,24 @@ import { formatEther, getAddress, parseEther } from "viem";
 export const EMPTY_ADDRESS = ethers.constants.AddressZero;
 
 /**
+ * Protocol multiplier for percentage values stored with 9 degrees of precision.
+ * 1,000,000,000 = 100%
+ */
+export const PERCENTAGE_PRECISION_BILLION = 1000000000;
+
+/**
+ * Protocol multiplier for percentage values stored with 6 degrees of precision.
+ * 1,000,000 = 100%
+ */
+export const PERCENTAGE_PRECISION_MILLION = 1000000;
+
+/**
+ * Protocol multiplier for percentage values stored with 4 degrees of precision (BIPS).
+ * 10,000 = 100%
+ */
+export const PERCENTAGE_PRECISION_TEN_THOUSAND = 10000;
+
+/**
  * Check if two addresses are equal, case-insensitive.
  * @param address1 - First address
  * @param address2 - Second address

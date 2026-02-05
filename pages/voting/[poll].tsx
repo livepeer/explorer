@@ -17,6 +17,7 @@ import {
   Heading,
   Text,
 } from "@livepeer/design-system";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
 import {
   AccountQuery,
   PollChoice,
@@ -27,7 +28,6 @@ import {
 import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 
@@ -36,14 +36,7 @@ import {
   useCurrentRoundData,
   useExplorerStore,
 } from "../../hooks";
-import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({
-    output: "percent",
-    mantissa: 4,
-  });
 
 const Poll = () => {
   const router = useRouter();
@@ -248,7 +241,7 @@ const Poll = () => {
                           <Box>Yes ({formatPercent(pollData.percent.yes)})</Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(pollData.stake.yes, 4)} LPT
+                          {formatVotingPower(pollData.stake.yes)}
                         </Box>
                       </Flex>
                       <Flex
@@ -262,7 +255,7 @@ const Poll = () => {
                           <Box>No ({formatPercent(pollData.percent.no)})</Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(pollData.stake.no, 4)} LPT
+                          {formatVotingPower(pollData.stake.no)}
                         </Box>
                       </Flex>
                     </Box>
@@ -292,7 +285,7 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(pollData.stake.voters, 4)} LPT
+                            {formatVotingPower(pollData.stake.voters)}
                           </Box>
                         </Box>
                       </Flex>
@@ -309,7 +302,7 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(pollData.stake.nonVoters, 4)} LPT
+                            {formatVotingPower(pollData.stake.nonVoters)}
                           </Box>
                         </Box>
                       </Flex>

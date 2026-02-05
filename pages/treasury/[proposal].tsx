@@ -10,7 +10,6 @@ import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getProposalExtended } from "@lib/api/treasury";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -22,12 +21,21 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
+import {
+  formatLPT,
+  formatPercent,
+  formatVotingPower,
+} from "@utils/numberFormatters";
+import {
+  formatAddress,
+  fromWei,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import { useProtocolQuery, useTreasuryProposalQuery } from "apollo";
 import { sentenceCase } from "change-case";
 import { BigNumber } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import { decodeFunctionData } from "viem";
@@ -42,9 +50,6 @@ import {
   useTreasuryProposalState,
 } from "../../hooks";
 import FourZeroFour from "../404";
-
-const formatPercent = (percent: number) =>
-  numbro(percent).format({ mantissa: 4, output: "percent" });
 
 const blockExplorerLink = (address: string) =>
   `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${address}`;
@@ -257,7 +262,10 @@ const Proposal = () => {
                   `}
                   label={
                     <Box>
-                      Total Support ({formatPercent(+proposal.quota / 1000000)}
+                      Total Support (
+                      {formatPercent(
+                        +proposal.quota / PERCENTAGE_PRECISION_MILLION
+                      )}
                       needed)
                     </Box>
                   }
@@ -285,7 +293,7 @@ const Proposal = () => {
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(proposal.votes.total.for, 4)} LPT
+                          {formatVotingPower(proposal.votes.total.for)}
                         </Box>
                       </Flex>
                       <Flex
@@ -303,8 +311,7 @@ const Proposal = () => {
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(proposal.votes.total.against, 4)}{" "}
-                          LPT
+                          {formatVotingPower(proposal.votes.total.against)}
                         </Box>
                       </Flex>
                       <Flex
@@ -321,8 +328,7 @@ const Proposal = () => {
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(proposal.votes.total.abstain, 4)}{" "}
-                          LPT
+                          {formatVotingPower(proposal.votes.total.abstain)}
                         </Box>
                       </Flex>
                     </Box>
@@ -363,8 +369,7 @@ const Proposal = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(proposal.votes.total.voters, 4)}{" "}
-                            LPT
+                            {formatVotingPower(proposal.votes.total.voters)}
                           </Box>
                         </Box>
                       </Flex>
@@ -381,11 +386,7 @@ const Proposal = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(
-                              proposal.votes.total.nonVoters,
-                              4
-                            )}{" "}
-                            LPT
+                            {formatVotingPower(proposal.votes.total.nonVoters)}
                           </Box>
                         </Box>
                       </Flex>
@@ -478,7 +479,7 @@ const Proposal = () => {
                             }}
                             size="2"
                           >
-                            {fromWei(action.lptTransfer.amount)} LPT
+                            {formatLPT(fromWei(action.lptTransfer.amount))}
                           </Text>
                         </Flex>
                       </>

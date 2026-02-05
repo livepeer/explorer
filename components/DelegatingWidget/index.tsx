@@ -1,13 +1,13 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { fromWei } from "@lib/utils";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
+import { formatLPT } from "@utils/numberFormatters";
+import { fromWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useEnsData,
   useExplorerStore,
   usePendingFeesAndStakeData,
 } from "hooks";
-import numbro from "numbro";
 import { useMemo, useState } from "react";
 
 import ArrowDown from "../../public/img/arrow-down.svg";
@@ -140,11 +140,10 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {numbro(currentPendingStake).format({
-                        mantissa: 1,
-                        thousandSeparated: true,
+                      {formatLPT(currentPendingStake, {
+                        precision: 1,
+                        abbreviate: false,
                       })}
-                      {` LPT`}
                     </Box>
                     {` from `}
                     <Box as="span" css={{ fontWeight: 700 }}>

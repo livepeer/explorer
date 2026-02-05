@@ -1,21 +1,20 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { formatETH, formatLPT, formatPercent } from "@utils/numberFormatters";
 import { useExplorerStore } from "hooks";
-import numbro from "numbro";
-import { useMemo } from "react";
 
 const ProjectionBox = ({ action }) => {
   const { yieldResults } = useExplorerStore();
 
-  const formattedPrinciple = useMemo(
-    () =>
-      numbro(Number(yieldResults?.principle) || 0).format({
-        mantissa: 0,
-        average: true,
-      }),
-    [yieldResults]
-  );
+  const formattedPrinciple = formatLPT(Number(yieldResults?.principle), {
+    precision: 0,
+  });
+
+  const roi = yieldResults.principle
+    ? (yieldResults.roiFeesLpt + yieldResults.roiRewards) /
+      +yieldResults.principle
+    : 0;
 
   return (
     <Card
@@ -76,15 +75,7 @@ const ProjectionBox = ({ action }) => {
             </Box>
             {action === "delegate" && (
               <Box css={{ fontFamily: "$monospace", color: "$neutral11" }}>
-                {numbro(
-                  yieldResults.principle
-                    ? (yieldResults.roiFeesLpt + yieldResults.roiRewards) /
-                        +yieldResults.principle
-                    : 0
-                ).format({
-                  mantissa: 1,
-                  output: "percent",
-                })}
+                {formatPercent(roi, { precision: 1 })}
               </Box>
             )}
           </Flex>
@@ -110,10 +101,10 @@ const ProjectionBox = ({ action }) => {
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numbro(yieldResults.roiRewards).format({
-                mantissa: 1,
-              })}{" "}
-              LPT
+              {formatLPT(yieldResults.roiRewards, {
+                precision: 1,
+                abbreviate: false,
+              })}
             </Text>
           </Flex>
           <Flex css={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -137,10 +128,7 @@ const ProjectionBox = ({ action }) => {
               </ExplorerTooltip>
             </Flex>
             <Text css={{ fontSize: "$2", fontFamily: "$monospace" }}>
-              {numbro(yieldResults.roiFees).format({
-                mantissa: 3,
-              })}{" "}
-              ETH
+              {formatETH(yieldResults.roiFees, { precision: 3 })}
             </Text>
           </Flex>
         </Box>

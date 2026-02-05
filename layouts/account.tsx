@@ -6,7 +6,6 @@ import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
 import {
   Button,
   Container,
@@ -16,6 +15,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@livepeer/design-system";
+import { checkAddressEquality } from "@utils/web3";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,

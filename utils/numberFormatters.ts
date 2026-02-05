@@ -14,6 +14,8 @@ export interface FormatOptions {
   thousandSeparated?: boolean;
   /** Whether to trim trailing zeros (e.g. 1.5 instead of 1.50). Default is true (cleaner output). */
   trimZeros?: boolean;
+  /** Whether to force a sign (+/-) for positive numbers */
+  forceSign?: boolean;
 }
 
 /**
@@ -48,6 +50,7 @@ export function formatLPT(
     precision = 2,
     thousandSeparated = true,
     trimZeros = true,
+    forceSign = false,
   } = options;
 
   // Handle null/undefined
@@ -90,6 +93,7 @@ export function formatLPT(
         mantissa: 2,
         trimMantissa: true,
         thousandSeparated: false,
+        forceSign,
       })
       .toUpperCase();
   } else {
@@ -98,6 +102,7 @@ export function formatLPT(
       thousandSeparated,
       mantissa: precision,
       trimMantissa: trimZeros,
+      forceSign,
     });
   }
 
@@ -130,6 +135,8 @@ export function formatETH(
     precision = 4,
     thousandSeparated = true,
     trimZeros = true,
+    forceSign = false,
+    abbreviate = false,
   } = options;
 
   // Handle null/undefined
@@ -162,11 +169,26 @@ export function formatETH(
     return showSymbol ? `> -${thresholdStr} ETH` : `> -${thresholdStr}`;
   }
 
-  // Standard formatting (no abbreviations for ETH)
+  // Use abbreviations for large numbers (>= 10,000)
+  if (abbreviate && Math.abs(num) >= 10000) {
+    const abbreviated = numbro(num)
+      .format({
+        average: true,
+        mantissa: 2,
+        trimMantissa: true,
+        thousandSeparated: false,
+        forceSign,
+      })
+      .toUpperCase();
+    return showSymbol ? `${abbreviated} ETH` : abbreviated;
+  }
+
+  // Standard formatting
   const formatted = numbro(num).format({
     thousandSeparated,
     mantissa: precision,
     trimMantissa: trimZeros,
+    forceSign,
   });
 
   return showSymbol ? `${formatted} ETH` : formatted;
@@ -192,7 +214,7 @@ export function formatPercent(
   value: number | string | null | undefined,
   options: FormatOptions = {}
 ): string {
-  const { precision = 2 } = options;
+  const { precision = 2, forceSign = false } = options;
 
   // Handle null/undefined
   if (value == null) {
@@ -217,8 +239,14 @@ export function formatPercent(
 
   const formatted = numbro(num).format({
     output: "percent",
-    mantissa: isWholeNumber ? 0 : precision,
+    mantissa:
+      options.precision !== undefined
+        ? precision
+        : isWholeNumber
+        ? 0
+        : precision,
     trimMantissa: false, // Percentages should keep alignment usually
+    forceSign,
   });
 
   return formatted;
@@ -275,7 +303,12 @@ export function formatStakeAmount(
  * formatRound(12345)              // "#12,345"
  * formatRound(100)                // "#100"
  */
-export function formatRound(value: number | string | null | undefined): string {
+export function formatRound(
+  value: number | string | null | undefined,
+  options: FormatOptions = {}
+): string {
+  const { precision = 0 } = options;
+
   // Handle null/undefined
   if (value == null) {
     return "#0";
@@ -290,7 +323,7 @@ export function formatRound(value: number | string | null | undefined): string {
 
   const formatted = numbro(num).format({
     thousandSeparated: true,
-    mantissa: 0,
+    mantissa: precision,
   });
 
   return `#${formatted}`;
@@ -321,6 +354,7 @@ export function formatNumber(
     abbreviate = false,
     thousandSeparated = true,
     trimZeros = true,
+    forceSign = false,
   } = options;
 
   // Handle null/undefined
@@ -348,6 +382,7 @@ export function formatNumber(
         mantissa: 2,
         trimMantissa: true,
         thousandSeparated: false,
+        forceSign,
       })
       .toUpperCase();
   }
@@ -357,5 +392,22 @@ export function formatNumber(
     thousandSeparated,
     mantissa: precision,
     trimMantissa: trimZeros,
+    forceSign,
   });
+}
+
+/**
+ * Format currency values (USD)
+ * Wraps formatNumber and adds the currency symbol ($).
+ *
+ * @param value - The amount to format
+ * @param options - Formatting options
+ * @returns Formatted string (e.g., "$1,234.56", "$15K")
+ */
+export function formatUSD(
+  value: number | string | null | undefined,
+  options: FormatOptions = {}
+): string {
+  const formatted = formatNumber(value, options);
+  return `$${formatted}`;
 }

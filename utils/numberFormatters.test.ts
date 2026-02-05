@@ -5,6 +5,7 @@ import {
   formatPercent,
   formatRound,
   formatStakeAmount,
+  formatUSD,
   formatVotingPower,
 } from "./numberFormatters";
 
@@ -120,6 +121,16 @@ describe("formatLPT", () => {
       expect(formatLPT(100, { trimZeros: false })).toBe("100.00 LPT");
     });
   });
+
+  describe("forceSign", () => {
+    it("shows + for positive numbers", () => {
+      expect(formatLPT(10, { forceSign: true })).toBe("+10 LPT");
+    });
+
+    it("shows - for negative numbers", () => {
+      expect(formatLPT(-10, { forceSign: true })).toBe("-10 LPT");
+    });
+  });
 });
 
 describe("formatETH", () => {
@@ -153,10 +164,20 @@ describe("formatETH", () => {
     });
   });
 
-  describe("no abbreviation", () => {
-    it("does not abbreviate large values", () => {
+  describe("abbreviation (>= 10,000)", () => {
+    it("abbreviates when enabled", () => {
+      expect(formatETH(15000, { abbreviate: true })).toBe("15K ETH");
+      expect(formatETH(1500000, { abbreviate: true })).toBe("1.5M ETH");
+    });
+
+    it("does not abbreviate by default", () => {
       expect(formatETH(15000)).toBe("15,000 ETH");
-      expect(formatETH(1000000)).toBe("1,000,000 ETH");
+    });
+
+    it("forceSign works with abbreviation", () => {
+      expect(formatETH(15000, { abbreviate: true, forceSign: true })).toBe(
+        "+15K ETH"
+      );
     });
   });
 
@@ -167,6 +188,12 @@ describe("formatETH", () => {
 
     it("handles undefined as zero", () => {
       expect(formatETH(undefined)).toBe("0 ETH");
+    });
+  });
+
+  describe("forceSign", () => {
+    it("shows + for positive numbers", () => {
+      expect(formatETH(10, { forceSign: true })).toBe("+10 ETH");
     });
   });
 });
@@ -193,6 +220,13 @@ describe("formatPercent", () => {
       expect(formatPercent(0.001)).toBe("0.10%");
       expect(formatPercent(0.5555)).toBe("55.55%");
     });
+
+    it("respects explicit precision even if looks like whole number", () => {
+      // 0.0000005 * 100 = 0.00005 (looks whole by heuristic but isn't)
+      expect(formatPercent(0.0000005, { precision: 5 })).toBe("0.00005%");
+      // 0.5 * 100 = 50 (is whole)
+      expect(formatPercent(0.5, { precision: 2 })).toBe("50.00%");
+    });
   });
 
   describe("null/undefined handling", () => {
@@ -202,6 +236,17 @@ describe("formatPercent", () => {
 
     it("handles undefined as zero", () => {
       expect(formatPercent(undefined)).toBe("0%");
+    });
+  });
+
+  describe("forceSign", () => {
+    it("shows + for positive numbers", () => {
+      expect(formatPercent(0.1, { forceSign: true })).toBe("+10%");
+      expect(formatPercent(0.5, { forceSign: true })).toBe("+50%");
+    });
+
+    it("shows - for negative numbers", () => {
+      expect(formatPercent(-0.1, { forceSign: true })).toBe("-10%");
     });
   });
 });
@@ -236,6 +281,11 @@ describe("formatRound", () => {
 
     it("includes thousand separators", () => {
       expect(formatRound(1234567)).toBe("#1,234,567");
+    });
+
+    it("supports custom precision", () => {
+      expect(formatRound(12345.67, { precision: 2 })).toBe("#12,345.67");
+      expect(formatRound(12345.67)).toBe("#12,346");
     });
   });
 
@@ -299,5 +349,38 @@ describe("formatNumber", () => {
     it("handles undefined as zero", () => {
       expect(formatNumber(undefined)).toBe("0");
     });
+  });
+
+  describe("forceSign", () => {
+    it("shows + for positive numbers", () => {
+      expect(formatNumber(10, { forceSign: true })).toBe("+10");
+      expect(formatNumber(15000, { abbreviate: true, forceSign: true })).toBe(
+        "+15K"
+      );
+    });
+
+    it("shows - for negative numbers", () => {
+      expect(formatNumber(-10, { forceSign: true })).toBe("-10");
+    });
+  });
+});
+
+describe("formatUSD", () => {
+  it("formats number with $ prefix", () => {
+    expect(formatUSD(1234.56)).toBe("$1,234.56");
+  });
+
+  it("respects options", () => {
+    expect(formatUSD(15000, { abbreviate: true })).toBe("$15K");
+    expect(formatUSD(1234.56, { precision: 0 })).toBe("$1,235");
+  });
+
+  it("handles zero/null", () => {
+    expect(formatUSD(0)).toBe("$0");
+    expect(formatUSD(null)).toBe("$0");
+  });
+
+  it("supports forceSign", () => {
+    expect(formatUSD(10, { forceSign: true })).toBe("$+10");
   });
 });

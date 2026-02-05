@@ -4,13 +4,14 @@ import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { AllPerformanceMetrics } from "@lib/api/types/get-performance";
 import { Region } from "@lib/api/types/get-regions";
-import { formatAddress, textTruncate } from "@lib/utils";
+import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { formatNumber, formatPercent } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { OrchestratorsQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numbro from "numbro";
 import { useMemo } from "react";
 import { Column } from "react-table";
 
@@ -170,8 +171,8 @@ const PerformanceList = ({
                       },
                     }}
                   >
-                    {numbro(row.values.scores).divide(10).format({
-                      mantissa: 2,
+                    {formatNumber(row.values.scores / 10, {
+                      precision: 2,
                     })}
                   </Badge>
                 ) : null}
@@ -230,9 +231,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(10).format({
-                    mantissa: 2,
-                  })}
+                : formatNumber(Number(value) / 10, { precision: 2 })}
             </Box>
           );
         },
@@ -268,10 +267,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(100).format({
-                    output: "percent",
-                    mantissa: 0,
-                  })}
+                : formatPercent(Number(value) / 100, { precision: 0 })}
             </Box>
           );
         },
@@ -308,9 +304,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(10).format({
-                    mantissa: 2,
-                  })}
+                : formatNumber(Number(value) / 10, { precision: 2 })}
             </Box>
           );
         },

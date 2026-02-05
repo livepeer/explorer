@@ -1,13 +1,22 @@
 import Table from "@components/Table";
 import dayjs from "@lib/dayjs";
-import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import {
+  formatETH,
+  formatLPT,
+  formatPercent,
+  formatRound,
+} from "@utils/numberFormatters";
+import { formatTransactionHash } from "@utils/web3";
+import {
+  PERCENTAGE_PRECISION_BILLION,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import { EventsQueryResult } from "apollo";
 import { sentenceCase } from "change-case";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numbro from "numbro";
 import { useCallback, useMemo } from "react";
 
 export const FILTERED_EVENT_TYPENAMES = [
@@ -16,43 +25,38 @@ export const FILTERED_EVENT_TYPENAMES = [
   "EarningsClaimedEvent",
 ];
 
+const isTinyAmount = (amount: number) => amount > 0 && amount < 0.01;
+
 const getLptAmount = (number: number | string | undefined) => {
   const amount = Number(number ?? 0) || 0;
+  const isTinyLPT = isTinyAmount(amount);
   return (
-    <Badge size="1">{`${numbro(amount).format(
-      amount > 0 && amount < 0.01
-        ? { mantissa: 4, trimMantissa: true }
-        : { mantissa: 2, average: true, lowPrecision: false }
-    )} LPT`}</Badge>
+    <Badge size="1">
+      {formatLPT(amount, {
+        precision: isTinyLPT ? 4 : 2,
+        abbreviate: isTinyLPT ? false : true,
+      })}
+    </Badge>
   );
 };
 
 const getEthAmount = (number?: number | string) => {
   const amount = Number(number ?? 0) || 0;
+  const isTinyETH = isTinyAmount(amount);
   return (
     <Badge size="1">
-      {`${numbro(amount).format(
-        amount > 0 && amount < 0.01
-          ? { mantissa: 4, trimMantissa: true }
-          : { mantissa: 2, average: true, lowPrecision: false }
-      )} ETH`}
+      {formatETH(amount, {
+        precision: isTinyETH ? 4 : 2,
+        abbreviate: isTinyETH ? false : true,
+      })}
     </Badge>
   );
-};
-
-const getRound = (number: number | string | undefined) => {
-  return `#${numbro(number || 0).format({
-    mantissa: 0,
-  })}`;
 };
 
 const getPercentAmount = (number: number | string | undefined) => {
   return (
     <Badge color="white" size="1">
-      {numbro(number || 0).format({
-        output: "percent",
-        mantissa: 0,
-      })}
+      {formatPercent(number, { precision: 0 })}
     </Badge>
   );
 };
@@ -246,9 +250,13 @@ const TransactionsList = ({
           return (
             <Box>
               {`Updated their reward/fee cut to `}
-              {getPercentAmount(Number(event?.rewardCut ?? 0) / 1000000)}
+              {getPercentAmount(
+                Number(event?.rewardCut ?? 0) / PERCENTAGE_PRECISION_MILLION
+              )}
               {` and `}
-              {getPercentAmount(1 - Number(event?.feeShare ?? 0) / 1000000)}
+              {getPercentAmount(
+                1 - Number(event?.feeShare ?? 0) / PERCENTAGE_PRECISION_MILLION
+              )}
             </Box>
           );
         case "RewardEvent":
@@ -312,14 +320,14 @@ const TransactionsList = ({
           return (
             <Box>
               {`Starts orchestrating in round `}
-              {getRound(event?.activationRound)}
+              {formatRound(event?.activationRound)}
             </Box>
           );
         case "TranscoderDeactivatedEvent":
           return (
             <Box>
               {`Stops orchestrating in round `}
-              {getRound(event?.deactivationRound)}
+              {formatRound(event?.deactivationRound)}
             </Box>
           );
         // case "EarningsClaimedEvent":
@@ -355,12 +363,11 @@ const TransactionsList = ({
             <Box>
               {`The inflation has been set to `}
               <Badge size="1">
-                {numbro(event?.currentInflation || 0)
-                  .divide(1000000000)
-                  .format({
-                    output: "percent",
-                    mantissa: 4,
-                  })}
+                {formatPercent(
+                  Number(event?.currentInflation || 0) /
+                    PERCENTAGE_PRECISION_BILLION,
+                  { precision: 4 }
+                )}
               </Badge>
             </Box>
           );
@@ -393,7 +400,7 @@ const TransactionsList = ({
             <Box>
               {`Poll `}
               <EthAddress value={event?.poll?.id} />
-              {` has been created and will end on block ${getRound(
+              {` has been created and will end on block ${formatRound(
                 event?.endBlock
               )}`}
             </Box>

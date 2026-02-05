@@ -1,26 +1,8 @@
-import {
-  checkAddressEquality,
-  EMPTY_ADDRESS,
-  formatAddress,
-  formatTransactionHash,
-  fromWei,
-  shortenAddress,
-  toWei,
-} from "@utils/web3";
+import { EMPTY_ADDRESS } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, NETWORK_RPC_URLS } from "lib/chains";
-
-export {
-  checkAddressEquality,
-  EMPTY_ADDRESS,
-  formatAddress,
-  formatTransactionHash,
-  fromWei,
-  shortenAddress,
-  toWei,
-};
 
 export const provider = new ethers.providers.JsonRpcProvider(
   NETWORK_RPC_URLS[DEFAULT_CHAIN_ID][0]
@@ -34,21 +16,6 @@ export function avg(obj, key) {
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
   return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
 }
-
-export const abbreviateNumber = (value, precision = 3) => {
-  let newValue = value;
-  const suffixes = ["", "K", "M", "B", "T"];
-  let suffixNum = 0;
-  while (newValue >= 1000) {
-    newValue /= 1000;
-    suffixNum++;
-  }
-
-  newValue = Number.parseFloat(newValue).toPrecision(precision);
-  newValue += suffixes[suffixNum];
-
-  return newValue;
-};
 
 export const getDelegatorStatus = (
   delegator: NonNullable<AccountQueryResult["data"]>["delegator"],
@@ -266,19 +233,4 @@ export const getPercentChange = (valueNow, value24HoursAgo) => {
  **/
 export const isImageUrl = (url: string): boolean => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-};
-
-/**
- * Shorten an Ethereum address for display.
- * @param address - The address to shorten.
- * @returns The shortened address.
- */
-
-export const lptFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-export const formatLpt = (w: string) => {
-  return `${lptFormatter.format(parseFloat(w) / 1e18)} LPT`;
 };

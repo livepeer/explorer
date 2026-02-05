@@ -1,10 +1,9 @@
+import { EMPTY_ADDRESS } from "@utils/web3";
 import { AccountQueryResult } from "apollo";
 import { StakingAction } from "hooks";
 
 import {
-  abbreviateNumber,
   avg,
-  EMPTY_ADDRESS,
   getDelegatorStatus,
   getHint,
   getPercentChange,
@@ -29,23 +28,6 @@ describe("avg", () => {
       c: { value: 6 },
     };
     expect(avg(obj, "value")).toBe(4);
-  });
-});
-
-describe("abbreviateNumber", () => {
-  it("does not abbreviate numbers < 1000", () => {
-    expect(abbreviateNumber(500)).toBe("500");
-  });
-
-  it("abbreviates thousands", () => {
-    expect(abbreviateNumber(1500)).toBe("1.50K");
-  });
-
-  it("abbreviates millions", () => {
-    const res = abbreviateNumber(2_000_000);
-    expect(res.endsWith("M")).toBe(true);
-    expect(parseFloat(res.replace("M", ""))).toBeCloseTo(2, 3);
-    expect(res).toBe("2.00M");
   });
 });
 
