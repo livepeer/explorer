@@ -1,7 +1,7 @@
 import { PollExtended } from "@lib/api/polls";
 import { fromWei } from "@utils/web3";
 import { AccountQuery, PollChoice } from "apollo";
-import numbro from "numbro";
+
 export type VotingResponse = {
   poll: PollExtended;
   delegateVote:
@@ -24,9 +24,6 @@ export type VotingResponse = {
     | null;
   myAccount: AccountQuery;
 };
-
-export const formatPercent = (percent: number, mantissa = 4) =>
-  numbro(percent).format({ output: "percent", mantissa });
 
 export function getVotingPower(
   accountAddress: string,
