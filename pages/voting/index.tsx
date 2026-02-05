@@ -213,8 +213,7 @@ const Voting = () => {
                             textTransform: "capitalize",
                             fontWeight: 700,
                             marginLeft: "-$1",
-                            marginBottom: "$1",
-                            "@bp2": { marginLeft: 0, marginBottom: 0 },
+                            "@bp2": { marginLeft: 0 },
                           }}
                         >
                           {sentenceCase(poll.status)}
