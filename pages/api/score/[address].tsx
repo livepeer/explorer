@@ -1,10 +1,18 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  badRequest,
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateInput,
+  validateOutput,
 } from "@lib/api/errors";
+import {
+  AddressSchema,
+  MetricsResponseSchema,
+  PerformanceMetricsSchema,
+  PriceResponseSchema,
+  ScoreResponseSchema,
+} from "@lib/api/schemas";
 import {
   PerformanceMetrics,
   RegionalValues,
@@ -13,7 +21,6 @@ import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg, checkAddressEquality } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isAddress } from "viem";
 
 type Metric = {
   success_rate: number;
@@ -60,117 +67,175 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { address } = req.query;
-
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
-      if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const transcoderId = address.toLowerCase();
+      const { address } = req.query;
 
-        const topScoreUrl = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`;
-        const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
-        const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
+      // AddressSchema handles undefined, arrays, and validates format
+      const addressResult = AddressSchema.safeParse(address);
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
 
-        const [topScoreResponse, metricsResponse, priceResponse] =
-          await Promise.all([
-            fetchWithRetry(topScoreUrl),
-            fetchWithRetry(metricsUrl),
-            fetchWithRetry(pricingUrl),
-          ]);
+      if (!addressResult.success) {
+        return internalError(res, new Error("Address validation failed"));
+      }
 
-        if (!topScoreResponse.ok) {
-          const errorText = await topScoreResponse.text();
-          console.error(
-            "Top AI score fetch error:",
-            topScoreResponse.status,
-            errorText
-          );
-          return externalApiError(res, "AI metrics server");
-        }
+      const transcoderId = addressResult.data.toLowerCase();
 
-        if (!metricsResponse.ok) {
-          const errorText = await metricsResponse.text();
-          console.error(
-            "Metrics fetch error:",
-            metricsResponse.status,
-            errorText
-          );
-          return externalApiError(res, "metrics server");
-        }
+      const topScoreUrl = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`;
+      const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
+      const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
 
-        if (!priceResponse.ok) {
-          const errorText = await priceResponse.text();
-          console.error(
-            "Transcoder price fetch error:",
-            priceResponse.status,
-            errorText
-          );
-          return externalApiError(res, "pricing server");
-        }
+      const [topScoreResponse, metricsResponse, priceResponse] =
+        await Promise.all([
+          fetchWithRetry(topScoreUrl),
+          fetchWithRetry(metricsUrl),
+          fetchWithRetry(pricingUrl),
+        ]);
 
-        const topAIScore: ScoreResponse = await topScoreResponse.json();
-        const metrics: MetricsResponse = await metricsResponse.json();
-        const transcodersWithPrice: PriceResponse = await priceResponse.json();
+      if (!topScoreResponse.ok) {
+        const errorText = await topScoreResponse.text();
+        console.error(
+          "Top AI score fetch error:",
+          topScoreResponse.status,
+          errorText,
+          `URL: ${topScoreUrl}`
+        );
+        return externalApiError(
+          res,
+          "AI metrics server",
+          `Status ${topScoreResponse.status}: ${errorText}`
+        );
+      }
 
-        const transcoderWithPrice = transcodersWithPrice.find((t) =>
-          checkAddressEquality(t.Address, transcoderId)
+      if (!metricsResponse.ok) {
+        const errorText = await metricsResponse.text();
+        console.error(
+          "Metrics fetch error:",
+          metricsResponse.status,
+          errorText,
+          `URL: ${metricsUrl}`
+        );
+        return externalApiError(
+          res,
+          "metrics server",
+          `Status ${metricsResponse.status}: ${errorText}`
+        );
+      }
+
+      if (!priceResponse.ok) {
+        const errorText = await priceResponse.text();
+        console.error(
+          "Transcoder price fetch error:",
+          priceResponse.status,
+          errorText
+        );
+        return externalApiError(res, "pricing server");
+      }
+
+      const topScoreResult = ScoreResponseSchema.safeParse(
+        await topScoreResponse.json()
+      );
+      const topScoreError = validateInput(
+        topScoreResult,
+        res,
+        "Invalid response from AI metrics server"
+      );
+      if (topScoreError) return topScoreError;
+      const topAIScore: ScoreResponse = topScoreResult.data as ScoreResponse;
+
+      const metricsResult = MetricsResponseSchema.safeParse(
+        await metricsResponse.json()
+      );
+      const metricsError = validateInput(
+        metricsResult,
+        res,
+        "Invalid response from metrics server"
+      );
+      if (metricsError) return metricsError;
+      const metrics: MetricsResponse = metricsResult.data as MetricsResponse;
+
+      const priceResult = PriceResponseSchema.safeParse(
+        await priceResponse.json()
+      );
+      const priceError = validateInput(
+        priceResult,
+        res,
+        "Invalid response from pricing server"
+      );
+      if (priceError) return priceError;
+      const transcodersWithPrice: PriceResponse =
+        priceResult.data as unknown as PriceResponse;
+
+      const transcoderWithPrice = transcodersWithPrice.find((t) =>
+        checkAddressEquality(t.Address, transcoderId)
+      );
+
+      const uniqueRegions = (() => {
+        const keys = new Set<string>();
+        Object.values(metrics).forEach((metric) => {
+          if (metric) {
+            Object.keys(metric).forEach((key) => keys.add(key));
+          }
+        });
+        return Array.from(keys);
+      })();
+
+      const createMetricsObject = (
+        metricKey: keyof Metric,
+        transcoderId: string,
+        metrics: MetricsResponse
+      ): RegionalValues => {
+        const metricsObject: RegionalValues = uniqueRegions.reduce(
+          (acc, metricsRegionKey) => {
+            const value =
+              metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
+            if (value !== null && value !== undefined) {
+              acc[metricsRegionKey] = value * 100;
+            }
+            return acc;
+          },
+          {} as RegionalValues
         );
 
-        const uniqueRegions = (() => {
-          const keys = new Set<string>();
-          Object.values(metrics).forEach((metric) => {
-            if (metric) {
-              Object.keys(metric).forEach((key) => keys.add(key));
-            }
-          });
-          return Array.from(keys);
-        })();
+        const globalValue = avg(metrics[transcoderId], metricKey) * 100;
 
-        const createMetricsObject = (
-          metricKey: keyof Metric,
-          transcoderId: string,
-          metrics: MetricsResponse
-        ): RegionalValues => {
-          const metricsObject: RegionalValues = uniqueRegions.reduce(
-            (acc, metricsRegionKey) => {
-              const value =
-                metrics[transcoderId]?.[metricsRegionKey]?.[metricKey];
-              if (value !== null && value !== undefined) {
-                acc[metricsRegionKey] = value * 100;
-              }
-              return acc;
-            },
-            {} as RegionalValues
-          );
-
-          const globalValue = avg(metrics[transcoderId], metricKey) * 100;
-
-          return {
-            ...metricsObject,
-            GLOBAL: globalValue,
-          };
+        return {
+          ...metricsObject,
+          GLOBAL: globalValue,
         };
+      };
 
-        const combined: PerformanceMetrics = {
-          pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
-          successRates: createMetricsObject(
-            "success_rate",
-            transcoderId,
-            metrics
-          ),
-          roundTripScores: createMetricsObject(
-            "round_trip_score",
-            transcoderId,
-            metrics
-          ),
-          scores: createMetricsObject("score", transcoderId, metrics),
-          topAIScore,
-        };
+      const combined: PerformanceMetrics = {
+        pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
+        successRates: createMetricsObject(
+          "success_rate",
+          transcoderId,
+          metrics
+        ),
+        roundTripScores: createMetricsObject(
+          "round_trip_score",
+          transcoderId,
+          metrics
+        ),
+        scores: createMetricsObject("score", transcoderId, metrics),
+        topAIScore,
+      };
 
-        return res.status(200).json(combined);
-      } else {
-        return badRequest(res, "Invalid address format");
-      }
+      // Validate output: performance metrics response
+      const outputResult = PerformanceMetricsSchema.safeParse(combined);
+      const outputValidationError = validateOutput(
+        outputResult,
+        res,
+        "api/score"
+      );
+      if (outputValidationError) return outputValidationError;
+
+      return res.status(200).json(combined);
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);

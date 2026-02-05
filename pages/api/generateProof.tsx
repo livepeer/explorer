@@ -1,4 +1,13 @@
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+  validateOutput,
+} from "@lib/api/errors";
+import {
+  GenerateProofInputSchema,
+  GenerateProofOutputSchema,
+} from "@lib/api/schemas/generate-proof";
 import { DEFAULT_CHAIN_ID } from "@lib/chains";
 import { EarningsTree } from "@lib/earningsTree";
 import { utils } from "ethers";
@@ -13,15 +22,17 @@ const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
     const method = _req.method;
 
     if (method === "POST") {
-      const { account, delegate, stake, fees } = _req.body;
+      const inputValidation = GenerateProofInputSchema.safeParse(_req.body);
 
-      if (!account || !delegate || stake === undefined || fees === undefined) {
-        return badRequest(
+      // Explicit check required for TypeScript type narrowing
+      if (!inputValidation.success) {
+        return validateInput(
+          inputValidation,
           res,
-          "Missing required parameters",
           "account, delegate, stake, and fees are required"
         );
       }
+      const { account, delegate, stake, fees } = inputValidation.data;
 
       // generate the merkle tree from JSON
       const tree = EarningsTree.fromJSON(
@@ -37,6 +48,11 @@ const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
       );
 
       const proof = tree.getHexProof(leaf);
+
+      const outputValidation = GenerateProofOutputSchema.safeParse(proof);
+      if (validateOutput(outputValidation, res, "generateProof")) {
+        return;
+      }
 
       return res.status(200).json(proof);
     }
