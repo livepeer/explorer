@@ -70,8 +70,12 @@ const buildActiveWindows = (
 const isDuringWindow = (round: number, windows: ActivationWindow[]) =>
   windows.some((w) => round >= w.start && round < w.end);
 
+const isActiveProposal = (voteStart: string, currentRoundId?: string) =>
+  currentRoundId ? Number(voteStart) <= Number(currentRoundId) : true;
+
 const useGovernanceParticipation = (
-  delegateId?: string
+  delegateId?: string,
+  currentRoundId?: string
 ): { treasury: Participation | null; loading: boolean } => {
   const hasDelegate = Boolean(delegateId);
 
@@ -117,14 +121,18 @@ const useGovernanceParticipation = (
     if (!proposalsData || !votesData) return null;
     if (!firstActivationRound) return null;
 
-    const eligible = proposalsData.treasuryProposals.filter((proposal) =>
-      isDuringWindow(Number(proposal.voteStart), windows)
+    const eligible = proposalsData.treasuryProposals.filter(
+      (proposal) =>
+        isActiveProposal(proposal.voteStart, currentRoundId) &&
+        isDuringWindow(Number(proposal.voteStart), windows)
     ).length;
-    const voted = votesData.treasuryVotes.filter((vote) =>
-      isDuringWindow(Number(vote.proposal.voteStart), windows)
+    const voted = votesData.treasuryVotes.filter(
+      (vote) =>
+        isActiveProposal(vote.proposal.voteStart, currentRoundId) &&
+        isDuringWindow(Number(vote.proposal.voteStart), windows)
     ).length;
     return { voted, eligible };
-  }, [proposalsData, votesData, firstActivationRound, windows]);
+  }, [proposalsData, votesData, firstActivationRound, windows, currentRoundId]);
 
   return {
     treasury: treasuryParticipation,
@@ -140,7 +148,10 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
-  const { treasury: govStats } = useGovernanceParticipation(transcoder?.id);
+  const { treasury: govStats } = useGovernanceParticipation(
+    transcoder?.id,
+    currentRound?.id
+  );
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
