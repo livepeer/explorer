@@ -83,6 +83,7 @@ const Index = ({ css = {}, ...props }) => {
         css={{
           overflow: "auto",
           transition: "max-height 2s",
+          paddingTop: "$3",
           "& > button:last-child": {
             top: "$1",
           },
@@ -99,7 +100,6 @@ const Index = ({ css = {}, ...props }) => {
             width: "80vw",
             maxWidth: 700,
             position: "relative",
-            marginTop: "$3",
             ...css,
           }}
           {...props}
