@@ -3,6 +3,7 @@ import { formatAddress } from "@lib/utils";
 import {
   Box,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTrigger,
   Flex,
@@ -11,7 +12,11 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
+import {
+  ArrowRightIcon,
+  Cross1Icon,
+  MagnifyingGlassIcon,
+} from "@modulz/radix-icons";
 import Fuse from "fuse.js";
 import { useAllEnsData } from "hooks";
 import { useMemo, useState } from "react";
@@ -83,14 +88,23 @@ const Index = ({ css = {}, ...props }) => {
         css={{
           overflow: "auto",
           transition: "max-height 2s",
-          "& > button:last-child": {
-            top: "$1",
-          },
         }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
+        <DialogClose asChild>
+          <IconButton
+            aria-label="Close"
+            css={{
+              position: "absolute",
+              top: "$1",
+              right: "$2",
+            }}
+          >
+            <Cross1Icon />
+          </IconButton>
+        </DialogClose>
         <Box
           css={{
             borderRadius: 10,
