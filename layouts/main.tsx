@@ -329,6 +329,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     }
   }, []);
 
+  const isMyAccountPage = useMemo(() => {
+    if (!accountAddress) return false;
+    return asPath.toLowerCase().includes(accountAddress.toLowerCase());
+  }, [accountAddress, asPath]);
+
   return (
     <DesignSystemProviderTyped>
       <ThemeProvider
@@ -462,8 +467,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               css={{
                                 marginLeft: "$2",
                                 backgroundColor:
-                                  (!accountAddress ||
-                                    !asPath.includes(accountAddress)) &&
+                                  (!accountAddress || !isMyAccountPage) &&
                                   (asPath.includes("/accounts") ||
                                     asPath.includes("/orchestrators"))
                                     ? "hsla(0,100%,100%,.05)"
@@ -560,9 +564,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 size="3"
                                 css={{
                                   marginLeft: "$2",
-                                  backgroundColor: asPath
-                                    .toLowerCase()
-                                    .includes(accountAddress.toLowerCase())
+                                  backgroundColor: isMyAccountPage
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
