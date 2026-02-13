@@ -3,7 +3,6 @@ import { formatAddress } from "@lib/utils";
 import {
   Box,
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTrigger,
   Flex,
@@ -89,9 +88,6 @@ const Index = ({ css = {}, ...props }) => {
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
-        <Box css={{ marginBottom: "$4" }}>
-          <DialogClose asChild />
-        </Box>
         <Box
           css={{
             borderRadius: 10,
@@ -100,6 +96,7 @@ const Index = ({ css = {}, ...props }) => {
             width: "80vw",
             maxWidth: 700,
             position: "relative",
+            marginTop: "$4",
             ...css,
           }}
           {...props}
