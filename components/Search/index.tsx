@@ -100,7 +100,6 @@ const Index = ({ css = {}, ...props }) => {
             width: "80vw",
             maxWidth: 700,
             position: "relative",
-            marginTop: "$3",
             ...css,
           }}
           {...props}
