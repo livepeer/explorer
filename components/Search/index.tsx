@@ -12,11 +12,7 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import {
-  ArrowRightIcon,
-  Cross1Icon,
-  MagnifyingGlassIcon,
-} from "@modulz/radix-icons";
+import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import Fuse from "fuse.js";
 import { useAllEnsData } from "hooks";
 import { useMemo, useState } from "react";
@@ -93,18 +89,9 @@ const Index = ({ css = {}, ...props }) => {
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
       >
-        <DialogClose asChild>
-          <IconButton
-            aria-label="Close"
-            css={{
-              position: "absolute",
-              top: "$1",
-              right: "$2",
-            }}
-          >
-            <Cross1Icon />
-          </IconButton>
-        </DialogClose>
+        <Box css={{ marginBottom: "$4" }}>
+          <DialogClose asChild />
+        </Box>
         <Box
           css={{
             borderRadius: 10,
