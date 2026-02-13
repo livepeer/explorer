@@ -552,14 +552,17 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link
+                              passHref
+                              href={`/accounts/${accountAddress.toLowerCase()}`}
+                            >
                               <Button
                                 size="3"
                                 css={{
                                   marginLeft: "$2",
-                                  backgroundColor: asPath.includes(
-                                    accountAddress
-                                  )
+                                  backgroundColor: asPath
+                                    .toLowerCase()
+                                    .includes(accountAddress.toLowerCase())
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
