@@ -63,16 +63,23 @@ const Index = () => {
               mb: "$4",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
             }}
           >
-            Confirmed
             <Badge
               variant="primary"
-              size="1"
-              css={{ display: "flex", alignItems: "center" }}
+              size="2"
+              css={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: "$5",
+                paddingLeft: "$3",
+                paddingRight: "$3",
+                paddingTop: "$4",
+                paddingBottom: "$4",
+              }}
             >
-              <CheckIcon />
+              <CheckIcon width={22} height={22} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
@@ -499,7 +506,7 @@ const UnbondingTransactionContent = ({ tx }: { tx: TransactionStatus }) => {
                 Your orchestrator has been deactivated.
               </Box>
             )}
-            <Box css={{ marginTop: "$2" }}>
+            <Box css={{ marginTop: "$2", fontSize: "$2" }}>
               The unbonding period is {unbondingPeriod?.toString()} rounds
               (currently ~{unbondingPeriod?.toString()} days) after which you
               may withdraw the undelegated LPT into your wallet.
@@ -540,6 +547,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "$3",
+        gap: "$1",
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
