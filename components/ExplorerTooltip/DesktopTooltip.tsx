@@ -12,7 +12,7 @@ const Content = styled(Tooltip.Content, {
   backgroundColor: "$neutral4",
   borderRadius: "$1",
   padding: "$1 $2",
-  zIndex: "4",
+  zIndex: "10000",
 
   variants: {
     multiline: {
