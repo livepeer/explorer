@@ -41,32 +41,34 @@ export function DesktopTooltip({
     >
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
 
-      <Content side="top" align="center" sideOffset={5} multiline {...props}>
-        <Text
-          size="1"
-          as="div"
-          css={{
-            fontSize: "$2",
-            textTransform: "none",
-            fontWeight: 600,
-            color: "white",
-            zIndex: "$4",
-            lineHeight: multiline ? "20px" : undefined,
-          }}
-        >
-          {content}
-        </Text>
-        <Box css={{ color: "$neutral4" }}>
-          <Tooltip.Arrow
-            offset={5}
-            width={11}
-            height={5}
-            style={{
-              fill: "currentColor",
+      <Tooltip.Portal>
+        <Content side="top" align="center" sideOffset={5} multiline {...props}>
+          <Text
+            size="1"
+            as="div"
+            css={{
+              fontSize: "$2",
+              textTransform: "none",
+              fontWeight: 600,
+              color: "white",
+              zIndex: "$4",
+              lineHeight: multiline ? "20px" : undefined,
             }}
-          />
-        </Box>
-      </Content>
+          >
+            {content}
+          </Text>
+          <Box css={{ color: "$neutral4" }}>
+            <Tooltip.Arrow
+              offset={5}
+              width={11}
+              height={5}
+              style={{
+                fill: "currentColor",
+              }}
+            />
+          </Box>
+        </Content>
+      </Tooltip.Portal>
     </Tooltip.Root>
   );
 }
