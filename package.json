@@ -73,7 +73,7 @@
     "apollo-link": "^1.2.11",
     "apollo-link-http": "^1.5.15",
     "apollo-server-micro": "3.10.0",
-    "axios": "^0.30.2",
+    "axios": "^0.30.3",
     "change-case": "^4.1.2",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.9.6",
