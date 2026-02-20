@@ -9933,12 +9933,7 @@ export type DaysLazyQueryHookResult = ReturnType<typeof useDaysLazyQuery>;
 export type DaysQueryResult = Apollo.QueryResult<DaysQuery, DaysQueryVariables>;
 export const EventsDocument = gql`
     query events($first: Int) {
-  transactions(
-    first: $first
-    orderBy: timestamp
-    orderDirection: desc
-    where: {timestamp_lt: 1768380104}
-  ) {
+  transactions(first: $first, orderBy: timestamp, orderDirection: desc) {
     events {
       __typename
       round {
