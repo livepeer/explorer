@@ -110,6 +110,15 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  loading: () => (
+    <Skeleton
+      css={{
+        width: 132,
+        height: 36,
+        borderRadius: "$4",
+      }}
+    />
+  ),
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
