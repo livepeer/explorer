@@ -128,11 +128,11 @@ const Index = ({
           ))}
           <Account />
         </Box>
-        <Box css={{ marginBottom: "$4" }}>
+        <Box>
           <Box
-            css={{
-              paddingBottom: "calc($4 + env(safe-area-inset-bottom))",
-            }}
+            // css={{
+            //   paddingBottom: "calc($4 + env(safe-area-inset-bottom))",
+            // }}
           >
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
