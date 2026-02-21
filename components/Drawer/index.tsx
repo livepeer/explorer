@@ -129,11 +129,7 @@ const Index = ({
           <Account />
         </Box>
         <Box>
-          <Box
-            // css={{
-            //   paddingBottom: "calc($4 + env(safe-area-inset-bottom))",
-            // }}
-          >
+          <Box>
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
               href="https://livepeer.org"
