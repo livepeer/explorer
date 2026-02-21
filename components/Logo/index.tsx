@@ -179,7 +179,7 @@ const LivepeerLogo = ({
   if (!isLink) return markup;
   return (
     <Link href="/" passHref>
-      {markup}
+      <a aria-label="Livepeer Explorer home">{markup}</a>
     </Link>
   );
 };

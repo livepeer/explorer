@@ -1,5 +1,5 @@
 import { DrawerItem } from "@layouts/main";
-import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { Box, Flex, Link as A } from "@livepeer/design-system";
 import { IS_L2 } from "lib/chains";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
@@ -162,8 +162,9 @@ const Index = ({
 
             <LlamaswapModal
               trigger={
-                <A
-                  as={Text}
+                <Box
+                  as="button"
+                  type="button"
                   css={{
                     cursor: "pointer",
                     fontSize: "$2",
@@ -172,7 +173,7 @@ const Index = ({
                   }}
                 >
                   Get LPT
-                </A>
+                </Box>
               }
             >
               <Box
