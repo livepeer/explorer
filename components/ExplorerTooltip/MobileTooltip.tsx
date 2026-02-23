@@ -12,7 +12,7 @@ const RadixPopoverContentStyled = styled(RadixPopover.Content, {
   backgroundColor: "$neutral4 !important",
   borderRadius: "$1",
   padding: "$1 $2",
-  zIndex: "4",
+  zIndex: "10000",
   border: "none",
   outline: "none",
   marginLeft: "$2",
