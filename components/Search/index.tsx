@@ -80,7 +80,10 @@ const Index = ({ css = {}, ...props }) => {
         </IconButton>
       </DialogTrigger>
       <DialogContent
-        css={{ overflow: "auto", transition: "max-height 2s" }}
+        css={{
+          overflow: "auto",
+          transition: "max-height 2s",
+        }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -93,6 +96,7 @@ const Index = ({ css = {}, ...props }) => {
             width: "80vw",
             maxWidth: 700,
             position: "relative",
+            marginTop: "$4",
             ...css,
           }}
           {...props}
