@@ -1,3 +1,4 @@
+import HistoryFilter from "@components/HistoryView/HistoryFilter";
 import Spinner from "@components/Spinner";
 import TransactionBadge from "@components/TransactionBadge";
 import { Fm, parsePollIpfs } from "@lib/api/polls";
@@ -20,6 +21,7 @@ import {
   useTransactionsQuery,
   VoteEvent,
 } from "apollo";
+import { useHistoryFilter } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
@@ -176,6 +178,18 @@ const Index = () => {
     ]
   );
 
+  // Filter events using history hook
+  const {
+    filteredEvents,
+    selectedEventTypes,
+    toggleEventType,
+    clearFilters,
+    isFilterOpen,
+    setIsFilterOpen,
+    allEventTypes,
+    eventTypeLabels,
+  } = useHistoryFilter(mergedEvents);
+
   if (error) {
     console.error(error);
   }
@@ -248,8 +262,31 @@ const Index = () => {
           position: "relative",
         }}
       >
+        <Flex
+          css={{
+            justifyContent: "flex-end",
+            marginBottom: "$3",
+            alignItems: "center",
+          }}
+        >
+          <HistoryFilter
+            selectedEventTypes={selectedEventTypes}
+            isOpen={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            onToggleEventType={toggleEventType}
+            onClearFilters={clearFilters}
+            allEventTypes={allEventTypes}
+            eventTypeLabels={eventTypeLabels}
+          />
+        </Flex>
         <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event, i: number) => renderSwitch(event, i))
+          ) : (
+            <Box css={{ paddingTop: "$3", color: "$neutral11" }}>
+              No events match the selected filters
+            </Box>
+          )}
         </Box>
         {loading && data.transactions.length >= 10 && (
           <Flex
