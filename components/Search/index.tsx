@@ -1,5 +1,4 @@
 import Spinner from "@components/Spinner";
-import { formatAddress } from "@lib/utils";
 import {
   Box,
   Dialog,
@@ -12,6 +11,7 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
+import { formatAddress } from "@utils/web3";
 import Fuse from "fuse.js";
 import { useAllEnsData } from "hooks";
 import { useMemo, useState } from "react";

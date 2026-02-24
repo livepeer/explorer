@@ -12,7 +12,6 @@ import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getProposalExtended } from "@lib/api/treasury";
 import { CHAIN_INFO, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress, fromWei } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -30,6 +29,12 @@ import {
   CrossCircledIcon,
   MinusCircledIcon,
 } from "@radix-ui/react-icons";
+import { formatLPT, formatPercent } from "@utils/numberFormatters";
+import {
+  formatAddress,
+  fromWei,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import {
   useProtocolQuery,
   useTreasuryProposalQuery,
@@ -42,7 +47,6 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
-import { formatPercent } from "utils/voting";
 import { decodeFunctionData } from "viem";
 
 import {
@@ -394,7 +398,9 @@ const Proposal = () => {
                       label={
                         <Box>
                           Total Support (
-                          {formatPercent(+proposal.quota / 1000000)}
+                          {formatPercent(
+                            +proposal.quota / PERCENTAGE_PRECISION_MILLION
+                          )}{" "}
                           needed)
                         </Box>
                       }
@@ -431,8 +437,9 @@ const Proposal = () => {
                               </Box>
                             </Flex>
                             <Box as="span">
-                              {abbreviateNumber(proposal.votes.total.for, 4)}{" "}
-                              LPT
+                              {formatLPT(proposal.votes.total.for, {
+                                precision: 4,
+                              })}
                             </Box>
                           </Flex>
                           <Flex
@@ -458,11 +465,9 @@ const Proposal = () => {
                               </Box>
                             </Flex>
                             <Box as="span">
-                              {abbreviateNumber(
-                                proposal.votes.total.against,
-                                4
-                              )}{" "}
-                              LPT
+                              {formatLPT(proposal.votes.total.against, {
+                                precision: 4,
+                              })}
                             </Box>
                           </Flex>
                           <Flex
@@ -487,11 +492,9 @@ const Proposal = () => {
                               </Box>
                             </Flex>
                             <Box as="span">
-                              {abbreviateNumber(
-                                proposal.votes.total.abstain,
-                                4
-                              )}{" "}
-                              LPT
+                              {formatLPT(proposal.votes.total.abstain, {
+                                precision: 4,
+                              })}
                             </Box>
                           </Flex>
                         </Box>
@@ -509,7 +512,7 @@ const Proposal = () => {
                           Total Participation (
                           {formatPercent(
                             +proposal.quorum / +proposal.totalVoteSupply
-                          )}
+                          )}{" "}
                           needed)
                         </Box>
                       }
@@ -534,11 +537,9 @@ const Proposal = () => {
                             </Box>
                             <Box as="span">
                               <Box as="span">
-                                {abbreviateNumber(
-                                  proposal.votes.total.voters,
-                                  4
-                                )}{" "}
-                                LPT
+                                {formatLPT(proposal.votes.total.voters, {
+                                  precision: 4,
+                                })}
                               </Box>
                             </Box>
                           </Flex>
@@ -555,11 +556,9 @@ const Proposal = () => {
                             </Box>
                             <Box as="span">
                               <Box as="span">
-                                {abbreviateNumber(
-                                  proposal.votes.total.nonVoters,
-                                  4
-                                )}{" "}
-                                LPT
+                                {formatLPT(proposal.votes.total.nonVoters, {
+                                  precision: 4,
+                                })}
                               </Box>
                             </Box>
                           </Flex>

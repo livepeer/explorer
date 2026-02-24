@@ -3,7 +3,6 @@ import Spinner from "@components/Spinner";
 import { livepeerGovernor } from "@lib/api/abis/main/LivepeerGovernor";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
 import { getLivepeerTokenAddress } from "@lib/api/contracts";
-import { abbreviateNumber, fromWei, toWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -18,6 +17,8 @@ import {
   TextField,
 } from "@livepeer/design-system";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@reach/tabs";
+import { formatLPT } from "@utils/numberFormatters";
+import { fromWei, toWei } from "@utils/web3";
 import {
   useAccountAddress,
   useAccountBalanceData,
@@ -64,8 +65,6 @@ const StyledTab = styled(Tab, {
 type Mutable<T> = {
   -readonly [K in keyof T]: Mutable<T[K]>;
 };
-
-const formatLPT = (lpt: string) => abbreviateNumber(lpt, 6);
 
 const CreateProposal = () => {
   const accountAddress = useAccountAddress();
@@ -198,7 +197,7 @@ const CreateProposal = () => {
           >
             Treasury Balance:{" "}
             {treasuryBalance !== undefined && treasuryBalance !== null ? (
-              <>{formatLPT(treasuryBalance)} LPT</>
+              <>{formatLPT(treasuryBalance)}</>
             ) : (
               <Skeleton
                 css={{
@@ -439,8 +438,8 @@ const CreateProposal = () => {
                 {!sufficientStake ? (
                   <Box css={{ color: "$red11", fontSize: "$1" }}>
                     Insufficient stake - you need at least{" "}
-                    {fromWei(votingPower.proposalThreshold)} staked LPT to
-                    create a proposal.
+                    {formatLPT(fromWei(votingPower.proposalThreshold))} staked
+                    to create a proposal.
                   </Box>
                 ) : (
                   <></>

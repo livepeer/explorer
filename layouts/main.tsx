@@ -11,7 +11,6 @@ import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
-import { EMPTY_ADDRESS, formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -33,6 +32,7 @@ import {
   ChevronDownIcon,
   EyeOpenIcon,
 } from "@modulz/radix-icons";
+import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
 import {
   usePollsQuery,
   useProtocolQuery,

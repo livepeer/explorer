@@ -2,7 +2,6 @@ import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import { pollCreator } from "@lib/api/abis/main/PollCreator";
 import { getPollCreatorAddress } from "@lib/api/contracts";
-import { fromWei } from "@lib/utils";
 import {
   Box,
   Button,
@@ -14,6 +13,7 @@ import {
   RadioCardGroup,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { fromWei } from "@utils/web3";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";

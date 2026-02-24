@@ -8,7 +8,6 @@ import { DEFAULT_CHAIN, L1_CHAIN } from "lib/chains";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { Tooltip } from "radix-ui";
 import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
@@ -16,8 +15,6 @@ import { SWRConfig } from "swr";
 
 import { useApollo } from "../apollo";
 import Layout from "../layouts/main";
-
-numbro.setDefaults({ spaceSeparated: false });
 
 const queryClient = new QueryClient();
 

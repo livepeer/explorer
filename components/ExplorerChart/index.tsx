@@ -2,6 +2,12 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import dayjs from "@lib/dayjs";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import {
+  formatETH,
+  formatNumber,
+  formatPercent,
+  formatUSD,
+} from "@utils/numberFormatters";
 import numbro from "numbro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -98,38 +104,31 @@ const ExplorerChart = ({
             .format("MMM D")}`,
     [grouping]
   );
+
   const formatSubtitle = useCallback(
     (value: number) => {
-      if (unit === "usd") {
-        return numbro(value).formatCurrency({
-          mantissa: 0,
-          thousandSeparated: true,
-        });
+      switch (unit) {
+        case "usd":
+          return formatUSD(value, { precision: 0 });
+        case "eth":
+          return formatETH(value, { precision: 1 });
+        case "percent":
+          return formatPercent(value, { precision: 1 });
+        case "small-percent":
+          return formatPercent(value, { precision: 5 });
+        case "minutes":
+          return (
+            formatNumber(value, { precision: 0, abbreviate: true }) + " minutes"
+          );
+        case "small-unitless":
+          return formatNumber(value, { precision: 1, abbreviate: true });
+        default:
+          return formatNumber(value, { precision: 0, abbreviate: true });
       }
-      return `${numbro(value).format(
-        unit === "eth"
-          ? {
-              mantissa: 1,
-              thousandSeparated: true,
-            }
-          : unit === "percent"
-          ? {
-              output: "percent",
-              mantissa: 1,
-            }
-          : unit === "small-percent"
-          ? {
-              output: "percent",
-              mantissa: 5,
-            }
-          : {
-              mantissa: 0,
-              thousandSeparated: true,
-            }
-      )}${unit === "minutes" ? " minutes" : unit === "eth" ? " ETH" : ""}`;
     },
     [unit]
   );
+
   const defaultSubtitle = useMemo<string>(
     () => formatSubtitle(base),
     [base, formatSubtitle]
@@ -137,9 +136,8 @@ const ExplorerChart = ({
   const defaultPercentChange = useMemo<string>(
     () =>
       basePercentChange !== 0
-        ? numbro(basePercentChange / 100).format({
-            output: "percent",
-            mantissa: 2,
+        ? formatPercent(basePercentChange / 100, {
+            precision: 2,
             forceSign: true,
           })
         : "",
@@ -181,38 +179,31 @@ const ExplorerChart = ({
           fontWeight={400}
           fontSize="13px"
         >
-          {numbro(payload.value).format(
-            unit === "usd"
-              ? {
-                  mantissa: 0,
-                  currencySymbol: "$",
-                  average: true,
-                }
-              : unit === "eth"
-              ? {
-                  mantissa: 1,
-                }
-              : unit === "percent"
-              ? {
-                  output: "percent",
-                  mantissa: 0,
-                }
-              : unit === "small-percent"
-              ? {
-                  output: "percent",
-                  mantissa: 2,
-                }
-              : unit === "small-unitless"
-              ? {
-                  mantissa: 1,
-                  average: true,
-                }
-              : {
-                  mantissa: 0,
-                  average: true,
-                }
-          )}
-          {unit === "eth" ? " Ξ" : ""}
+          {(() => {
+            switch (unit) {
+              case "usd":
+                return formatUSD(payload.value, {
+                  precision: 0,
+                  abbreviate: true,
+                });
+              case "eth":
+                return formatNumber(payload.value, { precision: 1 }) + " Ξ";
+              case "percent":
+                return formatPercent(payload.value, { precision: 0 });
+              case "small-percent":
+                return formatPercent(payload.value, { precision: 2 });
+              case "small-unitless":
+                return formatNumber(payload.value, {
+                  precision: 1,
+                  abbreviate: true,
+                });
+              default:
+                return formatNumber(payload.value, {
+                  precision: 0,
+                  abbreviate: true,
+                });
+            }
+          })()}
         </text>
       </g>
     );

@@ -21,6 +21,7 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@modulz/radix-icons";
+import { PERCENTAGE_PRECISION_BILLION } from "@utils/web3";
 import { useChartData } from "hooks";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -110,7 +111,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     () =>
       getDaySeries(
         inflationGrouping,
-        (day) => Number(day?.inflation ?? 0) / 1000000000
+        (day) => Number(day?.inflation ?? 0) / PERCENTAGE_PRECISION_BILLION
       ),
     [getDaySeries, inflationGrouping]
   );
@@ -178,7 +179,9 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
           data={inflationRateData}
-          base={Number(chartData?.inflation ?? 0) / 1000000000}
+          base={
+            Number(chartData?.inflation ?? 0) / PERCENTAGE_PRECISION_BILLION
+          }
           basePercentChange={Number(chartData?.inflationChange ?? 0)}
           title="Inflation Rate"
           unit="small-percent"
