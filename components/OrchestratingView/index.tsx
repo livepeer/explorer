@@ -4,9 +4,7 @@ import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import {
   AccountQueryResult,
-  OrderDirection,
-  TranscoderActivatedEvent_OrderBy,
-  useTranscoderActivatedEventsQuery,
+  useTranscoderActivationHistoryQuery,
   useTreasuryProposalsQuery,
   useTreasuryVotesQuery,
 } from "apollo";
@@ -32,6 +30,116 @@ interface Props {
   isActive: boolean;
 }
 
+type ActivationWindow = { start: number; end: number };
+type Participation = { voted: number; eligible: number };
+
+const buildActiveWindows = (
+  activations: { activationRound: string }[],
+  deactivations: { deactivationRound: string }[]
+): ActivationWindow[] => {
+  const timeline = [
+    ...activations.map((a) => ({
+      round: Number(a.activationRound),
+      type: "activation" as const,
+    })),
+    ...deactivations.map((d) => ({
+      round: Number(d.deactivationRound),
+      type: "deactivation" as const,
+    })),
+  ].sort((a, b) => a.round - b.round || (a.type === "deactivation" ? -1 : 1));
+
+  const windows: ActivationWindow[] = [];
+  let start: number | null = null;
+
+  for (const { type, round } of timeline) {
+    if (type === "activation") {
+      if (start === null) {
+        start = round;
+      }
+    } else if (start !== null && round >= start) {
+      windows.push({ start, end: round });
+      start = null;
+    }
+  }
+
+  return start !== null
+    ? [...windows, { start, end: Number.POSITIVE_INFINITY }]
+    : windows;
+};
+
+const isDuringWindow = (round: number, windows: ActivationWindow[]) =>
+  windows.some((w) => round >= w.start && round < w.end);
+
+const isActiveProposal = (voteStart: string, currentRoundId?: string) =>
+  currentRoundId ? Number(voteStart) <= Number(currentRoundId) : true;
+
+const useGovernanceParticipation = (
+  delegateId?: string,
+  currentRoundId?: string
+): { treasury: Participation | null; loading: boolean } => {
+  const hasDelegate = Boolean(delegateId);
+
+  const { data: activationData, loading: activationLoading } =
+    useTranscoderActivationHistoryQuery({
+      ...(hasDelegate ? { variables: { delegate: delegateId! } } : {}),
+      fetchPolicy: "cache-and-network",
+      skip: !hasDelegate,
+    });
+
+  const { data: votesData, loading: votesLoading } = useTreasuryVotesQuery({
+    ...(hasDelegate ? { variables: { where: { voter: delegateId! } } } : {}),
+    fetchPolicy: "cache-and-network",
+    skip: !hasDelegate,
+  });
+
+  const activations = useMemo(
+    () => activationData?.transcoderActivatedEvents ?? [],
+    [activationData?.transcoderActivatedEvents]
+  );
+  const deactivations = useMemo(
+    () => activationData?.transcoderDeactivatedEvents ?? [],
+    [activationData?.transcoderDeactivatedEvents]
+  );
+
+  const firstActivationRound = activations[0]?.activationRound;
+
+  const windows = useMemo(
+    () => buildActiveWindows(activations, deactivations),
+    [activations, deactivations]
+  );
+
+  const { data: proposalsData, loading: proposalsLoading } =
+    useTreasuryProposalsQuery({
+      variables: firstActivationRound
+        ? { where: { voteStart_gte: firstActivationRound } }
+        : undefined,
+      skip: !firstActivationRound,
+      fetchPolicy: "cache-and-network",
+    });
+
+  const treasuryParticipation = useMemo<Participation | null>(() => {
+    if (!proposalsData || !votesData) return null;
+    if (!firstActivationRound) return null;
+
+    const eligible = proposalsData.treasuryProposals.filter(
+      (proposal) =>
+        isActiveProposal(proposal.voteStart, currentRoundId) &&
+        isDuringWindow(Number(proposal.voteStart), windows)
+    ).length;
+    const voted = votesData.treasuryVotes.filter(
+      (vote) =>
+        isActiveProposal(vote.proposal.voteStart, currentRoundId) &&
+        isDuringWindow(Number(vote.proposal.voteStart), windows)
+    ).length;
+    return { voted, eligible };
+  }, [proposalsData, votesData, firstActivationRound, windows, currentRoundId]);
+
+  return {
+    treasury: treasuryParticipation,
+    loading: activationLoading || votesLoading || proposalsLoading,
+  };
+};
+
 const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const callsMade = useMemo(
     () => transcoder?.pools?.filter((r) => r.rewardTokens != null)?.length ?? 0,
@@ -40,48 +148,10 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
-
-  const { data: firstTranscoderActivatedEventsData } =
-    useTranscoderActivatedEventsQuery({
-      variables: {
-        where: {
-          delegate: transcoder?.id,
-        },
-        first: 1,
-        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
-        orderDirection: OrderDirection.Asc,
-      },
-    });
-
-  const firstActivationRound = useMemo(() => {
-    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
-      ?.activationRound;
-  }, [firstTranscoderActivatedEventsData]);
-
-  const { data: treasuryVotesData } = useTreasuryVotesQuery({
-    variables: {
-      where: {
-        voter: transcoder?.id,
-      },
-    },
-  });
-
-  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
-    variables: {
-      where: {
-        voteStart_gt: firstActivationRound,
-      },
-    },
-    skip: !firstActivationRound,
-  });
-
-  const govStats = useMemo(() => {
-    if (!treasuryVotesData || !eligebleProposalsData) return null;
-    return {
-      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
-      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
-    };
-  }, [treasuryVotesData, eligebleProposalsData]);
+  const { treasury: govStats } = useGovernanceParticipation(
+    transcoder?.id,
+    currentRound?.id
+  );
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -144,6 +214,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         }
       : { score: "N/A", modelText: "" };
   }, [knownRegions?.regions, maxScore]);
+
+  const govParticipation =
+    govStats && govStats.eligible > 0 ? govStats.voted / govStats.eligible : 0;
 
   return (
     <Box
@@ -389,7 +462,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                   >
                     <Box
                       css={{
-                        width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                        width: `${govParticipation * 100}%`,
                         height: "100%",
                         backgroundColor: "$primary11",
                       }}
@@ -408,7 +481,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                       size="2"
                       css={{ color: "$neutral11", fontWeight: 600 }}
                     >
-                      {numbro(govStats.voted / govStats.eligible).format({
+                      {numbro(govParticipation).format({
                         output: "percent",
                         mantissa: 0,
                       })}{" "}
