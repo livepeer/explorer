@@ -17,8 +17,8 @@ const ensCache = new Map<string, string>();
 const ensLookupInFlight = new Map<string, Promise<string>>();
 
 const getCachedEns = (address: string) => {
-  const cached = ensCache.get(address);
-  if (!cached) return undefined;
+  if (!ensCache.has(address)) return undefined;
+  const cached = ensCache.get(address)!;
 
   // Refresh insertion order so frequently used addresses stay cached.
   ensCache.delete(address);
