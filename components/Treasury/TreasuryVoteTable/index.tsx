@@ -10,6 +10,59 @@ import TreasuryVotePopover from "./TreasuryVotePopover";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
 import { MobileVoteCards } from "./Views/MobileVoteTable";
 
+// Module-level cache to avoid repeated ENS lookups across renders/navigations.
+// Bound size keeps memory usage predictable during long sessions.
+const ENS_CACHE_MAX_ENTRIES = 2000;
+const ensCache = new Map<string, string>();
+const ensLookupInFlight = new Map<string, Promise<string>>();
+
+const getCachedEns = (address: string) => {
+  if (!ensCache.has(address)) return undefined;
+  const cached = ensCache.get(address)!;
+
+  // Refresh insertion order so frequently used addresses stay cached.
+  ensCache.delete(address);
+  ensCache.set(address, cached);
+
+  return cached;
+};
+
+const setCachedEns = (address: string, ensName: string) => {
+  if (ensCache.has(address)) {
+    ensCache.delete(address);
+  }
+  ensCache.set(address, ensName);
+
+  if (ensCache.size > ENS_CACHE_MAX_ENTRIES) {
+    const oldestKey = ensCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      ensCache.delete(oldestKey);
+    }
+  }
+};
+
+const resolveEnsName = (address: string): Promise<string> => {
+  const cacheKey = address.toLowerCase();
+  const cached = getCachedEns(cacheKey);
+  if (cached) return Promise.resolve(cached);
+
+  const inFlightLookup = ensLookupInFlight.get(cacheKey);
+  if (inFlightLookup) return inFlightLookup;
+
+  const lookupPromise = getEnsForVotes(address)
+    .then((ensAddress) => {
+      const ensName = ensAddress?.name || formatAddress(address);
+      setCachedEns(cacheKey, ensName);
+      return ensName;
+    })
+    .finally(() => {
+      ensLookupInFlight.delete(cacheKey);
+    });
+
+  ensLookupInFlight.set(cacheKey, lookupPromise);
+  return lookupPromise;
+};
+
 interface TreasuryVoteTableProps {
   proposalId: string;
 }
@@ -59,16 +112,7 @@ const useVotes = (proposalId: string) => {
       await Promise.all(
         uniqueVoters.map(async (address) => {
           try {
-            if (localEnsCache[address]) {
-              return;
-            }
-            const ensAddress = await getEnsForVotes(address);
-
-            if (ensAddress && ensAddress.name) {
-              localEnsCache[address] = ensAddress.name;
-            } else {
-              localEnsCache[address] = formatAddress(address);
-            }
+            localEnsCache[address] = await resolveEnsName(address);
           } catch (e) {
             console.warn(`Failed to fetch ENS for ${address}`, e);
           }
