@@ -49,6 +49,9 @@ const Index = ({ active, address }) => {
               borderColor: "$neutral5",
             }}
             src={identity.avatar}
+            alt={
+              identity?.name ? `${identity.name} avatar` : `${address} avatar`
+            }
           />
         ) : (
           <QRCodeCanvas

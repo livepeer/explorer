@@ -39,6 +39,10 @@ function App({ Component, pageProps, fallback = null }) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="description"
+          content="Explore Livepeer network statistics, orchestrators, delegators, and protocol data. Track performance, stake, and earnings on the Livepeer decentralized video infrastructure network."
+        />
         <title>Livepeer Explorer</title>
       </Head>
 
