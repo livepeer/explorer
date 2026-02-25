@@ -1,10 +1,24 @@
+import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Button } from "@livepeer/design-system";
+import { Box, Button, Flex } from "@livepeer/design-system";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useDelegationReview } from "hooks/useDelegationReview";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
-const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
+const Index = ({
+  unbondingLockId,
+  newPosPrev,
+  newPosNext,
+  delegator,
+  currentRound,
+}) => {
+  const { delegationWarning } = useDelegationReview({
+    delegator,
+    currentRound,
+    action: "redelegate",
+  });
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { data: config } = useSimulateContract({
@@ -23,13 +37,32 @@ const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
   });
 
   return (
-    <>
+    <Flex
+      css={{
+        gap: "$2",
+        alignItems: "center",
+        flexDirection: "row-reverse",
+        "@bp2": {
+          flexDirection: "row",
+        },
+      }}
+    >
+      {delegationWarning && (
+        <ExplorerTooltip content={delegationWarning} multiline>
+          <Box
+            css={{
+              display: "inline-flex",
+              color: "$yellow11",
+            }}
+          >
+            <ExclamationTriangleIcon width={18} height={18} />
+          </Box>
+        </ExplorerTooltip>
+      )}
       <Button
         css={{
-          marginRight: "$3",
-          width: "100%",
           "@bp2": {
-            width: "auto",
+            marginRight: "$3",
           },
         }}
         disabled={!config}
@@ -39,7 +72,7 @@ const Index = ({ unbondingLockId, newPosPrev, newPosNext }) => {
       >
         Redelegate
       </Button>
-    </>
+    </Flex>
   );
 };
 
