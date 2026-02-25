@@ -42,23 +42,24 @@ const setCachedEns = (address: string, ensName: string) => {
 };
 
 const resolveEnsName = (address: string): Promise<string> => {
-  const cached = getCachedEns(address);
+  const cacheKey = address.toLowerCase();
+  const cached = getCachedEns(cacheKey);
   if (cached) return Promise.resolve(cached);
 
-  const inFlightLookup = ensLookupInFlight.get(address);
+  const inFlightLookup = ensLookupInFlight.get(cacheKey);
   if (inFlightLookup) return inFlightLookup;
 
   const lookupPromise = getEnsForVotes(address)
     .then((ensAddress) => {
       const ensName = ensAddress?.name || formatAddress(address);
-      setCachedEns(address, ensName);
+      setCachedEns(cacheKey, ensName);
       return ensName;
     })
     .finally(() => {
-      ensLookupInFlight.delete(address);
+      ensLookupInFlight.delete(cacheKey);
     });
 
-  ensLookupInFlight.set(address, lookupPromise);
+  ensLookupInFlight.set(cacheKey, lookupPromise);
   return lookupPromise;
 };
 
@@ -77,7 +78,6 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
-    fetchPolicy: "cache-and-network",
   });
 
   const {
@@ -91,7 +91,6 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
-    fetchPolicy: "cache-and-network",
   });
 
   const [votes, setVotes] = useState<Vote[]>([]);
@@ -113,9 +112,6 @@ const useVotes = (proposalId: string) => {
       await Promise.all(
         uniqueVoters.map(async (address) => {
           try {
-            if (localEnsCache[address]) {
-              return;
-            }
             localEnsCache[address] = await resolveEnsName(address);
           } catch (e) {
             console.warn(`Failed to fetch ENS for ${address}`, e);
