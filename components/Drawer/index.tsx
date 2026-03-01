@@ -81,7 +81,9 @@ const Index = ({
           height: "100%",
         }}
       >
-        <Logo isDark id="drawer" />
+        <Box css={{ marginBottom: "$5" }}>
+          <Logo isDark id="drawer" />
+        </Box>
         <Box css={{ marginBottom: "auto" }}>
           {items.map((item, i) => (
             <A
