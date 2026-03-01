@@ -427,21 +427,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           display: "none",
                           "@bp3": {
                             height: "100%",
-                            justifyContent: "center",
+                            alignItems: "center",
                             display: "flex",
-                            marginRight: "$3",
-                            marginTop: "$2",
+                            marginRight: "$8",
                           },
                         }}
                       >
                         <Logo isDark id="main" />
 
-                        <Box css={{}}>
+                        <Box css={{ marginLeft: "$7" }}>
                           <Link passHref href="/">
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$4",
                                 backgroundColor:
                                   asPath === "/"
                                     ? "hsla(0,100%,100%,.05)"
@@ -465,7 +463,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor:
                                   (!accountAddress || !isMyAccountPage) &&
                                   (asPath.includes("/accounts") ||
@@ -491,7 +489,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/voting")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -525,7 +523,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/treasury")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -563,7 +561,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
+                                  marginLeft: "$1",
                                   backgroundColor: isMyAccountPage
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
@@ -604,7 +602,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
+                                  marginLeft: "$1",
                                   backgroundColor: "transparent",
                                   color: "white",
                                   "&:hover": {
