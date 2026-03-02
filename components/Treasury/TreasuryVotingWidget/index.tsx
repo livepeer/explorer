@@ -553,7 +553,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
         contractId={proposal.id}
         idLabel="proposal's ID"
         cliOptionName="Vote on a treasury proposal"
-        voteInstructions='Enter 0 to vote "Against", 1 to vote "For", or 2 to "Abstain".'
+        voteInstructions='Enter 0 to vote "Against", 1 to vote "For", or 2 to vote "Abstain".'
       />
     </Box>
   );
