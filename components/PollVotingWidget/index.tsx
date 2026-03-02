@@ -343,13 +343,14 @@ const Index = ({ data }: { data: Props }) => {
         )}
       </Box>
 
-      <CliVotingInstructionsDialog
-        isActive={data.poll.status === "active"}
-        voteId={data.poll.id}
-        idLabel="poll's contract address"
-        cliOptionName="Vote on a poll"
-        voteInstructions='Enter 0 to vote "For" or 1 to vote "Against".'
-      />
+      {data.poll.status === "active" && (
+        <CliVotingInstructionsDialog
+          voteId={data.poll.id}
+          idLabel="poll's contract address"
+          cliOptionName="Vote on a poll"
+          voteInstructions='Enter 0 to vote "For" or 1 to vote "Against".'
+        />
+      )}
     </Box>
   );
 };

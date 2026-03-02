@@ -14,7 +14,6 @@ import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
 
 type Props = {
-  isActive: boolean;
   voteId: string;
   idLabel: string;
   cliOptionName: string;
@@ -22,14 +21,13 @@ type Props = {
 };
 
 const CliVotingInstructionsDialog = ({
-  isActive,
   voteId,
   idLabel,
   cliOptionName,
   voteInstructions,
 }: Props) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [openSnackbar] = useSnackbar();
 
   useEffect(() => {
@@ -43,42 +41,40 @@ const CliVotingInstructionsDialog = ({
 
   return (
     <>
-      {isActive && (
-        <Box
-          css={{
-            display: "none",
-            marginTop: "$3",
-            fontSize: "$1",
-            borderRadius: "$4",
-            border: "1px solid $neutral4",
-            padding: "$3",
-            "@bp3": {
-              display: "block",
-            },
-          }}
-        >
-          <Box css={{ lineHeight: 1.8 }}>
-            Are you an orchestrator?{" "}
-            <Box
-              as="button"
-              type="button"
-              onClick={() => setModalOpen(true)}
-              css={{
-                color: "$primary11",
-                cursor: "pointer",
-                background: "none",
-                border: "none",
-                padding: 0,
-                font: "inherit",
-                textDecoration: "underline",
-              }}
-            >
-              Follow these instructions
-            </Box>{" "}
-            if you prefer to vote with the Livepeer CLI.
-          </Box>
+      <Box
+        css={{
+          display: "none",
+          marginTop: "$3",
+          fontSize: "$1",
+          borderRadius: "$4",
+          border: "1px solid $neutral4",
+          padding: "$3",
+          "@bp3": {
+            display: "block",
+          },
+        }}
+      >
+        <Box css={{ lineHeight: 1.8 }}>
+          Are you an orchestrator?{" "}
+          <Box
+            as="button"
+            type="button"
+            onClick={() => setModalOpen(true)}
+            css={{
+              color: "$primary11",
+              cursor: "pointer",
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "inherit",
+              textDecoration: "underline",
+            }}
+          >
+            Follow these instructions
+          </Box>{" "}
+          if you prefer to vote with the Livepeer CLI.
         </Box>
-      )}
+      </Box>
       <Dialog onOpenChange={setModalOpen} open={modalOpen}>
         <DialogContent
           onPointerEnterCapture={undefined}
