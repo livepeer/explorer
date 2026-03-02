@@ -1,3 +1,4 @@
+import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog";
 import QueueExecuteButton from "@components/QueueExecuteButton";
 import VoteButton from "@components/VoteButton";
 import { ProposalExtended } from "@lib/api/treasury";
@@ -547,6 +548,14 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
           </Box>
         )}
       </Box>
+      {proposal.state === "Active" && (
+        <CliVotingInstructionsDialog
+          voteId={proposal.id}
+          idLabel="proposal's ID"
+          cliOptionName="Vote on a treasury proposal"
+          voteInstructions='Enter 0 to vote "Against", 1 to vote "For", or 2 to vote "Abstain".'
+        />
+      )}
     </Box>
   );
 };
