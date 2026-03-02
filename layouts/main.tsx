@@ -433,7 +433,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           },
                         }}
                       >
-                        <Logo isDark id="main" />
+                        <Logo isDark />
 
                         <Box css={{ marginLeft: "$7" }}>
                           <Link passHref href="/">

@@ -4,7 +4,6 @@ import Link from "next/link";
 type Props = {
   isDark?: boolean;
   isLink?: boolean;
-  id?: string;
 };
 
 const LivepeerLogo = ({ isDark, isLink = true }: Props) => {

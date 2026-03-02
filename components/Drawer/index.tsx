@@ -82,7 +82,7 @@ const Index = ({
         }}
       >
         <Box css={{ marginBottom: "$5" }}>
-          <Logo isDark id="drawer" />
+          <Logo isDark />
         </Box>
         <Box css={{ marginBottom: "auto" }}>
           {items.map((item, i) => (
