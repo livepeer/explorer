@@ -10,7 +10,7 @@ const LivepeerLogo = ({ isDark, isLink = true }: Props) => {
   const markup = (
     <Box
       as="svg"
-      viewBox="115 0 596 90"
+      viewBox="0 0 711 89"
       css={{
         height: "18px",
         width: "auto",
@@ -19,6 +19,30 @@ const LivepeerLogo = ({ isDark, isLink = true }: Props) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <path
+        d="M6.75655e-07 16.4436L0 0.944092H15.4995L15.4995 16.4436H6.75655e-07Z"
+        fill="currentColor"
+      />
+      <path
+        d="M28.4692 34.504L28.4692 19.0045H43.9687L43.9687 34.504H28.4692Z"
+        fill="currentColor"
+      />
+      <path
+        d="M56.8936 52.5661L56.8936 37.0667H72.393L72.393 52.5661H56.8936Z"
+        fill="currentColor"
+      />
+      <path
+        d="M28.4692 70.5814L28.4692 55.0819H43.9687L43.9687 70.5814H28.4692Z"
+        fill="currentColor"
+      />
+      <path
+        d="M6.75655e-07 88.6207L0 73.1212H15.4995L15.4995 88.6207H6.75655e-07Z"
+        fill="currentColor"
+      />
+      <path
+        d="M6.75655e-07 52.5661L0 37.0667H15.4995L15.4995 52.5661H6.75655e-07Z"
+        fill="currentColor"
+      />
       <path
         d="M118.899 88.6863V0.97998H135.921V73.6405H185.815V88.6863H118.899Z"
         fill="currentColor"
