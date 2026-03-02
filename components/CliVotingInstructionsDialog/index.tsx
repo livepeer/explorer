@@ -1,14 +1,12 @@
 import {
   Box,
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTitle,
   Flex,
   Heading,
   useSnackbar,
 } from "@livepeer/design-system";
-import { Cross1Icon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
@@ -17,7 +15,7 @@ import Copy from "../../public/img/copy.svg";
 
 type Props = {
   isActive: boolean;
-  contractId: string;
+  voteId: string;
   idLabel: string;
   cliOptionName: string;
   voteInstructions: string;
@@ -25,7 +23,7 @@ type Props = {
 
 const CliVotingInstructionsDialog = ({
   isActive,
-  contractId,
+  voteId,
   idLabel,
   cliOptionName,
   voteInstructions,
@@ -36,9 +34,10 @@ const CliVotingInstructionsDialog = ({
 
   useEffect(() => {
     if (copied) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setCopied(false);
       }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [copied]);
 
@@ -61,9 +60,18 @@ const CliVotingInstructionsDialog = ({
           <Box css={{ lineHeight: 1.8 }}>
             Are you an orchestrator?{" "}
             <Box
-              as="span"
+              as="button"
+              type="button"
               onClick={() => setModalOpen(true)}
-              css={{ color: "$primary11", cursor: "pointer" }}
+              css={{
+                color: "$primary11",
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                padding: 0,
+                font: "inherit",
+                textDecoration: "underline",
+              }}
             >
               Follow these instructions
             </Box>{" "}
@@ -77,38 +85,21 @@ const CliVotingInstructionsDialog = ({
           onPointerLeaveCapture={undefined}
           placeholder={undefined}
         >
-          <Flex
-            css={{
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "$4",
-            }}
-          >
-            <DialogTitle asChild>
-              <Heading size="1" css={{ fontWeight: 700, width: "100%" }}>
-                Livepeer CLI Voting Instructions
-              </Heading>
-            </DialogTitle>
-            <DialogClose asChild>
-              <Box
-                as={Cross1Icon}
-                css={{
-                  alignSelf: "flex-start",
-                  cursor: "pointer",
-                  color: "$white",
-                  width: 16,
-                  height: 16,
-                }}
-              />
-            </DialogClose>
-          </Flex>
+          <DialogTitle asChild>
+            <Heading
+              size="1"
+              css={{ fontWeight: 700, width: "100%", marginBottom: "$4" }}
+            >
+              Livepeer CLI Voting Instructions
+            </Heading>
+          </DialogTitle>
 
           <Box as="ol" css={{ paddingLeft: 15 }}>
             <Box as="li" css={{ marginBottom: "$4" }}>
               <Box css={{ marginBottom: "$3" }}>
                 Run the Livepeer CLI and select the option to &quot;
-                {cliOptionName}&quot;. When prompted for a contract address,
-                copy and paste this {idLabel}:
+                {cliOptionName}&quot;. When prompted, copy and paste this{" "}
+                {idLabel}:
               </Box>
               <Box
                 css={{
@@ -122,9 +113,9 @@ const CliVotingInstructionsDialog = ({
                   wordBreak: "break-all",
                 }}
               >
-                {contractId}
+                {voteId}
                 <CopyToClipboard
-                  text={contractId}
+                  text={voteId}
                   onCopy={() => {
                     setCopied(true);
                     openSnackbar("Copied to clipboard");

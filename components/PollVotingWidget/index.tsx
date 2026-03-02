@@ -345,7 +345,7 @@ const Index = ({ data }: { data: Props }) => {
 
       <CliVotingInstructionsDialog
         isActive={data.poll.status === "active"}
-        contractId={data.poll.id}
+        voteId={data.poll.id}
         idLabel="poll's contract address"
         cliOptionName="Vote on a poll"
         voteInstructions='Enter 0 to vote "For" or 1 to vote "Against".'

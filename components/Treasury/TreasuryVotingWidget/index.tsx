@@ -550,7 +550,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
       </Box>
       <CliVotingInstructionsDialog
         isActive={proposal.state === "Active"}
-        contractId={proposal.id}
+        voteId={proposal.id}
         idLabel="proposal's ID"
         cliOptionName="Vote on a treasury proposal"
         voteInstructions='Enter 0 to vote "Against", 1 to vote "For", or 2 to vote "Abstain".'
