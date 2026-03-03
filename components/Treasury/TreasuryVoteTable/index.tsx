@@ -84,6 +84,7 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const {
@@ -97,6 +98,7 @@ const useVotes = (proposalId: string) => {
         proposal: proposalId,
       },
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const [votes, setVotes] = useState<Vote[]>([]);
