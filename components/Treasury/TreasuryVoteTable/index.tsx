@@ -109,7 +109,9 @@ const useVotes = (proposalId: string) => {
       !treasuryVoteEventsData?.treasuryVoteEvents
     ) {
       setVotes([]);
+      return;
     }
+
     const decorateVotes = async () => {
       setVotesLoading(true);
       const uniqueVoters = Array.from(
@@ -206,7 +208,7 @@ const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
       </Flex>
     );
   }
-  if (error)
+  if (error && !votes.length)
     return (
       <Text css={{ textAlign: "center", color: "$red9", marginTop: "$4" }}>
         Error loading votes: {error.message}
