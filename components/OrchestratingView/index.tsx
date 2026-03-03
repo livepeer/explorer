@@ -128,7 +128,6 @@ const useGovernanceParticipation = (
     ).length;
     const voted = votesData.treasuryVotes.filter(
       (vote) =>
-        Number(vote.proposal.voteStart) >= Number(firstActivationRound) &&
         isActiveProposal(vote.proposal.voteStart, currentRoundId) &&
         isDuringWindow(Number(vote.proposal.voteStart), windows)
     ).length;
