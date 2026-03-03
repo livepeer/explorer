@@ -14,7 +14,10 @@ import { MobileVoteCards } from "./Views/MobileVoteTable";
 // Bound size keeps memory usage predictable during long sessions.
 const ENS_CACHE_MAX_ENTRIES = 2000;
 const ENS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-const ensCache = new Map<string, { name: string; timestamp: number }>();
+const ensCache = new Map<
+  string,
+  { nameOrAddress: string; timestamp: number }
+>();
 const ensLookupInFlight = new Map<string, Promise<string>>();
 
 const getCachedEns = (address: string) => {
@@ -30,14 +33,14 @@ const getCachedEns = (address: string) => {
   ensCache.delete(address);
   ensCache.set(address, cached);
 
-  return cached.name;
+  return cached.nameOrAddress;
 };
 
 const setCachedEns = (address: string, ensName: string) => {
   if (ensCache.has(address)) {
     ensCache.delete(address);
   }
-  ensCache.set(address, { name: ensName, timestamp: Date.now() });
+  ensCache.set(address, { nameOrAddress: ensName, timestamp: Date.now() });
 
   if (ensCache.size > ENS_CACHE_MAX_ENTRIES) {
     const oldestKey = ensCache.keys().next().value;
