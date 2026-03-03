@@ -117,7 +117,7 @@ const useVotes = (proposalId: string) => {
       await Promise.all(
         uniqueVoters.map(async (address) => {
           try {
-            await resolveEnsName(address);
+            await resolveEnsName(address.toLowerCase());
           } catch (e) {
             console.warn(`Failed to fetch ENS for ${address}`, e);
           }
