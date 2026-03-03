@@ -46,7 +46,7 @@ const buildActiveWindows = (
       round: Number(d.deactivationRound),
       type: "deactivation" as const,
     })),
-  ].sort((a, b) => a.round - b.round || (a.type === "deactivation" ? -1 : 1));
+  ].sort((a, b) => a.round - b.round || (a.type === "activation" ? -1 : 1));
 
   const windows: ActivationWindow[] = [];
   let start: number | null = null;
@@ -71,7 +71,7 @@ const isDuringWindow = (round: number, windows: ActivationWindow[]) =>
   windows.some((w) => round >= w.start && round < w.end);
 
 const isActiveProposal = (voteStart: string, currentRoundId?: string) =>
-  currentRoundId ? Number(voteStart) <= Number(currentRoundId) : true;
+  currentRoundId ? Number(voteStart) <= Number(currentRoundId) : false;
 
 const useGovernanceParticipation = (
   delegateId?: string,
@@ -128,6 +128,7 @@ const useGovernanceParticipation = (
     ).length;
     const voted = votesData.treasuryVotes.filter(
       (vote) =>
+        Number(vote.proposal.voteStart) >= Number(firstActivationRound) &&
         isActiveProposal(vote.proposal.voteStart, currentRoundId) &&
         isDuringWindow(Number(vote.proposal.voteStart), windows)
     ).length;
