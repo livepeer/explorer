@@ -13,25 +13,31 @@ import { MobileVoteCards } from "./Views/MobileVoteTable";
 // Module-level cache to avoid repeated ENS lookups across renders/navigations.
 // Bound size keeps memory usage predictable during long sessions.
 const ENS_CACHE_MAX_ENTRIES = 2000;
-const ensCache = new Map<string, string>();
+const ENS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const ensCache = new Map<string, { name: string; timestamp: number }>();
 const ensLookupInFlight = new Map<string, Promise<string>>();
 
 const getCachedEns = (address: string) => {
   if (!ensCache.has(address)) return undefined;
   const cached = ensCache.get(address)!;
 
+  if (Date.now() - cached.timestamp > ENS_CACHE_TTL_MS) {
+    ensCache.delete(address);
+    return undefined;
+  }
+
   // Refresh insertion order so frequently used addresses stay cached.
   ensCache.delete(address);
   ensCache.set(address, cached);
 
-  return cached;
+  return cached.name;
 };
 
 const setCachedEns = (address: string, ensName: string) => {
   if (ensCache.has(address)) {
     ensCache.delete(address);
   }
-  ensCache.set(address, ensName);
+  ensCache.set(address, { name: ensName, timestamp: Date.now() });
 
   if (ensCache.size > ENS_CACHE_MAX_ENTRIES) {
     const oldestKey = ensCache.keys().next().value;
@@ -107,12 +113,11 @@ const useVotes = (proposalId: string) => {
       const uniqueVoters = Array.from(
         new Set(treasuryVotesData?.treasuryVotes?.map((v) => v.voter.id) ?? [])
       );
-      const localEnsCache: { [address: string]: string } = {};
 
       await Promise.all(
         uniqueVoters.map(async (address) => {
           try {
-            localEnsCache[address] = await resolveEnsName(address);
+            await resolveEnsName(address);
           } catch (e) {
             console.warn(`Failed to fetch ENS for ${address}`, e);
           }
@@ -125,7 +130,7 @@ const useVotes = (proposalId: string) => {
             .sort((a, b) => b.timestamp - a.timestamp);
 
           const latestEvent = events[0];
-          const ensName = localEnsCache[vote.voter.id] ?? "";
+          const ensName = getCachedEns(vote.voter.id.toLowerCase()) ?? "";
 
           return {
             ...vote,
