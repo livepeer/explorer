@@ -13,9 +13,6 @@ import {
   Container,
   Flex,
   Link as A,
-  Sheet,
-  SheetContent,
-  SheetTrigger,
 } from "@livepeer/design-system";
 import {
   AccountQueryResult,
@@ -69,7 +66,8 @@ const AccountLayout = ({
     [asPath]
   );
 
-  const { setSelectedStakingAction, latestTransaction } = useExplorerStore();
+  const { setSelectedStakingAction, setBottomDrawerOpen, latestTransaction } =
+    useExplorerStore();
 
   const accountId = useMemo(
     () => query?.account?.toString().toLowerCase(),
@@ -202,81 +200,30 @@ const AccountLayout = ({
             {(isOrchestrator ||
               isMyDelegate ||
               isDelegatingAndIsMyAccountView) && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="primary"
-                    css={{ marginRight: "$3" }}
-                    size="4"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setSelectedStakingAction("delegate");
-                    }}
-                  >
-                    Delegate
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  css={{ height: "initial" }}
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
-                  side="bottom"
-                >
-                  <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders}
-                    delegator={dataMyAccount?.delegator}
-                    account={myIdentity}
-                    transcoder={
-                      isDelegatingAndIsMyAccountView
-                        ? dataMyAccount?.delegator?.delegate
-                        : viewedAccount?.transcoder
-                    }
-                    protocol={viewedAccount?.protocol}
-                    treasury={treasury}
-                    delegateProfile={identity}
-                  />
-                </SheetContent>
-              </Sheet>
+              <Button
+                variant="primary"
+                css={{ marginRight: "$3" }}
+                size="4"
+                onClick={() => {
+                  setSelectedStakingAction("delegate");
+                  setBottomDrawerOpen(true);
+                }}
+              >
+                Delegate
+              </Button>
             )}
-            {isMyDelegate ||
-              (isDelegatingAndIsMyAccountView && (
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="red"
-                      size="4"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setSelectedStakingAction("undelegate");
-                      }}
-                    >
-                      Undelegate
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="bottom"
-                    css={{ height: "initial" }}
-                    placeholder={undefined}
-                    onPointerEnterCapture={undefined}
-                    onPointerLeaveCapture={undefined}
-                  >
-                    <DelegatingWidget
-                      transcoders={sortedOrchestrators?.transcoders}
-                      delegator={dataMyAccount?.delegator}
-                      account={myIdentity}
-                      transcoder={
-                        isDelegatingAndIsMyAccountView
-                          ? dataMyAccount?.delegator?.delegate
-                          : viewedAccount?.transcoder
-                      }
-                      protocol={viewedAccount?.protocol}
-                      treasury={treasury}
-                      delegateProfile={identity}
-                    />
-                  </SheetContent>
-                </Sheet>
-              ))}
+            {(isMyDelegate || isDelegatingAndIsMyAccountView) && (
+              <Button
+                variant="red"
+                size="4"
+                onClick={() => {
+                  setSelectedStakingAction("undelegate");
+                  setBottomDrawerOpen(true);
+                }}
+              >
+                Undelegate
+              </Button>
+            )}
           </Flex>
           <HorizontalScrollContainer
             role="navigation"
