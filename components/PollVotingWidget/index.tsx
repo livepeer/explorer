@@ -2,31 +2,14 @@ import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-  Flex,
-  Heading,
-  Text,
-  useSnackbar,
-} from "@livepeer/design-system";
-import {
-  CheckCircledIcon,
-  Cross1Icon,
-  CrossCircledIcon,
-} from "@radix-ui/react-icons";
+import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
-import { useEffect, useMemo, useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useMemo } from "react";
 import { getVotingPower } from "utils/voting";
-import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 
 type Props = {
   poll: PollExtended;
