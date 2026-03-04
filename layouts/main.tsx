@@ -209,11 +209,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
-    if (width > 1020) {
+    if (width >= 1200) {
       document.body.removeAttribute("style");
     }
 
-    if (width < 1020 && drawerOpen) {
+    if (width < 1200 && drawerOpen) {
       document.body.style.overflow = "hidden";
     }
   }, [drawerOpen, width]);
