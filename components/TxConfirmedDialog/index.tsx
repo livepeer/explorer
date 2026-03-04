@@ -564,6 +564,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        aria-label="Transfer Receipt"
       >
         <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
           Transfer Receipt
