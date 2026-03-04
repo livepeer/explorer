@@ -56,7 +56,11 @@ const Index = () => {
         </Heading>
       </DialogTitle>
       <DialogContent
-        css={{ maxWidth: 370, width: "100%" }}
+        css={{
+          maxWidth: 370,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -220,12 +224,14 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Box>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
       >
-        Details{" "}
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          Details
+        </Box>
         <Box
           as={ExternalLinkIcon}
           css={{ marginLeft: "6px", color: "$primary11" }}
