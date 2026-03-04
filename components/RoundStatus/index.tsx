@@ -10,7 +10,9 @@ import {
 } from "@modulz/radix-icons";
 import {
   formatETH,
+  formatLPT,
   formatNumber,
+  formatPercent,
   formatUSD,
 } from "@utils/numberFormatters";
 import { ProtocolQueryResult } from "apollo";
@@ -405,10 +407,7 @@ const Index = ({
                     }}
                   >
                     {totalSupply !== null
-                      ? `${numbro(totalSupply).format({
-                          mantissa: 0,
-                          average: true,
-                        })} LPT`
+                        ? formatLPT(totalSupply, { precision: 0, abbreviate: true })
                       : "--"}
                   </Text>
                 </Flex>
@@ -454,10 +453,7 @@ const Index = ({
                     {isSupplyChangeLoading ? (
                       <Skeleton css={{ height: 16, width: 80 }} />
                     ) : supplyChangeData?.supplyChange != null ? (
-                      numbro(supplyChangeData?.supplyChange ?? 0).format({
-                        output: "percent",
-                        mantissa: 2,
-                      })
+                          formatPercent(supplyChangeData.supplyChange, { precision: 2 })
                     ) : (
                       "--"
                     )}
