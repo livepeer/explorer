@@ -61,14 +61,13 @@ const OrchestratorsPage = ({
           }}
         >
           <Flex
-            align="center"
             css={{
-              marginBottom: "$3",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              gap: "$3",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              marginBottom: "$4",
+              alignItems: "center",
               "@bp1": {
-                justifyContent: "space-between",
+                flexDirection: "row",
               },
             }}
           >
