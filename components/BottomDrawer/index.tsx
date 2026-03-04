@@ -20,7 +20,6 @@ const Index = ({ children }) => {
         css={{
           height: "initial",
           backgroundColor: "transparent",
-          boxShadow: "none",
         }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
