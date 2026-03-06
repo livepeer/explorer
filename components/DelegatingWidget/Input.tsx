@@ -88,7 +88,7 @@ const Input = ({
         type="number"
         min="0"
         step="any"
-        autoFocus={width > 1020}
+        autoFocus={width >= 1200}
         value={value}
         onChange={onChange}
         css={{

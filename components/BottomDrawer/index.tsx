@@ -9,7 +9,7 @@ const Index = ({ children }) => {
 
   return (
     <Sheet
-      open={bottomDrawerOpen && width < 1020}
+      open={bottomDrawerOpen && width < 1200}
       onOpenChange={(open) => {
         if (!open) setBottomDrawerOpen(false);
       }}
