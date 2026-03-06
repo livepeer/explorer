@@ -19,6 +19,11 @@ import {
 } from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
+  formatLPT,
+  formatPercent,
+} from "@utils/numberFormatters";
+import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
+import {
   AccountQuery,
   PollChoice,
   useAccountQuery,
@@ -30,14 +35,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
-import { formatPercent } from "utils/voting";
 
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
 } from "../../hooks";
-import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
 
 const Poll = () => {
@@ -226,7 +229,7 @@ const Poll = () => {
                 <Stat
                   css={{ flex: 1, mb: 0 }}
                   label={
-                    <Box>Total Support ({+pollData.quota / 10000}% needed)</Box>
+                    <Box>Total Support ({+pollData.quota / PERCENTAGE_PRECISION_TEN_THOUSAND}% needed)</Box>
                   }
                   value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
                   meta={
@@ -248,8 +251,8 @@ const Poll = () => {
                             For ({formatPercent(pollData.percent.yes)})
                           </Box>
                         </Flex>
-                        <Box as="span">
-                          {abbreviateNumber(pollData.stake.yes, 4)} LPT
+                         <Box as="span">
+                          {formatLPT(pollData.stake.yes, { precision: 4 })}
                         </Box>
                       </Flex>
                       <Flex
@@ -269,7 +272,7 @@ const Poll = () => {
                           </Box>
                         </Flex>
                         <Box as="span">
-                          {abbreviateNumber(pollData.stake.no, 4)} LPT
+                          {formatLPT(pollData.stake.no, { precision: 4 })}
                         </Box>
                       </Flex>
                     </Box>
@@ -280,7 +283,7 @@ const Poll = () => {
                   css={{ flex: 1, mb: 0 }}
                   label={
                     <Box>
-                      Total Participation ({+pollData.quorum / 10000}% needed)
+                      Total Participation ({+pollData.quorum / PERCENTAGE_PRECISION_TEN_THOUSAND}% needed)
                     </Box>
                   }
                   value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
@@ -299,7 +302,7 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(pollData.stake.voters, 4)} LPT
+                            {formatLPT(pollData.stake.voters, { precision: 4 })}
                           </Box>
                         </Box>
                       </Flex>
@@ -316,7 +319,9 @@ const Poll = () => {
                         </Box>
                         <Box as="span">
                           <Box as="span">
-                            {abbreviateNumber(pollData.stake.nonVoters, 4)} LPT
+                            {formatLPT(pollData.stake.nonVoters, {
+                              precision: 4,
+                            })}
                           </Box>
                         </Box>
                       </Flex>
