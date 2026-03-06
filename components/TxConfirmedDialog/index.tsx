@@ -51,7 +51,11 @@ const Index = () => {
     >
       <DialogContent
         onPointerDownOutside={onDismiss}
-        css={{ maxWidth: 390, width: "100%" }}
+        css={{
+          maxWidth: 390,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -60,7 +64,7 @@ const Index = () => {
           <Heading
             size="1"
             css={{
-              mb: "$4",
+              mb: "$3",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -72,14 +76,14 @@ const Index = () => {
               css={{
                 display: "flex",
                 alignItems: "center",
-                fontSize: "$5",
+                fontSize: "$4",
                 paddingLeft: "$3",
                 paddingRight: "$3",
-                paddingTop: "$4",
-                paddingBottom: "$4",
+                paddingTop: "$2",
+                paddingBottom: "$2",
               }}
             >
-              <CheckIcon width={22} height={22} />
+              <CheckIcon width={18} height={18} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
@@ -556,12 +560,15 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Flex>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        aria-label="Transfer Receipt"
       >
-        Transfer Receipt{" "}
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          Transfer Receipt
+        </Box>
         <Box css={{ marginLeft: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>
