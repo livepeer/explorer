@@ -14,7 +14,7 @@ import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
 
-import { useApollo } from "../apollo";
+import { useApollo, useApolloReady } from "../apollo";
 import Layout from "../layouts/main";
 
 numbro.setDefaults({ spaceSeparated: false });
@@ -27,6 +27,7 @@ const Web3Providers = dynamic(() => import("../components/Web3Providers"), {
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
+  const apolloReady = useApolloReady();
   const { route, locale } = useRouter();
 
   const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
@@ -34,6 +35,8 @@ function App({ Component, pageProps, fallback = null }) {
   const layoutKey = chains.map((e) => e.id).join(",");
 
   const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
+
+  if (!apolloReady) return null;
 
   return (
     <>
