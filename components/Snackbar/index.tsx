@@ -193,6 +193,7 @@ export function SnackbarProvider({ children }: { children?: React.ReactNode }) {
         style={getPositionStyles(snackbar.position)}
       >
         <Box
+          aria-hidden={!snackbar.open}
           css={{
             alignItems: "center",
             backgroundColor: "$panel",
@@ -200,11 +201,11 @@ export function SnackbarProvider({ children }: { children?: React.ReactNode }) {
             boxShadow:
               "0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12)",
             color: "$hiContrast",
-            display: snackbar.open ? "flex" : "none",
+            display: "flex",
             maxWidth: 672,
             minWidth: 334,
             opacity: snackbar.open ? 1 : 0,
-            pointerEvents: "auto",
+            pointerEvents: snackbar.open ? "auto" : "none",
             transform: snackbar.open ? "translateY(0)" : "translateY(8px)",
             transition: "opacity 150ms ease, transform 150ms ease",
           }}
@@ -224,6 +225,7 @@ export function SnackbarProvider({ children }: { children?: React.ReactNode }) {
             type="button"
             aria-label="Close notification"
             onClick={closeSnackbar}
+            tabIndex={snackbar.open ? 0 : -1}
             css={{
               alignItems: "center",
               backgroundColor: "transparent",
