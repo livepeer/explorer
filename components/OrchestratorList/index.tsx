@@ -88,7 +88,10 @@ const OrchestratorList = ({
             mantissa: 3,
             output: "percent",
           })}`
-        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
+        : `${numbro(
+            (change === "negative" ? -1 : 1) *
+              (Number(protocolData?.inflationChange) / 1000000000)
+          ).format({
             mantissa: 5,
             output: "percent",
             forceSign: true,
