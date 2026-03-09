@@ -5,10 +5,9 @@ import {
   DialogTitle,
   Flex,
   Heading,
-  useSnackbar,
 } from "@livepeer/design-system";
+import copy from "copy-to-clipboard";
 import { useEffect, useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import Check from "../../public/img/check.svg";
 import Copy from "../../public/img/copy.svg";
@@ -28,7 +27,6 @@ const CliVotingInstructionsDialog = ({
 }: Props) => {
   const [copied, setCopied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [openSnackbar] = useSnackbar();
 
   useEffect(() => {
     if (copied) {
@@ -38,6 +36,12 @@ const CliVotingInstructionsDialog = ({
       return () => clearTimeout(timer);
     }
   }, [copied]);
+
+  const handleCopy = () => {
+    if (copy(voteId)) {
+      setCopied(true);
+    }
+  };
 
   return (
     <>
@@ -100,6 +104,7 @@ const CliVotingInstructionsDialog = ({
               <Box
                 css={{
                   padding: "$3",
+                  paddingRight: 48,
                   marginBottom: "$2",
                   position: "relative",
                   color: "$primary11",
@@ -110,45 +115,44 @@ const CliVotingInstructionsDialog = ({
                 }}
               >
                 {voteId}
-                <CopyToClipboard
-                  text={voteId}
-                  onCopy={() => {
-                    setCopied(true);
-                    openSnackbar("Copied to clipboard");
+                <Flex
+                  as="button"
+                  type="button"
+                  aria-label={`Copy ${idLabel}`}
+                  onClick={handleCopy}
+                  css={{
+                    marginLeft: "$2",
+                    marginTop: "3px",
+                    position: "absolute",
+                    right: 12,
+                    top: 10,
+                    cursor: "pointer",
+                    border: "none",
+                    background: "none",
+                    borderRadius: 1000,
+                    padding: 0,
+                    width: 26,
+                    height: 26,
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Flex
-                    css={{
-                      marginLeft: "$2",
-                      marginTop: "3px",
-                      position: "absolute",
-                      right: 12,
-                      top: 10,
-                      cursor: "pointer",
-                      borderRadius: 1000,
-                      width: 26,
-                      height: 26,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {copied ? (
-                      <Check
-                        css={{
-                          width: 12,
-                          height: 12,
-                        }}
-                      />
-                    ) : (
-                      <Copy
-                        css={{
-                          width: 12,
-                          height: 12,
-                        }}
-                      />
-                    )}
-                  </Flex>
-                </CopyToClipboard>
+                  {copied ? (
+                    <Check
+                      css={{
+                        width: 12,
+                        height: 12,
+                      }}
+                    />
+                  ) : (
+                    <Copy
+                      css={{
+                        width: 12,
+                        height: 12,
+                      }}
+                    />
+                  )}
+                </Flex>
               </Box>
             </Box>
             <Box as="li" css={{ marginBottom: "$4" }}>
