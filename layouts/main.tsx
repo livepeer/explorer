@@ -1,3 +1,4 @@
+import AiChat from "@components/AiChat";
 import AppBar from "@components/AppBar";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
@@ -744,6 +745,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
               </Box>
             )}
           </Box>
+          <AiChat />
         </SnackbarProvider>
       </ThemeProvider>
     </DesignSystemProviderTyped>

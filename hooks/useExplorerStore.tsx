@@ -49,11 +49,13 @@ export type ExplorerState = {
   selectedStakingAction: StakingAction;
   yieldResults: YieldResults;
   latestTransaction: TransactionStatus | null;
+  aiChatOpen: boolean;
 
   setWalletModalOpen: (v: boolean) => void;
   setBottomDrawerOpen: (v: boolean) => void;
   setSelectedStakingAction: (v: StakingAction) => void;
   setYieldResults: (v: YieldResults) => void;
+  setAiChatOpen: (v: boolean) => void;
 
   setLatestTransactionDetails: (
     hash: string,
@@ -77,8 +79,10 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     principle: 0.0,
   },
   latestTransaction: null,
+  aiChatOpen: false,
 
   setWalletModalOpen: (v: boolean) => set(() => ({ walletModalOpen: v })),
+  setAiChatOpen: (v: boolean) => set(() => ({ aiChatOpen: v })),
   setBottomDrawerOpen: (v: boolean) => set(() => ({ bottomDrawerOpen: v })),
   setSelectedStakingAction: (v: StakingAction) =>
     set(() => ({ selectedStakingAction: v })),
