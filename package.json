@@ -35,6 +35,7 @@
     "@types/react-table": "^7.7.20",
     "@types/recharts": "^1.8.23",
     "@types/sanitize-html": "^2.6.2",
+    "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.1",
     "eslint-config-prettier": "^10.1.8",
