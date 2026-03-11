@@ -87,26 +87,27 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
           }}
         >
           <Flex
-            justify="between"
             css={{
-              width: "100%",
-              flexDirection: "column", // Default to column for mobile
-              marginBottom: "0",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              marginBottom: "$4",
+              alignItems: "center",
               "@bp2": {
-                flexDirection: "row", // Change to row for larger screens
+                flexDirection: "row",
                 marginBottom: "$4",
               },
             }}
           >
             <Heading
-              size="3"
+              size="2"
               as="h1"
               css={{
                 fontWeight: 700,
-                fontSize: 26,
-                marginBottom: "$2",
-                "@bp3": {
+                marginBottom: "$3",
+                textAlign: "center",
+                "@bp2": {
                   marginBottom: "0",
+                  textAlign: "left",
                 },
               }}
             >
@@ -115,27 +116,34 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
             <Flex
               css={{
                 fontSize: "$2",
-                flexDirection: "column", // Default to column for mobile
+                flexDirection: "column",
+                alignItems: "center",
+                rowGap: "$2",
+                width: "100%",
+                "@bp1": {
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  columnGap: "$4",
+                },
                 "@bp2": {
-                  flexDirection: "row", // Change to row for larger screens
+                  width: "auto",
+                  flexWrap: "nowrap",
                 },
               }}
             >
               <Flex
                 css={{
-                  flexDirection: "row", // Stack title and dropdown vertically on mobile
+                  flexDirection: "row",
                   alignItems: "center",
-                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
-                  marginLeft: "$2", // Add margin-left for spacing between groups
-                  "@bp2": {
-                    marginBottom: "0", // Remove margin-bottom for larger screens
-                    marginRight: "$4", // Add margin-right for spacing between groups
-                  },
+                  justifyContent: "center",
+                  gap: "$2",
+                  width: "100%",
+                  "@bp1": { width: "auto" },
                 }}
               >
                 <Flex
                   css={{
-                    marginRight: "$2",
                     fontSize: "$2",
                     color: "$hiContrast",
                   }}
@@ -214,18 +222,16 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
               </Flex>
               <Flex
                 css={{
-                  flexDirection: "row", // Align title and dropdown horizontally
+                  flexDirection: "row",
                   alignItems: "center",
-                  marginBottom: "$2", // Add margin-bottom for spacing when stacked
-                  marginLeft: "$2", // Add margin-left for spacing between groups
-                  "@bp2": {
-                    marginBottom: "0", // Remove margin-bottom for larger screens
-                  },
+                  justifyContent: "center",
+                  gap: "$2",
+                  width: "100%",
+                  "@bp1": { width: "auto" },
                 }}
               >
                 <Flex
                   css={{
-                    marginRight: "$2",
                     fontSize: "$2",
                     color: "$hiContrast",
                   }}
