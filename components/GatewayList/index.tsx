@@ -262,6 +262,9 @@ const GatewayList = ({
               onClick={(e) => {
                 e.stopPropagation();
               }}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              placeholder={undefined}
             >
               <Flex
                 css={{
