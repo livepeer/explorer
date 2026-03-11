@@ -18,6 +18,7 @@ import {
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
 import { TreasuryVoteSupport } from "apollo/subgraph";
+import { useEnsData } from "hooks";
 import { useState } from "react";
 
 import { Vote } from "./DesktopVoteTable";
@@ -25,7 +26,7 @@ import { VoteReasonPopover } from "./VoteReasonPopover";
 
 interface VoteViewProps {
   vote: Vote;
-  onSelect: (voter: { address: string; ensName?: string }) => void;
+  onSelect: (voter: { address: string }) => void;
   formatWeight: (weight: string) => string;
   isMobile?: boolean;
 }
@@ -53,6 +54,8 @@ export function VoteView({
 
 function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const ensIdentity = useEnsData(vote.voter.id);
+  const displayName = ensIdentity?.name || ensIdentity?.idShort || "";
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
@@ -113,12 +116,12 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 },
               }}
             >
-              {vote.ensName}
+              {displayName}
             </Link>
           </Heading>
           <Box
             as="button"
-            aria-label={`See ${vote.ensName || vote.voter.id}'s voting history`}
+            aria-label={`See ${displayName || vote.voter.id}'s voting history`}
             css={{
               display: "flex",
               alignItems: "center",
@@ -141,9 +144,7 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
                 color: "$primary11",
               },
             }}
-            onClick={() =>
-              onSelect({ address: vote.voter.id, ensName: vote.ensName })
-            }
+            onClick={() => onSelect({ address: vote.voter.id })}
           >
             <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
               History
@@ -277,6 +278,8 @@ function MobileVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
 }
 
 function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
+  const ensIdentity = useEnsData(vote.voter.id);
+  const displayName = ensIdentity?.name || ensIdentity?.idShort || "";
   const support =
     VOTING_SUPPORT_MAP[vote.support] ||
     VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
@@ -330,7 +333,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             }}
             size="2"
           >
-            {vote.ensName}
+            {displayName}
           </Text>
         </Link>
       </Box>
@@ -492,7 +495,7 @@ function DesktopVoteView({ vote, onSelect, formatWeight }: VoteViewProps) {
             as="button"
             onClick={(e) => {
               e.stopPropagation();
-              onSelect({ address: vote.voter.id, ensName: vote.ensName });
+              onSelect({ address: vote.voter.id });
             }}
             css={{
               display: "inline-flex",
