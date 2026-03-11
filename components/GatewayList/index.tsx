@@ -26,7 +26,6 @@ type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
   reserveNumber: number;
   ninetyDayVolumeNumber: number;
   totalVolumeNumber: number;
-  lastActiveDayNumber: number;
 };
 
 const GatewayList = ({
@@ -44,7 +43,6 @@ const GatewayList = ({
         reserveNumber: Number(gateway?.reserve ?? 0),
         ninetyDayVolumeNumber: Number(gateway?.ninetyDayVolumeETH ?? 0),
         totalVolumeNumber: Number(gateway?.totalVolumeETH ?? 0),
-        lastActiveDayNumber: Number(gateway?.lastActiveDay ?? 0),
       })),
     [data]
   );
