@@ -3,20 +3,10 @@ import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Grid } from "@livepeer/design-system";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { formatEth } from "@lib/utils";
 import { GatewaysQuery } from "apollo";
 import { useGatewaySelfRedeemStatus } from "hooks";
-import numbro from "numbro";
 import { useMemo } from "react";
-
-// TODO: replace with common formatting util.
-const formatEth = (value?: string | number | null) => {
-  const amount = Number(value ?? 0) || 0;
-  return `${numbro(amount).format(
-    amount > 0 && amount < 0.01
-      ? { mantissa: 4, trimMantissa: true }
-      : { mantissa: 2, average: true, lowPrecision: false }
-  )} ETH`;
-};
 
 const SelfRedeemIndicator = () => (
   <ExplorerTooltip

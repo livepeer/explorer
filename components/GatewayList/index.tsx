@@ -2,7 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
 import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
-import { textTruncate } from "@lib/utils";
+import { formatEth, textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -18,7 +18,6 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { GatewaysQuery } from "apollo";
 import { useEnsData } from "hooks";
 import Link from "next/link";
-import numbro from "numbro";
 import { useMemo } from "react";
 import { Column } from "react-table";
 
@@ -28,16 +27,6 @@ type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
   ninetyDayVolumeNumber: number;
   totalVolumeNumber: number;
   lastActiveDayNumber: number;
-};
-
-// TODO: replace with common formatting util.
-const formatEth = (value: number) => {
-  const amount = Number(value ?? 0) || 0;
-  return `${numbro(amount).format(
-    amount > 0 && amount < 0.01
-      ? { mantissa: 4, trimMantissa: true }
-      : { mantissa: 2, average: true, lowPrecision: false }
-  )} ETH`;
 };
 
 const GatewayList = ({
@@ -273,9 +262,6 @@ const GatewayList = ({
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
             >
               <Flex
                 css={{
@@ -302,7 +288,7 @@ const GatewayList = ({
                   Profile
                 </PopoverLink>
                 <PopoverLink
-                  href={`/accounts/${row.values.id}/broadcasting?tab=history`}
+                  href={`/accounts/${row.values.id}/history`}
                 >
                   History
                 </PopoverLink>

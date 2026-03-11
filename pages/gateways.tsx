@@ -15,7 +15,7 @@ const GatewaysPage = ({ gateways }: PageProps) => {
       <Head>
         <title>Livepeer Explorer - Gateways</title>
       </Head>
-      <Container css={{ maxWidth: "", width: "100%" }}>
+      <Container css={{ width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",

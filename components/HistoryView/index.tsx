@@ -62,9 +62,7 @@ const Index = () => {
         (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
       ) ?? [];
     const accountLower = account.toLowerCase();
-    return tickets
-      .filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
-      .map((e) => ({
+    return tickets.map((e) => ({
         ...e,
         direction:
           e?.sender?.id?.toLowerCase() === accountLower &&

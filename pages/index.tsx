@@ -535,7 +535,7 @@ export const getStaticProps = async () => {
     const { orchestrators } = await getOrchestrators(client);
     const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
-    const { gateways } = await getGateways();
+    const { gateways } = await getGateways(client);
 
     if (
       !orchestrators.data ||
