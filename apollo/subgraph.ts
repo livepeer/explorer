@@ -9174,7 +9174,7 @@ export type GatewaysQueryVariables = Exact<{
 }>;
 
 
-export type GatewaysQuery = { __typename: 'Query', protocol?: { __typename: 'Protocol', id: string, activeBroadcasters: Array<string> } | null, gateways: Array<{ __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number }> };
+export type GatewaysQuery = { __typename: 'Query', gateways: Array<{ __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number }> };
 
 export type OrchestratorsQueryVariables = Exact<{
   currentRound?: InputMaybe<Scalars['BigInt']>;
@@ -9726,16 +9726,12 @@ export type GatewaySelfRedeemLazyQueryHookResult = ReturnType<typeof useGatewayS
 export type GatewaySelfRedeemQueryResult = Apollo.QueryResult<GatewaySelfRedeemQuery, GatewaySelfRedeemQueryVariables>;
 export const GatewaysDocument = gql`
     query gateways($first: Int!, $skip: Int!, $minActiveDay: Int!) {
-  protocol(id: "0") {
-    id
-    activeBroadcasters
-  }
   gateways: broadcasters(
     first: $first
     skip: $skip
     orderBy: ninetyDayVolumeETH
     orderDirection: desc
-    where: {or: [{ninetyDayVolumeETH_gt: "0"}, {lastActiveDay_gte: $minActiveDay}]}
+    where: {or: [{ninetyDayVolumeETH_gt: "0"}, {firstActiveDay_gte: $minActiveDay}]}
   ) {
     id
     deposit
