@@ -11,11 +11,13 @@ import {
   StakingAction,
   useAccountAddress,
   useAccountBalanceData,
+  useDelegationReview,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo } from "react";
 import { parseEther } from "viem";
 
+import DelegationReview from "../DelegationReview";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
@@ -69,15 +71,22 @@ const Footer = ({
   );
   const accountBalance = useAccountBalanceData(accountAddress);
 
-  const tokenBalance = useMemo(() => accountBalance?.balance, [accountBalance]);
-  const transferAllowance = useMemo(
-    () => accountBalance?.allowance,
-    [accountBalance]
-  );
+  const tokenBalance = accountBalance?.balance;
+  const transferAllowance = accountBalance?.allowance;
   const delegatorStatus = useMemo(
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
+  const { delegationWarning } = useDelegationReview({
+    delegator,
+    currentRound,
+    action: isTransferStake
+      ? "moveStake"
+      : action === "delegate"
+      ? "delegate"
+      : "undelegate",
+    targetOrchestrator: action === "delegate" ? transcoder : undefined,
+  });
   const stakeWei = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
@@ -175,6 +184,12 @@ const Footer = ({
             currDelegateNewPosNext: currDelegateNewPosNext,
           }}
         />
+        {delegationWarning && (isTransferStake || amount) && (
+          <DelegationReview
+            warning={delegationWarning}
+            css={{ marginTop: "$3" }}
+          />
+        )}
       </Box>
     );
   }
@@ -193,6 +208,12 @@ const Footer = ({
         isDelegated,
         sufficientStake,
         isMyTranscoder
+      )}
+      {delegationWarning && amount && (
+        <DelegationReview
+          warning={delegationWarning}
+          css={{ marginTop: "$3" }}
+        />
       )}
     </Box>
   );
