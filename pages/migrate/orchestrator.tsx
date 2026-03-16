@@ -1,4 +1,5 @@
 import { CodeBlock } from "@components/CodeBlock";
+import { useSnackbar } from "@components/Snackbar";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import { inbox } from "@lib/api/abis/bridge/Inbox";
@@ -6,6 +7,7 @@ import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
+import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Button,
@@ -17,7 +19,6 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
@@ -27,7 +28,7 @@ import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
 import { useTimer } from "react-timer-hook";
 import { waitToRelayTxsToL2 } from "utils/messaging";
@@ -37,10 +38,10 @@ import { useWriteContract } from "wagmi";
 import { stepperStyles } from "../../utils/stepperStyles";
 
 const signingSteps = [
-  "Enter orchestrator Ethereum Address",
-  "Sign message",
-  "Approve migration",
-];
+  { id: "intro", label: "Enter orchestrator Ethereum Address" },
+  { id: "sign", label: "Sign message" },
+  { id: "approve", label: "Approve migration" },
+] as const;
 
 const initialState = {
   title: `Migrate Orchestrator to ${CHAIN_INFO[DEFAULT_CHAIN_ID].label}`,
@@ -220,20 +221,25 @@ const MigrateOrchestrator = () => {
   const { register, watch } = useForm();
   const signature = watch("signature");
   const signerAddress = watch("signerAddress");
-  const time = new Date();
-  time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
 
-  const { start } = useTimer({
-    autoStart: false,
-    expiryTimestamp: time,
-    onExpire: () => console.warn("onExpire called"),
-  });
+  /** Returns a Date object set to 10 minutes from now. */
+  const createExpiryTimestamp = useCallback(() => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
+    return time;
+  }, []);
+
+  // Memoize initial expiry to avoid subtle hydration timing diffs.
+  const expiryTimestamp = useMemo(
+    () => createExpiryTimestamp(),
+    [createExpiryTimestamp]
+  );
 
   const l1Delegator = useL1DelegatorData(accountAddress);
 
-  const { seconds, minutes, restart } = useTimer({
+  const { seconds, minutes, start, restart } = useTimer({
     autoStart: false,
-    expiryTimestamp: time,
+    expiryTimestamp,
     onExpire: () => console.warn("onExpire called"),
   });
 
@@ -493,12 +499,8 @@ const MigrateOrchestrator = () => {
   };
 
   const handleReset = () => {
-    const time = new Date();
-    time.setSeconds(time.getSeconds() + 600);
-    restart(time, false); // restart timer
-    dispatch({
-      type: "reset",
-    });
+    restart(createExpiryTimestamp(), false); // restart timer
+    dispatch({ type: "reset" });
   };
 
   if (!render) {
@@ -599,7 +601,6 @@ const MigrateOrchestrator = () => {
             </Text>
 
             <CodeBlock
-              key={Math.random()}
               css={{ mb: "$4" }}
               showLineNumbers={false}
               id="message"
@@ -731,25 +732,28 @@ const MigrateOrchestrator = () => {
             >
               <Box css={stepperStyles}>
                 <Stepper activeStep={activeStep} orientation="vertical">
-                  {signingSteps.map((step, index) => (
-                    <Step key={`step-${index}`}>
-                      <Box
-                        as={StepLabel}
-                        optional={
-                          index === 2 ? (
-                            <Text variant="neutral" size="1">
-                              Last step
-                            </Text>
-                          ) : null
-                        }
-                      >
-                        {step}
-                      </Box>
-                      <StepContent TransitionProps={{ unmountOnExit: false }}>
-                        {getSigningStepContent(index)}
-                      </StepContent>
-                    </Step>
-                  ))}
+                  {signingSteps.map((step, index, arr) => {
+                    const isLast = index === arr.length - 1;
+                    return (
+                      <Step key={step.id}>
+                        <Box
+                          as={StepLabel}
+                          optional={
+                            isLast ? (
+                              <Text variant="neutral" size="1">
+                                Last step
+                              </Text>
+                            ) : null
+                          }
+                        >
+                          {step.label}
+                        </Box>
+                        <StepContent TransitionProps={{ unmountOnExit: false }}>
+                          {getSigningStepContent(index)}
+                        </StepContent>
+                      </Step>
+                    );
+                  })}
                 </Stepper>
               </Box>
             </Box>
@@ -866,12 +870,7 @@ function MigrationFields({ migrationParams, css = {} }) {
     <Box css={{ ...css }}>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Address</Box>
-        <Box>
-          {migrationParams.delegate.replace(
-            migrationParams.delegate.slice(6, 38),
-            "…"
-          )}
-        </Box>
+        <Box>{formatAddress(migrationParams.delegate)}</Box>
       </ReadOnlyCard>
       <ReadOnlyCard css={{ mb: "$2" }}>
         <Box css={{ fontWeight: 500, color: "$neutral10" }}>Self stake</Box>
@@ -914,7 +913,7 @@ function ReceiptLink({ label, hash, chainId }) {
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[chainId].explorer}tx/${hash}`}
       >
-        {hash.replace(hash.slice(6, 62), "…")}
+        {formatTransactionHash(hash)}
         <Box as={ArrowTopRightIcon} />
       </A>
     </Box>

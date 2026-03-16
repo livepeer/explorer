@@ -288,9 +288,7 @@ const GatewayList = ({
                 <PopoverLink href={`/accounts/${row.values.id}/broadcasting`}>
                   Profile
                 </PopoverLink>
-                <PopoverLink
-                  href={`/accounts/${row.values.id}/history`}
-                >
+                <PopoverLink href={`/accounts/${row.values.id}/history`}>
                   History
                 </PopoverLink>
               </Flex>

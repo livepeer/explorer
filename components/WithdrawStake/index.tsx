@@ -30,7 +30,15 @@ const Index = ({ unbondingLockId }) => {
   return (
     <>
       <Button
-        css={{ paddingTop: "$2", paddingBottom: "$2", marginRight: "$3" }}
+        css={{
+          paddingTop: "$2",
+          paddingBottom: "$2",
+          marginRight: "$3",
+          width: "100%",
+          "@bp2": {
+            width: "auto",
+          },
+        }}
         disabled={!config}
         onClick={() => config && writeContract(config.request)}
         size="3"

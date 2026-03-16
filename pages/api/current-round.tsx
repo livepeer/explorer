@@ -1,4 +1,5 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
+import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -19,11 +20,11 @@ const handler = async (
       const currentRound = protocol?.currentRound;
 
       if (!currentRound) {
-        return res.status(500).end("No current round found");
+        throw new Error("No current round found");
       }
 
       if (!_meta?.block) {
-        return res.status(500).end("No block number found");
+        throw new Error("No block number found");
       }
 
       const { id, startBlock, initialized } = currentRound;
@@ -42,11 +43,9 @@ const handler = async (
       return res.status(200).json(roundInfo);
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

@@ -81,9 +81,11 @@ const TreasuryProposalRow = ({
             flexDirection: "column-reverse",
             justifyContent: "space-between",
             alignItems: "flex-start",
+            gap: "$2",
             "@bp2": {
               flexDirection: "row",
               alignItems: "center",
+              gap: 0,
             },
           }}
         >
@@ -116,6 +118,8 @@ const TreasuryProposalRow = ({
             css={{
               textTransform: "capitalize",
               fontWeight: 700,
+              marginLeft: "-$1",
+              "@bp2": { marginLeft: 0 },
             }}
           >
             {sentenceCase(

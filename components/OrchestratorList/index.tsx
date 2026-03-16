@@ -11,7 +11,7 @@ import {
   ROIInflationChange,
   ROITimeHorizon,
 } from "@lib/roi";
-import { textTruncate } from "@lib/utils";
+import { formatAddress, textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -41,6 +41,7 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
+import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import YieldChartIcon from "../../public/img/yield-chart.svg";
@@ -87,7 +88,10 @@ const OrchestratorList = ({
             mantissa: 3,
             output: "percent",
           })}`
-        : `${numbro(Number(protocolData?.inflationChange) / 1000000000).format({
+        : `${numbro(
+            (change === "negative" ? -1 : 1) *
+              (Number(protocolData?.inflationChange) / 1000000000)
+          ).format({
             mantissa: 5,
             output: "percent",
             forceSign: true,
@@ -130,13 +134,13 @@ const OrchestratorList = ({
 
         const isNewlyActive = dayjs().diff(activation, "days") < 45;
 
-        const feeShareDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.feeShareUpdateTimestamp),
-          "days"
+        const latestChangeTimestamp = Math.max(
+          row.feeShareUpdateTimestamp ?? 0,
+          row.rewardCutUpdateTimestamp ?? 0
         );
-        const rewardCutDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.rewardCutUpdateTimestamp),
-          "days"
+
+        const treasuryCutDecimal = Number(
+          formatUnits(treasuryRewardCutRate, 27)
         );
 
         const roi = calculateROI({
@@ -164,21 +168,36 @@ const OrchestratorList = ({
 
             rewardCallRatio,
             rewardCut: Number(row.rewardCut) / 1000000,
-            treasuryRewardCut:
-              Number(treasuryRewardCutRate / BigInt(1e18)) / 1e9,
+            treasuryRewardCut: treasuryCutDecimal,
           },
+        });
+
+        // Pre-compute formatted values to avoid useMemo in Cell render functions
+        const formattedFeeCut = numbro(
+          1 - Number(row.feeShare) / 1000000
+        ).format({ mantissa: 0, output: "percent" });
+        const formattedRewardCut = numbro(
+          Number(row.rewardCut) / 1000000
+        ).format({ mantissa: 0, output: "percent" });
+        const formattedRewardCalls =
+          pools.length > 0
+            ? `${numbro(rewardCalls)
+                .divide(pools.length)
+                .format({ mantissa: 0, output: "percent" })}`
+            : "0%";
+        const formattedTreasuryCut = numbro(treasuryCutDecimal).format({
+          mantissa: 0,
+          output: "percent",
         });
 
         return {
           ...row,
-          daysSinceChangeParams:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? feeShareDaysSinceChange
-              : rewardCutDaysSinceChange) ?? 0,
-          daysSinceChangeParamsFormatted:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? dayjs.unix(row.feeShareUpdateTimestamp).fromNow()
-              : dayjs.unix(row.rewardCutUpdateTimestamp).fromNow()) ?? "",
+          daysSinceChangeParams: latestChangeTimestamp
+            ? dayjs().diff(dayjs.unix(latestChangeTimestamp), "days")
+            : null,
+          daysSinceChangeParamsFormatted: latestChangeTimestamp
+            ? dayjs.unix(latestChangeTimestamp).fromNow()
+            : null,
           earningsComputed: {
             roi,
             activation,
@@ -191,6 +210,11 @@ const OrchestratorList = ({
             ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
             totalActiveStake: Number(protocolData?.totalActiveStake),
             totalStake: Number(row.totalStake),
+            // Pre-formatted values for Cell rendering
+            formattedFeeCut,
+            formattedRewardCut,
+            formattedRewardCalls,
+            formattedTreasuryCut,
           },
         };
       })
@@ -291,7 +315,7 @@ const OrchestratorList = ({
                     </Flex>
                   ) : (
                     <Box css={{ fontWeight: 600 }}>
-                      {row.values.id.replace(row.values.id.slice(7, 37), "…")}
+                      {formatAddress(row.values.id)}
                     </Box>
                   )}
                   {/* {(row?.original?.daysSinceChangeParams ??
@@ -339,35 +363,14 @@ const OrchestratorList = ({
         accessor: (row) => row.earningsComputed,
         id: "earnings",
         Cell: ({ row }) => {
-          const isNewlyActive = useMemo(
-            () => row.values.earnings.isNewlyActive,
-            [row.values?.earnings?.isNewlyActive]
-          );
-          const feeCut = useMemo(
-            () =>
-              numbro(1 - Number(row.values.earnings.feeShare) / 1000000).format(
-                { mantissa: 0, output: "percent" }
-              ),
-            [row.values.earnings.feeShare]
-          );
-          const rewardCut = useMemo(
-            () =>
-              numbro(Number(row.values.earnings.rewardCut) / 1000000).format({
-                mantissa: 0,
-                output: "percent",
-              }),
-            [row.values.earnings.rewardCut]
-          );
-          const rewardCalls = useMemo(
-            () =>
-              `${numbro(row.values.earnings.rewardCalls)
-                .divide(row.values.earnings.rewardCallLength)
-                .format({ mantissa: 0, output: "percent" })}`,
-            [
-              row.values.earnings.rewardCalls,
-              row.values.earnings.rewardCallLength,
-            ]
-          );
+          // Use pre-computed values from accessor instead of useMemo in render
+          const {
+            isNewlyActive,
+            formattedFeeCut: feeCut,
+            formattedRewardCut: rewardCut,
+            formattedRewardCalls: rewardCalls,
+            formattedTreasuryCut: treasuryCut,
+          } = row.values.earnings;
 
           return (
             <Popover>
@@ -672,7 +675,52 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {row?.original?.daysSinceChangeParams} days ago
+                          {row?.original?.daysSinceChangeParams != null
+                            ? `${row.original.daysSinceChangeParams} days ago`
+                            : "Never"}
+                        </Text>
+                      </Flex>
+                    </Box>
+
+                    <Box
+                      css={{
+                        marginTop: "$3",
+                        paddingTop: "$3",
+                        borderTop: "1px solid $neutral6",
+                      }}
+                    >
+                      <Text
+                        size="1"
+                        css={{
+                          marginBottom: "$2",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Protocol Data
+                      </Text>
+
+                      <Flex>
+                        <Text
+                          variant="neutral"
+                          css={{
+                            marginBottom: "$1",
+                          }}
+                          size="2"
+                        >
+                          Treasury cut
+                        </Text>
+                        <Text
+                          css={{
+                            marginLeft: "auto",
+                            display: "block",
+                            fontWeight: 600,
+                            color: "$white",
+                            marginBottom: "$1",
+                          }}
+                          size="2"
+                        >
+                          {treasuryCut}
                         </Text>
                       </Flex>
                     </Box>

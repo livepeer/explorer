@@ -1,14 +1,17 @@
 import Spinner from "@components/Spinner";
+import TransactionBadge from "@components/TransactionBadge";
+import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
+import { formatAddress } from "@lib/utils";
 import {
+  Badge,
   Box,
   Card as CardBase,
   Flex,
   Link as A,
   styled,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
-import { useTransactionsQuery } from "apollo";
+import { TreasuryVoteSupport, useTransactionsQuery } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
@@ -27,16 +30,20 @@ const Index = () => {
   const query = router.query;
   const account = query.account as string;
 
-  const { data, loading, error, fetchMore, stopPolling } = useTransactionsQuery(
-    {
-      variables: {
-        account: account.toLowerCase(),
-        first: 10,
-        skip: 0,
-      },
-      notifyOnNetworkStatusChange: true,
-    }
-  );
+  const {
+    data,
+    loading,
+    error,
+    fetchMore: fetchMoreTransactions,
+    stopPolling,
+  } = useTransactionsQuery({
+    variables: {
+      account: account.toLowerCase(),
+      first: 10,
+      skip: 0,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -63,15 +70,15 @@ const Index = () => {
       ) ?? [];
     const accountLower = account.toLowerCase();
     return tickets.map((e) => ({
-        ...e,
-        direction:
-          e?.sender?.id?.toLowerCase() === accountLower &&
-          e?.recipient?.id?.toLowerCase() === accountLower
-            ? ("self" as const)
-            : e?.sender?.id?.toLowerCase() === accountLower
-            ? ("out" as const)
-            : ("in" as const),
-      }));
+      ...e,
+      direction:
+        e?.sender?.id?.toLowerCase() === accountLower &&
+        e?.recipient?.id?.toLowerCase() === accountLower
+          ? ("self" as const)
+          : e?.sender?.id?.toLowerCase() === accountLower
+          ? ("out" as const)
+          : ("in" as const),
+    }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
   // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
@@ -120,7 +127,7 @@ const Index = () => {
         stopPolling();
         if (!loading && data.transactions.length >= 10) {
           try {
-            await fetchMore({
+            await fetchMoreTransactions({
               variables: {
                 skip: data.transactions.length,
               },
@@ -128,11 +135,19 @@ const Index = () => {
                 if (!fetchMoreResult) {
                   return previousResult;
                 }
+
                 return {
                   ...previousResult,
                   transactions: [
                     ...previousResult.transactions,
                     ...fetchMoreResult.transactions,
+                  ],
+                  // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
+                  // So, we will always have winning ticket events that are older than the last transaction timestamp
+                  // Allowing mergedEvents to filter correctly
+                  winningTicketRedeemedEvents: [
+                    ...previousResult.winningTicketRedeemedEvents,
+                    ...fetchMoreResult.winningTicketRedeemedEvents,
                   ],
                 };
               },
@@ -202,11 +217,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Delegated with{" "}
-                {event.newDelegate.id.replace(
-                  event.newDelegate.id.slice(7, 37),
-                  "…"
-                )}
+                Delegated with {formatAddress(event.newDelegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -216,22 +227,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -279,22 +277,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               Round #
@@ -329,8 +314,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Redelegated with{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Redelegated with {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -340,22 +324,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -395,8 +366,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Undelegated from{" "}
-                {event.delegate.id.replace(event.delegate.id.slice(7, 37), "…")}
+                Undelegated from {formatAddress(event.delegate.id)}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -406,22 +376,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -471,22 +428,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -534,22 +478,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
@@ -601,22 +532,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -663,22 +581,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -734,22 +639,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -798,22 +690,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -866,22 +745,9 @@ function renderSwitch(event, i: number) {
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
                 - Round #{event.round.id}
               </Box>
-              <Flex
-                css={{
-                  alignItems: "center",
-                  marginTop: "$2",
-                  fontSize: "$1",
-                  color: "$neutral11",
-                }}
-              >
-                <Box css={{ marginRight: "$1" }}>
-                  {event.transaction.id.replace(
-                    event.transaction.id.slice(6, 62),
-                    "…"
-                  )}
-                </Box>
-                <ExternalLinkIcon />
-              </Flex>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
@@ -893,6 +759,143 @@ function renderSwitch(event, i: number) {
                 })}
               </Box>{" "}
               ETH
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "TreasuryVoteEvent":
+      const supportTreasuryVoteEvent =
+        VOTING_SUPPORT_MAP[event.support] ||
+        VOTING_SUPPORT_MAP[TreasuryVoteSupport.Abstain];
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`/treasury/${event.proposal?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on treasury proposal &quot;
+                {event.attributes?.title?.trim()}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor:
+                    supportTreasuryVoteEvent.style.backgroundColor,
+                  color: supportTreasuryVoteEvent.style.color,
+                  fontWeight: supportTreasuryVoteEvent.style.fontWeight,
+                  fontSize: "$1",
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
+              >
+                <Box
+                  as={supportTreasuryVoteEvent.icon}
+                  css={{ width: 12, height: 12 }}
+                />
+                {supportTreasuryVoteEvent.text}
+              </Badge>
+            </Box>
+          </Flex>
+        </Card>
+      );
+    case "VoteEvent":
+      const supportVoteEvent = POLL_VOTES[event.choiceID];
+      if (!supportVoteEvent) {
+        return null;
+      }
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`/voting/${event.poll?.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                Voted on poll &quot;{event.attributes?.title?.trim()}&quot;
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round #{event.round.id}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              <Badge
+                size="1"
+                css={{
+                  backgroundColor: supportVoteEvent.style.backgroundColor,
+                  color: supportVoteEvent.style.color,
+                  fontWeight: supportVoteEvent.style.fontWeight,
+                  fontSize: "$1",
+                  border: "none",
+                  width: "86px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "$1",
+                }}
+              >
+                <Box
+                  as={supportVoteEvent.icon}
+                  css={{ width: 12, height: 12 }}
+                />
+                {supportVoteEvent.text}
+              </Badge>
             </Box>
           </Flex>
         </Card>

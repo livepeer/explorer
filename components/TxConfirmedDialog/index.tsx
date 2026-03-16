@@ -1,4 +1,5 @@
 import QueueExecuteButton from "@components/QueueExecuteButton";
+import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { ProposalExtended } from "@lib/api/treasury";
 import {
   Badge,
@@ -14,12 +15,15 @@ import {
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
 import { TransactionStatus, useExplorerStore } from "hooks";
+import { useBondingManagerAddress } from "hooks/useContracts";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { MdReceipt } from "react-icons/md";
+import { Address } from "viem";
+import { useReadContract } from "wagmi";
 
-import { fromWei, txMessages } from "../../lib/utils";
+import { formatAddress, fromWei, txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();
@@ -47,7 +51,11 @@ const Index = () => {
     >
       <DialogContent
         onPointerDownOutside={onDismiss}
-        css={{ maxWidth: 390, width: "100%" }}
+        css={{
+          maxWidth: 390,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -56,24 +64,31 @@ const Index = () => {
           <Heading
             size="1"
             css={{
-              mb: "$4",
+              mb: "$3",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
             }}
           >
-            Confirmed
             <Badge
               variant="primary"
-              size="1"
-              css={{ display: "flex", alignItems: "center" }}
+              size="2"
+              css={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: "$4",
+                paddingLeft: "$3",
+                paddingRight: "$3",
+                paddingTop: "$2",
+                paddingBottom: "$2",
+              }}
             >
-              <CheckIcon />
+              <CheckIcon width={18} height={18} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
         </DialogTitle>
-        {renderSwitch(latestTransaction, onDismiss)}
+        <TransactionContent tx={latestTransaction} onDismiss={onDismiss} />
       </DialogContent>
     </Dialog>
   );
@@ -81,7 +96,13 @@ const Index = () => {
 
 export default Index;
 
-function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
+const TransactionContent = ({
+  tx,
+  onDismiss,
+}: {
+  tx: TransactionStatus;
+  onDismiss: () => void;
+}) => {
   if (!tx.inputData) return;
   switch (tx.name) {
     case "bond":
@@ -117,40 +138,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
       );
     case "unbond":
       if (!tx.inputData.amount) return null;
-      return (
-        <Box>
-          <Table css={{ mb: "$4" }}>
-            <Header tx={tx} />
-            <Box
-              css={{
-                paddingLeft: "$3",
-                paddingRight: "$3",
-                paddingTop: "$4",
-                paddingBottom: "$4",
-              }}
-            >
-              <Box>
-                You&apos;ve successfully undelegated{" "}
-                {fromWei(tx.inputData.amount)} LPT.
-                {tx.inputData.wasDeactivated && (
-                  <Box css={{ marginTop: "$2", color: "$yellow9" }}>
-                    Your orchestrator has been deactivated.
-                  </Box>
-                )}
-                <Box css={{ marginTop: "$2" }}>
-                  The unbonding period is ~7 days after which you may withdraw
-                  the undelegated LPT into your wallet.
-                </Box>
-              </Box>
-            </Box>
-          </Table>
-          <DialogClose asChild>
-            <Button size="4" variant="primary" css={{ width: "100%" }}>
-              Close
-            </Button>
-          </DialogClose>
-        </Box>
-      );
+      return <UnbondingTransactionContent tx={tx} />;
     case "approve":
       return (
         <Box>
@@ -219,10 +207,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               }}
             >
               You&apos;ve successfully redelegated to orchestrator{" "}
-              {tx.inputData.delegate.replace(
-                tx.inputData.delegate.slice(7, 37),
-                "…"
-              )}
+              {formatAddress(tx.inputData.delegate)}
             </Box>
           </Table>
           <DialogClose asChild>
@@ -249,10 +234,7 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
               You&apos;ve successfully checkpointed{" "}
               {!isOrchestrator
                 ? "your stake"
-                : `your orchestrator (${targetAddress?.replace(
-                    targetAddress?.slice(7, 37) ?? "",
-                    "…"
-                  )}) stake!`}
+                : `your orchestrator (${formatAddress(targetAddress)}) stake!`}
             </Box>
           </Table>
           <DialogClose asChild>
@@ -498,7 +480,52 @@ function renderSwitch(tx: TransactionStatus, onDismiss: () => void) {
     default:
       return null;
   }
-}
+};
+
+const UnbondingTransactionContent = ({ tx }: { tx: TransactionStatus }) => {
+  const { data: bondingManagerAddress } = useBondingManagerAddress();
+  const { data: unbondingPeriod } = useReadContract({
+    address: bondingManagerAddress as Address,
+    abi: bondingManager,
+    functionName: "unbondingPeriod",
+  });
+  if (!tx.inputData?.amount) return null;
+  return (
+    <Box>
+      <Table css={{ mb: "$4" }}>
+        <Header tx={tx} />
+        <Box
+          css={{
+            paddingLeft: "$3",
+            paddingRight: "$3",
+            paddingTop: "$4",
+            paddingBottom: "$4",
+          }}
+        >
+          <Box>
+            You&apos;ve successfully undelegated {fromWei(tx.inputData.amount)}{" "}
+            LPT.
+            {tx.inputData.wasDeactivated && (
+              <Box css={{ marginTop: "$2", color: "$yellow9" }}>
+                Your orchestrator has been deactivated.
+              </Box>
+            )}
+            <Box css={{ marginTop: "$2", fontSize: "$2" }}>
+              The unbonding period is {unbondingPeriod?.toString()} rounds
+              (currently ~{unbondingPeriod?.toString()} days) after which you
+              may withdraw the undelegated LPT into your wallet.
+            </Box>
+          </Box>
+        </Box>
+      </Table>
+      <DialogClose asChild>
+        <Button size="4" variant="primary" css={{ width: "100%" }}>
+          Close
+        </Button>
+      </DialogClose>
+    </Box>
+  );
+};
 
 function Table({ css = {}, children, ...props }) {
   return (
@@ -524,6 +551,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "$3",
+        gap: "$1",
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
@@ -532,12 +560,15 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Flex>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        aria-label="Transfer Receipt"
       >
-        Transfer Receipt{" "}
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          Transfer Receipt
+        </Box>
         <Box css={{ marginLeft: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>

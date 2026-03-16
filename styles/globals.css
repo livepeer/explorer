@@ -1,0 +1,5 @@
+/* Counteracts RainbowKit default accent styles for Wallet Connect button */
+[data-rk] button[data-testid="rk-connect-button"] {
+  background-color: #113123;
+  color: #4cc38a;
+}

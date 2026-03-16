@@ -1,10 +1,18 @@
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
-import { Box, Flex } from "@livepeer/design-system";
-import { CheckIcon, Cross1Icon } from "@modulz/radix-icons";
-import { AccountQueryResult } from "apollo";
+import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import {
+  AccountQueryResult,
+  OrderDirection,
+  TranscoderActivatedEvent_OrderBy,
+  useTranscoderActivatedEventsQuery,
+  useTreasuryProposalsQuery,
+  useTreasuryVotesQuery,
+} from "apollo";
 import { useScoreData } from "hooks";
 import { useRegionsData } from "hooks/useSwr";
+import Link from "next/link";
 import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
@@ -32,6 +40,48 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
 
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
+
+  const { data: firstTranscoderActivatedEventsData } =
+    useTranscoderActivatedEventsQuery({
+      variables: {
+        where: {
+          delegate: transcoder?.id,
+        },
+        first: 1,
+        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
+        orderDirection: OrderDirection.Asc,
+      },
+    });
+
+  const firstActivationRound = useMemo(() => {
+    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
+      ?.activationRound;
+  }, [firstTranscoderActivatedEventsData]);
+
+  const { data: treasuryVotesData } = useTreasuryVotesQuery({
+    variables: {
+      where: {
+        voter: transcoder?.id,
+      },
+    },
+  });
+
+  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
+    variables: {
+      where: {
+        voteStart_gt: firstActivationRound,
+      },
+    },
+    skip: !firstActivationRound,
+  });
+
+  const govStats = useMemo(() => {
+    if (!treasuryVotesData || !eligebleProposalsData) return null;
+    return {
+      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
+      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
+    };
+  }, [treasuryVotesData, eligebleProposalsData]);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -279,6 +329,111 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             }
           />
         )}
+        <A
+          as={Link}
+          href={`/accounts/${transcoder?.id}/history`}
+          passHref
+          className="masonry-grid_item"
+          css={{
+            display: "block",
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+              ".see-history": {
+                textDecoration: "underline",
+                color: "$primary11",
+                transition: "color .3s",
+              },
+            },
+          }}
+        >
+          <Stat
+            label="Treasury Governance Participation"
+            variant="interactive"
+            tooltip={
+              <Box>
+                Number of proposals voted on relative to the number of proposals
+                the orchestrator was eligible for while active.
+              </Box>
+            }
+            value={
+              govStats ? (
+                <Flex css={{ alignItems: "baseline", gap: "$1" }}>
+                  <Box css={{ color: "$hiContrast" }}>{govStats.voted}</Box>
+                  <Box
+                    css={{
+                      fontSize: "$3",
+                      color: "$neutral11",
+                      fontWeight: 500,
+                    }}
+                  >
+                    / {govStats.eligible} Proposals
+                  </Box>
+                </Flex>
+              ) : (
+                "N/A"
+              )
+            }
+            meta={
+              <Box css={{ width: "100%", marginTop: "$2" }}>
+                {govStats && (
+                  <Box
+                    css={{
+                      width: "100%",
+                      height: 4,
+                      backgroundColor: "$neutral4",
+                      borderRadius: "$2",
+                      overflow: "hidden",
+                      marginBottom: "$2",
+                    }}
+                  >
+                    <Box
+                      css={{
+                        width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                        height: "100%",
+                        backgroundColor: "$primary11",
+                      }}
+                    />
+                  </Box>
+                )}
+                <Flex
+                  css={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  {govStats && (
+                    <Text
+                      size="2"
+                      css={{ color: "$neutral11", fontWeight: 600 }}
+                    >
+                      {numbro(govStats.voted / govStats.eligible).format({
+                        output: "percent",
+                        mantissa: 0,
+                      })}{" "}
+                      Participation
+                    </Text>
+                  )}
+                  <Text
+                    className="see-history"
+                    size="2"
+                    css={{
+                      color: "$primary11",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "$0.75",
+                    }}
+                  >
+                    See history
+                    <Box as={ArrowTopRightIcon} width={15} height={15} />
+                  </Text>
+                </Flex>
+              </Box>
+            }
+          />
+        </A>
       </Masonry>
     </Box>
   );

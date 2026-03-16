@@ -1,5 +1,13 @@
-query treasuryProposals {
-  treasuryProposals(orderBy: voteStart, orderDirection: desc) {
+query treasuryProposals(
+  $where: TreasuryProposal_filter
+  $orderBy: TreasuryProposal_orderBy = voteStart
+  $orderDirection: OrderDirection = desc
+) {
+  treasuryProposals(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
     id
     description
     calldatas

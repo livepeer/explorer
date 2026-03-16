@@ -1,9 +1,9 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
+import { formatEth } from "@lib/utils";
 import { Box, Grid } from "@livepeer/design-system";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { formatEth } from "@lib/utils";
 import { GatewaysQuery } from "apollo";
 import { useGatewaySelfRedeemStatus } from "hooks";
 import { useMemo } from "react";

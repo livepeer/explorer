@@ -15,6 +15,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import {
   getApollo,
@@ -34,6 +35,14 @@ const OrchestratorsPage = ({
   orchestrators,
   protocol,
 }: PageProps) => {
+  const [showOrchList, setShowOrchList] = useState(false);
+
+  useEffect(() => {
+    // Let the browser paint the new route first
+    const id = requestAnimationFrame(() => setShowOrchList(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }
@@ -52,8 +61,15 @@ const OrchestratorsPage = ({
           }}
         >
           <Flex
-            align="center"
-            css={{ marginBottom: "$3", justifyContent: "space-between" }}
+            css={{
+              flexDirection: "column",
+              justifyContent: "space-between",
+              marginBottom: "$4",
+              alignItems: "center",
+              "@bp1": {
+                flexDirection: "row",
+              },
+            }}
           >
             <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
               Orchestrators
@@ -66,7 +82,6 @@ const OrchestratorsPage = ({
                   css={{
                     color: "$hiContrast",
                     fontSize: "$2",
-                    marginRight: "$2",
                   }}
                 >
                   Performance Leaderboard
@@ -76,11 +91,17 @@ const OrchestratorsPage = ({
             )}
           </Flex>
           <Box css={{ marginBottom: "$5" }}>
-            <OrchestratorList
-              data={orchestrators?.transcoders}
-              pageSize={20}
-              protocolData={protocol?.protocol}
-            />
+            {showOrchList ? (
+              <OrchestratorList
+                data={orchestrators?.transcoders}
+                pageSize={20}
+                protocolData={protocol?.protocol}
+              />
+            ) : (
+              <Box css={{ padding: "$4", textAlign: "center", opacity: 0.6 }}>
+                Loading orchestrators…
+              </Box>
+            )}
           </Box>
         </Flex>
       </Container>

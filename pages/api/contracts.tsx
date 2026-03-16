@@ -5,6 +5,7 @@ import {
   getLivepeerGovernorAddress,
   getTreasuryAddress,
 } from "@lib/api/contracts";
+import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -126,11 +127,9 @@ const handler = async (
       return res.status(200).json(contractsInfo);
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

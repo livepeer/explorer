@@ -1,4 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
+import { internalError, methodNotAllowed } from "@lib/api/errors";
 import {
   AllPerformanceMetrics,
   RegionalValues,
@@ -105,11 +106,9 @@ const handler = async (
       return res.status(200).json(combined);
     }
 
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(null);
+    return internalError(res, err);
   }
 };
 

@@ -1,21 +1,18 @@
 import AppBar from "@components/AppBar";
-import Claim from "@components/Claim";
-import ConnectButton from "@components/ConnectButton";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
 import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
-import RegisterToVote from "@components/RegisterToVote";
 import Search from "@components/Search";
-import TxConfirmedDialog from "@components/TxConfirmedDialog";
+import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
-import { EMPTY_ADDRESS } from "@lib/utils";
+import { EMPTY_ADDRESS, formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -29,7 +26,6 @@ import {
   PopoverContent,
   PopoverTrigger,
   Skeleton,
-  SnackbarProvider,
   Text,
 } from "@livepeer/design-system";
 import {
@@ -44,6 +40,7 @@ import {
 } from "apollo";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -112,6 +109,23 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
+const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
+  ssr: false,
+});
+
+const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
+
+const TxConfirmedDialog = dynamic(
+  () => import("../components/TxConfirmedDialog"),
+  {
+    ssr: false,
+  }
+);
+
+const RegisterToVote = dynamic(() => import("../components/RegisterToVote"), {
+  ssr: false,
+});
+
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const { asPath, isReady, query } = useRouter();
   const { data: protocolData } = useProtocolQuery();
@@ -126,13 +140,18 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
+
+  const isMyAccountPage = useMemo(() => {
+    if (!accountAddress) return false;
+    return asPath.toLowerCase().includes(accountAddress.toLowerCase());
+  }, [accountAddress, asPath]);
   const isOrchestratorsNavActive =
-    (!accountAddress || !asPath.includes(accountAddress)) &&
+    (!accountAddress || !isMyAccountPage) &&
     (asPath.includes("/orchestrators") ||
       asPath.includes("/orchestrating") ||
       asPath.includes("/delegating"));
   const isGatewaysNavActive =
-    (!accountAddress || !asPath.includes(accountAddress)) &&
+    (!accountAddress || !isMyAccountPage) &&
     (asPath.includes("/gateways") || asPath.includes("/broadcasting"));
 
   const totalActivePolls = useMemo(
@@ -204,11 +223,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
-    if (width > 1020) {
+    if (width >= 1200) {
       document.body.removeAttribute("style");
     }
 
-    if (width < 1020 && drawerOpen) {
+    if (width < 1200 && drawerOpen) {
       document.body.style.overflow = "hidden";
     }
   }, [drawerOpen, width]);
@@ -424,21 +443,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           display: "none",
                           "@bp3": {
                             height: "100%",
-                            justifyContent: "center",
+                            alignItems: "center",
                             display: "flex",
-                            marginRight: "$3",
-                            marginTop: "$2",
+                            marginRight: "$8",
                           },
                         }}
                       >
-                        <Logo isDark id="main" />
+                        <Logo isDark />
 
-                        <Box css={{}}>
+                        <Box css={{ marginLeft: "$7" }}>
                           <Link passHref href="/">
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$4",
                                 backgroundColor:
                                   asPath === "/"
                                     ? "hsla(0,100%,100%,.05)"
@@ -462,7 +479,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: isOrchestratorsNavActive
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -508,7 +525,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/voting")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -542,7 +559,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/treasury")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -573,14 +590,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link
+                              passHref
+                              href={`/accounts/${accountAddress.toLowerCase()}`}
+                            >
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
-                                  backgroundColor: asPath.includes(
-                                    accountAddress
-                                  )
+                                  marginLeft: "$1",
+                                  backgroundColor: isMyAccountPage
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
@@ -620,7 +638,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
+                                  marginLeft: "$1",
                                   backgroundColor: "transparent",
                                   color: "white",
                                   "&:hover": {
@@ -891,13 +909,10 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           }}
                           size="2"
                         >
-                          {contractAddresses?.[
-                            key as keyof typeof contractAddresses
-                          ]?.address?.replace(
+                          {formatAddress(
                             contractAddresses?.[
                               key as keyof typeof contractAddresses
-                            ]?.address?.slice(7, 37) ?? "",
-                            "…"
+                            ]?.address
                           )}
                         </Text>
                       </A>
