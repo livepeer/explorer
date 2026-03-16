@@ -1,7 +1,5 @@
 import BottomDrawer from "@components/BottomDrawer";
 import BroadcastingView from "@components/BroadcastingView";
-import DelegatingView from "@components/DelegatingView";
-import DelegatingWidget from "@components/DelegatingWidget";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
@@ -63,7 +61,7 @@ const AccountLayout = ({
   sortedOrchestrators,
 }: {
   account?: AccountQueryResult["data"] | null;
-  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
+  sortedOrchestrators?: OrchestratorsSortedQueryResult["data"];
 }) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
