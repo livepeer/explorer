@@ -31,7 +31,7 @@ const BroadcastingView = ({
     () =>
       gateway?.firstActiveDay
         ? dayjs.unix(gateway.firstActiveDay).format("MMM D, YYYY")
-        : "Pending graph update",
+        : "N/A",
     [gateway]
   );
   const statusText = useMemo(() => {
