@@ -1,4 +1,5 @@
 import GatewayList from "@components/GatewayList";
+import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { getGateways } from "@lib/api/ssr";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
@@ -15,7 +16,7 @@ const GatewaysPage = ({ gateways }: PageProps) => {
       <Head>
         <title>Livepeer Explorer - Gateways</title>
       </Head>
-      <Container css={{ width: "100%" }}>
+      <Container css={{ maxWidth: LAYOUT_MAX_WIDTH, width: "100%" }}>
         <Flex
           css={{
             flexDirection: "column",
