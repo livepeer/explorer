@@ -9,6 +9,9 @@ import {
   EventsQuery,
   EventsQueryVariables,
   GatewaysDocument,
+  GatewaySelfRedeemDocument,
+  GatewaySelfRedeemQuery,
+  GatewaySelfRedeemQueryVariables,
   GatewaysQuery,
   GatewaysQueryVariables,
   getApollo,
@@ -47,6 +50,28 @@ export async function getGateways(client = getApollo()) {
     fallback: {},
     gateways,
   };
+}
+
+export async function getGatewaySelfRedeem(
+  client = getApollo(),
+  account: string,
+  windowDays = 90
+) {
+  const cutoff = Math.floor(Date.now() / 1000) - windowDays * 86400;
+
+  const result = await client.query<
+    GatewaySelfRedeemQuery,
+    GatewaySelfRedeemQueryVariables
+  >({
+    query: GatewaySelfRedeemDocument,
+    variables: { account },
+  });
+
+  const lastTimestamp = Number(
+    result.data?.winningTicketRedeemedEvents?.[0]?.transaction?.timestamp ?? 0
+  );
+
+  return lastTimestamp >= cutoff;
 }
 
 export async function getCurrentRound(client = getApollo()) {

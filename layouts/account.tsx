@@ -59,9 +59,11 @@ const ACCOUNT_VIEWS: TabTypeEnum[] = [
 const AccountLayout = ({
   account,
   sortedOrchestrators,
+  isSelfRedeeming,
 }: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators?: OrchestratorsSortedQueryResult["data"];
+  isSelfRedeeming?: boolean;
 }) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
@@ -310,7 +312,10 @@ const AccountLayout = ({
           )}
           {view === "history" && <HistoryView />}
           {view === "broadcasting" && (
-            <BroadcastingView gateway={account?.gateway} />
+            <BroadcastingView
+              gateway={account?.gateway}
+              isSelfRedeeming={isSelfRedeeming}
+            />
           )}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&

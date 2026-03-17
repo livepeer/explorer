@@ -21,10 +21,15 @@ const SelfRedeemIndicator = () => (
 
 const BroadcastingView = ({
   gateway,
+  isSelfRedeeming: isSelfRedeemingProp,
 }: {
   gateway?: GatewaysQuery["gateways"] extends Array<infer G> ? G | null : null;
+  isSelfRedeeming?: boolean;
 }) => {
-  const isSelfRedeeming = useGatewaySelfRedeemStatus(gateway?.id);
+  const isSelfRedeemingFromHook = useGatewaySelfRedeemStatus(
+    isSelfRedeemingProp === undefined ? gateway?.id : undefined
+  );
+  const isSelfRedeeming = isSelfRedeemingProp ?? isSelfRedeemingFromHook;
 
   const activeSince = useMemo(
     () =>
