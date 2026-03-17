@@ -19,7 +19,14 @@ const Index = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            css={{ marginTop: "3px", marginLeft: "$3" }}
+            css={{
+              flexBasis: "100%",
+              justifyContent: "center",
+              alignSelf: "flex-start",
+              "@bp2": {
+                flexBasis: "auto",
+              },
+            }}
             variant="primary"
             size="1"
           >

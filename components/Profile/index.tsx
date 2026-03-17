@@ -43,7 +43,14 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
 
   return (
     <Box css={{ marginBottom: "$3" }}>
-      <Flex css={{ alignItems: "center" }}>
+      <Flex
+        css={{
+          alignItems: "flex-start",
+          "@bp2": {
+            alignItems: "center",
+          },
+        }}
+      >
         <Box
           css={{
             width: 60,
@@ -102,18 +109,56 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
         <Flex
           justify="center"
           direction="column"
-          css={{ height: "100%", marginLeft: "$3" }}
+          css={{ height: "100%", marginLeft: "$3", flex: 1, minWidth: 0 }}
         >
-          <Flex css={{ alignItems: "center" }}>
-            <Heading
-              size="2"
-              css={{
-                display: "flex",
+          <Flex
+            css={{
+              alignItems: "center",
+              width: "100%",
+              minWidth: 0,
+              columnGap: "$2",
+              rowGap: "$2",
+              flexWrap: "wrap",
+              "@bp2": {
                 alignItems: "center",
-                fontWeight: 700,
+                columnGap: "$3",
+                rowGap: 0,
+                flexWrap: "nowrap",
+              },
+            }}
+          >
+            <Flex
+              css={{
+                alignItems: "center",
+                minWidth: 0,
+                maxWidth: "100%",
+                flexShrink: 1,
               }}
             >
-              {identity?.name ? identity.name : formatAddress(account)}
+              <Heading
+                size="2"
+                css={{
+                  display: "block",
+                  fontWeight: 700,
+                  minWidth: 0,
+                  maxWidth: "100%",
+                  flexShrink: 1,
+                }}
+              >
+                <Box
+                  as="span"
+                  css={{
+                    display: "block",
+                    minWidth: 0,
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {identity?.name ? identity.name : formatAddress(account)}
+                </Box>
+              </Heading>
               <ExplorerTooltip
                 content={`${copied ? "Copied" : "Copy address to clipboard"}`}
               >
@@ -123,8 +168,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   aria-label="Copy address to clipboard"
                   onClick={handleCopy}
                   css={{
-                    marginLeft: "$3",
-                    marginTop: "3px",
+                    marginLeft: "$2",
                     cursor: "pointer",
                     borderRadius: 1000,
                     backgroundColor: "$neutral3",
@@ -132,6 +176,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                     padding: 0,
                     width: 28,
                     height: 28,
+                    flexShrink: 0,
                     alignItems: "center",
                     justifyContent: "center",
                   }}
@@ -157,7 +202,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   )}
                 </Flex>
               </ExplorerTooltip>
-            </Heading>
+            </Flex>
             {isMyAccount && <EditProfile />}
           </Flex>
           <Flex align="center" css={{ flexWrap: "wrap" }}>
