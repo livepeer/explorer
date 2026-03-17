@@ -144,6 +144,10 @@ const AccountLayout = ({
     () => Boolean(viewedAccount?.gateway),
     [viewedAccount?.gateway]
   );
+  const isDelegator = useMemo(
+    () => Boolean(viewedAccount?.delegator),
+    [viewedAccount?.delegator]
+  );
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
     [accountId, dataMyAccount]
@@ -165,7 +169,7 @@ const AccountLayout = ({
         isMyDelegate,
         isGateway,
         isMyAccount,
-        Boolean(viewedAccount?.delegator)
+        isDelegator
       ),
     [
       isOrchestrator,
@@ -174,7 +178,7 @@ const AccountLayout = ({
       isMyDelegate,
       isGateway,
       isMyAccount,
-      viewedAccount?.delegator,
+      isDelegator,
     ]
   );
 
