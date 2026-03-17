@@ -5,7 +5,6 @@ import { formatEth } from "@lib/utils";
 import { Box, Grid } from "@livepeer/design-system";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { GatewaysQuery } from "apollo";
-import { useGatewaySelfRedeemStatus } from "hooks";
 import { useMemo } from "react";
 
 const SelfRedeemIndicator = () => (
@@ -23,16 +22,11 @@ const SelfRedeemIndicator = () => (
 
 const BroadcastingView = ({
   gateway,
-  isSelfRedeeming: isSelfRedeemingProp,
+  isSelfRedeeming = false,
 }: {
   gateway?: GatewaysQuery["gateways"] extends Array<infer G> ? G | null : null;
   isSelfRedeeming?: boolean;
 }) => {
-  const isSelfRedeemingFromHook = useGatewaySelfRedeemStatus(
-    isSelfRedeemingProp === undefined ? gateway?.id : undefined
-  );
-  const isSelfRedeeming = isSelfRedeemingProp ?? isSelfRedeemingFromHook;
-
   const activeSince = useMemo(
     () =>
       gateway?.firstActiveDay
