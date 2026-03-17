@@ -18,18 +18,7 @@ const Index = () => {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button
-            css={{
-              flexBasis: "100%",
-              justifyContent: "center",
-              alignSelf: "flex-start",
-              "@bp2": {
-                flexBasis: "auto",
-              },
-            }}
-            variant="primary"
-            size="1"
-          >
+          <Button variant="primary" size="1">
             Edit Profile
           </Button>
         </DialogTrigger>

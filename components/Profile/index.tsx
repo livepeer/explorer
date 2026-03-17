@@ -203,7 +203,18 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 </Flex>
               </ExplorerTooltip>
             </Flex>
-            {isMyAccount && <EditProfile />}
+            {isMyAccount && (
+              <Box
+                css={{
+                  width: "100%",
+                  "@bp2": {
+                    width: "auto",
+                  },
+                }}
+              >
+                <EditProfile />
+              </Box>
+            )}
           </Flex>
           <Flex align="center" css={{ flexWrap: "wrap" }}>
             {identity?.url && (
