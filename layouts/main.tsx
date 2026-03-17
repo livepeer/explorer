@@ -502,7 +502,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: isGatewaysNavActive
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
