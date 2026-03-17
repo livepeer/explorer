@@ -15,7 +15,9 @@ const SelfRedeemIndicator = () => (
       <Box>Self-redeemed winning tickets detected in the last 90 days.</Box>
     }
   >
-    <Box as={ExclamationTriangleIcon} css={{ color: "$amber11" }} />
+    <Box css={{ display: "flex", alignItems: "center" }}>
+      <Box as={ExclamationTriangleIcon} css={{ color: "$amber11" }} />
+    </Box>
   </ExplorerTooltip>
 );
 
@@ -48,9 +50,7 @@ const BroadcastingView = ({
         id: "total-fees-distributed",
         label: "Total fees distributed",
         value: (
-          <Box
-            css={{ display: "inline-flex", alignItems: "center", gap: "$3" }}
-          >
+          <Box css={{ display: "flex", alignItems: "center", gap: "$2" }}>
             <Box>{formatEth(gateway?.totalVolumeETH)}</Box>
             {isSelfRedeeming && <SelfRedeemIndicator />}
           </Box>
