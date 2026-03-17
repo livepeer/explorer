@@ -451,7 +451,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       >
                         <Logo isDark />
 
-                        <Box css={{ marginLeft: "$7" }}>
+                        <Box
+                          css={{
+                            marginLeft: "$7",
+                            flexWrap: "nowrap",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           <Link passHref href="/">
                             <Button
                               size="3"
@@ -827,7 +833,15 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).logoUrl
             }
           />
-          <Box css={{ marginLeft: "8px" }}>
+          <Box
+            css={{
+              marginLeft: "8px",
+              display: "none",
+              "@bp4": {
+                display: "inline",
+              },
+            }}
+          >
             {
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -835,7 +849,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).label
             }
           </Box>
-
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}
