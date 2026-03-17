@@ -147,7 +147,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, [accountAddress, asPath]);
   const isOrchestratorsNavActive =
     (!accountAddress || !isMyAccountPage) &&
-    (asPath.includes("/orchestrators") || asPath.includes("/orchestrating"));
+    (asPath.includes("/orchestrators") ||
+      (asPath.includes("/accounts") && !asPath.includes("/broadcasting")));
   const isGatewaysNavActive =
     (!accountAddress || !isMyAccountPage) &&
     (asPath.includes("/gateways") || asPath.includes("/broadcasting"));
