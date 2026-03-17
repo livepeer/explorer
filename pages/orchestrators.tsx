@@ -71,24 +71,53 @@ const OrchestratorsPage = ({
               },
             }}
           >
-            <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
+            <Heading
+              size="2"
+              as="h1"
+              css={{
+                fontWeight: 700,
+                width: "100%",
+                textAlign: "left",
+                marginBottom: "$2",
+                "@bp1": {
+                  width: "auto",
+                  marginBottom: "0",
+                },
+              }}
+            >
               Orchestrators
             </Heading>
-            {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
-              process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <A as={Link} href="/leaderboard" passHref>
-                <Button
-                  ghost
-                  css={{
-                    color: "$hiContrast",
-                    fontSize: "$2",
-                  }}
-                >
-                  Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
-                </Button>
-              </A>
-            )}
+            <Flex
+              css={{
+                width: "100%",
+                justifyContent: "flex-start",
+                "@bp1": {
+                  width: "auto",
+                },
+              }}
+            >
+              {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+                process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+                <A as={Link} href="/leaderboard" passHref>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
+                    Performance Leaderboard
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                  </Button>
+                </A>
+              )}
+            </Flex>
           </Flex>
           <Box css={{ marginBottom: "$5" }}>
             {showOrchList ? (

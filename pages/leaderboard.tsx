@@ -104,10 +104,11 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
               css={{
                 fontWeight: 700,
                 marginBottom: "$3",
-                textAlign: "center",
+                width: "100%",
+                textAlign: "left",
                 "@bp2": {
                   marginBottom: "0",
-                  textAlign: "left",
+                  width: "auto",
                 },
               }}
             >
@@ -117,13 +118,13 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
               css={{
                 fontSize: "$2",
                 flexDirection: "column",
-                alignItems: "center",
+                alignItems: "flex-start",
                 rowGap: "$2",
                 width: "100%",
                 "@bp1": {
                   flexDirection: "row",
                   flexWrap: "wrap",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   columnGap: "$4",
                 },
                 "@bp2": {
@@ -136,7 +137,7 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                 css={{
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: "$2",
                   width: "100%",
                   "@bp1": { width: "auto" },
@@ -224,7 +225,7 @@ const LeaderboardPage = ({ hadError, orchestratorIds }: PageProps) => {
                 css={{
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: "$2",
                   width: "100%",
                   "@bp1": { width: "auto" },
