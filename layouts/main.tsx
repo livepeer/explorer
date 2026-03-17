@@ -835,9 +835,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             css={{
               marginLeft: "8px",
               display: "none",
-              "@bp4": {
-                display: "inline",
-              },
             }}
           >
             {

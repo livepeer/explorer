@@ -36,7 +36,8 @@ export async function getGateways(client = getApollo()) {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const minActiveDay = Math.max(currentTimestamp - 365 * 86400, 0); // include activated last 12 months
 
-  // TODO: paginate gateways; currently under the 1000 entity cap.
+  // TODO: if gateways exceed 250, bump `first` to 1000 or implement client-side
+  // lazy-loading pagination to fetch remaining pages on demand.
   const gateways = await client.query<GatewaysQuery, GatewaysQueryVariables>({
     query: GatewaysDocument,
     variables: {

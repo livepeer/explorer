@@ -418,6 +418,7 @@ const Home = ({
                 </A>
               </Flex>
             </Flex>
+
             {!orchestrators?.transcoders || !protocol?.protocol ? (
               <Flex align="center" justify="center">
                 <Spinner />
