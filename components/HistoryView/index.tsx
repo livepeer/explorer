@@ -1,5 +1,7 @@
 import Spinner from "@components/Spinner";
 import TransactionBadge from "@components/TransactionBadge";
+import { Fm, parsePollIpfs } from "@lib/api/polls";
+import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { formatAddress } from "@lib/utils";
@@ -11,12 +13,19 @@ import {
   Link as A,
   styled,
 } from "@livepeer/design-system";
-import { TreasuryVoteSupport, useTransactionsQuery } from "apollo";
+import {
+  TransactionsQuery,
+  TreasuryVoteEvent,
+  TreasuryVoteSupport,
+  useTransactionsQuery,
+  VoteEvent,
+} from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Card = styled(CardBase, {
   length: {},
@@ -56,11 +65,83 @@ const Index = () => {
     return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
   }, [data]);
 
+  type TransactionEvent = NonNullable<
+    TransactionsQuery["transactions"][number]["events"]
+  >[number];
+  const isType =
+    <T extends TransactionEvent["__typename"]>(t: T) =>
+    (e: TransactionEvent): e is Extract<TransactionEvent, { __typename: T }> =>
+      e.__typename === t;
+  const isVoteEvent = isType("VoteEvent");
+  const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
+
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
     [events]
   );
+
+  const [extendedVoteEventsData, setExtendedVoteEventsData] = useState<
+    (VoteEvent & { attributes: Fm | null })[]
+  >([]);
+  useEffect(() => {
+    // Enrich poll vote events with parsed IPFS proposal metadata.
+    const getExtendedVoteEventsData = async () => {
+      const newVoteEvents = events
+        .filter(isVoteEvent)
+        .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
+      const newExtendedVoteEventsData = await Promise.all(
+        newVoteEvents.map(async (voteEvent) => {
+          const ipfsObject = await catIpfsJson<IpfsPoll>(
+            voteEvent.poll?.proposal
+          );
+          const attributes = parsePollIpfs(ipfsObject);
+          return {
+            ...voteEvent,
+            attributes,
+          };
+        }) || []
+      );
+      setExtendedVoteEventsData(
+        (current) =>
+          [...current, ...newExtendedVoteEventsData] as (VoteEvent & {
+            attributes: Fm | null;
+          })[]
+      );
+    };
+    getExtendedVoteEventsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
+
+  const [extendedTreasuryVoteEventsData, setExtendedTreasuryVoteEventsData] =
+    useState<(TreasuryVoteEvent & { attributes: Fm | null })[]>([]);
+  useEffect(() => {
+    // Attach parsed treasury proposal attributes to treasury vote events.
+    const newTreasuryVoteEvents = events
+      .filter(isTreasuryVoteEvent)
+      .filter(
+        (e) => !extendedTreasuryVoteEventsData.find((te) => te.id === e.id)
+      );
+    const newExtendedTreasureVoteEventsData = newTreasuryVoteEvents.map(
+      (treasuryVoteEvent) => {
+        const parsed = parseProposalText(
+          treasuryVoteEvent.proposal as Proposal
+        );
+        return {
+          ...treasuryVoteEvent,
+          attributes: parsed.attributes,
+        };
+      }
+    );
+    setExtendedTreasuryVoteEventsData(
+      (current) =>
+        [
+          ...current,
+          ...newExtendedTreasureVoteEventsData,
+        ] as (TreasuryVoteEvent & { attributes: Fm | null })[]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
 
   // Tag winning tickets (in/out/self) within the current window
   const ticketEvents = useMemo(() => {
@@ -86,13 +167,25 @@ const Index = () => {
   const mergedEvents = useMemo(
     () =>
       [
-        ...events.filter((e) => e?.__typename !== "WinningTicketRedeemedEvent"),
+        ...events.filter(
+          (e) =>
+            e?.__typename !== "WinningTicketRedeemedEvent" &&
+            e?.__typename !== "TreasuryVoteEvent" &&
+            e?.__typename !== "VoteEvent"
+        ),
         ...ticketEvents,
+        ...extendedTreasuryVoteEventsData,
+        ...extendedVoteEventsData,
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
       ),
-    [events, ticketEvents]
+    [
+      events,
+      ticketEvents,
+      extendedTreasuryVoteEventsData,
+      extendedVoteEventsData,
+    ]
   );
 
   if (error) {

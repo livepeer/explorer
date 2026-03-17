@@ -62,7 +62,7 @@ const AccountLayout = ({
   isSelfRedeeming,
 }: {
   account?: AccountQueryResult["data"] | null;
-  sortedOrchestrators?: OrchestratorsSortedQueryResult["data"];
+  sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
   isSelfRedeeming?: boolean;
 }) => {
   const accountAddress = useAccountAddress();
