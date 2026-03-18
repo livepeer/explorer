@@ -514,7 +514,6 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   justifyContent: "flex-start",
                   "@bp1": {
                     width: "auto",
-                    justifyContent: "flex-start",
                   },
                 }}
                 align="center"
