@@ -90,9 +90,7 @@ export const getPollExtended = async (
     const { lastBlock } = await getL2BlockRangeForL1(
       Number(poll?.endBlock ?? "0")
     );
-    if (lastBlock > 0) {
-      l2BlockNumber = lastBlock;
-    }
+    if (lastBlock > 0) l2BlockNumber = lastBlock;
   }
   const totalStakeString = await getTotalStake(l2BlockNumber);
 
