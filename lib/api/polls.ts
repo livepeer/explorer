@@ -210,9 +210,10 @@ const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
       lastBlock: l2BlockRangeForL1.lastBlock.toNumber(),
       firstBlock: l2BlockRangeForL1.firstBlock.toNumber(),
     };
-  } catch {
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
     console.warn(
-      `Could not resolve L2 block range for L1 block ${l1BlockNumber} — using latest stake`
+      `Could not resolve L2 block range for L1 block ${l1BlockNumber} — using latest stake (${detail})`
     );
     return {
       lastBlock: 0,
