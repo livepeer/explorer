@@ -62,7 +62,6 @@ const GatewayList = ({
             <Box>Gateway</Box>
           </ExplorerTooltip>
         ),
-        id: "gateway",
         accessor: "id",
         Cell: ({ row, value }) => {
           const address = value as string;
@@ -141,7 +140,6 @@ const GatewayList = ({
             <Box>Deposit</Box>
           </ExplorerTooltip>
         ),
-        id: "depositNumber",
         accessor: "depositNumber",
         Cell: ({ value }) => (
           <Text
@@ -154,6 +152,7 @@ const GatewayList = ({
             {formatEth(Number(value ?? 0))}
           </Text>
         ),
+        sortType: "number",
       },
       {
         Header: (
@@ -164,7 +163,6 @@ const GatewayList = ({
             <Box>Reserve</Box>
           </ExplorerTooltip>
         ),
-        id: "reserveNumber",
         accessor: "reserveNumber",
         Cell: ({ value }) => (
           <Text
@@ -177,6 +175,7 @@ const GatewayList = ({
             {formatEth(Number(value ?? 0))}
           </Text>
         ),
+        sortType: "number",
       },
       {
         Header: (
@@ -187,7 +186,6 @@ const GatewayList = ({
             <Box>90d Fees</Box>
           </ExplorerTooltip>
         ),
-        id: "ninetyDayVolumeNumber",
         accessor: "ninetyDayVolumeNumber",
         Cell: ({ value }) => (
           <Text
@@ -211,7 +209,6 @@ const GatewayList = ({
             <Box>Total Fees</Box>
           </ExplorerTooltip>
         ),
-        id: "totalVolumeNumber",
         accessor: "totalVolumeNumber",
         Cell: ({ value }) => (
           <Text
