@@ -34,6 +34,7 @@ import {
   EyeOpenIcon,
 } from "@modulz/radix-icons";
 import {
+  useAccountQuery,
   usePollsQuery,
   useProtocolQuery,
   useTreasuryProposalsQuery,
@@ -141,17 +142,35 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
 
+  const viewedAccountId = query?.account?.toString().toLowerCase();
+  const { data: viewedAccountData } = useAccountQuery({
+    variables: {
+      account: viewedAccountId ?? "",
+    },
+    skip: !viewedAccountId,
+  });
+
   const isMyAccountPage = useMemo(() => {
     if (!accountAddress) return false;
     return asPath.toLowerCase().includes(accountAddress.toLowerCase());
   }, [accountAddress, asPath]);
+
+  const isViewedAccountOrchestrator = Boolean(viewedAccountData?.transcoder);
+
   const isOrchestratorsNavActive =
-    (!accountAddress || !isMyAccountPage) &&
-    (asPath.includes("/orchestrators") ||
-      (asPath.includes("/accounts") && !asPath.includes("/broadcasting")));
+    asPath.includes("/orchestrators") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/orchestrating") ||
+        asPath.includes("/delegating") ||
+        (asPath.includes("/history") && isViewedAccountOrchestrator)));
+
   const isGatewaysNavActive =
-    (!accountAddress || !isMyAccountPage) &&
-    (asPath.includes("/gateways") || asPath.includes("/broadcasting"));
+    asPath.includes("/gateways") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/broadcasting") ||
+        (asPath.includes("/history") &&
+          Boolean(viewedAccountData?.gateway) &&
+          !isViewedAccountOrchestrator)));
 
   const totalActivePolls = useMemo(
     () =>
