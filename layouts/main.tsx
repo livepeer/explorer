@@ -463,7 +463,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             height: "100%",
                             alignItems: "center",
                             display: "flex",
-                            marginRight: "$8",
+                            marginRight: "$2",
                           },
                         }}
                       >
@@ -474,6 +474,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             marginLeft: "$7",
                             flexWrap: "nowrap",
                             whiteSpace: "nowrap",
+                            "@media (max-width: 1250px)": {
+                              marginLeft: "$6",
+                            },
                           }}
                         >
                           <Link passHref href="/">
@@ -829,6 +832,9 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             display: "none",
             alignItems: "center",
             marginRight: "$2",
+            "@media (max-width: 1250px)": {
+              marginRight: 0,
+            },
             "@bp1": {
               display: "flex",
             },
