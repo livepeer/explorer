@@ -22,6 +22,7 @@ const eslintConfig = defineConfig([
     },
   },
   globalIgnores([
+    ".claude/**",
     "apollo/**",
     "@types/**",
     ".next/**",
