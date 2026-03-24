@@ -1,5 +1,5 @@
 import { formatTransactionHash } from "@lib/utils";
-import { Badge, Box } from "@livepeer/design-system";
+import { Badge, Box, Link as A } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 
 interface TransactionBadgeProps {
@@ -8,43 +8,43 @@ interface TransactionBadgeProps {
 
 const TransactionBadge = ({ id }: TransactionBadgeProps) => {
   return (
-    <Badge
-      as="span"
-      onClick={(e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.open(
-          id ? `https://arbiscan.io/tx/${id}` : "https://arbiscan.io",
-          "_blank",
-          "noopener,noreferrer"
-        );
-      }}
+    <A
+      target="_blank"
+      rel="noopener noreferrer"
+      href={id ? `https://arbiscan.io/tx/${id}` : "https://arbiscan.io"}
       css={{
-        cursor: "pointer",
-        backgroundColor: "$neutral3",
-        color: "$neutral11",
-        border: "1px solid $neutral4",
-        transition:
-          "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-        "&:hover": {
+        display: "inline-flex",
+        textDecoration: "none !important",
+        "&:hover > *": {
           border: "1.5px solid $grass7 !important",
           backgroundColor: "$grass3 !important",
           color: "$grass11 !important",
         },
       }}
-      size="1"
     >
-      {formatTransactionHash(id)}
-      <Box
-        className="arrow-icon"
+      <Badge
         css={{
-          marginLeft: "$1",
-          width: 14,
-          height: 14,
+          cursor: "pointer",
+          backgroundColor: "$neutral3",
+          color: "$neutral11",
+          border: "1px solid $neutral4",
+          transition:
+            "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease",
         }}
-        as={ArrowTopRightIcon}
-      />
-    </Badge>
+        size="1"
+      >
+        {formatTransactionHash(id)}
+        <Box
+          className="arrow-icon"
+          css={{
+            marginLeft: "$1",
+            width: 14,
+            height: 14,
+          }}
+          as={ArrowTopRightIcon}
+        />
+      </Badge>
+    </A>
   );
 };
 
