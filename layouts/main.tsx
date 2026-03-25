@@ -620,6 +620,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
@@ -859,6 +860,12 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                           marginBottom: "$1",
                         }}
                         target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`View ${
+                          contractAddresses?.[
+                            key as keyof typeof contractAddresses
+                          ]?.name ?? "contract"
+                        } on block explorer`}
                         href={
                           contractAddresses?.[
                             key as keyof typeof contractAddresses
@@ -900,7 +907,11 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               passHref
               href="https://docs.livepeer.org/references/contract-addresses"
             >
-              <A>
+              <A
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Learn more about these contracts (opens in new tab)"
+              >
                 <Flex
                   css={{
                     marginTop: "$2",
@@ -922,6 +933,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                       height: 15,
                     }}
                     as={ArrowTopRightIcon}
+                    aria-hidden="true"
                   />
                 </Flex>
               </A>

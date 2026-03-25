@@ -78,6 +78,9 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 height: "100%",
               }}
               src={identity.avatar}
+              alt={
+                identity?.name ? `${identity.name} avatar` : `${account} avatar`
+              }
             />
           ) : (
             <Box
@@ -224,12 +227,13 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 href={identity.url}
                 target="__blank"
                 rel="noopener noreferrer"
+                aria-label={`Visit ${identity.url.replace(/(^\w+:|^)\/\//, "")}`}
               >
                 <Flex
                   align="center"
                   css={{ marginTop: "$2", marginRight: "$3" }}
                 >
-                  <Box as={GlobeIcon} css={{ marginRight: "$1" }} />
+                  <Box as={GlobeIcon} css={{ marginRight: "$1" }} aria-hidden="true" />
                   {identity.url.replace(/(^\w+:|^)\/\//, "")}
                 </Flex>
               </A>
@@ -242,12 +246,13 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 href={`https://twitter.com/${identity.twitter}`}
                 target="__blank"
                 rel="noopener noreferrer"
+                aria-label={`View ${identity.twitter} on Twitter`}
               >
                 <Flex
                   align="center"
                   css={{ marginTop: "$2", marginRight: "$3" }}
                 >
-                  <Box as={TwitterLogoIcon} css={{ marginRight: "$1" }} />
+                  <Box as={TwitterLogoIcon} css={{ marginRight: "$1" }} aria-hidden="true" />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
@@ -268,12 +273,13 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 href={`https://github.com/${identity.github}`}
                 target="__blank"
                 rel="noopener noreferrer"
+                aria-label={`View ${identity.github} on GitHub`}
               >
                 <Flex
                   align="center"
                   css={{ marginTop: "$2", marginRight: "$3" }}
                 >
-                  <Box as={GitHubLogoIcon} css={{ marginRight: "$1" }} />
+                  <Box as={GitHubLogoIcon} css={{ marginRight: "$1" }} aria-hidden="true" />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
