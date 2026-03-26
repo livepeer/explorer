@@ -5,7 +5,6 @@ import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
-import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
@@ -23,7 +22,7 @@ import {
 import { ArrowRightIcon } from "@modulz/radix-icons";
 import { useChartData } from "hooks";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
@@ -255,14 +254,6 @@ type PageProps = {
 };
 
 const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
-  const [showOrchList, setShowOrchList] = useState(false);
-
-  useEffect(() => {
-    // Let the browser paint the new route first
-    const id = requestAnimationFrame(() => setShowOrchList(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
-
   const allEvents = useMemo(
     () =>
       events?.transactions
@@ -448,27 +439,11 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               </Flex>
             </Flex>
 
-            {!orchestrators?.transcoders || !protocol?.protocol ? (
-              <Flex align="center" justify="center">
-                <Spinner />
-              </Flex>
-            ) : (
-              <Box>
-                {showOrchList ? (
-                  <OrchestratorList
-                    data={orchestrators?.transcoders}
-                    pageSize={10}
-                    protocolData={protocol?.protocol}
-                  />
-                ) : (
-                  <Box
-                    css={{ padding: "$4", textAlign: "center", opacity: 0.6 }}
-                  >
-                    Loading orchestrators…
-                  </Box>
-                )}
-              </Box>
-            )}
+            <OrchestratorList
+              data={orchestrators?.transcoders}
+              pageSize={10}
+              protocolData={protocol?.protocol}
+            />
 
             <Flex
               css={{
