@@ -40,8 +40,7 @@ import { BigNumber } from "ethers";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useWindowSize } from "react-use";
+import { useCallback, useMemo } from "react";
 import { formatPercent } from "utils/voting";
 import { decodeFunctionData } from "viem";
 
@@ -51,6 +50,7 @@ import {
   useCurrentRoundData,
   useEnsData,
   useExplorerStore,
+  useMediaQuery,
   useProposalVotingPowerData,
   useTreasuryProposalState,
 } from "../../hooks";
@@ -70,8 +70,8 @@ const formatDateTime = (date: dayjs.Dayjs) => {
 
 const Proposal = () => {
   const router = useRouter();
-  const { width } = useWindowSize();
-  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isSmallMobile = useMediaQuery("(max-width: 640px)");
   const { setBottomDrawerOpen } = useExplorerStore();
 
   const { query } = router;
@@ -108,10 +108,6 @@ const Proposal = () => {
     },
     fetchPolicy: "cache-first",
   });
-
-  useEffect(() => {
-    setIsDesktop(width >= 768);
-  }, [width]);
 
   const proposal = useMemo(() => {
     if (!proposalQuery || !state || !protocolQuery || !currentRound) {
@@ -634,7 +630,7 @@ const Proposal = () => {
                                   }}
                                   size="2"
                                 >
-                                  {width <= 640
+                                  {isSmallMobile
                                     ? formatAddress(action.lptTransfer.receiver)
                                     : action.lptTransfer.receiver}
                                 </Text>

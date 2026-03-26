@@ -1,8 +1,7 @@
 import { calculateROI } from "@lib/roi";
 import { Box } from "@livepeer/design-system";
-import { useExplorerStore } from "hooks";
+import { useExplorerStore, useIsDesktop } from "hooks";
 import { useEffect, useMemo } from "react";
-import { useWindowSize } from "react-use";
 
 const Input = ({
   transcoder,
@@ -12,7 +11,7 @@ const Input = ({
   treasury,
   ...props
 }) => {
-  const { width } = useWindowSize();
+  const isDesktop = useIsDesktop();
 
   const pools = useMemo(() => transcoder?.pools ?? [], [transcoder]);
   const rewardCallRatio = useMemo(
@@ -88,7 +87,7 @@ const Input = ({
         type="number"
         min="0"
         step="any"
-        autoFocus={width >= 1200}
+        autoFocus={isDesktop}
         value={value}
         onChange={onChange}
         css={{

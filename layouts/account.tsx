@@ -24,10 +24,14 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
-import { useWindowSize } from "react-use";
 import { useReadContract } from "wagmi";
 
-import { useAccountAddress, useEnsData, useExplorerStore } from "../hooks";
+import {
+  useAccountAddress,
+  useEnsData,
+  useExplorerStore,
+  useIsDesktop,
+} from "../hooks";
 
 const DelegatingView = dynamic(() => import("../components/DelegatingView"), {
   ssr: false,
@@ -58,7 +62,7 @@ const AccountLayout = ({
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
 }) => {
   const accountAddress = useAccountAddress();
-  const { width } = useWindowSize();
+  const isDesktop = useIsDesktop();
   const router = useRouter();
   const { query, asPath } = router;
   const view = useMemo(
@@ -290,7 +294,7 @@ const AccountLayout = ({
           {view === "history" && <HistoryView />}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
-          (width >= 1200 ? (
+          (isDesktop ? (
             <Flex
               css={{
                 display: "none",

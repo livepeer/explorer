@@ -3,8 +3,8 @@ import { getEnsForVotes } from "@lib/api/ens";
 import { formatAddress, lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
 import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
+import { useIsTablet } from "hooks";
 import React, { useEffect, useMemo, useState } from "react";
-import { useWindowSize } from "react-use";
 
 import TreasuryVotePopover from "./TreasuryVotePopover";
 import { DesktopVoteTable, Vote } from "./Views/DesktopVoteTable";
@@ -108,8 +108,7 @@ const useVotes = (proposalId: string) => {
 };
 
 const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
-  const { width } = useWindowSize();
-  const isDesktop = width >= 900;
+  const isDesktop = useIsTablet();
 
   const [selectedVoter, setSelectedVoter] = useState<{
     address: string;

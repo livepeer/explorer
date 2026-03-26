@@ -29,13 +29,13 @@ import { sentenceCase } from "change-case";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useWindowSize } from "react-use";
 import { formatPercent } from "utils/voting";
 
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
+  useIsDesktop,
 } from "../../hooks";
 import { abbreviateNumber } from "../../lib/utils";
 import FourZeroFour from "../404";
@@ -44,7 +44,7 @@ const Poll = () => {
   const router = useRouter();
   const accountAddress = useAccountAddress();
 
-  const { width } = useWindowSize();
+  const isDesktop = useIsDesktop();
 
   const [pollData, setPollData] = useState<PollExtended | null>(null);
   const { query } = router;
@@ -340,7 +340,7 @@ const Poll = () => {
             </Box>
           </Flex>
 
-          {width >= 1200 ? (
+          {isDesktop ? (
             <Flex
               css={{
                 display: "none",
