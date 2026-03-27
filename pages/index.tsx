@@ -373,17 +373,41 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               <Flex
                 css={{
                   flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
                   "@bp1": {
                     flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
+                  Orchestrators
+                </Heading>
+              </Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "nowrap",
+                  "@bp1": {
+                    width: "auto",
+                    justifyContent: "flex-start",
                   },
                 }}
                 align="center"
               >
-                <Heading size="2" css={{ fontWeight: 600 }}>
-                  Orchestrators
-                </Heading>
-              </Flex>
-              <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
                   <A as={Link} href="/leaderboard" passHref>
@@ -392,7 +416,14 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                       css={{
                         color: "$hiContrast",
                         fontSize: "$2",
-                        marginRight: "$2",
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        marginRight: 0,
+                        "@bp1": {
+                          paddingLeft: "$2",
+                          paddingRight: "$2",
+                          marginRight: "$2",
+                        },
                       }}
                     >
                       Performance Leaderboard
@@ -400,7 +431,19 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   </A>
                 )}
                 <A as={Link} href="/orchestrators" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
                     View All
                     <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
@@ -445,19 +488,53 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               <Flex
                 css={{
                   flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
                   "@bp1": {
                     flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
+                  Transactions
+                </Heading>
+              </Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  "@bp1": {
+                    width: "auto",
                   },
                 }}
                 align="center"
               >
-                <Heading size="2" css={{ fontWeight: 600 }}>
-                  Transactions
-                </Heading>
-              </Flex>
-              <Flex align="center">
                 <A as={Link} href="/transactions" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
                     View All
                     <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>

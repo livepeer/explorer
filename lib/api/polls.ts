@@ -84,17 +84,15 @@ export const getPollExtended = async (
 
   const isActive = l1BlockNumber <= parseInt(poll?.endBlock ?? "0");
 
-  // Get L2 block number corresponding to end of poll
-  // Create NodeInterface to get L2 block number corresponding to end of poll
-  const totalStakeString = await getTotalStake(
-    Number(
-      isActive
-        ? undefined
-        : (
-            await getL2BlockRangeForL1(Number(poll?.endBlock ?? "0"))
-          ).lastBlock
-    )
-  );
+  // Get L2 block number corresponding to end of poll using NodeInterface
+  let l2BlockNumber: number | undefined;
+  if (!isActive) {
+    const { lastBlock } = await getL2BlockRangeForL1(
+      Number(poll?.endBlock ?? "0")
+    );
+    if (lastBlock > 0) l2BlockNumber = lastBlock;
+  }
+  const totalStakeString = await getTotalStake(l2BlockNumber);
 
   const totalStake = +(totalStakeString ?? 0);
   const noVoteStake = +(poll?.tally?.no || 0);
@@ -210,10 +208,10 @@ const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
       lastBlock: l2BlockRangeForL1.lastBlock.toNumber(),
       firstBlock: l2BlockRangeForL1.firstBlock.toNumber(),
     };
-  } catch (error) {
-    console.error(
-      "Error getting L2 block range for L1 " + l1BlockNumber,
-      error
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `Could not resolve L2 block range for L1 block ${l1BlockNumber} — using latest stake (${detail})`
     );
     return {
       lastBlock: 0,

@@ -8,6 +8,7 @@ out
 node_modules
 
 # misc
+.claude
 .github
 .vscode
 @types

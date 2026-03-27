@@ -32,7 +32,11 @@ const Index = () => {
       }}
     >
       <DialogContent
-        css={{ minWidth: 370 }}
+        css={{
+          maxWidth: 370,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
         onPointerDownOutside={clearLatestTransaction}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}

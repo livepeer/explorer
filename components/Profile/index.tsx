@@ -10,9 +10,9 @@ import {
   TwitterLogoIcon,
 } from "@modulz/radix-icons";
 import { formatAddress } from "@utils/web3";
+import copy from "copy-to-clipboard";
 import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import EditProfile from "../EditProfile";
 
@@ -28,16 +28,29 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (copied) {
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    }
+    if (!copied) return;
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [copied]);
+
+  const handleCopy = () => {
+    if (copy(account)) {
+      setCopied(true);
+    }
+  };
 
   return (
     <Box css={{ marginBottom: "$3" }}>
-      <Flex css={{ alignItems: "center" }}>
+      <Flex
+        css={{
+          alignItems: "flex-start",
+          "@bp2": {
+            alignItems: "center",
+          },
+        }}
+      >
         <Box
           css={{
             width: 60,
@@ -96,60 +109,112 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
         <Flex
           justify="center"
           direction="column"
-          css={{ height: "100%", marginLeft: "$3" }}
+          css={{ height: "100%", marginLeft: "$3", flex: 1, minWidth: 0 }}
         >
-          <Flex css={{ alignItems: "center" }}>
-            <CopyToClipboard text={account} onCopy={() => setCopied(true)}>
+          <Flex
+            css={{
+              alignItems: "center",
+              width: "100%",
+              minWidth: 0,
+              columnGap: "$2",
+              rowGap: "$2",
+              flexWrap: "wrap",
+              "@bp2": {
+                alignItems: "center",
+                columnGap: "$3",
+                rowGap: 0,
+                flexWrap: "nowrap",
+              },
+            }}
+          >
+            <Flex
+              css={{
+                alignItems: "center",
+                minWidth: 0,
+                maxWidth: "100%",
+                flexShrink: 1,
+              }}
+            >
               <Heading
                 size="2"
                 css={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: "block",
                   fontWeight: 700,
+                  minWidth: 0,
+                  maxWidth: "100%",
+                  flexShrink: 1,
                 }}
               >
-                {identity?.name ? identity.name : formatAddress(account)}
-                <ExplorerTooltip
-                  content={`${copied ? "Copied" : "Copy address to clipboard"}`}
+                <Box
+                  as="span"
+                  css={{
+                    display: "block",
+                    minWidth: 0,
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  <Flex
-                    css={{
-                      marginLeft: "$3",
-                      marginTop: "3px",
-                      cursor: "pointer",
-                      borderRadius: 1000,
-                      backgroundColor: "$neutral3",
-                      border: "1px solid $neutral6",
-                      width: 28,
-                      height: 28,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {copied ? (
-                      <Box
-                        as={CheckIcon}
-                        css={{
-                          width: 14,
-                          height: 14,
-                          color: "$muted",
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        as={CopyIcon}
-                        css={{
-                          width: 14,
-                          height: 14,
-                          color: "$muted",
-                        }}
-                      />
-                    )}
-                  </Flex>
-                </ExplorerTooltip>
+                  {identity?.name ? identity.name : formatAddress(account)}
+                </Box>
               </Heading>
-            </CopyToClipboard>
-            {isMyAccount && <EditProfile />}
+              <ExplorerTooltip
+                content={`${copied ? "Copied" : "Copy address to clipboard"}`}
+              >
+                <Flex
+                  as="button"
+                  type="button"
+                  aria-label="Copy address to clipboard"
+                  onClick={handleCopy}
+                  css={{
+                    marginLeft: "$2",
+                    cursor: "pointer",
+                    borderRadius: 1000,
+                    backgroundColor: "$neutral3",
+                    border: "1px solid $neutral6",
+                    padding: 0,
+                    width: 28,
+                    height: 28,
+                    flexShrink: 0,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {copied ? (
+                    <Box
+                      as={CheckIcon}
+                      css={{
+                        width: 14,
+                        height: 14,
+                        color: "$muted",
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      as={CopyIcon}
+                      css={{
+                        width: 14,
+                        height: 14,
+                        color: "$muted",
+                      }}
+                    />
+                  )}
+                </Flex>
+              </ExplorerTooltip>
+            </Flex>
+            {isMyAccount && (
+              <Box
+                css={{
+                  width: "100%",
+                  "@bp2": {
+                    width: "auto",
+                  },
+                }}
+              >
+                <EditProfile />
+              </Box>
+            )}
           </Flex>
           <Flex align="center" css={{ flexWrap: "wrap" }}>
             {identity?.url && (

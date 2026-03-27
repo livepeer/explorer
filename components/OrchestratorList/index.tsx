@@ -140,13 +140,9 @@ const OrchestratorList = ({
 
         const isNewlyActive = dayjs().diff(activation, "days") < 45;
 
-        const feeShareDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.feeShareUpdateTimestamp),
-          "days"
-        );
-        const rewardCutDaysSinceChange = dayjs().diff(
-          dayjs.unix(row.rewardCutUpdateTimestamp),
-          "days"
+        const latestChangeTimestamp = Math.max(
+          row.feeShareUpdateTimestamp ?? 0,
+          row.rewardCutUpdateTimestamp ?? 0
         );
 
         const treasuryCutDecimal = Number(
@@ -203,14 +199,12 @@ const OrchestratorList = ({
 
         return {
           ...row,
-          daysSinceChangeParams:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? feeShareDaysSinceChange
-              : rewardCutDaysSinceChange) ?? 0,
-          daysSinceChangeParamsFormatted:
-            (feeShareDaysSinceChange < rewardCutDaysSinceChange
-              ? dayjs.unix(row.feeShareUpdateTimestamp).fromNow()
-              : dayjs.unix(row.rewardCutUpdateTimestamp).fromNow()) ?? "",
+          daysSinceChangeParams: latestChangeTimestamp
+            ? dayjs().diff(dayjs.unix(latestChangeTimestamp), "days")
+            : null,
+          daysSinceChangeParamsFormatted: latestChangeTimestamp
+            ? dayjs.unix(latestChangeTimestamp).fromNow()
+            : null,
           earningsComputed: {
             roi,
             activation,
@@ -687,10 +681,11 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {formatNumber(row?.original?.daysSinceChangeParams, {
-                            precision: 0,
-                          })}{" "}
-                          days ago
+                          {row?.original?.daysSinceChangeParams != null
+                            ? `${formatNumber(row?.original?.daysSinceChangeParams, {
+                                   precision: 0,
+                               })} days ago`
+                            : "Never"}
                         </Text>
                       </Flex>
                     </Box>

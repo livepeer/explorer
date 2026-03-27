@@ -290,7 +290,7 @@ const AccountLayout = ({
           {view === "history" && <HistoryView />}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
-          (width > 1020 ? (
+          (width >= 1200 ? (
             <Flex
               css={{
                 display: "none",
