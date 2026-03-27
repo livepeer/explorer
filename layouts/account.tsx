@@ -255,6 +255,7 @@ const AccountLayout = ({
           <HorizontalScrollContainer
             role="navigation"
             ariaLabel="Account navigation tabs"
+            activeItemKey={view ?? "delegating"}
           >
             {tabs.map((tab: TabType, i: number) => (
               <A
