@@ -682,9 +682,12 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {row?.original?.daysSinceChangeParams != null
-                            ? `${formatNumber(row?.original?.daysSinceChangeParams, {
-                                   precision: 0,
-                               })} days ago`
+                            ? `${formatNumber(
+                                row?.original?.daysSinceChangeParams,
+                                {
+                                  precision: 0,
+                                }
+                              )} days ago`
                             : "Never"}
                         </Text>
                       </Flex>

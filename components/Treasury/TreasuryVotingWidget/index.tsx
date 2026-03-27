@@ -262,7 +262,7 @@ const TreasuryVotingWidget = ({ proposal, vote, ...props }: Props) => {
                 precision: 0,
                 abbreviate: true,
               })}{" "}
-              voted ·{" "}
+              LPT voted ·{" "}
               {proposal.state !== "Pending" && proposal.state !== "Active"
                 ? "Final Results"
                 : dayjs.duration(proposal.votes.voteEndTime.diff()).humanize() +

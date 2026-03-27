@@ -12,7 +12,12 @@ import {
   Link as A,
   styled,
 } from "@livepeer/design-system";
-import { formatETH, formatLPT, formatPercent, formatRound } from "@utils/numberFormatters";
+import {
+  formatETH,
+  formatLPT,
+  formatPercent,
+  formatRound,
+} from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
 import {
@@ -316,10 +321,10 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                  {formatLPT(event.additionalAmount, {
-                    precision: 1,
-                    forceSign: true,
-                  })}
+                {formatLPT(event.additionalAmount, {
+                  precision: 1,
+                  forceSign: true,
+                })}
               </Box>
             </Box>
           </Flex>
@@ -410,7 +415,7 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                  {formatLPT(event.amount, { precision: 1, forceSign: true })}
+                {formatLPT(event.amount, { precision: 1, forceSign: true })}
               </Box>
             </Box>
           </Flex>
@@ -504,10 +509,10 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                  {formatLPT(event.rewardTokens, {
-                    precision: 2,
-                    forceSign: true,
-                  })}
+                {formatLPT(event.rewardTokens, {
+                  precision: 2,
+                  forceSign: true,
+                })}
               </Box>
             </Box>
           </Flex>
@@ -699,10 +704,10 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                  {formatETH(event.faceValue, {
-                    precision: 3,
-                    forceSign: true,
-                  })}
+                {formatETH(event.faceValue, {
+                  precision: 3,
+                  forceSign: true,
+                })}
               </Box>
             </Box>
           </Flex>

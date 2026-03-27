@@ -344,7 +344,8 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                       fontWeight: 500,
                     }}
                   >
-                    / {formatNumber(govStats.eligible, { precision: 0 })} Proposals
+                    / {formatNumber(govStats.eligible, { precision: 0 })}{" "}
+                    Proposals
                   </Box>
                 </Flex>
               ) : (

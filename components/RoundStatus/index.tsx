@@ -90,14 +90,13 @@ const Index = ({
     precision: 0,
   })} LPT`;
 
-
   const totalSupply = useMemo(
     () => (protocol?.totalSupply ? Number(protocol.totalSupply) : null),
     [protocol]
   );
   const { data: supplyChangeData, isLoading: isSupplyChangeLoading } =
     useSupplyChangeData();
-    
+
   return (
     <Box
       css={{
@@ -308,9 +307,9 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                    {formatETH(protocol?.currentRound?.volumeETH, {
-                      precision: 2,
-                    })}
+                  {formatETH(protocol?.currentRound?.volumeETH, {
+                    precision: 2,
+                  })}
                 </Text>
               </Flex>
             </ExplorerTooltip>
@@ -357,7 +356,7 @@ const Index = ({
                     color: "white",
                   }}
                 >
-                    {rewards}
+                  {rewards}
                 </Text>
               </Flex>
             </ExplorerTooltip>
@@ -407,7 +406,10 @@ const Index = ({
                     }}
                   >
                     {totalSupply !== null
-                        ? formatLPT(totalSupply, { precision: 0, abbreviate: true })
+                      ? formatLPT(totalSupply, {
+                          precision: 0,
+                          abbreviate: true,
+                        })
                       : "--"}
                   </Text>
                 </Flex>
@@ -453,7 +455,9 @@ const Index = ({
                     {isSupplyChangeLoading ? (
                       <Skeleton css={{ height: 16, width: 80 }} />
                     ) : supplyChangeData?.supplyChange != null ? (
-                          formatPercent(supplyChangeData.supplyChange, { precision: 2 })
+                      formatPercent(supplyChangeData.supplyChange, {
+                        precision: 2,
+                      })
                     ) : (
                       "--"
                     )}
