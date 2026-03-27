@@ -4,7 +4,6 @@ import { Fm, parsePollIpfs } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -13,6 +12,9 @@ import {
   Link as A,
   styled,
 } from "@livepeer/design-system";
+import { formatETH, formatLPT, formatPercent, formatRound } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
+import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
 import {
   TransactionsQuery,
   TreasuryVoteEvent,
@@ -22,7 +24,6 @@ import {
 } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
@@ -306,7 +307,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -315,13 +316,11 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.additionalAmount).format({
-                  mantissa: 1,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                  {formatLPT(event.additionalAmount, {
+                    precision: 1,
+                    forceSign: true,
+                  })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -356,16 +355,15 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              Round #
               <Box as="span" css={{ fontWeight: 600 }}>
-                {event.round.id}
+                Round {formatRound(event.round.id)}
               </Box>
             </Box>
           </Flex>
@@ -403,7 +401,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -412,13 +410,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 1,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                  {formatLPT(event.amount, { precision: 1, forceSign: true })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -455,7 +448,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -464,13 +457,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                -
-                {numbro(event.amount).format({
-                  mantissa: 1,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                {formatLPT(-event.amount, { precision: 1, forceSign: true })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -507,7 +495,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -516,13 +504,11 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.rewardTokens).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                  {formatLPT(event.rewardTokens, {
+                    precision: 2,
+                    forceSign: true,
+                  })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -557,7 +543,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -566,15 +552,18 @@ function renderSwitch(event, i: number) {
             <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
                 <Box as="span" css={{ fontWeight: 600 }}>
-                  {event.rewardCut / 10000}% R
+                  {formatPercent(
+                    event.rewardCut / PERCENTAGE_PRECISION_TEN_THOUSAND
+                  )}{" "}
+                  R
                 </Box>{" "}
               </Box>
               <Box>
                 <Box as="span" css={{ fontWeight: 600 }}>
-                  {(100 - event.feeShare / 10000)
-                    .toFixed(2)
-                    .replace(/[.,]00$/, "")}
-                  % F
+                  {formatPercent(
+                    1 - event.feeShare / PERCENTAGE_PRECISION_TEN_THOUSAND
+                  )}{" "}
+                  F
                 </Box>{" "}
               </Box>
             </Box>
@@ -611,7 +600,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -620,12 +609,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                {formatLPT(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -660,7 +645,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -669,12 +654,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numbro(event.amount).format({
-                  mantissa: 3,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                {formatETH(event.amount, { precision: 3 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -709,7 +690,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -718,13 +699,11 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.faceValue).format({
-                  mantissa: 3,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                  {formatETH(event.faceValue, {
+                    precision: 3,
+                    forceSign: true,
+                  })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -759,7 +738,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -768,13 +747,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                +{formatETH(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -814,7 +788,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -823,13 +797,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                +{formatETH(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -870,7 +839,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -939,7 +908,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
