@@ -34,6 +34,7 @@ import {
   EyeOpenIcon,
 } from "@modulz/radix-icons";
 import {
+  useAccountQuery,
   usePollsQuery,
   useProtocolQuery,
   useTreasuryProposalsQuery,
@@ -57,6 +58,7 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
+import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
 
@@ -139,6 +141,36 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
+
+  const viewedAccountId = query?.account?.toString().toLowerCase();
+  const { data: viewedAccountData } = useAccountQuery({
+    variables: {
+      account: viewedAccountId ?? "",
+    },
+    skip: !viewedAccountId,
+  });
+
+  const isMyAccountPage = useMemo(() => {
+    if (!accountAddress) return false;
+    return asPath.toLowerCase().includes(accountAddress.toLowerCase());
+  }, [accountAddress, asPath]);
+
+  const isViewedAccountOrchestrator = Boolean(viewedAccountData?.transcoder);
+
+  const isOrchestratorsNavActive =
+    asPath.includes("/orchestrators") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/orchestrating") ||
+        asPath.includes("/delegating") ||
+        (asPath.includes("/history") && isViewedAccountOrchestrator)));
+
+  const isGatewaysNavActive =
+    asPath.includes("/gateways") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/broadcasting") ||
+        (asPath.includes("/history") &&
+          Boolean(viewedAccountData?.gateway) &&
+          !isViewedAccountOrchestrator)));
 
   const totalActivePolls = useMemo(
     () =>
@@ -245,6 +277,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       className: "orchestrators",
     },
     {
+      name: "Gateways",
+      href: "/gateways",
+      as: "/gateways",
+      icon: LuRadioTower,
+      className: "gateways",
+    },
+    {
       name: (
         <Flex css={{ alignItems: "center" }}>
           Governance{" "}
@@ -328,11 +367,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       );
     }
   }, []);
-
-  const isMyAccountPage = useMemo(() => {
-    if (!accountAddress) return false;
-    return asPath.toLowerCase().includes(accountAddress.toLowerCase());
-  }, [accountAddress, asPath]);
 
   return (
     <DesignSystemProviderTyped>
@@ -429,13 +463,22 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             height: "100%",
                             alignItems: "center",
                             display: "flex",
-                            marginRight: "$8",
+                            marginRight: "$2",
                           },
                         }}
                       >
                         <Logo isDark />
 
-                        <Box css={{ marginLeft: "$7" }}>
+                        <Box
+                          css={{
+                            marginLeft: "$7",
+                            flexWrap: "nowrap",
+                            whiteSpace: "nowrap",
+                            "@media (max-width: 1250px)": {
+                              marginLeft: "$6",
+                            },
+                          }}
+                        >
                           <Link passHref href="/">
                             <Button
                               size="3"
@@ -464,12 +507,9 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               size="3"
                               css={{
                                 marginLeft: "$1",
-                                backgroundColor:
-                                  (!accountAddress || !isMyAccountPage) &&
-                                  (asPath.includes("/accounts") ||
-                                    asPath.includes("/orchestrators"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
+                                backgroundColor: isOrchestratorsNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
                                 color: "white",
                                 "&:hover": {
                                   backgroundColor: "hsla(0,100%,100%,.1)",
@@ -483,6 +523,29 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               }}
                             >
                               Orchestrators
+                            </Button>
+                          </Link>
+                          <Link passHref href="/gateways">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$1",
+                                backgroundColor: isGatewaysNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Gateways
                             </Button>
                           </Link>
                           <Link passHref href="/voting">
@@ -769,6 +832,9 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             display: "none",
             alignItems: "center",
             marginRight: "$2",
+            "@media (max-width: 1250px)": {
+              marginRight: 0,
+            },
             "@bp1": {
               display: "flex",
             },
@@ -791,7 +857,12 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).logoUrl
             }
           />
-          <Box css={{ marginLeft: "8px" }}>
+          <Box
+            css={{
+              marginLeft: "8px",
+              display: "none",
+            }}
+          >
             {
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -799,7 +870,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).label
             }
           </Box>
-
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}

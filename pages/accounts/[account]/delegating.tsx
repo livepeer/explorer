@@ -66,9 +66,13 @@ export const getStaticProps = async (context: {
       throw new Error("Failed to fetch orchestrators data");
     }
 
-    // Only return 404 if the account truly doesn't exist (no delegator AND no transcoder)
-    // Don't cache 404s to avoid stale 404 responses from transient failures
-    if (!account.data?.delegator && !account.data?.transcoder) {
+    // Only return 404 if the account truly doesn't exist
+    // (no delegator AND no transcoder AND no gateway)
+    if (
+      !account.data?.delegator &&
+      !account.data?.transcoder &&
+      !account.data?.gateway
+    ) {
       return { notFound: true };
     }
 

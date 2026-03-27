@@ -3,6 +3,7 @@ import "react-circular-progressbar/dist/styles.css";
 import ErrorComponent from "@components/Error";
 import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
+import GatewayList from "@components/GatewayList";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
@@ -27,11 +28,17 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
+  GatewaysQueryResult,
   getApollo,
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
-import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
+import {
+  getEvents,
+  getGateways,
+  getOrchestrators,
+  getProtocol,
+} from "../lib/api/ssr";
 
 const Panel = ({ children }) => (
   <Flex
@@ -249,12 +256,19 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
 type PageProps = {
   hadError: boolean;
   orchestrators: OrchestratorsQueryResult["data"] | null;
+  gateways: GatewaysQueryResult["data"] | null;
   events: EventsQueryResult["data"] | null;
   protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
+const Home = ({
+  hadError,
+  orchestrators,
+  gateways,
+  events,
+  protocol,
+}: PageProps) => {
   const [showOrchList, setShowOrchList] = useState(false);
 
   useEffect(() => {
@@ -505,6 +519,84 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                     },
                   }}
                 >
+                  Gateways
+                </Heading>
+              </Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  "@bp1": {
+                    width: "auto",
+                  },
+                }}
+                align="center"
+              >
+                <A as={Link} href="/gateways" passHref>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
+                    View All
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                  </Button>
+                </A>
+              </Flex>
+            </Flex>
+            {!gateways?.gateways ? (
+              <Flex align="center" justify="center">
+                <Spinner />
+              </Flex>
+            ) : (
+              <Box>
+                <GatewayList data={gateways.gateways} pageSize={10} />
+              </Box>
+            )}
+
+            <Flex
+              css={{
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginBottom: "$4",
+                marginTop: "$7",
+                alignItems: "center",
+                "@bp1": {
+                  flexDirection: "row",
+                },
+              }}
+            >
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
+                  "@bp1": {
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
                   Transactions
                 </Heading>
               </Flex>
@@ -560,6 +652,7 @@ export const getStaticProps = async () => {
   const errorProps: PageProps = {
     hadError: true,
     orchestrators: null,
+    gateways: null,
     events: null,
     protocol: null,
     fallback: {},
@@ -570,8 +663,14 @@ export const getStaticProps = async () => {
     const { orchestrators } = await getOrchestrators(client);
     const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
+    const { gateways } = await getGateways(client);
 
-    if (!orchestrators.data || !events.data || !protocol.data) {
+    if (
+      !orchestrators.data ||
+      !events.data ||
+      !protocol.data ||
+      !gateways.data
+    ) {
       return {
         props: errorProps,
         revalidate: 60,
@@ -581,6 +680,7 @@ export const getStaticProps = async () => {
     const props: PageProps = {
       hadError: false,
       orchestrators: orchestrators.data,
+      gateways: gateways.data,
       events: events.data,
       protocol: protocol.data,
       fallback: {},

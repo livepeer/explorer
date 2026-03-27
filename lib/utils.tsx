@@ -2,7 +2,17 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import { ethers } from "ethers";
 import { StakingAction } from "hooks";
 import { DEFAULT_CHAIN_ID, NETWORK_RPC_URLS } from "lib/chains";
+import numbro from "numbro";
 import { formatEther, getAddress, parseEther } from "viem";
+
+export const formatEth = (value?: string | number | null) => {
+  const amount = Number(value ?? 0) || 0;
+  return `${numbro(amount).format(
+    amount > 0 && amount < 0.01
+      ? { mantissa: 4, trimMantissa: true }
+      : { mantissa: 2, average: true, lowPrecision: false }
+  )} ETH`;
+};
 
 export const provider = new ethers.providers.JsonRpcProvider(
   NETWORK_RPC_URLS[DEFAULT_CHAIN_ID][0]

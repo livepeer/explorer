@@ -54,6 +54,12 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       }
       ... on WinningTicketRedeemedEvent {
         faceValue
+        sender {
+          id
+        }
+        recipient {
+          id
+        }
       }
       ... on DepositFundedEvent {
         sender {
@@ -114,7 +120,7 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
   winningTicketRedeemedEvents(
     orderBy: timestamp
     orderDirection: desc
-    where: { recipient: $account }
+    where: { or: [{ recipient: $account }, { sender: $account }] }
     first: $first
     skip: $skip
   ) {
@@ -128,5 +134,11 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       timestamp
     }
     faceValue
+    sender {
+      id
+    }
+    recipient {
+      id
+    }
   }
 }
