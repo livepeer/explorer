@@ -759,7 +759,8 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     </Flex>
                   </Container>
                 </AppBar>
-                <Flex
+                <Box
+                  as="main"
                   css={{
                     position: "relative",
                     width: "100%",
@@ -778,7 +779,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                     )}
                     {children}
                   </Box>
-                </Flex>
+                </Box>
               </Box>
             </Box>
             <TxConfirmedDialog />
