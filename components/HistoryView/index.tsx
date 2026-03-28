@@ -207,22 +207,30 @@ const Index = () => {
     );
   }
 
-  if (!data?.transactions?.length) {
+  if (
+    !data?.transactions?.length &&
+    !data?.winningTicketRedeemedEvents?.length
+  ) {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
+
+  const totalLoaded = Math.max(
+    data?.transactions?.length ?? 0,
+    data?.winningTicketRedeemedEvents?.length ?? 0
+  );
 
   return (
     <InfiniteScroll
       css={{ overflow: "hidden !important" }}
       scrollThreshold={0.5}
-      dataLength={data && data.transactions.length}
+      dataLength={mergedEvents.length}
       next={async () => {
         stopPolling();
-        if (!loading && data.transactions.length >= 10) {
+        if (!loading && totalLoaded >= 10) {
           try {
             await fetchMoreTransactions({
               variables: {
-                skip: data.transactions.length,
+                skip: totalLoaded,
               },
               updateQuery: (previousResult, { fetchMoreResult }) => {
                 if (!fetchMoreResult) {
@@ -263,7 +271,7 @@ const Index = () => {
         <Box css={{ paddingBottom: "$3" }}>
           {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
         </Box>
-        {loading && data.transactions.length >= 10 && (
+        {loading && totalLoaded >= 10 && (
           <Flex
             css={{
               position: "absolute",
