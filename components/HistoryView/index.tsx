@@ -223,7 +223,7 @@ const Index = () => {
     <InfiniteScroll
       css={{ overflow: "hidden !important" }}
       scrollThreshold={0.5}
-      dataLength={totalLoaded}
+      dataLength={mergedEvents.length}
       next={async () => {
         stopPolling();
         if (!loading && totalLoaded >= 10) {
