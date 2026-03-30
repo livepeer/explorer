@@ -201,6 +201,40 @@ const Index = () => {
     allEventTypes,
     eventTypeLabels,
   } = useHistoryFilter(mergedEvents);
+  const hasActiveFilters = selectedEventTypes.length > 0;
+
+  const isHydratingFilteredEvents = useMemo(() => {
+    const extendedVoteEventIds = new Set(
+      extendedVoteEventsData.map((event) => event.id)
+    );
+    const extendedTreasuryVoteEventIds = new Set(
+      extendedTreasuryVoteEventsData.map((event) => event.id)
+    );
+
+    return events.some((event) => {
+      if (hasActiveFilters && !selectedEventTypes.includes(event.__typename)) {
+        return false;
+      }
+
+      if (isVoteEvent(event)) {
+        return !extendedVoteEventIds.has(event.id);
+      }
+
+      if (isTreasuryVoteEvent(event)) {
+        return !extendedTreasuryVoteEventIds.has(event.id);
+      }
+
+      return false;
+    });
+  }, [
+    events,
+    extendedTreasuryVoteEventsData,
+    extendedVoteEventsData,
+    hasActiveFilters,
+    isTreasuryVoteEvent,
+    isVoteEvent,
+    selectedEventTypes,
+  ]);
 
   if (error) {
     console.error(error);
@@ -302,9 +336,22 @@ const Index = () => {
         <Box css={{ paddingBottom: "$3" }}>
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, i: number) => renderSwitch(event, i))
+          ) : isHydratingFilteredEvents ? (
+            <Flex
+              css={{
+                paddingTop: "$3",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Spinner />
+            </Flex>
           ) : (
             <Box css={{ paddingTop: "$3", color: "$neutral11" }}>
-              No events match the selected filters
+              {hasActiveFilters
+                ? "No events match the selected filters"
+                : "No history"}
             </Box>
           )}
         </Box>
