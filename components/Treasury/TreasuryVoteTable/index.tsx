@@ -128,7 +128,9 @@ const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
   const formatWeight = useMemo(
     () => (w: string) =>
       `${formatLPT(parseFloat(w), { abbreviate: false })} (${
-        totalWeight > 0 ? formatPercent(parseFloat(w) / totalWeight) : "0"
+        totalWeight > 0
+          ? formatPercent(parseFloat(w) / totalWeight)
+          : formatPercent(0)
       })`,
     [totalWeight]
   );
