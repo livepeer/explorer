@@ -253,7 +253,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           }
           value={
             transcoder?.rewardCut
-              ? formatPercent(+(transcoder?.rewardCut || 0) / 1000000)
+              ? formatPercent(
+                  +(transcoder?.rewardCut || 0) / PERCENTAGE_PRECISION_MILLION
+                )
               : "N/A"
           }
         />
