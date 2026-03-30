@@ -23,8 +23,7 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import numbro from "numbro";
-import { useEffect, useMemo, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
 const Card = styled(CardBase, {
@@ -188,6 +187,58 @@ const Index = () => {
     ]
   );
 
+  const totalLoaded = Math.max(
+    data?.transactions?.length ?? 0,
+    data?.winningTicketRedeemedEvents?.length ?? 0
+  );
+
+  const fetchingRef = useRef(false);
+  const fetchNext = useCallback(async () => {
+    if (fetchingRef.current || loading || totalLoaded < 10) return;
+    fetchingRef.current = true;
+    stopPolling();
+    try {
+      await fetchMoreTransactions({
+        variables: {
+          skip: totalLoaded,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult;
+          return {
+            ...previousResult,
+            transactions: [
+              ...previousResult.transactions,
+              ...fetchMoreResult.transactions,
+            ],
+            winningTicketRedeemedEvents: [
+              ...previousResult.winningTicketRedeemedEvents,
+              ...fetchMoreResult.winningTicketRedeemedEvents,
+            ],
+          };
+        },
+      });
+    } catch {
+      // ignore
+    } finally {
+      fetchingRef.current = false;
+    }
+  }, [loading, totalLoaded, stopPolling, fetchMoreTransactions]);
+
+  // Fetch more when the sentinel div near the bottom becomes visible.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) fetchNext();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fetchNext]);
+
   if (error) {
     console.error(error);
   }
@@ -214,79 +265,34 @@ const Index = () => {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
 
-  const totalLoaded = Math.max(
-    data?.transactions?.length ?? 0,
-    data?.winningTicketRedeemedEvents?.length ?? 0
-  );
-
   return (
-    <InfiniteScroll
-      css={{ overflow: "hidden !important" }}
-      scrollThreshold={0.5}
-      dataLength={mergedEvents.length}
-      next={async () => {
-        stopPolling();
-        if (!loading && totalLoaded >= 10) {
-          try {
-            await fetchMoreTransactions({
-              variables: {
-                skip: totalLoaded,
-              },
-              updateQuery: (previousResult, { fetchMoreResult }) => {
-                if (!fetchMoreResult) {
-                  return previousResult;
-                }
-
-                return {
-                  ...previousResult,
-                  transactions: [
-                    ...previousResult.transactions,
-                    ...fetchMoreResult.transactions,
-                  ],
-                  // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
-                  // So, we will always have winning ticket events that are older than the last transaction timestamp
-                  // Allowing mergedEvents to filter correctly
-                  winningTicketRedeemedEvents: [
-                    ...previousResult.winningTicketRedeemedEvents,
-                    ...fetchMoreResult.winningTicketRedeemedEvents,
-                  ],
-                };
-              },
-            });
-          } catch (e) {
-            return e;
-          }
-        }
+    <Box
+      css={{
+        marginTop: "$3",
+        marginBottom: "$5",
+        paddingBottom: "$4",
+        position: "relative",
       }}
-      hasMore={true}
     >
-      <Box
-        css={{
-          marginTop: "$3",
-          marginBottom: "$5",
-          paddingBottom: "$4",
-          position: "relative",
-        }}
-      >
-        <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
-        </Box>
-        {loading && totalLoaded >= 10 && (
-          <Flex
-            css={{
-              position: "absolute",
-              transform: "translateX(-50%)",
-              left: "50%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Spinner />
-          </Flex>
-        )}
+      <Box css={{ paddingBottom: "$3" }}>
+        {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
       </Box>
-    </InfiniteScroll>
+      {loading && totalLoaded >= 10 && (
+        <Flex
+          css={{
+            position: "absolute",
+            transform: "translateX(-50%)",
+            left: "50%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      )}
+      <div ref={sentinelRef} />
+    </Box>
   );
 };
 
