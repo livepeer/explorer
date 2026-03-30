@@ -1,4 +1,5 @@
 import BottomDrawer from "@components/BottomDrawer";
+import BroadcastingView from "@components/BroadcastingView";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
@@ -46,16 +47,23 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history";
+type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS: TabTypeEnum[] = [
+  "delegating",
+  "orchestrating",
+  "broadcasting",
+  "history",
+];
 
 const AccountLayout = ({
   account,
   sortedOrchestrators,
+  isSelfRedeeming,
 }: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
+  isSelfRedeeming?: boolean;
 }) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
@@ -130,7 +138,15 @@ const AccountLayout = ({
   );
   const isOrchestrator = useMemo(
     () => Boolean(viewedAccount?.transcoder),
-    [viewedAccount]
+    [viewedAccount?.transcoder]
+  );
+  const isGateway = useMemo(
+    () => Boolean(viewedAccount?.gateway),
+    [viewedAccount?.gateway]
+  );
+  const isDelegator = useMemo(
+    () => Boolean(viewedAccount?.delegator),
+    [viewedAccount?.delegator]
   );
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
@@ -150,9 +166,20 @@ const AccountLayout = ({
         isOrchestrator,
         accountId ?? "",
         view ?? "delegating",
-        isMyDelegate
+        isMyDelegate,
+        isGateway,
+        isMyAccount,
+        isDelegator
       ),
-    [isOrchestrator, accountId, view, isMyDelegate]
+    [
+      isOrchestrator,
+      accountId,
+      view,
+      isMyDelegate,
+      isGateway,
+      isMyAccount,
+      isDelegator,
+    ]
   );
 
   useEffect(() => {
@@ -228,6 +255,7 @@ const AccountLayout = ({
           <HorizontalScrollContainer
             role="navigation"
             ariaLabel="Account navigation tabs"
+            activeItemKey={view ?? "delegating"}
           >
             {tabs.map((tab: TabType, i: number) => (
               <A
@@ -288,6 +316,12 @@ const AccountLayout = ({
             />
           )}
           {view === "history" && <HistoryView />}
+          {view === "broadcasting" && (
+            <BroadcastingView
+              gateway={account?.gateway}
+              isSelfRedeeming={isSelfRedeeming}
+            />
+          )}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
           (width >= 1200 ? (
@@ -348,27 +382,38 @@ function getTabs(
   isOrchestrator: boolean,
   account: string,
   view: TabTypeEnum,
-  isMyDelegate: boolean
+  isMyDelegate: boolean,
+  isGateway: boolean,
+  isMyAccount: boolean,
+  hasDelegator: boolean
 ): Array<TabType> {
-  const tabs: Array<TabType> = [
-    {
-      name: "Delegating",
-      href: `/accounts/${account}/delegating`,
-      isActive: view === "delegating",
-    },
-    {
-      name: "History",
-      href: `/accounts/${account}/history`,
-      isActive: view === "history",
-    },
-  ];
+  const tabs: Array<TabType> = [];
   if (isOrchestrator || isMyDelegate) {
-    tabs.unshift({
+    tabs.push({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
       isActive: view === "orchestrating",
     });
   }
+  if (isGateway) {
+    tabs.push({
+      name: "Broadcasting",
+      href: `/accounts/${account}/broadcasting`,
+      isActive: view === "broadcasting",
+    });
+  }
+  if (isMyAccount || hasDelegator) {
+    tabs.push({
+      name: "Delegating",
+      href: `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
+    });
+  }
+  tabs.push({
+    name: "History",
+    href: `/accounts/${account}/history`,
+    isActive: view === "history",
+  });
 
   return tabs;
 }

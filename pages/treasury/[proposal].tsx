@@ -319,6 +319,7 @@ const Proposal = () => {
               <HorizontalScrollContainer
                 role="navigation"
                 ariaLabel="Proposal navigation tabs"
+                activeItemKey={view}
               >
                 {tabs.map((tab, i) => (
                   <NextLink

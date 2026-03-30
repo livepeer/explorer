@@ -11,7 +11,6 @@ const TransactionBadge = ({ id }: TransactionBadgeProps) => {
     <A
       target="_blank"
       rel="noopener noreferrer"
-      variant="primary"
       href={id ? `https://arbiscan.io/tx/${id}` : "https://arbiscan.io"}
       css={{
         display: "inline-flex",
