@@ -94,17 +94,18 @@ const OrchestratorList = ({
     Number(protocolData?.inflation || 0) / PERCENTAGE_PRECISION_BILLION;
   const inflationChangeAmount =
     Number(protocolData?.inflationChange || 0) / PERCENTAGE_PRECISION_BILLION;
-  const inflationChangeSign =
-    Number(protocolData?.inflationChange || 0) > 0 ? "+" : "";
 
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
         ? `Fixed at ${formatPercent(inflationRate, { precision: 3 })}`
-        : `${inflationChangeSign}${formatPercent(inflationChangeAmount, {
-            precision: 5,
-          })} per round`,
-    [inflationRate, inflationChangeAmount, inflationChangeSign]
+        : `${change === "negative" ? "-" : "+"}${formatPercent(
+            inflationChangeAmount,
+            {
+              precision: 5,
+            }
+          )} per round`,
+    [inflationRate, inflationChangeAmount]
   );
 
   const [principle, setPrinciple] = useState<number>(150);
@@ -357,7 +358,7 @@ const OrchestratorList = ({
               content={
                 <Box>
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
-                  if you were to delegate {formattedPrinciple} LPT to this
+                  if you were to delegate {formattedPrinciple} to this
                   orchestrator. This is based on recent performance data and may
                   differ from actual yield.
                 </Box>

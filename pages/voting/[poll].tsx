@@ -19,7 +19,7 @@ import {
 } from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { formatLPT, formatPercent } from "@utils/numberFormatters";
-import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
+import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
 import {
   AccountQuery,
   PollChoice,
@@ -228,7 +228,9 @@ const Poll = () => {
                   label={
                     <Box>
                       Total Support (
-                      {+pollData.quota / PERCENTAGE_PRECISION_TEN_THOUSAND}%
+                      {formatPercent(
+                        +pollData.quota / PERCENTAGE_PRECISION_MILLION
+                      )}{" "}
                       needed)
                     </Box>
                   }
@@ -285,7 +287,9 @@ const Poll = () => {
                   label={
                     <Box>
                       Total Participation (
-                      {+pollData.quorum / PERCENTAGE_PRECISION_TEN_THOUSAND}%
+                      {formatPercent(
+                        +pollData.quorum / PERCENTAGE_PRECISION_MILLION
+                      )}{" "}
                       needed)
                     </Box>
                   }

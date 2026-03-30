@@ -119,9 +119,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
     const outputTrans =
       maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
     const transcodingInfo = outputTrans
-      ? `${formatPercent(maxScore.transcoding?.score)} - ${
-          maxScore.transcoding.region
-        }`
+      ? `${formatPercent(maxScore.transcoding.score / 100, {
+          precision: 1,
+        })} - ${maxScore.transcoding.region}`
       : "";
     return outputTrans ? transcodingInfo : "N/A";
   }, [maxScore]);
