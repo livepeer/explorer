@@ -192,9 +192,6 @@ importers:
       react-icons:
         specifier: ^4.4.0
         version: 4.12.0(react@19.2.1)
-      react-infinite-scroll-component:
-        specifier: ^4.5.3
-        version: 4.5.3(prop-types@15.8.1)(react@19.2.1)
       react-markdown:
         specifier: ^9.0.3
         version: 9.1.0(@types/react@19.2.2)(react@19.2.1)
@@ -9184,12 +9181,6 @@ packages:
     resolution: {integrity: sha512-IBaDuHiShdZqmfc/TwHu6+d6k2ltNCf3AszxNmjJc1KUfXdEeRJOKyNvLmAHaarhzGmTSVygNdyu8/opXv2gaw==}
     peerDependencies:
       react: '*'
-
-  react-infinite-scroll-component@4.5.3:
-    resolution: {integrity: sha512-8O0PIeYZx0xFVS1ChLlLl/1obn64vylzXeheLsm+t0qUibmet7U6kDaKFg6jVRQJwDikWBTcyqEFFsxrbFCO5w==}
-    peerDependencies:
-      prop-types: ^15.0.0
-      react: '>=0.14.0'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -23156,11 +23147,6 @@ snapshots:
 
   react-icons@4.12.0(react@19.2.1):
     dependencies:
-      react: 19.2.1
-
-  react-infinite-scroll-component@4.5.3(prop-types@15.8.1)(react@19.2.1):
-    dependencies:
-      prop-types: 15.8.1
       react: 19.2.1
 
   react-is@16.13.1: {}
