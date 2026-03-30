@@ -56,11 +56,13 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
   useEffect(() => {
     if (!isFilterOpen) return;
 
+    const popoverSelector = "[data-history-filter-popover]";
+    let popoverElement = document.querySelector(popoverSelector);
+
     const handleScroll = (event: globalThis.Event) => {
-      // Find the popover element by data attribute
-      const popoverElement = document.querySelector(
-        "[data-history-filter-popover]"
-      );
+      if (!popoverElement || !popoverElement.isConnected) {
+        popoverElement = document.querySelector(popoverSelector);
+      }
 
       if (!popoverElement) {
         // Popover not found, close it
@@ -68,12 +70,14 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
         return;
       }
 
+      const currentPopoverElement = popoverElement;
+
       // Use composedPath to check if the scroll event originated from within the popover
       const path = event.composedPath();
       const isScrollingInsidePopover = path.some(
         (el) =>
-          el === popoverElement ||
-          (el instanceof Node && popoverElement.contains(el))
+          el === currentPopoverElement ||
+          (el instanceof Node && currentPopoverElement.contains(el))
       );
 
       if (isScrollingInsidePopover) {

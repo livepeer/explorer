@@ -178,6 +178,7 @@ const HistoryFilter = ({
                     as="button"
                     type="button"
                     key={eventType}
+                    aria-pressed={isChecked}
                     css={{
                       width: "100%",
                       alignItems: "center",
