@@ -20,6 +20,8 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   WithdrawFeesEvent: "Withdraw Fees",
   WinningTicketRedeemedEvent: "Winning Ticket Redeemed",
   ReserveFundedEvent: "Reserve Funded",
+  VoteEvent: "Poll Vote",
+  TreasuryVoteEvent: "Treasury Vote",
 };
 
 // All available event types
