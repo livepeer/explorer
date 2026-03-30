@@ -1,4 +1,5 @@
 import { CodeBlock } from "@components/CodeBlock";
+import { useSnackbar } from "@components/Snackbar";
 import Spinner from "@components/Spinner";
 import { getLayout } from "@layouts/main";
 import { inbox } from "@lib/api/abis/bridge/Inbox";
@@ -24,7 +25,6 @@ import {
   styled,
   Text,
   TextField,
-  useSnackbar,
 } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";

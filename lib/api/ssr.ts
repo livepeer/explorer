@@ -8,6 +8,12 @@ import {
   EventsDocument,
   EventsQuery,
   EventsQueryVariables,
+  GatewaysDocument,
+  GatewaySelfRedeemDocument,
+  GatewaySelfRedeemQuery,
+  GatewaySelfRedeemQueryVariables,
+  GatewaysQuery,
+  GatewaysQueryVariables,
   getApollo,
   OrchestratorsDocument,
   OrchestratorsQuery,
@@ -24,6 +30,49 @@ export async function getProtocol(client = getApollo()) {
   return client.query<ProtocolQuery, ProtocolQueryVariables>({
     query: ProtocolDocument,
   });
+}
+
+export async function getGateways(client = getApollo()) {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const minActiveDay = Math.max(currentTimestamp - 365 * 86400, 0); // include activated last 12 months
+
+  // TODO: if gateways exceed 250, bump `first` to 1000 or implement client-side
+  // lazy-loading pagination to fetch remaining pages on demand.
+  const gateways = await client.query<GatewaysQuery, GatewaysQueryVariables>({
+    query: GatewaysDocument,
+    variables: {
+      first: 250,
+      skip: 0,
+      minActiveDay,
+    },
+  });
+
+  return {
+    fallback: {},
+    gateways,
+  };
+}
+
+export async function getGatewaySelfRedeem(
+  client = getApollo(),
+  account: string,
+  windowDays = 90
+) {
+  const cutoff = Math.floor(Date.now() / 1000) - windowDays * 86400;
+
+  const result = await client.query<
+    GatewaySelfRedeemQuery,
+    GatewaySelfRedeemQueryVariables
+  >({
+    query: GatewaySelfRedeemDocument,
+    variables: { account },
+  });
+
+  const lastTimestamp = Number(
+    result.data?.winningTicketRedeemedEvents?.[0]?.transaction?.timestamp ?? 0
+  );
+
+  return lastTimestamp >= cutoff;
 }
 
 export async function getCurrentRound(client = getApollo()) {

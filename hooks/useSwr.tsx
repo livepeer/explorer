@@ -15,6 +15,7 @@ import {
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
 import { Regions } from "@lib/api/types/get-regions";
+import { SupplyChangeData } from "@lib/api/types/get-supply-change";
 import {
   ProposalState,
   ProposalVotingPower,
@@ -66,6 +67,17 @@ export const useChangefeedData = () => {
   const { data } = useSWR<GetChangefeed>(`/changefeed`);
 
   return data ?? null;
+};
+
+export const useSupplyChangeData = () => {
+  const { data, error, isValidating } =
+    useSWR<SupplyChangeData>(`/supply-change`);
+
+  return {
+    data: data ?? null,
+    isLoading: Boolean(!data && isValidating && !error),
+    error,
+  };
 };
 
 export const useAvailableInferencePipelinesData = () => {

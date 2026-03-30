@@ -51,7 +51,11 @@ const Index = () => {
     >
       <DialogContent
         onPointerDownOutside={onDismiss}
-        css={{ maxWidth: 390, width: "100%" }}
+        css={{
+          maxWidth: 390,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
         placeholder={undefined}
@@ -60,19 +64,26 @@ const Index = () => {
           <Heading
             size="1"
             css={{
-              mb: "$4",
+              mb: "$3",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
             }}
           >
-            Confirmed
             <Badge
               variant="primary"
-              size="1"
-              css={{ display: "flex", alignItems: "center" }}
+              size="2"
+              css={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: "$4",
+                paddingLeft: "$3",
+                paddingRight: "$3",
+                paddingTop: "$2",
+                paddingBottom: "$2",
+              }}
             >
-              <CheckIcon />
+              <CheckIcon width={18} height={18} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
             </Badge>
           </Heading>
@@ -499,7 +510,7 @@ const UnbondingTransactionContent = ({ tx }: { tx: TransactionStatus }) => {
                 Your orchestrator has been deactivated.
               </Box>
             )}
-            <Box css={{ marginTop: "$2" }}>
+            <Box css={{ marginTop: "$2", fontSize: "$2" }}>
               The unbonding period is {unbondingPeriod?.toString()} rounds
               (currently ~{unbondingPeriod?.toString()} days) after which you
               may withdraw the undelegated LPT into your wallet.
@@ -540,6 +551,7 @@ function Header({ tx }: { tx: TransactionStatus }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "$3",
+        gap: "$1",
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
@@ -548,12 +560,15 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Flex>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        aria-label="Transfer Receipt"
       >
-        Transfer Receipt{" "}
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          Transfer Receipt
+        </Box>
         <Box css={{ marginLeft: "6px", color: "$primary10" }}>
           <MdReceipt />
         </Box>

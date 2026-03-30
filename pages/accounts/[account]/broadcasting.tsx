@@ -1,7 +1,12 @@
 import ErrorComponent from "@components/Error";
 import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
-import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
+import {
+  getAccount,
+  getGateways,
+  getGatewaySelfRedeem,
+  getSortedOrchestrators,
+} from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
   AccountQueryResult,
@@ -13,13 +18,15 @@ type PageProps = {
   hadError: boolean;
   account: AccountQueryResult["data"];
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
+  isSelfRedeeming: boolean;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Orchestrating = ({
+const BroadcastingPage = ({
   hadError,
   account,
   sortedOrchestrators,
+  isSelfRedeeming,
 }: PageProps) => {
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
@@ -29,19 +36,20 @@ const Orchestrating = ({
     <AccountLayout
       sortedOrchestrators={sortedOrchestrators}
       account={account}
+      isSelfRedeeming={isSelfRedeeming}
     />
   );
 };
 
-Orchestrating.getLayout = getLayout;
+BroadcastingPage.getLayout = getLayout;
 
 export const getStaticPaths = async () => {
-  const { sortedOrchestrators } = await getSortedOrchestrators();
+  const { gateways } = await getGateways();
 
   return {
     paths:
-      sortedOrchestrators?.data?.transcoders?.map((t) => ({
-        params: { account: t.id },
+      gateways?.data?.gateways?.map((g) => ({
+        params: { account: g.id },
       })) ?? [],
     fallback: "blocking",
   };
@@ -52,10 +60,9 @@ export const getStaticProps = async (context: {
 }) => {
   try {
     const client = getApollo();
-    const { account, fallback } = await getAccount(
-      client,
-      context.params?.account?.toString().toLowerCase()
-    );
+    const accountId = context.params?.account?.toString().toLowerCase();
+
+    const { account, fallback } = await getAccount(client, accountId);
 
     // If we couldn't fetch account data, treat it as a temporary error
     if (!account.data) {
@@ -80,10 +87,13 @@ export const getStaticProps = async (context: {
       return { notFound: true };
     }
 
+    const isSelfRedeeming = await getGatewaySelfRedeem(client, accountId);
+
     const props: PageProps = {
       hadError: false,
       account: account.data,
       sortedOrchestrators: sortedOrchestrators.data,
+      isSelfRedeeming,
       fallback: {
         ...sortedOrchestratorsFallback,
         ...fallback,
@@ -105,4 +115,4 @@ export const getStaticProps = async (context: {
   }
 };
 
-export default Orchestrating;
+export default BroadcastingPage;

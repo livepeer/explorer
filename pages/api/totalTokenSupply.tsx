@@ -1,3 +1,4 @@
+<<<<<<< zod-validation
 import { getCacheControlHeader } from "@lib/api";
 import {
   externalApiError,
@@ -82,6 +83,12 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
   } catch (err) {
     return internalError(res, err);
   }
+=======
+import type { NextApiRequest, NextApiResponse } from "next";
+
+const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
+  return res.status(200).json({});
+>>>>>>> feat/add-zod-validation-to-internal-and-external-endpoints
 };
 
 export default totalTokenSupply;
