@@ -14,58 +14,79 @@ type DelegationAction =
   | "redelegateFromUndelegated"
   | "withdrawFees";
 
+type ReviewOrchestrator = { lastRewardRound?: { id: string } | null } | null;
+
+type DelegationReviewParams = {
+  delegator?: Delegator | null;
+  currentRound?: CurrentRound | null;
+  action: DelegationAction;
+  targetOrchestrator?: ReviewOrchestrator;
+};
+
+export const getDelegationWarning = ({
+  delegator,
+  currentRound,
+  action,
+  targetOrchestrator,
+}: DelegationReviewParams) => {
+  if (!delegator || !currentRound) {
+    return null;
+  }
+
+  const isDelegated = delegator.bondedAmount && delegator.bondedAmount !== "0";
+  const hasStakeAtRisk =
+    action === "redelegateFromUndelegated"
+      ? Boolean(targetOrchestrator)
+      : Boolean(isDelegated);
+
+  // Use an explicit orchestrator when the action concerns stake outside the
+  // account's current delegate, such as rebonding from an unbonded lock.
+  const orchestratorToCheck = targetOrchestrator || delegator.delegate;
+  const orchestratorLastRewardRoundId =
+    orchestratorToCheck?.lastRewardRound?.id;
+  const orchestratorLastRewardRound = orchestratorLastRewardRoundId
+    ? parseInt(orchestratorLastRewardRoundId, 10)
+    : 0;
+  const currentRoundNum = currentRound.id ? parseInt(currentRound.id, 10) : 0;
+
+  // Per LIP-36: Warn if the relevant orchestrator hasn't called reward() yet
+  // this round and the action can still affect stake that was delegated to it.
+  const orchestratorHasntCalledReward =
+    hasStakeAtRisk &&
+    Boolean(orchestratorLastRewardRoundId) &&
+    orchestratorLastRewardRound < currentRoundNum;
+
+  if (!orchestratorHasntCalledReward) {
+    return null;
+  }
+
+  switch (action) {
+    case "redelegate":
+      return "Rebonding will forfeit rewards and fees for the current round on your entire stake.";
+    case "moveStake":
+    case "redelegateFromUndelegated":
+      return "Moving stake to a different orchestrator will forfeit rewards and fees for the current round.";
+    default:
+      return "Performing this action before your orchestrator calls reward will forfeit rewards and fees for the current round.";
+  }
+};
+
 export const useDelegationReview = ({
   delegator,
   currentRound,
   action,
   targetOrchestrator,
-}: {
-  delegator?: Delegator | null;
-  currentRound?: CurrentRound | null;
-  action: DelegationAction;
-  targetOrchestrator?: { lastRewardRound?: { id: string } | null } | null;
-}) => {
-  const delegationWarning = useMemo(() => {
-    // Safety check
-    if (!delegator || !currentRound) {
-      return null;
-    }
-
-    const isDelegated =
-      delegator.bondedAmount && delegator.bondedAmount !== "0";
-
-    // Get orchestrator's last reward round
-    // Use targetOrchestrator if provided (for moving stake), otherwise use current delegate
-    const orchestratorToCheck = targetOrchestrator || delegator.delegate;
-    const orchestratorLastRewardRound = orchestratorToCheck?.lastRewardRound?.id
-      ? parseInt(orchestratorToCheck.lastRewardRound.id, 10)
-      : 0;
-
-    const currentRoundNum = currentRound.id ? parseInt(currentRound.id, 10) : 0;
-
-    // Per LIP-36: Warn if orchestrator hasn't called reward() yet this round
-    // This affects bond(), unbond(), rebond(), rebondFromUnbonded(), and withdrawFees()
-    // Only warn if we have valid delegate data to avoid false positives
-    const orchestratorHasntCalledReward =
-      isDelegated &&
-      orchestratorToCheck?.lastRewardRound?.id &&
-      orchestratorLastRewardRound < currentRoundNum;
-
-    if (!orchestratorHasntCalledReward) {
-      return null;
-    }
-
-    // Action-specific warning messages
-    switch (action) {
-      case "redelegate":
-        return "Rebonding will forfeit rewards and fees for the current round on your entire stake.";
-      case "moveStake":
-      case "redelegateFromUndelegated":
-        return "Moving stake to a different orchestrator will forfeit rewards and fees for the current round.";
-      default:
-        return "Performing this action before your orchestrator calls reward will forfeit rewards and fees for the current round.";
-    }
-  }, [delegator, currentRound, action, targetOrchestrator]);
+}: DelegationReviewParams) => {
+  const delegationWarning = useMemo(
+    () =>
+      getDelegationWarning({
+        delegator,
+        currentRound,
+        action,
+        targetOrchestrator,
+      }),
+    [delegator, currentRound, action, targetOrchestrator]
+  );
 
   return {
     delegationWarning,

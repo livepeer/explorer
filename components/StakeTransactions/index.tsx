@@ -117,7 +117,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         ) : (
                           <RedelegateFromUndelegated
                             unbondingLockId={lock.unbondingLockId}
-                            delegate={lock.delegate.id}
+                            delegate={lock.delegate}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
                             delegator={delegator}
@@ -231,7 +231,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         ) : (
                           <RedelegateFromUndelegated
                             unbondingLockId={lock.unbondingLockId}
-                            delegate={lock.delegate.id}
+                            delegate={lock.delegate}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
                             delegator={delegator}

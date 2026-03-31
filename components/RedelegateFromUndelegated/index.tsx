@@ -21,6 +21,7 @@ const Index = ({
     delegator,
     currentRound,
     action: "redelegateFromUndelegated",
+    targetOrchestrator: delegate,
   });
   const accountAddress = useAccountAddress();
 
@@ -30,7 +31,7 @@ const Index = ({
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "rebondFromUnbondedWithHint",
-    args: [delegate, unbondingLockId, newPosPrev, newPosNext],
+    args: [delegate.id, unbondingLockId, newPosPrev, newPosNext],
   });
   const { data, isPending, writeContract, error, isSuccess } =
     useWriteContract();
@@ -42,7 +43,7 @@ const Index = ({
     isPending,
     isSuccess,
     {
-      delegate,
+      delegate: delegate.id,
       unbondingLockId,
       newPosPrev,
       newPosNext,

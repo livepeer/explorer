@@ -16,6 +16,9 @@ query account($account: ID!) {
       withdrawRound
       delegate {
         id
+        lastRewardRound {
+          id
+        }
       }
     }
     delegate {
