@@ -62,13 +62,13 @@ export const ProposalStateSchema = z.object({
  */
 export const ProposalVotingPowerSchema = z.object({
   self: z.object({
-    address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+    address: AddressSchema,
     votes: z.string(),
     hasVoted: z.boolean(),
   }),
   delegate: z
     .object({
-      address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+      address: AddressSchema,
       votes: z.string(),
       hasVoted: z.boolean(),
     })
