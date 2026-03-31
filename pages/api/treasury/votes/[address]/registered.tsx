@@ -29,15 +29,8 @@ const handler = async (
 
     const address = req.query.address?.toString();
     const addressResult = AddressSchema.safeParse(address);
-    const inputValidationError = validateInput(
-      addressResult,
-      res,
-      "Invalid address format"
-    );
-    if (inputValidationError) return inputValidationError;
-
     if (!addressResult.success) {
-      return internalError(res, new Error("Unexpected validation error"));
+      return validateInput(addressResult, res, "Invalid address format");
     }
 
     const validatedAddress = addressResult.data as Address;

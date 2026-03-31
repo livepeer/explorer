@@ -36,31 +36,20 @@ const handler = async (
 
       // ProposalIdSchema validates format (numeric string)
       const proposalIdResult = ProposalIdSchema.safeParse(proposalId);
-      const proposalIdValidationError = validateInput(
-        proposalIdResult,
-        res,
-        "Invalid proposalId format"
-      );
-      if (proposalIdValidationError) return proposalIdValidationError;
+      if (!proposalIdResult.success) {
+        return validateInput(
+          proposalIdResult,
+          res,
+          "Invalid proposalId format"
+        );
+      }
 
       // AddressSchema validates format
       const addressResult = AddressSchema.safeParse(address);
-      const addressValidationError = validateInput(
-        addressResult,
-        res,
-        "Invalid address format"
-      );
-      if (addressValidationError) return addressValidationError;
-
-      // TypeScript needs explicit checks for type narrowing
-      if (!proposalIdResult.success) {
-        return internalError(res, new Error("Unexpected validation error"));
-      }
       if (!addressResult.success) {
-        return internalError(res, new Error("Unexpected validation error"));
+        return validateInput(addressResult, res, "Invalid address format");
       }
 
-      // After the success checks, TypeScript knows data is defined
       const validatedProposalId: string = proposalIdResult.data;
       const validatedAddress: string = addressResult.data;
 

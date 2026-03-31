@@ -23,7 +23,6 @@ const handler = async (
     if (method === "POST") {
       const inputValidation = UploadIpfsInputSchema.safeParse(req.body);
 
-      // Explicit check required for TypeScript type narrowing
       if (!inputValidation.success) {
         return validateInput(inputValidation, res, "Invalid JSON body");
       }
