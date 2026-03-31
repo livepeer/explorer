@@ -23,6 +23,9 @@ query account($account: ID!) {
       active
       status
       totalStake
+      lastRewardRound {
+        id
+      }
     }
   }
   transcoder(id: $account) {
