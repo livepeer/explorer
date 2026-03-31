@@ -6,6 +6,7 @@ import Logo from "@components/Logo";
 import PopoverLink from "@components/PopoverLink";
 import ProgressBar from "@components/ProgressBar";
 import Search from "@components/Search";
+import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
@@ -25,7 +26,6 @@ import {
   PopoverContent,
   PopoverTrigger,
   Skeleton,
-  SnackbarProvider,
   Text,
 } from "@livepeer/design-system";
 import {
@@ -34,6 +34,7 @@ import {
   EyeOpenIcon,
 } from "@modulz/radix-icons";
 import {
+  useAccountQuery,
   usePollsQuery,
   useProtocolQuery,
   useTreasuryProposalsQuery,
@@ -57,6 +58,7 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
+import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
 
@@ -140,6 +142,36 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
 
+  const viewedAccountId = query?.account?.toString().toLowerCase();
+  const { data: viewedAccountData } = useAccountQuery({
+    variables: {
+      account: viewedAccountId ?? "",
+    },
+    skip: !viewedAccountId,
+  });
+
+  const isMyAccountPage = useMemo(() => {
+    if (!accountAddress) return false;
+    return asPath.toLowerCase().includes(accountAddress.toLowerCase());
+  }, [accountAddress, asPath]);
+
+  const isViewedAccountOrchestrator = Boolean(viewedAccountData?.transcoder);
+
+  const isOrchestratorsNavActive =
+    asPath.includes("/orchestrators") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/orchestrating") ||
+        asPath.includes("/delegating") ||
+        (asPath.includes("/history") && isViewedAccountOrchestrator)));
+
+  const isGatewaysNavActive =
+    asPath.includes("/gateways") ||
+    (!isMyAccountPage &&
+      (asPath.includes("/broadcasting") ||
+        (asPath.includes("/history") &&
+          Boolean(viewedAccountData?.gateway) &&
+          !isViewedAccountOrchestrator)));
+
   const totalActivePolls = useMemo(
     () =>
       pollData?.polls.filter(
@@ -209,11 +241,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
-    if (width > 1020) {
+    if (width >= 1200) {
       document.body.removeAttribute("style");
     }
 
-    if (width < 1020 && drawerOpen) {
+    if (width < 1200 && drawerOpen) {
       document.body.style.overflow = "hidden";
     }
   }, [drawerOpen, width]);
@@ -243,6 +275,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/orchestrators",
       icon: DNS,
       className: "orchestrators",
+    },
+    {
+      name: "Gateways",
+      href: "/gateways",
+      as: "/gateways",
+      icon: LuRadioTower,
+      className: "gateways",
     },
     {
       name: (
@@ -422,21 +461,28 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           display: "none",
                           "@bp3": {
                             height: "100%",
-                            justifyContent: "center",
+                            alignItems: "center",
                             display: "flex",
-                            marginRight: "$3",
-                            marginTop: "$2",
+                            marginRight: "$2",
                           },
                         }}
                       >
-                        <Logo isDark id="main" />
+                        <Logo isDark />
 
-                        <Box css={{}}>
+                        <Box
+                          css={{
+                            marginLeft: "$7",
+                            flexWrap: "nowrap",
+                            whiteSpace: "nowrap",
+                            "@media (max-width: 1250px)": {
+                              marginLeft: "$6",
+                            },
+                          }}
+                        >
                           <Link passHref href="/">
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$4",
                                 backgroundColor:
                                   asPath === "/"
                                     ? "hsla(0,100%,100%,.05)"
@@ -460,14 +506,10 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
-                                backgroundColor:
-                                  (!accountAddress ||
-                                    !asPath.includes(accountAddress)) &&
-                                  (asPath.includes("/accounts") ||
-                                    asPath.includes("/orchestrators"))
-                                    ? "hsla(0,100%,100%,.05)"
-                                    : "transparent",
+                                marginLeft: "$1",
+                                backgroundColor: isOrchestratorsNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
                                 color: "white",
                                 "&:hover": {
                                   backgroundColor: "hsla(0,100%,100%,.1)",
@@ -483,11 +525,34 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               Orchestrators
                             </Button>
                           </Link>
+                          <Link passHref href="/gateways">
+                            <Button
+                              size="3"
+                              css={{
+                                marginLeft: "$1",
+                                backgroundColor: isGatewaysNavActive
+                                  ? "hsla(0,100%,100%,.05)"
+                                  : "transparent",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "hsla(0,100%,100%,.1)",
+                                },
+                                "&:active": {
+                                  backgroundColor: "hsla(0,100%,100%,.15)",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            >
+                              Gateways
+                            </Button>
+                          </Link>
                           <Link passHref href="/voting">
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/voting")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -521,7 +586,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             <Button
                               size="3"
                               css={{
-                                marginLeft: "$2",
+                                marginLeft: "$1",
                                 backgroundColor: asPath.includes("/treasury")
                                   ? "hsla(0,100%,100%,.05)"
                                   : "transparent",
@@ -552,14 +617,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                             </Button>
                           </Link>
                           {accountAddress && (
-                            <Link passHref href={`/accounts/${accountAddress}`}>
+                            <Link
+                              passHref
+                              href={`/accounts/${accountAddress.toLowerCase()}`}
+                            >
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
-                                  backgroundColor: asPath.includes(
-                                    accountAddress
-                                  )
+                                  marginLeft: "$1",
+                                  backgroundColor: isMyAccountPage
                                     ? "hsla(0,100%,100%,.05)"
                                     : "transparent",
                                   color: "white",
@@ -599,7 +665,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               <Button
                                 size="3"
                                 css={{
-                                  marginLeft: "$2",
+                                  marginLeft: "$1",
                                   backgroundColor: "transparent",
                                   color: "white",
                                   "&:hover": {
@@ -766,6 +832,9 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
             display: "none",
             alignItems: "center",
             marginRight: "$2",
+            "@media (max-width: 1250px)": {
+              marginRight: 0,
+            },
             "@bp1": {
               display: "flex",
             },
@@ -788,7 +857,12 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).logoUrl
             }
           />
-          <Box css={{ marginLeft: "8px" }}>
+          <Box
+            css={{
+              marginLeft: "8px",
+              display: "none",
+            }}
+          >
             {
               (
                 CHAIN_INFO[activeChain?.id ?? ""] ??
@@ -796,7 +870,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
               ).label
             }
           </Box>
-
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}

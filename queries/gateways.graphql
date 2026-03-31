@@ -1,0 +1,22 @@
+query gateways($first: Int!, $skip: Int!, $minActiveDay: Int!) {
+  gateways: broadcasters(
+    first: $first
+    skip: $skip
+    orderBy: ninetyDayVolumeETH
+    orderDirection: desc
+    where: {
+      or: [
+        { ninetyDayVolumeETH_gt: "0" }
+        { firstActiveDay_gte: $minActiveDay }
+      ]
+    }
+  ) {
+    id
+    deposit
+    reserve
+    totalVolumeETH
+    ninetyDayVolumeETH
+    firstActiveDay
+    lastActiveDay
+  }
+}

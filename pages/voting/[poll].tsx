@@ -340,7 +340,7 @@ const Poll = () => {
             </Box>
           </Flex>
 
-          {width > 1200 ? (
+          {width >= 1200 ? (
             <Flex
               css={{
                 display: "none",

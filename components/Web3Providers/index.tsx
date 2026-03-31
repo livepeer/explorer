@@ -4,6 +4,13 @@ import {
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
+import {
+  baseAccount,
+  braveWallet,
+  metaMaskWallet,
+  rainbowWallet,
+  walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import rainbowTheme from "constants/rainbowTheme";
 import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
 import { useMemo } from "react";
@@ -26,6 +33,18 @@ const Index = ({
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
       ssr: false,
+      wallets: [
+        {
+          groupName: "Popular",
+          wallets: [
+            metaMaskWallet,
+            braveWallet,
+            rainbowWallet,
+            baseAccount,
+            walletConnectWallet,
+          ],
+        },
+      ],
     });
 
     return {

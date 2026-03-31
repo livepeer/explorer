@@ -2,7 +2,7 @@ import EthAddressBadge from "@components/EthAddressBadge";
 import Table from "@components/Table";
 import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
-import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { EventsQueryResult, TreasuryProposal } from "apollo";
@@ -344,24 +344,19 @@ const TransactionsList = ({
               event?.param ?? "unknown"
             }, has been updated`}</Box>
           );
-        case "VoteEvent":
+        case "VoteEvent": {
+          const vote = POLL_VOTES[event?.choiceID];
           return (
             <Box>
               {`Voted `}
-              <Badge
-                css={{
-                  backgroundColor:
-                    +event?.choiceID === 0 ? "$grass3" : "$tomato9",
-                  color: +event?.choiceID === 0 ? "$grass11" : "$tomato11",
-                }}
-                size="1"
-              >
-                {+event?.choiceID === 0 ? '"For"' : '"Against"'}
+              <Badge css={vote.style} size="1">
+                {`"${vote.text}"`}
               </Badge>
               {` on a proposal`}
               {renderEmoji("👩‍⚖️")}
             </Box>
           );
+        }
         case "PollCreatedEvent":
           return (
             <Box>
