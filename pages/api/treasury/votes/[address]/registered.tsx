@@ -15,7 +15,6 @@ import { AddressSchema, RegisteredToVoteSchema } from "@lib/api/schemas";
 import { RegisteredToVote } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -33,7 +32,7 @@ const handler = async (
       return validateInput(addressResult, res, "Invalid address format");
     }
 
-    const validatedAddress = addressResult.data as Address;
+    const validatedAddress = addressResult.data;
 
     const bondingManagerAddress = await getBondingManagerAddress();
     const bondingVotesAddress = await getBondingVotesAddress();

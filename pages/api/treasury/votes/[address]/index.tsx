@@ -34,7 +34,7 @@ const handler = async (
       return validateInput(addressResult, res, "Invalid address format");
     }
 
-    const validatedAddress = addressResult.data as Address;
+    const validatedAddress = addressResult.data;
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
