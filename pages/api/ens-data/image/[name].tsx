@@ -1,3 +1,6 @@
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
+
 import { getCacheControlHeader } from "@lib/api";
 import {
   internalError,
@@ -6,11 +9,94 @@ import {
   validateInput,
 } from "@lib/api/errors";
 import { EnsAvatarResultSchema, EnsNameSchema } from "@lib/api/schemas";
-import { WebUrlSchema } from "@lib/api/schemas/common";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { normalize } from "viem/ens";
+
+const stripIpv6Brackets = (value: string) => value.replace(/^\[|\]$/g, "");
+
+const isPrivateOrLocalIp = (address: string) => {
+  const normalized = stripIpv6Brackets(address).toLowerCase();
+
+  if (normalized.startsWith("::ffff:")) {
+    return isPrivateOrLocalIp(normalized.slice(7));
+  }
+
+  const ipVersion = isIP(normalized);
+
+  if (!ipVersion) {
+    return false;
+  }
+
+  if (ipVersion === 4) {
+    const [a, b] = normalized.split(".").map(Number);
+
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 198 && (b === 18 || b === 19))
+    );
+  }
+
+  return (
+    normalized === "::" ||
+    normalized === "::1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe80:") ||
+    normalized.startsWith("fec0:")
+  );
+};
+
+const getSafeAvatarUrl = async (value: string) => {
+  try {
+    const parsedUrl = new URL(value);
+
+    if (parsedUrl.protocol !== "https:") {
+      return null;
+    }
+
+    const hostname = stripIpv6Brackets(parsedUrl.hostname).toLowerCase();
+
+    if (
+      !hostname ||
+      hostname === "localhost" ||
+      hostname.endsWith(".localhost")
+    ) {
+      return null;
+    }
+
+    if (isPrivateOrLocalIp(hostname)) {
+      return null;
+    }
+
+    if (isIP(hostname)) {
+      return parsedUrl.toString();
+    }
+
+    const resolvedAddresses = await lookup(hostname, {
+      all: true,
+      verbatim: true,
+    });
+
+    if (
+      resolvedAddresses.length === 0 ||
+      resolvedAddresses.some(({ address }) => isPrivateOrLocalIp(address))
+    ) {
+      return null;
+    }
+
+    return parsedUrl.toString();
+  } catch {
+    return null;
+  }
+};
 
 const handler = async (
   req: NextApiRequest,
@@ -57,14 +143,18 @@ const handler = async (
           ? avatar
           : `https://metadata.ens.domains/mainnet/avatar/${validatedName}`;
 
-        // Extra validation to prevent SSRF - Server Side Request Forgery
-        const urlValidation = WebUrlSchema.safeParse(imageUrl);
+        // Restrict avatar fetches to public https URLs and block redirects.
+        const safeImageUrl = await getSafeAvatarUrl(imageUrl);
 
-        if (!urlValidation.success) {
-          return notFound(res, "Invalid or missing ENS avatar URL");
+        if (!safeImageUrl) {
+          return notFound(res, "Invalid or unsupported ENS avatar URL");
         }
 
-        const response = await fetch(urlValidation.data);
+        const response = await fetch(safeImageUrl, { redirect: "error" });
+
+        if (!response.ok) {
+          return notFound(res, "ENS avatar not found");
+        }
 
         const arrayBuffer = await response.arrayBuffer();
 

@@ -3,6 +3,7 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateExternalResponse,
   validateInput,
   validateOutput,
 } from "@lib/api/errors";
@@ -34,14 +35,6 @@ export type MetricsResponse = {
         [key: string]: Metric;
       }
     | undefined;
-};
-
-type ScoreResponse = {
-  value: number;
-  region: string;
-  model: string;
-  pipeline: string;
-  orchestrator: string;
 };
 
 export type PriceResponse = {
@@ -78,9 +71,29 @@ const handler = async (
       }
 
       const transcoderId = addressResult.data.toLowerCase();
+      const aiMetricsServerUrl = process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL;
+      const metricsServerUrl = process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
 
-      const topScoreUrl = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`;
-      const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
+      if (!aiMetricsServerUrl) {
+        console.error("NEXT_PUBLIC_AI_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "AI metrics server",
+          "NEXT_PUBLIC_AI_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
+
+      if (!metricsServerUrl) {
+        console.error("NEXT_PUBLIC_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "metrics server",
+          "NEXT_PUBLIC_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
+
+      const topScoreUrl = `${aiMetricsServerUrl}/api/top_ai_score?orchestrator=${transcoderId}`;
+      const metricsUrl = `${metricsServerUrl}/api/aggregated_stats?orchestrator=${transcoderId}`;
       const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
 
       const [topScoreResponse, metricsResponse, priceResponse] =
@@ -130,39 +143,44 @@ const handler = async (
         return externalApiError(res, "pricing server");
       }
 
-      const topScoreResult = ScoreResponseSchema.safeParse(
-        await topScoreResponse.json()
+      const topAIScore = validateExternalResponse(
+        ScoreResponseSchema.safeParse(await topScoreResponse.json()),
+        "api/score/[address]",
+        `URL: ${topScoreUrl}`
       );
-      const topScoreError = validateInput(
-        topScoreResult,
-        res,
-        "Invalid response from AI metrics server"
-      );
-      if (topScoreError) return topScoreError;
-      const topAIScore: ScoreResponse = topScoreResult.data as ScoreResponse;
+      if (!topAIScore) {
+        return externalApiError(
+          res,
+          "AI metrics server",
+          "Invalid response structure from AI metrics server"
+        );
+      }
 
-      const metricsResult = MetricsResponseSchema.safeParse(
-        await metricsResponse.json()
+      const metrics = validateExternalResponse(
+        MetricsResponseSchema.safeParse(await metricsResponse.json()),
+        "api/score/[address]",
+        `URL: ${metricsUrl}`
       );
-      const metricsError = validateInput(
-        metricsResult,
-        res,
-        "Invalid response from metrics server"
-      );
-      if (metricsError) return metricsError;
-      const metrics: MetricsResponse = metricsResult.data as MetricsResponse;
+      if (!metrics) {
+        return externalApiError(
+          res,
+          "metrics server",
+          "Invalid response structure from metrics server"
+        );
+      }
 
-      const priceResult = PriceResponseSchema.safeParse(
-        await priceResponse.json()
+      const transcodersWithPrice = validateExternalResponse(
+        PriceResponseSchema.safeParse(await priceResponse.json()),
+        "api/score/[address]",
+        `URL: ${pricingUrl}`
       );
-      const priceError = validateInput(
-        priceResult,
-        res,
-        "Invalid response from pricing server"
-      );
-      if (priceError) return priceError;
-      const transcodersWithPrice: PriceResponse =
-        priceResult.data as unknown as PriceResponse;
+      if (!transcodersWithPrice) {
+        return externalApiError(
+          res,
+          "pricing server",
+          "Invalid response structure from pricing server"
+        );
+      }
 
       const transcoderWithPrice = transcodersWithPrice.find((t) =>
         checkAddressEquality(t.Address, transcoderId)

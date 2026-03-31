@@ -3,6 +3,7 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateExternalResponse,
   validateInput,
   validateOutput,
 } from "@lib/api/errors";
@@ -21,7 +22,7 @@ import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg } from "@lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { MetricsResponse, PriceResponse } from "./[address]";
+import { MetricsResponse } from "./[address]";
 
 const handler = async (
   req: NextApiRequest,
@@ -43,38 +44,59 @@ const handler = async (
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
+      if (pipeline && !process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL) {
+        console.error("NEXT_PUBLIC_AI_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "AI metrics server",
+          "NEXT_PUBLIC_AI_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
+
+      if (!pipeline && !process.env.NEXT_PUBLIC_METRICS_SERVER_URL) {
+        console.error("NEXT_PUBLIC_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "metrics server",
+          "NEXT_PUBLIC_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
+
       const baseUrl = pipeline
         ? process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
         : process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
+      const metricsService = pipeline ? "AI metrics server" : "metrics server";
+      const metricsUrl = `${baseUrl}/api/aggregated_stats${
+        pipeline ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}` : ""
+      }`;
 
-      const metricsResponse = await fetchWithRetry(
-        `${baseUrl}/api/aggregated_stats${
-          pipeline
-            ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}`
-            : ""
-        }`
-      );
+      const metricsResponse = await fetchWithRetry(metricsUrl);
 
       if (!metricsResponse.ok) {
         const errorText = await metricsResponse.text();
         console.error(
           "Metrics fetch error:",
           metricsResponse.status,
-          errorText
+          errorText,
+          `URL: ${metricsUrl}`
         );
-        return externalApiError(res, "metrics server", "Fetch failed");
+        return externalApiError(res, metricsService, "Fetch failed");
       }
 
       const metricsJson = await metricsResponse.json();
 
-      const metricsResult = MetricsResponseSchema.safeParse(metricsJson);
-      const metricsError = validateInput(
-        metricsResult,
-        res,
-        "Invalid response from metrics server"
+      const metrics = validateExternalResponse(
+        MetricsResponseSchema.safeParse(metricsJson),
+        "api/score",
+        `URL: ${metricsUrl}`
       );
-      if (metricsError) return metricsError;
-      const metrics: MetricsResponse = metricsResult.data as MetricsResponse;
+      if (!metrics) {
+        return externalApiError(
+          res,
+          metricsService,
+          `Invalid response structure from ${metricsService}`
+        );
+      }
 
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl
@@ -90,15 +112,18 @@ const handler = async (
         return externalApiError(res, "pricing server", "Fetch failed");
       }
 
-      const priceResult = PriceResponseSchema.safeParse(await response.json());
-      const priceError = validateInput(
-        priceResult,
-        res,
-        "Invalid response from pricing server"
+      const transcodersWithPrice = validateExternalResponse(
+        PriceResponseSchema.safeParse(await response.json()),
+        "api/score",
+        `URL: ${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}`
       );
-      if (priceError) return priceError;
-      const transcodersWithPrice: PriceResponse =
-        priceResult.data as unknown as PriceResponse;
+      if (!transcodersWithPrice) {
+        return externalApiError(
+          res,
+          "pricing server",
+          "Invalid response structure from pricing server"
+        );
+      }
 
       const allTranscoderIds = Object.keys(metrics);
       const uniqueRegions = (() => {
@@ -143,9 +168,9 @@ const handler = async (
           ...prev,
           [transcoderId]: {
             pricePerPixel:
-              transcodersWithPrice?.find(
+              transcodersWithPrice.find(
                 (t) => t.Address.toLowerCase() === transcoderId
-              ) ?? 0,
+              )?.PricePerPixel ?? 0,
             successRates: createMetricsObject(
               "success_rate",
               transcoderId,

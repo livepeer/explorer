@@ -1,3 +1,4 @@
+import { isAddress } from "viem";
 import { z } from "zod";
 
 /**
@@ -5,12 +6,11 @@ import { z } from "zod";
  */
 
 /**
- * Validates Ethereum address format (0x followed by 40 hex characters)
- * This is stricter than viem's isAddress which also accepts checksummed addresses
+ * Validates Ethereum addresses using viem.
+ * Accepts valid lowercase/uppercase addresses and valid EIP-55 mixed-case addresses.
  */
-export const AddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
-  message:
-    "Invalid address format. Must be a valid Ethereum address (0x followed by 40 hex characters)",
+export const AddressSchema = z.string().refine(isAddress, {
+  message: "Invalid Ethereum address",
 });
 
 /**
@@ -55,18 +55,18 @@ export const RegionsSchema = z.object({
 });
 
 /**
- * Schema for strict Web URL validation
+ * Schema for web URLs with an explicit http/https protocol requirement.
  */
 export const WebUrlSchema = z.string().refine(
   (val) => {
     try {
-      new URL(val); // Use native URL constructor
-      return true;
+      const parsedUrl = new URL(val);
+      return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
     } catch {
       return false;
     }
   },
-  { message: "Invalid URL format" }
+  { message: "Invalid URL format. Must use http or https." }
 );
 
 /**
