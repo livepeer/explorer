@@ -52,15 +52,6 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       ... on WithdrawFeesEvent {
         amount
       }
-      ... on WinningTicketRedeemedEvent {
-        faceValue
-        sender {
-          id
-        }
-        recipient {
-          id
-        }
-      }
       ... on DepositFundedEvent {
         sender {
           id

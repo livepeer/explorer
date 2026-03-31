@@ -167,8 +167,8 @@ const Index = () => {
     }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
-  // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
-  // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
+  // WinningTicketRedeemedEvents, VoteEvents, and TreasuryVoteEvents are replaced
+  // with enriched versions (direction-tagged tickets, IPFS-enriched votes)
   const mergedEvents = useMemo(
     () =>
       [
