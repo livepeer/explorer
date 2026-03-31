@@ -3,6 +3,7 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateExternalResponse,
   validateInput,
 } from "@lib/api/errors";
 import { AvailablePipelinesSchema, RegionSchema } from "@lib/api/schemas";
@@ -69,15 +70,20 @@ const handler = async (
         const responseData = await response.json();
 
         // Validate external API response: pipelines response structure
-        const apiResult = AvailablePipelinesSchema.safeParse(responseData);
-        const validationError = validateInput(
-          apiResult,
-          res,
-          "Invalid response structure from AI metrics server"
+        const pipelinesData = validateExternalResponse(
+          AvailablePipelinesSchema.safeParse(responseData),
+          "api/pipelines",
+          `URL: ${url}`
         );
-        if (validationError) return validationError;
+        if (!pipelinesData) {
+          return externalApiError(
+            res,
+            "AI metrics server",
+            "Invalid response structure from AI metrics server"
+          );
+        }
 
-        pipelinesResponse = apiResult.data as AvailablePipelines;
+        pipelinesResponse = pipelinesData;
       } catch (err) {
         console.error("[api/pipelines] Fetch error:", err);
         // Fallback to empty pipelines on error (existing behavior)
