@@ -41,19 +41,14 @@ const handler = async (
 
       // ProposalIdSchema validates format (numeric string)
       const proposalIdResult = ProposalIdSchema.safeParse(proposalId);
-      const inputValidationError = validateInput(
-        proposalIdResult,
-        res,
-        "Invalid proposalId format"
-      );
-      if (inputValidationError) return inputValidationError;
-
-      // TypeScript needs explicit check for type narrowing
       if (!proposalIdResult.success) {
-        return internalError(res, new Error("Unexpected validation error"));
+        return validateInput(
+          proposalIdResult,
+          res,
+          "Invalid proposalId format"
+        );
       }
 
-      // After the success check, TypeScript knows data is defined
       const validatedProposalId: string = proposalIdResult.data;
 
       const livepeerGovernorAddress = await getLivepeerGovernorAddress();

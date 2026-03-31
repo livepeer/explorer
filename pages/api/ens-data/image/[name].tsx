@@ -24,15 +24,8 @@ const handler = async (
 
       // EnsNameSchema handles undefined, arrays, and validates format + blacklist
       const nameResult = EnsNameSchema.safeParse(name);
-      const inputValidationError = validateInput(
-        nameResult,
-        res,
-        "Invalid ENS name"
-      );
-      if (inputValidationError) return inputValidationError;
-
       if (!nameResult.success) {
-        return internalError(res, new Error("ENS name validation failed"));
+        return validateInput(nameResult, res, "Invalid ENS name");
       }
 
       const validatedName = nameResult.data;

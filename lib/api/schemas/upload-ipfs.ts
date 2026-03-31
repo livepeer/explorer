@@ -6,7 +6,7 @@ const PollProposalSchema = z.object({
   text: z.string().max(500000),
 });
 
-export const UploadIpfsInputSchema = z.union([PollProposalSchema, z.never()]);
+export const UploadIpfsInputSchema = PollProposalSchema;
 
 export const PinataPinResponseSchema = z.object({
   IpfsHash: z.string(),

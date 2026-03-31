@@ -24,7 +24,6 @@ const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
     if (method === "POST") {
       const inputValidation = GenerateProofInputSchema.safeParse(_req.body);
 
-      // Explicit check required for TypeScript type narrowing
       if (!inputValidation.success) {
         return validateInput(
           inputValidation,
