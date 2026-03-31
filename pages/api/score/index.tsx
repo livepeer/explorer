@@ -1,5 +1,17 @@
 import { getCacheControlHeader } from "@lib/api";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+  validateInput,
+  validateOutput,
+} from "@lib/api/errors";
+import {
+  AllPerformanceMetricsSchema,
+  MetricsResponseSchema,
+  PipelineQuerySchema,
+  PriceResponseSchema,
+} from "@lib/api/schemas";
 import {
   AllPerformanceMetrics,
   RegionalValues,
@@ -19,7 +31,15 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { pipeline, model } = req.query;
+      const queryResult = PipelineQuerySchema.safeParse(req.query);
+      const inputValidationError = validateInput(
+        queryResult,
+        res,
+        "Invalid query parameters"
+      );
+      if (inputValidationError) return inputValidationError;
+
+      const { pipeline, model } = queryResult.data || {};
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
@@ -33,13 +53,52 @@ const handler = async (
             ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}`
             : ""
         }`
-      ).then((res) => res.json());
+      );
 
-      const metrics: MetricsResponse = await metricsResponse;
+      if (!metricsResponse.ok) {
+        const errorText = await metricsResponse.text();
+        console.error(
+          "Metrics fetch error:",
+          metricsResponse.status,
+          errorText
+        );
+        return externalApiError(res, "metrics server", "Fetch failed");
+      }
+
+      const metricsJson = await metricsResponse.json();
+
+      const metricsResult = MetricsResponseSchema.safeParse(metricsJson);
+      const metricsError = validateInput(
+        metricsResult,
+        res,
+        "Invalid response from metrics server"
+      );
+      if (metricsError) return metricsError;
+      const metrics: MetricsResponse = metricsResult.data as MetricsResponse;
+
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl
       );
-      const transcodersWithPrice: PriceResponse = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          "Pricing fetch error:",
+          response.status,
+          errorText,
+          `URL: ${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}`
+        );
+        return externalApiError(res, "pricing server", "Fetch failed");
+      }
+
+      const priceResult = PriceResponseSchema.safeParse(await response.json());
+      const priceError = validateInput(
+        priceResult,
+        res,
+        "Invalid response from pricing server"
+      );
+      if (priceError) return priceError;
+      const transcodersWithPrice: PriceResponse =
+        priceResult.data as unknown as PriceResponse;
 
       const allTranscoderIds = Object.keys(metrics);
       const uniqueRegions = (() => {
@@ -102,6 +161,13 @@ const handler = async (
         }),
         {}
       );
+
+      const outputValidationError = validateOutput(
+        AllPerformanceMetricsSchema.safeParse(combined),
+        res,
+        "api/score"
+      );
+      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(combined);
     }
