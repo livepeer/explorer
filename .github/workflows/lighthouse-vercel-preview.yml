@@ -70,7 +70,7 @@ jobs:
       - name: 📦 Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.15.9
+          version: 10.33.0
           run_install: false
 
       - name: 🔎 Run Lighthouse CI against Vercel Preview
