@@ -9,6 +9,7 @@ node_modules
 
 # misc
 .claude
+.pnpm-store
 .github
 .vscode
 @types

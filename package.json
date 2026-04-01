@@ -39,6 +39,7 @@
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.1",
     "eslint-config-prettier": "^10.1.8",
+    "prettier": "^2.8.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
