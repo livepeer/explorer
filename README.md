@@ -1,14 +1,14 @@
 # Livepeer Explorer
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)
-![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9.15.0-blue)
+![pnpm](https://img.shields.io/badge/pnpm-%3E%3D10.33.0-blue)
 
 ## Prerequisites
 
 Before getting started, ensure you have the following installed on your system:
 
 - [Node.js 22.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
-- [pnpm v9.15.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
+- [pnpm v10.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
 - [Docker](https://docs.docker.com/get-docker/) (optional) — required for the dev container
 
 > [!TIP]
@@ -27,21 +27,15 @@ This project includes a dev container to isolate your development environment fr
 
 The dev server runs on port 3000, which is forwarded to your host automatically.
 
-This project also enforces `frozen-lockfile` and `ignore-scripts` via `.npmrc` to block malicious install hooks. If you need to work around these:
+This project uses pnpm 10+ which [blocks dependency install scripts by default](https://pnpm.io/supply-chain-security), protecting against malicious `postinstall` hooks. CI enforces `--frozen-lockfile` to prevent lockfile tampering.
 
-**Adding a dependency:**
+**Allowing a package's build script** (e.g., native bindings):
 
-```bash
-pnpm add <package> --no-frozen-lockfile
-```
+Add the package to `allowBuilds` in `pnpm-workspace.yaml` ([docs](https://pnpm.io/settings#allowbuilds)):
 
-Then commit the updated `pnpm-lock.yaml`.
-
-**Approving a package's build script** (e.g., native bindings):
-
-```bash
-pnpm approve-builds
-pnpm rebuild
+```yaml
+allowBuilds:
+  <package>: true
 ```
 
 ## Getting Started

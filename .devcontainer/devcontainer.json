@@ -1,6 +1,6 @@
 {
   "name": "livepeer-explorer",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
   "remoteUser": "node",
   "containerUser": "node",
   "postCreateCommand": "sudo corepack enable && pnpm install",
