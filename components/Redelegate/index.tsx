@@ -1,6 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { Box, Button, Flex } from "@livepeer/design-system";
+import { Button, Flex, IconButton } from "@livepeer/design-system";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useDelegationReview } from "hooks/useDelegationReview";
@@ -49,14 +49,21 @@ const Index = ({
     >
       {delegationWarning && (
         <ExplorerTooltip content={delegationWarning} multiline>
-          <Box
+          <IconButton
+            type="button"
+            aria-label="View redelegation warning"
             css={{
               display: "inline-flex",
               color: "$yellow11",
+              cursor: "help",
+              opacity: 1,
+              "&:hover": {
+                bc: "$neutral4",
+              },
             }}
           >
             <ExclamationTriangleIcon width={18} height={18} />
-          </Box>
+          </IconButton>
         </ExplorerTooltip>
       )}
       <Button

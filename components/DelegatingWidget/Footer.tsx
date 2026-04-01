@@ -77,15 +77,18 @@ const Footer = ({
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
+  const delegationReviewAction = isTransferStake
+    ? "moveStake"
+    : action === "delegate"
+    ? "delegate"
+    : "undelegate";
+
   const { delegationWarning } = useDelegationReview({
     delegator,
     currentRound,
-    action: isTransferStake
-      ? "moveStake"
-      : action === "delegate"
-      ? "delegate"
-      : "undelegate",
-    targetOrchestrator: action === "delegate" ? transcoder : undefined,
+    action: delegationReviewAction,
+    targetOrchestrator:
+      delegationReviewAction === "undelegate" ? undefined : transcoder,
   });
   const stakeWei = useMemo(
     () =>

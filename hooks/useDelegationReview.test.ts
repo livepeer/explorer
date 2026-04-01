@@ -34,4 +34,19 @@ describe("getDelegationWarning", () => {
 
     expect(warning).toBeNull();
   });
+
+  it("treats a missing lastRewardRound as not yet rewarded", () => {
+    const warning = getDelegationWarning({
+      delegator: {
+        bondedAmount: "1",
+        delegate: {},
+      } as never,
+      currentRound: { id: "101" } as never,
+      action: "withdrawFees",
+    });
+
+    expect(warning).toBe(
+      "Performing this action before your orchestrator calls reward will forfeit rewards and fees for the current round."
+    );
+  });
 });

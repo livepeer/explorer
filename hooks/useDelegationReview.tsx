@@ -53,7 +53,7 @@ export const getDelegationWarning = ({
   // this round and the action can still affect stake that was delegated to it.
   const orchestratorHasntCalledReward =
     hasStakeAtRisk &&
-    Boolean(orchestratorLastRewardRoundId) &&
+    Boolean(orchestratorToCheck) &&
     orchestratorLastRewardRound < currentRoundNum;
 
   if (!orchestratorHasntCalledReward) {
