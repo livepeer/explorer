@@ -16,27 +16,10 @@ Before getting started, ensure you have the following installed on your system:
 
 ## Dev Container (Recommended)
 
-This project includes a dev container to isolate your development environment from your host machine, protecting against supply chain attacks by not exposing global credentials (`~/.ssh`, `~/.aws`, `~/.config`) to compromised packages.
-
-### Setup
+Develop inside a pre-configured container — consistent tooling, zero local setup, and isolation from your host machine.
 
 1. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VS Code
-2. Open this project in VS Code
-3. Press `Ctrl+Shift+P` → **"Dev Containers: Reopen in Container"**
-4. The container will automatically install dependencies via `pnpm install`
-
-The dev server runs on port 3000, which is forwarded to your host automatically.
-
-This project uses pnpm 10+ which [blocks dependency install scripts by default](https://pnpm.io/supply-chain-security), protecting against malicious `postinstall` hooks. CI enforces `--frozen-lockfile` to prevent lockfile tampering.
-
-**Allowing a package's build script** (e.g., native bindings):
-
-Add the package to `allowBuilds` in `pnpm-workspace.yaml` ([docs](https://pnpm.io/settings#allowbuilds)):
-
-```yaml
-allowBuilds:
-  <package>: true
-```
+2. `Ctrl+Shift+P` → **"Dev Containers: Reopen in Container"**
 
 ## Getting Started
 
