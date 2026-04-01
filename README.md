@@ -9,9 +9,40 @@ Before getting started, ensure you have the following installed on your system:
 
 - [Node.js 22.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
 - [pnpm v9.15.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
+- [Docker](https://docs.docker.com/get-docker/) (optional) — required for the dev container
 
 > [!TIP]
 > Use `nvm install` or `asdf install` to automatically switch to the correct versions.
+
+## Dev Container (Recommended)
+
+This project includes a dev container to isolate your development environment from your host machine, protecting against supply chain attacks by not exposing global credentials (`~/.ssh`, `~/.aws`, `~/.config`) to compromised packages.
+
+### Setup
+
+1. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VS Code
+2. Open this project in VS Code
+3. Press `Ctrl+Shift+P` → **"Dev Containers: Reopen in Container"**
+4. The container will automatically install dependencies via `pnpm install`
+
+The dev server runs on port 3000, which is forwarded to your host automatically.
+
+This project also enforces `frozen-lockfile` and `ignore-scripts` via `.npmrc` to block malicious install hooks. If you need to work around these:
+
+**Adding a dependency:**
+
+```bash
+pnpm add <package> --no-frozen-lockfile
+```
+
+Then commit the updated `pnpm-lock.yaml`.
+
+**Approving a package's build script** (e.g., native bindings):
+
+```bash
+pnpm approve-builds
+pnpm rebuild
+```
 
 ## Getting Started
 
