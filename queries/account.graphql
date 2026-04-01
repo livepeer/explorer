@@ -16,6 +16,9 @@ query account($account: ID!) {
       withdrawRound
       delegate {
         id
+        lastRewardRound {
+          id
+        }
       }
     }
     delegate {
@@ -23,6 +26,9 @@ query account($account: ID!) {
       active
       status
       totalStake
+      lastRewardRound {
+        id
+      }
     }
   }
   transcoder(id: $account) {
