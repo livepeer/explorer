@@ -4,16 +4,19 @@ export const fetcher = <T>(url: string): Promise<T> => {
 
   return fetch(`/api${url}`, { signal: controller.signal })
     .then(async (res) => {
-      clearTimeout(timeoutId);
       if (!res.ok) {
         const apiError = await res.json().catch(() => null);
+        clearTimeout(timeoutId);
         if (apiError?.code) {
           const errorMessage = apiError.error ?? "An unknown error occurred";
           throw new Error(`${apiError.code}: ${errorMessage}`);
         }
-        throw new Error(`HTTP ${res.status}`);
+        const statusText = res.statusText ? ` ${res.statusText}` : "";
+        throw new Error(`HTTP ${res.status}${statusText}`);
       }
-      return res.json() as Promise<T>;
+      const data = (await res.json()) as T;
+      clearTimeout(timeoutId);
+      return data;
     })
     .catch((err) => {
       clearTimeout(timeoutId);
