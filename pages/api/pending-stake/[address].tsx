@@ -1,11 +1,16 @@
 import { getCacheControlHeader, getCurrentRound } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { getBondingManagerAddress } from "@lib/api/contracts";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+  validateOutput,
+} from "@lib/api/errors";
+import { AddressSchema, PendingFeesAndStakeSchema } from "@lib/api/schemas";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isAddress } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -19,46 +24,62 @@ const handler = async (
 
       const { address } = req.query;
 
-      if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const bondingManagerAddress = await getBondingManagerAddress();
+      // AddressSchema handles undefined, arrays, and validates format
+      const addressResult = AddressSchema.safeParse(address);
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
 
-        const {
-          data: { protocol },
-        } = await getCurrentRound();
-        const currentRoundString = protocol?.currentRound?.id;
+      const validatedAddress = addressResult.data;
 
-        if (!currentRoundString) {
-          throw new Error("No current round found");
-        }
-        const currentRound = BigInt(currentRoundString);
+      const bondingManagerAddress = await getBondingManagerAddress();
 
-        const [pendingStake, pendingFees] = await l2PublicClient.multicall({
-          allowFailure: false,
-          contracts: [
-            {
-              address: bondingManagerAddress,
-              abi: bondingManager,
-              functionName: "pendingStake",
-              args: [address as `0x${string}`, currentRound],
-            },
-            {
-              address: bondingManagerAddress,
-              abi: bondingManager,
-              functionName: "pendingFees",
-              args: [address as `0x${string}`, currentRound],
-            },
-          ],
-        });
+      const {
+        data: { protocol },
+      } = await getCurrentRound();
+      const currentRoundString = protocol?.currentRound?.id;
 
-        const roundInfo: PendingFeesAndStake = {
-          pendingStake: pendingStake.toString(),
-          pendingFees: pendingFees.toString(),
-        };
-
-        return res.status(200).json(roundInfo);
-      } else {
-        return badRequest(res, "Invalid address format");
+      if (!currentRoundString) {
+        throw new Error("No current round found");
       }
+      const currentRound = BigInt(currentRoundString);
+
+      const [pendingStake, pendingFees] = await l2PublicClient.multicall({
+        allowFailure: false,
+        contracts: [
+          {
+            address: bondingManagerAddress,
+            abi: bondingManager,
+            functionName: "pendingStake",
+            args: [validatedAddress as `0x${string}`, currentRound],
+          },
+          {
+            address: bondingManagerAddress,
+            abi: bondingManager,
+            functionName: "pendingFees",
+            args: [validatedAddress as `0x${string}`, currentRound],
+          },
+        ],
+      });
+
+      const roundInfo: PendingFeesAndStake = {
+        pendingStake: pendingStake.toString(),
+        pendingFees: pendingFees.toString(),
+      };
+
+      // Validate output: pending fees and stake response
+      const outputResult = PendingFeesAndStakeSchema.safeParse(roundInfo);
+      const outputValidationError = validateOutput(
+        outputResult,
+        res,
+        "api/pending-stake"
+      );
+      if (outputValidationError) return outputValidationError;
+
+      return res.status(200).json(roundInfo);
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);
