@@ -1,0 +1,16 @@
+query transcoderActivationHistory($delegate: String!) {
+  transcoderActivatedEvents(
+    where: { delegate: $delegate }
+    orderBy: activationRound
+    orderDirection: asc
+  ) {
+    activationRound
+  }
+  transcoderDeactivatedEvents(
+    where: { delegate: $delegate }
+    orderBy: deactivationRound
+    orderDirection: asc
+  ) {
+    deactivationRound
+  }
+}
