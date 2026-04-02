@@ -11,7 +11,7 @@ import {
   ROIInflationChange,
   ROITimeHorizon,
 } from "@lib/roi";
-import { formatAddress, textTruncate } from "@lib/utils";
+import { textTruncate } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -35,11 +35,21 @@ import {
   DotsHorizontalIcon,
   Pencil1Icon,
 } from "@radix-ui/react-icons";
+import {
+  formatETH,
+  formatLPT,
+  formatNumber,
+  formatPercent,
+} from "@utils/numberFormatters";
+import {
+  formatAddress,
+  PERCENTAGE_PRECISION_BILLION,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
 import { useEnsData } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
-import numbro from "numbro";
 import { useCallback, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
@@ -79,25 +89,23 @@ const OrchestratorList = ({
     | NonNullable<OrchestratorsQueryResult["data"]>["transcoders"]
     | undefined;
 }) => {
+  // Derive protocol inflation data
+  const inflationRate =
+    Number(protocolData?.inflation || 0) / PERCENTAGE_PRECISION_BILLION;
+  const inflationChangeAmount =
+    Number(protocolData?.inflationChange || 0) / PERCENTAGE_PRECISION_BILLION;
+
   const formatPercentChange = useCallback(
     (change: ROIInflationChange) =>
       change === "none"
-        ? `Fixed at ${numbro(
-            Number(protocolData?.inflation) / 1000000000
-          ).format({
-            mantissa: 3,
-            output: "percent",
-          })}`
-        : `${numbro(
-            (change === "negative" ? -1 : 1) *
-              (Number(protocolData?.inflationChange) / 1000000000)
-          ).format({
-            mantissa: 5,
-            output: "percent",
-            forceSign: true,
-          })} per round`,
-
-    [protocolData?.inflation, protocolData?.inflationChange]
+        ? `Fixed at ${formatPercent(inflationRate, { precision: 3 })}`
+        : `${change === "negative" ? "-" : "+"}${formatPercent(
+            inflationChangeAmount,
+            {
+              precision: 5,
+            }
+          )} per round`,
+    [inflationRate, inflationChangeAmount]
   );
 
   const [principle, setPrinciple] = useState<number>(150);
@@ -109,11 +117,10 @@ const OrchestratorList = ({
     () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
     [protocolData]
   );
-  const formattedPrinciple = useMemo(
-    () =>
-      numbro(Number(principle) || 150).format({ mantissa: 0, average: true }),
-    [principle]
-  );
+
+  const formattedPrinciple = formatLPT(Number(principle) || 150, {
+    precision: 0,
+  });
   const { data: bondingManagerAddress } = useBondingManagerAddress();
   const { data: treasuryRewardCutRate = BigInt(0.0) } = useReadContract({
     query: { enabled: Boolean(bondingManagerAddress) },
@@ -155,39 +162,40 @@ const OrchestratorList = ({
           },
           feeParams: {
             ninetyDayVolumeETH: Number(row.ninetyDayVolumeETH),
-            feeShare: Number(row.feeShare) / 1000000,
+            feeShare: Number(row.feeShare) / PERCENTAGE_PRECISION_MILLION,
             lptPriceEth: Number(protocolData?.lptPriceEth),
           },
           rewardParams: {
-            inflation: Number(protocolData?.inflation) / 1000000000,
+            inflation:
+              Number(protocolData?.inflation) / PERCENTAGE_PRECISION_BILLION,
             inflationChangePerRound:
-              Number(protocolData?.inflationChange) / 1000000000,
+              Number(protocolData?.inflationChange) /
+              PERCENTAGE_PRECISION_BILLION,
             totalSupply: Number(protocolData?.totalSupply),
             totalActiveStake: Number(protocolData?.totalActiveStake),
             roundLength: Number(protocolData?.roundLength),
 
             rewardCallRatio,
-            rewardCut: Number(row.rewardCut) / 1000000,
+            rewardCut: Number(row.rewardCut) / PERCENTAGE_PRECISION_MILLION,
             treasuryRewardCut: treasuryCutDecimal,
           },
         });
 
         // Pre-compute formatted values to avoid useMemo in Cell render functions
-        const formattedFeeCut = numbro(
-          1 - Number(row.feeShare) / 1000000
-        ).format({ mantissa: 0, output: "percent" });
-        const formattedRewardCut = numbro(
-          Number(row.rewardCut) / 1000000
-        ).format({ mantissa: 0, output: "percent" });
-        const formattedRewardCalls =
-          pools.length > 0
-            ? `${numbro(rewardCalls)
-                .divide(pools.length)
-                .format({ mantissa: 0, output: "percent" })}`
-            : "0%";
-        const formattedTreasuryCut = numbro(treasuryCutDecimal).format({
-          mantissa: 0,
-          output: "percent",
+        const formattedFeeCut = formatPercent(
+          1 - Number(row.feeShare) / PERCENTAGE_PRECISION_MILLION,
+          { precision: 0 }
+        );
+        const formattedRewardCut = formatPercent(
+          Number(row.rewardCut) / PERCENTAGE_PRECISION_MILLION,
+          { precision: 0 }
+        );
+        const formattedRewardCalls = `${formatPercent(
+          pools.length ? rewardCalls / pools.length : 0,
+          { precision: 0 }
+        )}`;
+        const formattedTreasuryCut = formatPercent(treasuryCutDecimal, {
+          precision: 0,
         });
 
         return {
@@ -350,7 +358,7 @@ const OrchestratorList = ({
               content={
                 <Box>
                   The estimate of earnings over {formatTimeHorizon(timeHorizon)}{" "}
-                  if you were to delegate {formattedPrinciple} LPT to this
+                  if you were to delegate {formattedPrinciple} to this
                   orchestrator. This is based on recent performance data and may
                   differ from actual yield.
                 </Box>
@@ -388,10 +396,11 @@ const OrchestratorList = ({
                   ) : (
                     <>
                       <Box>
-                        {numbro(
+                        {formatPercent(
                           row.values.earnings.roi.delegatorPercent.fees +
-                            row.values.earnings.roi.delegatorPercent.rewards
-                        ).format({ mantissa: 1, output: "percent" })}
+                            row.values.earnings.roi.delegatorPercent.rewards,
+                          { precision: 1 }
+                        )}
                       </Box>
                       <Box css={{ marginLeft: "$1" }}>
                         <ChevronDownIcon />
@@ -434,9 +443,10 @@ const OrchestratorList = ({
                             size="2"
                           >
                             Rewards (
-                            {numbro(
-                              row.values.earnings.roi.delegatorPercent.rewards
-                            ).format({ mantissa: 1, output: "percent" })}
+                            {formatPercent(
+                              row.values.earnings.roi.delegatorPercent.rewards,
+                              { precision: 1 }
+                            )}
                             ):
                           </Text>
                           <Text
@@ -449,10 +459,10 @@ const OrchestratorList = ({
                             }}
                             size="2"
                           >
-                            {numbro(
-                              row.values.earnings.roi.delegator.rewards
-                            ).format({ mantissa: 1 })}
-                            {" LPT"}
+                            {formatLPT(
+                              row.values.earnings.roi.delegator.rewards,
+                              { precision: 1, abbreviate: false }
+                            )}
                           </Text>
                         </Flex>
                       )}
@@ -466,9 +476,10 @@ const OrchestratorList = ({
                             size="2"
                           >
                             Fees (
-                            {numbro(
-                              row.values.earnings.roi.delegatorPercent.fees
-                            ).format({ mantissa: 1, output: "percent" })}
+                            {formatPercent(
+                              row.values.earnings.roi.delegatorPercent.fees,
+                              { precision: 1 }
+                            )}
                             ):
                           </Text>
                           <Text
@@ -481,10 +492,9 @@ const OrchestratorList = ({
                             }}
                             size="2"
                           >
-                            {numbro(
-                              row.values.earnings.roi.delegator.fees
-                            ).format({ mantissa: 3 })}
-                            {" ETH"}
+                            {formatETH(row.values.earnings.roi.delegator.fees, {
+                              precision: 3,
+                            })}
                           </Text>
                         </Flex>
                       )}
@@ -622,10 +632,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(
-                            row.values.earnings.ninetyDayVolumeETH
-                          ).format({ mantissa: 3, average: true })}
-                          {" ETH"}
+                          {formatETH(row.values.earnings.ninetyDayVolumeETH, {
+                            precision: 3,
+                          })}
                         </Text>
                       </Flex>
                       <Flex>
@@ -648,11 +657,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalStake).format({
-                            mantissa: 1,
-                            average: true,
+                          {formatLPT(row.values.earnings.totalStake, {
+                            precision: 1,
                           })}
-                          {" LPT"}
                         </Text>
                       </Flex>
                       <Flex>
@@ -676,7 +683,12 @@ const OrchestratorList = ({
                           size="2"
                         >
                           {row?.original?.daysSinceChangeParams != null
-                            ? `${row.original.daysSinceChangeParams} days ago`
+                            ? `${formatNumber(
+                                row?.original?.daysSinceChangeParams,
+                                {
+                                  precision: 0,
+                                }
+                              )} days ago`
                             : "Never"}
                         </Text>
                       </Flex>
@@ -763,8 +775,8 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(AVERAGE_L1_BLOCK_TIME).format({
-                            mantissa: 0,
+                          {formatNumber(AVERAGE_L1_BLOCK_TIME, {
+                            precision: 0,
                           })}
                           {" seconds"}
                         </Text>
@@ -789,9 +801,10 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(
-                            row.values.earnings.roi.params.roundsCount
-                          ).format({ mantissa: 0 })}
+                          {formatNumber(
+                            row.values.earnings.roi.params.roundsCount,
+                            { precision: 0 }
+                          )}
                           {" rounds"}
                         </Text>
                       </Flex>
@@ -815,11 +828,9 @@ const OrchestratorList = ({
                           }}
                           size="2"
                         >
-                          {numbro(row.values.earnings.totalActiveStake).format({
-                            mantissa: 1,
-                            average: true,
+                          {formatLPT(row.values.earnings.totalActiveStake, {
+                            precision: 1,
                           })}
-                          {" LPT"}
                         </Text>
                       </Flex>
                     </Box>
@@ -866,11 +877,10 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.totalStake).format({
-                mantissa: 0,
-                thousandSeparated: true,
-              })}{" "}
-              LPT
+              {formatLPT(row.values.totalStake, {
+                precision: 0,
+                abbreviate: false,
+              })}
             </Text>
           </Box>
         ),
@@ -900,11 +910,7 @@ const OrchestratorList = ({
               }}
               size="2"
             >
-              {numbro(row.values.ninetyDayVolumeETH).format({
-                mantissa: 2,
-                average: true,
-              })}{" "}
-              ETH
+              {formatETH(row.values.ninetyDayVolumeETH, { precision: 2 })}
             </Text>
           </Box>
         ),
@@ -1178,8 +1184,7 @@ const OrchestratorList = ({
                         fontWeight: 600,
                       }}
                     >
-                      {numbro(principle).format({ mantissa: 1, average: true })}
-                      {" LPT"}
+                      {formatLPT(principle, { precision: 1 })}
                     </Text>
                   </Badge>
                 </PopoverTrigger>
