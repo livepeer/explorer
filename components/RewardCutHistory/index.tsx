@@ -131,12 +131,26 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
   });
 
   const chartData = useMemo<ChartDatum[]>(() => {
-    if (!data?.transcoderUpdateEvents) return [];
-    return data.transcoderUpdateEvents.map((event) => ({
+    if (!data?.transcoderUpdateEvents?.length) return [];
+    const events = data.transcoderUpdateEvents.map((event) => ({
       timestamp: event.timestamp,
       rewardCut: (Number(event.rewardCut) / 1000000) * 100, // 1000000 = 100%
       feeCut: (1 - Number(event.feeShare) / 1000000) * 100, // feeShare is inverse of feeCut
     }));
+
+    // Add a "now" anchor point with the most recent values so the chart
+    // extends to the present day instead of ending at the last change
+    const last = events[events.length - 1];
+    const now = Math.floor(Date.now() / 1000);
+    if (now - last.timestamp > 86400) {
+      events.push({
+        timestamp: now,
+        rewardCut: last.rewardCut,
+        feeCut: last.feeCut,
+      });
+    }
+
+    return events;
   }, [data]);
 
   const warning = useMemo(() => {
