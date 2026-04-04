@@ -4,7 +4,6 @@ import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useRewardCutHistory } from "hooks/useRewardCutHistory";
 import { useEffect, useMemo, useState } from "react";
-import { FiAlertTriangle } from "react-icons/fi";
 import {
   Line,
   LineChart,
@@ -97,7 +96,7 @@ interface Props {
 }
 
 const RewardCutHistory = ({ transcoderId }: Props) => {
-  const { chartData, loading, warning } = useRewardCutHistory(transcoderId);
+  const { chartData, loading } = useRewardCutHistory(transcoderId);
 
   const defaultValues = useMemo(() => {
     if (!chartData.length) return { rewardCut: "N/A", feeCut: "N/A" };
@@ -130,43 +129,6 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
 
   return (
     <Box>
-      {/* Warning Banner - above the chart grid */}
-      {warning && (
-        <Flex
-          role="alert"
-          css={{
-            alignItems: "center",
-            backgroundColor: "$amber3",
-            border: "1px solid $amber6",
-            borderRadius: 10,
-            padding: "$3",
-            marginBottom: "$3",
-            gap: "$2",
-          }}
-        >
-          <Box
-            as={FiAlertTriangle}
-            aria-hidden="true"
-            css={{
-              color: "$amber11",
-              flexShrink: 0,
-              width: 16,
-              height: 16,
-            }}
-          />
-          <Text
-            css={{
-              fontSize: "$2",
-              color: "$amber11",
-              fontWeight: 400,
-              lineHeight: 1.4,
-            }}
-          >
-            {warning.message}
-          </Text>
-        </Flex>
-      )}
-
       {/* Chart grid - matches homepage layout */}
       <Flex
         css={{

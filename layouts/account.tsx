@@ -14,6 +14,7 @@ import {
   Container,
   Flex,
   Link as A,
+  Text,
 } from "@livepeer/design-system";
 import {
   AccountQueryResult,
@@ -21,10 +22,12 @@ import {
   useAccountQuery,
 } from "apollo";
 import { useBondingManagerAddress } from "hooks/useContracts";
+import { useRewardCutHistory } from "hooks/useRewardCutHistory";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
+import { FiAlertTriangle } from "react-icons/fi";
 import { useWindowSize } from "react-use";
 import { useReadContract } from "wagmi";
 
@@ -182,6 +185,10 @@ const AccountLayout = ({
     ]
   );
 
+  const { warning } = useRewardCutHistory(
+    isOrchestrator ? accountId : undefined
+  );
+
   useEffect(() => {
     setSelectedStakingAction("delegate");
   }, [setSelectedStakingAction]);
@@ -208,6 +215,42 @@ const AccountLayout = ({
             isMyAccount={isMyAccount}
             identity={identity}
           />
+          {isOrchestrator && warning && (
+            <Flex
+              role="alert"
+              css={{
+                alignItems: "center",
+                backgroundColor: "$amber3",
+                border: "1px solid $amber6",
+                borderRadius: 10,
+                padding: "$3",
+                marginTop: "$4",
+                marginBottom: "$3",
+                gap: "$2",
+              }}
+            >
+              <Box
+                as={FiAlertTriangle}
+                aria-hidden="true"
+                css={{
+                  color: "$amber11",
+                  flexShrink: 0,
+                  width: 16,
+                  height: 16,
+                }}
+              />
+              <Text
+                css={{
+                  fontSize: "$2",
+                  color: "$amber11",
+                  fontWeight: 400,
+                  lineHeight: 1.4,
+                }}
+              >
+                {warning.message}
+              </Text>
+            </Flex>
+          )}
           <Flex
             css={{
               display: "flex",
