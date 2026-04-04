@@ -165,6 +165,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         },
       }}
     >
+      <RewardCutHistory transcoderId={transcoder?.id} />
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="masonry-grid"
@@ -436,7 +437,6 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           />
         </A>
       </Masonry>
-      <RewardCutHistory transcoderId={transcoder?.id} />
     </Box>
   );
 };

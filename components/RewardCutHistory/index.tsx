@@ -1,6 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import dayjs from "@lib/dayjs";
-import { Box, Card, Flex, Skeleton, Text } from "@livepeer/design-system";
+import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
 import {
   ExclamationTriangleIcon,
   QuestionMarkCircledIcon,
@@ -113,6 +113,25 @@ const CustomYAxisTick = ({ x, y, payload }) => (
   </g>
 );
 
+export const Panel = ({ children }) => (
+  <Flex
+    css={{
+      minHeight: 240,
+      height: 240,
+      padding: "24px",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "0.5px solid $colors$neutral4",
+      flex: 1,
+      width: "100%",
+      minWidth: 350,
+    }}
+  >
+    {children}
+  </Flex>
+);
+
 interface Props {
   transcoderId?: string;
 }
@@ -189,8 +208,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
   } | null>(null);
 
   const currentValues = useMemo(() => {
-    if (!chartData.length)
-      return { rewardCut: "N/A", feeCut: "N/A" };
+    if (!chartData.length) return { rewardCut: "N/A", feeCut: "N/A" };
     const last = chartData[chartData.length - 1];
     return {
       rewardCut: `${last.rewardCut.toFixed(1)}%`,
@@ -201,84 +219,8 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
   if (!transcoderId) return null;
 
   return (
-    <Card
-      variant="active"
-      css={{
-        padding: "$3",
-        boxShadow: "$colors$neutral5 0px 0px 0px 1px inset",
-        marginTop: "$3",
-      }}
-    >
-      {/* Header */}
-      <Flex
-        css={{
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: "$2",
-        }}
-      >
-        <Box>
-          <Flex css={{ alignItems: "center" }}>
-            <Text
-              css={{
-                fontSize: "$2",
-                color: "$neutral9",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
-            >
-              Reward & Fee Cut History
-            </Text>
-            <ExplorerTooltip
-              multiline
-              content="Historical changes to the orchestrator's reward cut and fee cut over time. Large sudden changes may indicate malicious behavior."
-            >
-              <Flex css={{ marginLeft: "$1" }}>
-                <Box
-                  as={QuestionMarkCircledIcon}
-                  css={{ color: "$neutral11" }}
-                />
-              </Flex>
-            </ExplorerTooltip>
-          </Flex>
-          <Flex css={{ gap: "$3", marginTop: "$1" }}>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
-              <Box
-                css={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "#ff6b6b",
-                }}
-              />
-              <Text css={{ fontSize: "$2", color: "$hiContrast", fontWeight: 600 }}>
-                Reward Cut:{" "}
-                {hovered ? hovered.rewardCut : currentValues.rewardCut}
-              </Text>
-            </Flex>
-            <Flex css={{ alignItems: "center", gap: "$1" }}>
-              <Box
-                css={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "#4ecdc4",
-                }}
-              />
-              <Text css={{ fontSize: "$2", color: "$hiContrast", fontWeight: 600 }}>
-                Fee Cut: {hovered ? hovered.feeCut : currentValues.feeCut}
-              </Text>
-            </Flex>
-          </Flex>
-          {hovered?.date && (
-            <Text css={{ fontSize: "$1", color: "$neutral11", marginTop: "$1" }}>
-              {hovered.date}
-            </Text>
-          )}
-        </Box>
-      </Flex>
-
-      {/* Warning Banner */}
+    <Box>
+      {/* Warning Banner - above the chart grid */}
       {warning && (
         <Flex
           css={{
@@ -286,7 +228,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
             border: "1px solid rgba(255, 107, 107, 0.3)",
             borderRadius: "$2",
             padding: "$2",
-            marginBottom: "$2",
+            marginBottom: "$3",
             alignItems: "flex-start",
             gap: "$2",
           }}
@@ -307,61 +249,175 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
         </Flex>
       )}
 
-      {/* Chart */}
-      <Box css={{ width: "100%", height: 200 }}>
-        {loading || chartData.length === 0 ? (
-          <Skeleton css={{ width: "100%", height: "100%", borderRadius: 8 }} />
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={chartData}
-              onMouseMove={(e) => {
-                if (e?.activePayload?.[0]) {
-                  const d = e.activePayload[0].payload as ChartDatum;
-                  setHovered({
-                    rewardCut: `${d.rewardCut.toFixed(1)}%`,
-                    feeCut: `${d.feeCut.toFixed(1)}%`,
-                    date: dayjs.unix(d.timestamp).format("MMM D, YYYY"),
-                  });
-                }
+      {/* Chart grid - matches homepage Panel pattern */}
+      <Flex
+        css={{
+          backgroundColor: "$panel",
+          borderRadius: "$4",
+          border: "1px solid $colors$neutral4",
+          overflow: "hidden",
+          marginBottom: "$4",
+        }}
+      >
+        <Box
+          css={{
+            width: "100%",
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            "@bp2": {
+              gridTemplateColumns: "1fr",
+            },
+          }}
+        >
+          <Panel>
+            <Box
+              css={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
               }}
-              onMouseLeave={() => setHovered(null)}
             >
-              <XAxis
-                dataKey="timestamp"
-                tick={CustomXAxisTick}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                width={35}
-                orientation="right"
-                tick={CustomYAxisTick}
-                domain={[0, 100]}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line
-                dataKey="rewardCut"
-                name="Reward Cut"
-                type="stepAfter"
-                dot={{ r: 2, strokeWidth: 0, fill: "#ff6b6b" }}
-                activeDot={{ r: 4, strokeWidth: 0 }}
-                stroke="#ff6b6b"
-                strokeWidth={2}
-              />
-              <Line
-                dataKey="feeCut"
-                name="Fee Cut"
-                type="stepAfter"
-                dot={{ r: 2, strokeWidth: 0, fill: "#4ecdc4" }}
-                activeDot={{ r: 4, strokeWidth: 0 }}
-                stroke="#4ecdc4"
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </Box>
-    </Card>
+              {/* Header overlay */}
+              <Box css={{ position: "absolute", zIndex: 3 }}>
+                <ExplorerTooltip
+                  multiline
+                  side="bottom"
+                  content="Historical changes to the orchestrator's reward cut and fee cut over time. Large sudden changes may indicate malicious behavior."
+                >
+                  <Flex css={{ alignItems: "center" }}>
+                    <Text
+                      css={{
+                        fontWeight: 600,
+                        fontSize: "$2",
+                        color: "white",
+                      }}
+                    >
+                      Reward & Fee Cut History
+                    </Text>
+                    <Box css={{ marginLeft: "$1" }}>
+                      <Box
+                        as={QuestionMarkCircledIcon}
+                        css={{ color: "$neutral11" }}
+                      />
+                    </Box>
+                  </Flex>
+                </ExplorerTooltip>
+                <Flex css={{ gap: "$3", marginTop: "$1" }}>
+                  <Flex css={{ alignItems: "center", gap: "$1" }}>
+                    <Box
+                      css={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: "#ff6b6b",
+                      }}
+                    />
+                    <Text
+                      css={{
+                        fontWeight: 600,
+                        fontSize: "$3",
+                        color: "white",
+                      }}
+                    >
+                      {hovered ? hovered.rewardCut : currentValues.rewardCut}
+                    </Text>
+                  </Flex>
+                  <Flex css={{ alignItems: "center", gap: "$1" }}>
+                    <Box
+                      css={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: "#4ecdc4",
+                      }}
+                    />
+                    <Text
+                      css={{
+                        fontWeight: 600,
+                        fontSize: "$3",
+                        color: "white",
+                      }}
+                    >
+                      {hovered ? hovered.feeCut : currentValues.feeCut}
+                    </Text>
+                  </Flex>
+                </Flex>
+                {hovered?.date && (
+                  <Text
+                    css={{
+                      fontWeight: 600,
+                      fontSize: "$2",
+                      color: "white",
+                    }}
+                  >
+                    {hovered.date}
+                  </Text>
+                )}
+              </Box>
+
+              {/* Chart area */}
+              <Box css={{ paddingTop: 57, width: "100%", height: "100%" }}>
+                {loading || chartData.length === 0 ? (
+                  <Skeleton
+                    css={{ width: "100%", height: "100%", borderRadius: 8 }}
+                  />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={chartData}
+                      onMouseMove={(e) => {
+                        if (e?.activePayload?.[0]) {
+                          const d = e.activePayload[0].payload as ChartDatum;
+                          setHovered({
+                            rewardCut: `${d.rewardCut.toFixed(1)}%`,
+                            feeCut: `${d.feeCut.toFixed(1)}%`,
+                            date: dayjs
+                              .unix(d.timestamp)
+                              .format("MMM D, YYYY"),
+                          });
+                        }
+                      }}
+                      onMouseLeave={() => setHovered(null)}
+                    >
+                      <XAxis
+                        dataKey="timestamp"
+                        tick={CustomXAxisTick}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis
+                        width={35}
+                        orientation="right"
+                        tick={CustomYAxisTick}
+                        domain={[0, 100]}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Line
+                        dataKey="rewardCut"
+                        name="Reward Cut"
+                        type="stepAfter"
+                        dot={{ r: 2, strokeWidth: 0, fill: "#ff6b6b" }}
+                        activeDot={{ r: 4, strokeWidth: 0 }}
+                        stroke="#ff6b6b"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        dataKey="feeCut"
+                        name="Fee Cut"
+                        type="stepAfter"
+                        dot={{ r: 2, strokeWidth: 0, fill: "#4ecdc4" }}
+                        activeDot={{ r: 4, strokeWidth: 0 }}
+                        stroke="#4ecdc4"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </Box>
+            </Box>
+          </Panel>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 
