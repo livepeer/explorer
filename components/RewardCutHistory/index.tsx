@@ -2,13 +2,9 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
-import { FiAlertTriangle } from "react-icons/fi";
-import {
-  OrderDirection,
-  TranscoderUpdateEvent_OrderBy,
-  useTranscoderUpdateEventsQuery,
-} from "apollo";
+import { useRewardCutHistory } from "hooks/useRewardCutHistory";
 import { useEffect, useMemo, useState } from "react";
+import { FiAlertTriangle } from "react-icons/fi";
 import {
   Line,
   LineChart,
@@ -17,15 +13,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
-const MALICIOUS_THRESHOLD = 50;
-const MIN_CHANGES_FOR_WARNING = 2;
-
-type ChartDatum = {
-  timestamp: number;
-  rewardCut: number;
-  feeCut: number;
-};
 
 // Matches ExplorerChart's hidden tooltip pattern to avoid console errors
 const CustomContentOfTooltip = ({
@@ -107,71 +94,10 @@ interface Props {
 }
 
 const RewardCutHistory = ({ transcoderId }: Props) => {
-  const { data, loading } = useTranscoderUpdateEventsQuery({
-    variables: {
-      where: {
-        delegate: transcoderId,
-      },
-      first: 1000,
-      orderBy: TranscoderUpdateEvent_OrderBy.Timestamp,
-      orderDirection: OrderDirection.Asc,
-    },
-    skip: !transcoderId,
-  });
-
-  const chartData = useMemo<ChartDatum[]>(() => {
-    if (!data?.transcoderUpdateEvents?.length) return [];
-    const events = data.transcoderUpdateEvents.map((event) => ({
-      timestamp: event.timestamp,
-      rewardCut: (Number(event.rewardCut) / 1000000) * 100,
-      feeCut: (1 - Number(event.feeShare) / 1000000) * 100,
-    }));
-
-    // Add a "now" anchor point with the most recent values so the chart
-    // extends to the present day instead of ending at the last change
-    const last = events[events.length - 1];
-    const now = Math.floor(Date.now() / 1000);
-    if (now - last.timestamp > 86400) {
-      events.push({
-        timestamp: now,
-        rewardCut: last.rewardCut,
-        feeCut: last.feeCut,
-      });
-    }
-
-    return events;
-  }, [data]);
-
-  const warning = useMemo(() => {
-    if (chartData.length < MIN_CHANGES_FOR_WARNING) return null;
-
-    let maxRewardCutSwing = 0;
-    let maxFeeCutSwing = 0;
-
-    for (let i = 1; i < chartData.length; i++) {
-      const rewardSwing = Math.abs(
-        chartData[i].rewardCut - chartData[i - 1].rewardCut
-      );
-      const feeSwing = Math.abs(
-        chartData[i].feeCut - chartData[i - 1].feeCut
-      );
-      maxRewardCutSwing = Math.max(maxRewardCutSwing, rewardSwing);
-      maxFeeCutSwing = Math.max(maxFeeCutSwing, feeSwing);
-    }
-
-    if (
-      maxRewardCutSwing >= MALICIOUS_THRESHOLD ||
-      maxFeeCutSwing >= MALICIOUS_THRESHOLD
-    ) {
-      return "This orchestrator has a history of making large changes to their cut percentages. This may indicate a bait-and-switch strategy. Review the chart below before delegating.";
-    }
-
-    return null;
-  }, [chartData]);
+  const { chartData, loading, warning } = useRewardCutHistory(transcoderId);
 
   const defaultValues = useMemo(() => {
-    if (!chartData.length)
-      return { rewardCut: "N/A", feeCut: "N/A" };
+    if (!chartData.length) return { rewardCut: "N/A", feeCut: "N/A" };
     const last = chartData[chartData.length - 1];
     return {
       rewardCut: `${last.rewardCut.toFixed(1)}%`,
@@ -233,7 +159,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
               lineHeight: 1.4,
             }}
           >
-            {warning}
+            {warning.message}
           </Text>
         </Flex>
       )}
@@ -361,7 +287,11 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
                       data={chartData}
                       onMouseMove={(e) => {
                         if (e?.activePayload?.[0]) {
-                          const d = e.activePayload[0].payload as ChartDatum;
+                          const d = e.activePayload[0].payload as {
+                            timestamp: number;
+                            rewardCut: number;
+                            feeCut: number;
+                          };
                           setSelected({
                             rewardCut: `${d.rewardCut.toFixed(1)}%`,
                             feeCut: `${d.feeCut.toFixed(1)}%`,
