@@ -76,13 +76,16 @@ export const Panel = ({ children }) => (
       minHeight: 240,
       height: 240,
       padding: "24px",
+      paddingRight: "32px",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       border: "0.5px solid $colors$neutral4",
       flex: 1,
       width: "100%",
-      minWidth: 350,
+      "@bp1": {
+        minWidth: 350,
+      },
     }}
   >
     {children}
@@ -170,7 +173,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
           backgroundColor: "$panel",
           borderRadius: "$4",
           border: "1px solid $colors$neutral4",
-          overflow: "hidden",
+          overflow: "visible",
           marginBottom: "$4",
         }}
       >
