@@ -322,7 +322,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
                         interval="preserveStartEnd"
                       />
                       <YAxis
-                        width={35}
+                        width={40}
                         orientation="right"
                         tick={CustomizedYAxisTick}
                         domain={[0, 100]}
