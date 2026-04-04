@@ -289,7 +289,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
                   </Flex>
                 </ExplorerTooltip>
                 <Flex>
-                  {(chartData?.length || 0) <= 0 ? (
+                  {loading || (chartData?.length || 0) <= 0 ? (
                     <Skeleton
                       css={{ marginTop: "$1", width: "100%", height: 20 }}
                     />
@@ -349,10 +349,10 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
 
               {/* Chart area - matches ExplorerChart's paddingTop: 57 */}
               <Box css={{ paddingTop: 57, width: "100%", height: "100%" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  {(chartData?.length || 0) <= 0 ? (
-                    <Skeleton css={{ width: "100%", height: "100%" }} />
-                  ) : (
+                {loading || (chartData?.length || 0) <= 0 ? (
+                  <Skeleton css={{ width: "100%", height: "100%" }} />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={chartData}
                       onMouseMove={(e) => {
@@ -410,8 +410,8 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
                         strokeWidth={2}
                       />
                     </LineChart>
-                  )}
-                </ResponsiveContainer>
+                  </ResponsiveContainer>
+                )}
               </Box>
             </Box>
           </Panel>
