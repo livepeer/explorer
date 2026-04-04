@@ -1,10 +1,8 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
-import {
-  ExclamationTriangleIcon,
-  QuestionMarkCircledIcon,
-} from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { FiAlertTriangle } from "react-icons/fi";
 import {
   OrderDirection,
   TranscoderUpdateEvent_OrderBy,
@@ -165,9 +163,7 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
       maxRewardCutSwing >= MALICIOUS_THRESHOLD ||
       maxFeeCutSwing >= MALICIOUS_THRESHOLD
     ) {
-      return `This orchestrator has changed their ${
-        maxRewardCutSwing >= MALICIOUS_THRESHOLD ? "reward cut" : "fee cut"
-      } by ${Math.max(maxRewardCutSwing, maxFeeCutSwing).toFixed(0)}+ percentage points. Large swings may indicate a bait-and-switch strategy where delegators are attracted with low cuts that are later raised.`;
+      return "This orchestrator has a history of making large changes to their cut percentages. This may indicate a bait-and-switch strategy. Review the chart below before delegating.";
     }
 
     return null;
@@ -208,27 +204,35 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
       {/* Warning Banner - above the chart grid */}
       {warning && (
         <Flex
+          role="alert"
           css={{
-            backgroundColor: "rgba(255, 107, 107, 0.1)",
-            border: "1px solid rgba(255, 107, 107, 0.3)",
-            borderRadius: "$2",
-            padding: "$2",
+            alignItems: "center",
+            backgroundColor: "$amber3",
+            border: "1px solid $amber6",
+            borderRadius: 10,
+            padding: "$3",
             marginBottom: "$3",
-            alignItems: "flex-start",
             gap: "$2",
           }}
         >
           <Box
-            as={ExclamationTriangleIcon}
+            as={FiAlertTriangle}
+            aria-hidden="true"
             css={{
-              color: "#ff6b6b",
+              color: "$amber11",
               flexShrink: 0,
-              marginTop: 2,
               width: 16,
               height: 16,
             }}
           />
-          <Text css={{ fontSize: "$2", color: "#ff6b6b", lineHeight: 1.4 }}>
+          <Text
+            css={{
+              fontSize: "$2",
+              color: "$amber11",
+              fontWeight: 400,
+              lineHeight: 1.4,
+            }}
+          >
             {warning}
           </Text>
         </Flex>
