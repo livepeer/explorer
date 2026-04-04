@@ -4,6 +4,7 @@ import { Box, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import { useRewardCutHistory } from "hooks/useRewardCutHistory";
 import { useEffect, useMemo, useState } from "react";
+import { FiAlertTriangle } from "react-icons/fi";
 import {
   Line,
   LineChart,
@@ -96,7 +97,7 @@ interface Props {
 }
 
 const RewardCutHistory = ({ transcoderId }: Props) => {
-  const { chartData, loading } = useRewardCutHistory(transcoderId);
+  const { chartData, loading, warning } = useRewardCutHistory(transcoderId);
 
   const defaultValues = useMemo(() => {
     if (!chartData.length) return { rewardCut: "N/A", feeCut: "N/A" };
@@ -134,7 +135,9 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
         css={{
           backgroundColor: "$panel",
           borderRadius: "$4",
-          border: "1px solid $colors$neutral4",
+          border: warning
+            ? "1px solid $amber6"
+            : "1px solid $colors$neutral4",
           overflow: "visible",
           marginBottom: "$4",
         }}
@@ -160,29 +163,55 @@ const RewardCutHistory = ({ transcoderId }: Props) => {
             >
               {/* Header overlay - matches ExplorerChart's absolute header */}
               <Box css={{ position: "absolute", zIndex: 3 }}>
-                <ExplorerTooltip
-                  multiline
-                  side="bottom"
-                  content="Historical changes to the orchestrator's reward cut and fee cut over time. Large sudden changes may indicate malicious behavior."
-                >
-                  <Flex css={{ alignItems: "center" }}>
-                    <Text
-                      css={{
-                        fontWeight: 600,
-                        fontSize: "$2",
-                        color: "white",
-                      }}
+                <Flex css={{ alignItems: "center" }}>
+                  <ExplorerTooltip
+                    multiline
+                    side="bottom"
+                    content="Historical changes to the orchestrator's reward cut and fee cut over time. Large sudden changes may indicate malicious behavior."
+                  >
+                    <Flex css={{ alignItems: "center" }}>
+                      <Text
+                        css={{
+                          fontWeight: 600,
+                          fontSize: "$2",
+                          color: "white",
+                        }}
+                      >
+                        Reward & Fee Cut History
+                      </Text>
+                      <Box css={{ marginLeft: "$1" }}>
+                        <Box
+                          as={QuestionMarkCircledIcon}
+                          css={{ color: "$neutral11" }}
+                        />
+                      </Box>
+                    </Flex>
+                  </ExplorerTooltip>
+                  {warning && (
+                    <ExplorerTooltip
+                      multiline
+                      side="bottom"
+                      content={warning.message}
                     >
-                      Reward & Fee Cut History
-                    </Text>
-                    <Box css={{ marginLeft: "$1" }}>
                       <Box
-                        as={QuestionMarkCircledIcon}
-                        css={{ color: "$neutral11" }}
-                      />
-                    </Box>
-                  </Flex>
-                </ExplorerTooltip>
+                        css={{
+                          marginLeft: "$1",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box
+                          as={FiAlertTriangle}
+                          css={{
+                            color: "$amber11",
+                            width: 14,
+                            height: 14,
+                          }}
+                        />
+                      </Box>
+                    </ExplorerTooltip>
+                  )}
+                </Flex>
                 <Flex>
                   {loading || (chartData?.length || 0) <= 0 ? (
                     <Skeleton
