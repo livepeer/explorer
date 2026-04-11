@@ -81,9 +81,6 @@ const CliVotingInstructionsDialog = ({
       </Box>
       <Dialog onOpenChange={setModalOpen} open={modalOpen}>
         <DialogContent
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
         >
           <DialogTitle asChild>
             <Heading

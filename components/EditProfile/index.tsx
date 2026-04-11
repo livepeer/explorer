@@ -24,9 +24,6 @@ const Index = () => {
         </DialogTrigger>
         <DialogContent
           css={{ overflow: "scroll" }}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
         >
           <DialogTitle asChild>
             <Heading

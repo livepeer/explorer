@@ -56,9 +56,6 @@ const Index = () => {
           width: "calc(100% - 32px)",
           "@bp1": { maxWidth: 450 },
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         <DialogTitle asChild>
           <Heading
