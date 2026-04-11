@@ -387,9 +387,6 @@ const Index = ({
               paddingRight: "$6",
             },
           }}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
         >
           <DialogTitle asChild>
             <Text

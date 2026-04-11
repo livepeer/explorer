@@ -694,9 +694,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              onPointerEnterCapture={undefined}
-                              onPointerLeaveCapture={undefined}
-                              placeholder={undefined}
                             >
                               <Flex
                                 css={{
@@ -882,9 +879,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           borderRadius: "$4",
           bc: "$neutral4",
         }}
-        placeholder={undefined}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
       >
         <Box
           css={{

@@ -21,9 +21,6 @@ const Index = ({ children }) => {
           height: "initial",
           backgroundColor: "transparent",
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         {children}
       </SheetContent>
