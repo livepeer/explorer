@@ -15,7 +15,7 @@ ARG NEXT_PUBLIC_GITHUB_LIP_NAMESPACE=adamsoffer
 ARG NEXT_PUBLIC_SUBGRAPH_API_KEY
 ARG NEXT_PUBLIC_SUBGRAPH_ID
 ARG NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
-ARG NEXT_PUBLIC_METRICS_SERVER_URL=https://livepeer-leaderboard-serverless.vercel.app
+ARG NEXT_PUBLIC_METRICS_SERVER_URL=https://leaderboard-serverless.vercel.app
 ARG NEXT_PUBLIC_AI_METRICS_SERVER_URL=https://leaderboard-api.livepeer.cloud
 
 # Step 5: Create .env file with substituted values
