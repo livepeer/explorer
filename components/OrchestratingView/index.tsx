@@ -1,3 +1,4 @@
+import RewardCutHistory from "@components/RewardCutHistory";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
@@ -164,6 +165,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         },
       }}
     >
+      <RewardCutHistory transcoderId={transcoder?.id} />
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="masonry-grid"

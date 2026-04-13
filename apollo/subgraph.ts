@@ -10843,6 +10843,50 @@ export function useTranscoderActivatedEventsLazyQuery(baseOptions?: Apollo.LazyQ
 export type TranscoderActivatedEventsQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsQuery>;
 export type TranscoderActivatedEventsLazyQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsLazyQuery>;
 export type TranscoderActivatedEventsQueryResult = Apollo.QueryResult<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>;
+
+export type TranscoderUpdateEventsQueryVariables = Exact<{
+  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
+
+export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
+
+export const TranscoderUpdateEventsDocument = gql`
+    query transcoderUpdateEvents($where: TranscoderUpdateEvent_filter, $first: Int, $orderBy: TranscoderUpdateEvent_orderBy, $orderDirection: OrderDirection) {
+  transcoderUpdateEvents(
+    where: $where
+    first: $first
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
+    id
+    rewardCut
+    feeShare
+    timestamp
+    round {
+      id
+    }
+    transaction {
+      id
+    }
+  }
+}
+    `;
+
+export function useTranscoderUpdateEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
+      }
+export function useTranscoderUpdateEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
+        }
+export type TranscoderUpdateEventsQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsQuery>;
+export type TranscoderUpdateEventsLazyQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsLazyQuery>;
+export type TranscoderUpdateEventsQueryResult = Apollo.QueryResult<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>;
+
 export const TreasuryProposalDocument = gql`
     query treasuryProposal($id: ID!) {
   treasuryProposal(id: $id) {
