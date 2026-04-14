@@ -63,11 +63,13 @@ const ExplorerChart = ({
   basePercentChange,
   unit = "none",
   type,
+  lineCurve = "monotone",
+  yDomain,
   grouping = "day",
   onToggleGrouping,
 }: {
   title: string;
-  tooltip: string;
+  tooltip: React.ReactNode;
   base: number;
   basePercentChange: number;
   data: ChartDatum[];
@@ -80,6 +82,8 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
+  lineCurve?: "monotone" | "stepAfter" | "linear";
+  yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
   grouping?: Group;
   onToggleGrouping?: (grouping: Group) => void;
 }) => {
@@ -223,7 +227,7 @@ const ExplorerChart = ({
       unit === "small-percent"
         ? 45
         : unit === "percent"
-        ? 35
+        ? 42
         : unit === "minutes"
         ? 35
         : unit === "eth"
@@ -245,23 +249,7 @@ const ExplorerChart = ({
         <ExplorerTooltip
           multiline
           side="bottom"
-          content={
-            tooltip ? (
-              <>
-                <div>{tooltip}</div>
-                <br />
-                <div>
-                  {`The estimation methodology was updated on 8/21/23. `}
-                  <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
-                    Read more about the changes
-                  </a>
-                  {"."}
-                </div>
-              </>
-            ) : (
-              <></>
-            )
-          }
+          content={tooltip ? <div>{tooltip}</div> : <></>}
         >
           <Flex
             css={{
@@ -479,13 +467,13 @@ const ExplorerChart = ({
                 width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
-                domain={["auto", "auto"]}
+                domain={yDomain ?? ["auto", "auto"]}
               />
               <ReTooltip content={CustomContentOfTooltip} />
 
               <Line
                 dataKey="y"
-                type="monotone"
+                type={lineCurve}
                 dot={{ r: 0, strokeWidth: 0 }}
                 activeDot={{ r: 3, strokeWidth: 0 }}
                 stroke="rgba(0, 235, 136, 0.8)"

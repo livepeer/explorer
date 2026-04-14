@@ -1,3 +1,4 @@
+import OrchestratorCutHistory from "@components/OrchestratorCutHistory";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
@@ -250,21 +251,6 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         /> */}
         <Stat
           className="masonry-grid_item"
-          label="Fee Cut"
-          tooltip={
-            "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
-          }
-          value={
-            transcoder?.feeShare
-              ? numbro(1 - +(transcoder?.feeShare || 0) / 1000000).format({
-                  output: "percent",
-                  mantissa: 0,
-                })
-              : "N/A"
-          }
-        />
-        <Stat
-          className="masonry-grid_item"
           label="Reward Cut"
           tooltip={
             "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
@@ -277,6 +263,21 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     output: "percent",
                     mantissa: 0,
                   })
+              : "N/A"
+          }
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Fee Cut"
+          tooltip={
+            "The percent of the transcoding fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
+          }
+          value={
+            transcoder?.feeShare
+              ? numbro(1 - +(transcoder?.feeShare || 0) / 1000000).format({
+                  output: "percent",
+                  mantissa: 0,
+                })
               : "N/A"
           }
         />
@@ -329,112 +330,110 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
             }
           />
         )}
-        <A
-          as={Link}
-          href={`/accounts/${transcoder?.id}/history`}
-          passHref
-          className="masonry-grid_item"
-          css={{
-            display: "block",
+      </Masonry>
+      <A
+        as={Link}
+        href={`/accounts/${transcoder?.id}/history`}
+        passHref
+        css={{
+          display: "block",
+          textDecoration: "none",
+          marginBottom: "$3",
+          "&:hover": {
             textDecoration: "none",
-            "&:hover": {
-              textDecoration: "none",
-              ".see-history": {
-                textDecoration: "underline",
-                color: "$primary11",
-                transition: "color .3s",
-              },
+            ".see-history": {
+              textDecoration: "underline",
+              color: "$primary11",
+              transition: "color .3s",
             },
-          }}
-        >
-          <Stat
-            label="Treasury Governance Participation"
-            variant="interactive"
-            tooltip={
-              <Box>
-                Number of proposals voted on relative to the number of proposals
-                the orchestrator was eligible for while active.
-              </Box>
-            }
-            value={
-              govStats ? (
-                <Flex css={{ alignItems: "baseline", gap: "$1" }}>
-                  <Box css={{ color: "$hiContrast" }}>{govStats.voted}</Box>
-                  <Box
-                    css={{
-                      fontSize: "$3",
-                      color: "$neutral11",
-                      fontWeight: 500,
-                    }}
-                  >
-                    / {govStats.eligible} Proposals
-                  </Box>
-                </Flex>
-              ) : (
-                "N/A"
-              )
-            }
-            meta={
-              <Box css={{ width: "100%", marginTop: "$2" }}>
-                {govStats && (
-                  <Box
-                    css={{
-                      width: "100%",
-                      height: 4,
-                      backgroundColor: "$neutral4",
-                      borderRadius: "$2",
-                      overflow: "hidden",
-                      marginBottom: "$2",
-                    }}
-                  >
-                    <Box
-                      css={{
-                        width: `${(govStats.voted / govStats.eligible) * 100}%`,
-                        height: "100%",
-                        backgroundColor: "$primary11",
-                      }}
-                    />
-                  </Box>
-                )}
-                <Flex
+          },
+        }}
+      >
+        <Stat
+          label="Treasury Governance Participation"
+          variant="interactive"
+          tooltip={
+            <Box>
+              Number of proposals voted on relative to the number of proposals
+              the orchestrator was eligible for while active.
+            </Box>
+          }
+          value={
+            govStats ? (
+              <Flex css={{ alignItems: "baseline", gap: "$1" }}>
+                <Box css={{ color: "$hiContrast" }}>{govStats.voted}</Box>
+                <Box
                   css={{
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
+                    fontSize: "$3",
+                    color: "$neutral11",
+                    fontWeight: 500,
                   }}
                 >
-                  {govStats && (
-                    <Text
-                      size="2"
-                      css={{ color: "$neutral11", fontWeight: 600 }}
-                    >
-                      {numbro(govStats.voted / govStats.eligible).format({
-                        output: "percent",
-                        mantissa: 0,
-                      })}{" "}
-                      Participation
-                    </Text>
-                  )}
-                  <Text
-                    className="see-history"
-                    size="2"
+                  / {govStats.eligible} Proposals
+                </Box>
+              </Flex>
+            ) : (
+              "N/A"
+            )
+          }
+          meta={
+            <Box css={{ width: "100%", marginTop: "$2" }}>
+              {govStats && (
+                <Box
+                  css={{
+                    width: "100%",
+                    height: 4,
+                    backgroundColor: "$neutral4",
+                    borderRadius: "$2",
+                    overflow: "hidden",
+                    marginBottom: "$2",
+                  }}
+                >
+                  <Box
                     css={{
-                      color: "$primary11",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "$0.75",
+                      width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                      height: "100%",
+                      backgroundColor: "$primary11",
                     }}
-                  >
-                    See history
-                    <Box as={ArrowTopRightIcon} width={15} height={15} />
+                  />
+                </Box>
+              )}
+              <Flex
+                css={{
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                {govStats && (
+                  <Text size="2" css={{ color: "$neutral11", fontWeight: 600 }}>
+                    {numbro(govStats.voted / govStats.eligible).format({
+                      output: "percent",
+                      mantissa: 0,
+                    })}{" "}
+                    Participation
                   </Text>
-                </Flex>
-              </Box>
-            }
-          />
-        </A>
-      </Masonry>
+                )}
+                <Text
+                  className="see-history"
+                  size="2"
+                  css={{
+                    color: "$primary11",
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "$0.75",
+                  }}
+                >
+                  See history
+                  <Box as={ArrowTopRightIcon} width={15} height={15} />
+                </Text>
+              </Flex>
+            </Box>
+          }
+        />
+      </A>
+      <OrchestratorCutHistory transcoder={transcoder} />
     </Box>
   );
 };

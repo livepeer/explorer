@@ -196,9 +196,20 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
       </Panel>
       <Panel>
         <ExplorerChart
-          tooltip={`The ${
-            usageGrouping === "day" ? "daily" : "weekly"
-          } usage of the network in minutes.`}
+          tooltip={
+            <>
+              {`The ${
+                usageGrouping === "day" ? "daily" : "weekly"
+              } usage of the network in minutes.`}
+              <br />
+              <br />
+              {"The estimation methodology was updated on 8/21/23. "}
+              <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
+                Read more about the changes
+              </a>
+              {"."}
+            </>
+          }
           data={
             usageGrouping === "week"
               ? usageData.slice(-26)
