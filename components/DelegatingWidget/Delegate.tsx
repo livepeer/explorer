@@ -18,6 +18,7 @@ const Delegate = ({
   to,
   amount,
   isTransferStake,
+  isMyTranscoder,
   tokenBalance,
   transferAllowance,
   reset,
@@ -168,7 +169,7 @@ const Delegate = ({
     );
   }
 
-  const cutChangeNotice = (
+  const cutChangeNotice = isMyTranscoder ? null : (
     <Flex
       css={{
         alignItems: "center",
@@ -184,7 +185,7 @@ const Delegate = ({
         css={{ color: "white", flexShrink: 0, width: 16, height: 16 }}
       />
       <Text css={{ fontSize: "$2", color: "white", lineHeight: 1.5 }}>
-        Please ensure you checked the reward & fee cut history before
+        Please ensure you have checked the reward & fee cut history before
         delegating.
       </Text>
     </Flex>
