@@ -165,6 +165,7 @@ const Footer = ({
           to={transcoder?.id}
           amount={amount}
           isTransferStake={isTransferStake}
+          isMyTranscoder={isMyTranscoder}
           tokenBalance={tokenBalance}
           transferAllowance={transferAllowance}
           reset={reset}

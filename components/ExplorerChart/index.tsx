@@ -3,7 +3,7 @@ import dayjs from "@lib/dayjs";
 import { Box, Button, Flex, Skeleton, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
 import numbro from "numbro";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart as ReBarChart,
@@ -69,7 +69,7 @@ const ExplorerChart = ({
   onToggleGrouping,
 }: {
   title: string;
-  tooltip: React.ReactNode;
+  tooltip: ReactNode;
   base: number;
   basePercentChange: number;
   data: ChartDatum[];
