@@ -57,7 +57,7 @@
     "@graphql-tools/schema": "8.5.0",
     "@graphql-tools/stitch": "8.7.0",
     "@graphql-tools/wrap": "8.5.0",
-    "@livepeer/design-system": "1.1.0",
+    "@livepeer/design-system": "1.1.2",
     "@mdx-js/loader": "^2.1.2",
     "@mdx-js/react": "^2.1.2",
     "@modulz/radix-icons": "^4.0.0",

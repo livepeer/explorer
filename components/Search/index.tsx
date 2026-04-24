@@ -84,9 +84,6 @@ const Index = ({ css = {}, ...props }) => {
           overflow: "auto",
           transition: "max-height 2s",
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         <Box
           css={{
