@@ -2,6 +2,12 @@ import { l1Provider } from "@lib/chains";
 import { formatAddress } from "@lib/utils";
 import sanitizeHtml from "sanitize-html";
 
+import {
+  GithubHandleSchema,
+  TwitterHandleSchema,
+  WebUrlSchema,
+} from "./schemas/common";
+import { EnsAvatarProviderSchema, EnsTextRecordSchema } from "./schemas/ens";
 import { EnsIdentity } from "./types/get-ens";
 
 const sanitizeOptions: sanitizeHtml.IOptions = {
@@ -59,13 +65,31 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
 
   if (name) {
     const resolver = await l1Provider.getResolver(name);
-    const [description, url, twitter, github, avatar] = await Promise.all([
-      resolver?.getText("description"),
-      resolver?.getText("url"),
-      resolver?.getText("com.twitter"),
-      resolver?.getText("com.github"),
-      resolver?.getAvatar(),
-    ]);
+    const [descriptionRaw, urlRaw, twitterRaw, githubRaw, avatarRaw] =
+      await Promise.all([
+        resolver?.getText("description"),
+        resolver?.getText("url"),
+        resolver?.getText("com.twitter"),
+        resolver?.getText("com.github"),
+        resolver?.getAvatar(),
+      ]);
+
+    // Validate all ENS provider responses with graceful fallback
+    // If validation fails, we set the field to null rather than crashing
+    const descriptionValidation = EnsTextRecordSchema.safeParse(descriptionRaw);
+    const urlValidation = WebUrlSchema.nullable().safeParse(urlRaw);
+    const twitterValidation =
+      TwitterHandleSchema.nullable().safeParse(twitterRaw);
+    const githubValidation = GithubHandleSchema.nullable().safeParse(githubRaw);
+    const avatarValidation = EnsAvatarProviderSchema.safeParse(avatarRaw);
+
+    const description = descriptionValidation.success
+      ? descriptionValidation.data
+      : null;
+    const url = urlValidation.success ? urlValidation.data : null;
+    const twitter = twitterValidation.success ? twitterValidation.data : null;
+    const github = githubValidation.success ? githubValidation.data : null;
+    const avatar = avatarValidation.success ? avatarValidation.data : null;
 
     const ens: EnsIdentity = {
       id: address ?? "",

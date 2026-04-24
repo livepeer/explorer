@@ -3,7 +3,12 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateOutput,
 } from "@lib/api/errors";
+import {
+  ChangefeedGraphQLResultSchema,
+  ChangefeedResponseSchema,
+} from "@lib/api/schemas/changefeed";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -55,9 +60,26 @@ const changefeed = async (_req: NextApiRequest, res: NextApiResponse) => {
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
 
-      const {
-        data: { projectBySlugs },
-      } = await response.json();
+      const json = await response.json();
+
+      // Validate GraphQL envelope structure
+      const envelopeResult = ChangefeedGraphQLResultSchema.safeParse(json);
+      if (!envelopeResult.success) {
+        return externalApiError(
+          res,
+          "changefeed.app",
+          "Invalid GraphQL structure"
+        );
+      }
+
+      const { projectBySlugs } = envelopeResult.data.data;
+
+      const validationResult =
+        ChangefeedResponseSchema.safeParse(projectBySlugs);
+      if (validateOutput(validationResult, res, "changefeed")) {
+        return;
+      }
+
       return res.status(200).json(projectBySlugs);
     }
 

@@ -3,7 +3,9 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateOutput,
 } from "@lib/api/errors";
+import { DayDataSchema, UsageOutputSchema } from "@lib/api/schemas/usage";
 import {
   DayData,
   HomeChartData,
@@ -14,42 +16,6 @@ import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { getPercentChange } from "@lib/utils";
 import { historicalDayData } from "data/historical-usage";
 import { NextApiRequest, NextApiResponse } from "next";
-import { z } from "zod";
-
-// Parse schema zod for DayData
-const DayDataSchema = z.array(
-  z.object({
-    dateS: z.number(),
-    volumeEth: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    volumeUsd: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    feeDerivedMinutes: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    participationRate: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    inflation: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    activeTranscoderCount: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-    delegatorsCount: z
-      .number()
-      .nullish()
-      .transform((val) => val ?? 0),
-  })
-);
 
 const chartDataHandler = async (
   req: NextApiRequest,
@@ -111,6 +77,14 @@ const chartDataHandler = async (
         .sort((a, b) => (a.dateS > b.dateS ? 1 : -1))
         .filter((s) => s.activeTranscoderCount);
 
+      // Ensure we have enough data for calculations
+      if (sortedDays.length < 2) {
+        return internalError(
+          res,
+          new Error("Insufficient daily data for calculations")
+        );
+      }
+
       let startIndexWeekly = -1;
       let currentWeek = -1;
 
@@ -134,6 +108,14 @@ const chartDataHandler = async (
         weeklyData[startIndexWeekly].weeklyVolumeEth += day.volumeEth;
         weeklyData[startIndexWeekly].weeklyUsageMinutes +=
           day.feeDerivedMinutes;
+      }
+
+      // Ensure we have enough weekly data for calculations
+      if (weeklyData.length < 3) {
+        return internalError(
+          res,
+          new Error("Insufficient weekly data for calculations")
+        );
       }
 
       // const currentWeekData = weeklyData[weeklyData.length - 1];
@@ -226,6 +208,10 @@ const chartDataHandler = async (
         ) <= 0
       ) {
         data.dayData = data.dayData.slice(0, -1);
+      }
+
+      if (validateOutput(UsageOutputSchema.safeParse(data), res, "usage")) {
+        return;
       }
 
       res.setHeader("Cache-Control", getCacheControlHeader("day"));
