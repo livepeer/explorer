@@ -1,5 +1,6 @@
-FROM node:20 as builder
+FROM node:22 AS builder
 WORKDIR /app
+RUN corepack enable
 
 ARG CHANGEFEED_ACCESS_TOKEN
 ARG GITHUB_ACCESS_TOKEN
@@ -31,21 +32,22 @@ RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
     echo "NEXT_PUBLIC_SUBGRAPH_API_KEY=${NEXT_PUBLIC_SUBGRAPH_API_KEY}" >> .env && \
     echo "NEXT_PUBLIC_SUBGRAPH_ID=${NEXT_PUBLIC_SUBGRAPH_ID}" >> .env && \
     echo "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}" >> .env && \
-    echo "NEXT_PUBLIC_METRICS_SERVER_URL=${NEXT_PUBLIC_METRICS_SERVER_URL}" >> .env \
-    echo "NEXT_PUBLIC_AI_METRICS_SERVER_URL=${NEXT_PUBLI_AI_METRICS_SERVER_URL}" >> .env
+    echo "NEXT_PUBLIC_METRICS_SERVER_URL=${NEXT_PUBLIC_METRICS_SERVER_URL}" >> .env && \
+    echo "NEXT_PUBLIC_AI_METRICS_SERVER_URL=${NEXT_PUBLIC_AI_METRICS_SERVER_URL}" >> .env
 
 COPY . .
-RUN yarn && yarn run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
-FROM node:20
+FROM node:22
 WORKDIR /app
-ENV NODE_ENV production
+ENV NODE_ENV=production
+RUN corepack enable
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/yarn.lock ./yarn.lock
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["pnpm", "start"]
