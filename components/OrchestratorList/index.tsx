@@ -253,7 +253,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Orchestrator</Box>
+            <Box role="button">Orchestrator</Box>
           </ExplorerTooltip>
         ),
         accessor: "id",
@@ -356,7 +356,7 @@ const OrchestratorList = ({
                 </Box>
               }
             >
-              <Box>Forecasted Yield</Box>
+              <Box role="button">Forecasted Yield</Box>
             </ExplorerTooltip>
           </Flex>
         ),
@@ -376,6 +376,7 @@ const OrchestratorList = ({
             <Popover>
               <PopoverTrigger disabled={isNewlyActive} asChild>
                 <Badge
+                  role="button"
                   size="2"
                   css={{
                     cursor: !isNewlyActive ? "pointer" : "default",
@@ -853,7 +854,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Delegated Stake</Box>
+            <Box role="button">Delegated Stake</Box>
           </ExplorerTooltip>
         ),
         accessor: "totalStake",
@@ -887,7 +888,7 @@ const OrchestratorList = ({
               </Box>
             }
           >
-            <Box>Trailing 90D Fees</Box>
+            <Box role="button">Trailing 90D Fees</Box>
           </ExplorerTooltip>
         ),
         accessor: "ninetyDayVolumeETH",
@@ -921,23 +922,21 @@ const OrchestratorList = ({
               }}
               asChild
             >
-              <Flex css={{ alignItems: "center" }}>
-                <IconButton
-                  aria-label="Orchestrator actions"
-                  css={{
-                    cursor: "pointer",
-                    marginLeft: "$1",
-                    opacity: 1,
+              <IconButton
+                aria-label="Orchestrator actions"
+                css={{
+                  cursor: "pointer",
+                  marginLeft: "$1",
+                  opacity: 1,
+                  transition: "background-color .3s",
+                  "&:hover": {
+                    bc: "$primary5",
                     transition: "background-color .3s",
-                    "&:hover": {
-                      bc: "$primary5",
-                      transition: "background-color .3s",
-                    },
-                  }}
-                >
-                  <DotsHorizontalIcon />
-                </IconButton>
-              </Flex>
+                  },
+                }}
+              >
+                <DotsHorizontalIcon />
+              </IconButton>
             </PopoverTrigger>
             <PopoverContent
               css={{ borderRadius: "$4", bc: "$neutral4" }}
@@ -1055,6 +1054,7 @@ const OrchestratorList = ({
                 asChild
               >
                 <Badge
+                  role="button"
                   size="2"
                   css={{
                     cursor: "pointer",
@@ -1152,6 +1152,7 @@ const OrchestratorList = ({
                   asChild
                 >
                   <Badge
+                    role="button"
                     size="2"
                     css={{
                       cursor: "pointer",
@@ -1239,6 +1240,7 @@ const OrchestratorList = ({
                   asChild
                 >
                   <Badge
+                    role="button"
                     size="2"
                     css={{
                       cursor: "pointer",
@@ -1321,6 +1323,7 @@ const OrchestratorList = ({
                   asChild
                 >
                   <Badge
+                    role="button"
                     size="2"
                     css={{
                       cursor: "pointer",

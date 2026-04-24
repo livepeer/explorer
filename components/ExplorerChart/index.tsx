@@ -241,6 +241,7 @@ const ExplorerChart = ({
   return (
     <Box css={{ position: "relative", width: "100%", height: "100%" }}>
       <Box
+        role="group"
         css={{
           position: "absolute",
           zIndex: 3,
@@ -252,6 +253,7 @@ const ExplorerChart = ({
           content={tooltip ? <div>{tooltip}</div> : <></>}
         >
           <Flex
+            role="group"
             css={{
               alignItems: "center",
             }}

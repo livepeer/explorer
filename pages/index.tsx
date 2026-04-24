@@ -387,8 +387,10 @@ const Home = ({
                 justifyContent: "space-between",
                 marginBottom: "$4",
                 alignItems: "center",
+                gap: "$4",
                 "@bp1": {
                   flexDirection: "row",
+                  gap: "$5",
                 },
               }}
             >
@@ -423,6 +425,7 @@ const Home = ({
                   width: "100%",
                   justifyContent: "space-between",
                   flexWrap: "nowrap",
+                  gap: "$3",
                   "@bp1": {
                     width: "auto",
                     justifyContent: "flex-start",
@@ -438,14 +441,8 @@ const Home = ({
                       css={{
                         color: "$hiContrast",
                         fontSize: "$2",
-                        paddingLeft: 0,
-                        paddingRight: 0,
-                        marginRight: 0,
-                        "@bp1": {
-                          paddingLeft: "$2",
-                          paddingRight: "$2",
-                          marginRight: "$2",
-                        },
+                        minHeight: "44px",
+                        padding: "$2 $3",
                       }}
                     >
                       Performance Leaderboard
@@ -458,16 +455,12 @@ const Home = ({
                     css={{
                       color: "$hiContrast",
                       fontSize: "$2",
-                      paddingLeft: 0,
-                      paddingRight: 0,
-                      "@bp1": {
-                        paddingLeft: "$2",
-                        paddingRight: "$2",
-                      },
+                      minHeight: "44px",
+                      padding: "$2 $3",
                     }}
                   >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box as={ArrowRightIcon} aria-hidden="true" css={{ marginLeft: "$1" }} />
                   </Button>
                 </A>
               </Flex>
@@ -502,8 +495,10 @@ const Home = ({
                 marginBottom: "$4",
                 marginTop: "$7",
                 alignItems: "center",
+                gap: "$4",
                 "@bp1": {
                   flexDirection: "row",
+                  gap: "$5",
                 },
               }}
             >
@@ -615,6 +610,7 @@ const Home = ({
                 css={{
                   width: "100%",
                   justifyContent: "flex-start",
+                  gap: "$3",
                   "@bp1": {
                     width: "auto",
                   },
@@ -627,16 +623,12 @@ const Home = ({
                     css={{
                       color: "$hiContrast",
                       fontSize: "$2",
-                      paddingLeft: 0,
-                      paddingRight: 0,
-                      "@bp1": {
-                        paddingLeft: "$2",
-                        paddingRight: "$2",
-                      },
+                      minHeight: "44px",
+                      padding: "$2 $3",
                     }}
                   >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box as={ArrowRightIcon} aria-hidden="true" css={{ marginLeft: "$1" }} />
                   </Button>
                 </A>
               </Flex>
