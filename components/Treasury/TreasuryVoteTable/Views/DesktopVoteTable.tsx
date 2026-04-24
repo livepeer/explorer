@@ -12,7 +12,6 @@ import { Column } from "react-table";
 import { VoteReasonPopover } from "./VoteReasonPopover";
 
 export type Vote = TreasuryVote & {
-  ensName?: string;
   transactionHash?: string;
   timestamp?: number;
 };
@@ -20,7 +19,7 @@ export type Vote = TreasuryVote & {
 export interface TreasuryVoteTableProps {
   votes: Vote[];
   formatWeight: (weight: string) => string;
-  onSelect: (voter: { address: string; ensName?: string }) => void;
+  onSelect: (voter: { address: string }) => void;
   pageSize?: number;
   totalPages?: number;
   currentPage?: number;
@@ -37,7 +36,7 @@ export const DesktopVoteTable: React.FC<TreasuryVoteTableProps> = ({
     () => [
       {
         Header: "Voter",
-        accessor: "ensName",
+        accessor: "voter",
         id: "voter",
         Cell: ({ row }) => (
           <Box css={{ minWidth: 120 }}>
@@ -206,7 +205,6 @@ export const DesktopVoteTable: React.FC<TreasuryVoteTableProps> = ({
                   e.stopPropagation();
                   onSelect({
                     address: row.original.voter.id,
-                    ensName: row.original.ensName,
                   });
                 }}
                 css={{
