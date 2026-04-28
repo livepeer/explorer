@@ -35,19 +35,39 @@ const CustomContentOfTooltip = ({
 
 export type ChartDatum = { x: number; y: number };
 
-const CustomizedXAxisTick = ({ x, y, payload }) => {
+const CustomizedXAxisTick = ({
+  x,
+  y,
+  payload,
+  index,
+  visibleTicksCount,
+  xScale,
+}) => {
+  // Time mode is ms (D3 convention); category is unix seconds.
+  const date =
+    xScale === "time" ? dayjs(payload.value) : dayjs.unix(payload.value);
+  // Time scale fills edge-to-edge; anchor first/last labels inward to avoid clipping.
+  const textAnchor =
+    xScale === "time"
+      ? index === 0
+        ? "start"
+        : index === visibleTicksCount - 1
+        ? "end"
+        : "middle"
+      : "end";
+
   return (
     <g transform={`translate(${x},${y})`}>
       <text
         x={0}
         y={0}
         dy={14}
-        textAnchor="end"
+        textAnchor={textAnchor}
         fill="white"
         fontWeight={400}
         fontSize="13px"
       >
-        {dayjs.unix(payload.value).format("MMM YY")}
+        {date.format("MMM YY")}
       </text>
     </g>
   );
@@ -65,6 +85,7 @@ const ExplorerChart = ({
   type,
   lineCurve = "monotone",
   yDomain,
+  xScale = "category",
   grouping = "day",
   onToggleGrouping,
 }: {
@@ -84,23 +105,21 @@ const ExplorerChart = ({
   type: "bar" | "line";
   lineCurve?: "monotone" | "stepAfter" | "linear";
   yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
+  xScale?: "category" | "time";
   grouping?: Group;
   onToggleGrouping?: (grouping: Group) => void;
 }) => {
   const formatDateSubtitle = useCallback(
-    (date: number) =>
-      grouping === "day"
-        ? `${dayjs.unix(date).format("MMM D")}`
-        : `${dayjs
-            .unix(date)
-            .add(1, "day")
-            .startOf("week")
-            .format("MMM D")} - ${dayjs
-            .unix(date)
+    (date: number) => {
+      const d = xScale === "time" ? dayjs(date) : dayjs.unix(date);
+      return grouping === "day"
+        ? d.format("MMM D")
+        : `${d.add(1, "day").startOf("week").format("MMM D")} - ${d
             .add(1, "day")
             .endOf("week")
-            .format("MMM D")}`,
-    [grouping]
+            .format("MMM D")}`;
+    },
+    [grouping, xScale]
   );
   const formatSubtitle = useCallback(
     (value: number) => {
@@ -237,6 +256,32 @@ const ExplorerChart = ({
         : 30,
     [unit]
   );
+
+  const timeTicks = useMemo<number[] | undefined>(() => {
+    if (xScale !== "time" || !data || data.length < 2) return undefined;
+    const min = data[0].x;
+    const max = data[data.length - 1].x;
+    return [min, (min + max) / 2, max];
+  }, [xScale, data]);
+
+  const xAxis =
+    xScale === "time" ? (
+      <XAxis
+        dataKey="x"
+        type="number"
+        scale="time"
+        domain={["dataMin", "dataMax"]}
+        ticks={timeTicks}
+        interval={0}
+        tick={(props) => <CustomizedXAxisTick {...props} xScale="time" />}
+      />
+    ) : (
+      <XAxis
+        dataKey="x"
+        tick={CustomizedXAxisTick}
+        interval="preserveStartEnd"
+      />
+    );
 
   return (
     <Box css={{ position: "relative", width: "100%", height: "100%" }}>
@@ -410,11 +455,7 @@ const ExplorerChart = ({
                 })
               }
             >
-              <XAxis
-                dataKey="x"
-                tick={CustomizedXAxisTick}
-                interval="preserveStartEnd"
-              />
+              {xAxis}
               <YAxis
                 width={widthYAxis}
                 orientation="right"
@@ -458,11 +499,7 @@ const ExplorerChart = ({
                 })
               }
             >
-              <XAxis
-                dataKey="x"
-                tick={CustomizedXAxisTick}
-                interval="preserveStartEnd"
-              />
+              {xAxis}
               <YAxis
                 width={widthYAxis}
                 orientation="right"
