@@ -7,7 +7,7 @@ import {
 } from "apollo";
 import { useMemo } from "react";
 
-export type CutDataPoint = {
+type CutDataPoint = {
   timestamp: number;
   rewardCut: number;
   feeCut: number;
@@ -28,12 +28,12 @@ export function useOrchestratorCutHistory(transcoder?: Transcoder) {
     skip: !transcoder?.id,
   });
 
-  const chartData = useMemo<CutDataPoint[]>(() => {
+  const points = useMemo<CutDataPoint[]>(() => {
     const events: CutDataPoint[] = (data?.transcoderUpdateEvents ?? []).map(
       (event) => ({
-        timestamp: event.timestamp,
-        rewardCut: (Number(event.rewardCut) / 1000000) * 100,
-        feeCut: (1 - Number(event.feeShare) / 1000000) * 100,
+        timestamp: event.timestamp * 1000, // Convert to ms
+        rewardCut: Number(event.rewardCut) / 1000000,
+        feeCut: 1 - Number(event.feeShare) / 1000000,
       })
     );
 
@@ -46,9 +46,9 @@ export function useOrchestratorCutHistory(transcoder?: Transcoder) {
       transcoder?.feeShare != null
     ) {
       events.push({
-        timestamp: Number(transcoder.activationTimestamp),
-        rewardCut: (Number(transcoder.rewardCut) / 1000000) * 100,
-        feeCut: (1 - Number(transcoder.feeShare) / 1000000) * 100,
+        timestamp: Number(transcoder.activationTimestamp) * 1000,
+        rewardCut: Number(transcoder.rewardCut) / 1000000,
+        feeCut: 1 - Number(transcoder.feeShare) / 1000000,
       });
     }
 
@@ -57,8 +57,8 @@ export function useOrchestratorCutHistory(transcoder?: Transcoder) {
     // "Now" anchor so the chart line extends to the present day.
     const last = events[events.length - 1];
     // eslint-disable-next-line react-hooks/purity
-    const now = Math.floor(Date.now() / 1000);
-    if (now - last.timestamp > 86400) {
+    const now = Date.now();
+    if (now - last.timestamp > 86_400_000) {
       events.push({
         timestamp: now,
         rewardCut: last.rewardCut,
@@ -74,25 +74,20 @@ export function useOrchestratorCutHistory(transcoder?: Transcoder) {
     transcoder?.feeShare,
   ]);
 
-  // ExplorerChart's percent unit expects decimals (0.05 = 5%).
   const rewardCutData = useMemo<ChartDatum[]>(
-    () => chartData.map((d) => ({ x: d.timestamp, y: d.rewardCut / 100 })),
-    [chartData]
+    () => points.map((d) => ({ x: d.timestamp, y: d.rewardCut })),
+    [points]
   );
   const feeCutData = useMemo<ChartDatum[]>(
-    () => chartData.map((d) => ({ x: d.timestamp, y: d.feeCut / 100 })),
-    [chartData]
+    () => points.map((d) => ({ x: d.timestamp, y: d.feeCut })),
+    [points]
   );
 
-  const baseRewardCut = chartData.length
-    ? chartData[chartData.length - 1].rewardCut / 100
-    : 0;
-  const baseFeeCut = chartData.length
-    ? chartData[chartData.length - 1].feeCut / 100
-    : 0;
+  const last = points[points.length - 1];
+  const baseRewardCut = last?.rewardCut ?? 0;
+  const baseFeeCut = last?.feeCut ?? 0;
 
   return {
-    chartData,
     rewardCutData,
     feeCutData,
     baseRewardCut,

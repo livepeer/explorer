@@ -64,6 +64,7 @@ const OrchestratorCutHistory = ({ transcoder }: Props) => {
               type="line"
               lineCurve="stepAfter"
               yDomain={[0, 1]}
+              xScale="time"
             />
           </Panel>
           <Panel>
@@ -77,6 +78,7 @@ const OrchestratorCutHistory = ({ transcoder }: Props) => {
               type="line"
               lineCurve="stepAfter"
               yDomain={[0, 1]}
+              xScale="time"
             />
           </Panel>
         </Box>
