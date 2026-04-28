@@ -67,7 +67,7 @@ const CustomizedXAxisTick = ({
         fontWeight={400}
         fontSize="13px"
       >
-        {date.format("MMM YY")}
+        {date.format("MMM [']YY")}
       </text>
     </g>
   );
