@@ -292,6 +292,10 @@ const Index = ({
                   <Box
                     as="span"
                     css={{
+                      display: "block",
+                      flex: 1,
+                      minWidth: 0,
+                      maxWidth: "100%",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
