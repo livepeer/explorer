@@ -740,7 +740,7 @@ const MigrateBroadcaster = () => {
 
             {state.image && (
               <Box css={{ textAlign: "center", marginBottom: "$5" }}>
-                <Box as="img" src={state.image} />
+                <Box as="img" src={state.image} alt="Migration diagram" />
               </Box>
             )}
 
