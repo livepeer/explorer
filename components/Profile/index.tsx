@@ -1,7 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { formatAddress } from "@lib/utils";
+import { formatAddress, sanitizeExternalUrl } from "@lib/utils";
 import {
   Box,
   Button,
@@ -66,6 +66,11 @@ const Index = ({
       setCopied(true);
     }
   };
+
+  // ENS-supplied URL — must be validated before rendering as an external link
+  // so a malicious orchestrator can't smuggle in `javascript:` / `data:` /
+  // schemeless hrefs via their ENS `url` text record.
+  const safeIdentityUrl = sanitizeExternalUrl(identity?.url);
 
   return (
     <Box css={{ marginBottom: "$3" }}>
@@ -272,14 +277,14 @@ const Index = ({
             )}
           </Flex>
           <Flex align="center" css={{ flexWrap: "wrap" }}>
-            {identity?.url && (
+            {safeIdentityUrl && (
               <A
                 variant="contrast"
                 css={{ fontSize: "$2", minWidth: 0, maxWidth: "100%" }}
-                href={identity.url}
+                href={safeIdentityUrl}
                 target="__blank"
                 rel="noopener noreferrer"
-                title={identity.url}
+                title={safeIdentityUrl}
               >
                 <Flex
                   align="center"
@@ -301,7 +306,7 @@ const Index = ({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {identity.url.replace(/(^\w+:|^)\/\//, "")}
+                    {safeIdentityUrl.replace(/(^\w+:|^)\/\//, "")}
                   </Box>
                 </Flex>
               </A>

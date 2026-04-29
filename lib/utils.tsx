@@ -283,6 +283,37 @@ export const isImageUrl = (url: string): boolean => {
 };
 
 /**
+ * Sanitize a user-supplied URL for use as an external `<a href>`.
+ *
+ * Auto-prefixes `https://` when the input has no scheme (so values like
+ * `evil.com/path` aren't treated as relative links), then validates that the
+ * resulting URL parses and uses an `http:` or `https:` protocol. Anything
+ * else (e.g. `javascript:`, `data:`, malformed input) is rejected.
+ *
+ * @param url - The user-supplied URL.
+ * @returns The sanitized absolute URL, or `null` if it is unsafe / invalid.
+ */
+export const sanitizeExternalUrl = (
+  url: string | null | undefined
+): string | null => {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  try {
+    const parsed = new URL(withScheme);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Shorten an Ethereum address for display.
  * @param address - The address to shorten.
  * @returns The shortened address.
