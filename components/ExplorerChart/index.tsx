@@ -258,10 +258,10 @@ const ExplorerChart = ({
     return [min, (min + max) / 2, max];
   }, [xScale, data]);
 
-  // Explicit first/middle/last ticks for category mode, sidestepping Recharts'
-  // preserveStartEnd quirk that misaligns the last tick label vs the tick line.
+  // Sidesteps Recharts' preserveStartEnd line/text misalignment on endpoints.
+  // Need >=3 points so the middle tick doesn't duplicate first or last.
   const categoryTicks = useMemo<number[] | undefined>(() => {
-    if (xScale === "time" || !data || data.length < 2) return undefined;
+    if (xScale === "time" || !data || data.length < 3) return undefined;
     const mid = data[Math.floor(data.length / 2)].x;
     return [data[0].x, mid, data[data.length - 1].x];
   }, [xScale, data]);
