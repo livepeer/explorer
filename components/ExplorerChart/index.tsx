@@ -46,15 +46,9 @@ const CustomizedXAxisTick = ({
   // Time mode is ms (D3 convention); category is unix seconds.
   const date =
     xScale === "time" ? dayjs(payload.value) : dayjs.unix(payload.value);
-  // Time scale fills edge-to-edge; anchor first/last labels inward to avoid clipping.
+  // Anchor boundary labels inward so they stay inside the plot area.
   const textAnchor =
-    xScale === "time"
-      ? index === 0
-        ? "start"
-        : index === visibleTicksCount - 1
-        ? "end"
-        : "middle"
-      : "end";
+    index === visibleTicksCount - 1 ? "end" : index === 0 ? "start" : "middle";
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -264,6 +258,14 @@ const ExplorerChart = ({
     return [min, (min + max) / 2, max];
   }, [xScale, data]);
 
+  // Sidesteps Recharts' preserveStartEnd line/text misalignment on endpoints.
+  // Need >=3 points so the middle tick doesn't duplicate first or last.
+  const categoryTicks = useMemo<number[] | undefined>(() => {
+    if (xScale === "time" || !data || data.length < 3) return undefined;
+    const mid = data[Math.floor(data.length / 2)].x;
+    return [data[0].x, mid, data[data.length - 1].x];
+  }, [xScale, data]);
+
   const xAxis =
     xScale === "time" ? (
       <XAxis
@@ -278,8 +280,9 @@ const ExplorerChart = ({
     ) : (
       <XAxis
         dataKey="x"
+        ticks={categoryTicks}
+        interval={0}
         tick={CustomizedXAxisTick}
-        interval="preserveStartEnd"
       />
     );
 
