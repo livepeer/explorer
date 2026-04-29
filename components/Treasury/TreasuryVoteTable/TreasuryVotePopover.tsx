@@ -7,6 +7,7 @@ import {
   TreasuryVoteSupport,
   useTreasuryVoteEventsQuery,
 } from "apollo";
+import { useEnsData } from "hooks";
 import React from "react";
 
 import TreasuryVoteDetail from "./TreasuryVoteDetail";
@@ -14,17 +15,17 @@ import TreasuryVoteHistoryModal from "./TreasuryVoteHistoryModal";
 
 interface TreasuryVotePopoverProps {
   voter: string;
-  ensName?: string;
   onClose: () => void;
   formatWeight: (weight: string) => string;
 }
 
 const Index: React.FC<TreasuryVotePopoverProps> = ({
   voter,
-  ensName,
   onClose,
   formatWeight,
 }) => {
+  const ensIdentity = useEnsData(voter);
+  const ensName = ensIdentity?.name || ensIdentity?.idShort || "";
   const { data: votesData, loading: isLoading } = useTreasuryVoteEventsQuery({
     variables: {
       where: {
