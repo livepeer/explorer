@@ -75,19 +75,19 @@ const ExplorerChart = ({
   data,
   base,
   basePercentChange,
-  unit = "none",
+  unit,
   type,
-  lineCurve = "monotone",
   yDomain,
+  onToggleGrouping,
+  lineCurve = "monotone",
   xScale = "category",
   grouping = "day",
-  onToggleGrouping,
 }: {
   title: string;
   tooltip: ReactNode;
+  data: ChartDatum[];
   base: number;
   basePercentChange: number;
-  data: ChartDatum[];
   unit:
     | "usd"
     | "eth"
@@ -97,11 +97,11 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
-  lineCurve?: "monotone" | "stepAfter" | "linear";
   yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
+  onToggleGrouping?: (grouping: Group) => void;
+  lineCurve?: "monotone" | "stepAfter" | "linear";
   xScale?: "category" | "time";
   grouping?: Group;
-  onToggleGrouping?: (grouping: Group) => void;
 }) => {
   const formatDateSubtitle = useCallback(
     (date: number) => {
