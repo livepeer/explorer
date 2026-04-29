@@ -75,10 +75,10 @@ const ExplorerChart = ({
   data,
   base,
   basePercentChange,
+  unit,
   type,
   yDomain,
   onToggleGrouping,
-  unit = "none",
   lineCurve = "monotone",
   xScale = "category",
   grouping = "day",
@@ -88,9 +88,6 @@ const ExplorerChart = ({
   data: ChartDatum[];
   base: number;
   basePercentChange: number;
-  type: "bar" | "line";
-  yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
-  onToggleGrouping?: (grouping: Group) => void;
   unit:
     | "usd"
     | "eth"
@@ -99,6 +96,9 @@ const ExplorerChart = ({
     | "small-percent"
     | "small-unitless"
     | "none";
+  type: "bar" | "line";
+  yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
+  onToggleGrouping?: (grouping: Group) => void;
   lineCurve?: "monotone" | "stepAfter" | "linear";
   xScale?: "category" | "time";
   grouping?: Group;
