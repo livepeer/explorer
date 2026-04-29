@@ -275,17 +275,34 @@ const Index = ({
             {identity?.url && (
               <A
                 variant="contrast"
-                css={{ fontSize: "$2" }}
+                css={{ fontSize: "$2", minWidth: 0, maxWidth: "100%" }}
                 href={identity.url}
                 target="__blank"
                 rel="noopener noreferrer"
+                title={identity.url}
               >
                 <Flex
                   align="center"
-                  css={{ marginTop: "$2", marginRight: "$3" }}
+                  css={{ marginTop: "$2", marginRight: "$3", minWidth: 0 }}
                 >
-                  <Box as={GlobeIcon} css={{ marginRight: "$1" }} />
-                  {identity.url.replace(/(^\w+:|^)\/\//, "")}
+                  <Box
+                    as={GlobeIcon}
+                    css={{ marginRight: "$1", flexShrink: 0 }}
+                  />
+                  <Box
+                    as="span"
+                    css={{
+                      display: "block",
+                      flex: 1,
+                      minWidth: 0,
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {identity.url.replace(/(^\w+:|^)\/\//, "")}
+                  </Box>
                 </Flex>
               </A>
             )}
