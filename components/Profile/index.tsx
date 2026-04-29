@@ -277,7 +277,7 @@ const Index = ({
                 variant="contrast"
                 css={{ fontSize: "$2", minWidth: 0, maxWidth: "100%" }}
                 href={identity.url}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
                 title={identity.url}
               >
@@ -312,7 +312,7 @@ const Index = ({
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://twitter.com/${identity.twitter}`}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <Flex
@@ -338,7 +338,7 @@ const Index = ({
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://github.com/${identity.github}`}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <Flex
