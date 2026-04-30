@@ -9,7 +9,7 @@ import {
   formatUSD,
 } from "@utils/numberFormatters";
 import numbro from "numbro";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart as ReBarChart,
@@ -41,19 +41,33 @@ const CustomContentOfTooltip = ({
 
 export type ChartDatum = { x: number; y: number };
 
-const CustomizedXAxisTick = ({ x, y, payload }) => {
+const CustomizedXAxisTick = ({
+  x,
+  y,
+  payload,
+  index,
+  visibleTicksCount,
+  xScale,
+}) => {
+  // Time mode is ms (D3 convention); category is unix seconds.
+  const date =
+    xScale === "time" ? dayjs(payload.value) : dayjs.unix(payload.value);
+  // Anchor boundary labels inward so they stay inside the plot area.
+  const textAnchor =
+    index === visibleTicksCount - 1 ? "end" : index === 0 ? "start" : "middle";
+
   return (
     <g transform={`translate(${x},${y})`}>
       <text
         x={0}
         y={0}
         dy={14}
-        textAnchor="end"
+        textAnchor={textAnchor}
         fill="white"
         fontWeight={400}
         fontSize="13px"
       >
-        {dayjs.unix(payload.value).format("MMM YY")}
+        {date.format("MMM [']YY")}
       </text>
     </g>
   );
@@ -67,16 +81,19 @@ const ExplorerChart = ({
   data,
   base,
   basePercentChange,
-  unit = "none",
+  unit,
   type,
-  grouping = "day",
+  yDomain,
   onToggleGrouping,
+  lineCurve = "monotone",
+  xScale = "category",
+  grouping = "day",
 }: {
   title: string;
-  tooltip: string;
+  tooltip: ReactNode;
+  data: ChartDatum[];
   base: number;
   basePercentChange: number;
-  data: ChartDatum[];
   unit:
     | "usd"
     | "eth"
@@ -86,23 +103,23 @@ const ExplorerChart = ({
     | "small-unitless"
     | "none";
   type: "bar" | "line";
-  grouping?: Group;
+  yDomain?: [number | "auto" | "dataMin", number | "auto" | "dataMax"];
   onToggleGrouping?: (grouping: Group) => void;
+  lineCurve?: "monotone" | "stepAfter" | "linear";
+  xScale?: "category" | "time";
+  grouping?: Group;
 }) => {
   const formatDateSubtitle = useCallback(
-    (date: number) =>
-      grouping === "day"
-        ? `${dayjs.unix(date).format("MMM D")}`
-        : `${dayjs
-            .unix(date)
-            .add(1, "day")
-            .startOf("week")
-            .format("MMM D")} - ${dayjs
-            .unix(date)
+    (date: number) => {
+      const d = xScale === "time" ? dayjs(date) : dayjs.unix(date);
+      return grouping === "day"
+        ? d.format("MMM D")
+        : `${d.add(1, "day").startOf("week").format("MMM D")} - ${d
             .add(1, "day")
             .endOf("week")
-            .format("MMM D")}`,
-    [grouping]
+            .format("MMM D")}`;
+    },
+    [grouping, xScale]
   );
 
   const formatSubtitle = useCallback(
@@ -214,7 +231,7 @@ const ExplorerChart = ({
       unit === "small-percent"
         ? 45
         : unit === "percent"
-        ? 35
+        ? 42
         : unit === "minutes"
         ? 35
         : unit === "eth"
@@ -224,6 +241,41 @@ const ExplorerChart = ({
         : 30,
     [unit]
   );
+
+  const timeTicks = useMemo<number[] | undefined>(() => {
+    if (xScale !== "time" || !data || data.length < 2) return undefined;
+    const min = data[0].x;
+    const max = data[data.length - 1].x;
+    return [min, (min + max) / 2, max];
+  }, [xScale, data]);
+
+  // Sidesteps Recharts' preserveStartEnd line/text misalignment on endpoints.
+  // Need >=3 points so the middle tick doesn't duplicate first or last.
+  const categoryTicks = useMemo<number[] | undefined>(() => {
+    if (xScale === "time" || !data || data.length < 3) return undefined;
+    const mid = data[Math.floor(data.length / 2)].x;
+    return [data[0].x, mid, data[data.length - 1].x];
+  }, [xScale, data]);
+
+  const xAxis =
+    xScale === "time" ? (
+      <XAxis
+        dataKey="x"
+        type="number"
+        scale="time"
+        domain={["dataMin", "dataMax"]}
+        ticks={timeTicks}
+        interval={0}
+        tick={(props) => <CustomizedXAxisTick {...props} xScale="time" />}
+      />
+    ) : (
+      <XAxis
+        dataKey="x"
+        ticks={categoryTicks}
+        interval={0}
+        tick={CustomizedXAxisTick}
+      />
+    );
 
   return (
     <Box css={{ position: "relative", width: "100%", height: "100%" }}>
@@ -236,23 +288,7 @@ const ExplorerChart = ({
         <ExplorerTooltip
           multiline
           side="bottom"
-          content={
-            tooltip ? (
-              <>
-                <div>{tooltip}</div>
-                <br />
-                <div>
-                  {`The estimation methodology was updated on 8/21/23. `}
-                  <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
-                    Read more about the changes
-                  </a>
-                  {"."}
-                </div>
-              </>
-            ) : (
-              <></>
-            )
-          }
+          content={tooltip ? <div>{tooltip}</div> : <></>}
         >
           <Flex
             css={{
@@ -413,11 +449,7 @@ const ExplorerChart = ({
                 })
               }
             >
-              <XAxis
-                dataKey="x"
-                tick={CustomizedXAxisTick}
-                interval="preserveStartEnd"
-              />
+              {xAxis}
               <YAxis
                 width={widthYAxis}
                 orientation="right"
@@ -461,22 +493,18 @@ const ExplorerChart = ({
                 })
               }
             >
-              <XAxis
-                dataKey="x"
-                tick={CustomizedXAxisTick}
-                interval="preserveStartEnd"
-              />
+              {xAxis}
               <YAxis
                 width={widthYAxis}
                 orientation="right"
                 tick={CustomizedYAxisTick}
-                domain={["auto", "auto"]}
+                domain={yDomain ?? ["auto", "auto"]}
               />
               <ReTooltip content={CustomContentOfTooltip} />
 
               <Line
                 dataKey="y"
-                type="monotone"
+                type={lineCurve}
                 dot={{ r: 0, strokeWidth: 0 }}
                 activeDot={{ r: 3, strokeWidth: 0 }}
                 stroke="rgba(0, 235, 136, 0.8)"

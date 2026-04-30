@@ -1,17 +1,25 @@
 # Livepeer Explorer
 
 ![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)
-![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9.15.0-blue)
+![pnpm](https://img.shields.io/badge/pnpm-%3E%3D10.33.0-blue)
 
 ## Prerequisites
 
 Before getting started, ensure you have the following installed on your system:
 
 - [Node.js 22.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
-- [pnpm v9.15.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
+- [pnpm v10.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
+- [Docker](https://docs.docker.com/get-docker/) (optional) — required for the dev container
 
 > [!TIP]
 > Use `nvm install` or `asdf install` to automatically switch to the correct versions.
+
+## Dev Container (Recommended)
+
+Develop inside a pre-configured container — consistent tooling, zero local setup, and isolation from your host machine.
+
+1. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VS Code
+2. `Ctrl+Shift+P` → **"Dev Containers: Reopen in Container"**
 
 ## Getting Started
 

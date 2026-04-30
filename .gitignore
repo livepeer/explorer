@@ -26,6 +26,7 @@ next-env.d.ts
 !.vscode/settings.json
 .code-workspace
 .claude/
+.pnpm-store/
 
 # debug
 npm-debug.log*

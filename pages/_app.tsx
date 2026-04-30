@@ -2,7 +2,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 
 import { ApolloProvider } from "@apollo/client";
-import { fetcher } from "@lib/axios";
+import { fetcher } from "@lib/fetcher";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DEFAULT_CHAIN, L1_CHAIN } from "lib/chains";
 import dynamic from "next/dynamic";

@@ -206,6 +206,7 @@ const AccountLayout = ({
             isActive={isActive}
             account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
+            isOrchestrator={isOrchestrator}
             identity={identity}
           />
           <Flex
