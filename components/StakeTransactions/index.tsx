@@ -1,14 +1,11 @@
 import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
+import { formatLPT } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { UnbondingLock } from "apollo";
 import { useMemo } from "react";
 import { parseEther } from "viem";
 
-import {
-  abbreviateNumber,
-  formatAddress,
-  getHint,
-  simulateNewActiveSetOrder,
-} from "../../lib/utils";
+import { getHint, simulateNewActiveSetOrder } from "../../lib/utils";
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
@@ -136,9 +133,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 4)}
-                      </Box>{" "}
-                      LPT
+                        {formatLPT(lock.amount)}
+                      </Box>
                     </Box>
                   </Flex>
                 </Flex>
@@ -247,9 +243,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 3)}
-                      </Box>{" "}
-                      LPT
+                        {formatLPT(lock.amount)}
+                      </Box>
                     </Box>
                   </Flex>
                 </Flex>

@@ -4,6 +4,13 @@ import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
 import {
+  formatETH,
+  formatNumber,
+  formatPercent,
+  formatStakeAmount,
+} from "@utils/numberFormatters";
+import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
+import {
   AccountQueryResult,
   OrderDirection,
   TranscoderActivatedEvent_OrderBy,
@@ -14,7 +21,6 @@ import {
 import { useScoreData } from "hooks";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
-import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 
@@ -114,9 +120,8 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
     const outputTrans =
       maxScore.transcoding?.score && maxScore.transcoding?.score > 0;
     const transcodingInfo = outputTrans
-      ? `${numbro(maxScore.transcoding?.score).divide(100).format({
-          output: "percent",
-          mantissa: 1,
+      ? `${formatPercent(maxScore.transcoding.score / 100, {
+          precision: 1,
         })} - ${maxScore.transcoding.region}`
       : "";
     return outputTrans ? transcodingInfo : "N/A";
@@ -129,11 +134,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
       "N/A";
     const aiInfo = outputAI ? (
       <>
-        {numbro(maxScore.ai?.value).format({
-          output: "percent",
-          mantissa: 1,
-        })}{" "}
-        - {region}
+        {formatPercent(maxScore.ai?.value)} - {region}
       </>
     ) : (
       ""
@@ -176,14 +177,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
-          value={
-            transcoder
-              ? `${numbro(transcoder?.totalStake || 0).format({
-                  mantissa: 2,
-                  average: true,
-                })} LPT`
-              : "N/A"
-          }
+          value={transcoder ? formatStakeAmount(transcoder?.totalStake) : "N/A"}
         />
         <Stat
           className="masonry-grid_item"
@@ -219,25 +213,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of fees this orchestrator has earned (since the migration to Arbitrum One)."
           }
-          value={`${numbro(transcoder?.totalVolumeETH || 0).format({
-            mantissa: 2,
-            average: true,
-          })} ETH`}
+          value={formatETH(transcoder?.totalVolumeETH)}
         />
         <Stat
           className="masonry-grid_item"
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to gateways. This may be different from on-chain pricing."
-          value={
-            scores
-              ? `${numbro(
-                  (scores?.pricePerPixel || 0) <= 0 ? 0 : scores.pricePerPixel
-                ).format({
-                  mantissa: 1,
-                  thousandSeparated: true,
-                })} WEI`
-              : "N/A"
-          }
+          value={scores ? `${formatNumber(scores.pricePerPixel)} WEI` : "N/A"}
         />
         {/* <Stat
           className="masonry-grid_item"
@@ -245,27 +227,10 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The number of delegators which have delegated stake to this orchestrator."
           }
-          value={`${numbro(transcoder?.delegators?.length || 0).format(
-            "0,0"
-          )}`}
+          value={`${formatNumber(transcoder?.delegators?.length, {
+            precision: 0,
+          })}`}
         /> */}
-        <Stat
-          className="masonry-grid_item"
-          label="Reward Cut"
-          tooltip={
-            "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
-          }
-          value={
-            transcoder?.rewardCut
-              ? numbro(transcoder?.rewardCut || 0)
-                  .divide(1000000)
-                  .format({
-                    output: "percent",
-                    mantissa: 0,
-                  })
-              : "N/A"
-          }
-        />
         <Stat
           className="masonry-grid_item"
           label="Fee Cut"
@@ -274,10 +239,24 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           }
           value={
             transcoder?.feeShare
-              ? numbro(1 - +(transcoder?.feeShare || 0) / 1000000).format({
-                  output: "percent",
-                  mantissa: 0,
-                })
+              ? formatPercent(
+                  1 -
+                    +(transcoder?.feeShare || 0) / PERCENTAGE_PRECISION_MILLION
+                )
+              : "N/A"
+          }
+        />
+        <Stat
+          className="masonry-grid_item"
+          label="Reward Cut"
+          tooltip={
+            "The percent of the inflationary reward fees which are kept by the orchestrator, with the remainder distributed to its delegators by percent stake."
+          }
+          value={
+            transcoder?.rewardCut
+              ? formatPercent(
+                  +(transcoder?.rewardCut || 0) / PERCENTAGE_PRECISION_MILLION
+                )
               : "N/A"
           }
         />
@@ -369,7 +348,8 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     fontWeight: 500,
                   }}
                 >
-                  / {govStats.eligible} Proposals
+                  / {formatNumber(govStats.eligible, { precision: 0 })}{" "}
+                  Proposals
                 </Box>
               </Flex>
             ) : (
@@ -407,9 +387,8 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
               >
                 {govStats && (
                   <Text size="2" css={{ color: "$neutral11", fontWeight: 600 }}>
-                    {numbro(govStats.voted / govStats.eligible).format({
-                      output: "percent",
-                      mantissa: 0,
+                    {formatPercent(govStats.voted / govStats.eligible, {
+                      precision: 0,
                     })}{" "}
                     Participation
                   </Text>

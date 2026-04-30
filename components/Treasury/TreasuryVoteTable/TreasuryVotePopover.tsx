@@ -2,6 +2,7 @@ import Spinner from "@components/Spinner";
 import { TREASURY_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
+import { formatNumber } from "@utils/numberFormatters";
 import {
   TreasuryVoteEvent,
   TreasuryVoteSupport,
@@ -95,7 +96,7 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
                 Total:
               </Text>
               <Text size="1" css={{ color: "$white", fontWeight: 700 }}>
-                {stats.total}
+                {formatNumber(stats.total, { precision: 0 })}
               </Text>
             </Flex>
           )}
@@ -123,7 +124,7 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
                 Total:
               </Text>
               <Text size="1" css={{ color: "$white", fontWeight: 700 }}>
-                {stats.total}
+                {formatNumber(stats.total, { precision: 0 })}
               </Text>
             </Flex>
             <Badge
@@ -143,7 +144,7 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
                 as={TREASURY_VOTES.for.icon}
                 css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              For: {stats.for}
+              For: {formatNumber(stats.for, { precision: 0 })}
             </Badge>
             <Badge
               size="1"
@@ -162,7 +163,7 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
                 as={TREASURY_VOTES.against.icon}
                 css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              Against: {stats.against}
+              Against: {formatNumber(stats.against, { precision: 0 })}
             </Badge>
             <Badge
               size="1"
@@ -181,7 +182,7 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
                 as={TREASURY_VOTES.abstain.icon}
                 css={{ width: 12, height: 12, flexShrink: 0 }}
               />
-              Abstain: {stats.abstain}
+              Abstain: {formatNumber(stats.abstain, { precision: 0 })}
             </Badge>
           </Flex>
         )}

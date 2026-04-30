@@ -1,7 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { formatAddress } from "@lib/utils";
 import {
   Box,
   Button,
@@ -20,6 +19,7 @@ import {
   GlobeIcon,
   TwitterLogoIcon,
 } from "@modulz/radix-icons";
+import { formatAddress } from "@utils/web3";
 import copy from "copy-to-clipboard";
 import { QRCodeCanvas } from "qrcode.react";
 import { useCallback, useEffect, useState } from "react";

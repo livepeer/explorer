@@ -1,20 +1,15 @@
+import { EMPTY_ADDRESS } from "@utils/web3";
 import { AccountQueryResult } from "apollo";
 import { StakingAction } from "hooks";
 
 import {
-  abbreviateNumber,
   avg,
-  checkAddressEquality,
-  EMPTY_ADDRESS,
-  formatAddress,
-  fromWei,
   getDelegatorStatus,
   getHint,
   getPercentChange,
   isImageUrl,
   simulateNewActiveSetOrder,
   textTruncate,
-  toWei,
 } from "./utils";
 
 describe("avg", () => {
@@ -33,23 +28,6 @@ describe("avg", () => {
       c: { value: 6 },
     };
     expect(avg(obj, "value")).toBe(4);
-  });
-});
-
-describe("abbreviateNumber", () => {
-  it("does not abbreviate numbers < 1000", () => {
-    expect(abbreviateNumber(500)).toBe("500");
-  });
-
-  it("abbreviates thousands", () => {
-    expect(abbreviateNumber(1500)).toBe("1.50K");
-  });
-
-  it("abbreviates millions", () => {
-    const res = abbreviateNumber(2_000_000);
-    expect(res.endsWith("M")).toBe(true);
-    expect(parseFloat(res.replace("M", ""))).toBeCloseTo(2, 3);
-    expect(res).toBe("2.00M");
   });
 });
 
@@ -130,25 +108,6 @@ describe("textTruncate", () => {
   it("uses default ending when ending is null", () => {
     const res = textTruncate("hello world", 8, null);
     expect(res).toBe("hello...");
-  });
-});
-
-describe("checkAddressEquality", () => {
-  it("returns false for invalid addresses", () => {
-    expect(checkAddressEquality("not-an-address", "0x123")).toBe(false);
-  });
-
-  it("compares valid addresses case-insensitively", () => {
-    const addrLower = "0x00a0000000000000000000000000000000000001";
-    const addrUpper =
-      "0x00a0000000000000000000000000000000000001".toUpperCase();
-    expect(checkAddressEquality(addrLower, addrUpper)).toBe(true);
-  });
-
-  it("returns false for different valid addresses", () => {
-    const addr1 = "0x0000000000000000000000000000000000000001";
-    const addr2 = "0x0000000000000000000000000000000000000002";
-    expect(checkAddressEquality(addr1, addr2)).toBe(false);
   });
 });
 
@@ -303,25 +262,6 @@ describe("getPercentChange", () => {
   });
 });
 
-describe("fromWei", () => {
-  it("converts string wei to ether string", () => {
-    const oneEthWei = "1000000000000000000";
-    expect(fromWei(oneEthWei)).toBe("1");
-  });
-
-  it("converts bigint wei to ether string", () => {
-    const twoEthWei = 2000000000000000000n;
-    expect(fromWei(twoEthWei)).toBe("2");
-  });
-});
-
-describe("toWei", () => {
-  it("converts ether number to bigint wei", () => {
-    expect(toWei(1)).toBe(1000000000000000000n);
-    expect(toWei(0.5)).toBe(500000000000000000n);
-  });
-});
-
 describe("isImageUrl", () => {
   it("returns true for common image extensions", () => {
     expect(isImageUrl("https://example.com/image.jpg")).toBe(true);
@@ -333,21 +273,5 @@ describe("isImageUrl", () => {
   it("returns false for non-image URLs", () => {
     expect(isImageUrl("https://example.com/index.html")).toBe(false);
     expect(isImageUrl("not-a-url")).toBe(false);
-  });
-});
-
-describe("formatAddress", () => {
-  it("shortens a normal ethereum address", () => {
-    const addr = "0x1234567890abcdef1234567890abcdef12345678";
-    const shortened = formatAddress(addr);
-
-    // Implementation: replace address.slice(5, 39) with "…"
-    const expected = addr.slice(0, 6) + "…" + addr.slice(-4);
-
-    expect(shortened).toBe(expected);
-  });
-
-  it("returns empty string for falsy address", () => {
-    expect(formatAddress(null)).toBe("");
   });
 });
