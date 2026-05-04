@@ -412,9 +412,6 @@ const OrchestratorList = ({
               {!isNewlyActive && (
                 <PopoverContent
                   css={{ minWidth: 300, borderRadius: "$4", bc: "$neutral4" }}
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
                 >
                   <Box
                     css={{
@@ -950,9 +947,6 @@ const OrchestratorList = ({
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
-              placeholder={undefined}
             >
               <Box
                 css={{
@@ -1101,9 +1095,6 @@ const OrchestratorList = ({
                   bc: "$neutral4",
                 }}
                 align="center"
-                onPointerEnterCapture={undefined}
-                onPointerLeaveCapture={undefined}
-                placeholder={undefined}
               >
                 <DropdownMenuGroup>
                   <DropdownMenuItem
@@ -1190,9 +1181,6 @@ const OrchestratorList = ({
                 </PopoverTrigger>
                 <PopoverContent
                   css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
                 >
                   <Box
                     css={{
@@ -1284,9 +1272,6 @@ const OrchestratorList = ({
                     bc: "$neutral4",
                   }}
                   align="center"
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -1366,9 +1351,6 @@ const OrchestratorList = ({
                     bc: "$neutral4",
                   }}
                   align="center"
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem

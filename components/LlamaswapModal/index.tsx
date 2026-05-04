@@ -4,12 +4,7 @@ const Index = ({ trigger, children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent
-        css={{ width: "100%", maxWidth: 500, height: "80vh" }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
-      >
+      <DialogContent css={{ width: "100%", maxWidth: 500, height: "80vh" }}>
         {children}
       </DialogContent>
     </Dialog>

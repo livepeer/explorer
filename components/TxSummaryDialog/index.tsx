@@ -38,9 +38,6 @@ const Index = () => {
           "@bp1": { maxWidth: 450 },
         }}
         onPointerDownOutside={clearLatestTransaction}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         {latestTransaction?.error ? (
           <Box />

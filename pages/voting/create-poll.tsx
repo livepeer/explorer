@@ -173,9 +173,6 @@ const CreatePoll = ({
                       display: "flex",
                       borderRadius: "$4",
                     }}
-                    onPointerEnterCapture={undefined}
-                    onPointerLeaveCapture={undefined}
-                    placeholder={undefined}
                   >
                     <Flex css={{ alignItems: "center", width: "100%" }}>
                       <Box css={{ marginLeft: "$3", width: "100%" }}>
