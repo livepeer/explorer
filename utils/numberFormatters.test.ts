@@ -81,6 +81,11 @@ describe("formatLPT", () => {
     it("can disable abbreviation", () => {
       expect(formatLPT(15000, { abbreviate: false })).toBe("15,000 LPT");
     });
+
+    it("respects a custom abbreviateThreshold", () => {
+      expect(formatLPT(3000, { abbreviateThreshold: 1000 })).toBe("3K LPT");
+      expect(formatLPT(999, { abbreviateThreshold: 1000 })).toBe("999 LPT");
+    });
   });
 
   describe("null/undefined handling", () => {
@@ -178,6 +183,15 @@ describe("formatETH", () => {
       expect(formatETH(15000, { abbreviate: true, forceSign: true })).toBe(
         "+15K ETH"
       );
+    });
+
+    it("respects a custom abbreviateThreshold", () => {
+      expect(
+        formatETH(3000, { abbreviate: true, abbreviateThreshold: 1000 })
+      ).toBe("3K ETH");
+      expect(
+        formatETH(999, { abbreviate: true, abbreviateThreshold: 1000 })
+      ).toBe("999 ETH");
     });
   });
 
