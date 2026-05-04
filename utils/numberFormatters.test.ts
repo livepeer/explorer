@@ -339,6 +339,28 @@ describe("formatNumber", () => {
       expect(formatNumber(9999, { abbreviate: true })).toBe("9,999");
       expect(formatNumber(10000, { abbreviate: true })).toBe("10K");
     });
+
+    it("respects a custom abbreviateThreshold", () => {
+      expect(
+        formatNumber(3000, { abbreviate: true, abbreviateThreshold: 1000 })
+      ).toBe("3K");
+      expect(
+        formatNumber(999, { abbreviate: true, abbreviateThreshold: 1000 })
+      ).toBe("999");
+      expect(
+        formatNumber(-2500, { abbreviate: true, abbreviateThreshold: 1000 })
+      ).toBe("-2.5K");
+    });
+
+    it("abbreviates sub-1K values when threshold is 0", () => {
+      expect(
+        formatNumber(500, { abbreviate: true, abbreviateThreshold: 0 })
+      ).toBe("0.5K");
+    });
+
+    it("threshold has no effect when abbreviate is false", () => {
+      expect(formatNumber(3000, { abbreviateThreshold: 1000 })).toBe("3,000");
+    });
   });
 
   describe("null/undefined handling", () => {
@@ -373,6 +395,9 @@ describe("formatUSD", () => {
   it("respects options", () => {
     expect(formatUSD(15000, { abbreviate: true })).toBe("$15K");
     expect(formatUSD(1234.56, { precision: 0 })).toBe("$1,235");
+    expect(
+      formatUSD(3000, { abbreviate: true, abbreviateThreshold: 1000 })
+    ).toBe("$3K");
   });
 
   it("handles zero/null", () => {

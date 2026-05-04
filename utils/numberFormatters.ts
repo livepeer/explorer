@@ -8,6 +8,8 @@ export interface FormatOptions {
   showSymbol?: boolean;
   /** Whether to use K/M/B/T abbreviations for large numbers */
   abbreviate?: boolean;
+  /** Minimum absolute value at which `abbreviate` kicks in. Defaults to 10000. */
+  abbreviateThreshold?: number;
   /** Number of decimal places to show */
   precision?: number;
   /** Whether to show thousand separators (commas) */
@@ -344,6 +346,7 @@ export function formatRound(
  * formatNumber(1234.56)                           // "1,234.56"
  * formatNumber(1234.56, { precision: 0 })         // "1,235"
  * formatNumber(15000, { abbreviate: true })       // "15K"
+ * formatNumber(500, { abbreviate: true, abbreviateThreshold: 0 })  // "0.5K"
  */
 export function formatNumber(
   value: number | string | null | undefined,
@@ -352,6 +355,7 @@ export function formatNumber(
   const {
     precision = 2,
     abbreviate = false,
+    abbreviateThreshold = 10000,
     thousandSeparated = true,
     trimZeros = true,
     forceSign = false,
@@ -375,7 +379,7 @@ export function formatNumber(
   }
 
   // Use abbreviations for large numbers if requested
-  if (abbreviate && Math.abs(num) >= 10000) {
+  if (abbreviate && Math.abs(num) >= abbreviateThreshold) {
     return numbro(num)
       .format({
         average: true,
