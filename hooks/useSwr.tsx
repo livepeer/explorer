@@ -70,12 +70,15 @@ export const useChangefeedData = () => {
 };
 
 export const useSupplyChangeData = () => {
-  const { data, error, isValidating } =
-    useSWR<SupplyChangeData>(`/supply-change`);
+  // Round-keyed cache: only refetch when the round changes.
+  const round = useCurrentRoundData();
+  const { data, error, isValidating } = useSWR<SupplyChangeData>(
+    round?.id ? `/supply-change?round=${round.id}` : null
+  );
 
   return {
     data: data ?? null,
-    isLoading: Boolean(!data && isValidating && !error),
+    isLoading: Boolean(round?.id && !data && isValidating && !error),
     error,
   };
 };
