@@ -197,11 +197,13 @@ const ExplorerChart = ({
           fontSize="13px"
         >
           {(() => {
+            // Tight tick width: always abbreviate so 4-digit values don't clip.
             switch (unit) {
               case "usd":
                 return formatUSD(payload.value, {
                   precision: 0,
                   abbreviate: true,
+                  abbreviateThreshold: 0,
                 });
               case "eth":
                 return formatNumber(payload.value, { precision: 1 }) + " Ξ";
@@ -213,11 +215,13 @@ const ExplorerChart = ({
                 return formatNumber(payload.value, {
                   precision: 1,
                   abbreviate: true,
+                  abbreviateThreshold: 0,
                 });
               default:
                 return formatNumber(payload.value, {
                   precision: 0,
                   abbreviate: true,
+                  abbreviateThreshold: 0,
                 });
             }
           })()}
@@ -233,12 +237,12 @@ const ExplorerChart = ({
         : unit === "percent"
         ? 42
         : unit === "minutes"
-        ? 35
-        : unit === "eth"
-        ? 35
-        : unit === "usd"
         ? 36
-        : 30,
+        : unit === "eth"
+        ? 36
+        : unit === "usd"
+        ? 38
+        : 32,
     [unit]
   );
 

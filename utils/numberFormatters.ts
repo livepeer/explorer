@@ -8,6 +8,8 @@ export interface FormatOptions {
   showSymbol?: boolean;
   /** Whether to use K/M/B/T abbreviations for large numbers */
   abbreviate?: boolean;
+  /** Minimum absolute value at which `abbreviate` kicks in. Defaults to 10000. */
+  abbreviateThreshold?: number;
   /** Number of decimal places to show */
   precision?: number;
   /** Whether to show thousand separators (commas) */
@@ -47,6 +49,7 @@ export function formatLPT(
   const {
     showSymbol = true,
     abbreviate = true,
+    abbreviateThreshold = 10000,
     precision = 2,
     thousandSeparated = true,
     trimZeros = true,
@@ -85,8 +88,8 @@ export function formatLPT(
 
   let formatted: string;
 
-  // Use abbreviations for large numbers (>= 10,000)
-  if (abbreviate && Math.abs(num) >= 10000) {
+  // Use abbreviations for large numbers (>= abbreviateThreshold, default 10,000)
+  if (abbreviate && Math.abs(num) >= abbreviateThreshold) {
     formatted = numbro(num)
       .format({
         average: true,
@@ -137,6 +140,7 @@ export function formatETH(
     trimZeros = true,
     forceSign = false,
     abbreviate = false,
+    abbreviateThreshold = 10000,
   } = options;
 
   // Handle null/undefined
@@ -169,8 +173,8 @@ export function formatETH(
     return showSymbol ? `> -${thresholdStr} ETH` : `> -${thresholdStr}`;
   }
 
-  // Use abbreviations for large numbers (>= 10,000)
-  if (abbreviate && Math.abs(num) >= 10000) {
+  // Use abbreviations for large numbers (>= abbreviateThreshold, default 10,000)
+  if (abbreviate && Math.abs(num) >= abbreviateThreshold) {
     const abbreviated = numbro(num)
       .format({
         average: true,
@@ -344,6 +348,7 @@ export function formatRound(
  * formatNumber(1234.56)                           // "1,234.56"
  * formatNumber(1234.56, { precision: 0 })         // "1,235"
  * formatNumber(15000, { abbreviate: true })       // "15K"
+ * formatNumber(500, { abbreviate: true, abbreviateThreshold: 0 })  // "0.5K"
  */
 export function formatNumber(
   value: number | string | null | undefined,
@@ -352,6 +357,7 @@ export function formatNumber(
   const {
     precision = 2,
     abbreviate = false,
+    abbreviateThreshold = 10000,
     thousandSeparated = true,
     trimZeros = true,
     forceSign = false,
@@ -375,7 +381,7 @@ export function formatNumber(
   }
 
   // Use abbreviations for large numbers if requested
-  if (abbreviate && Math.abs(num) >= 10000) {
+  if (abbreviate && Math.abs(num) >= abbreviateThreshold) {
     return numbro(num)
       .format({
         average: true,
