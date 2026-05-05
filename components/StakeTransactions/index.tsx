@@ -100,6 +100,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                           width: "100%",
                           "@bp2": {
                             width: "auto",
+                            marginLeft: "$4",
                           },
                         }}
                       >
@@ -127,8 +128,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         "@bp2": {
                           alignSelf: "auto",
                           fontWeight: 400,
-                          marginLeft: "$4",
                           marginTop: 0,
+                          order: -1,
                         },
                       }}
                     >
@@ -209,6 +210,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             flexDirection: "row",
                             gap: 0,
                             width: "auto",
+                            marginLeft: "$4",
                           },
                         }}
                       >
@@ -237,8 +239,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         "@bp2": {
                           alignSelf: "auto",
                           fontWeight: 400,
-                          marginLeft: "$4",
                           marginTop: 0,
+                          order: -1,
                         },
                       }}
                     >
