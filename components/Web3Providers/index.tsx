@@ -8,7 +8,9 @@ import {
   baseAccount,
   braveWallet,
   metaMaskWallet,
+  rabbyWallet,
   rainbowWallet,
+  trustWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import rainbowTheme from "constants/rainbowTheme";
@@ -40,6 +42,8 @@ const Index = ({
             metaMaskWallet,
             braveWallet,
             rainbowWallet,
+            trustWallet,
+            rabbyWallet,
             baseAccount,
             walletConnectWallet,
           ],
