@@ -93,6 +93,23 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       },
                     }}
                   >
+                    <Box
+                      css={{
+                        alignSelf: "flex-end",
+                        fontWeight: 700,
+                        marginTop: "$1",
+                        "@bp2": {
+                          alignSelf: "auto",
+                          fontWeight: 400,
+                          marginRight: "$4",
+                          marginTop: 0,
+                        },
+                      }}
+                    >
+                      <Box as="span" css={{ fontFamily: "$monospace" }}>
+                        {formatLPT(lock.amount)}
+                      </Box>
+                    </Box>
                     {isMyAccount && (
                       <Flex
                         css={{
@@ -119,23 +136,6 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         )}
                       </Flex>
                     )}
-                    <Box
-                      css={{
-                        alignSelf: "flex-end",
-                        fontWeight: 700,
-                        marginTop: "$1",
-                        "@bp2": {
-                          alignSelf: "auto",
-                          fontWeight: 400,
-                          marginLeft: "$4",
-                          marginTop: 0,
-                        },
-                      }}
-                    >
-                      <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {formatLPT(lock.amount)}
-                      </Box>
-                    </Box>
                   </Flex>
                 </Flex>
               </Card>
@@ -198,6 +198,23 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       },
                     }}
                   >
+                    <Box
+                      css={{
+                        alignSelf: "flex-end",
+                        fontWeight: 700,
+                        marginTop: "$1",
+                        "@bp2": {
+                          alignSelf: "auto",
+                          fontWeight: 400,
+                          marginRight: "$4",
+                          marginTop: 0,
+                        },
+                      }}
+                    >
+                      <Box as="span" css={{ fontFamily: "$monospace" }}>
+                        {formatLPT(lock.amount)}
+                      </Box>
+                    </Box>
                     {isMyAccount && (
                       <Flex
                         css={{
@@ -229,23 +246,6 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         <WithdrawStake unbondingLockId={lock.unbondingLockId} />
                       </Flex>
                     )}
-                    <Box
-                      css={{
-                        alignSelf: "flex-end",
-                        fontWeight: 700,
-                        marginTop: "$1",
-                        "@bp2": {
-                          alignSelf: "auto",
-                          fontWeight: 400,
-                          marginLeft: "$4",
-                          marginTop: 0,
-                        },
-                      }}
-                    >
-                      <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {formatLPT(lock.amount)}
-                      </Box>
-                    </Box>
                   </Flex>
                 </Flex>
               </Card>
