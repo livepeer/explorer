@@ -32,6 +32,8 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
+const PAGE_SIZE = 10;
+
 const Card = styled(CardBase, {
   length: {},
   border: "1px solid $neutral3",
@@ -53,11 +55,13 @@ const Index = () => {
   } = useTransactionsQuery({
     variables: {
       account: account.toLowerCase(),
-      first: 10,
+      first: PAGE_SIZE,
       skip: 0,
     },
     notifyOnNetworkStatusChange: true,
   });
+
+  const [reachedEnd, setReachedEnd] = useState(false);
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -200,7 +204,7 @@ const Index = () => {
 
   const fetchingRef = useRef(false);
   const fetchNext = useCallback(async () => {
-    if (fetchingRef.current || loading || totalLoaded < 10) return;
+    if (fetchingRef.current || loading) return;
     fetchingRef.current = true;
     stopPolling();
     try {
@@ -210,12 +214,15 @@ const Index = () => {
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
+          const newTransactions = fetchMoreResult.transactions ?? [];
+          // A short page means the server has nothing more to give; flip
+          // reachedEnd so the observer detaches.
+          if (newTransactions.length < PAGE_SIZE) {
+            setReachedEnd(true);
+          }
           return {
             ...previousResult,
-            transactions: [
-              ...previousResult.transactions,
-              ...fetchMoreResult.transactions,
-            ],
+            transactions: [...previousResult.transactions, ...newTransactions],
             // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
             // So, we will always have winning ticket events that are older than the last transaction timestamp
             // Allowing mergedEvents to filter correctly
@@ -233,11 +240,13 @@ const Index = () => {
     }
   }, [loading, totalLoaded, stopPolling, fetchMoreTransactions]);
 
-  // Fetch more when the sentinel div near the bottom becomes visible.
+  // Attach the IntersectionObserver only while there's more to fetch. When
+  // reachedEnd flips true (or the initial page already covered everything),
+  // this effect re-runs and the cleanup detaches the observer entirely.
   const sentinelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el) return;
+    if (!el || reachedEnd || totalLoaded < PAGE_SIZE) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) fetchNext();
@@ -246,7 +255,7 @@ const Index = () => {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [fetchNext]);
+  }, [fetchNext, reachedEnd, totalLoaded]);
 
   if (error) {
     console.error(error);
@@ -286,7 +295,7 @@ const Index = () => {
       <Box css={{ paddingBottom: "$3" }}>
         {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
       </Box>
-      {loading && totalLoaded >= 10 && (
+      {loading && totalLoaded >= PAGE_SIZE && !reachedEnd && (
         <Flex
           css={{
             position: "absolute",
