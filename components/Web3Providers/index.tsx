@@ -3,7 +3,6 @@ import {
   type Locale,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
-import { _chains } from "@rainbow-me/rainbowkit/dist/config/getDefaultConfig";
 import {
   baseAccount,
   braveWallet,
@@ -28,7 +27,7 @@ const Index = ({
   locale?: string;
 }) => {
   const { config, layoutKey } = useMemo(() => {
-    const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN] as _chains;
+    const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN] as const;
 
     const config = getDefaultConfig({
       appName: "Livepeer Explorer",
