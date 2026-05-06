@@ -37,32 +37,38 @@ const Index = ({
 
   const currentRoundInfo = useCurrentRoundData();
 
+  const blocksSinceCurrentRoundStart = useMemo(
+    () =>
+      currentRoundInfo?.initialized
+        ? currentRoundInfo.currentL1Block - currentRoundInfo.startBlock
+        : 0,
+    [currentRoundInfo]
+  );
+  const isOverdue = useMemo(
+    () =>
+      Boolean(
+        protocol && blocksSinceCurrentRoundStart >= +protocol.roundLength
+      ),
+    [protocol, blocksSinceCurrentRoundStart]
+  );
   const blocksRemaining = useMemo(
     () =>
-      currentRoundInfo?.initialized && protocol
-        ? +protocol.roundLength -
-          (+Number(currentRoundInfo.currentL1Block) -
-            +Number(currentRoundInfo.startBlock))
+      protocol
+        ? Math.max(+protocol.roundLength - blocksSinceCurrentRoundStart, 0)
         : 0,
-    [protocol, currentRoundInfo]
+    [protocol, blocksSinceCurrentRoundStart]
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
     [blocksRemaining]
   );
-  const blocksSinceCurrentRoundStart = useMemo(
-    () =>
-      currentRoundInfo?.initialized
-        ? +Number(currentRoundInfo.currentL1Block) -
-          +Number(currentRoundInfo.startBlock)
-        : 0,
-    [currentRoundInfo]
-  );
-
   const percentage = useMemo(
     () =>
       protocol
-        ? (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100
+        ? Math.min(
+            (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100,
+            100
+          )
         : 0,
     [blocksSinceCurrentRoundStart, protocol]
   );
@@ -227,37 +233,51 @@ const Index = ({
                 </Box>
               </Box>
             </Box>
-            <Box css={{ lineHeight: 1.5 }}>
-              <Text css={{ fontSize: "$2" }}>
-                There are{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  {blocksRemaining} blocks
-                </Box>{" "}
-                and approximately{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  {dayjs().add(timeRemaining, "seconds").fromNow(true)}
-                </Box>{" "}
-                remaining until the current round ends and round{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  #{+Number(currentRoundInfo.id) + 1}
-                </Box>{" "}
-                begins.
-              </Text>
+            <Box css={{ lineHeight: 1.5, minHeight: 78 }}>
+              {isOverdue ? (
+                <Text css={{ fontSize: "$2" }}>
+                  Round{" "}
+                  <Box as="span" css={{ fontWeight: "bold" }}>
+                    #{currentRoundInfo.id}
+                  </Box>{" "}
+                  has ended. Awaiting an orchestrator to start round{" "}
+                  <Box as="span" css={{ fontWeight: "bold" }}>
+                    #{currentRoundInfo.id + 1}
+                  </Box>
+                  .
+                </Text>
+              ) : (
+                <Text css={{ fontSize: "$2" }}>
+                  There are{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {blocksRemaining} blocks
+                  </Box>{" "}
+                  and approximately{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {dayjs().add(timeRemaining, "seconds").fromNow(true)}
+                  </Box>{" "}
+                  remaining until the current round ends and round{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    #{currentRoundInfo.id + 1}
+                  </Box>{" "}
+                  begins.
+                </Text>
+              )}
             </Box>
             <ExplorerTooltip
               multiline
