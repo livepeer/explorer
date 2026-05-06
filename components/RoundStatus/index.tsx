@@ -62,6 +62,24 @@ const Index = ({
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
     [blocksRemaining]
   );
+  const blocksOverdue = useMemo(
+    () =>
+      protocol
+        ? Math.max(blocksSinceCurrentRoundStart - +protocol.roundLength, 0)
+        : 0,
+    [protocol, blocksSinceCurrentRoundStart]
+  );
+  const timeOverdue = useMemo(
+    () => AVERAGE_L1_BLOCK_TIME * blocksOverdue,
+    [blocksOverdue]
+  );
+  const blocksSinceCurrentRoundStartDisplay = useMemo(
+    () =>
+      protocol
+        ? Math.min(blocksSinceCurrentRoundStart, +protocol.roundLength)
+        : blocksSinceCurrentRoundStart,
+    [protocol, blocksSinceCurrentRoundStart]
+  );
   const percentage = useMemo(
     () =>
       protocol
@@ -225,7 +243,7 @@ const Index = ({
               >
                 <Box css={{ textAlign: "center" }}>
                   <Box css={{ fontWeight: "bold", fontSize: "$5" }}>
-                    {blocksSinceCurrentRoundStart}
+                    {blocksSinceCurrentRoundStartDisplay}
                   </Box>
                   <Box css={{ fontSize: "$1" }}>
                     of {protocol.roundLength} blocks
@@ -240,7 +258,11 @@ const Index = ({
                   <Box as="span" css={{ fontWeight: "bold" }}>
                     #{currentRoundInfo.id}
                   </Box>{" "}
-                  has ended. Awaiting an orchestrator to start round{" "}
+                  ended approximately{" "}
+                  <Box as="span" css={{ fontWeight: "bold" }}>
+                    {dayjs().subtract(timeOverdue, "seconds").fromNow(true)} ago
+                  </Box>
+                  . Awaiting an orchestrator to start round{" "}
                   <Box as="span" css={{ fontWeight: "bold" }}>
                     #{currentRoundInfo.id + 1}
                   </Box>
