@@ -110,10 +110,9 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
   children?: React.ReactNode;
 }>;
 
-const ConnectButton = dynamic(
-  () => import("@rainbow-me/rainbowkit").then((m) => m.ConnectButton),
-  { ssr: false }
-);
+const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
+  ssr: false,
+});
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
 
@@ -750,11 +749,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                       <Flex css={{ marginLeft: "auto" }}>
                         <ContractAddressesPopover activeChain={activeChain} />
                         <Flex css={{ alignItems: "center", marginLeft: "8px" }}>
-                          <ConnectButton
-                            chainStatus="none"
-                            accountStatus={width < 1800 ? "avatar" : "full"}
-                            showBalance={false}
-                          />
+                          <ConnectButton showBalance={false} />
                         </Flex>
                         <Search />
                       </Flex>
