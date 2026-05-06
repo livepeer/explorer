@@ -37,56 +37,32 @@ const Index = ({
 
   const currentRoundInfo = useCurrentRoundData();
 
-  const blocksSinceCurrentRoundStart = useMemo(
-    () =>
-      currentRoundInfo?.initialized
-        ? currentRoundInfo.currentL1Block - currentRoundInfo.startBlock
-        : 0,
-    [currentRoundInfo]
-  );
-  const isOverdue = useMemo(
-    () =>
-      Boolean(
-        protocol && blocksSinceCurrentRoundStart >= +protocol.roundLength
-      ),
-    [protocol, blocksSinceCurrentRoundStart]
-  );
   const blocksRemaining = useMemo(
     () =>
-      protocol
-        ? Math.max(+protocol.roundLength - blocksSinceCurrentRoundStart, 0)
+      currentRoundInfo?.initialized && protocol
+        ? +protocol.roundLength -
+          (+Number(currentRoundInfo.currentL1Block) -
+            +Number(currentRoundInfo.startBlock))
         : 0,
-    [protocol, blocksSinceCurrentRoundStart]
+    [protocol, currentRoundInfo]
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
     [blocksRemaining]
   );
-  const blocksOverdue = useMemo(
+  const blocksSinceCurrentRoundStart = useMemo(
     () =>
-      protocol
-        ? Math.max(blocksSinceCurrentRoundStart - +protocol.roundLength, 0)
+      currentRoundInfo?.initialized
+        ? +Number(currentRoundInfo.currentL1Block) -
+          +Number(currentRoundInfo.startBlock)
         : 0,
-    [protocol, blocksSinceCurrentRoundStart]
+    [currentRoundInfo]
   );
-  const timeOverdue = useMemo(
-    () => AVERAGE_L1_BLOCK_TIME * blocksOverdue,
-    [blocksOverdue]
-  );
-  const blocksSinceCurrentRoundStartDisplay = useMemo(
-    () =>
-      protocol
-        ? Math.min(blocksSinceCurrentRoundStart, +protocol.roundLength)
-        : blocksSinceCurrentRoundStart,
-    [protocol, blocksSinceCurrentRoundStart]
-  );
+
   const percentage = useMemo(
     () =>
       protocol
-        ? Math.min(
-            (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100,
-            100
-          )
+        ? (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100
         : 0,
     [blocksSinceCurrentRoundStart, protocol]
   );
@@ -243,7 +219,7 @@ const Index = ({
               >
                 <Box css={{ textAlign: "center" }}>
                   <Box css={{ fontWeight: "bold", fontSize: "$5" }}>
-                    {blocksSinceCurrentRoundStartDisplay}
+                    {blocksSinceCurrentRoundStart}
                   </Box>
                   <Box css={{ fontSize: "$1" }}>
                     of {protocol.roundLength} blocks
@@ -251,55 +227,37 @@ const Index = ({
                 </Box>
               </Box>
             </Box>
-            <Box css={{ lineHeight: 1.5, minHeight: 78 }}>
-              {isOverdue ? (
-                <Text css={{ fontSize: "$2" }}>
-                  Round{" "}
-                  <Box as="span" css={{ fontWeight: "bold" }}>
-                    #{currentRoundInfo.id}
-                  </Box>{" "}
-                  ended approximately{" "}
-                  <Box as="span" css={{ fontWeight: "bold" }}>
-                    {dayjs().subtract(timeOverdue, "seconds").fromNow(true)} ago
-                  </Box>
-                  . Awaiting an orchestrator to start round{" "}
-                  <Box as="span" css={{ fontWeight: "bold" }}>
-                    #{currentRoundInfo.id + 1}
-                  </Box>
-                  .
-                </Text>
-              ) : (
-                <Text css={{ fontSize: "$2" }}>
-                  There are{" "}
-                  <Box
-                    as="span"
-                    css={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {blocksRemaining} blocks
-                  </Box>{" "}
-                  and approximately{" "}
-                  <Box
-                    as="span"
-                    css={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {dayjs().add(timeRemaining, "seconds").fromNow(true)}
-                  </Box>{" "}
-                  remaining until the current round ends and round{" "}
-                  <Box
-                    as="span"
-                    css={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    #{currentRoundInfo.id + 1}
-                  </Box>{" "}
-                  begins.
-                </Text>
-              )}
+            <Box css={{ lineHeight: 1.5 }}>
+              <Text css={{ fontSize: "$2" }}>
+                There are{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {blocksRemaining} blocks
+                </Box>{" "}
+                and approximately{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  {dayjs().add(timeRemaining, "seconds").fromNow(true)}
+                </Box>{" "}
+                remaining until the current round ends and round{" "}
+                <Box
+                  as="span"
+                  css={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  #{+Number(currentRoundInfo.id) + 1}
+                </Box>{" "}
+                begins.
+              </Text>
             </Box>
             <ExplorerTooltip
               multiline
