@@ -7,7 +7,6 @@ import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
   Button,
@@ -15,6 +14,7 @@ import {
   Flex,
   Link as A,
 } from "@livepeer/design-system";
+import { checkAddressEquality } from "@utils/web3";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -206,6 +206,7 @@ const AccountLayout = ({
             isActive={isActive}
             account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
+            isOrchestrator={isOrchestrator}
             identity={identity}
           />
           <Flex

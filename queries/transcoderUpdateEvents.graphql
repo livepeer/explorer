@@ -1,0 +1,24 @@
+query transcoderUpdateEvents(
+  $where: TranscoderUpdateEvent_filter
+  $first: Int
+  $orderBy: TranscoderUpdateEvent_orderBy
+  $orderDirection: OrderDirection
+) {
+  transcoderUpdateEvents(
+    where: $where
+    first: $first
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+  ) {
+    id
+    rewardCut
+    feeShare
+    timestamp
+    round {
+      id
+    }
+    transaction {
+      id
+    }
+  }
+}

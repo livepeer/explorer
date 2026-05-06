@@ -22,12 +22,7 @@ const Index = () => {
             Edit Profile
           </Button>
         </DialogTrigger>
-        <DialogContent
-          css={{ overflow: "scroll" }}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
-        >
+        <DialogContent css={{ overflow: "scroll" }}>
           <DialogTitle asChild>
             <Heading
               size="2"

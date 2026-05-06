@@ -14,6 +14,7 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { CheckIcon } from "@modulz/radix-icons";
+import { formatAddress, fromWei } from "@utils/web3";
 import { TransactionStatus, useExplorerStore } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
@@ -23,7 +24,7 @@ import { MdReceipt } from "react-icons/md";
 import { Address } from "viem";
 import { useReadContract } from "wagmi";
 
-import { formatAddress, fromWei, txMessages } from "../../lib/utils";
+import { txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();
@@ -56,9 +57,6 @@ const Index = () => {
           width: "calc(100% - 32px)",
           "@bp1": { maxWidth: 450 },
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         <DialogTitle asChild>
           <Heading

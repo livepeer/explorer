@@ -1,4 +1,4 @@
-import { formatAddress, fromWei, txMessages } from "@lib/utils";
+import { txMessages } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -12,6 +12,7 @@ import {
   Link as A,
 } from "@livepeer/design-system";
 import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { formatAddress, fromWei } from "@utils/web3";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
@@ -61,9 +62,6 @@ const Index = () => {
           width: "calc(100% - 32px)",
           "@bp1": { maxWidth: 450 },
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         <Box>
           <Header tx={latestTransaction} />

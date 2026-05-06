@@ -8,6 +8,7 @@ import {
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
+import { isAddress } from "viem";
 
 type PageProps = {
   hadError: boolean;
@@ -47,11 +48,16 @@ export const getStaticProps = async (context: {
   params: { account: string };
 }) => {
   try {
+    const accountId = context.params?.account?.toString().toLowerCase();
+
+    // 404 only on malformed addresses; a valid address with no on-chain activity still
+    // renders the empty-state account page.
+    if (!accountId || !isAddress(accountId)) {
+      return { notFound: true };
+    }
+
     const client = getApollo();
-    const { account, fallback } = await getAccount(
-      client,
-      context.params?.account?.toString().toLowerCase()
-    );
+    const { account, fallback } = await getAccount(client, accountId);
 
     // If we couldn't fetch account data, treat it as a temporary error
     if (!account.data) {
@@ -64,16 +70,6 @@ export const getStaticProps = async (context: {
     // If we couldn't fetch orchestrators data, treat it as a temporary error
     if (!sortedOrchestrators.data) {
       throw new Error("Failed to fetch orchestrators data");
-    }
-
-    // Only return 404 if the account truly doesn't exist
-    // (no delegator AND no transcoder AND no gateway)
-    if (
-      !account.data?.delegator &&
-      !account.data?.transcoder &&
-      !account.data?.gateway
-    ) {
-      return { notFound: true };
     }
 
     const props: PageProps = {

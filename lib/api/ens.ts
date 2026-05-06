@@ -1,5 +1,5 @@
 import { l1Provider } from "@lib/chains";
-import { formatAddress } from "@lib/utils";
+import { formatAddress } from "@utils/web3";
 import sanitizeHtml from "sanitize-html";
 
 import { EnsIdentity } from "./types/get-ens";

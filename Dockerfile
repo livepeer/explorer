@@ -1,10 +1,10 @@
-FROM node:20 as builder
+FROM node:22 AS builder
 WORKDIR /app
+RUN corepack enable
 
 ARG CHANGEFEED_ACCESS_TOKEN
 ARG GITHUB_ACCESS_TOKEN
 ARG LIVEPEER_COM_API_ADMIN_TOKEN
-ARG API_TOKEN
 ARG PINATA_JWT
 ARG NEXT_PUBLIC_GA_TRACKING_ID
 ARG NEXT_PUBLIC_NETWORK=ARBITRUM_ONE
@@ -22,7 +22,6 @@ ARG NEXT_PUBLIC_AI_METRICS_SERVER_URL=https://leaderboard-api.livepeer.cloud
 RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
     echo "GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}" >> .env && \
     echo "LIVEPEER_COM_API_ADMIN_TOKEN=${LIVEPEER_COM_API_ADMIN_TOKEN}" >> .env && \
-    echo "API_TOKEN=${API_TOKEN}" >> .env && \
     echo "PINATA_JWT=${PINATA_JWT}" >> .env && \
     echo "NEXT_PUBLIC_GA_TRACKING_ID=${NEXT_PUBLIC_GA_TRACKING_ID}" >> .env && \
     echo "NEXT_PUBLIC_NETWORK=${NEXT_PUBLIC_NETWORK}" >> .env && \
@@ -33,21 +32,22 @@ RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
     echo "NEXT_PUBLIC_SUBGRAPH_API_KEY=${NEXT_PUBLIC_SUBGRAPH_API_KEY}" >> .env && \
     echo "NEXT_PUBLIC_SUBGRAPH_ID=${NEXT_PUBLIC_SUBGRAPH_ID}" >> .env && \
     echo "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}" >> .env && \
-    echo "NEXT_PUBLIC_METRICS_SERVER_URL=${NEXT_PUBLIC_METRICS_SERVER_URL}" >> .env \
-    echo "NEXT_PUBLIC_AI_METRICS_SERVER_URL=${NEXT_PUBLI_AI_METRICS_SERVER_URL}" >> .env
+    echo "NEXT_PUBLIC_METRICS_SERVER_URL=${NEXT_PUBLIC_METRICS_SERVER_URL}" >> .env && \
+    echo "NEXT_PUBLIC_AI_METRICS_SERVER_URL=${NEXT_PUBLIC_AI_METRICS_SERVER_URL}" >> .env
 
 COPY . .
-RUN yarn && yarn run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
-FROM node:20
+FROM node:22
 WORKDIR /app
-ENV NODE_ENV production
+ENV NODE_ENV=production
+RUN corepack enable
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/yarn.lock ./yarn.lock
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["pnpm", "start"]
