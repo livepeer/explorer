@@ -2,7 +2,11 @@ import OrchestratorCutHistory from "@components/OrchestratorCutHistory";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import {
+  ArrowTopRightIcon,
+  CheckIcon,
+  Cross1Icon,
+} from "@radix-ui/react-icons";
 import {
   formatETH,
   formatNumber,

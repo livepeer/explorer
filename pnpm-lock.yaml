@@ -45,9 +45,6 @@ importers:
       '@mdx-js/react':
         specifier: ^2.1.2
         version: 2.3.0(react@19.2.1)
-      '@modulz/radix-icons':
-        specifier: ^4.0.0
-        version: 4.0.0(react@19.2.1)
       '@mui/material':
         specifier: ^7.3.5
         version: 7.3.9(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.1))(@types/react@19.2.2)(react@19.2.1))(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -2079,11 +2076,6 @@ packages:
   '@metamask/utils@9.3.0':
     resolution: {integrity: sha512-w8CVbdkDrVXFJbfBSlDfafDR6BAkpDmv1bC1UJVCoVny5tW2RKAdn9i68Xf7asYT4TnUhl/hN4zfUiKQq9II4g==}
     engines: {node: '>=16.0.0'}
-
-  '@modulz/radix-icons@4.0.0':
-    resolution: {integrity: sha512-d79T4cYvMGMocVC/q1WiMO578FPFfUoxmXIkduc8cUQAPDr7thuEV5HrCHhqqqkoVaYD0QPct180ilcNUyGPrg==}
-    peerDependencies:
-      react: ^16.x || ^17.x
 
   '@mui/core-downloads-tracker@7.3.9':
     resolution: {integrity: sha512-MOkOCTfbMJwLshlBCKJ59V2F/uaLYfmKnN76kksj6jlGUVdI25A9Hzs08m+zjBRdLv+sK7Rqdsefe8X7h/6PCw==}
@@ -13758,10 +13750,6 @@ snapshots:
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
-
-  '@modulz/radix-icons@4.0.0(react@19.2.1)':
-    dependencies:
-      react: 19.2.1
 
   '@mui/core-downloads-tracker@7.3.9': {}
 

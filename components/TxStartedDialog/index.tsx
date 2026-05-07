@@ -11,7 +11,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { formatAddress, fromWei } from "@utils/web3";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";

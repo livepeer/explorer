@@ -12,7 +12,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ArrowRightIcon } from "@modulz/radix-icons";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";

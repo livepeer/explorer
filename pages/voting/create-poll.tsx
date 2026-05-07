@@ -12,7 +12,7 @@ import {
   RadioCard,
   RadioCardGroup,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { fromWei } from "@utils/web3";
 import { useAccountQuery } from "apollo";
 import { createApolloFetch } from "apollo-fetch";

@@ -8,7 +8,7 @@ import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Region } from "@lib/api/types/get-regions";
 import { Box, Container, Flex, Heading } from "@livepeer/design-system";
-import { ChevronDownIcon } from "@modulz/radix-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useAllScoreData, useRegionsData } from "hooks/useSwr";
 import Head from "next/head";
 import { useMemo, useState } from "react";

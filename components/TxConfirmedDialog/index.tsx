@@ -13,7 +13,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { CheckIcon } from "@modulz/radix-icons";
+import { CheckIcon } from "@radix-ui/react-icons";
 import { formatAddress, fromWei } from "@utils/web3";
 import { TransactionStatus, useExplorerStore } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
