@@ -51,7 +51,6 @@ const Index = () => {
     loading,
     error,
     fetchMore: fetchMoreTransactions,
-    stopPolling,
   } = useTransactionsQuery({
     variables: {
       account: account.toLowerCase(),
@@ -204,9 +203,10 @@ const Index = () => {
 
   const fetchingRef = useRef(false);
   const fetchNext = useCallback(async () => {
+    // Concurrency lock — ref so it's synchronous.
     if (fetchingRef.current || loading) return;
     fetchingRef.current = true;
-    stopPolling();
+
     try {
       await fetchMoreTransactions({
         variables: {
@@ -214,15 +214,15 @@ const Index = () => {
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
-          const newTransactions = fetchMoreResult.transactions ?? [];
-          // A short page means the server has nothing more to give; flip
-          // reachedEnd so the observer detaches.
-          if (newTransactions.length < PAGE_SIZE) {
+          if (fetchMoreResult.transactions.length < PAGE_SIZE)
             setReachedEnd(true);
-          }
+
           return {
             ...previousResult,
-            transactions: [...previousResult.transactions, ...newTransactions],
+            transactions: [
+              ...previousResult.transactions,
+              ...fetchMoreResult.transactions,
+            ],
             // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
             // So, we will always have winning ticket events that are older than the last transaction timestamp
             // Allowing mergedEvents to filter correctly
@@ -233,16 +233,14 @@ const Index = () => {
           };
         },
       });
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error("fetchNext failed:", error);
     } finally {
       fetchingRef.current = false;
     }
-  }, [loading, totalLoaded, stopPolling, fetchMoreTransactions]);
+  }, [loading, totalLoaded, fetchMoreTransactions]);
 
-  // Attach the IntersectionObserver only while there's more to fetch. When
-  // reachedEnd flips true (or the initial page already covered everything),
-  // this effect re-runs and the cleanup detaches the observer entirely.
+  // Create a sentinel ref and observe it while more pages are available.
   const sentinelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = sentinelRef.current;
@@ -295,7 +293,7 @@ const Index = () => {
       <Box css={{ paddingBottom: "$3" }}>
         {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
       </Box>
-      {loading && totalLoaded >= PAGE_SIZE && !reachedEnd && (
+      {totalLoaded >= PAGE_SIZE && !reachedEnd && (
         <Flex
           css={{
             position: "absolute",
