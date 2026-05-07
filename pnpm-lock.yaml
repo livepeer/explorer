@@ -162,9 +162,6 @@ importers:
       react-circular-progressbar:
         specifier: ^2.1.0
         version: 2.2.0(react@19.2.1)
-      react-collapse:
-        specifier: ^5.0.0
-        version: 5.1.1(react@19.2.1)
       react-confetti:
         specifier: ^6.1.0
         version: 6.4.0(react@19.2.1)
@@ -195,21 +192,12 @@ importers:
       react-number-format:
         specifier: ^4.3.1
         version: 4.9.4(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      react-query:
-        specifier: ^4.0.0
-        version: 4.0.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react-table:
         specifier: ^7.8.0
         version: 7.8.0(react@19.2.1)
       react-timer-hook:
         specifier: ^3.0.5
         version: 3.0.8(react@19.2.1)
-      react-tooltip:
-        specifier: ^4.2.11
-        version: 4.5.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      react-truncate:
-        specifier: ^2.4.0
-        version: 2.4.0(prop-types@15.8.1)(react@19.2.1)
       react-use:
         specifier: ^17.4.0
         version: 17.6.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -4274,9 +4262,6 @@ packages:
   '@swc/helpers@0.5.19':
     resolution: {integrity: sha512-QamiFeIK3txNjgUTNppE6MiG3p7TdninpZu0E0PbqVh1a9FNLT2FRhisaa4NcaX52XVhA5l7Pk58Ft7Sqi/2sA==}
 
-  '@tanstack/query-core@4.43.0':
-    resolution: {integrity: sha512-m1QeUUIpNXDYxmfuuWNFZLky0EwVmbE0hj8ulZ2nIGA1183raJgDCn0IKlxug80NotRqzodxAaoYTKHbE1/P/Q==}
-
   '@tanstack/query-core@5.90.20':
     resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
 
@@ -4529,9 +4514,6 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
-
-  '@types/use-sync-external-store@0.0.3':
-    resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
 
   '@types/uuid@10.0.0':
     resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
@@ -9093,11 +9075,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
-  react-collapse@5.1.1:
-    resolution: {integrity: sha512-k6cd7csF1o9LBhQ4AGBIdxB60SUEUMQDAnL2z1YvYNr9KoKr+nDkhN6FK7uGaBd/rYrYfrMpzpmJEIeHRYogBw==}
-    peerDependencies:
-      react: '>=16.3.0'
-
   react-confetti@6.4.0:
     resolution: {integrity: sha512-5MdGUcqxrTU26I2EU7ltkWPwxvucQTuqMm8dUz72z2YMqTD6s9vMcDUysk7n9jnC+lXuCPeJJ7Knf98VEYE9Rg==}
     engines: {node: '>=16'}
@@ -9174,19 +9151,6 @@ packages:
       react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
-  react-query@4.0.0:
-    resolution: {integrity: sha512-qiW+Yvbl+EK8iwPDJAj4qWAKceh+g8Up8jxoNxJbzhV3bNheeyHF3EyynnkDO3S+CYgSwtCUFaP8vOjB62j7xQ==}
-    deprecated: Please use @tanstack/react-query for v4+
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
     engines: {node: '>=10'}
@@ -9253,24 +9217,11 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
-  react-tooltip@4.5.1:
-    resolution: {integrity: sha512-Zo+CSFUGXar1uV+bgXFFDe7VeS2iByeIp5rTgTcc2HqtuOS5D76QapejNNfx320MCY91TlhTQat36KGFTqgcvw==}
-    engines: {npm: '>=6.13'}
-    peerDependencies:
-      react: '>=16.0.0'
-      react-dom: '>=16.0.0'
-
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
     peerDependencies:
       react: '>=16.6.0'
       react-dom: '>=16.6.0'
-
-  react-truncate@2.4.0:
-    resolution: {integrity: sha512-3QW11/COYwi6iPUaunUhl06DW5NJBJD1WkmxW5YxqqUu6kvP+msB3jfoLg8WRbu57JqgebjVW8Lknw6T5/QZdA==}
-    peerDependencies:
-      prop-types: <= 15.x.x
-      react: <= 16.x.x
 
   react-universal-interface@0.6.2:
     resolution: {integrity: sha512-dg8yXdcQmvgR13RIlZbTRQOoUrDciFVoSBZILwjE2LFISxZZ8loVJKAkuzswl5js8BHda79bIb2b84ehU8IjXw==}
@@ -10503,10 +10454,6 @@ packages:
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
-    hasBin: true
-
-  uuid@7.0.3:
-    resolution: {integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -16393,8 +16340,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/query-core@4.43.0': {}
-
   '@tanstack/query-core@5.90.20': {}
 
   '@tanstack/react-query@5.90.21(react@19.2.1)':
@@ -16660,8 +16605,6 @@ snapshots:
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
-
-  '@types/use-sync-external-store@0.0.3': {}
 
   '@types/uuid@10.0.0': {}
 
@@ -22994,10 +22937,6 @@ snapshots:
       '@babel/runtime': 7.28.6
       react: 19.2.1
 
-  react-collapse@5.1.1(react@19.2.1):
-    dependencies:
-      react: 19.2.1
-
   react-confetti@6.4.0(react@19.2.1):
     dependencies:
       react: 19.2.1
@@ -23084,15 +23023,6 @@ snapshots:
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
 
-  react-query@4.0.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
-    dependencies:
-      '@tanstack/query-core': 4.43.0
-      '@types/use-sync-external-store': 0.0.3
-      react: 19.2.1
-      use-sync-external-store: 1.6.0(react@19.2.1)
-    optionalDependencies:
-      react-dom: 19.2.1(react@19.2.1)
-
   react-remove-scroll-bar@2.3.8(@types/react@19.2.2)(react@19.2.1):
     dependencies:
       react: 19.2.1
@@ -23158,13 +23088,6 @@ snapshots:
     dependencies:
       react: 19.2.1
 
-  react-tooltip@4.5.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      uuid: 7.0.3
-
   react-transition-group@4.4.5(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:
       '@babel/runtime': 7.28.6
@@ -23173,11 +23096,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
-
-  react-truncate@2.4.0(prop-types@15.8.1)(react@19.2.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 19.2.1
 
   react-universal-interface@0.6.2(react@19.2.1)(tslib@2.8.1):
     dependencies:
@@ -24595,8 +24513,6 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@11.1.0: {}
-
-  uuid@7.0.3: {}
 
   uuid@8.3.2: {}
 
