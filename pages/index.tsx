@@ -21,7 +21,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ArrowRightIcon } from "@modulz/radix-icons";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { PERCENTAGE_PRECISION_BILLION } from "@utils/web3";
 import { useChartData } from "hooks";
 import Link from "next/link";

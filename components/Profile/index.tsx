@@ -18,7 +18,7 @@ import {
   GitHubLogoIcon,
   GlobeIcon,
   TwitterLogoIcon,
-} from "@modulz/radix-icons";
+} from "@radix-ui/react-icons";
 import { formatAddress } from "@utils/web3";
 import copy from "copy-to-clipboard";
 import { QRCodeCanvas } from "qrcode.react";

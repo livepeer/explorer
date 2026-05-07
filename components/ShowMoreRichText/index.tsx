@@ -1,5 +1,5 @@
 import { Box, Flex } from "@livepeer/design-system";
-import { ChevronDownIcon, ChevronUpIcon } from "@modulz/radix-icons";
+import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import {
   ReactNode,
   useEffect,

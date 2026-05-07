@@ -7,7 +7,7 @@ import {
   CheckIcon,
   Cross1Icon,
   QuestionMarkCircledIcon,
-} from "@modulz/radix-icons";
+} from "@radix-ui/react-icons";
 import {
   formatETH,
   formatLPT,

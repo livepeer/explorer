@@ -1,6 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { formatETH, formatLPT, formatPercent } from "@utils/numberFormatters";
 import { useExplorerStore } from "hooks";
 

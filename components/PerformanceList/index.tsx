@@ -6,7 +6,7 @@ import { AllPerformanceMetrics } from "@lib/api/types/get-performance";
 import { Region } from "@lib/api/types/get-regions";
 import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { formatNumber, formatPercent } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { OrchestratorsQueryResult } from "apollo";

@@ -31,7 +31,7 @@ import {
   ArrowTopRightIcon,
   ChevronDownIcon,
   EyeOpenIcon,
-} from "@modulz/radix-icons";
+} from "@radix-ui/react-icons";
 import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
 import {
   useAccountQuery,

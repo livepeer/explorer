@@ -29,7 +29,7 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import {
   ChevronDownIcon,
   DotsHorizontalIcon,
