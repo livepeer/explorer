@@ -6,7 +6,7 @@ const ConnectButton = (props: ConnectButtonProps) => {
   const { width } = useWindowSize();
   return (
     <ConnectButtonRainbowKit
-      chainStatus="none"
+      chainStatus="icon"
       accountStatus={width < 1800 ? "avatar" : "full"}
       {...props}
     />
