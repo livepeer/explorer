@@ -39,8 +39,29 @@ body:
     id: additional-context
     attributes:
       label: Additional context
-      description: Add any other context or screenshots about the feature request here.
-      placeholder: Any other relevant info, mockups, or examples.
+      description: Add any other context or screenshots about the feature request here. If this issue is retroactively compensated, remove the `<!--` and `-->` markers from the block below so the notice appears in the published issue.
+      value: |
+        <!--
+        ## Retroactive Grant Notice
+
+        > [!IMPORTANT]
+        > Compensation cap: **[FILL IN AMOUNT]**
+
+        Before picking this up, read the [Retroactive Grants post](https://forum.livepeer.org/t/about-the-retroactive-grant-applications-category/3250/2?u=mehrdad) in full. Key points:
+
+        - **Not pay-for-delivery.** Compensation is based on demonstrated adoption and community impact — not on shipping. Real, named community contributors must use your work and publicly attest to it. Building in isolation, then asking for a grant, does not qualify.
+        - **Talk to the community first.** A public discussion (Discord or Forum) about the problem must precede the work, and evidence of it must be part of your application. No prior discussion, no tempcheck, no public signal = won't pass review.
+
+        **Required steps before investing more time:**
+        1. Read the [original Retroactive Grants post](https://forum.livepeer.org/t/about-the-retroactive-grant-applications-category/3250/2?u=mehrdad) in full.
+        2. Start a public discussion (Discord or Forum). Get input. Confirm direction.
+        3. Secure at least one community proof point — a Discord thread with positive signal, a Review Team acknowledgement, or evidence of active adoption.
+        4. Identify, by name, who has this problem.
+        5. Build, ship, and confirm it's actually being used.
+        6. Apply with at least one named community contributor willing to publicly attest to your work's impact on the forum post.
+
+        Skipping steps 2, 3, 4, or 6 will halt the application. Reach out to **jj.a.ss.o.nn_everestnode** on Discord before you start building.
+        -->
 
   - type: markdown
     attributes:
