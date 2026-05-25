@@ -23,6 +23,12 @@ query account($account: ID!) {
       active
       status
       totalStake
+      feeShare
+      rewardCut
+      ninetyDayVolumeETH
+      pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
+        rewardTokens
+      }
     }
   }
   transcoder(id: $account) {

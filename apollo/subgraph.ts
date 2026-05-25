@@ -9607,7 +9607,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
+export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string, feeShare: string, rewardCut: string, ninetyDayVolumeETH: string, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
 
 export type AccountInactiveQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -9719,6 +9719,16 @@ export type TranscoderActivatedEventsQueryVariables = Exact<{
 
 export type TranscoderActivatedEventsQuery = { __typename: 'Query', transcoderActivatedEvents: Array<{ __typename: 'TranscoderActivatedEvent', activationRound: string, id: string }> };
 
+export type TranscoderUpdateEventsQueryVariables = Exact<{
+  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
+
+
+export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
+
 export type TreasuryProposalQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -9784,6 +9794,12 @@ export const AccountDocument = gql`
       active
       status
       totalStake
+      feeShare
+      rewardCut
+      ninetyDayVolumeETH
+      pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
+        rewardTokens
+      }
     }
   }
   transcoder(id: $account) {
@@ -10838,16 +10854,6 @@ export function useTranscoderActivatedEventsLazyQuery(baseOptions?: Apollo.LazyQ
 export type TranscoderActivatedEventsQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsQuery>;
 export type TranscoderActivatedEventsLazyQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsLazyQuery>;
 export type TranscoderActivatedEventsQueryResult = Apollo.QueryResult<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>;
-
-export type TranscoderUpdateEventsQueryVariables = Exact<{
-  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-}>;
-
-export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
-
 export const TranscoderUpdateEventsDocument = gql`
     query transcoderUpdateEvents($where: TranscoderUpdateEvent_filter, $first: Int, $orderBy: TranscoderUpdateEvent_orderBy, $orderDirection: OrderDirection) {
   transcoderUpdateEvents(
@@ -10870,6 +10876,25 @@ export const TranscoderUpdateEventsDocument = gql`
 }
     `;
 
+/**
+ * __useTranscoderUpdateEventsQuery__
+ *
+ * To run a query within a React component, call `useTranscoderUpdateEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscoderUpdateEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscoderUpdateEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
+ *   },
+ * });
+ */
 export function useTranscoderUpdateEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
@@ -10881,7 +10906,6 @@ export function useTranscoderUpdateEventsLazyQuery(baseOptions?: Apollo.LazyQuer
 export type TranscoderUpdateEventsQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsQuery>;
 export type TranscoderUpdateEventsLazyQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsLazyQuery>;
 export type TranscoderUpdateEventsQueryResult = Apollo.QueryResult<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>;
-
 export const TreasuryProposalDocument = gql`
     query treasuryProposal($id: ID!) {
   treasuryProposal(id: $id) {
