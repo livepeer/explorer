@@ -80,7 +80,9 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       url,
       twitter,
       github,
-      avatar: avatar ? `/api/ens-data/image/${name}` : null,
+      avatar: avatar
+        ? `/api/ens-data/image/${encodeURIComponent(normalizedName)}`
+        : null,
     };
 
     return ens;
