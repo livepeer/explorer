@@ -2,16 +2,13 @@ import Spinner from "@components/Spinner";
 import { getEnsForVotes } from "@lib/api/ens";
 import { Flex, Text } from "@livepeer/design-system";
 import { formatAddress } from "@utils/web3";
-import {
-  PollChoice,
-  usePollQuery,
-  useVoteEventsQuery
-} from "apollo";
+import { PollChoice, usePollQuery, useVoteEventsQuery } from "apollo";
 import React, { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
+
 import { DesktopVoteTable } from "./DesktopVoteTable";
 import { MobileVoteCards } from "./MobileVoteCards";
-import PollVotePopover from "./PollVotePopover"
+import PollVotePopover from "./PollVotePopover";
 
 interface PollVotingTableProps {
   pollId: string;
@@ -26,8 +23,8 @@ export type PollVoteType = {
   nonVoteStake: string;
   ensName?: string;
   transactionHash: string;
-  timestamp: number
-}
+  timestamp: number;
+};
 
 const useVotes = (pollId: string) => {
   const pollInterval = 10000;
@@ -134,9 +131,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
   const { votes, loading } = useVotes(pollId);
 
   const paginatedVotesForMobile = useMemo(() => {
-    const sorted = [...votes].sort(
-      (a, b) => b.timestamp - a.timestamp
-    );
+    const sorted = [...votes].sort((a, b) => b.timestamp - a.timestamp);
     const startIndex = (currentPage - 1) * pageSize;
     return sorted.slice(startIndex, startIndex + pageSize);
   }, [votes, currentPage, pageSize]);

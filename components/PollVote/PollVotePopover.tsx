@@ -3,10 +3,11 @@ import { POLL_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { formatNumber } from "@utils/numberFormatters";
-import TreasuryVoteHistoryModal from "../Treasury/TreasuryVoteTable/TreasuryVoteHistoryModal";
-import PollVoteDetail from "./PollVoteDetail";
 import { useVoteEventsQuery, VoteEvent } from "apollo";
 import React from "react";
+
+import TreasuryVoteHistoryModal from "../Treasury/TreasuryVoteTable/TreasuryVoteHistoryModal";
+import PollVoteDetail from "./PollVoteDetail";
 
 interface PollVotePopoverProps {
   voter: string;

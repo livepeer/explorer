@@ -1,6 +1,6 @@
 import TransactionBadge from "@components/TransactionBadge";
 import { parsePollText } from "@lib/api/polls";
-import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import { POLL_VOTES } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import {
   Badge,
@@ -31,7 +31,7 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
       }
     }
 
-    getTitle()
+    getTitle();
   });
 
   return (

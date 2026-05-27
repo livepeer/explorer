@@ -14,6 +14,7 @@ import {
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
 import { formatAddress, formatTransactionHash } from "@utils/web3";
+
 import { PollVoteType } from ".";
 
 interface MobileVoteViewProps {
@@ -22,8 +23,8 @@ interface MobileVoteViewProps {
 }
 
 export function MobileVoteView({ vote, onSelect }: MobileVoteViewProps) {
-  const support = VOTING_SUPPORT_MAP[vote.choiceID]
-  const voterId = vote.ensName ? vote.ensName : formatAddress(vote.voter)
+  const support = VOTING_SUPPORT_MAP[vote.choiceID];
+  const voterId = vote.ensName ? vote.ensName : formatAddress(vote.voter);
 
   return (
     <Card

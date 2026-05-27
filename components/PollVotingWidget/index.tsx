@@ -1,17 +1,24 @@
 import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog";
+import {} from "@components/PollVote";
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { Box, Button, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
-import Link, { LinkProps } from "next/link";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Link as A,
+  Text,
+} from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
+import Link, { LinkProps } from "next/link";
 import { useMemo } from "react";
 import { getVotingPower } from "utils/voting";
-import {} from "@components/PollVote"
 
 type Props = {
   poll: PollExtended;
@@ -223,19 +230,20 @@ const Index = ({ data }: { data: Props }) => {
           <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
             <Box css={{ fontSize: "$2", color: "$neutral11" }}>
               {data.poll.votes.length}{" "}
-              {`${data.poll.votes.length > 1 || data.poll.votes.length === 0
+              {`${
+                data.poll.votes.length > 1 || data.poll.votes.length === 0
                   ? "votes"
                   : "vote"
-                }`}{" "}
+              }`}{" "}
               · {formatVotingPower(data.poll.stake.voters)} ·{" "}
               {data.poll.status !== "active"
                 ? "Final Results"
                 : dayjs
-                  .duration(
-                    dayjs().unix() - data.poll.estimatedEndTime,
-                    "seconds"
-                  )
-                  .humanize() + " left"}
+                    .duration(
+                      dayjs().unix() - data.poll.estimatedEndTime,
+                      "seconds"
+                    )
+                    .humanize() + " left"}
             </Box>
             {data.votesTabHref ? (
               <Link href={data.votesTabHref} passHref legacyBehavior>

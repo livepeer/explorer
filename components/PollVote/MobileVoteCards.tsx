@@ -1,6 +1,7 @@
 import Pagination from "@components/Table/Pagination";
 import { Box, Text } from "@livepeer/design-system";
 import React from "react";
+
 import { PollVoteTableProps } from "./DesktopVoteTable";
 import { MobileVoteView } from "./MobileVoteView";
 

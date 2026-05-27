@@ -57,7 +57,7 @@ export const VOTING_SUPPORT_MAP = {
   [TreasuryVoteSupport.For]: TREASURY_VOTES.for,
   [TreasuryVoteSupport.Abstain]: TREASURY_VOTES.abstain,
   [PollChoice.Yes]: POLL_VOTES.Yes,
-  [PollChoice.No]: POLL_VOTES.No
+  [PollChoice.No]: POLL_VOTES.No,
 } as const;
 
 // Legacy support (to be replaced by POLL_VOTES or TREASURY_VOTES)

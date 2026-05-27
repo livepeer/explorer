@@ -1,14 +1,15 @@
 import EthAddressBadge from "@components/EthAddressBadge";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import DataTable from "@components/Table";
+import TransactionBadge from "@components/TransactionBadge";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import { Badge, Box, Text } from "@livepeer/design-system";
-import React, { useMemo } from "react";
-import { Column } from "react-table";
-import { PollVoteType } from ".";
-import TransactionBadge from "@components/TransactionBadge";
 import { CounterClockwiseClockIcon } from "@radix-ui/react-icons";
 import dayjs from "dayjs";
+import React, { useMemo } from "react";
+import { Column } from "react-table";
+
+import { PollVoteType } from ".";
 
 export interface PollVoteTableProps {
   votes: PollVoteType[];
@@ -104,10 +105,10 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
             );
           } else {
             return (
-                <Text size="1" css={{ color: "$neutral9" }}>
-                  N/A
-                </Text>
-              );
+              <Text size="1" css={{ color: "$neutral9" }}>
+                N/A
+              </Text>
+            );
           }
         },
       },
@@ -175,10 +176,10 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
           pageSize,
           sortBy: [
             {
-                id: 'timestamp',
-                desc: true
-            }
-          ]
+              id: "timestamp",
+              desc: true,
+            },
+          ],
         }}
       />
     </Box>

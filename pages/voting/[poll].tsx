@@ -1,9 +1,10 @@
 import BottomDrawer from "@components/BottomDrawer";
+import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import PollVotingTable from "@components/PollVote";
 import PollVotingWidget from "@components/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
-import PollVotingTable from "@components/PollVote"
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { getPollExtended, PollExtended } from "@lib/api/polls";
@@ -16,8 +17,8 @@ import {
   Container,
   Flex,
   Heading,
-  Text,
   Link as A,
+  Text,
 } from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { formatLPT, formatPercent } from "@utils/numberFormatters";
@@ -31,10 +32,10 @@ import {
 } from "apollo";
 import { sentenceCase } from "change-case";
 import Head from "next/head";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
-import NextLink from "next/link";
 
 import {
   useAccountAddress,
@@ -42,7 +43,6 @@ import {
   useExplorerStore,
 } from "../../hooks";
 import FourZeroFour from "../404";
-import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 
 const Poll = () => {
   const router = useRouter();
@@ -64,7 +64,7 @@ const Poll = () => {
       pathname: router.pathname,
       query: { ...query, view: "votes" },
     }),
-    [router.pathname, query],
+    [router.pathname, query]
   );
 
   const { data, error: pollError } = usePollQuery({
@@ -131,7 +131,7 @@ const Poll = () => {
         count: data?.poll?.votes?.length,
       },
     ],
-    [router.pathname, query, view, data?.poll?.votes?.length, votesTabHref],
+    [router.pathname, query, view, data?.poll?.votes?.length, votesTabHref]
   );
 
   const voteContent = useCallback(() => {
@@ -331,7 +331,7 @@ const Poll = () => {
                         <Box>
                           Total Support (
                           {formatPercent(
-                            +pollData.quota / PERCENTAGE_PRECISION_MILLION,
+                            +pollData.quota / PERCENTAGE_PRECISION_MILLION
                           )}{" "}
                           needed)
                         </Box>
@@ -398,7 +398,7 @@ const Poll = () => {
                         <Box>
                           Total Participation (
                           {formatPercent(
-                            +pollData.quorum / PERCENTAGE_PRECISION_MILLION,
+                            +pollData.quorum / PERCENTAGE_PRECISION_MILLION
                           )}{" "}
                           needed)
                         </Box>
