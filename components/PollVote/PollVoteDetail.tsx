@@ -32,7 +32,7 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
     }
 
     getTitle();
-  });
+  }, [vote.poll.proposal]);
 
   return (
     <Box

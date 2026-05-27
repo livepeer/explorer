@@ -11,6 +11,7 @@ export const MobileVoteCards: React.FC<PollVoteTableProps> = (props) => {
     onSelect,
     totalPages = 0,
     currentPage = 1,
+    formatVoteStake,
     onPageChange,
   } = props;
 
@@ -34,6 +35,7 @@ export const MobileVoteCards: React.FC<PollVoteTableProps> = (props) => {
           <MobileVoteView
             key={vote.transactionHash || vote.voter}
             vote={vote}
+            formatVoteStake={formatVoteStake}
             onSelect={onSelect}
           />
         );

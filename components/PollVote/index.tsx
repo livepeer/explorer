@@ -1,6 +1,7 @@
 import Spinner from "@components/Spinner";
 import { getEnsForVotes } from "@lib/api/ens";
 import { Flex, Text } from "@livepeer/design-system";
+import { formatLPT, formatPercent } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { PollChoice, usePollQuery, useVoteEventsQuery } from "apollo";
 import React, { useEffect, useMemo, useState } from "react";
@@ -123,12 +124,28 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
 
   const [selectedVoter, setSelectedVoter] = useState<{
     address: string;
+    voteStake: string;
     ensName?: string;
   } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   const { votes, loading } = useVotes(pollId);
+
+  const totalVoteStake = useMemo(
+    () => votes.reduce((sum, v) => sum + parseFloat(v.voteStake), 0),
+    [votes]
+  );
+
+  const formatVoteStake = useMemo(
+    () => (stake: string) =>
+      `${formatLPT(parseFloat(stake), { abbreviate: false })} (${
+        totalVoteStake > 0
+          ? formatPercent(parseFloat(stake) / totalVoteStake)
+          : formatPercent(0)
+      })`,
+    [totalVoteStake]
+  );
 
   const paginatedVotesForMobile = useMemo(() => {
     const sorted = [...votes].sort((a, b) => b.timestamp - a.timestamp);
@@ -166,6 +183,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
           votes={votes}
           onSelect={setSelectedVoter}
           pageSize={pageSize}
+          formatVoteStake={formatVoteStake}
         />
       ) : (
         <MobileVoteCards
@@ -174,12 +192,14 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
+          formatVoteStake={formatVoteStake}
         />
       )}
       {selectedVoter && (
         <PollVotePopover
           voter={selectedVoter.address}
           ensName={selectedVoter.ensName}
+          formatVoteStake={formatVoteStake}
           onClose={() => setSelectedVoter(null)}
         />
       )}

@@ -19,10 +19,19 @@ import { PollVoteType } from ".";
 
 interface MobileVoteViewProps {
   vote: PollVoteType;
-  onSelect: (voter: { address: string; ensName?: string }) => void;
+  formatVoteStake: (stake: string) => string;
+  onSelect: (voter: {
+    address: string;
+    voteStake: string;
+    ensName?: string;
+  }) => void;
 }
 
-export function MobileVoteView({ vote, onSelect }: MobileVoteViewProps) {
+export function MobileVoteView({
+  vote,
+  formatVoteStake,
+  onSelect,
+}: MobileVoteViewProps) {
   const support = VOTING_SUPPORT_MAP[vote.choiceID];
   const voterId = vote.ensName ? vote.ensName : formatAddress(vote.voter);
 
@@ -108,7 +117,11 @@ export function MobileVoteView({ vote, onSelect }: MobileVoteViewProps) {
               },
             }}
             onClick={() =>
-              onSelect({ address: vote.voter, ensName: vote.ensName })
+              onSelect({
+                address: vote.voter,
+                voteStake: vote.voteStake,
+                ensName: vote.ensName,
+              })
             }
           >
             <Text size="1" css={{ fontWeight: 600, color: "inherit" }}>
@@ -120,6 +133,10 @@ export function MobileVoteView({ vote, onSelect }: MobileVoteViewProps) {
             />
           </Box>
         </Flex>
+
+        <Text size="1" css={{ color: "$neutral11" }}>
+          {formatVoteStake(vote.voteStake)}
+        </Text>
 
         {/* Footer: Transaction + Timestamp */}
         <Flex css={{ alignItems: "center", gap: "$2" }}>

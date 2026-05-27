@@ -13,17 +13,23 @@ import { PollVoteType } from ".";
 
 export interface PollVoteTableProps {
   votes: PollVoteType[];
-  onSelect: (voter: { address: string; ensName?: string }) => void;
+  onSelect: (voter: {
+    address: string;
+    voteStake: string;
+    ensName?: string;
+  }) => void;
   pageSize?: number;
   totalPages?: number;
   currentPage?: number;
   onPageChange?: (page: number) => void;
+  formatVoteStake: (stake: string) => string;
 }
 
 export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
   votes,
   onSelect,
   pageSize = 10,
+  formatVoteStake,
 }) => {
   const columns = useMemo<Column<PollVoteType>[]>(
     () => [
@@ -68,26 +74,13 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         },
       },
       {
-        Header: "Transaction",
-        accessor: "transactionHash",
-        id: "transaction",
+        Header: "Stake Used",
+        accessor: "voteStake",
+        id: "stakeUsed",
         Cell: ({ row }) => (
-          <Box
-            css={{
-              minWidth: 130,
-              display: "flex",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            {row.original.transactionHash ? (
-              <TransactionBadge id={row.original.transactionHash} />
-            ) : (
-              <Text css={{ color: "$neutral9" }} size="2">
-                N/A
-              </Text>
-            )}
-          </Box>
+          <Text size="1" css={{ color: "$hiContrast", fontWeight: 500 }}>
+            {formatVoteStake(row.original.voteStake)}
+          </Text>
         ),
       },
       {
@@ -113,6 +106,29 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         },
       },
       {
+        Header: "Transaction",
+        accessor: "transactionHash",
+        id: "transaction",
+        Cell: ({ row }) => (
+          <Box
+            css={{
+              minWidth: 130,
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            {row.original.transactionHash ? (
+              <TransactionBadge id={row.original.transactionHash} />
+            ) : (
+              <Text css={{ color: "$neutral9" }} size="2">
+                N/A
+              </Text>
+            )}
+          </Box>
+        ),
+      },
+      {
         Header: "",
         id: "history",
         Cell: ({ row }) => (
@@ -132,6 +148,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
                   onSelect({
                     address: row.original.voter,
                     ensName: row.original.ensName,
+                    voteStake: row.original.voteStake,
                   });
                 }}
                 css={{
@@ -164,7 +181,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         disableSortBy: true,
       },
     ],
-    [onSelect]
+    [formatVoteStake, onSelect]
   );
 
   return (
@@ -176,7 +193,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
           pageSize,
           sortBy: [
             {
-              id: "timestamp",
+              id: "stakeUsed",
               desc: true,
             },
           ],

@@ -13,10 +13,11 @@ interface PollVotePopoverProps {
   voter: string;
   ensName?: string;
   onClose: () => void;
+  formatVoteStake: (weight: string) => string;
 }
 
 const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
-  const { data: votesData, loading: isLoading } = useVoteEventsQuery({
+  const { data: votesEventsData, loading: isLoading } = useVoteEventsQuery({
     variables: {
       where: {
         voter: voter,
@@ -24,23 +25,23 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
     },
   });
 
-  const votes = React.useMemo(() => {
-    return votesData?.voteEvents
-      ? [...votesData.voteEvents].sort(
+  const voteEvents = React.useMemo(() => {
+    return votesEventsData?.voteEvents
+      ? [...votesEventsData.voteEvents].sort(
           (a, b) => b.transaction.timestamp - a.transaction.timestamp
         )
       : [];
-  }, [votesData]);
+  }, [votesEventsData]);
 
   const stats = React.useMemo(() => {
-    if (!votes.length) return null;
+    if (!voteEvents.length) return null;
 
     return {
-      total: votes.length,
-      for: votes.filter((v) => v.choiceID === "0").length,
-      against: votes.filter((v) => v.choiceID === "1").length,
+      total: voteEvents.length,
+      for: voteEvents.filter((v) => v.choiceID === "0").length,
+      against: voteEvents.filter((v) => v.choiceID === "1").length,
     };
-  }, [votes]);
+  }, [voteEvents]);
 
   const summaryHeader = React.useMemo(() => {
     return (
@@ -175,7 +176,7 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
         >
           <Spinner />
         </Flex>
-      ) : votes.length > 0 ? (
+      ) : voteEvents.length > 0 ? (
         <Flex
           css={{
             flexDirection: "column",
@@ -196,7 +197,7 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
             },
           }}
         >
-          {votes.map((vote, idx) => (
+          {voteEvents.map((vote, idx) => (
             <Box
               key={vote.transaction.id ?? idx}
               css={{ position: "relative" }}
