@@ -85,12 +85,13 @@ export function findRecentRewardCutSpike(
 export function useOrchestratorRewardCutSpike(
   orchestratorId?: string | null
 ): RewardCutSpike | null {
+  // 1000 most recent events, no pagination — enough for the 180-day window.
   const { data } = useTranscoderUpdateEventsQuery({
     variables: {
       where: { delegate: orchestratorId },
       first: 1000,
       orderBy: TranscoderUpdateEvent_OrderBy.Timestamp,
-      orderDirection: OrderDirection.Asc,
+      orderDirection: OrderDirection.Desc,
     },
     skip: !orchestratorId,
   });

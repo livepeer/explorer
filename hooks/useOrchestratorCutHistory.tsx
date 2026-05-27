@@ -45,24 +45,25 @@ export type UseOrchestratorCutHistoryReturn = {
 export function useOrchestratorCutHistory(
   transcoder?: OrchestratorRef | null
 ): UseOrchestratorCutHistoryReturn {
+  // 1000 most recent events, no pagination — chart truncates older history.
   const { data, loading } = useTranscoderUpdateEventsQuery({
     variables: {
       where: { delegate: transcoder?.id },
       first: 1000,
       orderBy: TranscoderUpdateEvent_OrderBy.Timestamp,
-      orderDirection: OrderDirection.Asc,
+      orderDirection: OrderDirection.Desc,
     },
     skip: !transcoder?.id,
   });
 
   const points = useMemo<CutDataPoint[]>(() => {
-    const events: CutDataPoint[] = (data?.transcoderUpdateEvents ?? []).map(
-      (event) => ({
+    const events: CutDataPoint[] = [...(data?.transcoderUpdateEvents ?? [])]
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map((event) => ({
         timestamp: event.timestamp * 1000, // Convert to ms
         rewardCut: Number(event.rewardCut) / PERCENTAGE_PRECISION_MILLION,
         feeCut: 1 - Number(event.feeShare) / PERCENTAGE_PRECISION_MILLION,
-      })
-    );
+      }));
 
     // No update events — synthesize a starting anchor from current
     // on-chain values at activation time so the chart shows a flat line.
