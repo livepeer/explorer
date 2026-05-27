@@ -12,6 +12,7 @@ node_modules
 .pnpm-store
 .github
 .vscode
+.playwright-mcp
 @types
 apollo
 codegen.yml
