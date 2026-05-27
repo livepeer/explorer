@@ -9681,7 +9681,7 @@ export type PollQueryVariables = Exact<{
 }>;
 
 
-export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string }> } | null };
+export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string, choiceID?: PollChoice | null, voter: string, voteStake: string, nonVoteStake: string }> } | null };
 
 export type PollsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9718,6 +9718,16 @@ export type TranscoderActivatedEventsQueryVariables = Exact<{
 
 
 export type TranscoderActivatedEventsQuery = { __typename: 'Query', transcoderActivatedEvents: Array<{ __typename: 'TranscoderActivatedEvent', activationRound: string, id: string }> };
+
+export type TranscoderUpdateEventsQueryVariables = Exact<{
+  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
+
+
+export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
 
 export type TreasuryProposalQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -9756,6 +9766,14 @@ export type VoteQueryVariables = Exact<{
 
 
 export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string } | null };
+
+export type VoteEventsQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<VoteEvent_Filter>;
+}>;
+
+
+export type VoteEventsQuery = { __typename: 'Query', voteEvents: Array<{ __typename: 'VoteEvent', id: string, choiceID: string, voter: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
 
 
 export const AccountDocument = gql`
@@ -10451,6 +10469,10 @@ export const PollDocument = gql`
     }
     votes {
       id
+      choiceID
+      voter
+      voteStake
+      nonVoteStake
     }
   }
 }
@@ -10838,16 +10860,6 @@ export function useTranscoderActivatedEventsLazyQuery(baseOptions?: Apollo.LazyQ
 export type TranscoderActivatedEventsQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsQuery>;
 export type TranscoderActivatedEventsLazyQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsLazyQuery>;
 export type TranscoderActivatedEventsQueryResult = Apollo.QueryResult<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>;
-
-export type TranscoderUpdateEventsQueryVariables = Exact<{
-  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-}>;
-
-export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
-
 export const TranscoderUpdateEventsDocument = gql`
     query transcoderUpdateEvents($where: TranscoderUpdateEvent_filter, $first: Int, $orderBy: TranscoderUpdateEvent_orderBy, $orderDirection: OrderDirection) {
   transcoderUpdateEvents(
@@ -10870,6 +10882,25 @@ export const TranscoderUpdateEventsDocument = gql`
 }
     `;
 
+/**
+ * __useTranscoderUpdateEventsQuery__
+ *
+ * To run a query within a React component, call `useTranscoderUpdateEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscoderUpdateEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranscoderUpdateEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
+ *   },
+ * });
+ */
 export function useTranscoderUpdateEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
@@ -10881,7 +10912,6 @@ export function useTranscoderUpdateEventsLazyQuery(baseOptions?: Apollo.LazyQuer
 export type TranscoderUpdateEventsQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsQuery>;
 export type TranscoderUpdateEventsLazyQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsLazyQuery>;
 export type TranscoderUpdateEventsQueryResult = Apollo.QueryResult<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>;
-
 export const TreasuryProposalDocument = gql`
     query treasuryProposal($id: ID!) {
   treasuryProposal(id: $id) {
@@ -11124,3 +11154,55 @@ export function useVoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteQ
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;
 export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
+export const VoteEventsDocument = gql`
+    query voteEvents($first: Int, $where: VoteEvent_filter) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
+    id
+    choiceID
+    voter
+    timestamp
+    poll {
+      id
+      proposal
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}
+    `;
+
+/**
+ * __useVoteEventsQuery__
+ *
+ * To run a query within a React component, call `useVoteEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVoteEventsQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+      }
+export function useVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+        }
+export type VoteEventsQueryHookResult = ReturnType<typeof useVoteEventsQuery>;
+export type VoteEventsLazyQueryHookResult = ReturnType<typeof useVoteEventsLazyQuery>;
+export type VoteEventsQueryResult = Apollo.QueryResult<VoteEventsQuery, VoteEventsQueryVariables>;
