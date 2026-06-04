@@ -7,7 +7,7 @@ import {
 import { useMemo } from "react";
 
 /** Minimum upward swing (0..1) within any ROLLING_WINDOW_DAYS window to count as a spike. */
-export const REWARD_CUT_SPIKE_PP = 0.5;
+export const REWARD_CUT_SPIKE_PP = 0.8;
 /** Width of the sliding window within which any qualifying upward swing fires the warning. */
 export const ROLLING_WINDOW_DAYS = 7;
 /** Age cutoff beyond which a spike no longer drives a warning. */
