@@ -137,7 +137,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
     [votes]
   );
 
-  const formatVoteStake = useMemo(
+  const formatWeight = useMemo(
     () => (stake: string) =>
       `${formatLPT(parseFloat(stake), { abbreviate: false })} (${
         totalVoteStake > 0
@@ -183,7 +183,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
           votes={votes}
           onSelect={setSelectedVoter}
           pageSize={pageSize}
-          formatVoteStake={formatVoteStake}
+          formatWeight={formatWeight}
         />
       ) : (
         <MobileVoteCards
@@ -192,14 +192,14 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          formatVoteStake={formatVoteStake}
+          formatWeight={formatWeight}
         />
       )}
       {selectedVoter && (
         <PollVotePopover
           voter={selectedVoter.address}
           ensName={selectedVoter.ensName}
-          formatVoteStake={formatVoteStake}
+          formatWeight={formatWeight}
           onClose={() => setSelectedVoter(null)}
         />
       )}

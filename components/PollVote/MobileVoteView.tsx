@@ -19,7 +19,7 @@ import { PollVoteType } from ".";
 
 interface MobileVoteViewProps {
   vote: PollVoteType;
-  formatVoteStake: (stake: string) => string;
+  formatWeight: (stake: string) => string;
   onSelect: (voter: {
     address: string;
     voteStake: string;
@@ -29,7 +29,7 @@ interface MobileVoteViewProps {
 
 export function MobileVoteView({
   vote,
-  formatVoteStake,
+  formatWeight,
   onSelect,
 }: MobileVoteViewProps) {
   const support = VOTING_SUPPORT_MAP[vote.choiceID];
@@ -135,7 +135,7 @@ export function MobileVoteView({
         </Flex>
 
         <Text size="1" css={{ color: "$neutral11" }}>
-          {formatVoteStake(vote.voteStake)}
+          {formatWeight(vote.voteStake)}
         </Text>
 
         {/* Footer: Transaction + Timestamp */}

@@ -13,7 +13,7 @@ interface PollVotePopoverProps {
   voter: string;
   ensName?: string;
   onClose: () => void;
-  formatVoteStake: (weight: string) => string;
+  formatWeight: (weight: string) => string;
 }
 
 const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {

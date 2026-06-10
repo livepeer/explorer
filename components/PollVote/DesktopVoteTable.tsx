@@ -22,14 +22,14 @@ export interface PollVoteTableProps {
   totalPages?: number;
   currentPage?: number;
   onPageChange?: (page: number) => void;
-  formatVoteStake: (stake: string) => string;
+  formatWeight: (stake: string) => string;
 }
 
 export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
   votes,
   onSelect,
   pageSize = 10,
-  formatVoteStake,
+  formatWeight,
 }) => {
   const columns = useMemo<Column<PollVoteType>[]>(
     () => [
@@ -87,7 +87,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
               }}
               size="2"
             >
-              {formatVoteStake(row.original.voteStake)}
+              {formatWeight(row.original.voteStake)}
             </Text>
           </Box>
         ),
@@ -190,7 +190,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         disableSortBy: true,
       },
     ],
-    [formatVoteStake, onSelect]
+    [formatWeight, onSelect]
   );
 
   return (
