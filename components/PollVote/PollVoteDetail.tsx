@@ -11,8 +11,9 @@ import {
   Link,
   Text,
 } from "@livepeer/design-system";
-import { VoteEvent } from "apollo";
-import React, { useEffect, useState } from "react";
+import { formatLPT, formatPercent } from "@utils/numberFormatters";
+import { useVoteQuery, VoteEvent } from "apollo";
+import React, { useEffect, useMemo, useState } from "react";
 
 interface PollVoteDetailProps {
   vote: VoteEvent;
@@ -21,6 +22,26 @@ interface PollVoteDetailProps {
 const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
   const [title, setTitle] = useState<string>("");
   const support = POLL_VOTES[vote.choiceID];
+  const voteId = `${vote.voter}-${vote.poll.id}`;
+
+  const { data: voteData } = useVoteQuery({ variables: { id: voteId } });
+
+  const getStake = useMemo(
+    () => (stake: string) => {
+      const totalVoteStake =
+        voteData?.vote?.poll?.votes.reduce(
+          (sum, v) => sum + parseFloat(v.voteStake),
+          0
+        ) ?? 0;
+
+      return `${formatLPT(parseFloat(stake), { abbreviate: false })} (${
+        totalVoteStake > 0
+          ? formatPercent(parseFloat(stake) / totalVoteStake)
+          : formatPercent(0)
+      })`;
+    },
+    [voteData?.vote?.poll?.votes]
+  );
 
   useEffect(() => {
     async function getTitle() {
@@ -101,6 +122,11 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
               {title}
             </Link>
           </Heading>
+
+          {/* Weight */}
+          <Text size="1" css={{ color: "$neutral11" }}>
+            {getStake(voteData?.vote?.voteStake ?? "0")}
+          </Text>
 
           {/* Footer: Transaction + Timestamp */}
           <Flex css={{ alignItems: "center", gap: "$2" }}>
@@ -198,6 +224,11 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
                 {title}
               </Link>
             </Heading>
+
+            {/* Weight */}
+            <Text size="1" css={{ color: "$neutral11" }}>
+              {getStake(voteData?.vote?.voteStake ?? "0")}
+            </Text>
 
             {/* Footer: Transaction + Timestamp */}
             <Flex css={{ alignItems: "center", gap: "$2" }}>

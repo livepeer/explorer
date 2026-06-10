@@ -199,7 +199,6 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
         <PollVotePopover
           voter={selectedVoter.address}
           ensName={selectedVoter.ensName}
-          formatWeight={formatWeight}
           onClose={() => setSelectedVoter(null)}
         />
       )}
