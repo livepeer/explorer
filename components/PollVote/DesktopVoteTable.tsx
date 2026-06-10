@@ -74,13 +74,22 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         },
       },
       {
-        Header: "Stake Used",
+        Header: "Weight",
         accessor: "voteStake",
-        id: "stakeUsed",
+        id: "weight",
         Cell: ({ row }) => (
-          <Text size="1" css={{ color: "$hiContrast", fontWeight: 500 }}>
-            {formatVoteStake(row.original.voteStake)}
-          </Text>
+          <Box css={{ minWidth: 140 }}>
+            <Text
+              css={{
+                fontWeight: 600,
+                color: "$hiContrast",
+                whiteSpace: "nowrap",
+              }}
+              size="2"
+            >
+              {formatVoteStake(row.original.voteStake)}
+            </Text>
+          </Box>
         ),
       },
       {
@@ -193,7 +202,7 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
           pageSize,
           sortBy: [
             {
-              id: "stakeUsed",
+              id: "weight",
               desc: true,
             },
           ],
