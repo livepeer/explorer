@@ -27,6 +27,7 @@ next-env.d.ts
 .code-workspace
 .claude/
 .pnpm-store/
+.playwright-mcp/
 
 # debug
 npm-debug.log*
