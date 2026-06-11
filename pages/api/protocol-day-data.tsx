@@ -2,8 +2,10 @@ import { getCacheControlHeader } from "@lib/api";
 import type {
   ProtocolDay,
   ProtocolDayData,
+  ProtocolWeek,
 } from "@lib/api/types/get-protocol-day-data";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import dayjs from "@lib/dayjs";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { getPercentChange } from "@lib/utils";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -24,6 +26,7 @@ const DAYS_QUERY = `
       participationRate
       delegatorsCount
       activeTranscoderCount
+      volumeUSD
     }
   }
 `;
@@ -74,6 +77,7 @@ const protocolDayDataHandler = async (
           participationRate: Number(day.participationRate),
           delegatorsCount: Number(day.delegatorsCount),
           activeTranscoderCount: Number(day.activeTranscoderCount),
+          volumeUsd: Number(day.volumeUSD),
         });
       }
 
@@ -89,14 +93,33 @@ const protocolDayDataHandler = async (
 
     if (dayData.length === 0) return res.status(502).json(null);
 
+    // Bucket days into weeks for the fees "W" view. A new week-of-year number
+    // starts a new bucket (mirrors the off-chain /usage aggregation).
+    const weeklyData: ProtocolWeek[] = [];
+    let currentWeek = -1;
+    for (const day of dayData) {
+      const week = dayjs.utc(dayjs.unix(day.dateS)).week();
+      if (week !== currentWeek) {
+        currentWeek = week;
+        weeklyData.push({ date: day.dateS, weeklyVolumeUsd: 0 });
+      }
+      weeklyData[weeklyData.length - 1].weeklyVolumeUsd += day.volumeUsd;
+    }
+
     const current = dayData[dayData.length - 1];
     const previous = dayData[dayData.length - 2];
 
     const change = (key: keyof ProtocolDay) =>
       getPercentChange(current?.[key] ?? 0, previous?.[key] ?? 0);
 
+    // The last week bucket is in-progress, so headline fees use the last
+    // complete week (second-to-last) and compare it to the week before that.
+    const lastCompleteWeek = weeklyData[weeklyData.length - 2];
+    const priorWeek = weeklyData[weeklyData.length - 3];
+
     const data: ProtocolDayData = {
       dayData,
+      weeklyData,
       inflation: current?.inflation ?? 0,
       inflationChange: change("inflation"),
       participationRate: current?.participationRate ?? 0,
@@ -105,6 +128,13 @@ const protocolDayDataHandler = async (
       delegatorsCountChange: change("delegatorsCount"),
       activeTranscoderCount: current?.activeTranscoderCount ?? 0,
       activeTranscoderCountChange: change("activeTranscoderCount"),
+      oneDayVolumeUSD: current?.volumeUsd ?? 0,
+      volumeChangeUSD: change("volumeUsd"),
+      oneWeekVolumeUSD: lastCompleteWeek?.weeklyVolumeUsd ?? 0,
+      weeklyVolumeChangeUSD: getPercentChange(
+        lastCompleteWeek?.weeklyVolumeUsd ?? 0,
+        priorWeek?.weeklyVolumeUsd ?? 0
+      ),
     };
 
     res.setHeader("Cache-Control", getCacheControlHeader("day"));

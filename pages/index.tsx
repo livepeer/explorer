@@ -68,15 +68,15 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
-        ? chartData?.dayData?.map((day) => ({
+        ? protocolDayData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.volumeUsd),
           }))
-        : chartData?.weeklyData?.map((week) => ({
+        : protocolDayData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyVolumeUsd),
           }))) ?? [],
-    [feesPaidGrouping, chartData]
+    [feesPaidGrouping, protocolDayData]
   );
 
   const [usageGrouping, setUsageGrouping] = useState<Group>("week");
@@ -156,13 +156,13 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           }
           base={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.oneDayVolumeUSD
-              : chartData?.oneWeekVolumeUSD) ?? 0
+              ? protocolDayData?.oneDayVolumeUSD
+              : protocolDayData?.oneWeekVolumeUSD) ?? 0
           )}
           basePercentChange={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.volumeChangeUSD
-              : chartData?.weeklyVolumeChangeUSD) ?? 0
+              ? protocolDayData?.volumeChangeUSD
+              : protocolDayData?.weeklyVolumeChangeUSD) ?? 0
           )}
           title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
