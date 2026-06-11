@@ -13,6 +13,7 @@ import TransactionsList, {
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { ProtocolDay } from "@lib/api/types/get-protocol-day-data";
 import {
   Box,
   Button,
@@ -23,7 +24,7 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { PERCENTAGE_PRECISION_BILLION } from "@utils/web3";
-import { useChartData } from "hooks";
+import { useChartData, useProtocolDayData } from "hooks";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -61,6 +62,8 @@ const Panel = ({ children }) => (
 );
 
 const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
+  const protocolDayData = useProtocolDayData();
+
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
@@ -92,15 +95,14 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   );
 
   const getDaySeries = useCallback(
-    (
-      grouping: Group,
-      accessor: (day: NonNullable<HomeChartData["dayData"]>[number]) => number
-    ) =>
-      chartData?.dayData?.slice(grouping === "year" ? -365 : 1).map((day) => ({
-        x: Number(day.dateS),
-        y: accessor(day),
-      })) ?? [],
-    [chartData]
+    (grouping: Group, accessor: (day: ProtocolDay) => number) =>
+      protocolDayData?.dayData
+        ?.slice(grouping === "year" ? -365 : 0)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: accessor(day),
+        })) ?? [],
+    [protocolDayData]
   );
 
   const [participationGrouping, setParticipationGrouping] =
@@ -118,7 +120,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     () =>
       getDaySeries(
         inflationGrouping,
-        (day) => Number(day?.inflation ?? 0) / PERCENTAGE_PRECISION_BILLION
+        (day) => Number(day.inflation) / PERCENTAGE_PRECISION_BILLION
       ),
     [getDaySeries, inflationGrouping]
   );
@@ -173,8 +175,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The percent of LPT which has been delegated to an orchestrator."
           data={participationRateData}
-          base={Number(chartData?.participationRate ?? 0)}
-          basePercentChange={Number(chartData?.participationRateChange ?? 0)}
+          base={Number(protocolDayData?.participationRate ?? 0)}
+          basePercentChange={Number(
+            protocolDayData?.participationRateChange ?? 0
+          )}
           title="Participation Rate"
           unit="percent"
           type="line"
@@ -187,9 +191,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
           data={inflationRateData}
           base={
-            Number(chartData?.inflation ?? 0) / PERCENTAGE_PRECISION_BILLION
+            Number(protocolDayData?.inflation ?? 0) /
+            PERCENTAGE_PRECISION_BILLION
           }
-          basePercentChange={Number(chartData?.inflationChange ?? 0)}
+          basePercentChange={Number(protocolDayData?.inflationChange ?? 0)}
           title="Inflation Rate"
           unit="small-percent"
           type="line"
@@ -239,8 +244,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
           data={delegatorsCountData}
-          base={Number(chartData?.delegatorsCount ?? 0)}
-          basePercentChange={Number(chartData?.delegatorsCountChange ?? 0)}
+          base={Number(protocolDayData?.delegatorsCount ?? 0)}
+          basePercentChange={Number(
+            protocolDayData?.delegatorsCountChange ?? 0
+          )}
           title="Delegators"
           unit="small-unitless"
           type="line"
@@ -252,9 +259,9 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
           data={activeTranscoderCountData}
-          base={Number(chartData?.activeTranscoderCount ?? 0)}
+          base={Number(protocolDayData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.activeTranscoderCountChange ?? 0
+            protocolDayData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
