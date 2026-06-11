@@ -14,8 +14,14 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import rainbowTheme from "constants/rainbowTheme";
-import { DEFAULT_CHAIN, L1_CHAIN, WALLET_CONNECT_PROJECT_ID } from "lib/chains";
+import {
+  DEFAULT_CHAIN,
+  L1_CHAIN,
+  NETWORK_RPC_URLS,
+  WALLET_CONNECT_PROJECT_ID,
+} from "lib/chains";
 import { useMemo } from "react";
+import { fallback, http } from "viem";
 import { WagmiProvider } from "wagmi";
 
 const Index = ({
@@ -35,6 +41,12 @@ const Index = ({
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
       ssr: false,
+      transports: Object.fromEntries(
+        chains.map((c) => [
+          c.id,
+          fallback((NETWORK_RPC_URLS[c.id] ?? []).map((url) => http(url))),
+        ])
+      ),
       wallets: [
         {
           groupName: "Popular",
