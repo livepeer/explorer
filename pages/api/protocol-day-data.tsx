@@ -9,7 +9,7 @@ import { getPercentChange } from "@lib/utils";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const PAGE_SIZE = 1000;
-const MAX_PAGES = 50; // Safety bound to avoid infinite loops on malformed data.
+const MAX_PAGES = 50; // Safety bound to prevent infinite loop on malformed data.
 
 const DAYS_QUERY = `
   query ProtocolDays($first: Int!, $lastDate: Int!) {
@@ -17,7 +17,7 @@ const DAYS_QUERY = `
       first: $first
       orderBy: date
       orderDirection: asc
-      where: { date_gt: $lastDate, inflation_gt: 0 }
+      where: { date_gt: $lastDate, activeTranscoderCount_gt: 0 }
     ) {
       date
       inflation
@@ -41,7 +41,6 @@ const protocolDayDataHandler = async (
 
     const dayData: ProtocolDay[] = [];
     let lastDate = 0;
-
     for (let page = 0; page < MAX_PAGES; page++) {
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
@@ -56,13 +55,18 @@ const protocolDayDataHandler = async (
         { retryOnMethods: ["POST"] }
       );
 
-      if (!response.ok) {
-        return res.status(500).json(null);
+      if (!response.ok) return res.status(502).json(null);
+
+      const { data, errors } = await response.json();
+      if (errors?.length || !Array.isArray(data?.days)) {
+        console.error(
+          "Invalid subgraph response for /protocol-day-data",
+          errors
+        );
+        return res.status(502).json(null);
       }
 
-      const { data } = await response.json();
-      const days = Array.isArray(data?.days) ? data.days : [];
-
+      const days = data.days;
       for (const day of days) {
         dayData.push({
           dateS: Number(day.date),
@@ -75,7 +79,15 @@ const protocolDayDataHandler = async (
 
       if (days.length < PAGE_SIZE) break;
       lastDate = Number(days[days.length - 1].date);
+
+      if (page === MAX_PAGES - 1) {
+        console.warn(
+          `/protocol-day-data hit MAX_PAGES (${MAX_PAGES}); series may be truncated`
+        );
+      }
     }
+
+    if (dayData.length === 0) return res.status(502).json(null);
 
     const current = dayData[dayData.length - 1];
     const previous = dayData[dayData.length - 2];
