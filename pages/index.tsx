@@ -97,7 +97,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
   const getDaySeries = useCallback(
     (grouping: Group, accessor: (day: ProtocolDay) => number) =>
       protocolDayData?.dayData
-        ?.slice(grouping === "year" ? -365 : 1)
+        ?.slice(grouping === "year" ? -365 : 0)
         .map((day) => ({
           x: Number(day.dateS),
           y: accessor(day),
