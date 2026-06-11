@@ -1,6 +1,7 @@
 import {
   type CutEvent,
   findRecentRewardCutSpike,
+  REWARD_CUT_SPIKE_PP,
 } from "./useOrchestratorRewardCutSpike";
 
 const NOW_MS = Date.UTC(2026, 0, 1);
@@ -24,10 +25,10 @@ describe("findRecentRewardCutSpike", () => {
     expect(findRecentRewardCutSpike([event(10, 50)], opts)).toBeNull();
   });
 
-  it("fires on a single-event 50pp jump", () => {
-    const spike = findRecentRewardCutSpike([event(10, 0), event(5, 50)], opts);
+  it("fires on a single-event 80pp jump", () => {
+    const spike = findRecentRewardCutSpike([event(10, 0), event(5, 80)], opts);
     expect(spike?.fromRewardCut).toBe(0);
-    expect(spike?.toRewardCut).toBe(0.5);
+    expect(spike?.toRewardCut).toBe(0.8);
   });
 
   it("fires on a 4x25pp climb spread over 6 days", () => {
@@ -48,15 +49,21 @@ describe("findRecentRewardCutSpike", () => {
     expect(spike?.toRewardCut).toBe(1);
   });
 
-  it("fires at exactly the 50pp threshold", () => {
+  it("fires at exactly the spike threshold", () => {
     expect(
-      findRecentRewardCutSpike([event(10, 25), event(5, 75)], opts)
+      findRecentRewardCutSpike(
+        [event(10, 0), event(5, REWARD_CUT_SPIKE_PP * 100)],
+        opts
+      )
     ).not.toBeNull();
   });
 
-  it("does not fire below the 50pp threshold", () => {
+  it("does not fire just below the spike threshold", () => {
     expect(
-      findRecentRewardCutSpike([event(10, 0), event(5, 49)], opts)
+      findRecentRewardCutSpike(
+        [event(10, 0), event(5, REWARD_CUT_SPIKE_PP * 100 - 1)],
+        opts
+      )
     ).toBeNull();
   });
 
