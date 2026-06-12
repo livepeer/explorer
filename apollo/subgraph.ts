@@ -26,14 +26,6 @@ export type Scalars = {
   Timestamp: any;
 };
 
-/** Indicates whether the current, partially filled bucket should be included in the response. Defaults to `exclude` */
-export enum Aggregation_Current {
-  /** Exclude the current, partially filled bucket from the response */
-  Exclude = 'exclude',
-  /** Include the current, partially filled bucket in the response */
-  Include = 'include'
-}
-
 export enum Aggregation_Interval {
   Day = 'day',
   Hour = 'hour'
@@ -7578,8 +7570,10 @@ export type TreasuryProposal_Filter = {
   and?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
   calldatas?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_contains?: InputMaybe<Array<Scalars['Bytes']>>;
+  calldatas_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not_contains?: InputMaybe<Array<Scalars['Bytes']>>;
+  calldatas_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   description?: InputMaybe<Scalars['String']>;
   description_contains?: InputMaybe<Scalars['String']>;
   description_contains_nocase?: InputMaybe<Scalars['String']>;
@@ -7654,8 +7648,10 @@ export type TreasuryProposal_Filter = {
   totalVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   values?: InputMaybe<Array<Scalars['BigInt']>>;
   values_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  values_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  values_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   voteEnd?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gt?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gte?: InputMaybe<Scalars['BigInt']>;
@@ -9681,7 +9677,7 @@ export type PollQueryVariables = Exact<{
 }>;
 
 
-export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string }> } | null };
+export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string, choiceID?: PollChoice | null, voter: string, voteStake: string, nonVoteStake: string }> } | null };
 
 export type PollsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9765,7 +9761,15 @@ export type VoteQueryVariables = Exact<{
 }>;
 
 
-export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string } | null };
+export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string, poll?: { __typename: 'Poll', id: string, votes: Array<{ __typename: 'Vote', voteStake: string, id: string }> } | null } | null };
+
+export type VoteEventsQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<VoteEvent_Filter>;
+}>;
+
+
+export type VoteEventsQuery = { __typename: 'Query', voteEvents: Array<{ __typename: 'VoteEvent', id: string, choiceID: string, voter: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
 
 
 export const AccountDocument = gql`
@@ -10467,6 +10471,10 @@ export const PollDocument = gql`
     }
     votes {
       id
+      choiceID
+      voter
+      voteStake
+      nonVoteStake
     }
   }
 }
@@ -11117,6 +11125,13 @@ export const VoteDocument = gql`
     choiceID
     voteStake
     nonVoteStake
+    poll {
+      id
+      votes {
+        voteStake
+        id
+      }
+    }
   }
 }
     `;
@@ -11148,3 +11163,55 @@ export function useVoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteQ
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;
 export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
+export const VoteEventsDocument = gql`
+    query voteEvents($first: Int, $where: VoteEvent_filter) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
+    id
+    choiceID
+    voter
+    timestamp
+    poll {
+      id
+      proposal
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}
+    `;
+
+/**
+ * __useVoteEventsQuery__
+ *
+ * To run a query within a React component, call `useVoteEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVoteEventsQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+      }
+export function useVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+        }
+export type VoteEventsQueryHookResult = ReturnType<typeof useVoteEventsQuery>;
+export type VoteEventsLazyQueryHookResult = ReturnType<typeof useVoteEventsLazyQuery>;
+export type VoteEventsQueryResult = Apollo.QueryResult<VoteEventsQuery, VoteEventsQueryVariables>;
