@@ -1,5 +1,6 @@
 import { DrawerItem } from "@layouts/main";
-import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import { Box, Flex, Link as A } from "@livepeer/design-system";
+import { BRIDGE_LPT_URL, GET_LPT_URL } from "constants/links";
 import { IS_L2 } from "lib/chains";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
@@ -162,12 +163,17 @@ const Index = ({
             <EmbedModal
               trigger={
                 <A
-                  as={Text}
+                  as="button"
                   css={{
                     cursor: "pointer",
                     fontSize: "$2",
                     marginBottom: "$2",
                     display: "block",
+                    padding: 0,
+                    border: 0,
+                    background: "transparent",
+                    textAlign: "left",
+                    color: "inherit",
                   }}
                 >
                   Get LPT
@@ -176,25 +182,31 @@ const Index = ({
             >
               <Box
                 as="iframe"
+                title="Get LPT"
                 css={{
                   backgroundColor: "$panel",
                   width: "100%",
                   height: "100%",
                   border: "0",
                 }}
-                src={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
+                src={GET_LPT_URL}
               />
             </EmbedModal>
 
             <EmbedModal
               trigger={
                 <A
-                  as={Text}
+                  as="button"
                   css={{
                     cursor: "pointer",
                     fontSize: "$2",
                     marginBottom: "$2",
                     display: "block",
+                    padding: 0,
+                    border: 0,
+                    background: "transparent",
+                    textAlign: "left",
+                    color: "inherit",
                   }}
                 >
                   Bridge LPT
@@ -203,13 +215,14 @@ const Index = ({
             >
               <Box
                 as="iframe"
+                title="Bridge LPT"
                 css={{
                   backgroundColor: "$panel",
                   width: "100%",
                   height: "100%",
                   border: "0",
                 }}
-                src={`https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum&token=0x58b6a8a3302369daec383334672404ee733ab239`}
+                src={BRIDGE_LPT_URL}
               />
             </EmbedModal>
             <A

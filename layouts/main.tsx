@@ -39,6 +39,7 @@ import {
   useProtocolQuery,
   useTreasuryProposalsQuery,
 } from "apollo";
+import { BRIDGE_LPT_URL, GET_LPT_URL } from "constants/links";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import dynamic from "next/dynamic";
@@ -730,13 +731,13 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
+                                  href={GET_LPT_URL}
                                 >
                                   Get LPT
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum&token=0x58b6a8a3302369daec383334672404ee733ab239`}
+                                  href={BRIDGE_LPT_URL}
                                 >
                                   Bridge LPT
                                 </PopoverLink>
