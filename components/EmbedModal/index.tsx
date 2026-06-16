@@ -20,8 +20,6 @@ const EmbedModal = ({ trigger, children }) => {
           "& button": { cursor: "pointer" },
         }}
       >
-        {/* marginTop matches the Search dialog so the close button clears the
-            embedded content (and its scrollbar) instead of overlapping it. */}
         <Box css={{ flex: 1, minHeight: 0, marginTop: "$4" }}>{children}</Box>
       </DialogContent>
     </Dialog>
