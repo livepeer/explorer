@@ -736,6 +736,12 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
+                                  href={`https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum&token=0x58b6a8a3302369daec383334672404ee733ab239`}
+                                >
+                                  Bridge LPT
+                                </PopoverLink>
+                                <PopoverLink
+                                  newWindow={true}
                                   href={`https://discord.gg/livepeer`}
                                 >
                                   Discord

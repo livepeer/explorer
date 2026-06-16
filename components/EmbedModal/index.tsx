@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTrigger } from "@livepeer/design-system";
 
-const Index = ({ trigger, children }) => {
+const EmbedModal = ({ trigger, children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -11,4 +11,4 @@ const Index = ({ trigger, children }) => {
   );
 };
 
-export default Index;
+export default EmbedModal;

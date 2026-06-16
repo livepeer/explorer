@@ -6,7 +6,7 @@ import Router, { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import Account from "../Account";
-import LlamaswapModal from "../LlamaswapModal";
+import EmbedModal from "../EmbedModal";
 import Logo from "../Logo";
 
 const Index = ({
@@ -159,7 +159,7 @@ const Index = ({
               Docs
             </A>
 
-            <LlamaswapModal
+            <EmbedModal
               trigger={
                 <A
                   as={Text}
@@ -184,7 +184,34 @@ const Index = ({
                 }}
                 src={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
               />
-            </LlamaswapModal>
+            </EmbedModal>
+
+            <EmbedModal
+              trigger={
+                <A
+                  as={Text}
+                  css={{
+                    cursor: "pointer",
+                    fontSize: "$2",
+                    marginBottom: "$2",
+                    display: "block",
+                  }}
+                >
+                  Bridge LPT
+                </A>
+              }
+            >
+              <Box
+                as="iframe"
+                css={{
+                  backgroundColor: "$panel",
+                  width: "100%",
+                  height: "100%",
+                  border: "0",
+                }}
+                src={`https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum&token=0x58b6a8a3302369daec383334672404ee733ab239`}
+              />
+            </EmbedModal>
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
               href="https://discord.gg/livepeer"
