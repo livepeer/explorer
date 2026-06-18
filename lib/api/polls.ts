@@ -62,10 +62,12 @@ export const parsePollIpfs = (ipfsObject?: IpfsPoll | null): Fm | null => {
 };
 
 export const parsePollText = async (proposal: string): Promise<Fm | null> => {
-  const ipfsObject = await catIpfsJson<IpfsPoll>(proposal);
-  const attributes = parsePollIpfs(ipfsObject);
-
-  return attributes;
+  try {
+    const ipfsObject = await catIpfsJson<IpfsPoll>(proposal);
+    return parsePollIpfs(ipfsObject);
+  } catch {
+    return null;
+  }
 };
 
 export const getPollExtended = async (

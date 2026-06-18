@@ -27,6 +27,10 @@ interface MobileVoteViewProps {
   }) => void;
 }
 
+/**
+ * Renders a mobile-optimized vote card showing voter identity, support badge,
+ * stake amount, transaction link, and timestamp with a history action button.
+ */
 export function MobileVoteView({
   vote,
   formatWeight,
@@ -74,6 +78,7 @@ export function MobileVoteView({
             <Link
               href={`https://explorer.livepeer.org/accounts/${vote.voter}/delegating`}
               target="_blank"
+              rel="noopener noreferrer"
               css={{
                 color: "$hiContrast",
                 textDecoration: "none",
@@ -144,6 +149,7 @@ export function MobileVoteView({
             <Link
               href={`https://arbiscan.io/tx/${vote.transactionHash}#eventlog`}
               target="_blank"
+              rel="noopener noreferrer"
               css={{
                 display: "inline-flex",
                 textDecoration: "none !important",

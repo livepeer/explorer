@@ -1,5 +1,4 @@
 import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog";
-import {} from "@components/PollVote";
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";

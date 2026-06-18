@@ -100,6 +100,7 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
             <Link
               href={`/voting/${vote.poll.id}`}
               target="_blank"
+              rel="noopener noreferrer"
               css={{
                 color: "$hiContrast",
                 textDecoration: "none",
@@ -210,6 +211,7 @@ const Index: React.FC<PollVoteDetailProps> = ({ vote }) => {
               <Link
                 href={`/voting/${vote.poll.id}`}
                 target="_blank"
+                rel="noopener noreferrer"
                 css={{
                   color: "$green11",
                   textDecoration: "none",

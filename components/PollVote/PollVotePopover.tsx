@@ -3,7 +3,7 @@ import { POLL_VOTES } from "@lib/api/types/votes";
 import { Badge, Box, Flex, Link, Text } from "@livepeer/design-system";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { formatNumber } from "@utils/numberFormatters";
-import { useVoteEventsQuery, VoteEvent } from "apollo";
+import { PollChoice, useVoteEventsQuery, VoteEvent } from "apollo";
 import React from "react";
 
 import TreasuryVoteHistoryModal from "../Treasury/TreasuryVoteTable/TreasuryVoteHistoryModal";
@@ -15,9 +15,14 @@ interface PollVotePopoverProps {
   onClose: () => void;
 }
 
+/**
+ * Displays a voting history modal for a given voter, showing all their poll votes
+ * sorted by timestamp with statistics (total, for, against) and vote event details.
+ */
 const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
   const { data: votesEventsData, loading: isLoading } = useVoteEventsQuery({
     variables: {
+      first: 200,
       where: {
         voter: voter,
       },
@@ -37,8 +42,12 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
 
     return {
       total: voteEvents.length,
-      for: voteEvents.filter((v) => v.choiceID === "0").length,
-      against: voteEvents.filter((v) => v.choiceID === "1").length,
+      for: voteEvents.filter(
+        (v) => v.choiceID === "0" || v.choiceID === PollChoice.Yes
+      ).length,
+      against: voteEvents.filter(
+        (v) => v.choiceID === "1" || v.choiceID === PollChoice.No
+      ).length,
     };
   }, [voteEvents]);
 
@@ -58,6 +67,7 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
           <Link
             href={`https://explorer.livepeer.org/accounts/${voter}/delegating`}
             target="_blank"
+            rel="noopener noreferrer"
             css={{
               fontSize: "$1",
               color: "$primary11",

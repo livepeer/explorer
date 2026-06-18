@@ -27,6 +27,10 @@ export type PollVoteType = {
   timestamp: number;
 };
 
+/**
+ * Fetches poll votes and vote events, decorates each vote with ENS names and
+ * the latest transaction details, and returns the decorated votes with loading/error state.
+ */
 const useVotes = (pollId: string) => {
   const pollInterval = 10000;
 
@@ -118,6 +122,10 @@ const useVotes = (pollId: string) => {
   };
 };
 
+/**
+ * Renders poll votes in responsive layouts (desktop table or mobile cards with pagination)
+ * and provides a popover to display individual voter history when selected.
+ */
 const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
   const { width } = useWindowSize();
   const isDesktop = width >= 900;
@@ -130,7 +138,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  const { votes, loading } = useVotes(pollId);
+  const { votes, loading, error } = useVotes(pollId);
 
   const totalVoteStake = useMemo(
     () => votes.reduce((sum, v) => sum + parseFloat(v.voteStake), 0),
@@ -168,6 +176,13 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
       </Flex>
     );
   }
+
+  if (error)
+    return (
+      <Text css={{ textAlign: "center", color: "$neutral11", marginTop: "$4" }}>
+        {error.message}
+      </Text>
+    );
 
   if (!votes.length)
     return (

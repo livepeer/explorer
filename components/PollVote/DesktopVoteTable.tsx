@@ -48,7 +48,9 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         accessor: "choiceID",
         id: "support",
         Cell: ({ row }) => {
-          const support = VOTING_SUPPORT_MAP[row.original.choiceID];
+          const support =
+            VOTING_SUPPORT_MAP[row.original.choiceID] ||
+            VOTING_SUPPORT_MAP["Unknown"];
 
           return (
             <Box css={{ minWidth: 100 }}>
@@ -91,6 +93,12 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
             </Text>
           </Box>
         ),
+        sortType: (rowA, rowB) => {
+          return (
+            parseFloat(rowA.original.voteStake) -
+            parseFloat(rowB.original.voteStake)
+          );
+        },
       },
       {
         Header: "Timestamp",

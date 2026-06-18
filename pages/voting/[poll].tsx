@@ -53,6 +53,7 @@ const Poll = () => {
   const [pollData, setPollData] = useState<PollExtended | null>(null);
   const { query } = router;
   const view = query?.view?.toString().toLowerCase() || "overview";
+  const safeView = view === "votes" ? "votes" : "overview";
 
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 10000;
@@ -122,16 +123,16 @@ const Poll = () => {
           pathname: router.pathname,
           query: { ...query, view: "overview" },
         },
-        isActive: view === "overview",
+        isActive: safeView === "overview",
       },
       {
         name: "Votes",
         href: votesTabHref,
-        isActive: view === "votes",
+        isActive: safeView === "votes",
         count: data?.poll?.votes?.length,
       },
     ],
-    [router.pathname, query, view, data?.poll?.votes?.length, votesTabHref]
+    [router.pathname, query, safeView, data?.poll?.votes?.length, votesTabHref]
   );
 
   const voteContent = useCallback(() => {
@@ -253,7 +254,7 @@ const Poll = () => {
               <HorizontalScrollContainer
                 role="navigation"
                 ariaLabel="Proposal navigation tabs"
-                activeItemKey={view}
+                activeItemKey={safeView}
               >
                 {tabs.map((tab, i) => (
                   <NextLink
@@ -312,7 +313,9 @@ const Poll = () => {
               </HorizontalScrollContainer>
 
               <Box css={{ marginTop: "$4" }}>
-                <Box css={{ display: view === "overview" ? "block" : "none" }}>
+                <Box
+                  css={{ display: safeView === "overview" ? "block" : "none" }}
+                >
                   <Box
                     css={{
                       display: "grid",
@@ -466,7 +469,7 @@ const Poll = () => {
                 </Box>
               </Box>
 
-              <Box css={{ display: view === "votes" ? "block" : "none" }}>
+              <Box css={{ display: safeView === "votes" ? "block" : "none" }}>
                 {voteContent()}
               </Box>
             </Box>
