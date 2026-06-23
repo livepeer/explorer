@@ -22,7 +22,14 @@ export function useGetAllVoteEvents(pollId: string) {
   });
 
   useEffect(() => {
-    if (!voteEventsData) return;
+    if (!voteEventsData) {
+      // Stop loading if there is an error. This will stop the UI from loading indefinitely
+      if (error) {
+        setAllVoteEvents([]);
+        setLoadingAll(false);
+      }
+      return;
+    }
 
     let isCancelled = false;
 
@@ -60,7 +67,6 @@ export function useGetAllVoteEvents(pollId: string) {
         }
       } catch (err) {
         if (!isCancelled) {
-          // setErrorAll(err);
           setErrorAll(
             err instanceof Error
               ? (err as ApolloError)
@@ -76,7 +82,7 @@ export function useGetAllVoteEvents(pollId: string) {
     return () => {
       isCancelled = true;
     };
-  }, [voteEventsData, fetchMore, pollId]);
+  }, [voteEventsData, error, fetchMore, pollId]);
 
   return {
     data: { voteEvents: allVoteEvents },
