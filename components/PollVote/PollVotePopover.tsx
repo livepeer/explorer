@@ -20,7 +20,11 @@ interface PollVotePopoverProps {
  * sorted by timestamp with statistics (total, for, against) and vote event details.
  */
 const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
-  const { data: votesEventsData, loading: isLoading } = useVoteEventsQuery({
+  const {
+    data: votesEventsData,
+    loading: isLoading,
+    error,
+  } = useVoteEventsQuery({
     variables: {
       first: 200,
       where: {
@@ -185,6 +189,12 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
         >
           <Spinner />
         </Flex>
+      ) : error ? (
+        <Text
+          css={{ textAlign: "center", color: "$neutral11", marginTop: "$4" }}
+        >
+          {error.message}
+        </Text>
       ) : voteEvents.length > 0 ? (
         <Flex
           css={{
