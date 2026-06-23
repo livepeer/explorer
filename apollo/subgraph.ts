@@ -26,6 +26,14 @@ export type Scalars = {
   Timestamp: any;
 };
 
+/** Indicates whether the current, partially filled bucket should be included in the response. Defaults to `exclude` */
+export enum Aggregation_Current {
+  /** Exclude the current, partially filled bucket from the response */
+  Exclude = 'exclude',
+  /** Include the current, partially filled bucket in the response */
+  Include = 'include'
+}
+
 export enum Aggregation_Interval {
   Day = 'day',
   Hour = 'hour'
@@ -7570,10 +7578,8 @@ export type TreasuryProposal_Filter = {
   and?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
   calldatas?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_contains?: InputMaybe<Array<Scalars['Bytes']>>;
-  calldatas_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not_contains?: InputMaybe<Array<Scalars['Bytes']>>;
-  calldatas_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   description?: InputMaybe<Scalars['String']>;
   description_contains?: InputMaybe<Scalars['String']>;
   description_contains_nocase?: InputMaybe<Scalars['String']>;
@@ -7648,10 +7654,8 @@ export type TreasuryProposal_Filter = {
   totalVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   values?: InputMaybe<Array<Scalars['BigInt']>>;
   values_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  values_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  values_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   voteEnd?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gt?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gte?: InputMaybe<Scalars['BigInt']>;
@@ -11159,12 +11163,7 @@ export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
 export const VoteEventsDocument = gql`
     query voteEvents($first: Int, $where: VoteEvent_filter) {
-  voteEvents(
-    orderBy: timestamp
-    orderDirection: desc
-    first: $first
-    where: $where
-  ) {
+  voteEvents(orderBy: timestamp, orderDirection: desc, where: $where) {
     id
     choiceID
     voter

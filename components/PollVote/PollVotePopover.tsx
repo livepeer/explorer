@@ -26,7 +26,6 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
     error,
   } = useVoteEventsQuery({
     variables: {
-      first: 200,
       where: {
         voter: voter,
       },

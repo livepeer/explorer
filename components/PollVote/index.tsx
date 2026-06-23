@@ -48,7 +48,6 @@ const useVotes = (pollId: string) => {
   const { data: pollVoteEventsData, error: pollVoteEventsError } =
     useVoteEventsQuery({
       variables: {
-        first: 200,
         where: {
           poll: pollId,
         },
