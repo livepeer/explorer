@@ -29,6 +29,7 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
       where: {
         voter: voter,
       },
+      first: 1000,
     },
   });
 
