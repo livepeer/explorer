@@ -97,6 +97,8 @@ const AccountLayout = ({
     pollInterval,
   });
 
+  const delegateIdentity = useEnsData(dataMyAccount?.delegator?.delegate?.id);
+
   // Fetch fresh account data client-side, using static props as fallback
   const { data: dataViewedAccount } = useAccountQuery({
     variables: {
@@ -350,7 +352,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </Flex>
           ) : (
@@ -366,7 +370,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </BottomDrawer>
           ))}

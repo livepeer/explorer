@@ -210,7 +210,7 @@ const ExplorerChart = ({
               case "percent":
                 return formatPercent(payload.value, { precision: 0 });
               case "small-percent":
-                return formatPercent(payload.value, { precision: 2 });
+                return formatPercent(payload.value, { precision: 3 });
               case "small-unitless":
                 return formatNumber(payload.value, {
                   precision: 1,
@@ -233,7 +233,7 @@ const ExplorerChart = ({
   const widthYAxis = useMemo(
     () =>
       unit === "small-percent"
-        ? 45
+        ? 52
         : unit === "percent"
         ? 42
         : unit === "minutes"

@@ -9607,7 +9607,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
+export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string, feeShare: string, rewardCut: string, ninetyDayVolumeETH: string, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
 
 export type AccountInactiveQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -9802,6 +9802,12 @@ export const AccountDocument = gql`
       active
       status
       totalStake
+      feeShare
+      rewardCut
+      ninetyDayVolumeETH
+      pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
+        rewardTokens
+      }
     }
   }
   transcoder(id: $account) {
