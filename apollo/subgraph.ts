@@ -11163,7 +11163,12 @@ export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
 export const VoteEventsDocument = gql`
     query voteEvents($first: Int, $where: VoteEvent_filter) {
-  voteEvents(orderBy: timestamp, orderDirection: desc, where: $where) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
     id
     choiceID
     voter

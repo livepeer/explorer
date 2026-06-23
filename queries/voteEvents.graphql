@@ -1,5 +1,10 @@
-query voteEvents($where: VoteEvent_filter) {
-  voteEvents(orderBy: timestamp, orderDirection: desc, where: $where) {
+query voteEvents($first: Int, $where: VoteEvent_filter) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
     id
     choiceID
     voter

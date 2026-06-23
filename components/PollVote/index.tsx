@@ -3,7 +3,8 @@ import { getEnsForVotes } from "@lib/api/ens";
 import { Flex, Text } from "@livepeer/design-system";
 import { formatLPT, formatPercent } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
-import { PollChoice, usePollQuery, useVoteEventsQuery } from "apollo";
+import { PollChoice, usePollQuery } from "apollo";
+import { useGetAllVoteEvents } from "hooks/useGetAllPollVotesEvents";
 import React, { useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
@@ -46,13 +47,7 @@ const useVotes = (pollId: string) => {
   });
 
   const { data: pollVoteEventsData, error: pollVoteEventsError } =
-    useVoteEventsQuery({
-      variables: {
-        where: {
-          poll: pollId,
-        },
-      },
-    });
+    useGetAllVoteEvents(pollId);
 
   const [votes, setVotes] = useState<PollVoteType[]>([]);
   const [votesLoading, setVotesLoading] = useState(false);
@@ -181,7 +176,7 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
   if (error)
     return (
       <Text css={{ textAlign: "center", color: "$neutral11", marginTop: "$4" }}>
-        {error.message}
+        {error?.message}
       </Text>
     );
 
