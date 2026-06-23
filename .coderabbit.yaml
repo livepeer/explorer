@@ -1,0 +1,102 @@
+## CodeRabbit configuration
+## Docs: https://docs.coderabbit.ai/reference/yaml-template
+
+language: en-US
+early_access: false
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: false
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+
+  ## Review the PR description itself.
+  ## Flag descriptions that are empty, vague, misleading, or missing the
+  ## sections a reviewer needs to do their job: what / why / how tested /
+  ## risks & follow-ups. Don't block trivial self-explanatory PRs, but call
+  ## out missing context when it makes review harder or creates merge risk.
+  pr_description:
+    review: true
+
+  ## Guidance the bot follows when reviewing a PR. Keep this terse — these
+  ## instructions are prepended to every review.
+  path_instructions:
+    - path: "**"
+      instructions: |
+        You are a lean, practical PR reviewer. Be direct and concise.
+
+        REVIEW FOR:
+        - Correctness and real bugs
+        - Runtime issues, type errors, unhandled errors
+        - Security issues, data loss, auth/permission mistakes
+        - Realistic production edge cases (not theoretical ones)
+        - Code quality ONLY when it affects maintainability, reliability,
+          future changes, or alignment with the project's contributor guidelines
+
+        REVIEW THE PR DESCRIPTION:
+        The description should explain (1) what changed, (2) why it changed,
+        (3) how it was tested, (4) any risks, limitations, or follow-up work.
+        If the description is empty, vague, misleading, or missing the context
+        a reviewer needs, flag it. Do not nag on tiny obvious PRs where the
+        diff is self-explanatory.
+
+        CHECK CONTRIBUTOR GUIDELINES:
+        Verify the PR follows the project's contributor guidelines. Look for
+        any of these files and apply whichever exists:
+          - CONTRIBUTING.md
+          - contributor.md
+          - docs/contributor.md
+          - docs/CONTRIBUTING.md
+          - .github/CONTRIBUTING.md
+
+        DO NOT:
+        - Post generic advice or subjective style preferences
+        - Summarize the diff or recap what the PR does
+        - Praise the author, write poems, or pad responses
+        - Produce long walkthroughs
+        - Nitpick formatting that linters/formatters already handle
+        - Post one comment per missing JSDoc/docstring. If multiple exports
+          in the same file lack docs, raise it ONCE per file with the list
+          of missing exports — not one comment per export.
+
+        OUTPUT FORMAT:
+        If changes are needed, list ONLY important issues. For each issue:
+          - **Problem:** what is wrong
+          - **Why it matters:** the concrete impact
+          - **Suggested fix:** how to address it
+
+  ## Skip generated, build output, dependency, and lock files.
+  ## Markdown is intentionally NOT excluded — the reviewer needs to read
+  ## CONTRIBUTING.md and other contributor docs.
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.next/**"
+    - "!**/out/**"
+    - "!**/coverage/**"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/*.map"
+    - "!**/*.lock"
+    - "!**/pnpm-lock.yaml"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
+    - "!**/__generated__/**"
+    - "!**/generated/**"
+    - "!**/*.generated.*"
+    - "!**/codegen/**"
+    - "!**/next-env.d.ts"
+    - "!**/public/**"
+
+  tools:
+    github-checks:
+      enabled: true
+
+chat:
+  auto_reply: true
