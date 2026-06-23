@@ -156,7 +156,9 @@ const Index: React.FC<PollVotingTableProps> = ({ pollId }) => {
   );
 
   const paginatedVotesForMobile = useMemo(() => {
-    const sorted = [...votes].sort((a, b) => b.timestamp - a.timestamp);
+    const sorted = [...votes].sort(
+      (a, b) => parseInt(b.voteStake) - parseInt(a.voteStake)
+    );
     const startIndex = (currentPage - 1) * pageSize;
     return sorted.slice(startIndex, startIndex + pageSize);
   }, [votes, currentPage, pageSize]);
