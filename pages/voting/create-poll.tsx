@@ -383,7 +383,7 @@ export async function getStaticProps() {
           a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
         ),
       },
-      revalidate: 300,
+      revalidate: 30,
     };
   } catch (e) {
     console.log(e);
