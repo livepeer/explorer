@@ -21,10 +21,9 @@ import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { LAYOUT_MAX_WIDTH } from "layouts/constants";
 import { getLayout } from "layouts/main";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { addIpfs } from "utils/ipfs";
-import { Address } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
@@ -34,9 +33,9 @@ const CreatePoll = () => {
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
   const { data: pollLips, error: lipsError } = useSWR<PollLips>("/polls/lips");
-  const lips = pollLips?.lips ?? [];
+  const lips = useMemo(() => pollLips?.lips ?? [], [pollLips?.lips]);
 
-  const [hash, setHash] = useState<Address | null>(null);
+  const [hash, setHash] = useState<string | null>(null);
 
   const { data, loading } = useAccountQuery({
     variables: {
@@ -64,13 +63,19 @@ const CreatePoll = () => {
   }, [delegatorPendingStakeAndFees]);
 
   const [selectedProposal, setSelectedProposal] = useState<{
+    lip: string;
     gitCommitHash: string;
     text: string;
   } | null>(null);
 
   useEffect(() => {
-    setSelectedProposal(null);
-  }, [pollLips?.gitCommitHash]);
+    if (
+      selectedProposal &&
+      !lips.some((lip) => lip.attributes.lip === selectedProposal.lip)
+    ) {
+      setSelectedProposal(null);
+    }
+  }, [lips, selectedProposal]);
 
   const { data: config } = useSimulateContract({
     query: { enabled: Boolean(pollCreatorAddress && hash) },
@@ -131,9 +136,12 @@ const CreatePoll = () => {
               if (!selectedProposal) {
                 return;
               }
-              const hash = await addIpfs(selectedProposal);
+              const hash = await addIpfs({
+                gitCommitHash: selectedProposal.gitCommitHash,
+                text: selectedProposal.text,
+              });
 
-              setHash(hash as Address);
+              setHash(hash);
             } catch (err) {
               console.error(err);
               return {
@@ -157,18 +165,25 @@ const CreatePoll = () => {
             <>
               <RadioCardGroup
                 onValueChange={(value) => {
-                  if (!pollLips?.gitCommitHash) return;
+                  const selectedLip = lips.find(
+                    (lip) => lip.attributes.lip === value
+                  );
+                  if (!selectedLip) {
+                    setSelectedProposal(null);
+                    return;
+                  }
 
                   setSelectedProposal({
-                    gitCommitHash: pollLips.gitCommitHash,
-                    text: lips[value].text,
+                    lip: selectedLip.attributes.lip,
+                    gitCommitHash: pollLips!.gitCommitHash,
+                    text: selectedLip.text,
                   });
                 }}
               >
-                {lips.map((lip, i) => (
+                {lips.map((lip) => (
                   <RadioCard
-                    key={i}
-                    value={i.toString()}
+                    key={lip.attributes.lip}
+                    value={lip.attributes.lip}
                     css={{
                       width: "100%",
                       justifyContent: "space-between",
@@ -193,7 +208,11 @@ const CreatePoll = () => {
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={`https://github.com/${pollLips?.projectOwner}/${pollLips?.projectName}/blob/master/LIPs/LIP-${lip.attributes.lip}.md`}
+                      href={`https://github.com/${pollLips!.projectOwner}/${
+                        pollLips!.projectName
+                      }/blob/${pollLips!.gitCommitHash}/LIPs/LIP-${
+                        lip.attributes.lip
+                      }.md`}
                     >
                       View Proposal
                       <ArrowTopRightIcon />

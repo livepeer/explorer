@@ -1,7 +1,7 @@
-import { createApolloFetch } from "apollo-fetch";
 import fm from "front-matter";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
-import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+import { fetchWithRetry } from "lib/fetchWithRetry";
+import { IpfsPoll } from "utils/ipfs";
 
 import { PollLip, PollLips } from "./types/get-poll-lips";
 
@@ -25,7 +25,7 @@ type GitHubLipResponse = {
     content: {
       entries: {
         content: {
-          text: string;
+          text?: string;
         };
       }[];
     };
@@ -34,6 +34,70 @@ type GitHubLipResponse = {
 
 const getLipNamespace = () =>
   process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE || "livepeer";
+
+const UPSTREAM_TIMEOUT_MS = 8_000;
+const IPFS_CONCURRENCY = 5;
+
+type GraphQLResponse<T> = {
+  data?: T;
+  errors?: unknown[];
+};
+
+async function fetchGraphQL<T>(
+  uri: string,
+  query: string,
+  headers?: HeadersInit
+): Promise<GraphQLResponse<T>> {
+  const response = await fetchWithRetry(
+    uri,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify({ query }),
+    },
+    { timeoutMs: UPSTREAM_TIMEOUT_MS }
+  );
+
+  return response.json() as Promise<GraphQLResponse<T>>;
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = [];
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(items[index]);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, worker)
+  );
+
+  return results;
+}
+
+async function fetchIpfsPoll(ipfsHash: string | undefined | null) {
+  if (!ipfsHash) return null;
+
+  const response = await fetchWithRetry(
+    `https://ipfs.livepeer.com/ipfs/${ipfsHash}`,
+    { method: "GET" },
+    { timeoutMs: UPSTREAM_TIMEOUT_MS }
+  );
+
+  return response.json() as Promise<IpfsPoll>;
+}
 
 export async function getPollLips(): Promise<PollLips> {
   const lipsQuery = `
@@ -64,39 +128,27 @@ export async function getPollLips(): Promise<PollLips> {
     }
     `;
 
-  const githubFetch = createApolloFetch({
-    uri: "https://api.github.com/graphql",
-  });
-
-  githubFetch.use(({ options }, next) => {
-    if (!options.headers) {
-      options.headers = {};
+  const result = await fetchGraphQL<GitHubLipResponse>(
+    "https://api.github.com/graphql",
+    lipsQuery,
+    {
+      authorization: `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
     }
-    options.headers[
-      "authorization"
-    ] = `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
-
-    next();
-  });
-
-  const result = await githubFetch({ query: lipsQuery });
+  );
   if (result.errors?.length) {
     throw new Error(
       `GitHub GraphQL returned errors: ${JSON.stringify(result.errors)}`
     );
   }
 
-  const githubData = result.data as GitHubLipResponse | undefined;
+  const githubData = result.data;
   if (!githubData?.repository?.content?.entries) {
     throw new Error(`No LIP data returned for ${getLipNamespace()}/LIPS`);
   }
 
-  const subgraphFetch = createApolloFetch({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  });
-  const { data: pollsData, errors: pollsErrors } = await subgraphFetch({
-    query: `{ polls { proposal } }`,
-  });
+  const { data: pollsData, errors: pollsErrors } = await fetchGraphQL<{
+    polls: { proposal?: string | null }[];
+  }>(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, `{ polls { proposal } }`);
   if (pollsErrors?.length) {
     throw new Error(
       `Polls subgraph returned errors: ${JSON.stringify(pollsErrors)}`
@@ -105,20 +157,30 @@ export async function getPollLips(): Promise<PollLips> {
 
   const createdPolls: string[] = [];
   if (pollsData) {
-    await Promise.all(
-      pollsData.polls.map(async (poll) => {
-        const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
+    await mapWithConcurrency(
+      pollsData.polls,
+      IPFS_CONCURRENCY,
+      async (poll) => {
+        const obj = await fetchIpfsPoll(poll?.proposal).catch((err) => {
+          console.warn(
+            `[poll-lips] Failed to read poll IPFS object ${poll?.proposal}`,
+            err
+          );
+          return null;
+        });
 
         if (obj?.text && obj?.gitCommitHash) {
           const transformedProposal = fm(obj.text) as TransformedProposal;
           createdPolls.push(String(transformedProposal.attributes.lip));
         }
-      })
+      }
     );
   }
 
   const lips: PollLip[] = [];
   for (const lip of githubData.repository.content.entries) {
+    if (typeof lip.content.text !== "string") continue;
+
     const transformedLip = fm(lip.content.text) as unknown as PollLip;
     transformedLip.attributes.created = String(
       transformedLip.attributes.created
@@ -137,8 +199,10 @@ export async function getPollLips(): Promise<PollLips> {
     projectOwner: githubData.repository.owner.login,
     projectName: githubData.repository.name,
     gitCommitHash: githubData.repository.defaultBranchRef.target.oid,
-    lips: lips.sort((a, b) =>
-      a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
-    ),
+    lips: lips.sort((a, b) => {
+      const aLip = Number(a?.attributes?.lip ?? 0);
+      const bLip = Number(b?.attributes?.lip ?? 0);
+      return bLip - aLip;
+    }),
   };
 }

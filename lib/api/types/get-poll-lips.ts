@@ -10,8 +10,8 @@ export type PollLip = {
 };
 
 export type PollLips = {
-  projectOwner: string | null;
-  projectName: string | null;
-  gitCommitHash: string | null;
+  projectOwner: string;
+  projectName: string;
+  gitCommitHash: string;
   lips: PollLip[];
 };

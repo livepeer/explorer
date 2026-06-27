@@ -15,11 +15,11 @@ const handler = async (
   }
 
   try {
-    res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
-
     const lips = await getPollLips();
+    res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
     return res.status(200).json(lips);
   } catch (err) {
+    res.setHeader("Cache-Control", "no-store");
     return externalApiError(
       res,
       "poll LIPs",
