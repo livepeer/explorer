@@ -2,22 +2,24 @@ import {
   ConnectButton as ConnectButtonRainbowKit,
   useChainModal,
 } from "@rainbow-me/rainbowkit";
-import { ConnectButtonProps } from "@rainbow-me/rainbowkit/dist/components/ConnectButton/ConnectButton";
 import { DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
+import type { ComponentProps } from "react";
 import { useWindowSize } from "react-use";
 import { useAccount } from "wagmi";
+
+type ConnectButtonProps = ComponentProps<typeof ConnectButtonRainbowKit>;
 
 const ConnectButton = (props: ConnectButtonProps) => {
   const { width } = useWindowSize();
   const { pathname } = useRouter();
-  const { chain, status } = useAccount();
+  const { chainId, status } = useAccount();
   const { openChainModal } = useChainModal();
   const expectedChainId = pathname.startsWith("/migrate")
     ? L1_CHAIN_ID
     : DEFAULT_CHAIN_ID;
   const isWrongRouteChain =
-    status === "connected" && chain?.id && chain.id !== expectedChainId;
+    status === "connected" && chainId && chainId !== expectedChainId;
 
   if (isWrongRouteChain) {
     return (
