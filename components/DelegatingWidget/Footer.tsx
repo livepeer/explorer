@@ -145,25 +145,6 @@ const Footer = ({
     }
   }, [isOwnOrchestrator, stakeWei, amount]);
 
-  if (!accountAddress) {
-    return (
-      <>
-        <Button
-          size="4"
-          disabled={true}
-          variant="primary"
-          css={{ width: "100%" }}
-        >
-          {action === "delegate" ? "Delegate" : "Undelegate"}
-        </Button>
-        <Footnote>
-          Connect your wallet to{" "}
-          {action === "delegate" ? "delegate" : "undelegate"}.
-        </Footnote>
-      </>
-    );
-  }
-
   if (isWrongRouteChain) {
     return (
       <>
@@ -177,6 +158,25 @@ const Footer = ({
         </Button>
         <Footnote>
           Switch to {expectedChainLabel} to{" "}
+          {action === "delegate" ? "delegate" : "undelegate"}.
+        </Footnote>
+      </>
+    );
+  }
+
+  if (!accountAddress) {
+    return (
+      <>
+        <Button
+          size="4"
+          disabled={true}
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          {action === "delegate" ? "Delegate" : "Undelegate"}
+        </Button>
+        <Footnote>
+          Connect your wallet to{" "}
           {action === "delegate" ? "delegate" : "undelegate"}.
         </Footnote>
       </>
