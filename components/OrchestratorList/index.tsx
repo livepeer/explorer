@@ -51,7 +51,7 @@ import { OrchestratorListKey, useEnsData, useExplorerStore } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
 import Router from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SortingRule } from "react-table";
 import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
@@ -133,6 +133,7 @@ const OrchestratorList = ({
   const setOrchestratorListState = useExplorerStore(
     (state) => state.setOrchestratorListState
   );
+  const activeRestoreCleanup = useRef<(() => void) | undefined>(undefined);
   // Derive protocol inflation data
   const inflationRate =
     Number(protocolData?.inflation || 0) / PERCENTAGE_PRECISION_BILLION;
@@ -193,29 +194,64 @@ const OrchestratorList = ({
       return;
     }
 
-    let frameCount = 0;
-    let frameId: number;
-    const restoreScroll = () => {
-      window.scrollTo(0, scrollY);
-      frameCount += 1;
+    const getMaxScrollY = () =>
+      Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight
+      ) - window.innerHeight;
 
-      if (frameCount < 10 && Math.abs(window.scrollY - scrollY) > 2) {
+    const isAtSavedScroll = () => Math.abs(window.scrollY - scrollY) <= 2;
+    const isTallEnough = () => getMaxScrollY() >= scrollY;
+
+    if (isTallEnough() && isAtSavedScroll()) {
+      return;
+    }
+
+    const startedAt = Date.now();
+    const maxRestoreMs = 2000;
+    let frameId: number | undefined;
+    let cancelled = false;
+
+    const restoreScroll = () => {
+      if (cancelled) {
+        return;
+      }
+
+      if (isTallEnough()) {
+        window.scrollTo(0, scrollY);
+      }
+
+      if (
+        (!isTallEnough() || !isAtSavedScroll()) &&
+        Date.now() - startedAt < maxRestoreMs
+      ) {
         frameId = requestAnimationFrame(restoreScroll);
       }
     };
 
     frameId = requestAnimationFrame(restoreScroll);
-    const timeoutId = window.setTimeout(() => {
-      window.scrollTo(0, scrollY);
-    }, 250);
 
     return () => {
-      cancelAnimationFrame(frameId);
-      window.clearTimeout(timeoutId);
+      cancelled = true;
+      if (frameId !== undefined) {
+        cancelAnimationFrame(frameId);
+      }
     };
   }, [listKey, persistedState.scrollY]);
 
-  useEffect(() => restoreSavedScroll(), [restoreSavedScroll]);
+  const startScrollRestore = useCallback(() => {
+    activeRestoreCleanup.current?.();
+    activeRestoreCleanup.current = restoreSavedScroll();
+  }, [restoreSavedScroll]);
+
+  useEffect(() => {
+    startScrollRestore();
+
+    return () => {
+      activeRestoreCleanup.current?.();
+      activeRestoreCleanup.current = undefined;
+    };
+  }, [startScrollRestore]);
 
   useEffect(() => {
     let frameId: number | null = null;
@@ -235,7 +271,7 @@ const OrchestratorList = ({
       const path = url.split("?")[0].split("#")[0];
 
       if (path === getListPath(listKey)) {
-        restoreSavedScroll();
+        startScrollRestore();
       }
     };
 
@@ -250,7 +286,7 @@ const OrchestratorList = ({
       Router.events.off("routeChangeStart", saveCurrentScroll);
       Router.events.off("routeChangeComplete", restoreAfterRouteChange);
     };
-  }, [listKey, restoreSavedScroll, saveCurrentScroll]);
+  }, [listKey, saveCurrentScroll, startScrollRestore]);
 
   const formattedPrinciple = formatLPT(Number(principle) || 150, {
     precision: 0,
@@ -1346,10 +1382,15 @@ const OrchestratorList = ({
                           size="2"
                           value={principle}
                           onChange={(e) => {
+                            const nextValue = Number(e.target.value);
                             setPrinciple(
-                              Number(e.target.value) > maxSupplyTokens
+                              !Number.isFinite(nextValue)
+                                ? 1
+                                : nextValue < 1
+                                ? 1
+                                : nextValue > maxSupplyTokens
                                 ? maxSupplyTokens
-                                : Number(e.target.value)
+                                : nextValue
                             );
                           }}
                           min="1"

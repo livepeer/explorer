@@ -1,4 +1,5 @@
 import { ProposalExtended } from "@lib/api/treasury";
+import { ROIFactors, ROIInflationChange, ROITimeHorizon } from "@lib/roi";
 import { txMessages } from "lib/utils";
 import { SortingRule } from "react-table";
 import { Address } from "viem";
@@ -7,18 +8,13 @@ import { create } from "zustand";
 export type StakingAction = "undelegate" | "delegate" | null;
 export type OrchestratorListKey = "home" | "orchestrators";
 export type OrchestratorListState = {
-  factors: "lpt+eth" | "lpt" | "eth";
-  inflationChange: "positive" | "negative" | "none";
+  factors: ROIFactors;
+  inflationChange: ROIInflationChange;
   pageIndex: number;
   principle: number;
   scrollY: number;
   sortBy: SortingRule<object>[];
-  timeHorizon:
-    | "half-year"
-    | "one-year"
-    | "two-years"
-    | "three-years"
-    | "four-years";
+  timeHorizon: ROITimeHorizon;
 };
 export type YieldResults = {
   roiFees: number;
@@ -119,15 +115,28 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     set(() => ({ selectedStakingAction: v })),
   setYieldResults: (v: YieldResults) => set(() => ({ yieldResults: v })),
   setOrchestratorListState: (key, value) =>
-    set(({ orchestratorLists }) => ({
-      orchestratorLists: {
-        ...orchestratorLists,
-        [key]: {
-          ...orchestratorLists[key],
-          ...value,
+    set((state) => {
+      const { orchestratorLists } = state;
+      const current = orchestratorLists[key];
+      const hasChanged = Object.entries(value).some(
+        ([field, nextValue]) =>
+          current[field as keyof OrchestratorListState] !== nextValue
+      );
+
+      if (!hasChanged) {
+        return state;
+      }
+
+      return {
+        orchestratorLists: {
+          ...orchestratorLists,
+          [key]: {
+            ...current,
+            ...value,
+          },
         },
-      },
-    })),
+      };
+    }),
 
   setLatestTransactionDetails: (
     hash: string,
