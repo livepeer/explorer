@@ -1,9 +1,25 @@
 import { ProposalExtended } from "@lib/api/treasury";
 import { txMessages } from "lib/utils";
+import { SortingRule } from "react-table";
 import { Address } from "viem";
 import { create } from "zustand";
 
 export type StakingAction = "undelegate" | "delegate" | null;
+export type OrchestratorListKey = "home" | "orchestrators";
+export type OrchestratorListState = {
+  factors: "lpt+eth" | "lpt" | "eth";
+  inflationChange: "positive" | "negative" | "none";
+  pageIndex: number;
+  principle: number;
+  scrollY: number;
+  sortBy: SortingRule<object>[];
+  timeHorizon:
+    | "half-year"
+    | "one-year"
+    | "two-years"
+    | "three-years"
+    | "four-years";
+};
 export type YieldResults = {
   roiFees: number;
   roiFeesLpt: number;
@@ -48,12 +64,17 @@ export type ExplorerState = {
   bottomDrawerOpen: boolean;
   selectedStakingAction: StakingAction;
   yieldResults: YieldResults;
+  orchestratorLists: Record<OrchestratorListKey, OrchestratorListState>;
   latestTransaction: TransactionStatus | null;
 
   setWalletModalOpen: (v: boolean) => void;
   setBottomDrawerOpen: (v: boolean) => void;
   setSelectedStakingAction: (v: StakingAction) => void;
   setYieldResults: (v: YieldResults) => void;
+  setOrchestratorListState: (
+    key: OrchestratorListKey,
+    value: Partial<OrchestratorListState>
+  ) => void;
 
   setLatestTransactionDetails: (
     hash: string,
@@ -66,6 +87,16 @@ export type ExplorerState = {
   clearLatestTransaction: () => void;
 };
 
+const defaultOrchestratorListState: OrchestratorListState = {
+  factors: "lpt+eth",
+  inflationChange: "none",
+  pageIndex: 0,
+  principle: 150,
+  scrollY: 0,
+  sortBy: [{ id: "earnings", desc: true }],
+  timeHorizon: "one-year",
+};
+
 export const useExplorerStore = create<ExplorerState>()((set) => ({
   walletModalOpen: false,
   bottomDrawerOpen: false,
@@ -76,6 +107,10 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     roiRewards: 0.0,
     principle: 0.0,
   },
+  orchestratorLists: {
+    home: defaultOrchestratorListState,
+    orchestrators: defaultOrchestratorListState,
+  },
   latestTransaction: null,
 
   setWalletModalOpen: (v: boolean) => set(() => ({ walletModalOpen: v })),
@@ -83,6 +118,16 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   setSelectedStakingAction: (v: StakingAction) =>
     set(() => ({ selectedStakingAction: v })),
   setYieldResults: (v: YieldResults) => set(() => ({ yieldResults: v })),
+  setOrchestratorListState: (key, value) =>
+    set(({ orchestratorLists }) => ({
+      orchestratorLists: {
+        ...orchestratorLists,
+        [key]: {
+          ...orchestratorLists[key],
+          ...value,
+        },
+      },
+    })),
 
   setLatestTransactionDetails: (
     hash: string,

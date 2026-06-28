@@ -492,6 +492,7 @@ const Home = ({
                 {showOrchList ? (
                   <OrchestratorList
                     data={orchestrators?.transcoders}
+                    listKey="home"
                     pageSize={10}
                     protocolData={protocol?.protocol}
                   />
