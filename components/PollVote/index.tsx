@@ -46,8 +46,11 @@ const useVotes = (pollId: string) => {
     pollInterval,
   });
 
-  const { data: pollVoteEventsData, error: pollVoteEventsError } =
-    useGetAllVoteEvents(pollId);
+  const {
+    data: pollVoteEventsData,
+    error: pollVoteEventsError,
+    loading: pollVoteEventsLoading,
+  } = useGetAllVoteEvents(pollId);
 
   const [votes, setVotes] = useState<PollVoteType[]>([]);
   const [votesLoading, setVotesLoading] = useState(false);
@@ -111,7 +114,7 @@ const useVotes = (pollId: string) => {
 
   return {
     votes,
-    loading: loading || votesLoading,
+    loading: loading || votesLoading || pollVoteEventsLoading,
     error: pollError || pollVoteEventsError,
   };
 };
