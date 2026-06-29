@@ -1,6 +1,11 @@
 import BottomDrawer from "@components/BottomDrawer";
 import BroadcastingView from "@components/BroadcastingView";
+import DelegatorsView from "@components/DelegatorsView";
 import HistoryView from "@components/HistoryView";
+import HistoryFilter, {
+  ALL_FILTER_KEYS,
+  EventFilterKey,
+} from "@components/HistoryView/HistoryFilter";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
 import Profile from "@components/Profile";
@@ -24,7 +29,7 @@ import { useBondingManagerAddress } from "hooks/useContracts";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { useReadContract } from "wagmi";
 
@@ -47,11 +52,17 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
+type TabTypeEnum =
+  | "delegating"
+  | "orchestrating"
+  | "delegators"
+  | "history"
+  | "broadcasting";
 
 const ACCOUNT_VIEWS: TabTypeEnum[] = [
   "delegating",
   "orchestrating",
+  "delegators",
   "broadcasting",
   "history",
 ];
@@ -72,6 +83,32 @@ const AccountLayout = ({
   const view = useMemo(
     () => ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v),
     [asPath]
+  );
+
+  // History event-type filter. Lifted here (rather than inside HistoryView) so
+  // the filter button can sit on the nav row beside the tabs, while HistoryView
+  // consumes the selection to decide what to display. Defaults to all selected.
+  const [selectedHistoryFilters, setSelectedHistoryFilters] = useState<
+    Set<EventFilterKey>
+  >(() => new Set(ALL_FILTER_KEYS));
+  const toggleHistoryFilter = useCallback((key: EventFilterKey) => {
+    setSelectedHistoryFilters((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }, []);
+  const selectAllHistoryFilters = useCallback(
+    () => setSelectedHistoryFilters(new Set(ALL_FILTER_KEYS)),
+    []
+  );
+  const clearHistoryFilters = useCallback(
+    () => setSelectedHistoryFilters(new Set()),
+    []
   );
 
   const { setSelectedStakingAction, setBottomDrawerOpen, latestTransaction } =
@@ -255,60 +292,92 @@ const AccountLayout = ({
               </Button>
             )}
           </Flex>
-          <HorizontalScrollContainer
-            role="navigation"
-            ariaLabel="Account navigation tabs"
-            activeItemKey={view ?? "delegating"}
+          <Flex
+            css={{
+              alignItems: "flex-end",
+              borderBottom: "1px solid $neutral6",
+            }}
           >
-            {tabs.map((tab: TabType, i: number) => (
-              <A
-                as={Link}
-                scroll={false}
-                key={i}
-                href={tab.href}
-                passHref
-                variant="subtle"
-                data-active={tab.isActive ? "true" : undefined}
-                aria-current={tab.isActive ? "page" : undefined}
+            <Box css={{ flex: 1, minWidth: 0 }}>
+              <HorizontalScrollContainer
+                hideBorder
+                role="navigation"
+                ariaLabel="Account navigation tabs"
+                activeItemKey={view ?? "delegating"}
+              >
+                {tabs.map((tab: TabType, i: number) => (
+                  <A
+                    as={Link}
+                    scroll={false}
+                    key={i}
+                    href={tab.href}
+                    passHref
+                    variant="subtle"
+                    data-active={tab.isActive ? "true" : undefined}
+                    aria-current={tab.isActive ? "page" : undefined}
+                    css={{
+                      color: tab.isActive ? "$hiContrast" : "$neutral11",
+                      marginRight: "$4",
+                      fontSize: "$3",
+                      fontWeight: 500,
+                      flex: "0 0 auto",
+                      whiteSpace: "nowrap",
+                      "&:hover": {
+                        textDecoration: "none",
+                      },
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      as="span"
+                      css={{
+                        display: "flex",
+                        alignItems: "center",
+                        minHeight: 33,
+                        paddingBottom: "$2",
+                        marginBottom: "-1px",
+                        position: "relative",
+                        zIndex: 2,
+                        borderBottom: "3px solid",
+                        borderColor: tab.isActive
+                          ? "$primary11"
+                          : "transparent",
+                      }}
+                    >
+                      {tab.name}
+                    </Box>
+                  </A>
+                ))}
+              </HorizontalScrollContainer>
+            </Box>
+            {view === "history" && (
+              <Flex
                 css={{
-                  color: tab.isActive ? "$hiContrast" : "$neutral11",
-                  marginRight: "$4",
-                  fontSize: "$3",
-                  fontWeight: 500,
                   flex: "0 0 auto",
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    textDecoration: "none",
-                  },
-                  display: "flex",
                   alignItems: "center",
+                  marginLeft: "$3",
+                  paddingBottom: "$2",
                 }}
               >
-                <Box
-                  as="span"
-                  css={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: 33,
-                    paddingBottom: "$2",
-                    marginBottom: "-1px",
-                    position: "relative",
-                    zIndex: 2,
-                    borderBottom: "3px solid",
-                    borderColor: tab.isActive ? "$primary11" : "transparent",
-                  }}
-                >
-                  {tab.name}
-                </Box>
-              </A>
-            ))}
-          </HorizontalScrollContainer>
+                <HistoryFilter
+                  selected={selectedHistoryFilters}
+                  onToggle={toggleHistoryFilter}
+                  onSelectAll={selectAllHistoryFilters}
+                  onClear={clearHistoryFilters}
+                />
+              </Flex>
+            )}
+          </Flex>
           {view === "orchestrating" && (
             <OrchestratingView
               isActive={isActive}
               currentRound={viewedAccount?.protocol?.currentRound}
               transcoder={viewedAccount?.transcoder}
             />
+          )}
+          {view === "delegators" && (
+            <DelegatorsView transcoder={viewedAccount?.transcoder} />
           )}
           {view === "delegating" && (
             <DelegatingView
@@ -318,7 +387,9 @@ const AccountLayout = ({
               currentRound={viewedAccount?.protocol?.currentRound}
             />
           )}
-          {view === "history" && <HistoryView />}
+          {view === "history" && (
+            <HistoryView selectedFilters={selectedHistoryFilters} />
+          )}
           {view === "broadcasting" && (
             <BroadcastingView
               gateway={account?.gateway}
@@ -414,6 +485,13 @@ function getTabs(
       name: "Delegating",
       href: `/accounts/${account}/delegating`,
       isActive: view === "delegating",
+    });
+  }
+  if (isOrchestrator || isMyDelegate) {
+    tabs.push({
+      name: "Delegators",
+      href: `/accounts/${account}/delegators`,
+      isActive: view === "delegators",
     });
   }
   tabs.push({
