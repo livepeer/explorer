@@ -12,6 +12,10 @@ type HorizontalScrollContainerProps = {
   ariaLabel?: string;
   role?: "navigation";
   activeItemKey?: string | number;
+  // When true, the bottom border is omitted so a parent can draw a divider that
+  // also spans an action placed beside the scroll container (e.g. the history
+  // filter button sitting on the account nav row).
+  hideBorder?: boolean;
 };
 
 const getTabs = (container: HTMLDivElement) =>
@@ -68,7 +72,7 @@ const scrollActiveTabIntoView = (container: HTMLDivElement) => {
 const HorizontalScrollContainer = forwardRef<
   HTMLDivElement,
   HorizontalScrollContainerProps
->(({ children, ariaLabel, role, activeItemKey }, ref) => {
+>(({ children, ariaLabel, role, activeItemKey, hideBorder }, ref) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -136,14 +140,18 @@ const HorizontalScrollContainer = forwardRef<
     <Box
       css={{
         position: "relative",
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          borderBottom: "1px solid $neutral6",
-        },
+        ...(hideBorder
+          ? {}
+          : {
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderBottom: "1px solid $neutral6",
+              },
+            }),
       }}
     >
       <Box
