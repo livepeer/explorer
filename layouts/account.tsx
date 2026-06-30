@@ -1,5 +1,6 @@
 import BottomDrawer from "@components/BottomDrawer";
 import BroadcastingView from "@components/BroadcastingView";
+import DelegatorsView from "@components/DelegatorsView";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
@@ -47,11 +48,17 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
+type TabTypeEnum =
+  | "delegating"
+  | "orchestrating"
+  | "delegators"
+  | "history"
+  | "broadcasting";
 
 const ACCOUNT_VIEWS: TabTypeEnum[] = [
   "delegating",
   "orchestrating",
+  "delegators",
   "broadcasting",
   "history",
 ];
@@ -310,6 +317,9 @@ const AccountLayout = ({
               transcoder={viewedAccount?.transcoder}
             />
           )}
+          {view === "delegators" && (
+            <DelegatorsView transcoder={viewedAccount?.transcoder} />
+          )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
@@ -414,6 +424,13 @@ function getTabs(
       name: "Delegating",
       href: `/accounts/${account}/delegating`,
       isActive: view === "delegating",
+    });
+  }
+  if (isOrchestrator || isMyDelegate) {
+    tabs.push({
+      name: "Delegators",
+      href: `/accounts/${account}/delegators`,
+      isActive: view === "delegators",
     });
   }
   tabs.push({
