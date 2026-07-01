@@ -462,16 +462,30 @@ const MigrateUndelegatedStake = () => {
     const init = async () => {
       if (accountAddress && l1SignerOrAddress) {
         const locks = l1SignerOrAddress.activeLocks.map((e) => e.id);
+        const addr = state.signer ? state.signer : accountAddress;
+
+        // Empty lock array reverts EMPTY_LOCK_IDS; short-circuit to initialize.
+        if (!locks.length) {
+          dispatch({
+            type: "initialize",
+            payload: {
+              migrationCallData: null,
+              migrationParams: {
+                l1Addr: addr,
+                l2Addr: addr,
+                total: BigInt(0),
+                unbondingLockIds: [],
+              },
+            },
+          });
+          return;
+        }
 
         const [data, params] = await l1PublicClient.readContract({
           address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
           abi: l1Migrator,
           functionName: "getMigrateUnbondingLocksParams",
-          args: [
-            state.signer ? state.signer : accountAddress,
-            state.signer ? state.signer : accountAddress,
-            locks.map((e) => BigInt(e)),
-          ],
+          args: [addr, addr, locks.map((e) => BigInt(e))],
         });
         dispatch({
           type: "initialize",
