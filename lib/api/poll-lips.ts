@@ -43,6 +43,7 @@ type GraphQLResponse<T> = {
   errors?: unknown[];
 };
 
+/** Posts a GraphQL query with the shared upstream timeout. */
 async function fetchGraphQL<T>(
   uri: string,
   query: string,
@@ -64,6 +65,7 @@ async function fetchGraphQL<T>(
   return response.json() as Promise<GraphQLResponse<T>>;
 }
 
+/** Runs async work over a list while capping concurrent upstream requests. */
 async function mapWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
@@ -87,6 +89,7 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+/** Reads a poll proposal JSON object from Livepeer's IPFS gateway. */
 async function fetchIpfsPoll(ipfsHash: string | undefined | null) {
   if (!ipfsHash) return null;
 
@@ -99,6 +102,7 @@ async function fetchIpfsPoll(ipfsHash: string | undefined | null) {
   return response.json() as Promise<IpfsPoll>;
 }
 
+/** Fetches proposed LIPs and excludes any that already have an on-chain poll. */
 export async function getPollLips(): Promise<PollLips> {
   const lipsQuery = `
     {
@@ -170,8 +174,15 @@ export async function getPollLips(): Promise<PollLips> {
         });
 
         if (obj?.text && obj?.gitCommitHash) {
-          const transformedProposal = fm(obj.text) as TransformedProposal;
-          createdPolls.push(String(transformedProposal.attributes.lip));
+          try {
+            const transformedProposal = fm(obj.text) as TransformedProposal;
+            createdPolls.push(String(transformedProposal.attributes.lip));
+          } catch (err) {
+            console.warn(
+              `[poll-lips] Failed to parse poll IPFS object ${poll?.proposal}`,
+              err
+            );
+          }
         }
       }
     );
