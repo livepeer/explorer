@@ -77,6 +77,15 @@ export const ALL_FILTER_KEYS: EventFilterKey[] = EVENT_FILTERS.map(
   (f) => f.key
 );
 
+// Shared style for the "All"/"None" text buttons in the popover header.
+const headerActionCss = {
+  all: "unset",
+  cursor: "pointer",
+  fontSize: "$1",
+  color: "$primary11",
+  "&:hover": { textDecoration: "underline" },
+} as const;
+
 // Reverse lookup from an event's __typename to the filter key it belongs to.
 export const TYPENAME_TO_FILTER: Record<string, EventFilterKey> =
   EVENT_FILTERS.reduce((acc, filter) => {
@@ -160,13 +169,7 @@ const HistoryFilter = ({
               as="button"
               type="button"
               onClick={onSelectAll}
-              css={{
-                all: "unset",
-                cursor: "pointer",
-                fontSize: "$1",
-                color: "$primary11",
-                "&:hover": { textDecoration: "underline" },
-              }}
+              css={headerActionCss}
             >
               All
             </Box>
@@ -174,13 +177,7 @@ const HistoryFilter = ({
               as="button"
               type="button"
               onClick={onClear}
-              css={{
-                all: "unset",
-                cursor: "pointer",
-                fontSize: "$1",
-                color: "$primary11",
-                "&:hover": { textDecoration: "underline" },
-              }}
+              css={headerActionCss}
             >
               None
             </Box>
@@ -192,7 +189,16 @@ const HistoryFilter = ({
             return (
               <Flex
                 key={filter.key}
+                role="checkbox"
+                aria-checked={checked}
+                tabIndex={0}
                 onClick={() => onToggle(filter.key)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onToggle(filter.key);
+                  }
+                }}
                 css={{
                   alignItems: "center",
                   gap: "$2",
@@ -201,6 +207,7 @@ const HistoryFilter = ({
                   cursor: "pointer",
                   userSelect: "none",
                   "&:hover": { bc: "$neutral5" },
+                  "&:focus-visible": { outline: "2px solid $primary11" },
                 }}
               >
                 <Checkbox

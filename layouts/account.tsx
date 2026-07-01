@@ -298,11 +298,11 @@ const AccountLayout = ({
                 ariaLabel="Account navigation tabs"
                 activeItemKey={view ?? "delegating"}
               >
-                {tabs.map((tab: TabType, i: number) => (
+                {tabs.map((tab: TabType) => (
                   <A
                     as={Link}
                     scroll={false}
-                    key={i}
+                    key={tab.href}
                     href={tab.href}
                     passHref
                     variant="subtle"
