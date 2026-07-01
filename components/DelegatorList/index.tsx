@@ -89,7 +89,7 @@ const DelegatorList = ({
               href={`/accounts/${address}/delegating`}
               passHref
               css={{
-                width: 350,
+                width: 300,
                 display: "block",
                 textDecoration: "none",
                 "&:hover": { textDecoration: "none" },
@@ -185,7 +185,7 @@ const DelegatorList = ({
               </Box>
             }
           >
-            <Box>Pending Rewards</Box>
+            <Box css={{ width: 80 }}>Pending Rewards</Box>
           </ExplorerTooltip>
         ),
         // Live pendingStake is fetched per row (on-screen only), so this column
@@ -219,7 +219,7 @@ const DelegatorList = ({
             multiline
             content={<Box>The round this account became bonded.</Box>}
           >
-            <Box>Start Round</Box>
+            <Box css={{ width: 60 }}>Start Round</Box>
           </ExplorerTooltip>
         ),
         accessor: "startRoundNumber",
@@ -326,6 +326,7 @@ const DelegatorList = ({
     <Table
       data={rows}
       columns={columns}
+      minWidth={700}
       initialState={{
         pageIndex: 0,
         pageSize,

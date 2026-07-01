@@ -29,12 +29,14 @@ function DataTable<T extends object>({
   data,
   columns,
   initialState = {},
+  minWidth = 960,
 }: {
   heading?: ReactNode;
   input?: ReactNode;
   data: T[];
   columns: Column<T>[];
   initialState: object;
+  minWidth?: number;
 }) {
   const {
     getTableProps,
@@ -95,7 +97,7 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 960,
+                minWidth,
                 width: "100%",
                 "@bp4": {
                   width: "100%",

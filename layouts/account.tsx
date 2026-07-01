@@ -205,6 +205,10 @@ const AccountLayout = ({
             paddingRight: 0,
             paddingTop: "$4",
             width: "100%",
+            // Allow this column to shrink to its flex share instead of being
+            // held open by wide content (e.g. the delegators table's minWidth),
+            // which would otherwise squeeze the side widget.
+            minWidth: 0,
             "@bp3": {
               paddingTop: "$6",
               paddingRight: "$7",
