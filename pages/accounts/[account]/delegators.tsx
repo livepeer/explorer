@@ -64,6 +64,12 @@ export const getStaticProps = async (context: {
       throw new Error("Failed to fetch account data");
     }
 
+    // This route is orchestrator-only. Accounts without a transcoder can't have
+    // delegators, so 404 instead of rendering a misleading empty state.
+    if (!account.data.transcoder) {
+      return { notFound: true, revalidate: 600 };
+    }
+
     const { sortedOrchestrators, fallback: sortedOrchestratorsFallback } =
       await getSortedOrchestrators(client);
 
