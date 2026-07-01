@@ -16,7 +16,7 @@ const handler = async (
 
   try {
     const lips = await getPollLips();
-    res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
+    res.setHeader("Cache-Control", getCacheControlHeader("minute"));
     return res.status(200).json(lips);
   } catch (err) {
     res.setHeader("Cache-Control", "no-store");
