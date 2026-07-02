@@ -1,13 +1,13 @@
 import DelegatorList from "@components/DelegatorList";
 import Spinner from "@components/Spinner";
-import { Box, Flex, Text } from "@livepeer/design-system";
+import { Box, Button, Flex, Text } from "@livepeer/design-system";
 import {
   AccountQueryResult,
   Delegator_OrderBy,
   OrderDirection,
   useOrchestratorDelegatorsQuery,
 } from "apollo";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // The subgraph caps `delegators(first:)` at 1000 rows per request, so a single
 // query silently drops delegators beyond the first 1000. Page through with
@@ -33,12 +33,17 @@ const DelegatorsView = ({ transcoder }: Props) => {
 
   const delegators = data?.transcoder?.delegators;
 
+  // Set when a later page fails to load, so we can surface that the list is
+  // incomplete (and pause auto-paging until the user retries).
+  const [pageFetchFailed, setPageFetchFailed] = useState(false);
+
   // Concurrency lock (ref so it's synchronous) to avoid overlapping page fetches.
   const fetchingRef = useRef(false);
   const fetchNext = useCallback(
     async (skip: number) => {
       if (fetchingRef.current) return;
       fetchingRef.current = true;
+      setPageFetchFailed(false);
       try {
         await fetchMore({
           variables: { skip },
@@ -61,6 +66,7 @@ const DelegatorsView = ({ transcoder }: Props) => {
         });
       } catch (e) {
         console.error("Failed to fetch additional delegators:", e);
+        setPageFetchFailed(true);
       } finally {
         fetchingRef.current = false;
       }
@@ -70,10 +76,21 @@ const DelegatorsView = ({ transcoder }: Props) => {
 
   useEffect(() => {
     // A full page implies there may be more; keep paging until a short page
-    // (or an exact multiple returning an empty page) ends the loop.
+    // (or an exact multiple returning an empty page) ends the loop. Pause while
+    // a page fetch has failed so we don't hammer a failing endpoint; the retry
+    // action clears the flag and re-runs this effect.
+    if (pageFetchFailed) return;
     if (!delegators?.length || delegators.length % PAGE_SIZE !== 0) return;
     fetchNext(delegators.length);
-  }, [delegators, fetchNext]);
+  }, [delegators, fetchNext, pageFetchFailed]);
+
+  useEffect(() => {
+    // Log the initial-query failure as an after-render side effect rather than
+    // during render (which can run twice or be discarded).
+    if (error && !delegators) {
+      console.error(error);
+    }
+  }, [error, delegators]);
 
   if (loading && !delegators) {
     return (
@@ -91,7 +108,6 @@ const DelegatorsView = ({ transcoder }: Props) => {
   }
 
   if (error && !delegators) {
-    console.error(error);
     return (
       <Box
         css={{
@@ -109,6 +125,31 @@ const DelegatorsView = ({ transcoder }: Props) => {
 
   return (
     <Box css={{ paddingTop: "$4" }}>
+      {pageFetchFailed && (
+        <Flex
+          css={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "$3",
+            border: "1px solid $neutral4",
+            borderRadius: "$4",
+            padding: "$3",
+            marginBottom: "$3",
+            backgroundColor: "$neutral3",
+          }}
+        >
+          <Text size="2">
+            Couldn&apos;t load all delegators — the list may be incomplete.
+          </Text>
+          <Button
+            size="1"
+            onClick={() => setPageFetchFailed(false)}
+            css={{ flexShrink: 0 }}
+          >
+            Retry
+          </Button>
+        </Flex>
+      )}
       <DelegatorList data={delegators} />
     </Box>
   );
