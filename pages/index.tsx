@@ -580,7 +580,12 @@ const Home = ({
               </Flex>
             ) : (
               <Box>
-                <GatewayList data={gateways.gateways} pageSize={10} />
+                <GatewayList
+                  data={gateways.gateways}
+                  listKey="home-gateways"
+                  pageSize={10}
+                  routePath="/"
+                />
               </Box>
             )}
 
@@ -660,7 +665,9 @@ const Home = ({
                     EventsQueryResult["data"]
                   >["transactions"][number]["events"]
                 }
+                listKey="home-transactions"
                 pageSize={10}
+                routePath="/"
               />
             </Box>
           </Box>

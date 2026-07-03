@@ -16,6 +16,11 @@ export type OrchestratorListState = {
   sortBy: SortingRule<object>[];
   timeHorizon: ROITimeHorizon;
 };
+export type ExplorerListState = {
+  pageIndex: number;
+  scrollY: number;
+  sortBy: SortingRule<object>[];
+};
 export type YieldResults = {
   roiFees: number;
   roiFeesLpt: number;
@@ -61,6 +66,7 @@ export type ExplorerState = {
   selectedStakingAction: StakingAction;
   yieldResults: YieldResults;
   orchestratorLists: Record<OrchestratorListKey, OrchestratorListState>;
+  explorerLists: Record<string, ExplorerListState>;
   latestTransaction: TransactionStatus | null;
 
   setWalletModalOpen: (v: boolean) => void;
@@ -70,6 +76,10 @@ export type ExplorerState = {
   setOrchestratorListState: (
     key: OrchestratorListKey,
     value: Partial<OrchestratorListState>
+  ) => void;
+  setExplorerListState: (
+    key: string,
+    value: Partial<ExplorerListState>
   ) => void;
 
   setLatestTransactionDetails: (
@@ -93,6 +103,12 @@ const defaultOrchestratorListState: OrchestratorListState = {
   timeHorizon: "one-year",
 };
 
+export const defaultExplorerListState: ExplorerListState = {
+  pageIndex: 0,
+  scrollY: 0,
+  sortBy: [],
+};
+
 export const useExplorerStore = create<ExplorerState>()((set) => ({
   walletModalOpen: false,
   bottomDrawerOpen: false,
@@ -107,6 +123,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     home: defaultOrchestratorListState,
     orchestrators: defaultOrchestratorListState,
   },
+  explorerLists: {},
   latestTransaction: null,
 
   setWalletModalOpen: (v: boolean) => set(() => ({ walletModalOpen: v })),
@@ -130,6 +147,29 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
       return {
         orchestratorLists: {
           ...orchestratorLists,
+          [key]: {
+            ...current,
+            ...value,
+          },
+        },
+      };
+    }),
+  setExplorerListState: (key, value) =>
+    set((state) => {
+      const { explorerLists } = state;
+      const current = explorerLists[key] ?? defaultExplorerListState;
+      const hasChanged = Object.entries(value).some(
+        ([field, nextValue]) =>
+          current[field as keyof ExplorerListState] !== nextValue
+      );
+
+      if (!hasChanged) {
+        return state;
+      }
+
+      return {
+        explorerLists: {
+          ...explorerLists,
           [key]: {
             ...current,
             ...value,

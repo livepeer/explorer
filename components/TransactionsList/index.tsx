@@ -17,6 +17,7 @@ import {
 } from "@utils/web3";
 import { EventsQueryResult, TreasuryProposal } from "apollo";
 import { sentenceCase } from "change-case";
+import { usePersistedExplorerListState } from "hooks";
 import { useCallback, useMemo } from "react";
 
 export const FILTERED_EVENT_TYPENAMES = [
@@ -69,13 +70,31 @@ const renderEmoji = (emoji: string) => (
 
 const TransactionsList = ({
   events,
+  listKey,
   pageSize = 10,
+  routePath,
 }: {
+  listKey: string;
   pageSize: number;
+  routePath: string;
   events: NonNullable<
     EventsQueryResult["data"]
   >["transactions"][number]["events"];
 }) => {
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey,
+      routePath,
+    });
+  const defaultSortBy = useMemo(
+    () => [
+      {
+        id: "timestamp",
+        desc: true,
+      },
+    ],
+    []
+  );
   const getAccountForRow = useCallback(
     (
       event: NonNullable<
@@ -547,19 +566,22 @@ const TransactionsList = ({
   );
 
   return (
-    <Table
-      data={events as object[]}
-      columns={columns}
-      initialState={{
-        pageSize,
-        sortBy: [
-          {
-            id: "timestamp",
-            desc: true,
-          },
-        ],
-      }}
-    />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        data={events as object[]}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={{
+          pageIndex: persistedState.pageIndex,
+          pageSize,
+          sortBy: persistedState.sortBy.length
+            ? persistedState.sortBy
+            : defaultSortBy,
+        }}
+      />
+    </Box>
   );
 };
 

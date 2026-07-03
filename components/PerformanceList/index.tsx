@@ -10,7 +10,7 @@ import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { formatNumber, formatPercent } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { OrchestratorsQueryResult } from "apollo";
-import { useEnsData } from "hooks";
+import { useEnsData, usePersistedExplorerListState } from "hooks";
 import Link from "next/link";
 import { useMemo } from "react";
 import { Column } from "react-table";
@@ -41,15 +41,37 @@ const PerformanceList = ({
   const scoreAccessor = `scores.${region}`; //total score
   const successRateAccessor = `successRates.${region}`; //success rate
   const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
-
-  const initialState = {
-    pageSize: pageSize,
-    sortBy: [
+  const listKey = useMemo(
+    () =>
+      [
+        "leaderboard-performance",
+        region,
+        pipeline ?? "transcoding",
+        model ?? "default",
+      ].join(":"),
+    [model, pipeline, region]
+  );
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey,
+      routePath: "/leaderboard",
+    });
+  const defaultSortBy = useMemo(
+    () => [
       {
         id: "scores",
         desc: true,
       },
     ],
+    []
+  );
+
+  const initialState = {
+    pageIndex: persistedState.pageIndex,
+    pageSize: pageSize,
+    sortBy: persistedState.sortBy.length
+      ? persistedState.sortBy
+      : defaultSortBy,
     hiddenColumns: [
       "activationRound",
       "deactivationRound",
@@ -320,7 +342,17 @@ const PerformanceList = ({
     ]
   );
   return (
-    <Table data={mergedData} columns={columns} initialState={initialState} />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        key={listKey}
+        data={mergedData}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={initialState}
+      />
+    </Box>
   );
 };
 

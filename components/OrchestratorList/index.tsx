@@ -47,12 +47,16 @@ import {
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
-import { OrchestratorListKey, useEnsData, useExplorerStore } from "hooks";
+import {
+  OrchestratorListKey,
+  OrchestratorListState,
+  useEnsData,
+  useExplorerStore,
+  usePersistedExplorerListState,
+} from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
-import Router from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SortingRule } from "react-table";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 
@@ -78,39 +82,8 @@ const formatFactors = (factors: ROIFactors) =>
     ? `LPT Only`
     : `ETH Only`;
 
-const getScrollStorageKey = (listKey: OrchestratorListKey) =>
-  `livepeer:orchestrator-list:${listKey}:scrollY`;
-
 const getListPath = (listKey: OrchestratorListKey) =>
   listKey === "home" ? "/" : "/orchestrators";
-
-const readStoredScrollY = (listKey: OrchestratorListKey) => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const value = window.sessionStorage.getItem(getScrollStorageKey(listKey));
-    const scrollY = value ? Number(value) : NaN;
-
-    return Number.isFinite(scrollY) ? scrollY : null;
-  } catch {
-    return null;
-  }
-};
-
-const writeStoredScrollY = (listKey: OrchestratorListKey, scrollY: number) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    window.sessionStorage.setItem(
-      getScrollStorageKey(listKey),
-      `${Math.max(0, Math.round(scrollY))}`
-    );
-  } catch {}
-};
 
 const OrchestratorList = ({
   data,
@@ -133,7 +106,19 @@ const OrchestratorList = ({
   const setOrchestratorListState = useExplorerStore(
     (state) => state.setOrchestratorListState
   );
-  const activeRestoreCleanup = useRef<(() => void) | undefined>(undefined);
+  const setPersistedListState = useCallback(
+    (value: Partial<OrchestratorListState>) => {
+      setOrchestratorListState(listKey, value);
+    },
+    [listKey, setOrchestratorListState]
+  );
+  const { handleTableStateChange, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey: `orchestrator-list:${listKey}`,
+      routePath: getListPath(listKey),
+      persistedState,
+      setPersistedState: setPersistedListState,
+    });
   // Derive protocol inflation data
   const inflationRate =
     Number(protocolData?.inflation || 0) / PERCENTAGE_PRECISION_BILLION;
@@ -181,112 +166,6 @@ const OrchestratorList = ({
     setOrchestratorListState,
     timeHorizon,
   ]);
-
-  const saveCurrentScroll = useCallback(() => {
-    writeStoredScrollY(listKey, window.scrollY);
-    setOrchestratorListState(listKey, { scrollY: window.scrollY });
-  }, [listKey, setOrchestratorListState]);
-
-  const restoreSavedScroll = useCallback(() => {
-    const scrollY = readStoredScrollY(listKey) ?? persistedState.scrollY;
-
-    if (scrollY <= 0) {
-      return;
-    }
-
-    const getMaxScrollY = () =>
-      Math.max(
-        document.documentElement.scrollHeight,
-        document.body.scrollHeight
-      ) - window.innerHeight;
-
-    const isAtSavedScroll = () => Math.abs(window.scrollY - scrollY) <= 2;
-    const isTallEnough = () => getMaxScrollY() >= scrollY;
-
-    if (isTallEnough() && isAtSavedScroll()) {
-      return;
-    }
-
-    const startedAt = Date.now();
-    const maxRestoreMs = 2000;
-    let frameId: number | undefined;
-    let cancelled = false;
-
-    const restoreScroll = () => {
-      if (cancelled) {
-        return;
-      }
-
-      if (isTallEnough()) {
-        window.scrollTo(0, scrollY);
-      }
-
-      if (
-        (!isTallEnough() || !isAtSavedScroll()) &&
-        Date.now() - startedAt < maxRestoreMs
-      ) {
-        frameId = requestAnimationFrame(restoreScroll);
-      }
-    };
-
-    frameId = requestAnimationFrame(restoreScroll);
-
-    return () => {
-      cancelled = true;
-      if (frameId !== undefined) {
-        cancelAnimationFrame(frameId);
-      }
-    };
-  }, [listKey, persistedState.scrollY]);
-
-  const startScrollRestore = useCallback(() => {
-    activeRestoreCleanup.current?.();
-    activeRestoreCleanup.current = restoreSavedScroll();
-  }, [restoreSavedScroll]);
-
-  useEffect(() => {
-    startScrollRestore();
-
-    return () => {
-      activeRestoreCleanup.current?.();
-      activeRestoreCleanup.current = undefined;
-    };
-  }, [startScrollRestore]);
-
-  useEffect(() => {
-    let frameId: number | null = null;
-    const saveScrollToStorage = () => {
-      if (frameId !== null) {
-        return;
-      }
-
-      frameId = requestAnimationFrame(() => {
-        frameId = null;
-        writeStoredScrollY(listKey, window.scrollY);
-      });
-    };
-
-    window.addEventListener("scroll", saveScrollToStorage, { passive: true });
-    const restoreAfterRouteChange = (url: string) => {
-      const path = url.split("?")[0].split("#")[0];
-
-      if (path === getListPath(listKey)) {
-        startScrollRestore();
-      }
-    };
-
-    Router.events.on("routeChangeStart", saveCurrentScroll);
-    Router.events.on("routeChangeComplete", restoreAfterRouteChange);
-
-    return () => {
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId);
-      }
-      window.removeEventListener("scroll", saveScrollToStorage);
-      Router.events.off("routeChangeStart", saveCurrentScroll);
-      Router.events.off("routeChangeComplete", restoreAfterRouteChange);
-    };
-  }, [listKey, saveCurrentScroll, startScrollRestore]);
 
   const formattedPrinciple = formatLPT(Number(principle) || 150, {
     precision: 0,
@@ -1182,22 +1061,6 @@ const OrchestratorList = ({
       },
     ],
     [formattedPrinciple, timeHorizon, factors]
-  );
-
-  const handleTableStateChange = useCallback(
-    ({
-      pageIndex,
-      sortBy,
-    }: {
-      pageIndex: number;
-      sortBy: SortingRule<object>[];
-    }) => {
-      setOrchestratorListState(listKey, {
-        pageIndex,
-        sortBy,
-      });
-    },
-    [listKey, setOrchestratorListState]
   );
 
   return (

@@ -16,10 +16,10 @@ import {
 } from "@livepeer/design-system";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { GatewaysQuery } from "apollo";
-import { useEnsData } from "hooks";
+import { useEnsData, usePersistedExplorerListState } from "hooks";
 import Link from "next/link";
 import { useMemo } from "react";
-import { Column } from "react-table";
+import { Column, SortingRule } from "react-table";
 
 type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
   depositNumber: number;
@@ -30,11 +30,24 @@ type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
 
 const GatewayList = ({
   data,
+  listKey,
   pageSize = 10,
+  routePath,
 }: {
+  listKey: string;
   pageSize?: number;
+  routePath: string;
   data: GatewaysQuery["gateways"] | undefined;
 }) => {
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState<GatewayRow>({
+      listKey,
+      routePath,
+    });
+  const defaultSortBy = useMemo<SortingRule<GatewayRow>[]>(
+    () => [{ id: "ninetyDayVolumeNumber", desc: true }],
+    []
+  );
   const rows: GatewayRow[] = useMemo(
     () =>
       (data ?? []).map((gateway) => ({
@@ -310,15 +323,22 @@ const GatewayList = ({
   }
 
   return (
-    <Table
-      data={rows}
-      columns={columns}
-      initialState={{
-        pageIndex: 0,
-        pageSize,
-        sortBy: [{ id: "ninetyDayVolumeNumber", desc: true }],
-      }}
-    />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        data={rows}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={{
+          pageIndex: persistedState.pageIndex,
+          pageSize,
+          sortBy: persistedState.sortBy.length
+            ? (persistedState.sortBy as SortingRule<GatewayRow>[])
+            : defaultSortBy,
+        }}
+      />
+    </Box>
   );
 };
 
