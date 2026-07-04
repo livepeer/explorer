@@ -26,9 +26,11 @@ type UsePersistedExplorerListStateOptions = {
   setPersistedState?: (value: Partial<PersistedListState>) => void;
 };
 
+/** Builds the sessionStorage key used as a same-tab scroll backup for a list. */
 const getScrollStorageKey = (listKey: string) =>
   `livepeer:explorer-list:${listKey}:scrollY`;
 
+/** Reads the last saved scroll offset for a list, returning null when unavailable. */
 const readStoredScrollY = (listKey: string) => {
   if (typeof window === "undefined") {
     return null;
@@ -44,6 +46,7 @@ const readStoredScrollY = (listKey: string) => {
   }
 };
 
+/** Writes a non-negative rounded scroll offset for a list into sessionStorage. */
 const writeStoredScrollY = (listKey: string, scrollY: number) => {
   if (typeof window === "undefined") {
     return;
@@ -57,6 +60,18 @@ const writeStoredScrollY = (listKey: string, scrollY: number) => {
   } catch {}
 };
 
+/**
+ * Persists table page/sort state and restores window scroll for a browsable list.
+ *
+ * `listKey` scopes stored state per list instance, while `routePath` identifies
+ * the route that should trigger restoration after Back navigation. Callers can
+ * provide `persistedState` and `setPersistedState` to reuse an existing store
+ * slice; otherwise the hook uses the generic explorer list store.
+ *
+ * Returns `handleTableStateChange` for the shared Table callback,
+ * `persistedState` for Table initial state, and `saveCurrentScroll` for click
+ * capture before navigating from a list item.
+ */
 export const usePersistedExplorerListState = <T extends object = object>({
   listKey,
   routePath,
