@@ -68,6 +68,13 @@ const renderEmoji = (emoji: string) => (
   </Box>
 );
 
+const DEFAULT_SORT_BY = [
+  {
+    id: "timestamp",
+    desc: true,
+  },
+];
+
 const TransactionsList = ({
   events,
   listKey,
@@ -86,15 +93,6 @@ const TransactionsList = ({
       listKey,
       routePath,
     });
-  const defaultSortBy = useMemo(
-    () => [
-      {
-        id: "timestamp",
-        desc: true,
-      },
-    ],
-    []
-  );
   const getAccountForRow = useCallback(
     (
       event: NonNullable<
@@ -578,7 +576,7 @@ const TransactionsList = ({
           pageSize,
           sortBy: persistedState.sortBy.length
             ? persistedState.sortBy
-            : defaultSortBy,
+            : DEFAULT_SORT_BY,
         }}
       />
     </Box>
