@@ -28,6 +28,10 @@ type GatewayRow = NonNullable<GatewaysQuery["gateways"]>[number] & {
   totalVolumeNumber: number;
 };
 
+const DEFAULT_SORT_BY: SortingRule<GatewayRow>[] = [
+  { id: "ninetyDayVolumeNumber", desc: true },
+];
+
 const GatewayList = ({
   data,
   listKey,
@@ -44,10 +48,6 @@ const GatewayList = ({
       listKey,
       routePath,
     });
-  const defaultSortBy = useMemo<SortingRule<GatewayRow>[]>(
-    () => [{ id: "ninetyDayVolumeNumber", desc: true }],
-    []
-  );
   const rows: GatewayRow[] = useMemo(
     () =>
       (data ?? []).map((gateway) => ({
@@ -335,7 +335,7 @@ const GatewayList = ({
           pageSize,
           sortBy: persistedState.sortBy.length
             ? (persistedState.sortBy as SortingRule<GatewayRow>[])
-            : defaultSortBy,
+            : DEFAULT_SORT_BY,
         }}
       />
     </Box>

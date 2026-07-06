@@ -17,6 +17,13 @@ import { Column } from "react-table";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
 
+const DEFAULT_SORT_BY = [
+  {
+    id: "scores",
+    desc: true,
+  },
+];
+
 const PerformanceList = ({
   orchestratorIds,
   pageSize = 20,
@@ -56,22 +63,13 @@ const PerformanceList = ({
       listKey,
       routePath: "/leaderboard",
     });
-  const defaultSortBy = useMemo(
-    () => [
-      {
-        id: "scores",
-        desc: true,
-      },
-    ],
-    []
-  );
 
   const initialState = {
     pageIndex: persistedState.pageIndex,
     pageSize: pageSize,
     sortBy: persistedState.sortBy.length
       ? persistedState.sortBy
-      : defaultSortBy,
+      : DEFAULT_SORT_BY,
     hiddenColumns: [
       "activationRound",
       "deactivationRound",

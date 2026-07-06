@@ -93,6 +93,8 @@ const TransactionsList = ({
       listKey,
       routePath,
     });
+  const pageCount = Math.max(1, Math.ceil((events?.length ?? 0) / pageSize));
+  const pageIndex = Math.min(persistedState.pageIndex, pageCount - 1);
   const getAccountForRow = useCallback(
     (
       event: NonNullable<
@@ -566,13 +568,13 @@ const TransactionsList = ({
   return (
     <Box onClickCapture={saveCurrentScroll}>
       <Table
-        data={events as object[]}
+        data={(events ?? []) as object[]}
         columns={columns}
         autoResetPage={false}
         autoResetSortBy={false}
         onStateChange={handleTableStateChange}
         initialState={{
-          pageIndex: persistedState.pageIndex,
+          pageIndex,
           pageSize,
           sortBy: persistedState.sortBy.length
             ? persistedState.sortBy
