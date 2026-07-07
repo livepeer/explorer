@@ -123,6 +123,7 @@ const OrchestratorsPage = ({
             {showOrchList ? (
               <OrchestratorList
                 data={orchestrators?.transcoders}
+                listKey="orchestrators"
                 pageSize={20}
                 protocolData={protocol?.protocol}
               />

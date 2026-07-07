@@ -1,9 +1,26 @@
 import { ProposalExtended } from "@lib/api/treasury";
+import { ROIFactors, ROIInflationChange, ROITimeHorizon } from "@lib/roi";
 import { txMessages } from "lib/utils";
+import { SortingRule } from "react-table";
 import { Address } from "viem";
 import { create } from "zustand";
 
 export type StakingAction = "undelegate" | "delegate" | null;
+export type OrchestratorListKey = "home" | "orchestrators";
+export type OrchestratorListState = {
+  factors: ROIFactors;
+  inflationChange: ROIInflationChange;
+  pageIndex: number;
+  principle: number;
+  scrollY: number;
+  sortBy: SortingRule<object>[];
+  timeHorizon: ROITimeHorizon;
+};
+export type ExplorerListState = {
+  pageIndex: number;
+  scrollY: number;
+  sortBy: SortingRule<object>[];
+};
 export type YieldResults = {
   roiFees: number;
   roiFeesLpt: number;
@@ -48,12 +65,22 @@ export type ExplorerState = {
   bottomDrawerOpen: boolean;
   selectedStakingAction: StakingAction;
   yieldResults: YieldResults;
+  orchestratorLists: Record<OrchestratorListKey, OrchestratorListState>;
+  explorerLists: Record<string, ExplorerListState>;
   latestTransaction: TransactionStatus | null;
 
   setWalletModalOpen: (v: boolean) => void;
   setBottomDrawerOpen: (v: boolean) => void;
   setSelectedStakingAction: (v: StakingAction) => void;
   setYieldResults: (v: YieldResults) => void;
+  setOrchestratorListState: (
+    key: OrchestratorListKey,
+    value: Partial<OrchestratorListState>
+  ) => void;
+  setExplorerListState: (
+    key: string,
+    value: Partial<ExplorerListState>
+  ) => void;
 
   setLatestTransactionDetails: (
     hash: string,
@@ -66,6 +93,22 @@ export type ExplorerState = {
   clearLatestTransaction: () => void;
 };
 
+const defaultOrchestratorListState: OrchestratorListState = {
+  factors: "lpt+eth",
+  inflationChange: "none",
+  pageIndex: 0,
+  principle: 150,
+  scrollY: 0,
+  sortBy: [{ id: "earnings", desc: true }],
+  timeHorizon: "one-year",
+};
+
+export const defaultExplorerListState: ExplorerListState = {
+  pageIndex: 0,
+  scrollY: 0,
+  sortBy: [],
+};
+
 export const useExplorerStore = create<ExplorerState>()((set) => ({
   walletModalOpen: false,
   bottomDrawerOpen: false,
@@ -76,6 +119,11 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     roiRewards: 0.0,
     principle: 0.0,
   },
+  orchestratorLists: {
+    home: defaultOrchestratorListState,
+    orchestrators: defaultOrchestratorListState,
+  },
+  explorerLists: {},
   latestTransaction: null,
 
   setWalletModalOpen: (v: boolean) => set(() => ({ walletModalOpen: v })),
@@ -83,6 +131,52 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   setSelectedStakingAction: (v: StakingAction) =>
     set(() => ({ selectedStakingAction: v })),
   setYieldResults: (v: YieldResults) => set(() => ({ yieldResults: v })),
+  setOrchestratorListState: (key, value) =>
+    set((state) => {
+      const { orchestratorLists } = state;
+      const current = orchestratorLists[key];
+      const hasChanged = Object.entries(value).some(
+        ([field, nextValue]) =>
+          current[field as keyof OrchestratorListState] !== nextValue
+      );
+
+      if (!hasChanged) {
+        return state;
+      }
+
+      return {
+        orchestratorLists: {
+          ...orchestratorLists,
+          [key]: {
+            ...current,
+            ...value,
+          },
+        },
+      };
+    }),
+  setExplorerListState: (key, value) =>
+    set((state) => {
+      const { explorerLists } = state;
+      const current = explorerLists[key] ?? defaultExplorerListState;
+      const hasChanged = Object.entries(value).some(
+        ([field, nextValue]) =>
+          current[field as keyof ExplorerListState] !== nextValue
+      );
+
+      if (!hasChanged) {
+        return state;
+      }
+
+      return {
+        explorerLists: {
+          ...explorerLists,
+          [key]: {
+            ...current,
+            ...value,
+          },
+        },
+      };
+    }),
 
   setLatestTransactionDetails: (
     hash: string,
