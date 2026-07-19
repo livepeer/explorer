@@ -1,7 +1,9 @@
-import { getCacheControlHeader, getCurrentRound } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
+import { roundsManager } from "@lib/api/abis/main/RoundsManager";
+import { getContractAddress } from "@lib/api/contracts";
 import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
-import { l1PublicClient } from "@lib/chains";
+import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -14,28 +16,38 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("minute"));
 
-      const {
-        data: { protocol, _meta },
-      } = await getCurrentRound();
-      const currentRound = protocol?.currentRound;
+      const roundsManagerAddress = await getContractAddress("RoundsManager");
 
-      if (!currentRound) {
-        throw new Error("No current round found");
-      }
+      const contract = {
+        address: roundsManagerAddress,
+        abi: roundsManager,
+      } as const;
 
-      if (!_meta?.block) {
-        throw new Error("No block number found");
-      }
-
-      const { id, startBlock, initialized } = currentRound;
-
-      const currentL2Block = _meta.block.number;
-      const currentL1Block = await l1PublicClient.getBlockNumber();
+      const [id, startBlock, initialized, currentL1Block, currentL2Block] =
+        await Promise.all([
+          l2PublicClient.readContract({
+            ...contract,
+            functionName: "currentRound",
+          }),
+          l2PublicClient.readContract({
+            ...contract,
+            functionName: "currentRoundStartBlock",
+          }),
+          l2PublicClient.readContract({
+            ...contract,
+            functionName: "currentRoundInitialized",
+          }),
+          l2PublicClient.readContract({
+            ...contract,
+            functionName: "blockNum",
+          }),
+          l2PublicClient.getBlockNumber(),
+        ]);
 
       const roundInfo: CurrentRoundInfo = {
         id: Number(id),
         startBlock: Number(startBlock),
-        initialized,
+        initialized: Boolean(initialized),
         currentL1Block: Number(currentL1Block),
         currentL2Block: Number(currentL2Block),
       };
