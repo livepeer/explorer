@@ -15,6 +15,7 @@ import {
 } from "@livepeer/design-system";
 import { usePollsQuery } from "apollo";
 import { sentenceCase } from "change-case";
+import { mergeManualPolls } from "constants/manualPolls";
 import { useCurrentRoundData } from "hooks";
 import { LAYOUT_MAX_WIDTH } from "layouts/constants";
 import { getLayout } from "layouts/main";
@@ -50,11 +51,14 @@ const Voting = () => {
   const currentRound = useCurrentRoundData();
 
   useEffect(() => {
-    if (data && currentRound?.currentL1Block) {
+    // Render as soon as the (on-chain) current round is available, even if the
+    // subgraph query returned nothing, so manually-listed polls still show while
+    // indexing is down. mergeManualPolls tolerates `data` being undefined.
+    if (currentRound?.currentL1Block) {
       const init = async () => {
         setPolls(
           await Promise.all(
-            (data?.polls ?? []).map((p) =>
+            mergeManualPolls(data?.polls).map((p) =>
               getPollExtended(p, currentRound.currentL1Block)
             )
           )

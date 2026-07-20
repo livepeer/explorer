@@ -28,6 +28,7 @@ import {
   useVoteQuery,
 } from "apollo";
 import { sentenceCase } from "change-case";
+import { getManualPoll, isManualPoll } from "constants/manualPolls";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -90,18 +91,22 @@ const Poll = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (data && currentRound?.currentL1Block) {
+      // Fall back to a manually-listed poll when the subgraph doesn't have it
+      // (e.g. created while indexing was down), so it stays viewable/votable.
+      const source = data?.poll ?? getManualPoll(pollId);
+      if (source && currentRound?.currentL1Block) {
         const response = await getPollExtended(
-          data.poll,
+          source,
           currentRound.currentL1Block
         );
         setPollData(response);
       }
     };
     init();
-  }, [data, currentRound?.currentL1Block]);
+  }, [data, pollId, currentRound?.currentL1Block]);
 
-  if (pollError) {
+  // Only 404 on a genuine subgraph error with no manual fallback for this poll.
+  if (pollError && !getManualPoll(pollId)) {
     return <FourZeroFour />;
   }
 
@@ -212,6 +217,23 @@ const Poll = () => {
             </Box>
 
             <Box>
+              {isManualPoll(pollData.id) && (
+                <Box
+                  css={{
+                    marginBottom: "$3",
+                    padding: "$3",
+                    borderRadius: "$3",
+                    border: "1px solid $blue5",
+                    backgroundColor: "$blue2",
+                  }}
+                >
+                  <Text size="1" css={{ color: "$blue11" }}>
+                    Live vote counts aren&apos;t available for this poll yet —
+                    the subgraph is still indexing it. The totals below may read
+                    0 until indexing catches up. Voting works normally.
+                  </Text>
+                </Box>
+              )}
               <Box
                 css={{
                   display: "grid",
