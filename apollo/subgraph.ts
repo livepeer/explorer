@@ -9656,7 +9656,7 @@ export type GatewaysQuery = { __typename: 'Query', gateways: Array<{ __typename:
 export type MetaQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MetaQuery = { __typename: 'Query', _meta?: { __typename: '_Meta_', hasIndexingErrors: boolean } | null };
+export type MetaQuery = { __typename: 'Query', _meta?: { __typename: '_Meta_', hasIndexingErrors: boolean, block: { __typename: '_Block_', number: number } } | null };
 
 export type OrchestratorsQueryVariables = Exact<{
   currentRound?: InputMaybe<Scalars['BigInt']>;
@@ -10310,6 +10310,9 @@ export type GatewaysQueryResult = Apollo.QueryResult<GatewaysQuery, GatewaysQuer
 export const MetaDocument = gql`
     query meta {
   _meta {
+    block {
+      number
+    }
     hasIndexingErrors
   }
 }
