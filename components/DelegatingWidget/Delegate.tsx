@@ -221,7 +221,8 @@ const Delegate = ({
     reset();
   };
 
-  if (amountWei === null && !isTransferStake) {
+  // A stake transfer may bond nothing, but only from an empty field.
+  if (amountWei === null && (amount || !isTransferStake)) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Enter an Amount
