@@ -75,12 +75,6 @@ export async function getGatewaySelfRedeem(
   return lastTimestamp >= cutoff;
 }
 
-export async function getCurrentRound(client = getApollo()) {
-  return client.query<CurrentRoundQuery, CurrentRoundQueryVariables>({
-    query: CurrentRoundDocument,
-  });
-}
-
 export async function getOrchestrators(client = getApollo()) {
   const protocolResponse = await client.query<
     CurrentRoundQuery,
