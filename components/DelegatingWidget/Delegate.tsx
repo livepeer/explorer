@@ -8,6 +8,7 @@ import {
   InfoCircledIcon,
 } from "@radix-ui/react-icons";
 import { formatPercent } from "@utils/numberFormatters";
+import { parseAmountToWei } from "@utils/web3";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
@@ -15,7 +16,6 @@ import {
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useOrchestratorRewardCutSpike } from "hooks/useOrchestratorRewardCutSpike";
 import { useMemo, useState } from "react";
-import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
@@ -124,27 +124,21 @@ const Delegate = ({
     }
   );
 
-  // `type="number"` accepts values `parseEther` rejects (e.g. `1e3`), so parse
-  // once, defensively, and reuse it everywhere.
-  const amountWei = useMemo(() => {
-    try {
-      return amount ? parseEther(amount) : BigInt(0);
-    } catch {
-      return BigInt(0);
-    }
-  }, [amount]);
+  // null when the amount is absent or not yet a valid number.
+  const amountWei = useMemo(() => parseAmountToWei(amount), [amount]);
+  const bondAmountWei = amountWei ?? 0n;
   // `tokenBalance` and `transferAllowance` are wei, so compare in wei.
   const sufficientBalance = useMemo(
-    () => amountWei > BigInt(0) && BigInt(tokenBalance ?? 0) >= amountWei,
-    [amountWei, tokenBalance]
+    () => bondAmountWei > 0n && BigInt(tokenBalance ?? 0) >= bondAmountWei,
+    [bondAmountWei, tokenBalance]
   );
   const sufficientTransferAllowance = useMemo(
-    () => amountWei > BigInt(0) && BigInt(transferAllowance ?? 0) >= amountWei,
-    [amountWei, transferAllowance]
+    () => bondAmountWei > 0n && BigInt(transferAllowance ?? 0) >= bondAmountWei,
+    [bondAmountWei, transferAllowance]
   );
 
   const bondWithHintArgs = {
-    amount: amountWei,
+    amount: bondAmountWei,
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
@@ -159,7 +153,7 @@ const Delegate = ({
     // so it needs no allowance.
     query: {
       enabled:
-        Boolean(to) && (amountWei === BigInt(0) || sufficientTransferAllowance),
+        Boolean(to) && (bondAmountWei === 0n || sufficientTransferAllowance),
     },
     address: bondingManagerAddress,
     abi: bondingManager,
@@ -229,7 +223,7 @@ const Delegate = ({
     reset();
   };
 
-  if (!amountIsNonEmpty && !isTransferStake) {
+  if (amountWei === null && !isTransferStake) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Enter an Amount
@@ -237,7 +231,7 @@ const Delegate = ({
     );
   }
 
-  if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
+  if (amountWei !== null && !sufficientBalance) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Insufficient Balance

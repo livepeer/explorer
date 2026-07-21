@@ -6,6 +6,7 @@ import {
   simulateNewActiveSetOrder,
 } from "@lib/utils";
 import { Box, Button } from "@livepeer/design-system";
+import { parseAmountToWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   StakingAction,
@@ -16,7 +17,6 @@ import {
 } from "hooks";
 import { CHAIN_INFO } from "lib/chains";
 import { useMemo } from "react";
-import { parseEther } from "viem";
 
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
@@ -91,15 +91,12 @@ const Footer = ({
         : null,
     [delegatorPendingStakeAndFees]
   );
+  // null when the amount is absent or not yet a valid number.
+  const amountWei = useMemo(() => parseAmountToWei(amount), [amount]);
   const sufficientStake = useMemo(() => {
-    if (!delegator || !amount || stakeWei === null) return false;
-    try {
-      const amountWei = parseEther(amount);
-      return amountWei <= stakeWei;
-    } catch {
-      return false;
-    }
-  }, [delegator, amount, stakeWei]);
+    if (!delegator || amountWei === null || stakeWei === null) return false;
+    return amountWei <= stakeWei;
+  }, [delegator, amountWei, stakeWei]);
   const canUndelegate = useMemo(
     () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
     [isMyTranscoder, isDelegated, amount]
@@ -109,11 +106,11 @@ const Footer = ({
       simulateNewActiveSetOrder({
         action,
         transcoders: JSON.parse(JSON.stringify(transcoders)),
-        amount: parseEther(amount ? amount.toString() : "0"),
+        amount: amountWei ?? 0n,
         newDelegate: transcoder?.id ?? "",
         oldDelegate: delegator?.delegate?.id,
       }),
-    [action, transcoders, amount, transcoder, delegator]
+    [action, transcoders, amountWei, transcoder, delegator]
   );
   const { newPosPrev, newPosNext } = useMemo(
     () => getHint(delegator?.delegate?.id, newActiveSetOrder),
@@ -135,15 +132,11 @@ const Footer = ({
   );
   const willDeactivate = useMemo(() => {
     // Wait for stake data to load before determining deactivation
-    if (!isOwnOrchestrator || stakeWei === null || !amount) return false;
-    try {
-      const amountWei = parseEther(amount);
-      // Deactivates if unbonding all stake (amount >= current stake)
-      return amountWei > 0n && amountWei >= stakeWei;
-    } catch {
+    if (!isOwnOrchestrator || stakeWei === null || amountWei === null)
       return false;
-    }
-  }, [isOwnOrchestrator, stakeWei, amount]);
+    // Deactivates if unbonding all stake (amount >= current stake)
+    return amountWei > 0n && amountWei >= stakeWei;
+  }, [isOwnOrchestrator, stakeWei, amountWei]);
 
   if (isWrongRouteChain) {
     return (

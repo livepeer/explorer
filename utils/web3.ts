@@ -65,6 +65,27 @@ export const fromWei = (wei: bigint | string | null | undefined) => {
 export const toWei = (ether: number) => parseEther(ether.toString());
 
 /**
+ * Parse a user-entered amount into Wei.
+ *
+ * `parseEther` throws on values `<input type="number">` accepts but cannot
+ * represent as a decimal (e.g. `1e3`), which would crash the render.
+ *
+ * @param amount - The user-entered amount in Ether
+ * @returns BigInt representation in Wei, or null when the amount is absent or
+ *   not a valid decimal number
+ */
+export const parseAmountToWei = (amount: string | null | undefined) => {
+  if (!amount) {
+    return null;
+  }
+  try {
+    return parseEther(amount);
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Shorten an Ethereum address for display.
  * @deprecated Use formatAddress instead
  * @param address - The address to shorten.
