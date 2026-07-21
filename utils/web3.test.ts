@@ -1,4 +1,10 @@
-import { checkAddressEquality, formatAddress, fromWei, toWei } from "./web3";
+import {
+  checkAddressEquality,
+  formatAddress,
+  fromWei,
+  parseAmountToWei,
+  toWei,
+} from "./web3";
 
 describe("checkAddressEquality", () => {
   it("returns false for invalid addresses", () => {
@@ -40,6 +46,41 @@ describe("toWei", () => {
   it("converts ether number to bigint wei", () => {
     expect(toWei(1)).toBe(1000000000000000000n);
     expect(toWei(0.5)).toBe(500000000000000000n);
+  });
+});
+
+describe("parseAmountToWei", () => {
+  it("converts decimal amounts to wei", () => {
+    expect(parseAmountToWei("0.1")).toBe(100000000000000000n);
+    expect(parseAmountToWei("2.5")).toBe(2500000000000000000n);
+    expect(parseAmountToWei("100000")).toBe(100000000000000000000000n);
+  });
+
+  it("keeps decimals that exceed float precision", () => {
+    expect(parseAmountToWei("1.000000000000000001")).toBe(1000000000000000001n);
+  });
+
+  it("accepts exponent notation", () => {
+    expect(parseAmountToWei("1e3")).toBe(1000000000000000000000n);
+    expect(parseAmountToWei("1E3")).toBe(1000000000000000000000n);
+    expect(parseAmountToWei("1e-2")).toBe(10000000000000000n);
+  });
+
+  it("returns null for an absent or unparseable amount", () => {
+    expect(parseAmountToWei("")).toBeNull();
+    expect(parseAmountToWei(null)).toBeNull();
+    expect(parseAmountToWei(undefined)).toBeNull();
+    expect(parseAmountToWei("abc")).toBeNull();
+    expect(parseAmountToWei("1e")).toBeNull();
+  });
+
+  // Exponents are normalised through `Number`, which only writes decimals
+  // between 1e-6 and 1e21. Decimal notation has no such limit.
+  it("rejects exponents outside the range Number writes as a decimal", () => {
+    expect(parseAmountToWei("1e-6")).toBe(1000000000000n);
+    expect(parseAmountToWei("1e-7")).toBeNull();
+    expect(parseAmountToWei("0.0000001")).toBe(100000000000n);
+    expect(parseAmountToWei("1e21")).toBeNull();
   });
 });
 

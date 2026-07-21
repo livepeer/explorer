@@ -58,7 +58,8 @@ export const fromWei = (wei: bigint | string | null | undefined) => {
 };
 
 /**
- * Convert Ether amount (number) to Wei (bigint)
+ * Convert Ether amount (number) to Wei (bigint).
+ * @deprecated Use parseAmountToWei instead.
  * @param ether - The value in Ether
  * @returns BigInt representation in Wei
  */
@@ -67,18 +68,14 @@ export const toWei = (ether: number) => parseEther(ether.toString());
 /**
  * Parse a user-entered amount into Wei.
  *
- * `parseEther` throws on the exponent notation `<input type="number">` accepts
- * (e.g. `1e3`), so those are normalised to a decimal first. Plain decimals skip
- * `Number` to avoid float precision loss.
+ * `parseEther` only accepts decimals, so exponent notation (e.g. `1e3`) is
+ * normalised first.
  *
  * @param amount - The user-entered amount in Ether
- * @returns BigInt representation in Wei, or null when the amount is absent or
- *   not a valid decimal number
+ * @returns BigInt representation in Wei, or null when it cannot be parsed
  */
 export const parseAmountToWei = (amount: string | null | undefined) => {
-  if (!amount) {
-    return null;
-  }
+  if (!amount) return null;
   try {
     return parseEther(/[eE]/.test(amount) ? Number(amount).toString() : amount);
   } catch {
