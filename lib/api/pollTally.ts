@@ -240,7 +240,7 @@ export const getPollTally = async (
       const excluded = registeredTranscoder
         ? nonVoteStake.get(voter) ?? 0n
         : 0n;
-      const weight = voteStake - excluded;
+      const weight = voteStake > excluded ? voteStake - excluded : 0n;
 
       if (choice === "Yes") yes += weight;
       else no += weight;
