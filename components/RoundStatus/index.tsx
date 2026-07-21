@@ -120,50 +120,54 @@ const Index = ({
             {currentRoundInfo?.id ? `#${currentRoundInfo.id}` : ""}
           </Text>
         </Box>
-        <ExplorerTooltip
-          multiline
-          content={
-            <Box>
-              {!isRoundLocked
-                ? "The current round is ongoing and orchestrators can currently update their parameters."
-                : "The current round is locked, which means that orchestrator parameters cannot be updated until the next round begins."}
-            </Box>
-          }
-        >
-          <Flex>
-            <Text
-              css={{
-                fontWeight: 600,
-                fontSize: "$2",
-                color: "white",
-              }}
-            >
-              {!isRoundLocked ? "Initialized " : "Locked "}
-            </Text>
+        {!currentRoundInfo ? (
+          <Skeleton css={{ height: 20, width: 90 }} />
+        ) : (
+          <ExplorerTooltip
+            multiline
+            content={
+              <Box>
+                {!isRoundLocked
+                  ? "The current round is ongoing and orchestrators can currently update their parameters."
+                  : "The current round is locked, which means that orchestrator parameters cannot be updated until the next round begins."}
+              </Box>
+            }
+          >
+            <Flex>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  fontSize: "$2",
+                  color: "white",
+                }}
+              >
+                {!isRoundLocked ? "Initialized " : "Locked "}
+              </Text>
 
-            {isRoundLocked ? (
-              <Box
-                as={Cross1Icon}
-                css={{
-                  marginLeft: "$2",
-                  width: 20,
-                  height: 20,
-                  color: "$red11",
-                }}
-              />
-            ) : (
-              <Box
-                as={CheckIcon}
-                css={{
-                  marginLeft: "$1",
-                  width: 20,
-                  height: 20,
-                  color: "$primary11",
-                }}
-              />
-            )}
-          </Flex>
-        </ExplorerTooltip>
+              {isRoundLocked ? (
+                <Box
+                  as={Cross1Icon}
+                  css={{
+                    marginLeft: "$2",
+                    width: 20,
+                    height: 20,
+                    color: "$red11",
+                  }}
+                />
+              ) : (
+                <Box
+                  as={CheckIcon}
+                  css={{
+                    marginLeft: "$1",
+                    width: 20,
+                    height: 20,
+                    color: "$primary11",
+                  }}
+                />
+              )}
+            </Flex>
+          </ExplorerTooltip>
+        )}
       </Flex>
 
       <Box
