@@ -1,4 +1,9 @@
-import { AVERAGE_L1_BLOCK_TIME, CHAIN_INFO, l2Provider } from "@lib/chains";
+import {
+  AVERAGE_L1_BLOCK_TIME,
+  CHAIN_INFO,
+  l2Provider,
+  l2PublicClient,
+} from "@lib/chains";
 import dayjs from "@lib/dayjs";
 import {
   getApollo,
@@ -10,9 +15,11 @@ import {
 import { ethers } from "ethers";
 import fm from "front-matter";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { Address } from "viem";
+import { Address, formatEther } from "viem";
 
 import { nodeInterface } from "./abis/bridge/NodeInterface";
+import { bondingManager } from "./abis/main/BondingManager";
+import { getBondingManagerAddress } from "./contracts";
 
 export type Fm = {
   title: string;
@@ -190,12 +197,31 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
 
     return protocolResponse?.data?.protocol?.totalActiveStake;
   } catch (err) {
-    // The subgraph can be unavailable (e.g. an indexing halt). Total stake only
-    // feeds participation percentages, so degrade gracefully instead of failing
-    // the whole poll render — this keeps manually-listed polls viewable/votable.
+    // The subgraph can be unavailable (e.g. an indexing halt). Fall back to the
+    // current total bonded stake on-chain — the same value the subgraph tracks,
+    // except it can't be read at a past block, so participation for an ended
+    // poll is measured against today's stake rather than the stake at its end.
     const detail = err instanceof Error ? err.message : String(err);
-    console.warn(`Could not fetch total stake from subgraph (${detail})`);
-    return undefined;
+    console.warn(
+      `Could not fetch total stake from subgraph, falling back to chain (${detail})`
+    );
+
+    try {
+      const bondingManagerAddress = await getBondingManagerAddress();
+
+      const totalBonded = await l2PublicClient.readContract({
+        address: bondingManagerAddress,
+        abi: bondingManager,
+        functionName: "getTotalBonded",
+      });
+
+      return formatEther(totalBonded);
+    } catch (chainErr) {
+      const chainDetail =
+        chainErr instanceof Error ? chainErr.message : String(chainErr);
+      console.warn(`Could not fetch total bonded stake (${chainDetail})`);
+      return undefined;
+    }
   }
 };
 
