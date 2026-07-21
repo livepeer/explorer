@@ -23,6 +23,7 @@ import {
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
+import { UnbondingLocks } from "@lib/api/types/get-unbonding-locks";
 import { formatAddress } from "@utils/web3";
 import useSWR from "swr";
 import { Address } from "viem";
@@ -176,6 +177,18 @@ export const useProposalVotingPowerData = (
 export const useAccountBalanceData = (address: string | undefined | null) => {
   const { data } = useSWR<AccountBalance>(
     address ? `/account-balance/${address.toLowerCase()}` : null
+  );
+
+  return data ?? null;
+};
+
+export const useUnbondingLocksData = (
+  address: string | undefined | null,
+  from: number
+) => {
+  // `from` skips the ids the subgraph already has. See /api/unbonding-locks.
+  const { data } = useSWR<UnbondingLocks>(
+    address ? `/unbonding-locks/${address.toLowerCase()}?from=${from}` : null
   );
 
   return data ?? null;
