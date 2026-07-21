@@ -176,7 +176,9 @@ const getEstimatedEndTimeByBlockNumber = async (
     .unix();
 };
 
-const getTotalStake = async (l2BlockNumber?: number | undefined) => {
+const getTotalStakeFromSubgraph = async (
+  l2BlockNumber?: number | undefined
+) => {
   try {
     const client = getApollo();
 
@@ -197,31 +199,37 @@ const getTotalStake = async (l2BlockNumber?: number | undefined) => {
 
     return protocolResponse?.data?.protocol?.totalActiveStake;
   } catch (err) {
-    // The subgraph can be unavailable (e.g. an indexing halt). Fall back to the
-    // current total bonded stake on-chain — the same value the subgraph tracks,
-    // except it can't be read at a past block, so participation for an ended
-    // poll is measured against today's stake rather than the stake at its end.
     const detail = err instanceof Error ? err.message : String(err);
-    console.warn(
-      `Could not fetch total stake from subgraph, falling back to chain (${detail})`
-    );
+    console.warn(`Could not fetch total stake from subgraph (${detail})`);
+    return undefined;
+  }
+};
 
-    try {
-      const bondingManagerAddress = await getBondingManagerAddress();
+const getTotalStake = async (l2BlockNumber?: number | undefined) => {
+  const totalActiveStake = await getTotalStakeFromSubgraph(l2BlockNumber);
 
-      const totalBonded = await l2PublicClient.readContract({
-        address: bondingManagerAddress,
-        abi: bondingManager,
-        functionName: "getTotalBonded",
-      });
+  // A subgraph that is reindexing answers successfully with an empty protocol
+  // entity rather than failing, so fall back on a missing value too — not just
+  // on a thrown error. Total bonded stake is the same figure the subgraph
+  // tracks, except it can't be read at a past block, so participation for an
+  // ended poll is measured against today's stake rather than the stake at its
+  // end.
+  if (totalActiveStake) return totalActiveStake;
 
-      return formatEther(totalBonded);
-    } catch (chainErr) {
-      const chainDetail =
-        chainErr instanceof Error ? chainErr.message : String(chainErr);
-      console.warn(`Could not fetch total bonded stake (${chainDetail})`);
-      return undefined;
-    }
+  try {
+    const bondingManagerAddress = await getBondingManagerAddress();
+
+    const totalBonded = await l2PublicClient.readContract({
+      address: bondingManagerAddress,
+      abi: bondingManager,
+      functionName: "getTotalBonded",
+    });
+
+    return formatEther(totalBonded);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.warn(`Could not fetch total bonded stake (${detail})`);
+    return undefined;
   }
 };
 

@@ -149,16 +149,11 @@ export const getPollTally = async (
       l2PublicClient.getBlockNumber(),
     ]);
 
-  const [currentRound, totalBonded, choiceByVoter] = await Promise.all([
+  const [currentRound, choiceByVoter] = await Promise.all([
     l2PublicClient.readContract({
       address: roundsManagerAddress,
       abi: roundsManager,
       functionName: "currentRound",
-    }),
-    l2PublicClient.readContract({
-      address: bondingManagerAddress,
-      abi: bondingManager,
-      functionName: "getTotalBonded",
     }),
     getChoiceByVoter(pollAddress, BigInt(startBlock), latestBlock),
   ]);
@@ -255,7 +250,6 @@ export const getPollTally = async (
         choice,
         voteStake: formatEther(voteStake),
         nonVoteStake: formatEther(excluded),
-        registeredTranscoder,
       };
     }
   );
@@ -263,8 +257,6 @@ export const getPollTally = async (
   return {
     poll: pollAddress.toLowerCase(),
     tally: { yes: formatEther(yes), no: formatEther(no) },
-    totalStake: formatEther(totalBonded),
     votes,
-    updatedAt: Math.floor(Date.now() / 1000),
   };
 };

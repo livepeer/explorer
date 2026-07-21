@@ -1,6 +1,3 @@
-import { PollTally } from "@lib/api/types/get-poll-tally";
-import { PollsQuery } from "apollo";
-
 /**
  * TEMPORARY stopgap: manually surface governance polls that were created while
  * the subgraph was behind on indexing, so voting stays functional during the
@@ -14,6 +11,10 @@ import { PollsQuery } from "apollo";
  *
  * Remove entries (or delete this file and its imports) once indexing recovers.
  */
+
+import { PollTally } from "@lib/api/types/get-poll-tally";
+import { PollsQuery } from "apollo";
+
 type SubgraphPoll = PollsQuery["polls"][number];
 
 type ManualPoll = SubgraphPoll & {

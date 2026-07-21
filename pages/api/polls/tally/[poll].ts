@@ -1,3 +1,10 @@
+/**
+ * TEMPORARY stopgap: serve a poll's stake-weighted tally computed from chain
+ * state, for polls the subgraph has not indexed yet. Restricted to the manually
+ * listed polls so it can't be used to scan arbitrary contracts — remove along
+ * with `constants/manualPolls` once indexing recovers.
+ */
+
 import { getCacheControlHeader } from "@lib/api";
 import {
   badRequest,
@@ -10,13 +17,6 @@ import { PollTally } from "@lib/api/types/get-poll-tally";
 import { getManualPoll } from "constants/manualPolls";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address, getAddress, isAddress } from "viem";
-
-/**
- * TEMPORARY stopgap: serve a poll's stake-weighted tally computed from chain
- * state, for polls the subgraph has not indexed yet. Restricted to the manually
- * listed polls so it can't be used to scan arbitrary contracts — remove along
- * with `constants/manualPolls` once indexing recovers.
- */
 
 /** Recompute at most once a minute per poll, CDN in front of us or not. */
 const MEMO_TTL_MS = 60_000;

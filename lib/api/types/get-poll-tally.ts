@@ -6,7 +6,6 @@ export type PollTallyVote = {
   voteStake: string;
   /** Stake of this voter's delegators that voted themselves, in LPT. */
   nonVoteStake: string;
-  registeredTranscoder: boolean;
 };
 
 /**
@@ -17,9 +16,5 @@ export type PollTally = {
   poll: string;
   /** Stake-weighted totals, in LPT (decimal strings). */
   tally: { yes: string; no: string };
-  /** Total bonded stake used for participation, in LPT. */
-  totalStake: string;
   votes: PollTallyVote[];
-  /** Unix seconds the tally was computed at. */
-  updatedAt: number;
 };
