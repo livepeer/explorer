@@ -186,14 +186,12 @@ const Delegate = ({
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
-  const amountIsNonEmpty = useMemo(() => amount, [amount]);
-
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   const showApproveFlow = useMemo(
     () =>
-      (amountIsNonEmpty && +amount >= 0 && !sufficientTransferAllowance) ||
+      (amountWei !== null && !sufficientTransferAllowance) ||
       (approvalSubmitted && sufficientTransferAllowance),
-    [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted]
+    [amountWei, sufficientTransferAllowance, approvalSubmitted]
   );
 
   const onApprove = async () => {
