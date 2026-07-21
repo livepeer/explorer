@@ -54,7 +54,7 @@ const handler = async (
         const requested = Number(Array.isArray(from) ? from[0] : from);
         const start = Math.max(
           0,
-          Number.isFinite(requested) ? requested : 0,
+          Number.isInteger(requested) ? requested : 0,
           end - MAX_SCAN
         );
 
