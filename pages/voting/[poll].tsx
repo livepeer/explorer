@@ -254,9 +254,9 @@ const Poll = () => {
                   }}
                 >
                   <Text size="1" css={{ color: "$blue11" }}>
-                    The subgraph is still indexing this poll, so the totals below
-                    are computed directly from chain state and refresh about once
-                    a minute. Voting works normally.
+                    The subgraph is still indexing this poll, so the totals
+                    below are computed directly from chain state and refresh
+                    about once a minute. Voting works normally.
                   </Text>
                 </Box>
               )}
