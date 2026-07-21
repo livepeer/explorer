@@ -23,31 +23,48 @@ const handler = async (
         abi: roundsManager,
       } as const;
 
-      const [id, startBlock, initialized, currentL1Block, currentL2Block] =
-        await Promise.all([
-          l2PublicClient.readContract({
-            ...contract,
-            functionName: "currentRound",
-          }),
-          l2PublicClient.readContract({
-            ...contract,
-            functionName: "currentRoundStartBlock",
-          }),
-          l2PublicClient.readContract({
-            ...contract,
-            functionName: "currentRoundInitialized",
-          }),
-          l2PublicClient.readContract({
-            ...contract,
-            functionName: "blockNum",
-          }),
-          l2PublicClient.getBlockNumber(),
-        ]);
+      const [
+        id,
+        startBlock,
+        initialized,
+        locked,
+        roundLength,
+        currentL1Block,
+        currentL2Block,
+      ] = await Promise.all([
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "currentRound",
+        }),
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "currentRoundStartBlock",
+        }),
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "currentRoundInitialized",
+        }),
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "currentRoundLocked",
+        }),
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "roundLength",
+        }),
+        l2PublicClient.readContract({
+          ...contract,
+          functionName: "blockNum",
+        }),
+        l2PublicClient.getBlockNumber(),
+      ]);
 
       const roundInfo: CurrentRoundInfo = {
         id: Number(id),
         startBlock: Number(startBlock),
         initialized: Boolean(initialized),
+        locked: Boolean(locked),
+        roundLength: Number(roundLength),
         currentL1Block: Number(currentL1Block),
         currentL2Block: Number(currentL2Block),
       };
