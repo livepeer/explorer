@@ -37,8 +37,6 @@ const Index = ({
 
   const currentRoundInfo = useCurrentRoundData();
 
-  // Round timing/lock come entirely from the RoundsManager (via /current-round),
-  // so the tracker stays consistent and live even when the subgraph is behind.
   const blocksRemaining = useMemo(
     () =>
       currentRoundInfo?.initialized
