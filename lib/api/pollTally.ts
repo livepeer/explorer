@@ -211,7 +211,7 @@ export const getPollTally = async (
     const registeredTranscoder = registrations[index];
     const delegate = getAddress(delegators[index][2]);
     const isSelfDelegated = delegate === voter;
-    const voteStake = isSelfDelegated
+    const voteStake = registeredTranscoder
       ? transcoderStakes[index]
       : pendingStakes[index];
 
