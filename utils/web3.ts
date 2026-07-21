@@ -67,8 +67,9 @@ export const toWei = (ether: number) => parseEther(ether.toString());
 /**
  * Parse a user-entered amount into Wei.
  *
- * `parseEther` throws on values `<input type="number">` accepts but cannot
- * represent as a decimal (e.g. `1e3`), which would crash the render.
+ * `parseEther` throws on the exponent notation `<input type="number">` accepts
+ * (e.g. `1e3`), so those are normalised to a decimal first. Plain decimals skip
+ * `Number` to avoid float precision loss.
  *
  * @param amount - The user-entered amount in Ether
  * @returns BigInt representation in Wei, or null when the amount is absent or
@@ -79,7 +80,7 @@ export const parseAmountToWei = (amount: string | null | undefined) => {
     return null;
   }
   try {
-    return parseEther(amount);
+    return parseEther(/[eE]/.test(amount) ? Number(amount).toString() : amount);
   } catch {
     return null;
   }
