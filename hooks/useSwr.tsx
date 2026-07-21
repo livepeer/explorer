@@ -14,7 +14,6 @@ import {
   AllPerformanceMetrics,
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
-import { PollTally } from "@lib/api/types/get-poll-tally";
 import { ProtocolDayData } from "@lib/api/types/get-protocol-day-data";
 import { Regions } from "@lib/api/types/get-regions";
 import { SupplyChangeData } from "@lib/api/types/get-supply-change";
@@ -25,7 +24,6 @@ import {
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
 import { formatAddress } from "@utils/web3";
-import { isManualPoll } from "constants/manualPolls";
 import useSWR from "swr";
 import { Address } from "viem";
 
@@ -125,21 +123,6 @@ export const useCurrentRoundData = () => {
   const { data } = useSWR<CurrentRoundInfo>(`/current-round`, {
     refreshInterval: 10000,
   });
-
-  return data ?? null;
-};
-
-/**
- * TEMPORARY stopgap: on-chain tally for a poll the subgraph hasn't indexed yet.
- * Remove together with `constants/manualPolls` once indexing recovers.
- */
-export const useManualPollTally = (id: string | undefined | null) => {
-  const { data } = useSWR<PollTally>(
-    id && isManualPoll(id) ? `/polls/tally/${id.toLowerCase()}` : null,
-    // Matches the endpoint's cache window — polling faster just re-reads the
-    // same cached object.
-    { refreshInterval: 60000 }
-  );
 
   return data ?? null;
 };

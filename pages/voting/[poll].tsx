@@ -28,21 +28,16 @@ import {
   useVoteQuery,
 } from "apollo";
 import { sentenceCase } from "change-case";
-import {
-  getManualPoll,
-  isManualPoll,
-  withManualTally,
-} from "constants/manualPolls";
+import { getManualPoll, isManualPoll } from "constants/manualPolls";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 
 import {
   useAccountAddress,
   useCurrentRoundData,
   useExplorerStore,
-  useManualPollTally,
 } from "../../hooks";
 import FourZeroFour from "../404";
 
@@ -94,42 +89,21 @@ const Poll = () => {
 
   const currentRound = useCurrentRoundData();
 
-  // Tally computed on-chain for polls the subgraph hasn't indexed yet.
-  const manualTally = useManualPollTally(pollId);
-
   useEffect(() => {
     const init = async () => {
       // Fall back to a manually-listed poll when the subgraph doesn't have it
       // (e.g. created while indexing was down), so it stays viewable/votable.
-      const manualPoll = getManualPoll(pollId);
-      const source = data?.poll ?? manualPoll;
+      const source = data?.poll ?? getManualPoll(pollId);
       if (source && currentRound?.currentL1Block) {
         const response = await getPollExtended(
-          withManualTally(source, manualTally),
+          source,
           currentRound.currentL1Block
         );
         setPollData(response);
       }
     };
     init();
-  }, [data, pollId, currentRound?.currentL1Block, manualTally]);
-
-  // The subgraph also backs "did I already vote?" — recover it from the
-  // on-chain tally while indexing is behind.
-  const manualVote = useMemo(() => {
-    const vote = manualTally?.votes.find(
-      (v) => v.voter === accountAddress?.toLowerCase()
-    );
-
-    return vote
-      ? {
-          __typename: "Vote" as const,
-          choiceID: vote.choice as PollChoice,
-          voteStake: vote.voteStake,
-          nonVoteStake: vote.nonVoteStake,
-        }
-      : undefined;
-  }, [manualTally, accountAddress]);
+  }, [data, pollId, currentRound?.currentL1Block]);
 
   // Only 404 on a genuine subgraph error with no manual fallback for this poll.
   if (pollError && !getManualPoll(pollId)) {
@@ -254,9 +228,9 @@ const Poll = () => {
                   }}
                 >
                   <Text size="1" css={{ color: "$blue11" }}>
-                    The subgraph is still indexing this poll, so the totals
-                    below are computed directly from chain state and refresh
-                    about once a minute. Voting works normally.
+                    Live vote counts aren&apos;t available for this poll yet —
+                    the subgraph is still indexing it. The totals below may read
+                    0 until indexing catches up. Voting works normally.
                   </Text>
                 </Box>
               )}
@@ -426,7 +400,7 @@ const Poll = () => {
                       }
                     | undefined
                     | null,
-                  vote: (voteData?.vote ?? manualVote) as
+                  vote: voteData?.vote as
                     | {
                         __typename: "Vote";
                         choiceID?: PollChoice;
@@ -453,7 +427,7 @@ const Poll = () => {
                       }
                     | undefined
                     | null,
-                  vote: (voteData?.vote ?? manualVote) as
+                  vote: voteData?.vote as
                     | {
                         __typename: "Vote";
                         choiceID?: PollChoice;
