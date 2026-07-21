@@ -124,8 +124,27 @@ const Delegate = ({
     }
   );
 
+  // `type="number"` accepts values `parseEther` rejects (e.g. `1e3`), so parse
+  // once, defensively, and reuse it everywhere.
+  const amountWei = useMemo(() => {
+    try {
+      return amount ? parseEther(amount) : BigInt(0);
+    } catch {
+      return BigInt(0);
+    }
+  }, [amount]);
+  // `tokenBalance` and `transferAllowance` are wei, so compare in wei.
+  const sufficientBalance = useMemo(
+    () => amountWei > BigInt(0) && BigInt(tokenBalance ?? 0) >= amountWei,
+    [amountWei, tokenBalance]
+  );
+  const sufficientTransferAllowance = useMemo(
+    () => amountWei > BigInt(0) && BigInt(transferAllowance ?? 0) >= amountWei,
+    [amountWei, transferAllowance]
+  );
+
   const bondWithHintArgs = {
-    amount: amount?.toString() ? parseEther(amount) : BigInt(0),
+    amount: amountWei,
     to,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
@@ -134,12 +153,19 @@ const Delegate = ({
   };
 
   const { data: bondWithHintConfig } = useSimulateContract({
-    query: { enabled: Boolean(to) },
+    // Simulating without the allowance in place reverts, and nothing re-runs a
+    // cached failure once the approval lands. Gating on the allowance means the
+    // simulation first runs when it can succeed. A zero amount moves no tokens,
+    // so it needs no allowance.
+    query: {
+      enabled:
+        Boolean(to) && (amountWei === BigInt(0) || sufficientTransferAllowance),
+    },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "bondWithHint",
     args: [
-      BigInt(bondWithHintArgs.amount?.toString()),
+      bondWithHintArgs.amount,
       to,
       oldDelegateNewPosPrev,
       oldDelegateNewPosNext,
@@ -167,22 +193,6 @@ const Delegate = ({
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
   const amountIsNonEmpty = useMemo(() => amount, [amount]);
-  // `tokenBalance` and `transferAllowance` are wei, so compare in wei.
-  const amountWei = useMemo(() => {
-    try {
-      return amount ? parseEther(amount) : BigInt(0);
-    } catch {
-      return BigInt(0);
-    }
-  }, [amount]);
-  const sufficientBalance = useMemo(
-    () => amountWei > BigInt(0) && BigInt(tokenBalance ?? 0) >= amountWei,
-    [amountWei, tokenBalance]
-  );
-  const sufficientTransferAllowance = useMemo(
-    () => amountWei > BigInt(0) && BigInt(transferAllowance ?? 0) >= amountWei,
-    [amountWei, transferAllowance]
-  );
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   const showApproveFlow = useMemo(
