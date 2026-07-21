@@ -167,19 +167,21 @@ const Delegate = ({
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
   const amountIsNonEmpty = useMemo(() => amount, [amount]);
+  // `tokenBalance` and `transferAllowance` are wei, so compare in wei.
+  const amountWei = useMemo(() => {
+    try {
+      return amount ? parseEther(amount) : BigInt(0);
+    } catch {
+      return BigInt(0);
+    }
+  }, [amount]);
   const sufficientBalance = useMemo(
-    () =>
-      amountIsNonEmpty &&
-      parseFloat(amount) > 0 &&
-      Number(tokenBalance) >= amount,
-    [amount, amountIsNonEmpty, tokenBalance]
+    () => amountWei > BigInt(0) && BigInt(tokenBalance ?? 0) >= amountWei,
+    [amountWei, tokenBalance]
   );
   const sufficientTransferAllowance = useMemo(
-    () =>
-      amountIsNonEmpty &&
-      Number(transferAllowance) > 0 &&
-      Number(transferAllowance) >= amount,
-    [amount, amountIsNonEmpty, transferAllowance]
+    () => amountWei > BigInt(0) && BigInt(transferAllowance ?? 0) >= amountWei,
+    [amountWei, transferAllowance]
   );
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
@@ -260,7 +262,7 @@ const Delegate = ({
             </Button>
             <Button
               size="4"
-              disabled={!sufficientTransferAllowance}
+              disabled={!sufficientTransferAllowance || !bondWithHintConfig}
               variant="primary"
               onClick={onDelegate}
               css={{ width: "100%" }}
@@ -282,6 +284,7 @@ const Delegate = ({
       {cutChangeNotice}
       <Button
         size="4"
+        disabled={!bondWithHintConfig}
         onClick={onDelegate}
         variant="primary"
         css={{ width: "100%" }}
