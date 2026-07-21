@@ -147,10 +147,8 @@ const Delegate = ({
   };
 
   const { data: bondWithHintConfig } = useSimulateContract({
-    // Simulating without the allowance in place reverts, and nothing re-runs a
-    // cached failure once the approval lands. Gating on the allowance means the
-    // simulation first runs when it can succeed. A zero amount moves no tokens,
-    // so it needs no allowance.
+    // A reverted simulation is cached and never re-run, so only simulate once
+    // it can succeed. A zero amount moves no tokens, so it needs no allowance.
     query: {
       enabled:
         Boolean(to) && (bondAmountWei === 0n || sufficientTransferAllowance),
