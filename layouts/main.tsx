@@ -40,7 +40,6 @@ import {
   useTreasuryProposalsQuery,
 } from "apollo";
 import { BRIDGE_LPT_URL, GET_LPT_URL } from "constants/links";
-import { mergeManualPolls } from "constants/manualPolls";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import dynamic from "next/dynamic";
@@ -179,7 +178,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   const totalActivePolls = useMemo(
     () =>
-      mergeManualPolls(pollData?.polls).filter(
+      pollData?.polls.filter(
         (p) =>
           (currentRound?.currentL1Block ?? Number.MAX_VALUE) <=
           parseInt(p.endBlock)

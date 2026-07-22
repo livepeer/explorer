@@ -170,33 +170,24 @@ const getEstimatedEndTimeByBlockNumber = async (
 };
 
 const getTotalStake = async (l2BlockNumber?: number | undefined) => {
-  try {
-    const client = getApollo();
+  const client = getApollo();
 
-    const protocolResponse = await client.query<
-      ProtocolByBlockQuery,
-      ProtocolByBlockQueryVariables
-    >({
-      query: ProtocolByBlockDocument,
-      variables: l2BlockNumber
-        ? {
-            block: {
-              number: l2BlockNumber,
-            },
-          }
-        : undefined,
-      fetchPolicy: "network-only",
-    });
+  const protocolResponse = await client.query<
+    ProtocolByBlockQuery,
+    ProtocolByBlockQueryVariables
+  >({
+    query: ProtocolByBlockDocument,
+    variables: l2BlockNumber
+      ? {
+          block: {
+            number: l2BlockNumber,
+          },
+        }
+      : undefined,
+    fetchPolicy: "network-only",
+  });
 
-    return protocolResponse?.data?.protocol?.totalActiveStake;
-  } catch (err) {
-    // The subgraph can be unavailable (e.g. an indexing halt). Total stake only
-    // feeds participation percentages, so degrade gracefully instead of failing
-    // the whole poll render — this keeps manually-listed polls viewable/votable.
-    const detail = err instanceof Error ? err.message : String(err);
-    console.warn(`Could not fetch total stake from subgraph (${detail})`);
-    return undefined;
-  }
+  return protocolResponse?.data?.protocol?.totalActiveStake;
 };
 
 const getL2BlockRangeForL1 = async (l1BlockNumber: number) => {
