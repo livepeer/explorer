@@ -42,7 +42,7 @@ const ConnectButton = (props: ConnectButtonProps) => {
 
   return (
     <ConnectButtonRainbowKit
-      chainStatus="none"
+      chainStatus="icon"
       accountStatus={width < 1800 ? "avatar" : "full"}
       {...props}
     />
