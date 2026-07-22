@@ -1,5 +1,7 @@
 import BottomDrawer from "@components/BottomDrawer";
+import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import MarkdownRenderer from "@components/MarkdownRenderer";
+import PollVotingTable from "@components/PollVote";
 import PollVotingWidget from "@components/PollVotingWidget";
 import Spinner from "@components/Spinner";
 import Stat from "@components/Stat";
@@ -15,6 +17,7 @@ import {
   Container,
   Flex,
   Heading,
+  Link as A,
   Text,
 } from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
@@ -29,8 +32,9 @@ import {
 } from "apollo";
 import { sentenceCase } from "change-case";
 import Head from "next/head";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
 import {
@@ -48,11 +52,21 @@ const Poll = () => {
 
   const [pollData, setPollData] = useState<PollExtended | null>(null);
   const { query } = router;
+  const view = query?.view?.toString().toLowerCase() || "overview";
+  const safeView = view === "votes" ? "votes" : "overview";
 
   const pollId = query?.poll?.toString().toLowerCase();
   const pollInterval = 10000;
 
   const { setBottomDrawerOpen } = useExplorerStore();
+
+  const votesTabHref = useMemo(
+    () => ({
+      pathname: router.pathname,
+      query: { ...query, view: "votes" },
+    }),
+    [router.pathname, query]
+  );
 
   const { data, error: pollError } = usePollQuery({
     variables: {
@@ -100,6 +114,31 @@ const Poll = () => {
     };
     init();
   }, [data, currentRound?.currentL1Block]);
+
+  const tabs = useMemo(
+    () => [
+      {
+        name: "Overview",
+        href: {
+          pathname: router.pathname,
+          query: { ...query, view: "overview" },
+        },
+        isActive: safeView === "overview",
+      },
+      {
+        name: "Votes",
+        href: votesTabHref,
+        isActive: safeView === "votes",
+        count: data?.poll?.votes?.length,
+      },
+    ],
+    [router.pathname, query, safeView, data?.poll?.votes?.length, votesTabHref]
+  );
+
+  const voteContent = useCallback(() => {
+    if (!pollData?.votes?.length) return <Text>No votes yet.</Text>;
+    return <PollVotingTable pollId={pollData!.id} />;
+  }, [pollData]);
 
   if (pollError) {
     return <FourZeroFour />;
@@ -212,143 +251,227 @@ const Poll = () => {
             </Box>
 
             <Box>
-              <Box
-                css={{
-                  display: "grid",
-                  gridGap: "$3",
-                  gridTemplateColumns: "100%",
-                  marginBottom: "$3",
-                  "@bp2": {
-                    gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
-                  },
-                }}
+              <HorizontalScrollContainer
+                role="navigation"
+                ariaLabel="Proposal navigation tabs"
+                activeItemKey={safeView}
               >
-                <Stat
-                  css={{ flex: 1, mb: 0 }}
-                  label={
-                    <Box>
-                      Total Support (
-                      {formatPercent(
-                        +pollData.quota / PERCENTAGE_PRECISION_MILLION
-                      )}{" "}
-                      needed)
-                    </Box>
-                  }
-                  value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
-                  meta={
-                    <Box css={{ marginTop: "$4" }}>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          marginBottom: "$2",
-                          justifyContent: "space-between",
+                {tabs.map((tab, i) => (
+                  <NextLink
+                    key={i}
+                    href={tab.href}
+                    passHref
+                    legacyBehavior
+                    scroll={false}
+                  >
+                    <A
+                      variant="subtle"
+                      data-active={tab.isActive ? "true" : undefined}
+                      aria-current={tab.isActive ? "page" : undefined}
+                      css={{
+                        color: tab.isActive ? "$hiContrast" : "$neutral11",
+                        marginRight: "$4",
+                        fontSize: "$3",
+                        fontWeight: 500,
+                        flex: "0 0 auto",
+                        whiteSpace: "nowrap",
+                        "&:hover": {
+                          textDecoration: "none",
                           color: "$hiContrast",
+                        },
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        as="span"
+                        css={{
+                          display: "flex",
+                          alignItems: "center",
+                          minHeight: 33,
+                          gap: "$1",
+                          paddingBottom: "$2",
+                          marginBottom: "-1px",
+                          position: "relative",
+                          zIndex: 2,
+                          borderBottom: "3px solid",
+                          borderColor: tab.isActive
+                            ? "$primary11"
+                            : "transparent",
                         }}
                       >
-                        <Flex css={{ alignItems: "center", gap: "$1" }}>
-                          <Box
-                            as={CheckCircledIcon}
-                            css={{ color: "$grass11", width: 14, height: 14 }}
-                          />
-                          <Box css={{ color: "$grass11" }}>
-                            For ({formatPercent(pollData.percent.yes)})
-                          </Box>
-                        </Flex>
-                        <Box as="span">
-                          {formatLPT(pollData.stake.yes, { precision: 4 })}
-                        </Box>
-                      </Flex>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Flex css={{ alignItems: "center", gap: "$1" }}>
-                          <Box
-                            as={CrossCircledIcon}
-                            css={{ color: "$tomato11", width: 14, height: 14 }}
-                          />
-                          <Box css={{ color: "$tomato11" }}>
-                            Against ({formatPercent(pollData.percent.no)})
-                          </Box>
-                        </Flex>
-                        <Box as="span">
-                          {formatLPT(pollData.stake.no, { precision: 4 })}
-                        </Box>
-                      </Flex>
-                    </Box>
-                  }
-                />
+                        {tab.name}
+                        {tab.count !== undefined && (
+                          <Badge size="1" variant="green">
+                            {tab.count}
+                          </Badge>
+                        )}
+                      </Box>
+                    </A>
+                  </NextLink>
+                ))}
+              </HorizontalScrollContainer>
 
-                <Stat
-                  css={{ flex: 1, mb: 0 }}
-                  label={
-                    <Box>
-                      Total Participation (
-                      {formatPercent(
-                        +pollData.quorum / PERCENTAGE_PRECISION_MILLION
-                      )}{" "}
-                      needed)
-                    </Box>
-                  }
-                  value={<Box>{formatPercent(pollData.percent.voters)}</Box>}
-                  meta={
-                    <Box css={{ marginTop: "$4" }}>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          marginBottom: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Box as="span" css={{ color: "$muted" }}>
-                          Voters ({formatPercent(pollData.percent.voters)})
+              <Box css={{ marginTop: "$4" }}>
+                <Box
+                  css={{ display: safeView === "overview" ? "block" : "none" }}
+                >
+                  <Box
+                    css={{
+                      display: "grid",
+                      gridGap: "$3",
+                      gridTemplateColumns: "100%",
+                      marginBottom: "$3",
+                      "@bp2": {
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(128px, 1fr))",
+                      },
+                    }}
+                  >
+                    <Stat
+                      css={{ flex: 1, mb: 0 }}
+                      label={
+                        <Box>
+                          Total Support (
+                          {formatPercent(
+                            +pollData.quota / PERCENTAGE_PRECISION_MILLION
+                          )}{" "}
+                          needed)
                         </Box>
-                        <Box as="span">
-                          <Box as="span">
-                            {formatLPT(pollData.stake.voters, { precision: 4 })}
-                          </Box>
+                      }
+                      value={<Box>{formatPercent(pollData.percent.yes)}</Box>}
+                      meta={
+                        <Box css={{ marginTop: "$4" }}>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              marginBottom: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Flex css={{ alignItems: "center", gap: "$1" }}>
+                              <Box
+                                as={CheckCircledIcon}
+                                css={{
+                                  color: "$grass11",
+                                  width: 14,
+                                  height: 14,
+                                }}
+                              />
+                              <Box css={{ color: "$grass11" }}>
+                                For ({formatPercent(pollData.percent.yes)})
+                              </Box>
+                            </Flex>
+                            <Box as="span">
+                              {formatLPT(pollData.stake.yes, { precision: 4 })}
+                            </Box>
+                          </Flex>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Flex css={{ alignItems: "center", gap: "$1" }}>
+                              <Box
+                                as={CrossCircledIcon}
+                                css={{
+                                  color: "$tomato11",
+                                  width: 14,
+                                  height: 14,
+                                }}
+                              />
+                              <Box css={{ color: "$tomato11" }}>
+                                Against ({formatPercent(pollData.percent.no)})
+                              </Box>
+                            </Flex>
+                            <Box as="span">
+                              {formatLPT(pollData.stake.no, { precision: 4 })}
+                            </Box>
+                          </Flex>
                         </Box>
-                      </Flex>
-                      <Flex
-                        css={{
-                          fontSize: "$2",
-                          justifyContent: "space-between",
-                          color: "$hiContrast",
-                        }}
-                      >
-                        <Box as="span" css={{ color: "$muted" }}>
-                          Nonvoters ({formatPercent(pollData.percent.nonVoters)}
-                          )
+                      }
+                    />
+
+                    <Stat
+                      css={{ flex: 1, mb: 0 }}
+                      label={
+                        <Box>
+                          Total Participation (
+                          {formatPercent(
+                            +pollData.quorum / PERCENTAGE_PRECISION_MILLION
+                          )}{" "}
+                          needed)
                         </Box>
-                        <Box as="span">
-                          <Box as="span">
-                            {formatLPT(pollData.stake.nonVoters, {
-                              precision: 4,
-                            })}
-                          </Box>
+                      }
+                      value={
+                        <Box>{formatPercent(pollData.percent.voters)}</Box>
+                      }
+                      meta={
+                        <Box css={{ marginTop: "$4" }}>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              marginBottom: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Box as="span" css={{ color: "$muted" }}>
+                              Voters ({formatPercent(pollData.percent.voters)})
+                            </Box>
+                            <Box as="span">
+                              <Box as="span">
+                                {formatLPT(pollData.stake.voters, {
+                                  precision: 4,
+                                })}
+                              </Box>
+                            </Box>
+                          </Flex>
+                          <Flex
+                            css={{
+                              fontSize: "$2",
+                              justifyContent: "space-between",
+                              color: "$hiContrast",
+                            }}
+                          >
+                            <Box as="span" css={{ color: "$muted" }}>
+                              Nonvoters (
+                              {formatPercent(pollData.percent.nonVoters)})
+                            </Box>
+                            <Box as="span">
+                              <Box as="span">
+                                {formatLPT(pollData.stake.nonVoters, {
+                                  precision: 4,
+                                })}
+                              </Box>
+                            </Box>
+                          </Flex>
                         </Box>
-                      </Flex>
-                    </Box>
-                  }
-                />
+                      }
+                    />
+                  </Box>
+                  <Card
+                    css={{
+                      padding: "$4",
+                      border: "1px solid $neutral4",
+                      marginBottom: "$3",
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                    }}
+                  >
+                    <MarkdownRenderer>
+                      {pollData.attributes?.text ?? ""}
+                    </MarkdownRenderer>
+                  </Card>
+                </Box>
               </Box>
-              <Card
-                css={{
-                  padding: "$4",
-                  border: "1px solid $neutral4",
-                  marginBottom: "$3",
-                  wordWrap: "break-word",
-                  overflowWrap: "break-word",
-                }}
-              >
-                <MarkdownRenderer>
-                  {pollData.attributes?.text ?? ""}
-                </MarkdownRenderer>
-              </Card>
+
+              <Box css={{ display: safeView === "votes" ? "block" : "none" }}>
+                {voteContent()}
+              </Box>
             </Box>
           </Flex>
 
@@ -388,6 +511,7 @@ const Poll = () => {
                     | undefined
                     | null,
                   myAccount: myAccountData as AccountQuery,
+                  votesTabHref,
                 }}
               />
             </Flex>
@@ -415,6 +539,7 @@ const Poll = () => {
                     | undefined
                     | null,
                   myAccount: myAccountData as AccountQuery,
+                  votesTabHref,
                 }}
               />
             </BottomDrawer>

@@ -61,6 +61,15 @@ export const parsePollIpfs = (ipfsObject?: IpfsPoll | null): Fm | null => {
   };
 };
 
+export const parsePollText = async (proposal: string): Promise<Fm | null> => {
+  try {
+    const ipfsObject = await catIpfsJson<IpfsPoll>(proposal);
+    return parsePollIpfs(ipfsObject);
+  } catch {
+    return null;
+  }
+};
+
 export const getPollExtended = async (
   poll:
     | NonNullable<PollsQueryResult["data"]>["polls"][number]

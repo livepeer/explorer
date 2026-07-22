@@ -2,8 +2,9 @@ import {
   CheckCircledIcon,
   CrossCircledIcon,
   MinusCircledIcon,
+  QuestionMarkCircledIcon,
 } from "@radix-ui/react-icons";
-import { TreasuryVoteSupport } from "apollo";
+import { PollChoice, TreasuryVoteSupport } from "apollo";
 
 // Standardized Poll Votes ("0" is yes/for)
 export const POLL_VOTES = {
@@ -26,6 +27,15 @@ export const POLL_VOTES = {
     text: "Against",
     icon: CrossCircledIcon,
     style: { color: "$tomato11", backgroundColor: "$tomato3", fontWeight: 600 },
+  },
+  unknown: {
+    text: "Unknown",
+    icon: QuestionMarkCircledIcon,
+    style: {
+      color: "$neutral11",
+      backgroundColor: "$neutral3",
+      fontWeight: 600,
+    },
   },
 } as const;
 
@@ -56,6 +66,9 @@ export const VOTING_SUPPORT_MAP = {
   [TreasuryVoteSupport.Against]: TREASURY_VOTES.against,
   [TreasuryVoteSupport.For]: TREASURY_VOTES.for,
   [TreasuryVoteSupport.Abstain]: TREASURY_VOTES.abstain,
+  [PollChoice.Yes]: POLL_VOTES.Yes,
+  [PollChoice.No]: POLL_VOTES.No,
+  ["Unknown"]: POLL_VOTES.unknown,
 } as const;
 
 // Legacy support (to be replaced by POLL_VOTES or TREASURY_VOTES)
