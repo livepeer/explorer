@@ -2,11 +2,6 @@ import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
 import { formatLPT } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { UnbondingLock } from "apollo";
-import {
-  useCurrentRoundData,
-  useSubgraphDegraded,
-  useUnbondingLocksData,
-} from "hooks";
 import { useMemo } from "react";
 import { parseEther } from "viem";
 
@@ -18,54 +13,20 @@ import WithdrawStake from "../WithdrawStake";
 const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
   const isBonded = !!delegator.delegate;
 
-  // TEMPORARY, with the subgraph outage: locks created after indexing stopped
-  // are missing here, so an unbond looks like it never happened. Append the
-  // ones above the subgraph's highest known id, read from the chain. The round
-  // comes from the chain too, or a stale one leaves a matured lock stuck in
-  // "Pending" with no withdraw button. Remove once indexing has recovered.
-  const degraded = useSubgraphDegraded();
-
-  const nextLockId = useMemo(
-    () =>
-      delegator.unbondingLocks.reduce(
-        (next: number, lock: UnbondingLock) =>
-          Math.max(next, lock.unbondingLockId + 1),
-        0
-      ),
-    [delegator.unbondingLocks]
-  );
-  const missing = useUnbondingLocksData(
-    degraded && isMyAccount ? delegator.id : null,
-    nextLockId
-  );
-
-  const locks = useMemo(
-    () =>
-      missing?.locks.length
-        ? [...delegator.unbondingLocks, ...missing.locks]
-        : delegator.unbondingLocks,
-    [delegator.unbondingLocks, missing]
-  );
-
-  const onchainRound = useCurrentRoundData();
-  const roundId = Number(onchainRound?.id ?? currentRound.id);
-
-  const pendingStakeTransactions = useMemo(
-    () =>
-      locks.filter(
-        (item: UnbondingLock) =>
-          item.withdrawRound && +item.withdrawRound > roundId
-      ),
-    [locks, roundId]
-  );
-  const completedStakeTransactions = useMemo(
-    () =>
-      locks.filter(
-        (item: UnbondingLock) =>
-          item.withdrawRound && +item.withdrawRound <= roundId
-      ),
-    [locks, roundId]
-  );
+  const pendingStakeTransactions = useMemo(() => {
+    const roundId = parseInt(currentRound.id, 10);
+    return delegator.unbondingLocks.filter(
+      (item: UnbondingLock) =>
+        item.withdrawRound && +item.withdrawRound > roundId
+    );
+  }, [delegator.unbondingLocks, currentRound.id]);
+  const completedStakeTransactions = useMemo(() => {
+    const roundId = parseInt(currentRound.id, 10);
+    return delegator.unbondingLocks.filter(
+      (item: UnbondingLock) =>
+        item.withdrawRound && +item.withdrawRound <= roundId
+    );
+  }, [delegator.unbondingLocks, currentRound.id]);
 
   return (
     <Box css={{ marginTop: "$6" }}>
@@ -114,7 +75,8 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     </Box>
                     <Text variant="neutral" size="1">
                       Tokens will be available for withdrawal in approximately{" "}
-                      {+lock.withdrawRound - roundId} days.
+                      {+lock.withdrawRound - parseInt(currentRound.id, 10)}{" "}
+                      days.
                     </Text>
                   </Box>
                   <Flex
