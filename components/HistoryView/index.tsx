@@ -11,6 +11,7 @@ import {
   Flex,
   Link as A,
   styled,
+  Text,
 } from "@livepeer/design-system";
 import {
   formatETH,
@@ -32,6 +33,12 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
 
+import {
+  ALL_FILTER_KEYS,
+  EventFilterKey,
+  TYPENAME_TO_FILTER,
+} from "./HistoryFilter";
+
 const PAGE_SIZE = 25;
 
 const Card = styled(CardBase, {
@@ -41,7 +48,27 @@ const Card = styled(CardBase, {
   p: "$4",
 });
 
-const Index = () => {
+// Matches the empty-state card used by GatewayList / DelegatorList so empty
+// account lists look consistent across the app.
+const EmptyState = ({ children }: { children: React.ReactNode }) => (
+  <Box
+    css={{
+      marginTop: "$3",
+      border: "1px solid $neutral4",
+      borderRadius: "$4",
+      padding: "$4",
+      backgroundColor: "$neutral3",
+    }}
+  >
+    <Text>{children}</Text>
+  </Box>
+);
+
+const Index = ({
+  selectedFilters,
+}: {
+  selectedFilters: Set<EventFilterKey>;
+}) => {
   const router = useRouter();
   const query = router.query;
   const account = query.account as string;
@@ -61,6 +88,13 @@ const Index = () => {
   });
 
   const [reachedEnd, setReachedEnd] = useState(false);
+
+  // Event-type filter selection is owned by the account layout (so the filter
+  // button can live on the nav row); here we only consume it.
+  const isFiltered = selectedFilters.size !== ALL_FILTER_KEYS.length;
+  // Zero types selected — the user explicitly wants nothing shown, so we must
+  // never auto-load history chasing matches that cannot exist.
+  const noneSelected = selectedFilters.size === 0;
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -196,6 +230,18 @@ const Index = () => {
     ]
   );
 
+  const visibleEvents = useMemo(
+    () =>
+      mergedEvents.filter((event) => {
+        const key = TYPENAME_TO_FILTER[event?.__typename ?? ""];
+        // Only event types we actually render (and can filter on) are shown.
+        // Unmapped types render as null anyway, so excluding them keeps the
+        // visible count accurate (e.g. so the empty state shows for "None").
+        return key ? selectedFilters.has(key) : false;
+      }),
+    [mergedEvents, selectedFilters]
+  );
+
   const totalLoaded = Math.max(
     data?.transactions?.length ?? 0,
     data?.winningTicketRedeemedEvents?.length ?? 0
@@ -203,8 +249,10 @@ const Index = () => {
 
   const fetchingRef = useRef(false);
   const fetchNext = useCallback(async () => {
-    // Concurrency lock — ref so it's synchronous.
-    if (fetchingRef.current || loading) return;
+    // Concurrency lock — ref so it's synchronous. Also stop once we've reached
+    // the end or there was never more than a page to begin with.
+    if (fetchingRef.current || loading || reachedEnd || totalLoaded < PAGE_SIZE)
+      return;
     fetchingRef.current = true;
 
     try {
@@ -238,22 +286,42 @@ const Index = () => {
     } finally {
       fetchingRef.current = false;
     }
-  }, [loading, totalLoaded, fetchMoreTransactions]);
+  }, [loading, reachedEnd, totalLoaded, fetchMoreTransactions]);
 
-  // Create a sentinel ref and observe it while more pages are available.
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  // Keep the latest fetchNext / noneSelected in refs so the sentinel observer
+  // can read them without being torn down and re-created on every render.
+  // Re-creating the observer re-fires on the already-in-view sentinel, which
+  // (for a short, filtered list) would crawl the entire history.
+  const fetchNextRef = useRef(fetchNext);
+  const noneSelectedRef = useRef(noneSelected);
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el || reachedEnd || totalLoaded < PAGE_SIZE) return;
+    fetchNextRef.current = fetchNext;
+    noneSelectedRef.current = noneSelected;
+  });
+
+  // Infinite scroll: load the next page when the sentinel scrolls into view.
+  // Loading is filter-agnostic — identical to the unfiltered view — so the
+  // filter only changes what is displayed, never what is fetched. fetchNext()
+  // no-ops once the end is reached. The callback ref attaches the observer once
+  // when the sentinel mounts, so paging never self-retriggers.
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    if (!node) {
+      observerRef.current = null;
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) fetchNext();
+        if (entry.isIntersecting && !noneSelectedRef.current) {
+          fetchNextRef.current();
+        }
       },
       { rootMargin: "200px" }
     );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [fetchNext, reachedEnd, totalLoaded]);
+    observer.observe(node);
+    observerRef.current = observer;
+  }, []);
 
   if (error) {
     console.error(error);
@@ -278,7 +346,7 @@ const Index = () => {
     !data?.transactions?.length &&
     !data?.winningTicketRedeemedEvents?.length
   ) {
-    return <Box css={{ paddingTop: "$3" }}>No history</Box>;
+    return <EmptyState>No history</EmptyState>;
   }
 
   return (
@@ -291,9 +359,18 @@ const Index = () => {
       }}
     >
       <Box css={{ paddingBottom: "$3" }}>
-        {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
+        {visibleEvents.map((event, i: number) => renderSwitch(event, i))}
       </Box>
-      {totalLoaded >= PAGE_SIZE && !reachedEnd && (
+      {visibleEvents.length === 0 && !loading && (
+        <EmptyState>
+          {noneSelected
+            ? "Select at least one event type to view history."
+            : isFiltered
+            ? "No events match the selected filters."
+            : "No history"}
+        </EmptyState>
+      )}
+      {!noneSelected && loading && !reachedEnd && (
         <Flex
           css={{
             position: "absolute",
