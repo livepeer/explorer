@@ -77,8 +77,12 @@ const DelegatorList = ({
           </ExplorerTooltip>
         ),
         accessor: "id",
-        Cell: ({ row, value }) => {
+        Cell: ({ row, rows, value }) => {
           const address = value as string;
+          // row.index is the position in the original data array; use the row's
+          // position in the sorted row model so the ordinal reflects the visible
+          // order and stays continuous across sorting and pagination.
+          const ordinal = rows.indexOf(row) + 1;
           const identity = useEnsData(address);
           const ensName = identity?.name;
           const shortAddress = address.replace(address.slice(6, 38), "…");
@@ -113,7 +117,7 @@ const DelegatorList = ({
                     alignItems: "center",
                   }}
                 >
-                  {row.index + 1}
+                  {ordinal}
                 </Box>
                 <Flex css={{ marginRight: "$2", alignItems: "center" }}>
                   <IdentityAvatar
