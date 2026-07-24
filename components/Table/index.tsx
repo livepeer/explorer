@@ -46,6 +46,7 @@ function DataTable<T extends object>({
   data,
   columns,
   initialState = {},
+  minWidth = 960,
   autoResetPage,
   autoResetSortBy,
   onStateChange,
@@ -55,6 +56,7 @@ function DataTable<T extends object>({
   data: T[];
   columns: Column<T>[];
   initialState: TableInitialState<T>;
+  minWidth?: number;
   autoResetPage?: boolean;
   autoResetSortBy?: boolean;
   onStateChange?: (state: PersistedTableState<T>) => void;
@@ -126,7 +128,7 @@ function DataTable<T extends object>({
               css={{
                 borderCollapse: "collapse",
                 tableLayout: "auto",
-                minWidth: 960,
+                minWidth,
                 width: "100%",
                 "@bp4": {
                   width: "100%",
