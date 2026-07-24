@@ -185,7 +185,7 @@ const DelegatorList = ({
               </Box>
             }
           >
-            <Box css={{ width: 80 }}>Pending Rewards</Box>
+            <Box css={{ whiteSpace: "nowrap" }}>Pending Rewards</Box>
           </ExplorerTooltip>
         ),
         // Live pendingStake is fetched per row (on-screen only), so this column
@@ -219,7 +219,7 @@ const DelegatorList = ({
             multiline
             content={<Box>The round this account became bonded.</Box>}
           >
-            <Box css={{ width: 60 }}>Start Round</Box>
+            <Box css={{ whiteSpace: "nowrap" }}>Start Round</Box>
           </ExplorerTooltip>
         ),
         accessor: "startRoundNumber",
