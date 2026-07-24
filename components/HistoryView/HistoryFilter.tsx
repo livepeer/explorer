@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Text,
 } from "@livepeer/design-system";
-import { MixerHorizontalIcon } from "@radix-ui/react-icons";
+import { CheckIcon, MixerHorizontalIcon } from "@radix-ui/react-icons";
 
 export type EventFilterKey =
   | "delegated"
@@ -77,13 +77,12 @@ export const ALL_FILTER_KEYS: EventFilterKey[] = EVENT_FILTERS.map(
   (f) => f.key
 );
 
-// Shared style for the "All"/"None" text buttons in the popover header.
-const headerActionCss = {
-  all: "unset",
-  cursor: "pointer",
-  fontSize: "$1",
-  color: "$primary11",
-  "&:hover": { textDecoration: "underline" },
+// Shared checkbox styling: a solid fill plus a stronger border so the box
+// reads clearly against the $neutral4 popover background (the design-system
+// default $neutral7 outline is too faint here).
+const checkboxCss = {
+  backgroundColor: "$loContrast",
+  boxShadow: "inset 0 0 0 1px $colors$neutral8",
 } as const;
 
 // Reverse lookup from an event's __typename to the filter key it belongs to.
@@ -111,6 +110,10 @@ const HistoryFilter = ({
   const activeCount = selected.size;
   // A filter is "active" whenever the selection differs from showing everything.
   const isFiltered = activeCount !== EVENT_FILTERS.length;
+  const allSelected = activeCount === EVENT_FILTERS.length;
+  const noneSelected = activeCount === 0;
+  // Single toggle: when everything is on, clicking clears; otherwise select all.
+  const handleToggleAll = () => (allSelected ? onClear() : onSelectAll());
 
   return (
     <Popover>
@@ -154,34 +157,59 @@ const HistoryFilter = ({
         }}
       >
         <Flex
+          role="checkbox"
+          aria-checked={allSelected ? true : noneSelected ? false : "mixed"}
+          aria-label="Select all event types"
+          tabIndex={0}
+          onClick={handleToggleAll}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleToggleAll();
+            }
+          }}
           css={{
             alignItems: "center",
-            justifyContent: "space-between",
+            gap: "$2",
             padding: "$3",
             borderBottom: "1px solid $neutral6",
+            cursor: "pointer",
+            userSelect: "none",
+            "&:hover": { bc: "$neutral5" },
+            "&:focus-visible": { outline: "2px solid $primary11" },
           }}
         >
+          <Flex
+            aria-hidden
+            css={{
+              ...checkboxCss,
+              width: "$3",
+              height: "$3",
+              flexShrink: 0,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "$1",
+              overflow: "hidden",
+              color: "$hiContrast",
+            }}
+          >
+            {allSelected && (
+              <Box as={CheckIcon} css={{ width: 15, height: 15 }} />
+            )}
+            {!allSelected && !noneSelected && (
+              <Box
+                css={{
+                  width: 8,
+                  height: 2,
+                  borderRadius: "$1",
+                  backgroundColor: "$hiContrast",
+                }}
+              />
+            )}
+          </Flex>
           <Text size="1" css={{ fontWeight: 600, textTransform: "uppercase" }}>
             Event types
           </Text>
-          <Flex css={{ gap: "$3" }}>
-            <Box
-              as="button"
-              type="button"
-              onClick={onSelectAll}
-              css={headerActionCss}
-            >
-              All
-            </Box>
-            <Box
-              as="button"
-              type="button"
-              onClick={onClear}
-              css={headerActionCss}
-            >
-              None
-            </Box>
-          </Flex>
         </Flex>
         <Box css={{ padding: "$2", maxHeight: 320, overflowY: "auto" }}>
           {EVENT_FILTERS.map((filter) => {
@@ -213,7 +241,7 @@ const HistoryFilter = ({
                 <Checkbox
                   checked={checked}
                   // The row's onClick is the single source of truth for toggling.
-                  css={{ pointerEvents: "none" }}
+                  css={{ ...checkboxCss, pointerEvents: "none" }}
                   tabIndex={-1}
                 />
                 <Text size="2">{filter.label}</Text>
