@@ -83,6 +83,8 @@ const Index = () => {
   const isVoteEvent = isType("VoteEvent");
   const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
 
+  // Clamps tickets/rewards to the oldest loaded transaction so rows only
+  // append; nothing is stranded, registration precedes both.
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
@@ -170,18 +172,30 @@ const Index = () => {
     }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
-  // WinningTicketRedeemedEvents, VoteEvents, and TreasuryVoteEvents are replaced
-  // with enriched versions (direction-tagged tickets, IPFS-enriched votes)
+  // Orchestrator-keyed so delegated reward calls, whose transaction is sent by
+  // the reward caller, are included too.
+  const rewardEvents = useMemo(
+    () =>
+      data?.rewardEvents?.filter(
+        (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+      ) ?? [],
+    [data?.rewardEvents, lastEventTimestamp]
+  );
+
   const mergedEvents = useMemo(
     () =>
       [
+        // Dropped here and re-added below from the enriched (tickets, votes)
+        // and superset (rewards) lists, so they are not listed twice.
         ...events.filter(
           (e) =>
             e?.__typename !== "WinningTicketRedeemedEvent" &&
             e?.__typename !== "TreasuryVoteEvent" &&
-            e?.__typename !== "VoteEvent"
+            e?.__typename !== "VoteEvent" &&
+            e?.__typename !== "RewardEvent"
         ),
         ...ticketEvents,
+        ...rewardEvents,
         ...extendedTreasuryVoteEventsData,
         ...extendedVoteEventsData,
       ].sort(
@@ -191,6 +205,7 @@ const Index = () => {
     [
       events,
       ticketEvents,
+      rewardEvents,
       extendedTreasuryVoteEventsData,
       extendedVoteEventsData,
     ]
@@ -198,7 +213,8 @@ const Index = () => {
 
   const totalLoaded = Math.max(
     data?.transactions?.length ?? 0,
-    data?.winningTicketRedeemedEvents?.length ?? 0
+    data?.winningTicketRedeemedEvents?.length ?? 0,
+    data?.rewardEvents?.length ?? 0
   );
 
   const fetchingRef = useRef(false);
@@ -210,11 +226,19 @@ const Index = () => {
     try {
       await fetchMoreTransactions({
         variables: {
+          // Shared skip: a shorter list is only over-skipped once exhausted.
           skip: totalLoaded,
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
-          if (fetchMoreResult.transactions.length < PAGE_SIZE)
+          // Stop only once every list is exhausted. Rewards and ticket
+          // redemptions can be submitted by another address, so neither list is
+          // bounded by `transactions`.
+          if (
+            fetchMoreResult.transactions.length < PAGE_SIZE &&
+            fetchMoreResult.winningTicketRedeemedEvents.length < PAGE_SIZE &&
+            fetchMoreResult.rewardEvents.length < PAGE_SIZE
+          )
             setReachedEnd(true);
 
           return {
@@ -223,12 +247,13 @@ const Index = () => {
               ...previousResult.transactions,
               ...fetchMoreResult.transactions,
             ],
-            // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
-            // So, we will always have winning ticket events that are older than the last transaction timestamp
-            // Allowing mergedEvents to filter correctly
             winningTicketRedeemedEvents: [
               ...previousResult.winningTicketRedeemedEvents,
               ...fetchMoreResult.winningTicketRedeemedEvents,
+            ],
+            rewardEvents: [
+              ...previousResult.rewardEvents,
+              ...fetchMoreResult.rewardEvents,
             ],
           };
         },
@@ -276,7 +301,8 @@ const Index = () => {
 
   if (
     !data?.transactions?.length &&
-    !data?.winningTicketRedeemedEvents?.length
+    !data?.winningTicketRedeemedEvents?.length &&
+    !data?.rewardEvents?.length
   ) {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
