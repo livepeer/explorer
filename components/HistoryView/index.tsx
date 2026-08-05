@@ -591,8 +591,7 @@ function renderSwitch(event, i: number) {
           </Flex>
         </Card>
       );
-    case "RewardCallerSetEvent": {
-      const isUnset = event.rewardCaller === EMPTY_ADDRESS;
+    case "RewardCallerSetEvent":
       return (
         <Card
           as={A}
@@ -616,7 +615,9 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                {isUnset ? "Removed reward caller" : "Set reward caller"}
+                {event.rewardCaller === EMPTY_ADDRESS
+                  ? "Removed reward caller"
+                  : `Set reward caller ${formatAddress(event.rewardCaller)}`}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -630,17 +631,9 @@ function renderSwitch(event, i: number) {
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
-            {!isUnset && (
-              <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-                <Box as="span" css={{ fontWeight: 600 }}>
-                  {formatAddress(event.rewardCaller)}
-                </Box>
-              </Box>
-            )}
           </Flex>
         </Card>
       );
-    }
     case "TranscoderUpdateEvent":
       return (
         <Card
