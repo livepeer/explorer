@@ -172,9 +172,8 @@ const Index = () => {
     }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
-  // Covers both sides of a delegated reward call: the orchestrator it was made
-  // for, and the reward caller that made it. Tagged here because renderSwitch
-  // has no access to the account.
+  // Covers both sides of a reward call: the orchestrator it was made for, and
+  // the reward caller that made it.
   const rewardEvents = useMemo(() => {
     const accountLower = account.toLowerCase();
     return (
@@ -182,7 +181,7 @@ const Index = () => {
         ?.filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
         .map((e) => ({
           ...e,
-          isCaller: e?.delegate?.id?.toLowerCase() !== accountLower,
+          isRewardCaller: e?.delegate?.id?.toLowerCase() !== accountLower,
         })) ?? []
     );
   }, [data?.rewardEvents, account, lastEventTimestamp]);
@@ -559,7 +558,7 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                {event.isCaller
+                {event.isRewardCaller
                   ? `Called reward for ${formatAddress(event.delegate.id)}`
                   : "Claimed inflationary token reward"}
               </Box>
@@ -575,9 +574,8 @@ function renderSwitch(event, i: number) {
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
-            {/* The reward is minted for the orchestrator, so the amount is only
-                shown on its own history - never on the reward caller's. */}
-            {!event.isCaller && (
+            {/* Minted for the orchestrator, never earned by the reward caller. */}
+            {!event.isRewardCaller && (
               <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
                 {" "}
                 <Box as="span" css={{ fontWeight: 600 }}>
