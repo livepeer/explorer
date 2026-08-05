@@ -46,6 +46,11 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       ... on RewardEvent {
         rewardTokens
       }
+      # Sent by the orchestrator itself (setRewardCaller uses msg.sender), so
+      # the `from`-keyed query above already carries it.
+      ... on RewardCallerSetEvent {
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         amount
       }
@@ -132,14 +137,17 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       id
     }
   }
-  # Keyed on the orchestrator (RewardEvent.delegate), not the transaction sender.
-  # Since LIP-118 a delegated reward caller may submit reward() on the
-  # orchestrator's behalf, so those calls are absent from the transactions query
-  # above, which filters on `from`.
+  # Since LIP-118 the reward() sender and the orchestrator being rewarded can be
+  # two different addresses, and neither side is covered by the `from`-keyed
+  # transactions query above: match the orchestrator (delegate) so its delegated
+  # calls are listed, and the sender so a nominated reward caller sees the calls
+  # it made. `or` returns distinct entities, so a self-call is listed once.
   rewardEvents(
     orderBy: timestamp
     orderDirection: desc
-    where: { delegate: $account }
+    where: {
+      or: [{ delegate: $account }, { transaction_: { from: $account } }]
+    }
     first: $first
     skip: $skip
   ) {
@@ -153,5 +161,8 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       timestamp
     }
     rewardTokens
+    delegate {
+      id
+    }
   }
 }
