@@ -1,5 +1,8 @@
 query meta {
   _meta {
+    block {
+      number
+    }
     hasIndexingErrors
   }
 }

@@ -97,7 +97,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
       (prev, curr) => {
-        const score = scores?.scores[curr];
+        const score = scores?.scores?.[curr];
         const region =
           knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
         if (
@@ -107,7 +107,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         ) {
           return {
             region: region,
-            score: scores?.scores[curr],
+            score,
           };
         }
         return prev;
@@ -128,8 +128,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           precision: 1,
         })} - ${maxScore.transcoding.region}`
       : "";
-    return outputTrans ? transcodingInfo : "N/A";
-  }, [maxScore]);
+    if (outputTrans) return transcodingInfo;
+    return scores?.scores === null ? "Unavailable" : "N/A";
+  }, [maxScore, scores]);
 
   const maxAIScoreOutput = useMemo(() => {
     const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
@@ -148,8 +149,11 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           score: aiInfo,
           modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
         }
-      : { score: "N/A", modelText: "" };
-  }, [knownRegions?.regions, maxScore]);
+      : {
+          score: scores?.topAIScore === null ? "Unavailable" : "N/A",
+          modelText: "",
+        };
+  }, [knownRegions?.regions, maxScore, scores]);
 
   return (
     <Box
@@ -223,7 +227,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to gateways. This may be different from on-chain pricing."
-          value={scores ? `${formatNumber(scores.pricePerPixel)} WEI` : "N/A"}
+          value={
+            !scores
+              ? "N/A"
+              : scores.pricePerPixel === null
+              ? "Unavailable"
+              : `${formatNumber(scores.pricePerPixel)} WEI`
+          }
         />
         {/* <Stat
           className="masonry-grid_item"

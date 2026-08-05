@@ -10,12 +10,19 @@ import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { formatNumber, formatPercent } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { OrchestratorsQueryResult } from "apollo";
-import { useEnsData } from "hooks";
+import { useEnsData, usePersistedExplorerListState } from "hooks";
 import Link from "next/link";
 import { useMemo } from "react";
 import { Column } from "react-table";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
+
+const DEFAULT_SORT_BY = [
+  {
+    id: "scores",
+    desc: true,
+  },
+];
 
 const PerformanceList = ({
   orchestratorIds,
@@ -41,15 +48,28 @@ const PerformanceList = ({
   const scoreAccessor = `scores.${region}`; //total score
   const successRateAccessor = `successRates.${region}`; //success rate
   const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
+  const listKey = useMemo(
+    () =>
+      [
+        "leaderboard-performance",
+        region,
+        pipeline ?? "transcoding",
+        model ?? "default",
+      ].join(":"),
+    [model, pipeline, region]
+  );
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey,
+      routePath: "/leaderboard",
+    });
 
   const initialState = {
+    pageIndex: persistedState.pageIndex,
     pageSize: pageSize,
-    sortBy: [
-      {
-        id: "scores",
-        desc: true,
-      },
-    ],
+    sortBy: persistedState.sortBy.length
+      ? persistedState.sortBy
+      : DEFAULT_SORT_BY,
     hiddenColumns: [
       "activationRound",
       "deactivationRound",
@@ -320,7 +340,17 @@ const PerformanceList = ({
     ]
   );
   return (
-    <Table data={mergedData} columns={columns} initialState={initialState} />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        key={listKey}
+        data={mergedData}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={initialState}
+      />
+    </Box>
   );
 };
 
