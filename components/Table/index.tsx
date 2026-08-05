@@ -9,19 +9,36 @@ import {
   Tr,
 } from "@livepeer/design-system";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   Column,
   HeaderGroup,
+  SortingRule,
   TableInstance,
+  TableOptions,
+  TableState,
   usePagination,
   UsePaginationInstanceProps,
+  UsePaginationOptions,
+  UsePaginationState,
   useSortBy,
   UseSortByInstanceProps,
+  UseSortByOptions,
+  UseSortByState,
   useTable,
 } from "react-table";
 
 import Pagination from "./Pagination";
+
+type TableInitialState<T extends object> = Partial<TableState<T>> &
+  Partial<UsePaginationState<T>> &
+  Partial<UseSortByState<T>>;
+
+type PersistedTableState<T extends object> = {
+  pageIndex: number;
+  pageSize: number;
+  sortBy: SortingRule<T>[];
+};
 
 function DataTable<T extends object>({
   heading = null,
@@ -29,13 +46,29 @@ function DataTable<T extends object>({
   data,
   columns,
   initialState = {},
+  autoResetPage,
+  autoResetSortBy,
+  onStateChange,
 }: {
   heading?: ReactNode;
   input?: ReactNode;
   data: T[];
   columns: Column<T>[];
-  initialState: object;
+  initialState: TableInitialState<T>;
+  autoResetPage?: boolean;
+  autoResetSortBy?: boolean;
+  onStateChange?: (state: PersistedTableState<T>) => void;
 }) {
+  const tableOptions: TableOptions<T> &
+    UsePaginationOptions<T> &
+    UseSortByOptions<T> = {
+    columns,
+    data,
+    initialState,
+    autoResetPage,
+    autoResetSortBy,
+  };
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -47,18 +80,16 @@ function DataTable<T extends object>({
     pageCount,
     nextPage,
     previousPage,
-    state: { pageIndex },
-  } = useTable<T>(
-    {
-      columns,
-      data,
-      initialState,
-    },
-    useSortBy,
-    usePagination
-  ) as TableInstance<T> &
+    state: { pageIndex, pageSize, sortBy },
+  } = useTable<T>(tableOptions, useSortBy, usePagination) as TableInstance<T> &
     UsePaginationInstanceProps<T> &
-    UseSortByInstanceProps<T> & { state: { pageIndex: number } };
+    UseSortByInstanceProps<T> & {
+      state: UsePaginationState<T> & UseSortByState<T>;
+    };
+
+  useEffect(() => {
+    onStateChange?.({ pageIndex, pageSize, sortBy });
+  }, [onStateChange, pageIndex, pageSize, sortBy]);
 
   return (
     <>

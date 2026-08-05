@@ -8,6 +8,7 @@ import {
 import {
   PerformanceMetrics,
   RegionalValues,
+  Score,
 } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
@@ -30,14 +31,6 @@ export type MetricsResponse = {
     | undefined;
 };
 
-type ScoreResponse = {
-  value: number;
-  region: string;
-  model: string;
-  pipeline: string;
-  orchestrator: string;
-};
-
 export type PriceResponse = {
   Address: string;
   ServiceURI: string;
@@ -53,6 +46,34 @@ export type PriceResponse = {
   UpdatedAt: number;
 }[];
 
+/**
+ * Fetch and parse JSON from a given URL.
+ * @returns The parsed JSON, or null if the fetch fails. Never rejects, so one
+ * failed upstream cannot reject a Promise.all.
+ */
+const fetchJson = async <T,>(url: string): Promise<T | null> => {
+  try {
+    const response = await fetchWithRetry(url);
+
+    if (!response.ok) {
+      console.error(
+        `Fetch error: ${url}`,
+        response.status,
+        (await response.text()).slice(0, 500)
+      );
+      return null;
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error(
+      `Fetch error: ${url}`,
+      err instanceof Error ? err.message : err
+    );
+    return null;
+  }
+};
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<PerformanceMetrics | null>
@@ -63,8 +84,6 @@ const handler = async (
     if (method === "GET") {
       const { address } = req.query;
 
-      res.setHeader("Cache-Control", getCacheControlHeader("hour"));
-
       if (!!address && !Array.isArray(address) && isAddress(address)) {
         const transcoderId = address.toLowerCase();
 
@@ -72,54 +91,32 @@ const handler = async (
         const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
         const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
 
-        const [topScoreResponse, metricsResponse, priceResponse] =
-          await Promise.all([
-            fetchWithRetry(topScoreUrl),
-            fetchWithRetry(metricsUrl),
-            fetchWithRetry(pricingUrl),
-          ]);
+        const [topAIScore, metrics, transcodersWithPrice] = await Promise.all([
+          fetchJson<Score>(topScoreUrl),
+          fetchJson<MetricsResponse>(metricsUrl),
+          fetchJson<PriceResponse>(pricingUrl),
+        ]);
 
-        if (!topScoreResponse.ok) {
-          const errorText = await topScoreResponse.text();
-          console.error(
-            "Top AI score fetch error:",
-            topScoreResponse.status,
-            errorText
-          );
-          return externalApiError(res, "AI metrics server");
+        // Every upstream being down is never a legitimate empty state, so fail
+        // loudly rather than rendering a healthy-looking orchestrator with no data.
+        if (!topAIScore && !metrics && !transcodersWithPrice) {
+          return externalApiError(res, "all metrics servers");
         }
 
-        if (!metricsResponse.ok) {
-          const errorText = await metricsResponse.text();
-          console.error(
-            "Metrics fetch error:",
-            metricsResponse.status,
-            errorText
-          );
-          return externalApiError(res, "metrics server");
-        }
+        // Expire quickly so upstream recovery is not hidden for an hour.
+        const degraded = !topAIScore || !metrics || !transcodersWithPrice;
+        res.setHeader(
+          "Cache-Control",
+          getCacheControlHeader(degraded ? "minute" : "hour")
+        );
 
-        if (!priceResponse.ok) {
-          const errorText = await priceResponse.text();
-          console.error(
-            "Transcoder price fetch error:",
-            priceResponse.status,
-            errorText
-          );
-          return externalApiError(res, "pricing server");
-        }
-
-        const topAIScore: ScoreResponse = await topScoreResponse.json();
-        const metrics: MetricsResponse = await metricsResponse.json();
-        const transcodersWithPrice: PriceResponse = await priceResponse.json();
-
-        const transcoderWithPrice = transcodersWithPrice.find((t) =>
+        const transcoderWithPrice = transcodersWithPrice?.find((t) =>
           checkAddressEquality(t.Address, transcoderId)
         );
 
         const uniqueRegions = (() => {
           const keys = new Set<string>();
-          Object.values(metrics).forEach((metric) => {
+          Object.values(metrics ?? {}).forEach((metric) => {
             if (metric) {
               Object.keys(metric).forEach((key) => keys.add(key));
             }
@@ -130,8 +127,10 @@ const handler = async (
         const createMetricsObject = (
           metricKey: keyof Metric,
           transcoderId: string,
-          metrics: MetricsResponse
-        ): RegionalValues => {
+          metrics: MetricsResponse | null
+        ): RegionalValues | null => {
+          if (!metrics) return null;
+
           const metricsObject: RegionalValues = uniqueRegions.reduce(
             (acc, metricsRegionKey) => {
               const value =
@@ -153,7 +152,9 @@ const handler = async (
         };
 
         const combined: PerformanceMetrics = {
-          pricePerPixel: transcoderWithPrice?.PricePerPixel ?? 0,
+          pricePerPixel: transcodersWithPrice
+            ? transcoderWithPrice?.PricePerPixel ?? 0
+            : null,
           successRates: createMetricsObject(
             "success_rate",
             transcoderId,

@@ -59,6 +59,7 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
+import { FiInfo } from "react-icons/fi";
 import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
@@ -71,6 +72,7 @@ import {
   useExplorerStore,
   useOnClickOutside,
   usePendingFeesAndStakeData,
+  useSubgraphDegraded,
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
@@ -142,6 +144,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
+  const subgraphDegraded = useSubgraphDegraded();
 
   const viewedAccountId = query?.account?.toString().toLowerCase();
   const { data: viewedAccountData } = useAccountQuery({
@@ -412,6 +415,45 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
             )}
             {bannerActive && (
               <URLVerificationBanner onDismiss={onBannerDismiss} />
+            )}
+            {subgraphDegraded && (
+              <Flex
+                role="status"
+                css={{
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "$blue3",
+                  borderBottom: "1px solid $blue6",
+                  fontSize: "$2",
+                  gap: "$2",
+                  paddingLeft: "$4",
+                  paddingRight: "$4",
+                  paddingTop: "$2",
+                  paddingBottom: "$2",
+                  textAlign: "center",
+                  "@bp3": {
+                    fontSize: "$3",
+                  },
+                }}
+              >
+                <Box
+                  as={FiInfo}
+                  aria-hidden="true"
+                  css={{
+                    color: "$blue11",
+                    width: 16,
+                    height: 16,
+                    flexShrink: 0,
+                  }}
+                />
+                <Text
+                  css={{ color: "$blue11", fontWeight: 400, lineHeight: 1.4 }}
+                >
+                  Some Explorer data may be temporarily out of date due to a
+                  subgraph indexing issue — the protocol is operating normally.
+                </Text>
+              </Flex>
             )}
 
             <Box css={{}}>

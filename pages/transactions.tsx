@@ -72,7 +72,9 @@ const TransactionsPage = ({ hadError, events }: PageProps) => {
                     EventsQueryResult["data"]
                   >["transactions"][number]["events"]
                 }
+                listKey="transactions"
                 pageSize={TRANSACTIONS_PER_PAGE}
+                routePath="/transactions"
               />
             )}
           </Box>

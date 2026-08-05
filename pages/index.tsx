@@ -492,6 +492,7 @@ const Home = ({
                 {showOrchList ? (
                   <OrchestratorList
                     data={orchestrators?.transcoders}
+                    listKey="home"
                     pageSize={10}
                     protocolData={protocol?.protocol}
                   />
@@ -579,7 +580,12 @@ const Home = ({
               </Flex>
             ) : (
               <Box>
-                <GatewayList data={gateways.gateways} pageSize={10} />
+                <GatewayList
+                  data={gateways.gateways}
+                  listKey="home-gateways"
+                  pageSize={10}
+                  routePath="/"
+                />
               </Box>
             )}
 
@@ -659,7 +665,9 @@ const Home = ({
                     EventsQueryResult["data"]
                   >["transactions"][number]["events"]
                 }
+                listKey="home-transactions"
                 pageSize={10}
+                routePath="/"
               />
             </Box>
           </Box>

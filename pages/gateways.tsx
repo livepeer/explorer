@@ -46,7 +46,12 @@ const GatewaysPage = ({ gateways }: PageProps) => {
             the last 12 months.
           </Box>
           <Box css={{ marginBottom: "$5" }}>
-            <GatewayList data={gateways?.gateways} pageSize={20} />
+            <GatewayList
+              data={gateways?.gateways}
+              listKey="gateways"
+              pageSize={20}
+              routePath="/gateways"
+            />
           </Box>
         </Flex>
       </Container>
