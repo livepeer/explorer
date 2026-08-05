@@ -18,7 +18,7 @@ import {
   formatPercent,
   formatRound,
 } from "@utils/numberFormatters";
-import { formatAddress } from "@utils/web3";
+import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
 import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
 import {
   TransactionsQuery,
@@ -83,6 +83,8 @@ const Index = () => {
   const isVoteEvent = isType("VoteEvent");
   const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
 
+  // Clamps tickets/rewards to the oldest loaded transaction so rows only
+  // append; nothing is stranded, registration precedes both.
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
@@ -170,18 +172,34 @@ const Index = () => {
     }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
-  // WinningTicketRedeemedEvents, VoteEvents, and TreasuryVoteEvents are replaced
-  // with enriched versions (direction-tagged tickets, IPFS-enriched votes)
+  // Covers both sides of a reward call: the orchestrator it was made for, and
+  // the reward caller that made it.
+  const rewardEvents = useMemo(() => {
+    const accountLower = account.toLowerCase();
+    return (
+      data?.rewardEvents
+        ?.filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
+        .map((e) => ({
+          ...e,
+          isRewardCaller: e?.delegate?.id?.toLowerCase() !== accountLower,
+        })) ?? []
+    );
+  }, [data?.rewardEvents, account, lastEventTimestamp]);
+
   const mergedEvents = useMemo(
     () =>
       [
+        // Dropped here and re-added below from the enriched (tickets, votes)
+        // and superset (rewards) lists, so they are not listed twice.
         ...events.filter(
           (e) =>
             e?.__typename !== "WinningTicketRedeemedEvent" &&
             e?.__typename !== "TreasuryVoteEvent" &&
-            e?.__typename !== "VoteEvent"
+            e?.__typename !== "VoteEvent" &&
+            e?.__typename !== "RewardEvent"
         ),
         ...ticketEvents,
+        ...rewardEvents,
         ...extendedTreasuryVoteEventsData,
         ...extendedVoteEventsData,
       ].sort(
@@ -191,6 +209,7 @@ const Index = () => {
     [
       events,
       ticketEvents,
+      rewardEvents,
       extendedTreasuryVoteEventsData,
       extendedVoteEventsData,
     ]
@@ -198,7 +217,8 @@ const Index = () => {
 
   const totalLoaded = Math.max(
     data?.transactions?.length ?? 0,
-    data?.winningTicketRedeemedEvents?.length ?? 0
+    data?.winningTicketRedeemedEvents?.length ?? 0,
+    data?.rewardEvents?.length ?? 0
   );
 
   const fetchingRef = useRef(false);
@@ -210,11 +230,19 @@ const Index = () => {
     try {
       await fetchMoreTransactions({
         variables: {
+          // Shared skip: a shorter list is only over-skipped once exhausted.
           skip: totalLoaded,
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
-          if (fetchMoreResult.transactions.length < PAGE_SIZE)
+          // Stop only once every list is exhausted. Rewards and ticket
+          // redemptions can be submitted by another address, so neither list is
+          // bounded by `transactions`.
+          if (
+            fetchMoreResult.transactions.length < PAGE_SIZE &&
+            fetchMoreResult.winningTicketRedeemedEvents.length < PAGE_SIZE &&
+            fetchMoreResult.rewardEvents.length < PAGE_SIZE
+          )
             setReachedEnd(true);
 
           return {
@@ -223,12 +251,13 @@ const Index = () => {
               ...previousResult.transactions,
               ...fetchMoreResult.transactions,
             ],
-            // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
-            // So, we will always have winning ticket events that are older than the last transaction timestamp
-            // Allowing mergedEvents to filter correctly
             winningTicketRedeemedEvents: [
               ...previousResult.winningTicketRedeemedEvents,
               ...fetchMoreResult.winningTicketRedeemedEvents,
+            ],
+            rewardEvents: [
+              ...previousResult.rewardEvents,
+              ...fetchMoreResult.rewardEvents,
             ],
           };
         },
@@ -276,7 +305,8 @@ const Index = () => {
 
   if (
     !data?.transactions?.length &&
-    !data?.winningTicketRedeemedEvents?.length
+    !data?.winningTicketRedeemedEvents?.length &&
+    !data?.rewardEvents?.length
   ) {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
@@ -528,7 +558,9 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Claimed inflationary token reward
+                {event.isRewardCaller
+                  ? `Called reward for ${formatAddress(event.delegate.id)}`
+                  : "Claimed inflationary token reward"}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -542,13 +574,59 @@ function renderSwitch(event, i: number) {
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
-            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              {" "}
-              <Box as="span" css={{ fontWeight: 600 }}>
-                {formatLPT(event.rewardTokens, {
-                  precision: 2,
-                  forceSign: true,
-                })}
+            {/* Minted for the orchestrator, never earned by the reward caller. */}
+            {!event.isRewardCaller && (
+              <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+                {" "}
+                <Box as="span" css={{ fontWeight: 600 }}>
+                  {formatLPT(event.rewardTokens, {
+                    precision: 2,
+                    forceSign: true,
+                  })}
+                </Box>
+              </Box>
+            )}
+          </Flex>
+        </Card>
+      );
+    case "RewardCallerSetEvent":
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                {event.rewardCaller === EMPTY_ADDRESS
+                  ? "Removed reward caller"
+                  : `Set reward caller ${formatAddress(event.rewardCaller)}`}
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round {formatRound(event.round.id)}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
           </Flex>

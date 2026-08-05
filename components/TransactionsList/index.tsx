@@ -12,6 +12,7 @@ import {
   formatRound,
 } from "@utils/numberFormatters";
 import {
+  EMPTY_ADDRESS,
   PERCENTAGE_PRECISION_BILLION,
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
@@ -115,6 +116,9 @@ const TransactionsList = ({
           return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "RewardEvent":
+          return <EthAddressBadge value={event?.delegate?.id} />;
+
+        case "RewardCallerSetEvent":
           return <EthAddressBadge value={event?.delegate?.id} />;
 
         case "WithdrawStakeEvent":
@@ -255,6 +259,16 @@ const TransactionsList = ({
               {getLptAmount(Number(event?.rewardTokens))}
               {` in newly minted tokens`}
               {renderEmoji("🌿")}
+            </Box>
+          );
+        case "RewardCallerSetEvent":
+          return event?.rewardCaller === EMPTY_ADDRESS ? (
+            <Box>{`Removed their reward caller`}</Box>
+          ) : (
+            <Box>
+              {`Authorized `}
+              <EthAddressBadge value={event?.rewardCaller} />
+              {` to call reward on their behalf`}
             </Box>
           );
         case "WithdrawStakeEvent":
