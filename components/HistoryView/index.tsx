@@ -18,7 +18,7 @@ import {
   formatPercent,
   formatRound,
 } from "@utils/numberFormatters";
-import { formatAddress } from "@utils/web3";
+import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
 import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
 import {
   TransactionsQuery,
@@ -172,15 +172,19 @@ const Index = () => {
     }));
   }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
 
-  // Orchestrator-keyed so delegated reward calls, whose transaction is sent by
-  // the reward caller, are included too.
-  const rewardEvents = useMemo(
-    () =>
-      data?.rewardEvents?.filter(
-        (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
-      ) ?? [],
-    [data?.rewardEvents, lastEventTimestamp]
-  );
+  // Covers both sides of a reward call: the orchestrator it was made for, and
+  // the reward caller that made it.
+  const rewardEvents = useMemo(() => {
+    const accountLower = account.toLowerCase();
+    return (
+      data?.rewardEvents
+        ?.filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
+        .map((e) => ({
+          ...e,
+          isRewardCaller: e?.delegate?.id?.toLowerCase() !== accountLower,
+        })) ?? []
+    );
+  }, [data?.rewardEvents, account, lastEventTimestamp]);
 
   const mergedEvents = useMemo(
     () =>
@@ -554,7 +558,9 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Claimed inflationary token reward
+                {event.isRewardCaller
+                  ? `Called reward for ${formatAddress(event.delegate.id)}`
+                  : "Claimed inflationary token reward"}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -568,13 +574,59 @@ function renderSwitch(event, i: number) {
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
-            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              {" "}
-              <Box as="span" css={{ fontWeight: 600 }}>
-                {formatLPT(event.rewardTokens, {
-                  precision: 2,
-                  forceSign: true,
-                })}
+            {/* Minted for the orchestrator, never earned by the reward caller. */}
+            {!event.isRewardCaller && (
+              <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+                {" "}
+                <Box as="span" css={{ fontWeight: 600 }}>
+                  {formatLPT(event.rewardTokens, {
+                    precision: 2,
+                    forceSign: true,
+                  })}
+                </Box>
+              </Box>
+            )}
+          </Flex>
+        </Card>
+      );
+    case "RewardCallerSetEvent":
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                {event.rewardCaller === EMPTY_ADDRESS
+                  ? "Removed reward caller"
+                  : `Set reward caller ${formatAddress(event.rewardCaller)}`}
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round {formatRound(event.round.id)}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
           </Flex>

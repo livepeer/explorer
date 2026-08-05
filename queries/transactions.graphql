@@ -46,6 +46,9 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       ... on RewardEvent {
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         amount
       }
@@ -132,14 +135,12 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       id
     }
   }
-  # Keyed on the orchestrator (RewardEvent.delegate), not the transaction sender.
-  # Since LIP-118 a delegated reward caller may submit reward() on the
-  # orchestrator's behalf, so those calls are absent from the transactions query
-  # above, which filters on `from`.
   rewardEvents(
     orderBy: timestamp
     orderDirection: desc
-    where: { delegate: $account }
+    where: {
+      or: [{ delegate: $account }, { transaction_: { from: $account } }]
+    }
     first: $first
     skip: $skip
   ) {
@@ -153,5 +154,8 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       timestamp
     }
     rewardTokens
+    delegate {
+      id
+    }
   }
 }
