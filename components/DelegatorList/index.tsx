@@ -31,10 +31,8 @@ type DelegatorRow = Delegator & {
   startRoundNumber: number;
 };
 
-// Compare the already-numeric row values directly. react-table's built-in
-// "number" sortType stringifies each value and strips non-numeric chars, which
-// mangles values rendered in exponential notation (e.g. 9.4e-7 -> "9.47"),
-// scattering sub-1e-6 "dust" amounts into the middle of the list.
+// Compare numeric cell values directly to keep scientific-notation dust amounts
+// sorted correctly.
 const numericSort = (
   rowA: Row<DelegatorRow>,
   rowB: Row<DelegatorRow>,
@@ -79,9 +77,7 @@ const DelegatorList = ({
         accessor: "id",
         Cell: ({ row, rows, value }) => {
           const address = value as string;
-          // row.index is the position in the original data array; use the row's
-          // position in the sorted row model so the ordinal reflects the visible
-          // order and stays continuous across sorting and pagination.
+          // Use visible row order so ordinals match sorting and pagination.
           const ordinal = rows.indexOf(row) + 1;
           const identity = useEnsData(address);
           const ensName = identity?.name;
@@ -192,14 +188,13 @@ const DelegatorList = ({
             <Box css={{ whiteSpace: "nowrap" }}>Pending Rewards</Box>
           </ExplorerTooltip>
         ),
-        // Live pendingStake is fetched per row (on-screen only), so this column
-        // has no row-model value and cannot be globally sorted.
+        // Live pendingStake is fetched per row, so this column is not sortable.
         id: "pendingRewards",
         disableSortBy: true,
         Cell: ({ row }) => {
           const { id, bondedAmountNumber } = row.original;
           const data = usePendingFeesAndStakeData(id);
-          // Pending rewards = live total stake − bonded amount (never negative).
+          // Pending rewards = live total stake minus bonded amount (never negative).
           const rewards = data
             ? Math.max(0, Number(data.pendingStake) / 1e18 - bondedAmountNumber)
             : undefined;

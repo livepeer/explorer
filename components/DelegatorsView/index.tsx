@@ -9,9 +9,8 @@ import {
 } from "apollo";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// The subgraph caps `delegators(first:)` at 1000 rows per request, so a single
-// query silently drops delegators beyond the first 1000. Page through with
-// `skip` until a short page comes back to load the complete list.
+// The subgraph returns at most 1000 delegators per request, so we load pages
+// in chunks by increasing `skip` until a page is shorter than PAGE_SIZE.
 const PAGE_SIZE = 1000;
 
 interface Props {
@@ -33,8 +32,6 @@ const DelegatorsView = ({ transcoder }: Props) => {
 
   const delegators = data?.transcoder?.delegators;
 
-  // Set when a later page fails to load, so we can surface that the list is
-  // incomplete (and pause auto-paging until the user retries).
   const [pageFetchFailed, setPageFetchFailed] = useState(false);
 
   // Concurrency lock (ref so it's synchronous) to avoid overlapping page fetches.
@@ -75,18 +72,15 @@ const DelegatorsView = ({ transcoder }: Props) => {
   );
 
   useEffect(() => {
-    // A full page implies there may be more; keep paging until a short page
-    // (or an exact multiple returning an empty page) ends the loop. Pause while
-    // a page fetch has failed so we don't hammer a failing endpoint; the retry
-    // action clears the flag and re-runs this effect.
+    // Keep paging while the accumulated length is a full page; stop on short/empty
+    // pages. Pause after failures until retry clears the flag.
     if (pageFetchFailed) return;
     if (!delegators?.length || delegators.length % PAGE_SIZE !== 0) return;
     fetchNext(delegators.length);
   }, [delegators, fetchNext, pageFetchFailed]);
 
   useEffect(() => {
-    // Log the initial-query failure as an after-render side effect rather than
-    // during render (which can run twice or be discarded).
+    // Avoid render-time side effects.
     if (error && !delegators) {
       console.error(error);
     }
