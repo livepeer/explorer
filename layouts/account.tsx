@@ -430,7 +430,7 @@ function getTabs(
       isActive: view === "delegating",
     });
   }
-  if (isOrchestrator || isMyDelegate) {
+  if (isOrchestrator) {
     tabs.push({
       name: "Delegators",
       href: `/accounts/${account}/delegators`,
