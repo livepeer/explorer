@@ -37,7 +37,8 @@ export function MobileVoteView({
   onSelect,
 }: MobileVoteViewProps) {
   const support =
-    VOTING_SUPPORT_MAP[vote.choiceID] || VOTING_SUPPORT_MAP["Unknown"];
+    VOTING_SUPPORT_MAP[vote.choiceID ?? "Unknown"] ??
+    VOTING_SUPPORT_MAP.Unknown;
   const voterId = vote.ensName ? vote.ensName : formatAddress(vote.voter);
 
   return (

@@ -49,9 +49,8 @@ export const DesktopVoteTable: React.FC<PollVoteTableProps> = ({
         id: "support",
         Cell: ({ row }) => {
           const support =
-            VOTING_SUPPORT_MAP[row.original.choiceID] ||
-            VOTING_SUPPORT_MAP["Unknown"];
-
+            VOTING_SUPPORT_MAP[row.original.choiceID ?? "Unknown"] ??
+            VOTING_SUPPORT_MAP.Unknown;
           return (
             <Box css={{ minWidth: 100 }}>
               <Badge
