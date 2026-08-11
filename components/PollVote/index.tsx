@@ -19,13 +19,13 @@ interface PollVotingTableProps {
 export type PollVoteType = {
   __typename: "Vote";
   id: string;
-  choiceID: PollChoice;
+  choiceID?: PollChoice | null;
   voter: string;
   voteStake: string;
   nonVoteStake: string;
   ensName?: string;
-  transactionHash: string;
-  timestamp: number;
+  transactionHash?: string;
+  timestamp?: number;
 };
 
 /**
