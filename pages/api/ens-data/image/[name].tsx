@@ -5,6 +5,7 @@ import {
   methodNotAllowed,
   notFound,
 } from "@lib/api/errors";
+import { optimizeImage } from "@lib/api/image-optimization";
 import { l1PublicClient } from "@lib/chains";
 import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -48,9 +49,30 @@ const handler = async (
 
           const arrayBuffer = await response.arrayBuffer();
 
+          // Optimize image using utility
+          const optimizationResult = await optimizeImage(arrayBuffer, {
+            width: 96,
+            height: 96,
+            quality: 75,
+            effort: 6,
+          });
+
+          // Set appropriate content type (fallback to original if optimization failed)
+          if (optimizationResult.contentType === "image/jpeg") {
+            const originalContentType =
+              response.headers.get("content-type") || "image/jpeg";
+            res.setHeader("Content-Type", originalContentType);
+          } else {
+            res.setHeader("Content-Type", optimizationResult.contentType);
+          }
+
+          res.setHeader(
+            "Content-Length",
+            optimizationResult.buffer.length.toString()
+          );
           res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-          return res.end(Buffer.from(arrayBuffer));
+          return res.end(optimizationResult.buffer);
         } catch (e) {
           console.error(e);
           return notFound(res, "ENS avatar not found");
