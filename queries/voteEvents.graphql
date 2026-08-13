@@ -1,0 +1,21 @@
+query voteEvents($first: Int, $where: VoteEvent_filter) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
+    id
+    choiceID
+    voter
+    timestamp
+    poll {
+      id
+      proposal
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}

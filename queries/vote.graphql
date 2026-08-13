@@ -3,5 +3,12 @@ query vote($id: ID!) {
     choiceID
     voteStake
     nonVoteStake
+    poll {
+      id
+      votes {
+        voteStake
+        id
+      }
+    }
   }
 }
