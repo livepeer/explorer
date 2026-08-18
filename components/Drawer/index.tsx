@@ -227,7 +227,7 @@ const Index = ({
             </EmbedModal>
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
-              href="https://discord.gg/livepeer"
+              href="https://discord.gg/55SZFEEH5y"
               target="_blank"
               rel="noopener noreferrer"
             >
