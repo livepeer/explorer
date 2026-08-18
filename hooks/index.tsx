@@ -2,6 +2,8 @@ import { useEffect } from "react";
 
 // DO NOT IMPORT useHandleTransaction due to @rainbow-me/rainbowkit issues with SSR
 export * from "./useExplorerStore";
+export * from "./usePersistedExplorerListState";
+export * from "./useSubgraphHealth";
 export * from "./useSwr";
 export * from "./wallet";
 

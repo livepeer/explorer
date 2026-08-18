@@ -1,7 +1,7 @@
-import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import { pollCreator } from "@lib/api/abis/main/PollCreator";
 import { getPollCreatorAddress } from "@lib/api/contracts";
+import { PollLips } from "@lib/api/types/get-poll-lips";
 import {
   Box,
   Button,
@@ -15,34 +15,27 @@ import {
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { fromWei } from "@utils/web3";
 import { useAccountQuery } from "apollo";
-import { createApolloFetch } from "apollo-fetch";
 import { hexlify, toUtf8Bytes } from "ethers/lib/utils";
-import fm from "front-matter";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { LAYOUT_MAX_WIDTH } from "layouts/constants";
 import { getLayout } from "layouts/main";
-import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import Head from "next/head";
-import { useEffect, useState } from "react";
-import { addIpfs, catIpfsJson, IpfsPoll } from "utils/ipfs";
-import { Address } from "viem";
+import { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
+import { addIpfs } from "utils/ipfs";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 const pollCreatorAddress = getPollCreatorAddress();
 
-const CreatePoll = ({
-  hadError,
-  projectOwner,
-  projectName,
-  gitCommitHash,
-  lips,
-}) => {
+const CreatePoll = () => {
   const accountAddress = useAccountAddress();
   const [sufficientStake, setSufficientStake] = useState(false);
   const [isCreatePollLoading, setIsCreatePollLoading] = useState(false);
+  const { data: pollLips, error: lipsError } = useSWR<PollLips>("/polls/lips");
+  const lips = useMemo(() => pollLips?.lips ?? [], [pollLips?.lips]);
 
-  const [hash, setHash] = useState<Address | null>(null);
+  const [hash, setHash] = useState<string | null>(null);
 
   const { data, loading } = useAccountQuery({
     variables: {
@@ -70,9 +63,19 @@ const CreatePoll = ({
   }, [delegatorPendingStakeAndFees]);
 
   const [selectedProposal, setSelectedProposal] = useState<{
+    lip: string;
     gitCommitHash: string;
     text: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (
+      selectedProposal &&
+      !lips.some((lip) => lip.attributes.lip === selectedProposal.lip)
+    ) {
+      setSelectedProposal(null);
+    }
+  }, [lips, selectedProposal]);
 
   const { data: config } = useSimulateContract({
     query: { enabled: Boolean(pollCreatorAddress && hash) },
@@ -108,10 +111,6 @@ const CreatePoll = ({
     }
   }, [config, hash, writeContract, status]);
 
-  if (hadError) {
-    return <ErrorComponent statusCode={500} />;
-  }
-
   return (
     <>
       <Head>
@@ -137,9 +136,12 @@ const CreatePoll = ({
               if (!selectedProposal) {
                 return;
               }
-              const hash = await addIpfs(selectedProposal);
+              const hash = await addIpfs({
+                gitCommitHash: selectedProposal.gitCommitHash,
+                text: selectedProposal.text,
+              });
 
-              setHash(hash as Address);
+              setHash(hash);
             } catch (err) {
               console.error(err);
               return {
@@ -150,20 +152,38 @@ const CreatePoll = ({
             }
           }}
         >
-          {lips && lips.length > 0 ? (
+          {!pollLips && !lipsError ? (
+            <Flex css={{ alignItems: "center" }}>
+              <Box css={{ marginRight: "$3" }}>Loading LIPs</Box>
+              <Spinner />
+            </Flex>
+          ) : lipsError ? (
+            <Box css={{ color: "$red11" }}>
+              Unable to load LIPs. Please try again shortly.
+            </Box>
+          ) : lips.length > 0 ? (
             <>
               <RadioCardGroup
                 onValueChange={(value) => {
+                  const selectedLip = lips.find(
+                    (lip) => lip.attributes.lip === value
+                  );
+                  if (!selectedLip) {
+                    setSelectedProposal(null);
+                    return;
+                  }
+
                   setSelectedProposal({
-                    gitCommitHash,
-                    text: lips[value].text,
+                    lip: selectedLip.attributes.lip,
+                    gitCommitHash: pollLips!.gitCommitHash,
+                    text: selectedLip.text,
                   });
                 }}
               >
-                {lips.map((lip, i) => (
+                {lips.map((lip) => (
                   <RadioCard
-                    key={i}
-                    value={i.toString()}
+                    key={lip.attributes.lip}
+                    value={lip.attributes.lip}
                     css={{
                       width: "100%",
                       justifyContent: "space-between",
@@ -188,7 +208,11 @@ const CreatePoll = ({
                       }}
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={`https://github.com/${projectOwner}/${projectName}/blob/master/LIPs/LIP-${lip.attributes.lip}.md`}
+                      href={`https://github.com/${pollLips!.projectOwner}/${
+                        pollLips!.projectName
+                      }/blob/${pollLips!.gitCommitHash}/LIPs/LIP-${
+                        lip.attributes.lip
+                      }.md`}
                     >
                       View Proposal
                       <ArrowTopRightIcon />
@@ -262,136 +286,3 @@ const CreatePoll = ({
 CreatePoll.getLayout = getLayout;
 
 export default CreatePoll;
-
-type TransformedProposal = {
-  attributes: {
-    lip: string;
-  };
-};
-
-type TransformedLip = {
-  attributes: {
-    lip: string;
-    title: string;
-    status: string;
-    created: string;
-    "part-of"?: string;
-  };
-  text: string;
-};
-
-export async function getStaticProps() {
-  try {
-    const lipsQuery = `
-    {
-      repository(owner: "${
-        process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
-          ? process.env.NEXT_PUBLIC_GITHUB_LIP_NAMESPACE
-          : "livepeer"
-      }", name: "LIPS") {
-        owner {
-          login
-        }
-        name
-        defaultBranchRef {
-          target {
-            oid
-          }
-        }
-        content: object(expression: "master:LIPs/") {
-          ... on Tree {
-            entries {
-              content: object {
-                commitResourcePath
-                ... on Blob {
-                  text
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    `;
-
-    const apolloFetch = createApolloFetch({
-      uri: "https://api.github.com/graphql",
-    });
-
-    apolloFetch.use(({ options }, next) => {
-      if (!options.headers) {
-        options.headers = {}; // Create the headers object if needed.
-      }
-      options.headers[
-        "authorization"
-      ] = `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`;
-
-      next();
-    });
-    const result = await apolloFetch({ query: lipsQuery });
-    const apolloSubgraphFetch = createApolloFetch({
-      uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-    });
-    const { data: pollsData } = await apolloSubgraphFetch({
-      query: `{ polls { proposal } }`,
-    });
-
-    const createdPolls: string[] = [];
-    if (pollsData) {
-      await Promise.all(
-        pollsData.polls.map(async (poll) => {
-          const obj = await catIpfsJson<IpfsPoll>(poll?.proposal);
-
-          // check if proposal is valid format {text, gitCommitHash}
-          if (obj?.text && obj?.gitCommitHash) {
-            const transformedProposal = fm(obj.text) as TransformedProposal;
-            createdPolls.push(transformedProposal.attributes.lip);
-          }
-        })
-      );
-    }
-
-    const lips: TransformedLip[] = [];
-    if (result.data) {
-      for (const lip of result.data.repository.content.entries) {
-        const transformedLip = fm(
-          lip.content.text
-        ) as unknown as TransformedLip;
-        transformedLip.attributes.created =
-          transformedLip.attributes.created.toString();
-        if (
-          transformedLip.attributes.status === "Proposed" &&
-          !transformedLip.attributes["part-of"] &&
-          !createdPolls.includes(transformedLip.attributes.lip)
-        )
-          lips.push({ ...transformedLip, text: lip.content.text });
-      }
-    } else {
-      console.log(
-        `No data from apollo fetch: ${JSON.stringify(result, null, 2)}`
-      );
-    }
-
-    return {
-      props: {
-        projectOwner: result?.data ? result.data.repository.owner.login : null,
-        projectName: result?.data ? result.data.repository.name : null,
-        gitCommitHash: result?.data
-          ? result.data.repository.defaultBranchRef.target.oid
-          : null,
-        lips: lips.sort((a, b) =>
-          a?.attributes?.lip < b?.attributes?.lip ? 1 : -1
-        ),
-      },
-      revalidate: 300,
-    };
-  } catch (e) {
-    console.log(e);
-    return {
-      props: {
-        hadError: true,
-      },
-      revalidate: 60,
-    };
-  }
-}

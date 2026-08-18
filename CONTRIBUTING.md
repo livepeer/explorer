@@ -6,7 +6,9 @@ Thank you for considering contributing to the Livepeer Explorer. We welcome any 
 
 Contributions are made to this repo via Issues and Pull Requests (PRs).
 
-To run the code locally, you will need to fork the code, and follow the instructions [here](https://github.com/livepeer/explorer/blob/main/README.md).
+To run the code locally, you will need to fork the code and follow the [local setup instructions in the README](README.md).
+
+For debugging (including with a wallet extension), see [docs/debugging.md](docs/debugging.md).
 
 ### Issues
 
@@ -16,7 +18,7 @@ If you find an issue you want to work on, follow the Commits and Pull Request in
 
 ### Commits
 
-As best as possible, try to follow Conventional Commit patterns as described [here](https://www.conventionalcommits.org/en/v1.0.0/).
+As best as possible, try to follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) patterns.
 
 ### Code Conventions
 

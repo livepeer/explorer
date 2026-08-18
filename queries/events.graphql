@@ -53,6 +53,12 @@ query events($first: Int) {
         }
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        delegate {
+          id
+        }
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         delegator {
           id

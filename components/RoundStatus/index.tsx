@@ -39,12 +39,12 @@ const Index = ({
 
   const blocksRemaining = useMemo(
     () =>
-      currentRoundInfo?.initialized && protocol
-        ? +protocol.roundLength -
-          (+Number(currentRoundInfo.currentL1Block) -
-            +Number(currentRoundInfo.startBlock))
+      currentRoundInfo?.initialized
+        ? currentRoundInfo.roundLength -
+          (Number(currentRoundInfo.currentL1Block) -
+            Number(currentRoundInfo.startBlock))
         : 0,
-    [protocol, currentRoundInfo]
+    [currentRoundInfo]
   );
   const timeRemaining = useMemo(
     () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
@@ -61,19 +61,13 @@ const Index = ({
 
   const percentage = useMemo(
     () =>
-      protocol
-        ? (blocksSinceCurrentRoundStart / +protocol.roundLength) * 100
+      currentRoundInfo?.roundLength
+        ? (blocksSinceCurrentRoundStart / currentRoundInfo.roundLength) * 100
         : 0,
-    [blocksSinceCurrentRoundStart, protocol]
+    [blocksSinceCurrentRoundStart, currentRoundInfo]
   );
 
-  const isRoundLocked = useMemo(
-    () =>
-      protocol && currentRoundInfo
-        ? blocksRemaining <= Number(protocol?.lockPeriod)
-        : false,
-    [protocol, blocksRemaining, currentRoundInfo]
-  );
+  const isRoundLocked = currentRoundInfo?.locked ?? false;
 
   const rewardTokensClaimed = useMemo(
     () =>
@@ -126,50 +120,54 @@ const Index = ({
             {currentRoundInfo?.id ? `#${currentRoundInfo.id}` : ""}
           </Text>
         </Box>
-        <ExplorerTooltip
-          multiline
-          content={
-            <Box>
-              {!isRoundLocked
-                ? "The current round is ongoing and orchestrators can currently update their parameters."
-                : "The current round is locked, which means that orchestrator parameters cannot be updated until the next round begins."}
-            </Box>
-          }
-        >
-          <Flex>
-            <Text
-              css={{
-                fontWeight: 600,
-                fontSize: "$2",
-                color: "white",
-              }}
-            >
-              {!isRoundLocked ? "Initialized " : "Locked "}
-            </Text>
+        {!currentRoundInfo ? (
+          <Skeleton css={{ height: 20, width: 90 }} />
+        ) : (
+          <ExplorerTooltip
+            multiline
+            content={
+              <Box>
+                {!isRoundLocked
+                  ? "The current round is ongoing and orchestrators can currently update their parameters."
+                  : "The current round is locked, which means that orchestrator parameters cannot be updated until the next round begins."}
+              </Box>
+            }
+          >
+            <Flex>
+              <Text
+                css={{
+                  fontWeight: 600,
+                  fontSize: "$2",
+                  color: "white",
+                }}
+              >
+                {!isRoundLocked ? "Initialized " : "Locked "}
+              </Text>
 
-            {isRoundLocked ? (
-              <Box
-                as={Cross1Icon}
-                css={{
-                  marginLeft: "$2",
-                  width: 20,
-                  height: 20,
-                  color: "$red11",
-                }}
-              />
-            ) : (
-              <Box
-                as={CheckIcon}
-                css={{
-                  marginLeft: "$1",
-                  width: 20,
-                  height: 20,
-                  color: "$primary11",
-                }}
-              />
-            )}
-          </Flex>
-        </ExplorerTooltip>
+              {isRoundLocked ? (
+                <Box
+                  as={Cross1Icon}
+                  css={{
+                    marginLeft: "$2",
+                    width: 20,
+                    height: 20,
+                    color: "$red11",
+                  }}
+                />
+              ) : (
+                <Box
+                  as={CheckIcon}
+                  css={{
+                    marginLeft: "$1",
+                    width: 20,
+                    height: 20,
+                    color: "$primary11",
+                  }}
+                />
+              )}
+            </Flex>
+          </ExplorerTooltip>
+        )}
       </Flex>
 
       <Box
@@ -178,7 +176,7 @@ const Index = ({
           marginTop: "$2",
         }}
       >
-        {!currentRoundInfo || !protocol ? (
+        {!currentRoundInfo ? (
           <Flex
             css={{
               width: "100%",
@@ -222,7 +220,7 @@ const Index = ({
                     {blocksSinceCurrentRoundStart}
                   </Box>
                   <Box css={{ fontSize: "$1" }}>
-                    of {protocol.roundLength} blocks
+                    of {currentRoundInfo.roundLength} blocks
                   </Box>
                 </Box>
               </Box>
@@ -259,212 +257,218 @@ const Index = ({
                 begins.
               </Text>
             </Box>
-            <ExplorerTooltip
-              multiline
-              content={
-                <Box>
-                  The amount of fees that have been paid out in the current
-                  round. Equivalent to{" "}
-                  {formatUSD(protocol?.currentRound?.volumeUSD, {
-                    precision: 0,
-                    abbreviate: true,
-                  })}{" "}
-                  at recent prices of ETH.
-                </Box>
-              }
-            >
-              <Flex
-                css={{
-                  marginTop: "$3",
-                  width: "100%",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Flex
-                  css={{
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    css={{
-                      fontSize: "$2",
-                    }}
-                    variant="neutral"
-                  >
-                    Fees
-                  </Text>
-                  <Box css={{ marginLeft: "$1" }}>
-                    <Box
-                      as={QuestionMarkCircledIcon}
-                      css={{ color: "$neutral11" }}
-                    />
-                  </Box>
-                </Flex>
-
-                <Text
-                  css={{
-                    fontSize: "$2",
-                    color: "white",
-                  }}
-                >
-                  {formatETH(protocol?.currentRound?.volumeETH, {
-                    precision: 2,
-                  })}
-                </Text>
-              </Flex>
-            </ExplorerTooltip>
-            <ExplorerTooltip
-              multiline
-              content={
-                <Box>
-                  The amount of rewards which have been claimed by orchestrators
-                  in the current round.
-                </Box>
-              }
-            >
-              <Flex
-                css={{
-                  marginTop: "$1",
-                  width: "100%",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Flex
-                  css={{
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    css={{
-                      fontSize: "$2",
-                    }}
-                    variant="neutral"
-                  >
-                    Rewards
-                  </Text>
-                  <Box css={{ marginLeft: "$1" }}>
-                    <Box
-                      as={QuestionMarkCircledIcon}
-                      css={{ color: "$neutral11" }}
-                    />
-                  </Box>
-                </Flex>
-
-                <Text
-                  css={{
-                    fontSize: "$2",
-                    color: "white",
-                  }}
-                >
-                  {rewards}
-                </Text>
-              </Flex>
-            </ExplorerTooltip>
-            <Box
-              css={{
-                width: "100%",
-                borderTop: "1px solid $neutral6",
-                paddingTop: "8px",
-                marginTop: "8px",
-              }}
-            >
-              <ExplorerTooltip
-                multiline
-                content={<Box>The current total supply of LPT.</Box>}
-              >
-                <Flex
-                  css={{
-                    width: "100%",
-                    justifyContent: "space-between",
-                  }}
+            {protocol && (
+              <>
+                <ExplorerTooltip
+                  multiline
+                  content={
+                    <Box>
+                      The amount of fees that have been paid out in the current
+                      round. Equivalent to{" "}
+                      {formatUSD(protocol?.currentRound?.volumeUSD, {
+                        precision: 0,
+                        abbreviate: true,
+                      })}{" "}
+                      at recent prices of ETH.
+                    </Box>
+                  }
                 >
                   <Flex
                     css={{
-                      alignItems: "center",
+                      marginTop: "$3",
+                      width: "100%",
+                      justifyContent: "space-between",
                     }}
                   >
+                    <Flex
+                      css={{
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        css={{
+                          fontSize: "$2",
+                        }}
+                        variant="neutral"
+                      >
+                        Fees
+                      </Text>
+                      <Box css={{ marginLeft: "$1" }}>
+                        <Box
+                          as={QuestionMarkCircledIcon}
+                          css={{ color: "$neutral11" }}
+                        />
+                      </Box>
+                    </Flex>
+
                     <Text
                       css={{
                         fontSize: "$2",
+                        color: "white",
                       }}
-                      variant="neutral"
                     >
-                      Total Supply
-                    </Text>
-                    <Box css={{ marginLeft: "$1" }}>
-                      <Box
-                        as={QuestionMarkCircledIcon}
-                        css={{ color: "$neutral11" }}
-                      />
-                    </Box>
-                  </Flex>
-
-                  <Text
-                    css={{
-                      fontSize: "$2",
-                      color: "white",
-                    }}
-                  >
-                    {totalSupply !== null
-                      ? formatLPT(totalSupply, {
-                          precision: 0,
-                          abbreviate: true,
-                        })
-                      : "--"}
-                  </Text>
-                </Flex>
-              </ExplorerTooltip>
-              <ExplorerTooltip
-                multiline
-                content={<Box>Total supply change over the past 365 days.</Box>}
-              >
-                <Flex
-                  css={{
-                    marginTop: "$1",
-                    width: "100%",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Flex
-                    css={{
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      css={{
-                        fontSize: "$2",
-                      }}
-                      variant="neutral"
-                    >
-                      Supply Change (1Y)
-                    </Text>
-                    <Box css={{ marginLeft: "$1" }}>
-                      <Box
-                        as={QuestionMarkCircledIcon}
-                        css={{ color: "$neutral11" }}
-                      />
-                    </Box>
-                  </Flex>
-
-                  <Text
-                    css={{
-                      fontSize: "$2",
-                      color: "white",
-                    }}
-                  >
-                    {isSupplyChangeLoading ? (
-                      <Skeleton css={{ height: 16, width: 80 }} />
-                    ) : supplyChangeData?.supplyChange != null ? (
-                      formatPercent(supplyChangeData.supplyChange, {
+                      {formatETH(protocol?.currentRound?.volumeETH, {
                         precision: 2,
-                      })
-                    ) : (
-                      "--"
-                    )}
-                  </Text>
-                </Flex>
-              </ExplorerTooltip>
-            </Box>
+                      })}
+                    </Text>
+                  </Flex>
+                </ExplorerTooltip>
+                <ExplorerTooltip
+                  multiline
+                  content={
+                    <Box>
+                      The amount of rewards which have been claimed by
+                      orchestrators in the current round.
+                    </Box>
+                  }
+                >
+                  <Flex
+                    css={{
+                      marginTop: "$1",
+                      width: "100%",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Flex
+                      css={{
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        css={{
+                          fontSize: "$2",
+                        }}
+                        variant="neutral"
+                      >
+                        Rewards
+                      </Text>
+                      <Box css={{ marginLeft: "$1" }}>
+                        <Box
+                          as={QuestionMarkCircledIcon}
+                          css={{ color: "$neutral11" }}
+                        />
+                      </Box>
+                    </Flex>
+
+                    <Text
+                      css={{
+                        fontSize: "$2",
+                        color: "white",
+                      }}
+                    >
+                      {rewards}
+                    </Text>
+                  </Flex>
+                </ExplorerTooltip>
+                <Box
+                  css={{
+                    width: "100%",
+                    borderTop: "1px solid $neutral6",
+                    paddingTop: "8px",
+                    marginTop: "8px",
+                  }}
+                >
+                  <ExplorerTooltip
+                    multiline
+                    content={<Box>The current total supply of LPT.</Box>}
+                  >
+                    <Flex
+                      css={{
+                        width: "100%",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Flex
+                        css={{
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          css={{
+                            fontSize: "$2",
+                          }}
+                          variant="neutral"
+                        >
+                          Total Supply
+                        </Text>
+                        <Box css={{ marginLeft: "$1" }}>
+                          <Box
+                            as={QuestionMarkCircledIcon}
+                            css={{ color: "$neutral11" }}
+                          />
+                        </Box>
+                      </Flex>
+
+                      <Text
+                        css={{
+                          fontSize: "$2",
+                          color: "white",
+                        }}
+                      >
+                        {totalSupply !== null
+                          ? formatLPT(totalSupply, {
+                              precision: 0,
+                              abbreviate: true,
+                            })
+                          : "--"}
+                      </Text>
+                    </Flex>
+                  </ExplorerTooltip>
+                  <ExplorerTooltip
+                    multiline
+                    content={
+                      <Box>Total supply change over the past 365 days.</Box>
+                    }
+                  >
+                    <Flex
+                      css={{
+                        marginTop: "$1",
+                        width: "100%",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Flex
+                        css={{
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          css={{
+                            fontSize: "$2",
+                          }}
+                          variant="neutral"
+                        >
+                          Supply Change (1Y)
+                        </Text>
+                        <Box css={{ marginLeft: "$1" }}>
+                          <Box
+                            as={QuestionMarkCircledIcon}
+                            css={{ color: "$neutral11" }}
+                          />
+                        </Box>
+                      </Flex>
+
+                      <Text
+                        css={{
+                          fontSize: "$2",
+                          color: "white",
+                        }}
+                      >
+                        {isSupplyChangeLoading ? (
+                          <Skeleton css={{ height: 16, width: 80 }} />
+                        ) : supplyChangeData?.supplyChange != null ? (
+                          formatPercent(supplyChangeData.supplyChange, {
+                            precision: 2,
+                          })
+                        ) : (
+                          "--"
+                        )}
+                      </Text>
+                    </Flex>
+                  </ExplorerTooltip>
+                </Box>
+              </>
+            )}
           </Flex>
         ) : (
           <Text

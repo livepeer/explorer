@@ -47,10 +47,16 @@ import {
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
 import { OrchestratorsQueryResult, ProtocolQueryResult } from "apollo";
-import { useEnsData } from "hooks";
+import {
+  OrchestratorListKey,
+  OrchestratorListState,
+  useEnsData,
+  useExplorerStore,
+  usePersistedExplorerListState,
+} from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 
@@ -76,11 +82,16 @@ const formatFactors = (factors: ROIFactors) =>
     ? `LPT Only`
     : `ETH Only`;
 
+const getListPath = (listKey: OrchestratorListKey) =>
+  listKey === "home" ? "/" : "/orchestrators";
+
 const OrchestratorList = ({
   data,
+  listKey,
   protocolData,
   pageSize = 10,
 }: {
+  listKey: OrchestratorListKey;
   pageSize: number;
   protocolData:
     | NonNullable<ProtocolQueryResult["data"]>["protocol"]
@@ -89,6 +100,25 @@ const OrchestratorList = ({
     | NonNullable<OrchestratorsQueryResult["data"]>["transcoders"]
     | undefined;
 }) => {
+  const persistedState = useExplorerStore(
+    (state) => state.orchestratorLists[listKey]
+  );
+  const setOrchestratorListState = useExplorerStore(
+    (state) => state.setOrchestratorListState
+  );
+  const setPersistedListState = useCallback(
+    (value: Partial<OrchestratorListState>) => {
+      setOrchestratorListState(listKey, value);
+    },
+    [listKey, setOrchestratorListState]
+  );
+  const { handleTableStateChange, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey: `orchestrator-list:${listKey}`,
+      routePath: getListPath(listKey),
+      persistedState,
+      setPersistedState: setPersistedListState,
+    });
   // Derive protocol inflation data
   const inflationRate =
     Number(protocolData?.inflation || 0) / PERCENTAGE_PRECISION_BILLION;
@@ -108,15 +138,34 @@ const OrchestratorList = ({
     [inflationRate, inflationChangeAmount]
   );
 
-  const [principle, setPrinciple] = useState<number>(150);
-  const [inflationChange, setInflationChange] =
-    useState<ROIInflationChange>("none");
-  const [factors, setFactors] = useState<ROIFactors>("lpt+eth");
-  const [timeHorizon, setTimeHorizon] = useState<ROITimeHorizon>("one-year");
+  const [principle, setPrinciple] = useState<number>(persistedState.principle);
+  const [inflationChange, setInflationChange] = useState<ROIInflationChange>(
+    persistedState.inflationChange
+  );
+  const [factors, setFactors] = useState<ROIFactors>(persistedState.factors);
+  const [timeHorizon, setTimeHorizon] = useState<ROITimeHorizon>(
+    persistedState.timeHorizon
+  );
   const maxSupplyTokens = useMemo(
     () => Math.floor(Number(protocolData?.totalSupply || 1e7)),
     [protocolData]
   );
+
+  useEffect(() => {
+    setOrchestratorListState(listKey, {
+      factors,
+      inflationChange,
+      principle,
+      timeHorizon,
+    });
+  }, [
+    factors,
+    inflationChange,
+    listKey,
+    principle,
+    setOrchestratorListState,
+    timeHorizon,
+  ]);
 
   const formattedPrinciple = formatLPT(Number(principle) || 150, {
     precision: 0,
@@ -1015,134 +1064,40 @@ const OrchestratorList = ({
   );
 
   return (
-    <Table
-      data={mappedData as object[]}
-      columns={columns}
-      initialState={{
-        pageSize,
-        hiddenColumns: ["identity"],
-        sortBy: [
-          {
-            id: "earnings",
-            desc: true,
-          },
-        ],
-      }}
-      input={
-        <Box css={{ marginBottom: "$2" }}>
-          <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
-            <Box css={{ marginRight: "$1", color: "$neutral11" }}>
-              <YieldChartIcon />
-            </Box>
-            <Text
-              variant="neutral"
-              size="1"
-              css={{
-                marginLeft: "$1",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
-            >
-              {"Forecasted Yield Assumptions"}
-            </Text>
-          </Flex>
-          <Flex>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                asChild
-              >
-                <Badge
-                  size="2"
-                  css={{
-                    cursor: "pointer",
-                    color: "$white",
-                    fontSize: "$2",
-                  }}
-                >
-                  <Box css={{ marginRight: "$1" }}>
-                    <Pencil1Icon />
-                  </Box>
-
-                  <Text
-                    variant="neutral"
-                    size="1"
-                    css={{
-                      marginRight: 3,
-                    }}
-                  >
-                    {"Time horizon:"}
-                  </Text>
-                  <Text
-                    size="1"
-                    css={{
-                      color: "white",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {formatTimeHorizon(timeHorizon)}
-                  </Text>
-                </Badge>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        data={mappedData as object[]}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={{
+          pageIndex: persistedState.pageIndex,
+          pageSize,
+          hiddenColumns: ["identity"],
+          sortBy: persistedState.sortBy,
+        }}
+        input={
+          <Box css={{ marginBottom: "$2" }}>
+            <Flex css={{ alignItems: "center", marginBottom: "$2" }}>
+              <Box css={{ marginRight: "$1", color: "$neutral11" }}>
+                <YieldChartIcon />
+              </Box>
+              <Text
+                variant="neutral"
+                size="1"
                 css={{
-                  width: "200px",
-                  mt: "$1",
-                  boxShadow:
-                    "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                  bc: "$neutral4",
+                  marginLeft: "$1",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
                 }}
-                align="center"
               >
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("half-year")}
-                  >
-                    {"6 months"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("one-year")}
-                  >
-                    {"1 year"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("two-years")}
-                  >
-                    {"2 years"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("three-years")}
-                  >
-                    {"3 years"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    css={{
-                      cursor: "pointer",
-                    }}
-                    onSelect={() => setTimeHorizon("four-years")}
-                  >
-                    {"4 years"}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Box css={{ marginLeft: "$1" }}>
-              <Popover>
-                <PopoverTrigger
+                {"Forecasted Yield Assumptions"}
+              </Text>
+            </Flex>
+            <Flex>
+              <DropdownMenu>
+                <DropdownMenuTrigger
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
@@ -1159,6 +1114,7 @@ const OrchestratorList = ({
                     <Box css={{ marginRight: "$1" }}>
                       <Pencil1Icon />
                     </Box>
+
                     <Text
                       variant="neutral"
                       size="1"
@@ -1166,7 +1122,7 @@ const OrchestratorList = ({
                         marginRight: 3,
                       }}
                     >
-                      {"Delegation:"}
+                      {"Time horizon:"}
                     </Text>
                     <Text
                       size="1"
@@ -1175,216 +1131,315 @@ const OrchestratorList = ({
                         fontWeight: 600,
                       }}
                     >
-                      {formatLPT(principle, { precision: 1 })}
+                      {formatTimeHorizon(timeHorizon)}
                     </Text>
                   </Badge>
-                </PopoverTrigger>
-                <PopoverContent
-                  css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  css={{
+                    width: "200px",
+                    mt: "$1",
+                    boxShadow:
+                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                    bc: "$neutral4",
+                  }}
+                  align="center"
                 >
-                  <Box
-                    css={{
-                      borderBottom: "1px solid $neutral6",
-                      padding: "$3",
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setTimeHorizon("half-year")}
+                    >
+                      {"6 months"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setTimeHorizon("one-year")}
+                    >
+                      {"1 year"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setTimeHorizon("two-years")}
+                    >
+                      {"2 years"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setTimeHorizon("three-years")}
+                    >
+                      {"3 years"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      css={{
+                        cursor: "pointer",
+                      }}
+                      onSelect={() => setTimeHorizon("four-years")}
+                    >
+                      {"4 years"}
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Box css={{ marginLeft: "$1" }}>
+                <Popover>
+                  <PopoverTrigger
+                    onClick={(e) => {
+                      e.stopPropagation();
                     }}
+                    asChild
                   >
-                    <Flex align="center">
-                      <TextField
-                        name="principle"
-                        placeholder="Amount in LPT"
-                        type="number"
-                        size="2"
-                        value={principle}
-                        onChange={(e) => {
-                          setPrinciple(
-                            Number(e.target.value) > maxSupplyTokens
-                              ? maxSupplyTokens
-                              : Number(e.target.value)
-                          );
-                        }}
-                        min="1"
-                        max={`${Number(
-                          protocolData?.totalSupply || 1e7
-                        ).toFixed(0)}`}
-                      />
+                    <Badge
+                      size="2"
+                      css={{
+                        cursor: "pointer",
+                        color: "$white",
+                        fontSize: "$2",
+                      }}
+                    >
+                      <Box css={{ marginRight: "$1" }}>
+                        <Pencil1Icon />
+                      </Box>
                       <Text
                         variant="neutral"
-                        size="3"
+                        size="1"
                         css={{
-                          marginLeft: "$2",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
+                          marginRight: 3,
                         }}
                       >
-                        LPT
+                        {"Delegation:"}
                       </Text>
-                    </Flex>
-                  </Box>
-                </PopoverContent>
-              </Popover>
-            </Box>
-            <Box css={{ marginLeft: "$1" }}>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <Badge
-                    size="2"
-                    css={{
-                      cursor: "pointer",
-                      color: "$white",
-                      fontSize: "$2",
-                    }}
+                      <Text
+                        size="1"
+                        css={{
+                          color: "white",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {formatLPT(principle, { precision: 1 })}
+                      </Text>
+                    </Badge>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    css={{ width: 300, borderRadius: "$4", bc: "$neutral4" }}
                   >
-                    <Box css={{ marginRight: "$1" }}>
-                      <Pencil1Icon />
+                    <Box
+                      css={{
+                        borderBottom: "1px solid $neutral6",
+                        padding: "$3",
+                      }}
+                    >
+                      <Flex align="center">
+                        <TextField
+                          name="principle"
+                          placeholder="Amount in LPT"
+                          type="number"
+                          size="2"
+                          value={principle}
+                          onChange={(e) => {
+                            const nextValue = Number(e.target.value);
+                            setPrinciple(
+                              !Number.isFinite(nextValue)
+                                ? 1
+                                : nextValue < 1
+                                ? 1
+                                : nextValue > maxSupplyTokens
+                                ? maxSupplyTokens
+                                : nextValue
+                            );
+                          }}
+                          min="1"
+                          max={`${Number(
+                            protocolData?.totalSupply || 1e7
+                          ).toFixed(0)}`}
+                        />
+                        <Text
+                          variant="neutral"
+                          size="3"
+                          css={{
+                            marginLeft: "$2",
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          LPT
+                        </Text>
+                      </Flex>
                     </Box>
-
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        marginRight: 3,
-                      }}
-                    >
-                      {"Factors:"}
-                    </Text>
-                    <Text
-                      size="1"
-                      css={{
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatFactors(factors)}
-                    </Text>
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  css={{
-                    width: "200px",
-                    mt: "$1",
-                    boxShadow:
-                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
-                  }}
-                  align="center"
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("lpt+eth")}
-                    >
-                      {formatFactors("lpt+eth")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("lpt")}
-                    >
-                      {formatFactors("lpt")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setFactors("eth")}
-                    >
-                      {formatFactors("eth")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Box>
-            <Box css={{ marginLeft: "$1" }}>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  asChild
-                >
-                  <Badge
-                    size="2"
-                    css={{
-                      cursor: "pointer",
-                      color: "$white",
-                      fontSize: "$2",
+                  </PopoverContent>
+                </Popover>
+              </Box>
+              <Box css={{ marginLeft: "$1" }}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    onClick={(e) => {
+                      e.stopPropagation();
                     }}
+                    asChild
                   >
-                    <Box css={{ marginRight: "$1" }}>
-                      <Pencil1Icon />
-                    </Box>
+                    <Badge
+                      size="2"
+                      css={{
+                        cursor: "pointer",
+                        color: "$white",
+                        fontSize: "$2",
+                      }}
+                    >
+                      <Box css={{ marginRight: "$1" }}>
+                        <Pencil1Icon />
+                      </Box>
 
-                    <Text
-                      variant="neutral"
-                      size="1"
-                      css={{
-                        marginRight: 3,
-                      }}
-                    >
-                      {"Inflation change:"}
-                    </Text>
-                    <Text
-                      size="1"
-                      css={{
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatPercentChange(inflationChange)}
-                    </Text>
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  css={{
-                    width: "200px",
-                    mt: "$1",
-                    boxShadow:
-                      "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
-                    bc: "$neutral4",
-                  }}
-                  align="center"
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
+                      <Text
+                        variant="neutral"
+                        size="1"
+                        css={{
+                          marginRight: 3,
+                        }}
+                      >
+                        {"Factors:"}
+                      </Text>
+                      <Text
+                        size="1"
+                        css={{
+                          color: "white",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {formatFactors(factors)}
+                      </Text>
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    css={{
+                      width: "200px",
+                      mt: "$1",
+                      boxShadow:
+                        "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                      bc: "$neutral4",
+                    }}
+                    align="center"
+                  >
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setFactors("lpt+eth")}
+                      >
+                        {formatFactors("lpt+eth")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setFactors("lpt")}
+                      >
+                        {formatFactors("lpt")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setFactors("eth")}
+                      >
+                        {formatFactors("eth")}
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </Box>
+              <Box css={{ marginLeft: "$1" }}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    asChild
+                  >
+                    <Badge
+                      size="2"
                       css={{
                         cursor: "pointer",
+                        color: "$white",
+                        fontSize: "$2",
                       }}
-                      onSelect={() => setInflationChange("none")}
                     >
-                      {formatPercentChange("none")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setInflationChange("positive")}
-                    >
-                      {formatPercentChange("positive")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      css={{
-                        cursor: "pointer",
-                      }}
-                      onSelect={() => setInflationChange("negative")}
-                    >
-                      {formatPercentChange("negative")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Box>
-          </Flex>
-        </Box>
-      }
-    />
+                      <Box css={{ marginRight: "$1" }}>
+                        <Pencil1Icon />
+                      </Box>
+
+                      <Text
+                        variant="neutral"
+                        size="1"
+                        css={{
+                          marginRight: 3,
+                        }}
+                      >
+                        {"Inflation change:"}
+                      </Text>
+                      <Text
+                        size="1"
+                        css={{
+                          color: "white",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {formatPercentChange(inflationChange)}
+                      </Text>
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    css={{
+                      width: "200px",
+                      mt: "$1",
+                      boxShadow:
+                        "0px 5px 14px rgba(0, 0, 0, 0.22), 0px 0px 2px rgba(0, 0, 0, 0.2)",
+                      bc: "$neutral4",
+                    }}
+                    align="center"
+                  >
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setInflationChange("none")}
+                      >
+                        {formatPercentChange("none")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setInflationChange("positive")}
+                      >
+                        {formatPercentChange("positive")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        css={{
+                          cursor: "pointer",
+                        }}
+                        onSelect={() => setInflationChange("negative")}
+                      >
+                        {formatPercentChange("negative")}
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </Box>
+            </Flex>
+          </Box>
+        }
+      />
+    </Box>
   );
 };
 

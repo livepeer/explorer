@@ -1,5 +1,10 @@
-import { ALL_SUPPORTED_CHAIN_IDS } from "@lib/chains";
+import {
+  ALL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_CHAIN_ID,
+  L1_CHAIN_ID,
+} from "@lib/chains";
 import { Signer } from "ethers";
+import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import { useAccount, useDisconnect } from "wagmi";
 
@@ -50,6 +55,20 @@ export const useAccountSigner = () => {
 export const useActiveChain = () => {
   const { chain } = useAccount();
   return chain;
+};
+
+export const useExpectedChainId = () => {
+  const { pathname } = useRouter();
+  return pathname.startsWith("/migrate") ? L1_CHAIN_ID : DEFAULT_CHAIN_ID;
+};
+
+export const useIsWrongRouteChain = () => {
+  const expectedChainId = useExpectedChainId();
+  const { chainId, status } = useAccount();
+
+  return Boolean(
+    status === "connected" && chainId && chainId !== expectedChainId
+  );
 };
 
 export function useDisconnectWallet() {

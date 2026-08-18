@@ -20,17 +20,19 @@ import { WagmiProvider } from "wagmi";
 
 const Index = ({
   children,
-  isMigrateRoute,
   locale,
 }: {
   children: React.ReactNode;
-  isMigrateRoute: boolean;
   locale?: string;
 }) => {
-  const { config, layoutKey } = useMemo(() => {
-    const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN] as _chains;
+  const config = useMemo(() => {
+    const chains = (
+      DEFAULT_CHAIN.id === L1_CHAIN.id
+        ? [DEFAULT_CHAIN]
+        : [DEFAULT_CHAIN, L1_CHAIN]
+    ) as _chains;
 
-    const config = getDefaultConfig({
+    return getDefaultConfig({
       appName: "Livepeer Explorer",
       projectId: WALLET_CONNECT_PROJECT_ID ?? "",
       chains,
@@ -50,15 +52,10 @@ const Index = ({
         },
       ],
     });
-
-    return {
-      config,
-      layoutKey: chains.map((e) => e.id).join(","),
-    };
-  }, [isMigrateRoute]);
+  }, []);
 
   return (
-    <WagmiProvider config={config} key={layoutKey}>
+    <WagmiProvider config={config}>
       <RainbowKitProvider
         appInfo={{
           appName: "Livepeer Explorer",

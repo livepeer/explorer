@@ -6,6 +6,7 @@ import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useEnsData,
   useExplorerStore,
+  useIsWrongRouteChain,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useMemo, useState } from "react";
@@ -48,6 +49,7 @@ const Index = ({
   const [amount, setAmount] = useState("");
   const { selectedStakingAction, setSelectedStakingAction } =
     useExplorerStore();
+  const isWrongRouteChain = useIsWrongRouteChain();
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
@@ -96,15 +98,19 @@ const Index = ({
         <Tabs
           index={selectedStakingAction === "delegate" ? 0 : 1}
           onChange={(index: number) => {
+            if (isWrongRouteChain) return;
             setSelectedStakingAction(index ? "undelegate" : "delegate");
           }}
         >
           <TabList>
-            <Tab isSelected={selectedStakingAction === "delegate"}>
+            <Tab
+              disabled={isWrongRouteChain}
+              isSelected={selectedStakingAction === "delegate"}
+            >
               Delegate
             </Tab>
             <Tab
-              disabled={isTransferStake}
+              disabled={isTransferStake || isWrongRouteChain}
               isSelected={selectedStakingAction === "undelegate"}
             >
               Undelegate
@@ -202,6 +208,7 @@ const Index = ({
             transcoder,
             action: selectedStakingAction,
             amount,
+            isWrongRouteChain,
           }}
         />
       </Box>
