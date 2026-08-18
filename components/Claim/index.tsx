@@ -246,7 +246,7 @@ const Claim = () => {
           )}
           <Button
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             variant="transparentWhite"
