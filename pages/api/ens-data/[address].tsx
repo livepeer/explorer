@@ -1,13 +1,21 @@
 import { getCacheControlHeader } from "@lib/api";
-import { getEnsForAddress } from "@lib/api/ens";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  ENS_BLACKLISTED_ADDRESSES,
+  ENS_CACHE_TTL,
+  getEnsForAddressCached,
+  LockBusyError,
+} from "@lib/api/ens";
+import {
+  badRequest,
+  internalError,
+  methodNotAllowed,
+  serviceBusy,
+} from "@lib/api/errors";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address, isAddress } from "viem";
 
-const blacklist = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"].map((a) =>
-  a.toLowerCase()
-);
+const blacklist = ENS_BLACKLISTED_ADDRESSES;
 
 const handler = async (
   req: NextApiRequest,
@@ -19,7 +27,7 @@ const handler = async (
     if (method === "GET") {
       const { address } = req.query;
 
-      res.setHeader("Cache-Control", getCacheControlHeader("week"));
+      res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
 
       if (
         !!address &&
@@ -27,7 +35,7 @@ const handler = async (
         isAddress(address) &&
         !blacklist.includes(address.toLowerCase())
       ) {
-        const ens = await getEnsForAddress(address as Address);
+        const ens = await getEnsForAddressCached(address as Address);
 
         return res.status(200).json(ens);
       } else {
@@ -37,6 +45,7 @@ const handler = async (
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
+    if (err instanceof LockBusyError) return serviceBusy(res, err.message);
     return internalError(res, err);
   }
 };
