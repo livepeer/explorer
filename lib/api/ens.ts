@@ -15,10 +15,21 @@ export const ENS_BLACKLISTED_ADDRESSES = [
 
 export const ENS_CACHE_TTL = "week";
 
-const redis = new Redis({
-  url: process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_URL,
-  token: process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN,
-});
+const redis =
+  typeof window === "undefined" &&
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+    ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+    : null;
+  
+if (!redis && typeof window === "undefined") {
+  console.warn(
+    "ENS cache: UPSTASH_REDIS_REST_URL/TOKEN not set, running without caching (every request will hit L1 directly)."
+  );
+}
 
 const ENS_CACHE_TTL_SECONDS = cacheControlValues[ENS_CACHE_TTL].maxAge;
 const ENS_LOCK_TTL_SECONDS = 20;
@@ -82,7 +93,11 @@ export const getAvatarUrlCached = async (
   address: string,
   name: string
 ): Promise<string | null> => {
-  const key = `avatar-url: ${address.toLowerCase()}`;
+  if (!redis) {
+    return resolveAvatarUrl(name);
+  }
+
+  const key = `avatar-url:${address.toLowerCase()}`;
 
   try {
     const cached = await redis.get<string>(key);
@@ -115,19 +130,30 @@ const resolveAvatarUrl = async (name: string): Promise<string | null> => {
   const cid = parseCid(avatar);
   const arweaveId = parseArweaveTxId(avatar);
 
-  return cid?.id
+  const hasAvatarRecord = Boolean(avatar);
+
+  const result = cid?.id
     ? `https://dweb.link/ipfs/${cid.id}`
     : arweaveId?.id
     ? arweaveId?.url
     : avatar?.startsWith("https://")
     ? avatar
+    : hasAvatarRecord
+    ? `https://metadata.ens.domains/mainnet/avatar/${name}`
     : null;
+
+  return result;
 };
 
 export const getEnsForAddressCached = async (
   address: string | null | undefined
 ): Promise<EnsIdentity> => {
   const key = (address ?? "").toLowerCase();
+
+  if (!redis) {
+    const ens = await getEnsForAddress(address);
+    return { ...ens, computedAt: Date.now() };
+  }
 
   try {
     const cached = await redis.get<EnsIdentity>(key);
@@ -170,6 +196,12 @@ export const getEnsForAddressCached = async (
   } catch (err) {
     console.error("ENS cache write failed:", err);
     return stampedEns;
+  } finally {
+    try {
+      await redis.del(lockKey);
+    } catch (err) {
+      console.error("ENS lock release failed:", err);
+    }
   }
   return stampedEns;
 };
