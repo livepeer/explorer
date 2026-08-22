@@ -1,5 +1,5 @@
 import { getCacheControlHeader } from "@lib/api";
-import { getEnsForAddress } from "@lib/api/ens";
+import { ENS_CACHE_TTL, getEnsForAddressCached } from "@lib/api/ens";
 import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
@@ -15,7 +15,7 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      res.setHeader("Cache-Control", getCacheControlHeader("week"));
+      res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
 
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
@@ -55,7 +55,7 @@ const handler = async (
         await Promise.all(
           addresses.map(async (address) => {
             try {
-              return await getEnsForAddress(address as Address);
+              return await getEnsForAddressCached(address as Address);
             } catch {
               return null;
             }

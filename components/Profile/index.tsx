@@ -1,6 +1,7 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import dayjs from "@lib/dayjs";
 import {
   Box,
   Button,
@@ -271,6 +272,11 @@ const Index = ({
               </Box>
             )}
           </Flex>
+          {identity?.computedAt && identity?.name && (
+            <Text variant="neutral" size="1" css={{ marginTop: "$2" }}>
+              ENS last verified {dayjs(identity.computedAt).fromNow()}
+            </Text>
+          )}
           <Flex align="center" css={{ flexWrap: "wrap" }}>
             {identity?.url && (
               <A

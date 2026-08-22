@@ -1,4 +1,4 @@
-const cacheControlValues = {
+export const cacheControlValues = {
   revalidate: {
     maxAge: 0,
     swr: 10,
