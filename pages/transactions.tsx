@@ -2,6 +2,7 @@ import ErrorComponent from "@components/Error";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
+  withoutTransferBondInternals,
 } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
@@ -28,7 +29,9 @@ const TransactionsPage = ({ hadError, events }: PageProps) => {
   const allEvents = useMemo(
     () =>
       events?.transactions
-        ?.flatMap((transaction) => transaction.events)
+        ?.flatMap((transaction) =>
+          withoutTransferBondInternals(transaction.events ?? [])
+        )
         ?.filter((e) =>
           e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
