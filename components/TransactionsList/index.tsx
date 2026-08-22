@@ -27,6 +27,18 @@ export const FILTERED_EVENT_TYPENAMES = [
   "EarningsClaimedEvent",
 ];
 
+// A bond transfer moves the stake through an unbond/rebond pair; both are
+// internal to the transfer, so only the transfer itself is listed.
+export const withoutTransferBondInternals = <T extends { __typename: string }>(
+  events: T[]
+) =>
+  events.some((e) => e?.__typename === "TransferBondEvent")
+    ? events.filter(
+        (e) =>
+          e?.__typename !== "UnbondEvent" && e?.__typename !== "RebondEvent"
+      )
+    : events;
+
 const isTinyAmount = (amount: number) => amount > 0 && amount < 0.01;
 
 const getLptAmount = (number: number | string | undefined) => {
@@ -137,7 +149,7 @@ const TransactionsList = ({
           return <EthAddressBadge value={event?.reserveHolder?.id} />;
 
         case "TransferBondEvent":
-          return <EthAddressBadge value={event?.newDelegator?.id} />;
+          return <EthAddressBadge value={event?.oldDelegator?.id} />;
 
         case "TranscoderActivatedEvent":
           return <EthAddressBadge value={event?.delegate?.id} />;
@@ -312,11 +324,10 @@ const TransactionsList = ({
         case "TransferBondEvent":
           return (
             <Box>
+              {`Transferred `}
               {getLptAmount(Number(event?.amount))}
-              {` was transferred between `}
+              {` to `}
               <EthAddressBadge value={event?.newDelegator?.id} />
-              {` and `}
-              <EthAddressBadge value={event?.oldDelegator?.id} />
             </Box>
           );
         case "TranscoderActivatedEvent":
