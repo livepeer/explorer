@@ -47,6 +47,11 @@ const handler = async (
           }
 
           const response = await fetch(imageUrl);
+
+          if (!response.ok) {
+            return notFound(res, "ENS avatar not found");
+          }
+
           const arrayBuffer = await response.arrayBuffer();
 
           res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
@@ -59,12 +64,12 @@ const handler = async (
               address
             );
           } else {
-            console.error(e);
+              console.error("Avatar fetch error:", e instanceof Error ? e.message : e, e instanceof Error ? e.stack : "");
           }
           return notFound(res, "ENS avatar not found");
         }
       } else {
-        return badRequest(res, "Invalid ENS name");
+        return badRequest(res, "Invalid address format");
       }
     }
 
