@@ -135,9 +135,15 @@ query events($first: Int) {
           from
         }
       }
-      # ... on ReserveClaimedEvent {
-      # TODO implement
-      # }
+      ... on ReserveClaimedEvent {
+        claimant {
+          id
+        }
+        reserveHolder {
+          id
+        }
+        amount
+      }
       ... on WithdrawalEvent {
         sender {
           id
