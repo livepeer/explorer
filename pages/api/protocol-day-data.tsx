@@ -13,6 +13,25 @@ import type { NextApiRequest, NextApiResponse } from "next";
 const PAGE_SIZE = 1000;
 const MAX_PAGES = 50; // Safety bound to prevent infinite loop on malformed data.
 
+const ANOMALOUS_SENDERS = [
+  "0xca3331d67e87816adb30d9562a6e8c0623fb7fef",
+  "0xc3c7c4c8f7061b7d6a72766eee5359fe4f36e61e",
+];
+const ANOMALOUS_FROM_DAY = 1787788800;
+const ANOMALOUS_DAYS_QUERY = `
+  query AnomalousBroadcasterDays($senders: [String!]!, $fromDay: Int!) {
+    broadcasterDays(
+      first: 1000
+      orderBy: date
+      orderDirection: asc
+      where: { broadcaster_in: $senders, date_gte: $fromDay }
+    ) {
+      date
+      volumeUSD
+    }
+  }
+`;
+
 const DAYS_QUERY = `
   query ProtocolDays($first: Int!, $lastDate: Int!) {
     days(
@@ -31,6 +50,42 @@ const DAYS_QUERY = `
   }
 `;
 
+const getAnomalousUsdByDay = async (): Promise<Map<number, number> | null> => {
+  const response = await fetchWithRetry(
+    CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: ANOMALOUS_DAYS_QUERY,
+        variables: { senders: ANOMALOUS_SENDERS, fromDay: ANOMALOUS_FROM_DAY },
+      }),
+    },
+    { retryOnMethods: ["POST"] }
+  );
+
+  if (!response.ok) return null;
+
+  const { data, errors } = await response.json();
+  if (errors?.length || !Array.isArray(data?.broadcasterDays)) {
+    console.error(
+      "Invalid subgraph response for anomalous broadcaster days",
+      errors
+    );
+    return null;
+  }
+
+  const anomalousUsdByDay = new Map<number, number>();
+  for (const day of data.broadcasterDays) {
+    const date = Number(day.date);
+    anomalousUsdByDay.set(
+      date,
+      (anomalousUsdByDay.get(date) ?? 0) + Number(day.volumeUSD)
+    );
+  }
+  return anomalousUsdByDay;
+};
+
 const protocolDayDataHandler = async (
   req: NextApiRequest,
   res: NextApiResponse<ProtocolDayData | null>
@@ -41,6 +96,9 @@ const protocolDayDataHandler = async (
       res.setHeader("Allow", ["GET"]);
       return res.status(405).end(`Method ${method} Not Allowed`);
     }
+
+    const anomalousUsdByDay = await getAnomalousUsdByDay();
+    if (!anomalousUsdByDay) return res.status(502).json(null);
 
     const dayData: ProtocolDay[] = [];
     let lastDate = 0;
@@ -71,13 +129,17 @@ const protocolDayDataHandler = async (
 
       const days = data.days;
       for (const day of days) {
+        const dateS = Number(day.date);
         dayData.push({
-          dateS: Number(day.date),
+          dateS,
           inflation: Number(day.inflation),
           participationRate: Number(day.participationRate),
           delegatorsCount: Number(day.delegatorsCount),
           activeTranscoderCount: Number(day.activeTranscoderCount),
-          volumeUsd: Number(day.volumeUSD),
+          volumeUsd: Math.max(
+            0,
+            Number(day.volumeUSD) - (anomalousUsdByDay.get(dateS) ?? 0)
+          ),
         });
       }
 

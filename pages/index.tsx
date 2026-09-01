@@ -148,7 +148,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip={`The amount of ${
             feesPaidGrouping === "day" ? "daily" : "weekly"
-          } fees in dollars which have been historically paid out using the protocol.`}
+          } fees in dollars which have been historically paid out using the protocol. Values exclude activity from a network incident that caused anomalous fee data.`}
           data={
             feesPaidGrouping === "week"
               ? feesPaidData.slice(-26)
