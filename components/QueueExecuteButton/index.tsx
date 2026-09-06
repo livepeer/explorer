@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { useAccountAddress } from "hooks";
 import { useLivepeerGovernorAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Address } from "viem";
 import {
   useReadContract,
@@ -38,11 +38,20 @@ const QueueExecuteButton = (
     args: [BigInt(proposal?.id ?? 0)],
   });
 
+  // Ticks so the execute button enables once the timelock eta passes.
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (action !== "execute") return;
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(id);
+  }, [action]);
+
   const enabled =
     Boolean(livepeerGovernorAddress && accountAddress && proposal) &&
     (action === "queue"
       ? proposal.state === "Succeeded" // only enable queue if proposal is explicitly in Succeeded state
-      : Boolean(eta) && Date.now() >= eta! * 1000n);
+      : Boolean(eta) && now >= eta! * 1000n);
 
   const preparedWriteConfig = useMemo<UseSimulateContractParameters>(
     () => ({
