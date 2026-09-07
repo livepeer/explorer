@@ -155,13 +155,19 @@ const Delegate = ({
     error: bondError,
   } = useWriteContract();
 
+  // The amount is cleared on submit, well before the hash arrives, so the
+  // confirmation reports what was sent rather than what the input holds now.
+  const [submittedArgs, setSubmittedArgs] = useState<
+    typeof bondWithHintArgs | null
+  >(null);
+
   useHandleTransaction(
     "bond",
     bondData,
     bondError,
     bondIsLoading,
     bondIsSuccess,
-    bondWithHintArgs
+    submittedArgs ?? bondWithHintArgs
   );
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
@@ -208,6 +214,7 @@ const Delegate = ({
       if (!bondWithHintConfig) {
         throw new Error("No config for bond with hint");
       }
+      setSubmittedArgs(bondWithHintArgs);
       bondWrite(bondWithHintConfig.request);
     } catch (e) {
       console.error(e);
