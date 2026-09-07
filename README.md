@@ -1,13 +1,13 @@
 # Livepeer Explorer
 
-![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)
+![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D10.33.0-blue)
 
 ## Prerequisites
 
 Before getting started, ensure you have the following installed on your system:
 
-- [Node.js 22.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
+- [Node.js 24.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
 - [pnpm v10.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
 - [Docker](https://docs.docker.com/get-docker/) (optional) — required for the dev container
 

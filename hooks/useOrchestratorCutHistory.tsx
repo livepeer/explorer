@@ -56,6 +56,10 @@ export function useOrchestratorCutHistory(
     skip: !transcoder?.id,
   });
 
+  const activationTimestamp = transcoder?.activationTimestamp;
+  const currentRewardCut = transcoder?.rewardCut;
+  const currentFeeShare = transcoder?.feeShare;
+
   const points = useMemo<CutDataPoint[]>(() => {
     const events: CutDataPoint[] = [...(data?.transcoderUpdateEvents ?? [])]
       .sort((a, b) => a.timestamp - b.timestamp)
@@ -69,14 +73,14 @@ export function useOrchestratorCutHistory(
     // on-chain values at activation time so the chart shows a flat line.
     if (
       events.length === 0 &&
-      transcoder?.activationTimestamp &&
-      transcoder?.rewardCut != null &&
-      transcoder?.feeShare != null
+      activationTimestamp &&
+      currentRewardCut != null &&
+      currentFeeShare != null
     ) {
       events.push({
-        timestamp: Number(transcoder.activationTimestamp) * 1000,
-        rewardCut: Number(transcoder.rewardCut) / PERCENTAGE_PRECISION_MILLION,
-        feeCut: 1 - Number(transcoder.feeShare) / PERCENTAGE_PRECISION_MILLION,
+        timestamp: Number(activationTimestamp) * 1000,
+        rewardCut: Number(currentRewardCut) / PERCENTAGE_PRECISION_MILLION,
+        feeCut: 1 - Number(currentFeeShare) / PERCENTAGE_PRECISION_MILLION,
       });
     }
 
@@ -95,12 +99,7 @@ export function useOrchestratorCutHistory(
     }
 
     return events;
-  }, [
-    data,
-    transcoder?.activationTimestamp,
-    transcoder?.rewardCut,
-    transcoder?.feeShare,
-  ]);
+  }, [data, activationTimestamp, currentRewardCut, currentFeeShare]);
 
   const rewardCutData = useMemo<ChartDatum[]>(
     () => points.map((d) => ({ x: d.timestamp, y: d.rewardCut })),
