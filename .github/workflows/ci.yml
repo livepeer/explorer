@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 📦 Install pnpm
         uses: pnpm/action-setup@v4
@@ -54,7 +54,7 @@ jobs:
       contents: read
     steps:
       - name: ⬇️ Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🔍 Review dependency changes
         uses: actions/dependency-review-action@v4
