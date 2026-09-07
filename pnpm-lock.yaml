@@ -42,9 +42,6 @@ importers:
       '@reach/tabs':
         specifier: ^0.17.0
         version: 0.17.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
-      '@stitches/react':
-        specifier: 1.2.5
-        version: 1.2.5(react@19.2.1)
       '@tanstack/react-query':
         specifier: ^5.102.8
         version: 5.102.8(react@19.2.1)
@@ -3948,11 +3945,6 @@ packages:
 
   '@stitches/core@1.2.8':
     resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
-
-  '@stitches/react@1.2.5':
-    resolution: {integrity: sha512-95Wwjp5cvoYQjg616OBiHZM1PnIF51pnFQIgSPxPzS/xXBrer9sNO1tfpVfLYfOifvuotse2IFNbypJ92BXzvg==}
-    peerDependencies:
-      react: '>= 16.3.0'
 
   '@stitches/react@1.2.8':
     resolution: {integrity: sha512-9g9dWI4gsSVe8bNLlb+lMkBYsnIKCZTmvqvDG+Avnn69XfmHZKiaMrx7cgTaddq7aTPPmXiTsbFcUy0xgI4+wA==}
@@ -14852,10 +14844,6 @@ snapshots:
       - fastestsmallesttextencoderdecoder
 
   '@stitches/core@1.2.8': {}
-
-  '@stitches/react@1.2.5(react@19.2.1)':
-    dependencies:
-      react: 19.2.1
 
   '@stitches/react@1.2.8(react@19.2.1)':
     dependencies:
