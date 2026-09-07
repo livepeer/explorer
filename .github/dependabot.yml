@@ -21,3 +21,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # One combined PR; action majors are routine tag moves and CI
+    # validates the grouped PR anyway.
+    groups:
+      actions:
+        patterns:
+          - "*"
