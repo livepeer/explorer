@@ -55,7 +55,7 @@ const Index = () => {
             <Box
               as="img"
               src="/img/green-loader.svg"
-              alt="loader"
+              alt=""
               css={{
                 animation: `${rotate} 2s linear`,
                 animationIterationCount: "infinite",
