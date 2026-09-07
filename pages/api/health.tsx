@@ -23,9 +23,22 @@ const health = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const allHealthy = subgraphOk;
 
+    // DEBUG (remove before merge): report the runtime and whether the
+    // sanitize-html require chain loads on it.
+    let sanitizeHtmlLoads: string;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const s = require("sanitize-html");
+      sanitizeHtmlLoads = `ok (sanitized: ${s("<b>x</b><script>y</script>")})`;
+    } catch (e) {
+      sanitizeHtmlLoads = `LOAD FAILED: ${(e as Error).message}`;
+    }
+
     const response = {
       status: allHealthy ? "healthy" : "degraded",
       timestamp: new Date().toISOString(),
+      nodeVersion: process.version,
+      sanitizeHtml: sanitizeHtmlLoads,
       checks: {
         subgraph: subgraphOk ? "ok" : "error",
       },
