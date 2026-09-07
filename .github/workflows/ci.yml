@@ -40,3 +40,23 @@ jobs:
 
       - name: 🧪 Run tests
         run: pnpm test
+
+      # Fails on known critical advisories in production dependencies.
+      # Tighten to `high` once the remaining high (sharp, pinned by next)
+      # clears upstream.
+      - name: 🔒 Audit production dependencies
+        run: pnpm audit --prod --audit-level=critical
+
+  # Fails the PR if it introduces a dependency with a known vulnerability.
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Review dependency changes
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
