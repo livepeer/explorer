@@ -24,7 +24,7 @@ import {
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
 import { formatAddress } from "@utils/web3";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { Address } from "viem";
 
 export const useRegionsData = (): Regions => {
@@ -36,15 +36,33 @@ export const useRegionsData = (): Regions => {
 };
 
 export const useEnsData = (address: string | undefined | null): EnsIdentity => {
-  const { data, isValidating, error } = useSWR<EnsIdentity>(
-    address ? `/ens-data/${address.toLowerCase()}` : null
+  const normalizedAddress = address?.toLowerCase();
+
+  const { cache } = useSWRConfig();
+  const bulkEntry = cache.get("/ens-data") as
+    | { data?: EnsIdentity[] }
+    | undefined;
+  const matched = bulkEntry?.data?.find(
+    (e) => e.id.toLowerCase() === normalizedAddress
   );
+
+  const soloKey =
+    normalizedAddress && !matched ? `/ens-data/${normalizedAddress}` : null;
+
+  const { data, isValidating, error } = useSWR<EnsIdentity>(soloKey);
 
   const fallbackIdentity: EnsIdentity = {
     id: address ?? "",
     idShort: formatAddress(address),
     name: null,
   };
+
+  if (matched) {
+    return {
+      ...matched,
+      isLoading: false,
+    };
+  }
 
   return {
     ...(data ?? fallbackIdentity),
