@@ -1,3 +1,4 @@
+import { trackVercelAnalyticsEvent } from "@lib/analytics";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { formatLPT } from "@utils/numberFormatters";
@@ -9,7 +10,7 @@ import {
   useIsWrongRouteChain,
   usePendingFeesAndStakeData,
 } from "hooks";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
@@ -71,6 +72,21 @@ const Index = ({
   const currentPendingStake = Number(
     fromWei(pendingFeesAndStake?.pendingStake ?? "0")
   );
+
+  // Fire once, the first time the form goes from clean to dirty - not again
+  // on every subsequent clear/refill of the amount. Covers both typed
+  // amounts and the "max" shortcut.
+  const hasTrackedFormStart = useRef(false);
+  useEffect(() => {
+    if (
+      !hasTrackedFormStart.current &&
+      selectedStakingAction === "delegate" &&
+      parseFloat(amount) > 0
+    ) {
+      hasTrackedFormStart.current = true;
+      trackVercelAnalyticsEvent("delegation_form_started");
+    }
+  }, [amount, selectedStakingAction]);
 
   return (
     <Box
