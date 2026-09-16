@@ -17,14 +17,14 @@ export const ENS_CACHE_TTL = "week";
 
 const redis =
   typeof window === "undefined" &&
-    process.env.UPSTASH_REDIS_REST_URL &&
-    process.env.UPSTASH_REDIS_REST_TOKEN
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN
     ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    })
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      })
     : null;
-  
+
 if (!redis && typeof window === "undefined") {
   console.warn(
     "ENS cache: UPSTASH_REDIS_REST_URL/TOKEN not set, running without caching (every request will hit L1 directly)."

@@ -64,7 +64,11 @@ const handler = async (
               address
             );
           } else {
-              console.error("Avatar fetch error:", e instanceof Error ? e.message : e, e instanceof Error ? e.stack : "");
+            console.error(
+              "Avatar fetch error:",
+              e instanceof Error ? e.message : e,
+              e instanceof Error ? e.stack : ""
+            );
           }
           return notFound(res, "ENS avatar not found");
         }
