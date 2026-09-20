@@ -248,10 +248,10 @@ export const isImageUrl = (url: string): boolean => {
 /**
  * Sanitize a user-supplied URL for use as an external `<a href>`.
  *
- * Auto-prefixes `https://` when the input has no scheme (so values like
- * `evil.com/path` aren't treated as relative links), then validates that the
- * resulting URL parses and uses an `http:` or `https:` protocol. Anything
- * else (e.g. `javascript:`, `data:`, malformed input) is rejected.
+ * Defaults schemeless hostnames and protocol-relative URLs to HTTPS, then
+ * validates that the resulting URL parses and uses an `http:` or `https:`
+ * protocol. Relative paths, query strings, fragments, unsupported schemes,
+ * and malformed input are rejected.
  *
  * @param url - The user-supplied URL.
  * @returns The sanitized absolute URL, or `null` if it is unsafe / invalid.
@@ -262,7 +262,12 @@ export const sanitizeExternalUrl = (
   if (!url) return null;
   const trimmed = url.trim();
   if (!trimmed) return null;
-  const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)
+  if (/^(?:[/?#]|\.\.?(?:\/|$))/.test(trimmed) && !trimmed.startsWith("//")) {
+    return null;
+  }
+  const withScheme = trimmed.startsWith("//")
+    ? `https:${trimmed}`
+    : /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)
     ? trimmed
     : `https://${trimmed}`;
   try {
