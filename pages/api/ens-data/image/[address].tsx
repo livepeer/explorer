@@ -12,8 +12,10 @@ import {
   methodNotAllowed,
   notFound,
 } from "@lib/api/errors";
+import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address, isAddress } from "viem";
+import { normalize } from "viem/ens";
 
 const blacklist = ENS_BLACKLISTED_ADDRESSES;
 
@@ -25,7 +27,28 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { address } = req.query;
+      const { address: rawParam } = req.query;
+
+      if (!rawParam || Array.isArray(rawParam)) {
+        return badRequest(res, "Invalid address format");
+      }
+
+      let address: string;
+
+      if (isAddress(rawParam)) {
+        address = rawParam;
+      } else {
+        try {
+          const resolved = await l1PublicClient.getEnsAddress({
+            name: normalize(rawParam),
+          });
+          if (!resolved)
+            return notFound(res, "No address found for this ENS name");
+          address = resolved;
+        } catch {
+          return badRequest(res, "Invalid address format");
+        }
+      }
 
       if (
         !!address &&

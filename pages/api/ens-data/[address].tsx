@@ -45,6 +45,8 @@ const handler = async (
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);
   } catch (err) {
+    res.setHeader("Cache-Control", "no-store");
+
     if (err instanceof LockBusyError) return serviceBusy(res, err.message);
     return internalError(res, err);
   }

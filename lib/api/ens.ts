@@ -97,7 +97,15 @@ export const getAvatarUrlCached = async (
     return resolveAvatarUrl(name);
   }
 
-  const key = `avatar-url:${address.toLowerCase()}`;
+  let normalizedName: string;
+  try {
+    normalizedName = normalize(name);
+  } catch (err) {
+    console.error("ENS name normalization failed:", err);
+    return resolveAvatarUrl(name);
+  }
+
+  const key = `avatar-url:${address.toLowerCase()}:${normalizedName}`;
 
   try {
     const cached = await redis.get<string>(key);
@@ -169,10 +177,11 @@ export const getEnsForAddressCached = async (
   }
 
   const lockKey = `lock:${key}`;
+  const lockToken = crypto.randomUUID();
   let lockAcquired = true;
 
   try {
-    const lockResult = await redis.set(lockKey, "1", {
+    const lockResult = await redis.set(lockKey, lockToken, {
       nx: true,
       ex: ENS_LOCK_TTL_SECONDS,
     });
@@ -188,22 +197,39 @@ export const getEnsForAddressCached = async (
     );
   }
 
-  const ens = await getEnsForAddress(address);
-  const stampedEns = { ...ens, computedAt: Date.now() };
+  const RELEASE_LOCK_SCRIPT = `
+    if redis.call("GET", KEYS[1]) == ARGV[1] then
+      return redis.call("DEL", KEYS[1])
+    else
+      return 0
+    end
+  `;
 
   try {
-    await redis.set(key, stampedEns, { ex: ENS_CACHE_TTL_SECONDS });
-  } catch (err) {
-    console.error("ENS cache write failed:", err);
+    let stampedEns: EnsIdentity;
+
+    try {
+      const ens = await getEnsForAddress(address);
+      stampedEns = { ...ens, computedAt: Date.now() };
+    } catch (err) {
+      console.error("ENS resolution failed:", err);
+      throw err;
+    }
+
+    try {
+      await redis.set(key, stampedEns, { ex: ENS_CACHE_TTL_SECONDS });
+    } catch (err) {
+      console.error("ENS cache write failed:", err);
+    }
+
     return stampedEns;
   } finally {
     try {
-      await redis.del(lockKey);
+      await redis.eval(RELEASE_LOCK_SCRIPT, [lockKey], [lockToken]);
     } catch (err) {
       console.error("ENS lock release failed:", err);
     }
   }
-  return stampedEns;
 };
 
 export const getEnsForAddress = async (address: string | null | undefined) => {

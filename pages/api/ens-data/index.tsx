@@ -1,5 +1,9 @@
 import { getCacheControlHeader } from "@lib/api";
-import { ENS_CACHE_TTL, getEnsForAddressCached } from "@lib/api/ens";
+import {
+  ENS_CACHE_TTL,
+  getEnsForAddressCached,
+  LockBusyError,
+} from "@lib/api/ens";
 import { internalError, methodNotAllowed } from "@lib/api/errors";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
@@ -15,8 +19,6 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
-
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
         {
@@ -51,12 +53,17 @@ const handler = async (
         ?.map((a) => a?.id)
         .filter((e) => e);
 
+      let hadLockContention = false;
+
       const ensAddresses: EnsIdentity[] = (
         await Promise.all(
           addresses.map(async (address) => {
             try {
               return await getEnsForAddressCached(address as Address);
-            } catch {
+            } catch (err) {
+              if (err instanceof LockBusyError) {
+                hadLockContention = true;
+              }
               return null;
             }
           })
@@ -64,6 +71,11 @@ const handler = async (
       )
         .filter((e) => e)
         .map((e) => e!);
+
+      res.setHeader(
+        "Cache-Control",
+        hadLockContention ? "no-store" : getCacheControlHeader(ENS_CACHE_TTL)
+      );
 
       return res.status(200).json(ensAddresses);
     }
