@@ -1,6 +1,7 @@
 import { type BeforeSend, track } from "@vercel/analytics";
 import type { InputData, TransactionIdentifier } from "hooks/useExplorerStore";
-import { type BaseError, type RpcError, UserRejectedRequestError } from "viem";
+import type { Config } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 
 /**
  * Replaces wallet addresses in tracked URLs (e.g. `/accounts/0x…`), so
@@ -88,9 +89,11 @@ export const trackVercelAnalyticsEventOnce = (
   }
 };
 
-type TransactionEvents = Partial<
-  Record<TransactionStage, DelegationFunnelEvent>
->;
+type TransactionEvents = {
+  submitted: DelegationFunnelEvent;
+  confirmed?: DelegationFunnelEvent;
+  failed?: DelegationFunnelEvent;
+};
 
 const REDELEGATION_EVENTS: TransactionEvents = {
   submitted: "redelegation_started",
@@ -109,40 +112,34 @@ const DELEGATION_EVENTS: Partial<
   rebondFromUnbonded: REDELEGATION_EVENTS,
 };
 
-type TransactionStage = "submitted" | "confirmed" | "failed";
-
 /**
- * Whether the user rejected the request in their wallet. viem nests the
- * wallet's error in `cause`; matched on its code rather than `instanceof`
- * because several viem copies are installed.
+ * Tracks the funnel events for a submitted contract interaction: submitted
+ * right away, then confirmed or failed once it is mined. The receipt is
+ * awaited outside React, so the result is still tracked if the sending
+ * component unmounts, e.g. when the mobile delegate sheet is closed.
+ * "Move Delegated Stake" is a `bond` but counts as a redelegation.
  */
-const isUserRejection = (error?: Error) =>
-  Boolean(
-    (error as BaseError | undefined)?.walk?.(
-      (e) => (e as RpcError).code === UserRejectedRequestError.code
-    )
-  );
-
-/**
- * Tracks the funnel event, if any, for a contract interaction reaching
- * `stage`. "Move Delegated Stake" is a `bond` but counts as a redelegation.
- * A rejected signature isn't a failed transaction: nothing was submitted.
- */
-export const trackTransactionEvent = (
+export const trackTransaction = (
+  config: Config,
   id: TransactionIdentifier,
-  stage: TransactionStage,
   args: InputData,
-  error?: Error
+  hash: `0x${string}`
 ) => {
-  if (stage === "failed" && isUserRejection(error)) {
+  const isRedelegation = id === "bond" && args.isTransferStake;
+  const events = isRedelegation ? REDELEGATION_EVENTS : DELEGATION_EVENTS[id];
+
+  if (!events) {
     return;
   }
 
-  const isRedelegation = id === "bond" && args.isTransferStake;
-  const events = isRedelegation ? REDELEGATION_EVENTS : DELEGATION_EVENTS[id];
-  const eventName = events?.[stage];
+  trackVercelAnalyticsEvent(events.submitted);
 
-  if (eventName) {
-    trackVercelAnalyticsEvent(eventName);
+  const { confirmed, failed } = events;
+  if (confirmed || failed) {
+    // Rejects when the transaction reverts on chain.
+    waitForTransactionReceipt(config, { hash }).then(
+      () => confirmed && trackVercelAnalyticsEvent(confirmed),
+      () => failed && trackVercelAnalyticsEvent(failed)
+    );
   }
 };

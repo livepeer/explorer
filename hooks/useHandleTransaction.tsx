@@ -1,7 +1,8 @@
-import { trackTransactionEvent } from "@lib/analytics";
+import { trackTransaction } from "@lib/analytics";
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
+import { useConfig } from "wagmi";
 
 import {
   InputData,
@@ -25,6 +26,7 @@ export const useHandleTransaction = (
     setLatestTransactionDetails,
   } = useExplorerStore();
   const addRecentTransaction = useAddRecentTransaction();
+  const config = useConfig();
 
   useEffect(() => {
     if (isLoading) {
@@ -46,7 +48,7 @@ export const useHandleTransaction = (
   useEffect(() => {
     if (data) {
       setLatestTransactionDetails(data, id, args);
-      trackTransactionEvent(id, "submitted", args);
+      trackTransaction(config, id, args, data);
 
       if (onSuccess) {
         onSuccess(data);
@@ -58,7 +60,6 @@ export const useHandleTransaction = (
   useEffect(() => {
     if (isSuccess) {
       setLatestTransactionConfirmed();
-      trackTransactionEvent(id, "confirmed", args);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
@@ -67,7 +68,6 @@ export const useHandleTransaction = (
     if (error) {
       console.error(error);
       setLatestTransactionError(error.message.replace("GraphQL error: ", ""));
-      trackTransactionEvent(id, "failed", args, error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
