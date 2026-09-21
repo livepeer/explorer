@@ -8,6 +8,7 @@ overrides:
   '@types/react': 19.2.2
   '@types/react-dom': 19.2.2
   axios: ^1.18.0
+  cuer@0.0.3>qr: 0.5.5
   postcss: ^8.5.23
   ws@^8.0.0: ^8.21.3
 
@@ -8201,8 +8202,8 @@ packages:
     resolution: {integrity: sha512-BbubeCEyTuQjVMakvJQ/Sxbc93F2pwmbsxONT/ZRrwU7Ua38d8unYTwXpTVLAKJ4BDuH9IGztCjQcd/N/39Dvg==}
     engines: {node: '>=16.0.0'}
 
-  qr@0.7.0:
-    resolution: {integrity: sha512-/VrrACmOAwZVipuRITwfEwOL5oAMEHH5PTmBWaGtlTom2Thxaa+rhmna4zU9PRN2uLw2wdccbkHOLGZb1Q9SdA==}
+  qr@0.5.5:
+    resolution: {integrity: sha512-iQBvKj7MRKO+co+MY0IZpyLO+ezvttxsmV86WywrgPuAmgBkv0pytyi03wourniSoPgzffeBW6cBgIkpqcvjTg==}
     engines: {node: '>= 20.19.0'}
 
   qrcode.react@3.2.0:
@@ -17021,7 +17022,7 @@ snapshots:
 
   cuer@0.0.3(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(typescript@5.9.2):
     dependencies:
-      qr: 0.7.0
+      qr: 0.5.5
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
     optionalDependencies:
@@ -20578,7 +20579,7 @@ snapshots:
 
   pvutils@1.2.0: {}
 
-  qr@0.7.0: {}
+  qr@0.5.5: {}
 
   qrcode.react@3.2.0(react@19.2.1):
     dependencies:
