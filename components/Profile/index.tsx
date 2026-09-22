@@ -68,9 +68,7 @@ const Index = ({
     }
   };
 
-  // ENS-supplied URL — must be validated before rendering as an external link
-  // so a malicious orchestrator can't smuggle in `javascript:` / `data:` /
-  // schemeless hrefs via their ENS `url` text record.
+  // identity.url is an owner-set ENS text record, so treat it as untrusted.
   const safeIdentityUrl = sanitizeExternalUrl(identity?.url);
 
   return (
