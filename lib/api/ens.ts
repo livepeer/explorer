@@ -206,6 +206,15 @@ export const getEnsForAddressCached = async (
   `;
 
   try {
+    try {
+      const recheck = await redis.get<EnsIdentity>(key);
+      if (recheck) {
+        return recheck;
+      }
+    } catch (err) {
+      console.error("ENS cache recheck failed, proceeding to resolve:", err);
+    }
+
     let stampedEns: EnsIdentity;
 
     try {

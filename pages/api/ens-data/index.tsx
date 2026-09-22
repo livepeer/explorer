@@ -11,6 +11,8 @@ import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
 
+const BULK_RETRY_DELAY_MS = 1500;
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<EnsIdentity[] | null>
@@ -53,11 +55,31 @@ const handler = async (
         ?.map((a) => a?.id)
         .filter((e) => e);
 
-      let hadLockContention = false;
+      const bounced: string[] = [];
 
-      const ensAddresses: EnsIdentity[] = (
-        await Promise.all(
-          addresses.map(async (address) => {
+      const firstPass = await Promise.all(
+        addresses.map(async (address) => {
+          try {
+            return await getEnsForAddressCached(address as Address);
+          } catch (err) {
+            if (err instanceof LockBusyError) {
+              bounced.push(address);
+            }
+            return null;
+          }
+        })
+      );
+
+      let hadLockContention = false;
+      let retried: (EnsIdentity | null)[] = [];
+
+      if (bounced.length > 0) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, BULK_RETRY_DELAY_MS)
+        );
+
+        retried = await Promise.all(
+          bounced.map(async (address) => {
             try {
               return await getEnsForAddressCached(address as Address);
             } catch (err) {
@@ -67,8 +89,10 @@ const handler = async (
               return null;
             }
           })
-        )
-      )
+        );
+      }
+
+      const ensAddresses: EnsIdentity[] = [...firstPass, ...retried]
         .filter((e) => e)
         .map((e) => e!);
 
