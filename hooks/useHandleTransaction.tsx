@@ -1,12 +1,14 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
 import { useEffect } from "react";
+import { isHash } from "viem";
 
 import {
   InputData,
   TransactionIdentifier,
   useExplorerStore,
 } from "./useExplorerStore";
+import { useIsSafe } from "./wallet";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
@@ -24,6 +26,7 @@ export const useHandleTransaction = (
     setLatestTransactionDetails,
   } = useExplorerStore();
   const addRecentTransaction = useAddRecentTransaction();
+  const isSafe = useIsSafe();
 
   useEffect(() => {
     if (isLoading) {
@@ -32,8 +35,10 @@ export const useHandleTransaction = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
+  // Safes return a Safe tx hash (or a non-hash value) instead of an on-chain
+  // tx hash, which RainbowKit would track forever or throw on.
   useEffect(() => {
-    if (data) {
+    if (data && isHash(data) && !isSafe) {
       addRecentTransaction({
         hash: data,
         description: capitalCase(id),

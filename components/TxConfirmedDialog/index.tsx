@@ -13,9 +13,14 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { CheckIcon } from "@radix-ui/react-icons";
+import { CheckIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 import { formatAddress, fromWei } from "@utils/web3";
-import { TransactionStatus, useExplorerStore } from "hooks";
+import {
+  TransactionStatus,
+  useAccountAddress,
+  useExplorerStore,
+  useIsSafe,
+} from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
@@ -29,6 +34,7 @@ import { txMessages } from "../../lib/utils";
 const Index = () => {
   const router = useRouter();
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+  const isSafe = useIsSafe();
 
   const onDismiss = useCallback(() => {
     clearLatestTransaction();
@@ -82,7 +88,9 @@ const Index = () => {
               }}
             >
               <CheckIcon width={18} height={18} />
-              <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
+              <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>
+                {isSafe ? "Sent to Safe" : "Success"}
+              </Box>
             </Badge>
           </Heading>
         </DialogTitle>
@@ -542,6 +550,23 @@ function Table({ css = {}, children, ...props }) {
 }
 
 function Header({ tx }: { tx: TransactionStatus }) {
+  const account = useAccountAddress();
+  const isSafe = useIsSafe();
+  const chainInfo = CHAIN_INFO[DEFAULT_CHAIN_ID];
+
+  // A Safe returns a Safe tx hash, so link to its queue instead of the explorer.
+  const link = isSafe
+    ? {
+        label: "View in Safe",
+        href: `https://app.safe.global/transactions/queue?safe=${chainInfo.safePrefix}:${account}`,
+        icon: <ExternalLinkIcon />,
+      }
+    : {
+        label: "Transfer Receipt",
+        href: `${chainInfo.explorer}tx/${tx?.hash}`,
+        icon: <MdReceipt />,
+      };
+
   return (
     <Flex
       css={{
@@ -553,23 +578,27 @@ function Header({ tx }: { tx: TransactionStatus }) {
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
-        <Box css={{ marginRight: "10px" }}>🎉</Box>
-        {txMessages[tx?.name ?? ""]?.confirmed}
+        {isSafe ? (
+          "Sign and execute it in your Safe"
+        ) : (
+          <>
+            <Box css={{ marginRight: "10px" }}>🎉</Box>
+            {txMessages[tx?.name ?? ""]?.confirmed}
+          </>
+        )}
       </Flex>
       <A
         variant="primary"
         css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
-        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
-        aria-label="Transfer Receipt"
+        href={link.href}
+        aria-label={link.label}
       >
         <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
-          Transfer Receipt
+          {link.label}
         </Box>
-        <Box css={{ marginLeft: "6px", color: "$primary10" }}>
-          <MdReceipt />
-        </Box>
+        <Box css={{ marginLeft: "6px", color: "$primary10" }}>{link.icon}</Box>
       </A>
     </Flex>
   );

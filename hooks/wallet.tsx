@@ -1,3 +1,4 @@
+import { safe } from "@lib/api/abis/safe/Safe";
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   DEFAULT_CHAIN_ID,
@@ -6,7 +7,7 @@ import {
 import { Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useDisconnect, useReadContract } from "wagmi";
 
 const useIsChainSupported = () => {
   const activeChain = useActiveChain();
@@ -28,6 +29,23 @@ export const useAccountAddress = () => {
   const isChainSupported = useIsChainSupported();
 
   return isChainSupported && account?.address ? account.address : null;
+};
+
+/**
+ * Whether the connected account is a Safe. getThreshold() only succeeds on a
+ * Safe proxy: EOAs return no data and other contracts revert.
+ */
+export const useIsSafe = () => {
+  const address = useAccountAddress();
+
+  const { data } = useReadContract({
+    address: address ?? undefined,
+    abi: safe,
+    functionName: "getThreshold",
+    query: { enabled: Boolean(address), retry: false, staleTime: Infinity },
+  });
+
+  return data !== undefined;
 };
 
 export const useAccountSigner = () => {
