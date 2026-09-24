@@ -1,10 +1,11 @@
+import { markdownSchema } from "@lib/sanitize";
 import { isImageUrl } from "@lib/utils";
 import { styled } from "@livepeer/design-system";
 import React, { useMemo } from "react";
 import OriginalReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import sanitizeHtml from "sanitize-html";
 
 const StyledTable = styled("table", {
   borderCollapse: "collapse",
@@ -83,56 +84,6 @@ const StyledReactMarkdown = styled(OriginalReactMarkdown, {
 });
 
 /**
- * Sanitization options for HTML in markdown content.
- * Allows safe HTML tags while preventing XSS attacks.
- */
-const sanitizeOptions: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "b",
-    "i",
-    "em",
-    "strong",
-    "a",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "hr",
-    "li",
-    "ol",
-    "p",
-    "pre",
-    "ul",
-    "br",
-    "code",
-    "span",
-    "img",
-    "table",
-    "thead",
-    "tbody",
-    "tr",
-    "th",
-    "td",
-    "blockquote",
-  ],
-  disallowedTagsMode: "discard",
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-    img: ["src", "alt", "title"],
-    code: ["class"],
-  },
-  selfClosing: ["img", "br", "hr"],
-  allowedSchemes: ["https", "mailto"],
-  allowedSchemesByTag: {},
-  allowedSchemesAppliedToAttributes: ["href", "src"],
-  allowProtocolRelative: false,
-  enforceHtmlBoundary: true,
-};
-
-/**
  * Component for rendering markdown images with custom styling.
  * @param src - The image source URL.
  * @param alt - The image alt text.
@@ -155,7 +106,10 @@ MarkdownImage.displayName = "MarkdownImage";
 
 type MarkdownRendererProps = {
   children: string;
-} & React.ComponentProps<typeof OriginalReactMarkdown>;
+} & Omit<
+  React.ComponentProps<typeof OriginalReactMarkdown>,
+  "children" | "rehypePlugins"
+>;
 
 /**
  * A component for rendering markdown content with custom styling.
@@ -166,12 +120,6 @@ const MarkdownRenderer = ({
   children,
   ...props
 }: MarkdownRendererProps): React.ReactElement | null => {
-  // Sanitize HTML content to prevent XSS attacks
-  const sanitizedChildren = useMemo(
-    () => sanitizeHtml(children, sanitizeOptions),
-    [children]
-  );
-
   const components: React.ComponentProps<
     typeof OriginalReactMarkdown
   >["components"] = useMemo(
@@ -230,21 +178,20 @@ const MarkdownRenderer = ({
     return null;
   }
 
-  if (!sanitizedChildren.trim()) {
-    console.warn(
-      "MarkdownRenderer: nothing left after sanitizing; adjust source content or `sanitizeOptions`."
-    );
+  if (!children.trim()) {
     return null;
   }
 
   return (
     <StyledReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw]}
       components={components}
       {...props}
+      // Last, so callers can't replace it. Sanitize after rehype-raw so the
+      // allow-list sees the final HTML tree.
+      rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
     >
-      {sanitizedChildren}
+      {children}
     </StyledReactMarkdown>
   );
 };

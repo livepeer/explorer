@@ -73,6 +73,9 @@ importers:
       graphql:
         specifier: ^16.14.2
         version: 16.14.2
+      hast-util-to-jsx-runtime:
+        specifier: ^2.3.6
+        version: 2.3.6
       isomorphic-unfetch:
         specifier: ^3.1.0
         version: 3.1.0(encoding@0.1.13)
@@ -139,18 +142,27 @@ importers:
       recharts:
         specifier: ^2.15.4
         version: 2.15.4(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
       remark-gfm:
         specifier: 4.0.1
         version: 4.0.1
-      sanitize-html:
-        specifier: 2.17.5
-        version: 2.17.5
       swr:
         specifier: ^2.5.1
         version: 2.5.1(react@19.2.1)
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
       viem:
         specifier: ^2.56.3
         version: 2.56.3(bufferutil@4.1.0)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.5.4)
@@ -209,9 +221,6 @@ importers:
       '@types/react-table':
         specifier: ^7.7.20
         version: 7.7.20
-      '@types/sanitize-html':
-        specifier: ^2.16.1
-        version: 2.16.1
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@1.17.1)
@@ -4218,9 +4227,6 @@ packages:
   '@types/react@19.2.2':
     resolution: {integrity: sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA==}
 
-  '@types/sanitize-html@2.16.1':
-    resolution: {integrity: sha512-n9wjs8bCOTyN/ynwD8s/nTcTreIHB1vf31vhLMGqUPNHaweKC4/fAl4Dj+hUlCTKYgm4P3k83fmiFfzkZ6sgMA==}
-
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
@@ -5797,10 +5803,6 @@ packages:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
 
-  entities@7.0.1:
-    resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
-    engines: {node: '>=0.12'}
-
   error-ex@1.3.4:
     resolution: {integrity: sha512-sqQamAnR14VgCr1A618A3sGrygcpK+HEbenA/HiEAkkUwcZIIB/tgWqHFxWgOyDh4nB4JCRimh79dR5Ywc9MDQ==}
 
@@ -6438,6 +6440,9 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
+  hast-util-from-html@2.0.3:
+    resolution: {integrity: sha512-CUSRHXyKjzHov8yKsQjGOElXy/3EKpyX56ELnkHH34vDVw1N1XSQ1ZcAvTyAPtGqLTuKP/uxM+aLkSPqF/EtMw==}
+
   hast-util-from-parse5@8.0.3:
     resolution: {integrity: sha512-3kxEVkEKt0zvcZ3hCRYI8rqrgwtlIOFMWkbclACvjlDw8Li9S2hk/d51OI0nr/gIpdMHNepwgOKqZ/sy0Clpyg==}
 
@@ -6446,6 +6451,12 @@ packages:
 
   hast-util-raw@9.1.0:
     resolution: {integrity: sha512-Y8/SBAHkZGoNkpzqqfCldijcuUKh7/su31kEBp67cFY09Wy0mTRgtsLYsiIxMJxlu0f6AA5SUTbDR8K0rxnbUw==}
+
+  hast-util-sanitize@5.0.2:
+    resolution: {integrity: sha512-3yTWghByc50aGS7JlGhk61SPenfE/p1oaFeNwkOOyrscaOkMGrcW9+Cy/QAIOBpZxP1yqDIzFMR0+Np0i0+usg==}
+
+  hast-util-to-html@9.0.5:
+    resolution: {integrity: sha512-OguPdidb+fbHQSU4Q4ZiLKnzWo8Wwsf5bZfbvu7//a9oTYoqD/fWpe96NuHkoS9h0ccGOTe0C4NGXdtS0iObOw==}
 
   hast-util-to-jsx-runtime@2.3.6:
     resolution: {integrity: sha512-zl6s8LwNyo1P9uw+XJGvZtdFF1GdAkOg8ujOw+4Pyb76874fLps4ueHXDhXWdk6YHQ6OgUtinliG7RsYvCbbBg==}
@@ -6493,9 +6504,6 @@ packages:
 
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
-
-  htmlparser2@10.1.0:
-    resolution: {integrity: sha512-VTZkM9GWRAtEpveh7MSF6SjjrpNVNNVJfFup7xTY3UpFtm67foy9HDVXneLtFVt4pMz5kZtgNcvCniNFb1hlEQ==}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -6779,10 +6787,6 @@ packages:
   is-plain-obj@4.1.0:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
     engines: {node: '>=12'}
-
-  is-plain-object@5.1.0:
-    resolution: {integrity: sha512-bUi/yjmtKYcRVUtWRGr0UA6xEFh2I6zWUwMrUXB3s7bmYCaZ8a+0ZsTRkrawh/mzlSD1Y0Ph8bp/U+TvBpWDNw==}
-    engines: {node: '>=0.10.0'}
 
   is-potential-custom-element-name@1.0.1:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}
@@ -7159,9 +7163,6 @@ packages:
   language-tags@1.0.9:
     resolution: {integrity: sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==}
     engines: {node: '>=0.10'}
-
-  launder@1.7.1:
-    resolution: {integrity: sha512-mU6WRz5EusL9ZZuiZ5SO4Y6C0P9PAUR9iwdb6bzj4KDihm28DiHFw+/yk9DBH4f+Pv1wuzQ4e2jV3oQ7mkIqvw==}
 
   legacy-javascript@0.0.1:
     resolution: {integrity: sha512-lPyntS4/aS7jpuvOlitZDFifBCb4W8L/3QU0PLbUTUj+zYah8rfVjYic88yG7ZKTxhS5h9iz7duT8oUXKszLhg==}
@@ -7936,9 +7937,6 @@ packages:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
 
-  parse-srcset@1.0.2:
-    resolution: {integrity: sha512-/2qh0lav6CmI15FzA3i/2Bzk2zCgQhGMkvhOhKNcBVQ1ldgpbfiNTVslmooUmWJcADi1f1kIeynbDRVzNlfR6Q==}
-
   parse5@7.3.0:
     resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
@@ -8434,8 +8432,17 @@ packages:
       react:
         optional: true
 
+  rehype-parse@9.0.1:
+    resolution: {integrity: sha512-ksCzCD0Fgfh7trPDxr2rSylbwq9iYDkSn8TCDmEJ49ljEUBxDVCzCHv7QNzZOfODanX4+bWQ4WZqLCRWYLfhag==}
+
   rehype-raw@7.0.0:
     resolution: {integrity: sha512-/aE8hCfKlQeA8LmyeyQvQF3eBiLRGNlfBJEvWH7ivp9sBqs7TNqBL5X3v157rM4IFETqDnIOO+z5M/biZbo9Ww==}
+
+  rehype-sanitize@6.0.0:
+    resolution: {integrity: sha512-CsnhKNsyI8Tub6L4sm5ZFsme4puGfc6pYylvXo1AeqaGbjOYyzNv3qZPwvs0oMJ39eryyeOdmxwUIo94IpEhqg==}
+
+  rehype-stringify@10.0.1:
+    resolution: {integrity: sha512-k9ecfXHmIPuFVI61B9DeLPN0qFHfawM6RsuX48hoqlaKSF61RskNjSm1lI8PhBEM0MRdLxVVm4WmTqJQccH9mA==}
 
   relay-runtime@12.0.0:
     resolution: {integrity: sha512-QU6JKr1tMsry22DXNy9Whsq5rmvwr3LSZiiWV/9+DFpuTWvp+WFhobWMc8TC4OjKFfNhEZy7mOiqUAn5atQtug==}
@@ -8584,9 +8591,6 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-
-  sanitize-html@2.17.5:
-    resolution: {integrity: sha512-ZmU1joGRrvoyctKIiuwUxqR6moLoU2Wk+2bMccN6f7UwhAmwYDvWziqPxRDDN2Qip62NqnIrVrT9akbL6Wretg==}
 
   sax@1.6.1:
     resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
@@ -9016,8 +9020,8 @@ packages:
   third-party-web@0.26.7:
     resolution: {integrity: sha512-buUzX4sXC4efFX6xg2bw6/eZsCUh8qQwSavC4D9HpONMFlRbcHhD8Je5qwYdCpViR6q0qla2wPP+t91a2vgolg==}
 
-  third-party-web@0.29.2:
-    resolution: {integrity: sha512-fegtha91tq2DHphyoiBXVHjVi2YG9zFaRnboT9C28tO1en9Y3wJsfspuy40F+u5wl3hHVbw7cnd1b67kEGHb8g==}
+  third-party-web@0.30.0:
+    resolution: {integrity: sha512-p+PfyL5U0ediGzvwPzMSdD9MnC8rHW6nWJJVLIQvqN7RsSqfaZ+7n4c9GILqH36EYR0eXB9CzAeCRnKFr/9uJg==}
 
   thread-stream@0.15.2:
     resolution: {integrity: sha512-UkEhKIg2pD+fjkHQKyJO3yoIvAP3N6RlNFt2dUhcS1FGvCD1cQa1M/PGknCLFIyZdtJOWQjejp7bdNqmN7zwdA==}
@@ -12636,7 +12640,7 @@ snapshots:
   '@paulirish/trace_engine@0.0.53':
     dependencies:
       legacy-javascript: 0.0.1
-      third-party-web: 0.29.2
+      third-party-web: 0.30.0
 
   '@paulmillr/qr@0.2.1': {}
 
@@ -15156,10 +15160,6 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@types/sanitize-html@2.16.1':
-    dependencies:
-      htmlparser2: 10.1.0
-
   '@types/stack-utils@2.0.3': {}
 
   '@types/tough-cookie@4.0.5': {}
@@ -17308,8 +17308,6 @@ snapshots:
 
   entities@6.0.1: {}
 
-  entities@7.0.1: {}
-
   error-ex@1.3.4:
     dependencies:
       is-arrayish: 0.2.1
@@ -18230,6 +18228,15 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  hast-util-from-html@2.0.3:
+    dependencies:
+      '@types/hast': 3.0.5
+      devlop: 1.1.0
+      hast-util-from-parse5: 8.0.3
+      parse5: 7.3.0
+      vfile: 6.0.3
+      vfile-message: 4.0.3
+
   hast-util-from-parse5@8.0.3:
     dependencies:
       '@types/hast': 3.0.5
@@ -18259,6 +18266,26 @@ snapshots:
       unist-util-visit: 5.1.0
       vfile: 6.0.3
       web-namespaces: 2.0.1
+      zwitch: 2.0.4
+
+  hast-util-sanitize@5.0.2:
+    dependencies:
+      '@types/hast': 3.0.5
+      '@ungap/structured-clone': 1.4.0
+      unist-util-position: 5.0.0
+
+  hast-util-to-html@9.0.5:
+    dependencies:
+      '@types/hast': 3.0.5
+      '@types/unist': 3.0.3
+      ccount: 2.0.1
+      comma-separated-tokens: 2.0.3
+      hast-util-whitespace: 3.0.0
+      html-void-elements: 3.0.0
+      mdast-util-to-hast: 13.2.1
+      property-information: 7.2.0
+      space-separated-tokens: 2.0.2
+      stringify-entities: 4.0.4
       zwitch: 2.0.4
 
   hast-util-to-jsx-runtime@2.3.6:
@@ -18337,13 +18364,6 @@ snapshots:
   html-url-attributes@3.0.1: {}
 
   html-void-elements@3.0.0: {}
-
-  htmlparser2@10.1.0:
-    dependencies:
-      domelementtype: 2.3.0
-      domhandler: 5.0.3
-      domutils: 3.2.2
-      entities: 7.0.1
 
   http-errors@2.0.1:
     dependencies:
@@ -18639,8 +18659,6 @@ snapshots:
   is-obj@2.0.0: {}
 
   is-plain-obj@4.1.0: {}
-
-  is-plain-object@5.1.0: {}
 
   is-potential-custom-element-name@1.0.1: {}
 
@@ -19231,10 +19249,6 @@ snapshots:
   language-tags@1.0.9:
     dependencies:
       language-subtag-registry: 0.3.23
-
-  launder@1.7.1:
-    dependencies:
-      dayjs: 1.11.23
 
   legacy-javascript@0.0.1: {}
 
@@ -20322,8 +20336,6 @@ snapshots:
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
 
-  parse-srcset@1.0.2: {}
-
   parse5@7.3.0:
     dependencies:
       entities: 6.0.1
@@ -20895,11 +20907,28 @@ snapshots:
       '@types/react': 19.2.2
       react: 19.2.1
 
+  rehype-parse@9.0.1:
+    dependencies:
+      '@types/hast': 3.0.5
+      hast-util-from-html: 2.0.3
+      unified: 11.0.5
+
   rehype-raw@7.0.0:
     dependencies:
       '@types/hast': 3.0.5
       hast-util-raw: 9.1.0
       vfile: 6.0.3
+
+  rehype-sanitize@6.0.0:
+    dependencies:
+      '@types/hast': 3.0.5
+      hast-util-sanitize: 5.0.2
+
+  rehype-stringify@10.0.1:
+    dependencies:
+      '@types/hast': 3.0.5
+      hast-util-to-html: 9.0.5
+      unified: 11.0.5
 
   relay-runtime@12.0.0(encoding@0.1.13):
     dependencies:
@@ -21064,16 +21093,6 @@ snapshots:
   safe-stable-stringify@2.5.0: {}
 
   safer-buffer@2.1.2: {}
-
-  sanitize-html@2.17.5:
-    dependencies:
-      deepmerge: 4.3.1
-      escape-string-regexp: 4.0.0
-      htmlparser2: 10.1.0
-      is-plain-object: 5.1.0
-      launder: 1.7.1
-      parse-srcset: 1.0.2
-      postcss: 8.5.28
 
   sax@1.6.1: {}
 
@@ -21610,7 +21629,7 @@ snapshots:
 
   third-party-web@0.26.7: {}
 
-  third-party-web@0.29.2: {}
+  third-party-web@0.30.0: {}
 
   thread-stream@0.15.2:
     dependencies:
