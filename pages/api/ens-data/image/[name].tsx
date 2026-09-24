@@ -12,6 +12,28 @@ import { normalize } from "viem/ens";
 
 const blacklist = ["salty-minning.eth"];
 
+const ARWEAVE_TX_ID = /^[A-Za-z0-9_-]{43}$/;
+
+/**
+ * Map an owner-set avatar record to a fixed, trusted host, so the record
+ * can't point this endpoint at an arbitrary server (SSRF).
+ */
+const resolveAvatarUrl = (avatar: string | null, name: string) => {
+  const cid = parseCid(avatar);
+  if (cid?.id) {
+    return `https://dweb.link/ipfs/${cid.id}`;
+  }
+
+  const arweaveId = parseArweaveTxId(avatar)?.id;
+  if (arweaveId && ARWEAVE_TX_ID.test(arweaveId)) {
+    return `https://arweave.net/${arweaveId}`;
+  }
+
+  return `https://metadata.ens.domains/mainnet/avatar/${encodeURIComponent(
+    name
+  )}`;
+};
+
 const handler = async (
   req: NextApiRequest,
   res: NextApiResponse<ArrayBuffer | null>
@@ -29,22 +51,14 @@ const handler = async (
         !blacklist.includes(name)
       ) {
         try {
+          const normalizedName = normalize(name);
           const avatar = await l1PublicClient.getEnsAvatar({
-            name: normalize(name),
+            name: normalizedName,
           });
 
-          const cid = parseCid(avatar);
-          const arweaveId = parseArweaveTxId(avatar);
-
-          const imageUrl = cid?.id
-            ? `https://dweb.link/ipfs/${cid.id}`
-            : arweaveId?.id
-            ? arweaveId.url
-            : avatar?.startsWith("https://")
-            ? avatar
-            : `https://metadata.ens.domains/mainnet/avatar/${name}`;
-
-          const response = await fetch(imageUrl);
+          const response = await fetch(
+            resolveAvatarUrl(avatar, normalizedName)
+          );
 
           const arrayBuffer = await response.arrayBuffer();
 
