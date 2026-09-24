@@ -8,4 +8,5 @@ export type EnsIdentity = {
   github?: string | null;
   description?: string | null;
   isLoading?: boolean;
+  computedAt?: number;
 };

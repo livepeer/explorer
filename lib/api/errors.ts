@@ -62,3 +62,9 @@ export const methodNotAllowed = (
     `Method ${method} Not Allowed`
   );
 };
+
+export const serviceBusy = (
+  res: NextApiResponse,
+  message: string,
+  details?: string
+) => apiError(res, 503, "SERVICE_BUSY", message, details);
