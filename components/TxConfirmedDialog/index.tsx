@@ -18,6 +18,7 @@ import { formatAddress, fromWei } from "@utils/web3";
 import {
   TransactionStatus,
   useAccountAddress,
+  useActiveChain,
   useExplorerStore,
   useIsSafe,
 } from "hooks";
@@ -89,7 +90,11 @@ const Index = () => {
             >
               <CheckIcon width={18} height={18} />
               <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>
-                {isSafe ? "Sent to Safe" : "Success"}
+                {isSafe === undefined
+                  ? "Submitted"
+                  : isSafe
+                  ? "Sent to Safe"
+                  : "Success"}
               </Box>
             </Badge>
           </Heading>
@@ -106,12 +111,16 @@ export default Index;
 // Suggest the Safe App to Safes connected from outside Safe{Wallet}.
 function SafeAppHint() {
   const account = useAccountAddress();
+  const activeChain = useActiveChain();
   const isSafe = useIsSafe();
   const { connector } = useAccount();
 
-  if (!isSafe || connector?.id === "safe") return null;
+  if (!account || !isSafe || connector?.id === "safe") return null;
 
-  const safeId = `${CHAIN_INFO[DEFAULT_CHAIN_ID].safePrefix}:${account}`;
+  const chainInfo =
+    CHAIN_INFO[activeChain?.id as keyof typeof CHAIN_INFO] ??
+    CHAIN_INFO[DEFAULT_CHAIN_ID];
+  const safeId = `${chainInfo.safePrefix}:${account}`;
   const appUrl = encodeURIComponent(window.location.origin);
 
   return (
@@ -145,7 +154,34 @@ const TransactionContent = ({
   tx: TransactionStatus;
   onDismiss: () => void;
 }) => {
+  const isSafe = useIsSafe();
+
   if (!tx.inputData) return;
+  if (isSafe === undefined) {
+    return <Box css={{ textAlign: "center" }}>Checking wallet status...</Box>;
+  }
+  if (isSafe) {
+    return (
+      <Box>
+        <Table css={{ mb: "$4" }}>
+          <Header tx={tx} />
+          <Box css={{ padding: "$3" }}>
+            Your transaction was sent to Safe. Check its status there; it takes
+            effect only after on-chain execution.
+          </Box>
+        </Table>
+        <Button
+          onClick={onDismiss}
+          size="4"
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          Close
+        </Button>
+      </Box>
+    );
+  }
+
   switch (tx.name) {
     case "bond":
       return (
@@ -587,8 +623,11 @@ function Table({ css = {}, children, ...props }) {
 
 function Header({ tx }: { tx: TransactionStatus }) {
   const account = useAccountAddress();
+  const activeChain = useActiveChain();
   const isSafe = useIsSafe();
-  const chainInfo = CHAIN_INFO[DEFAULT_CHAIN_ID];
+  const chainInfo =
+    CHAIN_INFO[activeChain?.id as keyof typeof CHAIN_INFO] ??
+    CHAIN_INFO[DEFAULT_CHAIN_ID];
 
   // A Safe returns a Safe tx hash, so link to its queue instead of the explorer.
   const link = isSafe

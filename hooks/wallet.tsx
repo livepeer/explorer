@@ -32,19 +32,20 @@ export const useAccountAddress = () => {
 };
 
 /**
- * Whether the connected account is a Safe. getThreshold() only succeeds on a
- * Safe proxy: EOAs return no data and other contracts revert.
+ * Whether the connected account is a Safe. Undefined means the contract read
+ * has not settled yet, so callers must not treat it as an EOA.
  */
 export const useIsSafe = () => {
   const address = useAccountAddress();
 
-  const { data } = useReadContract({
+  const { data, isPending } = useReadContract({
     address: address ?? undefined,
     abi: safe,
     functionName: "getThreshold",
     query: { enabled: Boolean(address), retry: false, staleTime: Infinity },
   });
 
+  if (!address || isPending) return undefined;
   return data !== undefined;
 };
 
