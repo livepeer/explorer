@@ -50,6 +50,7 @@ const Index = ({ active, address }) => {
               borderColor: "$neutral5",
             }}
             src={identity.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas
