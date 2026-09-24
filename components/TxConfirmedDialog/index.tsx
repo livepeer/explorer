@@ -28,7 +28,7 @@ import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { MdReceipt } from "react-icons/md";
 import { Address } from "viem";
-import { useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 
 import { txMessages } from "../../lib/utils";
 
@@ -100,12 +100,52 @@ const Index = () => {
           </Heading>
         </DialogTitle>
         <TransactionContent tx={latestTransaction} onDismiss={onDismiss} />
+        {latestTransaction.inputData && <SafeAppHint />}
       </DialogContent>
     </Dialog>
   );
 };
 
 export default Index;
+
+// Suggest the Safe App to Safes connected from outside Safe{Wallet}.
+function SafeAppHint() {
+  const account = useAccountAddress();
+  const activeChain = useActiveChain();
+  const isSafe = useIsSafe();
+  const { connector } = useAccount();
+
+  if (!account || !isSafe || connector?.id === "safe") return null;
+
+  const chainInfo =
+    CHAIN_INFO[activeChain?.id as keyof typeof CHAIN_INFO] ??
+    CHAIN_INFO[DEFAULT_CHAIN_ID];
+  const safeId = `${chainInfo.safePrefix}:${account}`;
+  const appUrl = encodeURIComponent(window.location.origin);
+
+  return (
+    <Box
+      css={{
+        mt: "$3",
+        textAlign: "center",
+        fontSize: "$2",
+        color: "$neutral11",
+      }}
+    >
+      Next time, use the explorer inside your Safe.{" "}
+      <A
+        variant="primary"
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`https://app.safe.global/apps/open?safe=${safeId}&appUrl=${appUrl}`}
+        css={{ display: "inline-flex", alignItems: "center", gap: "$1" }}
+      >
+        Open as Safe App
+        <ExternalLinkIcon aria-hidden />
+      </A>
+    </Box>
+  );
+}
 
 const TransactionContent = ({
   tx,
