@@ -1,5 +1,7 @@
+import { trackTransaction } from "@lib/analytics";
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
+import { useConfig } from "wagmi";
 import { useEffect, useRef } from "react";
 import { isHash } from "viem";
 
@@ -26,6 +28,7 @@ export const useHandleTransaction = (
     setLatestTransactionDetails,
   } = useExplorerStore();
   const addRecentTransaction = useAddRecentTransaction();
+  const config = useConfig();
   const isSafe = useIsSafe();
   const trackedHash = useRef<string | null>(null);
 
@@ -56,6 +59,7 @@ export const useHandleTransaction = (
   useEffect(() => {
     if (data) {
       setLatestTransactionDetails(data, id, args);
+      trackTransaction(config, id, args, data);
 
       if (onSuccess) {
         onSuccess(data);

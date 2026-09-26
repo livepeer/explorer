@@ -10,6 +10,10 @@ import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
+import {
+  trackVercelAnalyticsEvent,
+  trackWalletConnected,
+} from "@lib/analytics";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import {
@@ -63,6 +67,7 @@ import { FiInfo } from "react-icons/fi";
 import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
+import { useAccountEffect } from "wagmi";
 
 import {
   useAccountAddress,
@@ -107,6 +112,7 @@ export type DrawerItem = {
   as: string;
   icon: React.ElementType;
   className?: string;
+  onClick?: () => void;
 };
 
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
@@ -265,6 +271,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     ReactGA.pageview(window.location.pathname + window.location.search);
   }, []);
 
+  useAccountEffect({
+    onConnect: ({ isReconnected }) => {
+      // Reconnects restore a previous session, so they don't count.
+      if (!isReconnected) {
+        trackWalletConnected(asPath);
+      }
+    },
+  });
+
   const items: DrawerItem[] = [
     {
       name: "Overview",
@@ -279,6 +294,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/orchestrators",
       icon: DNS,
       className: "orchestrators",
+      onClick: () => trackVercelAnalyticsEvent("orchestrators_nav_clicked"),
     },
     {
       name: "Gateways",
@@ -548,6 +564,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Link passHref href="/orchestrators">
                             <Button
                               size="3"
+                              onClick={() =>
+                                trackVercelAnalyticsEvent(
+                                  "orchestrators_nav_clicked"
+                                )
+                              }
                               css={{
                                 marginLeft: "$1",
                                 backgroundColor: isOrchestratorsNavActive
