@@ -2,6 +2,7 @@ import {
   getDefaultConfig,
   type Locale,
   RainbowKitProvider,
+  type Wallet,
 } from "@rainbow-me/rainbowkit";
 import {
   baseAccount,
@@ -9,6 +10,7 @@ import {
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
+  safeWallet,
   trustWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
@@ -21,7 +23,19 @@ import {
 } from "lib/chains";
 import { useMemo } from "react";
 import { fallback, http } from "viem";
-import { WagmiProvider } from "wagmi";
+import { createConnector, WagmiProvider } from "wagmi";
+import { safe } from "wagmi/connectors";
+
+// RainbowKit's safeWallet, but only trusting Safe{Wallet} as the parent page;
+// otherwise any site embedding the explorer can fake the Safe handshake.
+const safeAppWallet = (): Wallet => ({
+  ...safeWallet(),
+  createConnector: (walletDetails) =>
+    createConnector((config) => ({
+      ...safe({ allowedDomains: [/^https:\/\/app\.safe\.global$/] })(config),
+      ...walletDetails,
+    })),
+});
 
 const Index = ({
   children,
@@ -35,6 +49,8 @@ const Index = ({
       DEFAULT_CHAIN.id === L1_CHAIN.id
         ? ([DEFAULT_CHAIN] as const)
         : ([DEFAULT_CHAIN, L1_CHAIN] as const);
+    // Safe Apps run in Safe{Wallet}'s iframe; list Safe first so reconnect picks it.
+    const isSafeApp = typeof window !== "undefined" && window.parent !== window;
 
     return getDefaultConfig({
       appName: "Livepeer Explorer",
@@ -51,6 +67,7 @@ const Index = ({
         {
           groupName: "Popular",
           wallets: [
+            ...(isSafeApp ? [safeAppWallet] : []),
             metaMaskWallet,
             braveWallet,
             rainbowWallet,
