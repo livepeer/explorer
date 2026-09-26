@@ -1,7 +1,7 @@
 import { type BeforeSend, track } from "@vercel/analytics";
 import type { InputData, TransactionIdentifier } from "hooks/useExplorerStore";
 import type { Config } from "wagmi";
-import { waitForTransactionReceipt } from "wagmi/actions";
+import { getPublicClient } from "wagmi/actions";
 
 /**
  * Replaces wallet addresses in tracked URLs (e.g. `/accounts/0x…`), so
@@ -135,11 +135,37 @@ export const trackTransaction = (
   trackVercelAnalyticsEvent(events.submitted);
 
   const { confirmed, failed } = events;
-  if (confirmed || failed) {
-    // Rejects when the transaction reverts on chain.
-    waitForTransactionReceipt(config, { hash }).then(
-      () => confirmed && trackVercelAnalyticsEvent(confirmed),
-      () => failed && trackVercelAnalyticsEvent(failed)
-    );
+  const client = getPublicClient(config);
+
+  if ((!confirmed && !failed) || !client) {
+    return;
   }
+
+  // Replacing the transaction in the wallet with a cancel, or with an
+  // unrelated transaction, means this interaction never happened, so neither
+  // outcome is tracked. Speeding it up is the same interaction and counts.
+  let isAbandoned = false;
+
+  client
+    .waitForTransactionReceipt({
+      hash,
+      timeout: 0,
+      onReplaced: ({ reason }) => {
+        isAbandoned = reason !== "repriced";
+      },
+    })
+    .then((receipt) => {
+      if (isAbandoned) {
+        return;
+      }
+
+      const event = receipt.status === "success" ? confirmed : failed;
+
+      if (event) {
+        trackVercelAnalyticsEvent(event);
+      }
+    })
+    // A receipt we can't fetch, e.g. because of an RPC error, says nothing
+    // about whether the interaction succeeded.
+    .catch(() => undefined);
 };
