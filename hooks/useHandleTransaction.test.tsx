@@ -3,12 +3,19 @@
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { renderHook } from "@testing-library/react";
 
+import { trackTransaction } from "../lib/analytics";
 import { useExplorerStore } from "./useExplorerStore";
 import { useHandleTransaction } from "./useHandleTransaction";
 import { useIsSafe } from "./wallet";
 
 jest.mock("@rainbow-me/rainbowkit", () => ({
   useAddRecentTransaction: jest.fn(),
+}));
+jest.mock("../lib/analytics", () => ({
+  trackTransaction: jest.fn(),
+}));
+jest.mock("wagmi", () => ({
+  useConfig: jest.fn(),
 }));
 jest.mock("./useExplorerStore", () => ({
   useExplorerStore: jest.fn(),
@@ -45,6 +52,7 @@ it("never tracks a Safe proposal that arrives before Safe detection finishes", (
   rerender();
 
   expect(addRecentTransaction).not.toHaveBeenCalled();
+  expect(trackTransaction).not.toHaveBeenCalled();
 });
 
 it("tracks an EOA transaction once after detection finishes", () => {
@@ -64,4 +72,5 @@ it("tracks an EOA transaction once after detection finishes", () => {
     hash,
     description: "Vote",
   });
+  expect(trackTransaction).toHaveBeenCalledTimes(1);
 });
