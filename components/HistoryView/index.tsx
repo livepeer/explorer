@@ -1,5 +1,6 @@
 import Spinner from "@components/Spinner";
 import TransactionBadge from "@components/TransactionBadge";
+import { withoutTransferBondInternals } from "@components/TransactionsList";
 import { Fm, parsePollIpfs } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
@@ -67,7 +68,9 @@ const Index = () => {
     const reversedEvents = data?.transactions?.map((tx) => {
       return {
         ...tx,
-        events: tx.events ? tx.events.slice().reverse() : [],
+        events: withoutTransferBondInternals(
+          tx.events ? tx.events.slice().reverse() : []
+        ),
       };
     });
     return reversedEvents?.flatMap(({ events: e }) => e ?? []) ?? [];
@@ -82,6 +85,7 @@ const Index = () => {
       e.__typename === t;
   const isVoteEvent = isType("VoteEvent");
   const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
+  const isTransferBondEvent = isType("TransferBondEvent");
 
   // Clamps tickets/rewards to the oldest loaded transaction so rows only
   // append; nothing is stranded, registration precedes both.
@@ -186,6 +190,26 @@ const Index = () => {
     );
   }, [data?.rewardEvents, account, lastEventTimestamp]);
 
+  // Only the sender submits a bond transfer, so incoming ones are not in the
+  // account's own transactions and come from the dedicated list instead.
+  const transferBondEvents = useMemo(() => {
+    const accountLower = account.toLowerCase();
+    return [
+      ...events.filter(isTransferBondEvent).map((e) => ({
+        ...e,
+        direction: "out" as const,
+      })),
+      ...(data?.transferBondEvents ?? [])
+        .filter(
+          (e) =>
+            (e?.transaction?.timestamp ?? 0) > lastEventTimestamp &&
+            e?.oldDelegator?.id?.toLowerCase() !== accountLower
+        )
+        .map((e) => ({ ...e, direction: "in" as const })),
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, data?.transferBondEvents, account, lastEventTimestamp]);
+
   const mergedEvents = useMemo(
     () =>
       [
@@ -196,10 +220,12 @@ const Index = () => {
             e?.__typename !== "WinningTicketRedeemedEvent" &&
             e?.__typename !== "TreasuryVoteEvent" &&
             e?.__typename !== "VoteEvent" &&
-            e?.__typename !== "RewardEvent"
+            e?.__typename !== "RewardEvent" &&
+            e?.__typename !== "TransferBondEvent"
         ),
         ...ticketEvents,
         ...rewardEvents,
+        ...transferBondEvents,
         ...extendedTreasuryVoteEventsData,
         ...extendedVoteEventsData,
       ].sort(
@@ -210,6 +236,7 @@ const Index = () => {
       events,
       ticketEvents,
       rewardEvents,
+      transferBondEvents,
       extendedTreasuryVoteEventsData,
       extendedVoteEventsData,
     ]
@@ -218,6 +245,7 @@ const Index = () => {
   const totalLoaded = Math.max(
     data?.transactions?.length ?? 0,
     data?.winningTicketRedeemedEvents?.length ?? 0,
+    data?.transferBondEvents?.length ?? 0,
     data?.rewardEvents?.length ?? 0
   );
 
@@ -235,12 +263,13 @@ const Index = () => {
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
-          // Stop only once every list is exhausted. Rewards and ticket
-          // redemptions can be submitted by another address, so neither list is
-          // bounded by `transactions`.
+          // Stop only once every list is exhausted. Rewards, ticket
+          // redemptions and incoming bond transfers can be submitted by another
+          // address, so none of those lists is bounded by `transactions`.
           if (
             fetchMoreResult.transactions.length < PAGE_SIZE &&
             fetchMoreResult.winningTicketRedeemedEvents.length < PAGE_SIZE &&
+            fetchMoreResult.transferBondEvents.length < PAGE_SIZE &&
             fetchMoreResult.rewardEvents.length < PAGE_SIZE
           )
             setReachedEnd(true);
@@ -254,6 +283,10 @@ const Index = () => {
             winningTicketRedeemedEvents: [
               ...previousResult.winningTicketRedeemedEvents,
               ...fetchMoreResult.winningTicketRedeemedEvents,
+            ],
+            transferBondEvents: [
+              ...previousResult.transferBondEvents,
+              ...fetchMoreResult.transferBondEvents,
             ],
             rewardEvents: [
               ...previousResult.rewardEvents,
@@ -306,6 +339,7 @@ const Index = () => {
   if (
     !data?.transactions?.length &&
     !data?.winningTicketRedeemedEvents?.length &&
+    !data?.transferBondEvents?.length &&
     !data?.rewardEvents?.length
   ) {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
@@ -534,6 +568,62 @@ function renderSwitch(event, i: number) {
           </Flex>
         </Card>
       );
+    case "TransferBondEvent": {
+      const isOutgoing = event.direction === "out";
+      const counterparty = isOutgoing
+        ? event.newDelegator.id
+        : event.oldDelegator.id;
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                {isOutgoing ? "Transferred stake to" : "Received stake from"}{" "}
+                {formatAddress(counterparty)}
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round {formatRound(event.round.id)}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
+            </Box>
+            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+              {" "}
+              <Box as="span" css={{ fontWeight: 600 }}>
+                {formatLPT(isOutgoing ? -event.amount : event.amount, {
+                  precision: 1,
+                  forceSign: true,
+                })}
+              </Box>
+            </Box>
+          </Flex>
+        </Card>
+      );
+    }
     case "RewardEvent":
       return (
         <Card
