@@ -1,38 +1,16 @@
-import { getCacheControlHeader } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api/api";
 import {
   badRequest,
   internalError,
   methodNotAllowed,
   notFound,
 } from "@lib/api/errors";
-import { l1PublicClient } from "@lib/chains";
-import { parseArweaveTxId, parseCid } from "livepeer/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { normalize } from "viem/ens";
 
 const blacklist = ["salty-minning.eth"];
-
-const ARWEAVE_TX_ID = /^[A-Za-z0-9_-]{43}$/;
-
-/**
- * Map an owner-set avatar record to a fixed, trusted host, so the record
- * can't point this endpoint at an arbitrary server (SSRF).
- */
-const resolveAvatarUrl = (avatar: string | null, name: string) => {
-  const cid = parseCid(avatar);
-  if (cid?.id) {
-    return `https://dweb.link/ipfs/${cid.id}`;
-  }
-
-  const arweaveId = parseArweaveTxId(avatar)?.id;
-  if (arweaveId && ARWEAVE_TX_ID.test(arweaveId)) {
-    return `https://arweave.net/${arweaveId}`;
-  }
-
-  return `https://metadata.ens.domains/mainnet/avatar/${encodeURIComponent(
-    name
-  )}`;
-};
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+const AVATAR_TIMEOUT_MS = 10_000;
 
 const handler = async (
   req: NextApiRequest,
@@ -52,19 +30,59 @@ const handler = async (
       ) {
         try {
           const normalizedName = normalize(name);
-          const avatar = await l1PublicClient.getEnsAvatar({
-            name: normalizedName,
+          // getEnsAvatar fetches owner-set URLs before returning them.
+          const avatarUrl = new URL(
+            `/mainnet/avatar/${encodeURIComponent(normalizedName)}`,
+            "https://metadata.ens.domains"
+          );
+          const response = await fetch(avatarUrl, {
+            redirect: "error",
+            signal: AbortSignal.timeout(AVATAR_TIMEOUT_MS),
           });
 
-          const response = await fetch(
-            resolveAvatarUrl(avatar, normalizedName)
+          const contentType = response.headers
+            .get("content-type")
+            ?.split(";")[0]
+            .trim()
+            .toLowerCase();
+          const contentLength = Number(response.headers.get("content-length"));
+          if (
+            !response.ok ||
+            !contentType?.startsWith("image/") ||
+            contentLength > MAX_AVATAR_BYTES ||
+            !response.body
+          ) {
+            return notFound(res, "ENS avatar not found");
+          }
+
+          const reader = response.body.getReader();
+          const chunks: Buffer[] = [];
+          let totalBytes = 0;
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              totalBytes += value.byteLength;
+              if (totalBytes > MAX_AVATAR_BYTES) {
+                await reader.cancel();
+                return notFound(res, "ENS avatar not found");
+              }
+              chunks.push(Buffer.from(value));
+            }
+          } finally {
+            reader.releaseLock();
+          }
+
+          res.setHeader("Content-Type", contentType);
+          res.setHeader("X-Content-Type-Options", "nosniff");
+          res.setHeader(
+            "Content-Security-Policy",
+            "default-src 'none'; sandbox"
           );
-
-          const arrayBuffer = await response.arrayBuffer();
-
           res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-          return res.end(Buffer.from(arrayBuffer));
+          return res.end(Buffer.concat(chunks, totalBytes));
         } catch (e) {
           console.error(e);
           return notFound(res, "ENS avatar not found");
