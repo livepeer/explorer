@@ -11,7 +11,6 @@ import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
-import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { ProtocolDay } from "@lib/api/types/get-protocol-day-data";
 import {
@@ -24,7 +23,7 @@ import {
 } from "@livepeer/design-system";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { PERCENTAGE_PRECISION_BILLION } from "@utils/web3";
-import { useChartData, useProtocolDayData } from "hooks";
+import { useProtocolDayData } from "hooks";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -61,7 +60,7 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
+const Charts = () => {
   const protocolDayData = useProtocolDayData();
 
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
@@ -77,21 +76,6 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
             y: Number(week.weeklyVolumeUsd),
           }))) ?? [],
     [feesPaidGrouping, protocolDayData]
-  );
-
-  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
-  const usageData = useMemo(
-    () =>
-      (usageGrouping === "day"
-        ? chartData?.dayData?.map((day) => ({
-            x: Number(day.dateS),
-            y: Number(day.feeDerivedMinutes),
-          }))
-        : chartData?.weeklyData?.map((week) => ({
-            x: Number(week.date),
-            y: Number(week.weeklyUsageMinutes),
-          }))) ?? [],
-    [usageGrouping, chartData]
   );
 
   const getDaySeries = useCallback(
@@ -202,6 +186,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           onToggleGrouping={setInflationGrouping}
         />
       </Panel>
+      {/* Estimated Usage chart temporarily hidden.
       <Panel>
         <ExplorerChart
           tooltip={
@@ -240,6 +225,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           onToggleGrouping={setUsageGrouping}
         />
       </Panel>
+      */}
       <Panel>
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
@@ -311,8 +297,6 @@ const Home = ({
     [events]
   );
 
-  const chartData = useChartData();
-
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }
@@ -374,7 +358,7 @@ const Home = ({
                     gridTemplateColumns: "1fr 1fr 1fr",
                   }}
                 >
-                  <Charts chartData={chartData} />
+                  <Charts />
                 </Box>
               </Flex>
               <Flex
