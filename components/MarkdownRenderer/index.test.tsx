@@ -61,6 +61,18 @@ describe("MarkdownRenderer", () => {
       expect(srcs).toEqual(["https://example.com/a.png"]);
     });
 
+    it("only turns https image links into images", () => {
+      const dom = render(
+        "[a](https://example.com/a.png) [b](http://example.com/b.png)"
+      );
+      expect(
+        [...dom.querySelectorAll("img")].map((i) => i.getAttribute("src"))
+      ).toEqual(["https://example.com/a.png"]);
+      expect(
+        dom.querySelector('a[href="http://example.com/b.png"]')?.textContent
+      ).toBe("b");
+    });
+
     it("continues numbered lists split by other content", () => {
       const dom = render("1. First\n\ntext\n\n2. Second");
       expect(dom.querySelectorAll("ol")[1]?.getAttribute("start")).toBe("2");

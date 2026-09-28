@@ -126,7 +126,7 @@ const MarkdownRenderer = ({
     () => ({
       img: MarkdownImage,
       a: ({ href, children, ...props }) => {
-        if (href && isImageUrl(href)) {
+        if (href && /^https:\/\//i.test(href) && isImageUrl(href)) {
           return (
             <MarkdownImage
               src={href}
