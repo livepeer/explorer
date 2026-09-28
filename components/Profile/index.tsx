@@ -1,6 +1,8 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import SafeHtml from "@components/SafeHtml";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { ensDescriptionSchema } from "@lib/sanitize";
 import { sanitizeExternalUrl } from "@lib/utils";
 import {
   Box,
@@ -369,12 +371,12 @@ const Index = ({
       {identity?.description && (
         <Text css={{ marginTop: "$4", marginBottom: "$4" }}>
           <ShowMoreRichText lines={3}>
-            <Box
-              css={{ a: { color: "$primary11" } }}
-              dangerouslySetInnerHTML={{
-                __html: identity.description,
-              }}
-            />
+            <Box css={{ a: { color: "$primary11" } }}>
+              <SafeHtml
+                html={identity.description}
+                schema={ensDescriptionSchema}
+              />
+            </Box>
           </ShowMoreRichText>
         </Text>
       )}
