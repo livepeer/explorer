@@ -108,6 +108,7 @@ const Index = ({
                 height: "100%",
               }}
               src={identity.avatar}
+              alt=""
             />
           ) : (
             <Box

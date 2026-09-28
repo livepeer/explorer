@@ -82,6 +82,7 @@ const IdentityAvatar = ({ identity, address, size = 24, css = {} }: Props) => {
           transition: "opacity 150ms ease",
         }}
         src={avatarSrc}
+        alt=""
         onLoad={() => setImageLoaded(true)}
         onError={() => setHasAvatarError(true)}
       />
