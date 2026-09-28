@@ -176,8 +176,8 @@ const MarkdownRenderer = ({
     typeof OriginalReactMarkdown
   >["components"] = useMemo(
     () => ({
-      img: MarkdownImage,
-      a: ({ href, children, ...props }) => {
+      img: ({ node, ...props }) => <MarkdownImage {...props} />,
+      a: ({ node, href, children, ...props }) => {
         if (href && isImageUrl(href)) {
           return (
             <MarkdownImage
@@ -192,14 +192,14 @@ const MarkdownRenderer = ({
           </a>
         );
       },
-      table: StyledTable,
+      table: ({ node, ...props }) => <StyledTable {...props} />,
       th: (props) => {
-        const { ref, ...rest } = props;
+        const { ref, node, ...rest } = props;
         return (
           <StyledTh
-            ref={(node) => {
+            ref={(element) => {
               if (typeof ref === "function") {
-                ref(node);
+                ref(element);
               }
             }}
             {...rest}
@@ -207,12 +207,12 @@ const MarkdownRenderer = ({
         );
       },
       td: (props) => {
-        const { ref, ...rest } = props;
+        const { ref, node, ...rest } = props;
         return (
           <StyledTd
-            ref={(node) => {
+            ref={(element) => {
               if (typeof ref === "function") {
-                ref(node);
+                ref(element);
               }
             }}
             {...rest}
