@@ -93,6 +93,7 @@ const Index = ({
               href={item.href}
               passHref
               variant="subtle"
+              onClick={item.onClick}
               css={{
                 color:
                   asPath.split("?")[0] === item.as

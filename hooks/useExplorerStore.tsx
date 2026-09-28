@@ -35,6 +35,7 @@ export type InputData = {
   delegate?: Address;
   fees?: bigint;
   isOrchestrator?: boolean;
+  isTransferStake?: boolean;
   newDelegate?: Address;
   newPosNext?: string;
   newPosPrev?: string;

@@ -1,6 +1,7 @@
 import ErrorComponent from "@components/Error";
 import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
+import { trackVercelAnalyticsEventOnce } from "@lib/analytics";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -8,6 +9,9 @@ import {
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
+import { useAccountAddress } from "hooks";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { isAddress } from "viem";
 
 type PageProps = {
@@ -18,6 +22,23 @@ type PageProps = {
 };
 
 const Delegating = ({ hadError, account, sortedOrchestrators }: PageProps) => {
+  const { query } = useRouter();
+  const accountAddress = useAccountAddress();
+  const viewedAccount = String(query.account);
+  const isMyAccount =
+    !!accountAddress &&
+    accountAddress.toLowerCase() === viewedAccount.toLowerCase();
+
+  // Re-runs when the wallet reconnects after the page has mounted.
+  useEffect(() => {
+    if (!hadError && isMyAccount) {
+      trackVercelAnalyticsEventOnce(
+        "account_delegating_tab_viewed",
+        viewedAccount
+      );
+    }
+  }, [hadError, isMyAccount, viewedAccount]);
+
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }

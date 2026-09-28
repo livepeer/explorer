@@ -127,6 +127,7 @@ const Delegate = ({
   const bondWithHintArgs = {
     amount: amount?.toString() ? parseEther(amount) : BigInt(0),
     to,
+    isTransferStake,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
