@@ -3,7 +3,7 @@
 import { ArrowRightLeft, ArrowUp, Info, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Fragment, Suspense, useMemo, useState } from "react";
+import { Fragment, Suspense, useEffect, useMemo, useState } from "react";
 
 import { Avatar, useEnsNames, useIdentity } from "@/components/identity";
 import {
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Segmented, Skeleton } from "@/components/ui/misc";
 import { SortHeader } from "@/components/ui/sort-header";
 import { Tooltip } from "@/components/ui/tooltip";
+import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
 import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
@@ -591,6 +592,7 @@ function FreshHeading({ className }: { className?: string }) {
 
 export default function OrchestratorsPage() {
   const { data } = useOrchestrators();
+  useEffect(() => trackEvent("orchestrators_page_viewed"), []);
   return (
     <Page>
       <PageHeader

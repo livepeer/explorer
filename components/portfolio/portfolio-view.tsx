@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { ActivityList } from "@/components/activity-list";
 import {
@@ -16,6 +16,7 @@ import { useNow } from "@/components/shell/round-clock";
 import { useStaking } from "@/components/staking/staking";
 import { Skeleton } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
+import { trackEventOnce } from "@/lib/analytics";
 import {
   formatETH,
   formatLPT,
@@ -120,6 +121,13 @@ export function PortfolioView({
   const now = useNow(5000);
   const nowSec = Math.floor(now / 1000);
   const { open } = useStaking();
+
+  // The connected wallet's own delegations: the previous explorer's
+  // Delegating tab on your own account.
+  const connected = accounts.find((a) => a.connected)?.address;
+  useEffect(() => {
+    if (connected) trackEventOnce("account_delegating_tab_viewed", connected);
+  }, [connected]);
 
   const orchestrators = useMemo(
     () => new Map((orchestratorList ?? []).map((o) => [o.id, o])),

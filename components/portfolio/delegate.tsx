@@ -16,6 +16,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/misc";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
+import { trackEvent } from "@/lib/analytics";
 import { L2_CHAIN } from "@/lib/config";
 import { formatLPT, fromWei, shortAddress } from "@/lib/format";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
@@ -82,14 +83,19 @@ export function IdleLptNotice({
   if (!wallets.length) return null;
 
   const total = wallets.reduce((s, w) => s + w.lpt, 0);
-  const delegate = (w: (typeof wallets)[number]) =>
-    w.delegate &&
+  // The plan's Earn entry point: a prompt to put idle LPT to work.
+  const trackEntry = () =>
+    trackEvent("earn_entry_point_clicked", { surface: "unstaked_lpt" });
+  const delegate = (w: (typeof wallets)[number]) => {
+    if (!w.delegate) return;
+    trackEntry();
     open({
       kind: "delegate",
       to: w.delegate,
       account: w.address,
       amount: w.lpt,
     });
+  };
 
   const [only] = wallets;
   const action =
@@ -117,7 +123,10 @@ export function IdleLptNotice({
             ) : null
           )}
           <MenuSeparator />
-          <MenuItem render={<Link href="/orchestrators" />}>
+          <MenuItem
+            render={<Link href="/orchestrators" />}
+            onClick={trackEntry}
+          >
             <Search /> Choose an orchestrator
           </MenuItem>
         </MenuContent>
@@ -137,6 +146,7 @@ export function IdleLptNotice({
         variant="primary"
         className="rounded-full"
         render={<Link href="/orchestrators" />}
+        onClick={trackEntry}
       >
         <Search /> Choose an orchestrator
       </Button>

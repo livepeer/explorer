@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { encodeFunctionData, getAddress, type Hex, maxUint256 } from "viem";
 import {
   useAccount,
+  useConfig,
   useDisconnect,
   useReadContract,
   useSendCalls,
@@ -45,6 +46,13 @@ import {
 import { SafeProposed } from "@/components/wallet/safe-proposed";
 import { bondingManager } from "@/lib/abis/BondingManager";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
+import {
+  DELEGATION_EVENTS,
+  REDELEGATION_EVENTS,
+  trackEvent,
+  trackTransaction,
+  UNBONDING_EVENTS,
+} from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { L2_CHAIN, txUrl } from "@/lib/config";
 import {
@@ -499,6 +507,7 @@ function StakingFlow({
 }) {
   const { address, chainId, connector } = useAccount();
   const { switchChainAsync } = useSwitchChain();
+  const config = useConfig();
   const queryClient = useQueryClient();
   const bm = useProtocolContract("BondingManager");
   const token = useProtocolContract("LivepeerToken");
@@ -581,6 +590,26 @@ function StakingFlow({
       return 0n;
     }
   })();
+
+  // Delegation intent: the first time the form has an amount, typed, from
+  // Max or pre-filled. Switching orchestrator counts as a redelegation
+  // instead, so it waits for the current delegate to know which this is.
+  const trackedStart = useRef(false);
+  useEffect(() => {
+    if (trackedStart.current || action.kind !== "delegate") return;
+    if (!delegatorInfo || amountWei === 0n) return;
+    const from = currentDelegate?.toLowerCase();
+    const switching =
+      from && !/^0x0+$/.test(from) && from !== action.to.toLowerCase();
+    if (switching) return;
+    trackedStart.current = true;
+    trackEvent("delegation_form_started");
+  }, [action, delegatorInfo, currentDelegate, amountWei]);
+
+  // Funnel events need an on-chain hash, which a Safe proposal doesn't have.
+  const track = (events: Parameters<typeof trackTransaction>[1], h: Hex) => {
+    if (!isSafe) trackTransaction(config, events, h);
+  };
 
   const unbondingTime = protocol
     ? formatDuration(protocol.unbondingPeriod * protocol.roundSeconds)
@@ -767,7 +796,10 @@ function StakingFlow({
           });
           return;
         }
-        await tx.send(bond);
+        track(
+          moving ? REDELEGATION_EVENTS : DELEGATION_EVENTS,
+          await tx.send(bond)
+        );
       };
       break;
     }
@@ -811,12 +843,15 @@ function StakingFlow({
                 [action.delegate]: -Number(amount),
               })
             : EMPTY_HINT;
-        await tx.send({
-          address: bm!,
-          abi: bondingManager,
-          functionName: "unbondWithHint",
-          args: [amountWei, hint.prev, hint.next],
-        });
+        track(
+          UNBONDING_EVENTS,
+          await tx.send({
+            address: bm!,
+            abi: bondingManager,
+            functionName: "unbondWithHint",
+            args: [amountWei, hint.prev, hint.next],
+          })
+        );
       };
       break;
     }
@@ -863,7 +898,7 @@ function StakingFlow({
           [target]: action.amount,
         });
         if (unbondedNow) {
-          await tx.send({
+          const h = await tx.send({
             address: bm!,
             abi: bondingManager,
             functionName: "rebondFromUnbondedWithHint",
@@ -874,13 +909,17 @@ function StakingFlow({
               hint.next,
             ],
           });
+          track(REDELEGATION_EVENTS, h);
         } else {
-          await tx.send({
-            address: bm!,
-            abi: bondingManager,
-            functionName: "rebondWithHint",
-            args: [BigInt(action.lockId), hint.prev, hint.next],
-          });
+          track(
+            REDELEGATION_EVENTS,
+            await tx.send({
+              address: bm!,
+              abi: bondingManager,
+              functionName: "rebondWithHint",
+              args: [BigInt(action.lockId), hint.prev, hint.next],
+            })
+          );
         }
       };
       break;

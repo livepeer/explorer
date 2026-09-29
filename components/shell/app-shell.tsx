@@ -16,6 +16,7 @@ import { ExplorerBadge } from "@/components/brand/explorer-badge";
 import { LivepeerWordmark } from "@/components/brand/logo";
 import { THEME_OPTIONS, useTheme } from "@/components/theme";
 import { Tooltip } from "@/components/ui/tooltip";
+import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 
 import { CommandSearch } from "./command-search";
@@ -39,7 +40,12 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             <li key={href}>
               <Link
                 href={href}
-                onClick={onNavigate}
+                onClick={() => {
+                  if (href === "/orchestrators") {
+                    trackEvent("orchestrators_nav_clicked");
+                  }
+                  onNavigate?.();
+                }}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "group flex h-8 items-center gap-2.5 rounded-sm px-2 text-ui-body transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",

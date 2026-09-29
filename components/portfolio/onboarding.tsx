@@ -16,10 +16,15 @@ import { Avatar, useIdentity } from "@/components/identity";
 import { Card, Kpi, KpiStrip, SectionHeader } from "@/components/page";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/misc";
+import { trackEvent } from "@/lib/analytics";
 import { formatLPT, formatPercent, shortAddress } from "@/lib/format";
 import { useOrchestrators, useProtocol } from "@/lib/hooks/queries";
 
 import { AddAddressDialog } from "./addresses";
+
+/** The plan's Earn entry point: a way into choosing an orchestrator. */
+const trackEntry = () =>
+  trackEvent("earn_entry_point_clicked", { surface: "onboarding" });
 
 function OrchestratorRow({
   id,
@@ -38,6 +43,7 @@ function OrchestratorRow({
   return (
     <Link
       href={`/orchestrators/${id}`}
+      onClick={trackEntry}
       className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-hover"
     >
       <Avatar address={id} src={avatar} size={26} />
@@ -226,6 +232,7 @@ export function Onboarding() {
           action={
             <Link
               href="/orchestrators"
+              onClick={trackEntry}
               className="inline-flex items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
             >
               View all <ArrowRight className="size-3.5" />

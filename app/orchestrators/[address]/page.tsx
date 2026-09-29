@@ -3,7 +3,7 @@
 import { ArrowLeft, ArrowRight, ExternalLink, Globe } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
+import { trackEventOnce } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { addressUrl } from "@/lib/config";
 import {
@@ -195,6 +196,10 @@ export default function OrchestratorPage() {
   const { open } = useStaking();
   const [metric, setMetric] = useState<Metric>("yield");
   const [calc, setCalc] = useState("1000");
+
+  useEffect(() => {
+    if (valid) trackEventOnce("orchestrator_detail_viewed", address);
+  }, [valid, address]);
 
   const myPosition = mine?.accounts.find((a) => a.id === walletAddress);
   const myDelegate = myPosition?.delegate;
