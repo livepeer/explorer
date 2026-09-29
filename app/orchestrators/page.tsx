@@ -43,6 +43,20 @@ type SortKey =
 const RELIABLE_HINT =
   "Reliable orchestrators called reward in every completed round they were active over the last 30 (30/30 in Reward calls). A missed call means its delegators earn no inflation rewards that round. It doesn't measure how well it handles video or AI work, or the fees it earns.";
 
+/** A filter option with how many orchestrators it shows. */
+function Counted({ label, n }: { label: string; n: number | undefined }) {
+  return (
+    <>
+      {label}
+      {n != null && (
+        <span className="ml-1.5 font-mono text-[11px] text-muted-foreground tabular-nums">
+          {n}
+        </span>
+      )}
+    </>
+  );
+}
+
 /** An orchestrator with its fee yield, once prices are in. */
 type Listed = Orchestrator & { feeApr: number | null };
 
@@ -259,6 +273,9 @@ function OrchestratorTable() {
       .filter(({ o }) => filter === "all" || o.rewardCalls >= o.rewardWindow);
   }, [data, query, sort, dir, filter, names]);
   const firstFresh = rows.findIndex((r) => r.fresh);
+  const reliableCount = data?.filter(
+    (o) => o.rewardCalls >= o.rewardWindow
+  ).length;
 
   const onSort = (k: SortKey) => {
     if (k === sort) setDir(dir === "desc" ? "asc" : "desc");
@@ -321,8 +338,14 @@ function OrchestratorTable() {
             value={filter}
             onChange={setFilter}
             options={[
-              { value: "all", label: "All active" },
-              { value: "reliable", label: "Reliable only" },
+              {
+                value: "all",
+                label: <Counted label="All active" n={data?.length} />,
+              },
+              {
+                value: "reliable",
+                label: <Counted label="Reliable only" n={reliableCount} />,
+              },
             ]}
           />
           <Tooltip content={RELIABLE_HINT}>
@@ -336,14 +359,6 @@ function OrchestratorTable() {
           </Tooltip>
         </div>
       </div>
-
-      {filter === "reliable" && data && (
-        <p className="mb-3 text-ui-caption text-muted-foreground">
-          {rows.length} of {data.length} orchestrators called reward in every
-          round they were active over the last 30 completed rounds. Each missed
-          call means its delegators earn no rewards that round.
-        </p>
-      )}
 
       {error ? (
         <ErrorNotice
