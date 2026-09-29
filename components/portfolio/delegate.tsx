@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useReadContracts } from "wagmi";
@@ -58,10 +58,11 @@ function Name({ address, label }: { address: string; label?: string }) {
 
 /**
  * LPT sitting unstaked in the portfolio's wallets, just bought or just
- * withdrawn: the moment someone most wants to delegate. Offers to add it to
- * the wallet's orchestrator, or to choose one when it has none.
+ * withdrawn: the moment someone most wants to delegate. A short action in
+ * the Delegations header, above the rows it would change. Offers to add it
+ * to the wallet's orchestrator, or to choose one when it has none.
  */
-export function IdleLptNotice({
+export function IdleLptAction({
   idle,
   accounts,
   positions,
@@ -103,10 +104,10 @@ export function IdleLptNotice({
       <Menu>
         <MenuTrigger
           render={
-            <Button size="sm" variant="primary" className="rounded-full" />
+            <Button size="xs" variant="outline" className="rounded-full" />
           }
         >
-          Delegate <ChevronDown className="size-3.5 opacity-70" />
+          <Plus /> Delegate <ChevronDown className="size-3 opacity-60" />
         </MenuTrigger>
         <MenuContent align="end" className="w-72">
           {wallets.map((w) =>
@@ -133,44 +134,33 @@ export function IdleLptNotice({
       </Menu>
     ) : only.delegate ? (
       <Button
-        size="sm"
-        variant="primary"
+        size="xs"
+        variant="outline"
         className="rounded-full"
         onClick={() => delegate(only)}
       >
-        Delegate to <Name address={only.delegate} />
+        <Plus /> Delegate
       </Button>
     ) : (
       <Button
-        size="sm"
-        variant="primary"
+        size="xs"
+        variant="outline"
         className="rounded-full"
         render={<Link href="/orchestrators" />}
         onClick={trackEntry}
       >
-        <Search /> Choose an orchestrator
+        <Search /> Choose orchestrator
       </Button>
     );
 
   return (
-    <div className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
-      <p className="text-ui-body text-muted-foreground">
+    <div className="flex items-center gap-2.5 text-ui-caption whitespace-nowrap text-muted-foreground">
+      <span>
         <span className="font-mono text-foreground tabular-nums">
           {formatLPT(total)}
         </span>{" "}
-        {wallets.length > 1 ? (
-          <>across {wallets.length} wallets isn&apos;t staked</>
-        ) : (
-          <>
-            in{" "}
-            <span className="text-foreground">
-              <Name address={only.address} label={only.label} />
-            </span>{" "}
-            isn&apos;t staked
-          </>
-        )}
-        , so it isn&apos;t earning rewards.
-      </p>
+        unstaked
+      </span>
       {action}
     </div>
   );

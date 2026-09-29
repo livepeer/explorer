@@ -46,7 +46,7 @@ import {
 } from "@/lib/portfolio/compute";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
-import { IdleLptNotice, useIdleLpt } from "./delegate";
+import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
 import { DelegationCard, type Position, Positions } from "./positions";
@@ -358,6 +358,9 @@ export function PortfolioView({
   if (error) return <ErrorNotice error={error} onRetry={() => refetch()} />;
 
   const loading = isLoading || !view;
+  const idleAction = view && (
+    <IdleLptAction idle={idle} accounts={accounts} positions={view.positions} />
+  );
   const perRound = view ? view.stake * view.rate + view.commission : 0;
   const lpt = prices?.lpt;
   // Connected wallets with fees to withdraw, most first.
@@ -404,16 +407,6 @@ export function PortfolioView({
           }
         />
       </div>
-
-      {view && idle.size > 0 && (
-        <div className="mt-4 animate-rise">
-          <IdleLptNotice
-            idle={idle}
-            accounts={accounts}
-            positions={view.positions}
-          />
-        </div>
-      )}
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">
         <KpiStrip>
@@ -532,7 +525,7 @@ export function PortfolioView({
           <section>
             {scoped.length === 1 ? (
               <>
-                <SectionHeader title="Delegation" />
+                <SectionHeader title="Delegation" action={idleAction} />
                 {loading ? (
                   <Skeleton className="h-44 w-full rounded-md" />
                 ) : (
@@ -553,6 +546,7 @@ export function PortfolioView({
                       ? `${view.positions.length} across ${scoped.length} wallets`
                       : undefined
                   }
+                  action={idleAction}
                 />
                 {loading ? (
                   <Skeleton className="h-40 w-full rounded-md" />
