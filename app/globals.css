@@ -1,0 +1,468 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Livepeer Design System theme, from the Livepeer UI registry
+ * (livepeer.peaceno.de). Registry values are kept verbatim so components
+ * pulled from `@livepeer-ui` drop in without restyling; explorer-specific
+ * vocabulary lives in the token layer further down and only ever aliases or
+ * tints these.
+ */
+
+@custom-variant dark (&:where(html[data-theme="dark"] *));
+@custom-variant light (&:where(html[data-theme="light"] *));
+
+/* ── Registry dark theme (default) ─────────────────────────────────────── */
+:root {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.16 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+
+  /* Explorer layer, dark steps */
+  --green-bright: #40bf86;
+  --warm: #f59e0b;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-other: rgba(255, 255, 255, 0.28);
+  /* Surfaces sit one clear step above the black page, with a full-strength
+     edge and a faint top highlight, so cards read as lifted rather than
+     dissolving into the background. */
+  --surface: oklch(0.19 0 0);
+  --surface-highlight: inset 0 1px 0 oklch(1 0 0 / 5%);
+  /* One line colour for every divider and outline (cards, sidebar, search),
+     a touch brighter than the registry border so edges read on black. */
+  --hairline: oklch(1 0 0 / 13%);
+  --hover: color-mix(in oklch, var(--foreground) 4%, transparent);
+  --active: color-mix(in oklch, var(--foreground) 7%, transparent);
+  --subtle-foreground: color-mix(in oklch, var(--foreground) 50%, transparent);
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-popover: 0 8px 20px -6px rgb(0 0 0 / 0.35),
+    0 1px 3px rgb(0 0 0 / 0.22);
+
+  color-scheme: dark;
+}
+
+/* ── Registry light theme ──────────────────────────────────────────────── */
+html[data-theme="light"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+
+  /* Legibility steps for accents and series on light surfaces */
+  --green-bright: #1e9960;
+  --warm: #b45309;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-other: rgba(24, 24, 27, 0.3);
+  --surface: var(--muted);
+  --surface-highlight: 0 0 #0000;
+  --hairline: color-mix(in oklch, var(--border) 80%, transparent);
+  --hover: color-mix(in oklch, var(--foreground) 5%, transparent);
+  --active: color-mix(in oklch, var(--foreground) 8%, transparent);
+  --subtle-foreground: color-mix(in oklch, var(--foreground) 45%, transparent);
+  --overlay: rgb(24 24 27 / 0.32);
+  --shadow-popover: 0 6px 16px -6px rgb(24 24 27 / 0.14),
+    0 1px 2px rgb(24 24 27 / 0.06);
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-hairline: var(--hairline);
+  --color-surface: var(--surface);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-overlay: var(--overlay);
+
+  /* Accents. Green is an accent, never a fill: status dots, liveness,
+     positive deltas, focus rings. Warm is reserved for "needs attention". */
+  --color-green: #18794e;
+  --color-green-bright: var(--green-bright);
+  --color-green-subtle: rgba(24, 121, 78, 0.15);
+  --color-warm: var(--warm);
+  --color-warm-subtle: rgba(245, 158, 11, 0.12);
+
+  /* Chart series — seven fixed slots, never cycled. Validated against the
+     card surfaces in both themes (Livepeer Design System palette). */
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
+  --color-series-7: var(--series-7);
+  --color-series-other: var(--series-other);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  --text-ui-caption: 12px;
+  --text-ui-caption--line-height: 16px;
+  --text-ui-body: 14px;
+  --text-ui-body--line-height: 20px;
+  --text-page-title: 32px;
+  --text-page-title--line-height: 1.05;
+  --text-page-title--font-weight: 300;
+  --text-display-sm: 36px;
+  --text-display-sm--line-height: 1;
+  --text-display-md: 48px;
+  --text-display-md--line-height: 1;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-breathe: breathe 2.5s ease-in-out infinite;
+  --animate-halo: halo 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-rise: rise 300ms var(--ease-out) both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-arrive: arrive 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A feed row that just arrived: slides in, glows green, settles. */
+@keyframes arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+    background-color: color-mix(in srgb, var(--green-bright) 12%, transparent);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* The round ring rippling outward as a new round starts. */
+@keyframes ring-turn {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Explorer badge (sidebar logo) ─────────────────────────────────────── */
+
+@property --xb-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 135deg;
+}
+
+.xb {
+  --xb-a: var(--green-bright);
+  --xb-b: color-mix(in oklab, var(--green-bright) 40%, white);
+  --xb-fill: color-mix(in oklab, var(--green-bright) 9%, var(--background));
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  height: 19px;
+  padding: 0 7px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(var(--xb-fill), var(--xb-fill)) padding-box,
+    conic-gradient(
+        from var(--xb-angle),
+        var(--xb-a),
+        var(--xb-b) 25%,
+        var(--xb-a) 50%,
+        color-mix(in oklab, var(--xb-a) 55%, transparent) 75%,
+        var(--xb-a)
+      )
+      border-box;
+  box-shadow: 0 0 10px -2px color-mix(in srgb, var(--green-bright) 45%, transparent),
+    inset 0 0 6px -1px color-mix(in srgb, var(--green-bright) 30%, transparent);
+  transition: box-shadow 400ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.xb-text {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--xb-b), var(--xb-a));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.xb-stars {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.xb-star {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  color: var(--xb-b);
+  background: var(--xb-b);
+  box-shadow: 0 0 4px 1px
+    color-mix(in srgb, var(--green-bright) 70%, transparent);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.xb-spark {
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 0 3px var(--green-bright));
+}
+
+.xb-spark svg {
+  display: block;
+}
+
+:where(a, button):is(:hover, :focus-visible) .xb {
+  animation: xb-spin 3.2s linear infinite;
+  box-shadow: 0 0 14px 0
+      color-mix(in srgb, var(--green-bright) 55%, transparent),
+    0 0 36px 2px color-mix(in srgb, var(--green-bright) 22%, transparent),
+    inset 0 0 8px 0 color-mix(in srgb, var(--green-bright) 40%, transparent);
+}
+
+:where(a, button):is(:hover, :focus-visible) .xb-star {
+  animation: xb-twinkle 1.8s ease-in-out var(--d) infinite;
+}
+
+@keyframes xb-spin {
+  to {
+    --xb-angle: 495deg;
+  }
+}
+
+@keyframes xb-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      scale(1);
+  }
+  70% {
+    opacity: 0.35;
+  }
+}
+
+html[data-theme="light"] .xb {
+  --xb-b: color-mix(in oklab, var(--green-bright) 55%, #0b3d26);
+  --xb-a: var(--green-bright);
+  box-shadow: 0 0 8px -3px color-mix(in srgb, var(--green-bright) 40%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(a, button):is(:hover, :focus-visible) .xb-star {
+    animation: none;
+    opacity: 0.8;
+    transform: translate(-50%, -50%);
+  }
+}
+
+html {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--green-bright) 25%, transparent);
+  color: var(--foreground);
+}
+
+input,
+textarea {
+  caret-color: var(--green-bright);
+}
+
+@layer components {
+  /* Ink and paper: the primary action is the highest-contrast neutral, not a
+     colour. Both fills key off the theme so light mode inverts for free. */
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    border: 1px solid transparent;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: color-mix(
+      in oklch,
+      var(--primary) 86%,
+      var(--background)
+    );
+  }
+  .btn-primary:active:not(:disabled) {
+    background-color: color-mix(
+      in oklch,
+      var(--primary) 76%,
+      var(--background)
+    );
+  }
+  .btn-outline {
+    border: 1px solid var(--border);
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+  .btn-outline:hover:not(:disabled) {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  /* The console card: set into the page, hairline edge, no shadow. */
+  .surface {
+    border: 1px solid var(--hairline);
+    background-color: var(--surface);
+    box-shadow: var(--surface-highlight);
+    border-radius: var(--radius-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
