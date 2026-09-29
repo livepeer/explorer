@@ -10,7 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Avatar, useIdentity } from "@/components/identity";
 import { Card, Kpi, KpiStrip, SectionHeader } from "@/components/page";
@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/misc";
 import { trackEvent } from "@/lib/analytics";
 import { formatLPT, formatPercent, shortAddress } from "@/lib/format";
-import { useOrchestrators, useProtocol } from "@/lib/hooks/queries";
+import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
+import { feeApr, rankByYield } from "@/lib/orchestrators/ranking";
 
 import { AddAddressDialog } from "./addresses";
 
@@ -75,18 +76,28 @@ export function Onboarding() {
   const [tracking, setTracking] = useState(false);
   const { data: protocol } = useProtocol();
   const { data: orchestrators } = useOrchestrators();
+  const { data: prices } = usePrices();
 
-  const reliable = (orchestrators ?? [])
-    .filter((o) => o.realizedApr != null && o.rewardCalls >= o.rewardWindow - 1)
-    .sort(
-      (a, b) =>
-        // Near-equal yields are common; break ties toward more stake.
-        Math.round((b.realizedApr ?? 0) * 10) -
-          Math.round((a.realizedApr ?? 0) * 10) || b.totalStake - a.totalStake
+  // The Orchestrators list with "Reliable only" on: ranked by expected yield,
+  // ties to the smaller orchestrator, and reward called in every round.
+  const reliable = useMemo(() => {
+    const lptPerEth =
+      prices?.eth && prices?.lpt ? prices.eth / prices.lpt : null;
+    const listed = (orchestrators ?? []).map((o) => ({
+      ...o,
+      feeApr: lptPerEth ? feeApr(o, lptPerEth) : null,
+    }));
+    return rankByYield(listed).ranked.filter(
+      (o) => o.rewardCalls >= o.rewardWindow
     );
-  const medianApr = reliable.length
-    ? reliable[Math.floor(reliable.length / 2)].realizedApr
-    : null;
+  }, [orchestrators, prices]);
+  const medianApr = useMemo(() => {
+    const aprs = reliable
+      .map((o) => o.realizedApr)
+      .filter((a): a is number => a != null)
+      .sort((a, b) => a - b);
+    return aprs.length ? aprs[Math.floor(aprs.length / 2)] : null;
+  }, [reliable]);
 
   return (
     <div className="flex flex-col gap-12">
