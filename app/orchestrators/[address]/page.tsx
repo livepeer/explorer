@@ -188,8 +188,21 @@ export default function OrchestratorPage() {
   const params = useParams<{ address: string }>();
   const address = decodeURIComponent(params.address ?? "").toLowerCase();
   const valid = isAddress(address);
-  const { data: o, error, isLoading, refetch } = useOrchestrator(address);
-  const { data: protocol } = useProtocol();
+  // The query waits for the protocol, and reports isLoading: false while it
+  // does, so "not loaded yet" is isPending, on the server too. A failed
+  // protocol read is this page's error as well, not an endless skeleton.
+  const {
+    data: o,
+    error: orchestratorError,
+    isPending,
+    refetch,
+  } = useOrchestrator(address);
+  const {
+    data: protocol,
+    error: protocolError,
+    refetch: refetchProtocol,
+  } = useProtocol();
+  const error = orchestratorError ?? protocolError;
   const { name, avatar } = useIdentity(valid ? address : null);
   const { walletAddress } = usePortfolioAccounts();
   const { data: mine } = usePortfolio(walletAddress ? [walletAddress] : []);
@@ -365,8 +378,11 @@ export default function OrchestratorPage() {
       </header>
 
       {error ? (
-        <ErrorNotice error={error} onRetry={() => refetch()} />
-      ) : !isLoading && !o ? (
+        <ErrorNotice
+          error={error}
+          onRetry={() => (protocolError ? refetchProtocol() : refetch())}
+        />
+      ) : !isPending && !o ? (
         <Card>
           <EmptyState
             title="Not an orchestrator"

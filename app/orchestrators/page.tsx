@@ -198,8 +198,21 @@ function OrchestratorTable() {
   const params = useSearchParams();
   const router = useRouter();
   const moving = params.get("move") === "1";
-  const { data: raw, error, isLoading, refetch } = useOrchestrators();
-  const { data: protocol } = useProtocol();
+  // The query waits for the protocol, and reports isLoading: false while it
+  // does, so "not loaded yet" is isPending, on the server too. A failed
+  // protocol read is this page's error as well, not an endless skeleton.
+  const {
+    data: raw,
+    error: listError,
+    isPending,
+    refetch,
+  } = useOrchestrators();
+  const {
+    data: protocol,
+    error: protocolError,
+    refetch: refetchProtocol,
+  } = useProtocol();
+  const error = listError ?? protocolError;
   const { data: prices } = usePrices();
   const lptPerEth = prices?.eth && prices?.lpt ? prices.eth / prices.lpt : null;
   const data = useMemo(
@@ -333,12 +346,15 @@ function OrchestratorTable() {
       )}
 
       {error ? (
-        <ErrorNotice error={error} onRetry={() => refetch()} />
+        <ErrorNotice
+          error={error}
+          onRetry={() => (protocolError ? refetchProtocol() : refetch())}
+        />
       ) : (
         <>
           {/* Phones: condensed cards with the figures that decide a delegation. */}
           <Card className="divide-y divide-(--hairline) md:hidden">
-            {isLoading &&
+            {isPending &&
               Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 p-4">
                   <Skeleton className="size-7 rounded-full" />
@@ -388,7 +404,7 @@ function OrchestratorTable() {
                 </div>
               </Fragment>
             ))}
-            {!isLoading && rows.length === 0 && (
+            {!isPending && rows.length === 0 && (
               <EmptyState title="No orchestrators match" />
             )}
           </Card>
@@ -459,7 +475,7 @@ function OrchestratorTable() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading &&
+                {isPending &&
                   Array.from({ length: 10 }).map((_, i) => (
                     <tr
                       key={i}
@@ -553,7 +569,7 @@ function OrchestratorTable() {
                 })}
               </tbody>
             </table>
-            {!isLoading && rows.length === 0 && (
+            {!isPending && rows.length === 0 && (
               <EmptyState
                 title="No orchestrators match"
                 description="Try a different name or address, or clear the filter."
