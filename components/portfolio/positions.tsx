@@ -61,10 +61,10 @@ function AccountCell({ account }: { account: PortfolioAccount }) {
               <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
               Connected
             </>
+          ) : account.label || name ? (
+            <span className="font-mono">{shortAddress(account.address)}</span>
           ) : (
-            <span className="font-mono">
-              {account.label || name ? shortAddress(account.address) : ""}
-            </span>
+            "Not connected"
           )}
         </span>
       </span>
@@ -318,14 +318,11 @@ export function Positions({
                       {formatLPT(p.stake)}
                     </div>
                     {showAccount && (
-                      <div
-                        className="mt-1 ml-auto flex h-1 w-20 overflow-hidden rounded-full bg-foreground/8"
-                        aria-hidden="true"
-                      >
-                        <span
-                          className="h-full rounded-full bg-series-1"
-                          style={{ width: `${Math.max(2, weight)}%` }}
-                        />
+                      <div className="mt-0.5 text-[11px] whitespace-nowrap text-muted-foreground">
+                        {weight > 0 && weight < 1
+                          ? "<1%"
+                          : `${formatNumber(weight, { decimals: 0 })}%`}{" "}
+                        of total
                       </div>
                     )}
                   </td>

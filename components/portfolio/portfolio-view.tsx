@@ -62,6 +62,13 @@ import {
 import { useVoteInsights } from "./vote-insights";
 import { WithdrawFees } from "./withdraw-fees";
 
+/** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
+function delegationCount(delegations: number, wallets: number) {
+  const w = `${wallets} wallet${wallets === 1 ? "" : "s"}`;
+  if (delegations === wallets) return w;
+  return `${delegations} delegation${delegations === 1 ? "" : "s"} · ${w}`;
+}
+
 /** One account's delegation, including an account with nothing delegated. */
 function SingleDelegation({
   position,
@@ -543,7 +550,7 @@ export function PortfolioView({
                   title="Delegations"
                   description={
                     view
-                      ? `${view.positions.length} across ${scoped.length} wallets`
+                      ? delegationCount(view.positions.length, scoped.length)
                       : undefined
                   }
                   action={idleAction}
