@@ -203,9 +203,9 @@ export function PortfolioHero({
 
       <div className="px-2 pb-3 sm:px-4">
         {loading ? (
-          <Skeleton className="mx-2 h-[260px]" />
+          <Skeleton className="mx-2 h-[200px]" />
         ) : chart.data.length < 2 ? (
-          <div className="flex h-[260px] items-center justify-center text-ui-body text-muted-foreground">
+          <div className="flex h-[200px] items-center justify-center text-ui-body text-muted-foreground">
             Not enough history in this range yet.
           </div>
         ) : (
@@ -216,7 +216,7 @@ export function PortfolioHero({
             color={chart.color}
             format={chart.format}
             axisFormat={chart.axis}
-            height={260}
+            height={200}
             tooltipTitle={
               bucketed
                 ? (p) =>
