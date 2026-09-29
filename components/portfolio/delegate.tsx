@@ -112,10 +112,18 @@ export function IdleLptAction({
         <MenuContent align="end" className="w-72">
           {wallets.map((w) =>
             w.delegate ? (
-              <MenuItem key={w.address} onClick={() => delegate(w)}>
-                <span className="min-w-0 flex-1 truncate">
-                  <Name address={w.address} label={w.label} /> →{" "}
-                  <Name address={w.delegate} />
+              <MenuItem
+                key={w.address}
+                onClick={() => delegate(w)}
+                className="h-auto items-start py-2"
+              >
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate">
+                    <Name address={w.address} label={w.label} />
+                  </span>
+                  <span className="truncate text-ui-caption text-muted-foreground">
+                    to <Name address={w.delegate} />
+                  </span>
                 </span>
                 <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
                   {formatLPT(w.lpt, { compact: true })}
