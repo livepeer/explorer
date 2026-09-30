@@ -4,8 +4,7 @@ import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { Card } from "@/components/page";
-import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Segmented, Skeleton } from "@/components/ui/misc";
 import {
   formatETH,
   formatLPT,
@@ -42,7 +41,6 @@ export function PortfolioHero({
   series,
   stake,
   lptPrice,
-  perRound,
   nowSec,
   loading,
   actions,
@@ -50,7 +48,6 @@ export function PortfolioHero({
   series: SeriesPoint[];
   stake: number;
   lptPrice?: number;
-  perRound: number;
   nowSec: number;
   loading?: boolean;
   /** Beside the time range, e.g. an export. */
@@ -167,21 +164,6 @@ export function PortfolioHero({
               </span>
             )}
           </div>
-          {!loading && perRound > 0 && (
-            <Tooltip content="Your average reward per round over the last 30 rounds. It arrives each round your orchestrator calls reward.">
-              <div className="mt-1 flex w-fit cursor-default items-baseline gap-2 text-ui-caption text-muted-foreground">
-                <StatusDot pulse className="shrink-0 -translate-y-px" />
-                {/* One sentence, so it wraps as text on narrow screens. */}
-                <p>
-                  About{" "}
-                  <span className="font-mono whitespace-nowrap text-foreground tabular-nums">
-                    +{formatNumber(perRound, { decimals: 2 })} LPT
-                  </span>{" "}
-                  per round at the current rate
-                </p>
-              </div>
-            </Tooltip>
-          )}
         </div>
 
         <div className="flex flex-col items-start gap-2 lg:items-end">

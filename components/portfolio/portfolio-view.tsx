@@ -368,7 +368,6 @@ export function PortfolioView({
   const idleAction = view && (
     <IdleLptAction idle={idle} accounts={accounts} positions={view.positions} />
   );
-  const perRound = view ? view.stake * view.rate + view.commission : 0;
   const lpt = prices?.lpt;
   // Connected wallets with fees to withdraw, most first.
   const withdrawable =
@@ -389,7 +388,6 @@ export function PortfolioView({
           series={view?.series ?? []}
           stake={view?.stake ?? 0}
           lptPrice={lpt}
-          perRound={perRound}
           nowSec={nowSec}
           loading={loading}
           actions={
