@@ -24,8 +24,12 @@ import { NAV } from "./nav";
 import { SidebarRoundClock } from "./round-clock";
 import { WalletButton } from "./wallet-button";
 
+/**
+ * Portfolio is only the portfolio itself. An account page, even one of your
+ * wallets, is somewhere else, so Portfolio stays clickable to get back.
+ */
 function isActive(href: string, pathname: string) {
-  if (href === "/") return pathname === "/" || pathname.startsWith("/accounts");
+  if (href === "/") return pathname === "/";
   return pathname.startsWith(href);
 }
 
