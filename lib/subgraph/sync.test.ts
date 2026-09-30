@@ -21,6 +21,21 @@ describe("waitForIndexed", () => {
     expect(global.fetch).toHaveBeenCalledTimes(3);
   });
 
+  it("gives up on a request that never answers", async () => {
+    // Settles only when aborted, like a stalled connection.
+    global.fetch = jest.fn(
+      (_url: unknown, init?: { signal?: AbortSignal }) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () =>
+            reject(new DOMException("Aborted", "AbortError"))
+          );
+        })
+    ) as unknown as typeof fetch;
+    await expect(
+      waitForIndexed(100, { intervalMs: 0, timeoutMs: 50 })
+    ).resolves.toBe(false);
+  });
+
   it("gives up after the timeout", async () => {
     mockIndexedBlocks([90]);
     await expect(

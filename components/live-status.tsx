@@ -2,8 +2,13 @@
 
 import { useNow } from "@/components/shell/round-clock";
 import { StatusDot } from "@/components/ui/misc";
+import { useSubgraphHealth } from "@/lib/hooks/queries";
 
-/** "Live · updated 12s ago", or a warning when polling fails. */
+/**
+ * "Live · updated 12s ago", or a warning when polling fails or the subgraph
+ * has fallen behind the chain: a halted subgraph still answers, with old
+ * data, so a successful poll alone isn't "live".
+ */
 export function LiveStatus({
   updatedAt,
   failing,
@@ -12,14 +17,23 @@ export function LiveStatus({
   failing: boolean;
 }) {
   const now = useNow(5_000);
+  const { data: health } = useSubgraphHealth();
+  const delayed = Boolean(health?.degraded);
   const secs = updatedAt
     ? Math.max(0, Math.round((now - updatedAt) / 1000))
     : 0;
   return (
     <span className="flex items-center gap-2 text-ui-caption text-muted-foreground">
-      <StatusDot pulse={!failing} tone={failing ? "warning" : "positive"} />
+      <StatusDot
+        pulse={!failing && !delayed}
+        tone={failing || delayed ? "warning" : "positive"}
+      />
       {failing
         ? "Reconnecting…"
+        : delayed
+        ? health?.lagMinutes != null
+          ? `Delayed · indexing ~${health.lagMinutes} min behind`
+          : "Delayed · indexing behind"
         : updatedAt
         ? `Live · updated ${secs < 5 ? "just now" : `${secs}s ago`}`
         : "Live"}

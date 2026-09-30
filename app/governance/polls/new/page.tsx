@@ -70,6 +70,8 @@ export default function NewPollPage() {
     address: bm,
     abi: bondingManager,
     functionName: "pendingStake",
+    // The round is ignored: pendingStake always counts through the current
+    // round, and PollCreator.createPoll passes 0 too.
     args: [address!, 0n],
     chainId: L2_CHAIN.id,
     query: { enabled: Boolean(bm && address) },
@@ -201,55 +203,55 @@ export default function NewPollPage() {
         </Card>
       ) : (
         <>
-          <div
-            role="radiogroup"
-            aria-label="LIP to put to a poll"
-            className="flex flex-col gap-2"
-          >
+          {/* Native radios: arrow keys move between LIPs and Tab leaves the
+              group, as screen readers and keyboards expect. */}
+          <fieldset className="flex flex-col gap-2" disabled={busy}>
+            <legend className="sr-only">LIP to put to a poll</legend>
             {lips.data.lips.map((l) => {
               const on = l.lip === selected;
               return (
                 <div
                   key={l.lip}
-                  role="radio"
-                  aria-checked={on}
-                  tabIndex={0}
-                  onClick={() => !busy && setSelected(l.lip)}
-                  onKeyDown={(e) =>
-                    (e.key === " " || e.key === "Enter") &&
-                    !busy &&
-                    setSelected(l.lip)
-                  }
                   className={cn(
-                    "surface flex cursor-pointer items-center gap-4 px-4 py-3.5 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-green-bright/40",
+                    "surface flex items-center gap-4 px-4 py-3.5 transition-colors has-focus-visible:ring-1 has-focus-visible:ring-green-bright/40",
                     on ? "border-foreground/40" : "hover:bg-hover/60"
                   )}
                 >
-                  <span
-                    className={cn(
-                      "flex size-4 shrink-0 items-center justify-center rounded-full border",
-                      on ? "border-foreground" : "border-border"
-                    )}
-                  >
-                    {on && (
-                      <span className="size-2 rounded-full bg-foreground" />
-                    )}
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate text-ui-body text-foreground">
-                      LIP-{l.lip}: {l.title}
+                  <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-4">
+                    <input
+                      type="radio"
+                      name="lip"
+                      value={l.lip}
+                      checked={on}
+                      onChange={() => setSelected(l.lip)}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex size-4 shrink-0 items-center justify-center rounded-full border",
+                        on ? "border-foreground" : "border-border"
+                      )}
+                    >
+                      {on && (
+                        <span className="size-2 rounded-full bg-foreground" />
+                      )}
                     </span>
-                    {l.created && (
-                      <span className="text-ui-caption text-muted-foreground">
-                        Created {l.created}
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-ui-body text-foreground">
+                        LIP-{l.lip}: {l.title}
                       </span>
-                    )}
-                  </span>
+                      {l.created && (
+                        <span className="text-ui-caption text-muted-foreground">
+                          Created {l.created}
+                        </span>
+                      )}
+                    </span>
+                  </label>
                   <a
                     href={l.url}
                     target="_blank"
                     rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
                     className="inline-flex shrink-0 items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
                   >
                     Read <ExternalLink className="size-3" />
@@ -257,7 +259,7 @@ export default function NewPollPage() {
                 </div>
               );
             })}
-          </div>
+          </fieldset>
 
           <div className="mt-6 flex flex-col items-end gap-2">
             {tx.error && (

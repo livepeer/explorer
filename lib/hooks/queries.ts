@@ -314,3 +314,23 @@ export function usePrices() {
     retry: 1,
   });
 }
+
+/**
+ * Whether the subgraph is far enough behind the chain that figures may be
+ * stale, from the shared server-side check.
+ */
+export function useSubgraphHealth() {
+  return useQuery({
+    queryKey: ["subgraph-health"],
+    queryFn: async (): Promise<{
+      degraded: boolean;
+      lagMinutes: number | null;
+    }> => {
+      const res = await fetch("/api/subgraph-health");
+      if (!res.ok) return { degraded: false, lagMinutes: null };
+      return res.json();
+    },
+    staleTime: MINUTE,
+    refetchInterval: MINUTE,
+  });
+}

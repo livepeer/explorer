@@ -1,4 +1,36 @@
+import { unstable_cache } from "next/cache";
+
 import { getPollableLips } from "@/lib/governance/lips";
+
+/**
+ * Pins a LIP's text once per LIPs-repo commit. The same text always gives
+ * the same IPFS hash, so repeat requests reuse it instead of calling Pinata
+ * again: calling this in a loop can't exhaust the Pinata quota. Failures
+ * throw, and aren't cached.
+ */
+const pinLip = unstable_cache(
+  async (commit: string, lip: string, text: string): Promise<string> => {
+    const pinned = await fetch(
+      "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.PINATA_JWT}`,
+        },
+        body: JSON.stringify({
+          pinataContent: { gitCommitHash: commit, text },
+          pinataMetadata: { name: `LIP-${lip} poll` },
+        }),
+      }
+    );
+    if (!pinned.ok) throw new Error(`Pinata responded ${pinned.status}`);
+    const { IpfsHash } = (await pinned.json()) as { IpfsHash: string };
+    return IpfsHash;
+  },
+  ["lip-poll-pin"],
+  { revalidate: false }
+);
 
 /**
  * Pins a LIP to IPFS for a new poll and returns the hash to pass to
@@ -39,19 +71,10 @@ export async function POST(request: Request) {
       { status: 404 }
     );
 
-  const pinned = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify({
-      pinataContent: { gitCommitHash: pollable.commit, text: found.text },
-      pinataMetadata: { name: `LIP-${lip} poll` },
-    }),
-  });
-  if (!pinned.ok)
+  try {
+    const hash = await pinLip(pollable.commit, lip, found.text);
+    return Response.json({ hash });
+  } catch {
     return Response.json({ error: "IPFS pinning failed" }, { status: 502 });
-  const { IpfsHash } = (await pinned.json()) as { IpfsHash: string };
-  return Response.json({ hash: IpfsHash });
+  }
 }

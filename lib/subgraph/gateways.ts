@@ -200,7 +200,7 @@ export async function fetchGatewayPayouts(
     GATEWAY_TICKETS,
     "winningTicketRedeemedEvents",
     { sender, since },
-    { max: TICKET_CAP }
+    { max: TICKET_CAP, partial: true }
   );
   return summarizePayouts(sender, since, rows, rows.length >= TICKET_CAP);
 }

@@ -13,10 +13,14 @@ const INDEXED_BLOCK = /* GraphQL */ `
 `;
 
 /** Latest block the subgraph has indexed, or null if it can't say. */
-export async function fetchIndexedBlock(): Promise<number | null> {
+export async function fetchIndexedBlock(
+  signal?: AbortSignal
+): Promise<number | null> {
   try {
     const data = await querySubgraph<{ _meta: { block: { number: number } } }>(
-      INDEXED_BLOCK
+      INDEXED_BLOCK,
+      {},
+      signal
     );
     return Number(data._meta.block.number);
   } catch {
@@ -38,7 +42,12 @@ export async function waitForIndexed(
   const target = Number(block);
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const indexed = await fetchIndexedBlock();
+    // Each probe gets what's left of the deadline, at most 10s, so a request
+    // that never answers can't hold this past it.
+    const remaining = deadline - Date.now();
+    const indexed = await fetchIndexedBlock(
+      AbortSignal.timeout(Math.min(remaining, 10_000))
+    );
     if (indexed != null && indexed >= target) return true;
     await sleep(intervalMs);
   }

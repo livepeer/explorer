@@ -18,6 +18,7 @@ import { THEME_OPTIONS, useTheme } from "@/components/theme";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
+import { useSubgraphHealth } from "@/lib/hooks/queries";
 
 import { CommandSearch } from "./command-search";
 import { NAV } from "./nav";
@@ -176,6 +177,23 @@ function SidebarBody({
   );
 }
 
+/** Shown while the subgraph trails the chain, so stale figures aren't trusted. */
+function StaleDataBanner() {
+  const { data } = useSubgraphHealth();
+  if (!data?.degraded) return null;
+  return (
+    <div
+      role="status"
+      className="border-b border-hairline bg-warm-subtle px-4 py-2 text-center text-ui-caption text-warm sm:px-6"
+    >
+      Network data is delayed
+      {data.lagMinutes != null && <> by about {data.lagMinutes} minutes</>}: the
+      subgraph is catching up with the chain, so recent activity and figures may
+      be out of date.
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -252,6 +270,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main id="main" className="min-w-0 flex-1">
+          <StaleDataBanner />
           {children}
         </main>
       </div>

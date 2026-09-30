@@ -9,4 +9,4 @@
 7. `fixtures.mjs` generates the data: pools with 27-decimal CRF/CFF factors, snapshots where shares = stake·1e27/crf, 365 days, events, treasury proposals and polls.
 8. The server matches each request by operation name (`query Delegators`, `Pools`, …) from `lib/subgraph/*.ts`. A new operation there needs a resolver in `server.mjs`.
 9. `GET /coingecko` returns the same fixed prices the screenshot script injects.
-10. Nothing here is committed or shipped. Delete the folder once you no longer need it.
+10. Development only: the app never imports anything here, and none of it ships in the build.

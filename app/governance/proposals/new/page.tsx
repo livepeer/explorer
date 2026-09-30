@@ -289,9 +289,12 @@ export default function NewProposalPage() {
                   value={amount}
                   placeholder="0"
                   aria-invalid={Boolean(amountError)}
-                  onChange={(e) =>
-                    setAmount(e.target.value.replace(/[^\d.]/g, ""))
-                  }
+                  onChange={(e) => {
+                    // As the staking amount: one point, at most 18 decimals,
+                    // so what's shown is exactly what's encoded.
+                    const v = e.target.value.replace(/,/g, ".");
+                    if (/^\d*\.?\d{0,18}$/.test(v)) setAmount(v);
+                  }}
                   disabled={busy}
                   className="pr-12 tabular-nums"
                 />

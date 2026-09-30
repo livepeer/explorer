@@ -1295,7 +1295,7 @@ const server = http.createServer((req, res) => {
         );
       send(res, 200, { data });
     } catch (err) {
-      console.error(`[mock] ${op} failed`, err);
+      console.error("[mock] %s failed", op, err);
       send(res, 200, {
         errors: [{ message: `mock: ${op} failed: ${err.message}` }],
       });

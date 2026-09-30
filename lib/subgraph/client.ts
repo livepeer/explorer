@@ -29,16 +29,27 @@ const PAGE = 1000;
  * Walk a collection with id-cursor pagination (`id_gt`), which unlike `skip`
  * stays fast past the first few thousand rows. The query must accept
  * `$first` and `$lastId` and filter on `id_gt: $lastId`.
+ *
+ * Reaching `max` with more rows left throws rather than return a partial
+ * list that reads as complete, since callers sum these into balances and
+ * history. A caller that can work with a sample passes `partial: true` and
+ * checks the length against `max` itself.
  */
 export async function paginate<Row extends { id: string }>(
   query: string,
   key: string,
   variables: Record<string, unknown> = {},
-  { max = 20_000 }: { max?: number } = {}
+  { max = 100_000, partial = false }: { max?: number; partial?: boolean } = {}
 ): Promise<Row[]> {
   const rows: Row[] = [];
   let lastId = "";
-  while (rows.length < max) {
+  for (;;) {
+    if (rows.length >= max) {
+      if (partial) break;
+      throw new SubgraphError(
+        `More than ${max.toLocaleString()} ${key} to load; stopping rather than show incomplete data`
+      );
+    }
     const data = await querySubgraph<Record<string, Row[]>>(query, {
       ...variables,
       first: PAGE,

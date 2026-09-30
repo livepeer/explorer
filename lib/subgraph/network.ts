@@ -647,7 +647,7 @@ export async function fetchOrchestrators(
       ids: transcoders.map((t) => t.id),
       since: Math.floor(Date.now() / 1000) - 90 * 86400,
     },
-    { max: 10_000 }
+    { max: 10_000, partial: true }
   )
     .then(selfPaid)
     .catch(() => new Map<string, number>());
