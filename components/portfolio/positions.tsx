@@ -6,6 +6,7 @@ import {
   Minus,
   MoreHorizontal,
   Plus,
+  Send,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,7 +27,10 @@ import {
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
-import type { PortfolioAccount } from "@/lib/hooks/watchlist";
+import {
+  type PortfolioAccount,
+  usePortfolioAccounts,
+} from "@/lib/hooks/watchlist";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
 export type Position = {
@@ -72,6 +76,16 @@ function AccountCell({ account }: { account: PortfolioAccount }) {
   );
 }
 
+/** Stake can move to another wallet when there's stake and somewhere to go. */
+function useCanMove(p: Position) {
+  const { accounts } = usePortfolioAccounts();
+  return (
+    Boolean(p.delegate) &&
+    p.stake > 0 &&
+    accounts.some((a) => a.address !== p.account.address)
+  );
+}
+
 function RowActions({
   position,
   canManage,
@@ -80,6 +94,7 @@ function RowActions({
   canManage: boolean;
 }) {
   const { open } = useStaking();
+  const canMove = useCanMove(position);
   if (!canManage) {
     return (
       <Tooltip content="Add this address to your portfolio to manage it here.">
@@ -115,6 +130,20 @@ function RowActions({
         <MenuItem render={<Link href="/orchestrators?move=1" />}>
           <ArrowRightLeft /> Switch orchestrator
         </MenuItem>
+        {canMove && (
+          <MenuItem
+            onClick={() =>
+              open({
+                kind: "transfer",
+                account: position.account.address,
+                delegate: position.delegate!,
+                staked: position.stake,
+              })
+            }
+          >
+            <Send /> Move to another wallet
+          </MenuItem>
+        )}
         {position.delegate && position.stake > 0 && (
           <MenuItem
             onClick={() =>
@@ -440,6 +469,7 @@ export function DelegationCard({
 }) {
   const { open } = useStaking();
   const account = p.account.address;
+  const canMove = useCanMove(p);
 
   if (!p.delegate) {
     return (
@@ -551,23 +581,41 @@ export function DelegationCard({
             <ArrowRightLeft /> Switch
             <span className="-ml-1 hidden sm:inline">orchestrator</span>
           </Link>
-          {p.stake > 0 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="ml-auto"
-              onClick={() =>
-                open({
-                  kind: "undelegate",
-                  account,
-                  delegate: p.delegate!,
-                  staked: p.stake,
-                })
-              }
-            >
-              <Minus /> Undelegate
-            </Button>
-          )}
+          <div className="ml-auto flex items-center gap-1">
+            {canMove && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  open({
+                    kind: "transfer",
+                    account,
+                    delegate: p.delegate!,
+                    staked: p.stake,
+                  })
+                }
+              >
+                <Send /> Move
+                <span className="-ml-1 hidden sm:inline">to wallet</span>
+              </Button>
+            )}
+            {p.stake > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  open({
+                    kind: "undelegate",
+                    account,
+                    delegate: p.delegate!,
+                    staked: p.stake,
+                  })
+                }
+              >
+                <Minus /> Undelegate
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </Card>

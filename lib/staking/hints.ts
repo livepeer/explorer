@@ -55,3 +55,23 @@ export function bondHints(
     newDelegate: simulateHint(activeSet, toL, deltas),
   };
 }
+
+/**
+ * Hints for transferBond, which unbonds from the sender's orchestrator and
+ * then rebonds with the receiver's. The first hint is for the list after the
+ * unbond alone, the second after both, so when both orchestrators are the
+ * same the second is its original place.
+ */
+export function transferHints(
+  activeSet: { id: string; stake: number }[],
+  { from, to, amount }: { from: string; to: string; amount: number }
+) {
+  const fromL = from.toLowerCase();
+  const toL = to.toLowerCase();
+  const afterUnbond = { [fromL]: -amount };
+  const afterBoth = fromL === toL ? {} : { [fromL]: -amount, [toL]: amount };
+  return {
+    oldDelegate: simulateHint(activeSet, fromL, afterUnbond),
+    newDelegate: simulateHint(activeSet, toL, afterBoth),
+  };
+}

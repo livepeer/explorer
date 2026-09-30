@@ -27,12 +27,13 @@ import {
   useDisconnect,
   useReadContract,
   useSendCalls,
+  useSimulateContract,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 
-import { Identity } from "@/components/identity";
+import { Identity, useIdentity } from "@/components/identity";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,9 +66,14 @@ import {
 } from "@/lib/format";
 import { useOrchestrators, useProtocol } from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
-import { useAddresses } from "@/lib/hooks/watchlist";
+import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
 import { useProtocolContract } from "@/lib/staking/contracts";
-import { bondHints, EMPTY_HINT, simulateHint } from "@/lib/staking/hints";
+import {
+  bondHints,
+  EMPTY_HINT,
+  simulateHint,
+  transferHints,
+} from "@/lib/staking/hints";
 import { refreshWhenIndexed } from "@/lib/subgraph/sync";
 
 /* ── Action model ────────────────────────────────────────────────────────── */
@@ -92,6 +98,8 @@ export type StakingAction = (
   | { kind: "withdrawStake"; lockId: number; amount: number }
   | { kind: "rebond"; lockId: number; amount: number; delegate: string }
   | { kind: "withdrawFees"; amount: number }
+  /** Move delegated stake to another portfolio wallet, without unbonding. */
+  | { kind: "transfer"; delegate: string; staked: number }
 ) & {
   /**
    * The account this action is for. When it isn't the account active in
@@ -404,6 +412,26 @@ function Notice({
   );
 }
 
+/** Why the protocol would refuse a transfer, in plain words, if it's a known reason. */
+function transferBlocked(e: unknown, toName: string) {
+  // The revert reason is on a later line of viem's message.
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/ILLEGAL_CLAIM_EARNINGS/.test(msg)) {
+    return `${toName}'s orchestrator hasn't called reward yet this round. The protocol holds stake moves into ${toName} until it does, so it doesn't miss this round's rewards. Try again later this round.`;
+  }
+  if (/INVALID_DELEGATOR/.test(msg)) {
+    return `${toName} is this stake's orchestrator, and an orchestrator can't be given stake delegated to itself this way.`;
+  }
+  return errorMessage(e);
+}
+
+function OrchestratorName({ address }: { address: string }) {
+  const { name } = useIdentity(address);
+  return (
+    <span className="text-foreground">{name ?? shortAddress(address)}</span>
+  );
+}
+
 /* ── Account gate ────────────────────────────────────────────────────────── */
 
 const VERB: Record<StakingAction["kind"], string> = {
@@ -412,6 +440,7 @@ const VERB: Record<StakingAction["kind"], string> = {
   withdrawStake: "withdraw",
   rebond: "redelegate",
   withdrawFees: "withdraw its fees",
+  transfer: "move its stake",
 };
 
 /**
@@ -562,6 +591,23 @@ function StakingFlow({
   const currentDelegate = (
     delegatorInfo as readonly unknown[] | undefined
   )?.[2] as string | undefined;
+
+  // Moving stake: the other portfolio wallets it can go to, and where the
+  // chosen one's stake is now, which decides where the moved stake lands.
+  const { accounts: portfolio } = usePortfolioAccounts();
+  const receivers = portfolio.filter((a) => a.address !== signer);
+  const [receiver, setReceiver] = useState<string | null>(() =>
+    receivers.length === 1 ? receivers[0].address : null
+  );
+  const transferring = action.kind === "transfer";
+  const { data: receiverInfo } = useReadContract({
+    address: bm,
+    abi: bondingManager,
+    functionName: "getDelegator",
+    args: [receiver as `0x${string}`],
+    chainId: L2_CHAIN.id,
+    query: { enabled: Boolean(transferring && bm && receiver) },
+  });
   const bonded =
     pendingStakeWei != null ? fromWei(pendingStakeWei as bigint) : 0;
   const balance = balanceWei != null ? fromWei(balanceWei as bigint) : 0;
@@ -590,6 +636,53 @@ function StakingFlow({
       return 0n;
     }
   })();
+
+  const receiverBonded =
+    ((receiverInfo as readonly unknown[] | undefined)?.[0] as
+      | bigint
+      | undefined) ?? 0n;
+  const receiverDelegate = (
+    (receiverInfo as readonly unknown[] | undefined)?.[2] as string | undefined
+  )?.toLowerCase();
+  // A wallet with no delegation takes the sender's orchestrator; one that
+  // has one keeps it, and the moved stake joins it there.
+  const receiverFresh =
+    receiverInfo != null &&
+    receiverBonded === 0n &&
+    (!receiverDelegate || /^0x0+$/.test(receiverDelegate));
+  const landsWith =
+    receiverInfo == null
+      ? undefined
+      : receiverFresh
+      ? currentDelegate?.toLowerCase()
+      : receiverDelegate;
+  const moveHints =
+    transferring && landsWith
+      ? transferHints(activeSet, {
+          from: action.delegate,
+          to: landsWith,
+          amount: Number(amount || 0),
+        })
+      : null;
+  // Checked before signing: the protocol refuses some transfers outright.
+  const simulation = useSimulateContract({
+    address: bm,
+    abi: bondingManager,
+    functionName: "transferBond",
+    args: [
+      receiver as `0x${string}`,
+      amountWei,
+      moveHints?.oldDelegate.prev ?? EMPTY_HINT.prev,
+      moveHints?.oldDelegate.next ?? EMPTY_HINT.next,
+      moveHints?.newDelegate.prev ?? EMPTY_HINT.prev,
+      moveHints?.newDelegate.next ?? EMPTY_HINT.next,
+    ],
+    account: signer as `0x${string}`,
+    chainId: L2_CHAIN.id,
+    query: {
+      enabled: Boolean(transferring && bm && receiver && amountWei > 0n),
+    },
+  });
 
   // Delegation intent: the first time the form has an amount, typed, from
   // Max or pre-filled. Switching orchestrator counts as a redelegation
@@ -921,6 +1014,94 @@ function StakingFlow({
             })
           );
         }
+      };
+      break;
+    }
+    case "transfer": {
+      const max = bonded || action.staked;
+      const to = receivers.find((r) => r.address === receiver);
+      const toName = to?.label ?? (receiver ? shortAddress(receiver) : "");
+      const blocked = simulation.error
+        ? transferBlocked(simulation.error, toName)
+        : null;
+      title = "Move stake to another wallet";
+      description =
+        "Moves delegated LPT to another wallet in your portfolio without undelegating, so there's no unlock period. Only that wallet can move it back.";
+      cta = "Move stake";
+      successTitle = "Stake moved";
+      canRun =
+        canRun &&
+        Boolean(receiver) &&
+        amountWei > 0n &&
+        Number(amount) <= max + 1e-9 &&
+        simulation.isSuccess;
+      body = (
+        <>
+          <div className="flex flex-col gap-2">
+            <div className="text-ui-caption text-muted-foreground">To</div>
+            <div
+              role="radiogroup"
+              aria-label="Receiving wallet"
+              className="flex flex-col gap-1.5"
+            >
+              {receivers.map((r) => (
+                <button
+                  key={r.address}
+                  type="button"
+                  role="radio"
+                  aria-checked={receiver === r.address}
+                  onClick={() => setReceiver(r.address)}
+                  className={cn(
+                    "cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",
+                    receiver === r.address
+                      ? "border-ring bg-hover"
+                      : "border-hairline hover:bg-hover"
+                  )}
+                >
+                  <Identity
+                    address={r.address}
+                    href={null}
+                    size={22}
+                    label={r.label}
+                    secondary={r.connected ? "Connected" : undefined}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+          <AmountField
+            value={amount}
+            onChange={setAmount}
+            max={max}
+            maxLabel="Delegated"
+            autoFocus={false}
+          />
+          {blocked ? (
+            <Notice tone="warning">{blocked}</Notice>
+          ) : landsWith && receiver ? (
+            receiverFresh ? (
+              <Notice>
+                It stays with <OrchestratorName address={landsWith} /> and
+                starts earning in {toName} from the next round.
+              </Notice>
+            ) : landsWith === currentDelegate?.toLowerCase() ? (
+              <Notice>
+                It&apos;s added to {toName}&apos;s stake with{" "}
+                <OrchestratorName address={landsWith} />.
+              </Notice>
+            ) : (
+              <Notice tone="warning">
+                {toName} is delegated to{" "}
+                <OrchestratorName address={landsWith} />, so the moved stake
+                goes there, not to{" "}
+                <OrchestratorName address={action.delegate} />.
+              </Notice>
+            )
+          ) : null}
+        </>
+      );
+      run = async () => {
+        await tx.send(simulation.data!.request);
       };
       break;
     }

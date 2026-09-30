@@ -1,6 +1,6 @@
 import { zeroAddress } from "viem";
 
-import { bondHints, simulateHint } from "./hints";
+import { bondHints, simulateHint, transferHints } from "./hints";
 
 const set = [
   { id: "0xa", stake: 300 },
@@ -55,5 +55,22 @@ describe("bondHints", () => {
     // b: 350 overtakes a
     expect(hints.newDelegate).toEqual({ prev: zeroAddress, next: "0xa" });
     expect(hints.oldDelegate).toEqual({ prev: zeroAddress, next: zeroAddress });
+  });
+});
+
+describe("transferHints", () => {
+  it("places the sender's orchestrator after the unbond, the receiver's after both", () => {
+    const hints = transferHints(set, { from: "0xa", to: "0xc", amount: 250 });
+    // After the unbond, a: 50, b: 200, c: 100
+    expect(hints.oldDelegate).toEqual({ prev: "0xc", next: zeroAddress });
+    // After both, a: 50, b: 200, c: 350
+    expect(hints.newDelegate).toEqual({ prev: zeroAddress, next: "0xb" });
+  });
+
+  it("puts a shared orchestrator back where it started", () => {
+    const hints = transferHints(set, { from: "0xa", to: "0xa", amount: 250 });
+    // The unbond drops a below c for a moment; the rebond restores it.
+    expect(hints.oldDelegate).toEqual({ prev: "0xc", next: zeroAddress });
+    expect(hints.newDelegate).toEqual({ prev: zeroAddress, next: "0xb" });
   });
 });
