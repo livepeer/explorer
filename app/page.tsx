@@ -7,9 +7,12 @@ import { Skeleton } from "@/components/ui/misc";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 
 export default function PortfolioPage() {
-  const { accounts, inPortfolio, isReconnecting } = usePortfolioAccounts();
+  const { accounts, inPortfolio, isReconnecting, loaded } =
+    usePortfolioAccounts();
 
-  if (isReconnecting && accounts.length === 0) {
+  // Saved wallets are read after hydration, and a wallet may still be
+  // reconnecting: show the portfolio's shape, not onboarding, until then.
+  if ((!loaded || isReconnecting) && accounts.length === 0) {
     return (
       <Page>
         <Skeleton className="mb-8 h-9 w-48" />

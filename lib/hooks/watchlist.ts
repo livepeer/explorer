@@ -120,6 +120,21 @@ function rename(address: string, label: string) {
   );
 }
 
+const noSubscribe = () => () => {};
+
+/**
+ * False on the server and during hydration, when saved addresses can't be
+ * read yet (they live in this browser's storage); true after. Until then an
+ * empty list means "not loaded", not "no addresses".
+ */
+export function useAddressesLoaded() {
+  return useSyncExternalStore(
+    noSubscribe,
+    () => true,
+    () => false
+  );
+}
+
 /** The portfolio's addresses and ways to change them. */
 export function useAddresses() {
   const list = useSyncExternalStore(subscribe, read, () => EMPTY);
@@ -190,5 +205,7 @@ export function usePortfolioAccounts() {
       [members]
     ),
     isReconnecting: status === "reconnecting" || status === "connecting",
+    /** Saved addresses have been read; before that, don't treat [] as empty. */
+    loaded: useAddressesLoaded(),
   };
 }
