@@ -120,9 +120,10 @@ export function useGatewayEvents(id: string | undefined, first = 50) {
   });
 }
 
-export function useDays(first = 365) {
+/** The last `first` days, or all of them. */
+export function useDays(first?: number) {
   return useQuery({
-    queryKey: ["days", first],
+    queryKey: ["days", first ?? "all"],
     queryFn: () => fetchDays(first),
     staleTime: 30 * MINUTE,
   });

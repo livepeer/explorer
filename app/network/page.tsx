@@ -225,7 +225,7 @@ function KpiTrend({
 
 function NetworkKpis({ protocol }: { protocol?: Protocol }) {
   // Shares the history chart's cache: no extra request.
-  const { data: days } = useDays(365);
+  const { data: days } = useDays();
   if (!protocol) {
     return (
       <KpiStrip cols={2} className="h-full">
@@ -320,7 +320,7 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
 /* ── History charts ──────────────────────────────────────────────────────── */
 
 type Metric = "participation" | "fees" | "inflation" | "delegators";
-type Range = "3m" | "1y";
+type Range = "3m" | "1y" | "all";
 
 const METRICS = [
   { value: "participation", label: "Participation" },
@@ -332,7 +332,14 @@ const METRICS = [
 const RANGES = [
   { value: "3m", label: "3M" },
   { value: "1y", label: "1Y" },
+  { value: "all", label: "All" },
 ] as const;
+
+const RANGE_DAYS: Record<Range, number> = {
+  "3m": 90,
+  "1y": 365,
+  all: Infinity,
+};
 
 /** Sum daily values into 7-day buckets, anchored on the latest day. A partial
  * leading week is dropped so it doesn't read as a dip. */
@@ -348,11 +355,36 @@ function weekly(points: Point[]): Point[] {
   return out.reverse();
 }
 
+/** Sum daily values by calendar month (UTC). The first month is dropped when
+ * the data starts partway through it, for the same reason as a partial week;
+ * the current month is kept, as month to date. */
+function monthly(points: Point[]): Point[] {
+  const out: Point[] = [];
+  let key = "";
+  for (const p of points) {
+    const d = new Date(p.ts * 1000);
+    const k = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+    if (k !== key) {
+      key = k;
+      out.push({
+        // Mid-month, so local time zones still show the right month.
+        ts: Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 15) / 1000,
+        value: 0,
+      });
+    }
+    out[out.length - 1].value += p.value;
+  }
+  if (points.length && new Date(points[0].ts * 1000).getUTCDate() !== 1) {
+    out.shift();
+  }
+  return out;
+}
+
 function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
   return useMemo(() => {
     const all = days ?? [];
     const latest = all.length ? all[all.length - 1].date : 0;
-    const cutoff = latest - (range === "3m" ? 90 : 365) * 86400;
+    const cutoff = latest - RANGE_DAYS[range] * 86400;
     const sliced = all.filter((d) => d.date > cutoff);
     const pts = (pick: (d: Day) => number) =>
       sliced.map((d) => ({ ts: d.date, value: pick(d) }));
@@ -366,21 +398,25 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => formatPercent(v, { decimals: 2 }),
           axis: (v: number) => formatPercent(v, { decimals: 0 }),
           label: "Share of LPT supply staked, daily",
-          bucketed: false,
+          bucketed: null,
         };
       case "fees": {
         const daily = pts((d) => d.volumeETH);
-        const bucketed = daily.length > 90;
+        const bucket =
+          daily.length > 400 ? "month" : daily.length > 90 ? "week" : null;
         return {
-          data: bucketed ? weekly(daily) : daily,
+          data:
+            bucket === "month"
+              ? monthly(daily)
+              : bucket === "week"
+              ? weekly(daily)
+              : daily,
           kind: "bar" as const,
           color: "var(--series-4)",
           format: formatETH,
           axis: (v: number) => formatNumber(v, { decimals: v < 1 ? 2 : 0 }),
-          label: bucketed
-            ? "ETH fee volume per week"
-            : "ETH fee volume per day",
-          bucketed,
+          label: `ETH fee volume per ${bucket ?? "day"}`,
+          bucketed: bucket,
         };
       }
       case "inflation":
@@ -391,7 +427,7 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => formatPercent(v, { decimals: 4 }),
           axis: (v: number) => formatPercent(v, { decimals: 3 }),
           label: "Inflation per round, daily",
-          bucketed: false,
+          bucketed: null,
         };
       case "delegators":
         return {
@@ -401,7 +437,7 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => Math.round(v).toLocaleString(),
           axis: (v: number) => formatNumber(v, { decimals: 0, compact: true }),
           label: "Delegators with stake, daily",
-          bucketed: false,
+          bucketed: null,
         };
     }
   }, [days, metric, range]);
@@ -410,7 +446,7 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
 function HistorySection() {
   const [metric, setMetric] = useState<Metric>("participation");
   const [range, setRange] = useState<Range>("1y");
-  const { data: days, isLoading, error, refetch } = useDays(365);
+  const { data: days, isLoading, error, refetch } = useDays();
   const chart = useChart(days, metric, range);
 
   return (
@@ -458,7 +494,10 @@ function HistorySection() {
                 height={260}
                 domain={metric === "fees" ? [0, "auto"] : ["auto", "auto"]}
                 tooltipTitle={
-                  chart.bucketed
+                  chart.bucketed === "month"
+                    ? (p) =>
+                        formatDate(p.ts, { month: "long", year: "numeric" })
+                    : chart.bucketed === "week"
                     ? (p) =>
                         `Week of ${formatDate(p.ts, {
                           month: "short",

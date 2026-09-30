@@ -291,20 +291,41 @@ export type Day = {
   activeTranscoderCount: number;
 };
 
+const DAY_FIELDS = /* GraphQL */ `
+  date
+  volumeETH
+  volumeUSD
+  participationRate
+  inflation
+  totalActiveStake
+  delegatorsCount
+  activeTranscoderCount
+`;
+
 const DAYS = /* GraphQL */ `
   query Days($first: Int!) {
     days(first: $first, orderBy: date, orderDirection: desc) {
-      date
-      volumeETH
-      volumeUSD
-      participationRate
-      inflation
-      totalActiveStake
-      delegatorsCount
-      activeTranscoderCount
+      ${DAY_FIELDS}
     }
   }
 `;
+
+/** Newest first, from before a date, for walking back through all of it. */
+const DAYS_BEFORE = /* GraphQL */ `
+  query DaysBefore($first: Int!, $before: Int!) {
+    days(
+      first: $first
+      orderBy: date
+      orderDirection: desc
+      where: { date_lt: $before }
+    ) {
+      ${DAY_FIELDS}
+    }
+  }
+`;
+
+/** The most the subgraph returns in one page. */
+const DAYS_PAGE = 1000;
 
 /** Day fields that are snapshots set when a round starts, never truly zero. */
 const SNAPSHOT_FIELDS = [
@@ -335,8 +356,24 @@ export function fillUnsetDayStats(days: Day[]): Day[] {
   return out;
 }
 
-export async function fetchDays(first = 365): Promise<Day[]> {
-  const { days } = await querySubgraph<{ days: RawDay[] }>(DAYS, { first });
+/** The last `first` days, or every day since the network moved to Arbitrum. */
+export async function fetchDays(first?: number): Promise<Day[]> {
+  let days: RawDay[];
+  if (first != null) {
+    ({ days } = await querySubgraph<{ days: RawDay[] }>(DAYS, { first }));
+  } else {
+    days = [];
+    let before = 2 ** 31 - 1;
+    for (;;) {
+      const page = await querySubgraph<{ days: RawDay[] }>(DAYS_BEFORE, {
+        first: DAYS_PAGE,
+        before,
+      });
+      days.push(...page.days);
+      if (page.days.length < DAYS_PAGE) break;
+      before = Number(page.days[page.days.length - 1].date);
+    }
+  }
   const parsed = days
     .map((d) => ({
       date: Number(d.date),
