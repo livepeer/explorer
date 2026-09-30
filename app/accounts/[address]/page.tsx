@@ -1,15 +1,32 @@
 "use client";
 
-import { Check, Plus, Server, Waypoints } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Pencil,
+  Plus,
+  Server,
+  Trash2,
+  Waypoints,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { isAddress } from "viem";
 
 import { Avatar, CopyButton, useIdentity } from "@/components/identity";
 import { Page } from "@/components/page";
+import { RenameAddressDialog } from "@/components/portfolio/addresses";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
 import { Button } from "@/components/ui/button";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/misc";
 import { addressUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/format";
 import { useGateway, useOrchestrators } from "@/lib/hooks/queries";
@@ -25,16 +42,18 @@ export default function AccountPage() {
   const { list, add, remove } = useAddresses();
   const { data: orchestrators } = useOrchestrators();
   const { data: gateway } = useGateway(valid ? address : null);
+  const [renaming, setRenaming] = useState(false);
+  const label = list.find((w) => w.address === address)?.label;
 
   const accounts = useMemo(
     () => [
       {
         address,
-        label: list.find((w) => w.address === address)?.label,
+        label,
         connected: address === walletAddress,
       },
     ],
-    [address, walletAddress, list]
+    [address, walletAddress, label]
   );
 
   if (!valid) notFound();
@@ -57,7 +76,7 @@ export default function AccountPage() {
                 : "Account"}
             </div>
             <h1 className="truncate text-[26px] leading-8 font-light tracking-[-0.01em]">
-              {name ?? (
+              {label ?? name ?? (
                 <span className="font-mono text-[22px]">
                   {shortAddress(address, 8, 6)}
                 </span>
@@ -92,9 +111,37 @@ export default function AccountPage() {
           )}
           {!isConnected &&
             (saved ? (
-              <Button size="sm" variant="ghost" onClick={() => remove(address)}>
-                <Check /> In your portfolio
-              </Button>
+              <Menu>
+                <MenuTrigger
+                  render={<Button size="sm" variant="ghost" />}
+                  aria-label="In your portfolio: rename or remove"
+                >
+                  <Check /> In your portfolio
+                  <ChevronDown className="size-3.5 opacity-60" />
+                </MenuTrigger>
+                <MenuContent>
+                  <MenuItem onClick={() => setRenaming(true)}>
+                    <Pencil /> Rename…
+                  </MenuItem>
+                  <MenuSeparator />
+                  <MenuItem
+                    onClick={() => {
+                      remove(address);
+                      toast(
+                        `Removed ${label ?? name ?? shortAddress(address)}`,
+                        {
+                          action: {
+                            label: "Undo",
+                            onClick: () => add(address, label),
+                          },
+                        }
+                      );
+                    }}
+                  >
+                    <Trash2 /> Remove from portfolio
+                  </MenuItem>
+                </MenuContent>
+              </Menu>
             ) : (
               <Button
                 size="sm"
@@ -106,6 +153,10 @@ export default function AccountPage() {
             ))}
         </div>
       </header>
+      <RenameAddressDialog
+        account={renaming ? accounts[0] : null}
+        onOpenChange={(o) => !o && setRenaming(false)}
+      />
       <PortfolioView
         accounts={accounts}
         canManage={inPortfolio}
