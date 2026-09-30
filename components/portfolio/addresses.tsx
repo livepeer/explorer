@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { useEnsAddress } from "wagmi";
 
 import { useIdentity } from "@/components/identity";
 import { Button } from "@/components/ui/button";
@@ -17,8 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/misc";
-import { L1_CHAIN } from "@/lib/config";
 import { shortAddress } from "@/lib/format";
+import { useAddressInput } from "@/lib/hooks/address-input";
 import { type PortfolioAccount, useAddresses } from "@/lib/hooks/watchlist";
 
 /** Add any address or ENS name to the portfolio. */
@@ -34,23 +31,7 @@ export function AddAddressDialog({
   const { add } = useAddresses();
   const [value, setValue] = useState("");
   const [label, setLabel] = useState("");
-  const trimmed = value.trim();
-  let ens: string | undefined;
-  try {
-    ens = /\.[a-z]{2,}$/i.test(trimmed) ? normalize(trimmed) : undefined;
-  } catch {
-    ens = undefined;
-  }
-  const { data: resolved, isFetching } = useEnsAddress({
-    name: ens,
-    chainId: L1_CHAIN.id,
-    query: { enabled: Boolean(ens), retry: false },
-  });
-  const address = isAddress(trimmed)
-    ? trimmed.toLowerCase()
-    : resolved?.toLowerCase();
-  const invalid =
-    trimmed.length > 0 && !address && !isFetching && !(ens && isFetching);
+  const { address, ens, resolved, invalid } = useAddressInput(value);
 
   const submit = () => {
     if (!address) return;

@@ -26,6 +26,7 @@ import {
   useConfig,
   useDisconnect,
   useReadContract,
+  useReadContracts,
   useSendCalls,
   useSimulateContract,
   useSwitchChain,
@@ -44,6 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/misc";
 import { SafeProposed } from "@/components/wallet/safe-proposed";
 import { bondingManager } from "@/lib/abis/BondingManager";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
@@ -75,6 +77,8 @@ import {
   transferHints,
 } from "@/lib/staking/hints";
 import { refreshWhenIndexed } from "@/lib/subgraph/sync";
+
+import { type Recipient, RecipientPicker, RecipientRow } from "./recipient";
 
 /* ── Action model ────────────────────────────────────────────────────────── */
 
@@ -417,7 +421,7 @@ function transferBlocked(e: unknown, toName: string) {
   // The revert reason is on a later line of viem's message.
   const msg = e instanceof Error ? e.message : String(e);
   if (/ILLEGAL_CLAIM_EARNINGS/.test(msg)) {
-    return `${toName}'s orchestrator hasn't called reward yet this round. The protocol holds stake moves into ${toName} until it does, so it doesn't miss this round's rewards. Try again later this round.`;
+    return `${toName}'s orchestrator hasn't called reward yet this round. The protocol holds transfers into ${toName} until it does, so it doesn't miss this round's rewards. Try again later this round.`;
   }
   if (/INVALID_DELEGATOR/.test(msg)) {
     return `${toName} is this stake's orchestrator, and an orchestrator can't be given stake delegated to itself this way.`;
@@ -440,7 +444,7 @@ const VERB: Record<StakingAction["kind"], string> = {
   withdrawStake: "withdraw",
   rebond: "redelegate",
   withdrawFees: "withdraw its fees",
-  transfer: "move its stake",
+  transfer: "transfer its stake",
 };
 
 /**
@@ -596,10 +600,49 @@ function StakingFlow({
   // chosen one's stake is now, which decides where the moved stake lands.
   const { accounts: portfolio } = usePortfolioAccounts();
   const receivers = portfolio.filter((a) => a.address !== signer);
-  const [receiver, setReceiver] = useState<string | null>(() =>
-    receivers.length === 1 ? receivers[0].address : null
-  );
   const transferring = action.kind === "transfer";
+  // Where the stake goes: a portfolio wallet, or an address typed in, which
+  // has to be vouched for.
+  const [picked, setPicked] = useState<Recipient | null>(() =>
+    receivers.length === 1 ? receivers[0] : null
+  );
+  const [vouched, setVouched] = useState(false);
+  const receiver = picked?.address ?? null;
+  const external = Boolean(picked?.external);
+  const { name: receiverName } = useIdentity(receiver);
+  // Where each portfolio wallet's stake is now, for the list.
+  const { data: receiverReads } = useReadContracts({
+    contracts: receivers.flatMap((r) => [
+      {
+        address: bm,
+        abi: bondingManager,
+        functionName: "getDelegator",
+        args: [r.address as `0x${string}`],
+        chainId: L2_CHAIN.id,
+      },
+      {
+        address: bm,
+        abi: bondingManager,
+        functionName: "pendingStake",
+        args: [r.address as `0x${string}`, BigInt(protocol?.currentRound ?? 0)],
+        chainId: L2_CHAIN.id,
+      },
+    ]),
+    query: { enabled: Boolean(transferring && bm && protocol) },
+  });
+  const receiverPositions = receivers.map((r, i) => {
+    const info = receiverReads?.[i * 2]?.result as
+      | readonly unknown[]
+      | undefined;
+    const stake = receiverReads?.[i * 2 + 1]?.result as bigint | undefined;
+    const delegate = (info?.[2] as string | undefined)?.toLowerCase();
+    return {
+      ...r,
+      loaded: info != null && stake != null,
+      stake: stake != null ? fromWei(stake) : 0,
+      delegate: delegate && !/^0x0+$/.test(delegate) ? delegate : null,
+    };
+  });
   const { data: receiverInfo } = useReadContract({
     address: bm,
     abi: bondingManager,
@@ -1019,55 +1062,83 @@ function StakingFlow({
     }
     case "transfer": {
       const max = bonded || action.staked;
-      const to = receivers.find((r) => r.address === receiver);
-      const toName = to?.label ?? (receiver ? shortAddress(receiver) : "");
+      const toName =
+        picked?.label ??
+        receiverName ??
+        (receiver ? shortAddress(receiver) : "");
       const blocked = simulation.error
         ? transferBlocked(simulation.error, toName)
         : null;
-      title = "Move stake to another wallet";
+      const stakeWith = (stake: number, delegate: string) => (
+        <>
+          {formatLPT(stake)} with <OrchestratorName address={delegate} />
+        </>
+      );
+      const status = (r: Recipient) => {
+        const known = receiverPositions.find((p) => p.address === r.address);
+        if (known) {
+          if (!known.loaded) return <Skeleton className="h-3 w-32" />;
+          return known.delegate && known.stake > 0
+            ? stakeWith(known.stake, known.delegate)
+            : "No stake";
+        }
+        if (r.address !== receiver || receiverInfo == null) {
+          return "Not in your portfolio";
+        }
+        return receiverDelegate && receiverBonded > 0n
+          ? stakeWith(fromWei(receiverBonded), receiverDelegate)
+          : "No stake · not in your portfolio";
+      };
+      title = "Transfer stake";
       description =
-        "Moves delegated LPT to another wallet in your portfolio without undelegating, so there's no unlock period. Only that wallet can move it back.";
-      cta = "Move stake";
-      successTitle = "Stake moved";
+        "Transfers delegated LPT to another wallet without undelegating, so there's no unlock period and it keeps earning. Only the receiving wallet can transfer it back.";
+      cta = "Transfer";
+      successTitle = "Stake transferred";
       canRun =
         canRun &&
         Boolean(receiver) &&
+        (!external || vouched) &&
         amountWei > 0n &&
         Number(amount) <= max + 1e-9 &&
         simulation.isSuccess;
+      const sender = portfolio.find((a) => a.address === signer);
       body = (
         <>
-          <div className="flex flex-col gap-2">
-            <div className="text-ui-caption text-muted-foreground">To</div>
-            <div
-              role="radiogroup"
-              aria-label="Receiving wallet"
-              className="flex flex-col gap-1.5"
-            >
-              {receivers.map((r) => (
-                <button
-                  key={r.address}
-                  type="button"
-                  role="radio"
-                  aria-checked={receiver === r.address}
-                  onClick={() => setReceiver(r.address)}
-                  className={cn(
-                    "cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",
-                    receiver === r.address
-                      ? "border-ring bg-hover"
-                      : "border-hairline hover:bg-hover"
-                  )}
-                >
-                  <Identity
-                    address={r.address}
-                    href={null}
-                    size={22}
-                    label={r.label}
-                    secondary={r.connected ? "Connected" : undefined}
-                  />
-                </button>
-              ))}
+          <div className="flex flex-col gap-1.5">
+            <div className="text-ui-caption text-muted-foreground">From</div>
+            <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
+              <RecipientRow
+                recipient={{ address: signer, label: sender?.label }}
+                status={stakeWith(max, action.delegate)}
+              />
             </div>
+            <ArrowDown
+              aria-hidden="true"
+              className="my-0.5 ml-[21px] size-3.5 text-subtle-foreground"
+            />
+            <div className="text-ui-caption text-muted-foreground">To</div>
+            {picked ? (
+              <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
+                <RecipientRow
+                  recipient={picked}
+                  status={status(picked)}
+                  onClear={() => {
+                    setPicked(null);
+                    setVouched(false);
+                  }}
+                />
+              </div>
+            ) : (
+              <RecipientPicker
+                wallets={receivers}
+                exclude={signer}
+                status={status}
+                onSelect={(r) => {
+                  setPicked(r);
+                  setVouched(false);
+                }}
+              />
+            )}
           </div>
           <AmountField
             value={amount}
@@ -1092,12 +1163,25 @@ function StakingFlow({
             ) : (
               <Notice tone="warning">
                 {toName} is delegated to{" "}
-                <OrchestratorName address={landsWith} />, so the moved stake
-                goes there, not to{" "}
-                <OrchestratorName address={action.delegate} />.
+                <OrchestratorName address={landsWith} />, so the stake goes
+                there, not to <OrchestratorName address={action.delegate} />.
               </Notice>
             )
           ) : null}
+          {external && (
+            <label className="flex cursor-pointer items-start gap-2.5 text-ui-caption text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={vouched}
+                onChange={(e) => setVouched(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 cursor-pointer accent-(--primary)"
+              />
+              <span>
+                I control {toName}. Stake transferred there can only be
+                transferred back from it, and this can&apos;t be undone.
+              </span>
+            </label>
+          )}
         </>
       );
       run = async () => {

@@ -76,7 +76,7 @@ function AccountCell({ account }: { account: PortfolioAccount }) {
   );
 }
 
-/** Stake can move to another wallet when there's stake and somewhere to go. */
+/** Stake can be transferred when there's stake and another wallet to take it. */
 function useCanMove(p: Position) {
   const { accounts } = usePortfolioAccounts();
   return (
@@ -141,7 +141,7 @@ function RowActions({
               })
             }
           >
-            <Send /> Move to another wallet
+            <Send /> Transfer stake
           </MenuItem>
         )}
         {position.delegate && position.stake > 0 && (
@@ -595,8 +595,8 @@ export function DelegationCard({
                   })
                 }
               >
-                <Send /> Move
-                <span className="-ml-1 hidden sm:inline">to wallet</span>
+                <Send /> Transfer
+                <span className="-ml-1 hidden sm:inline">stake</span>
               </Button>
             )}
             {p.stake > 0 && (

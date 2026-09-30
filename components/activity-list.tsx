@@ -10,6 +10,7 @@ import {
   Percent,
   PiggyBank,
   RotateCcw,
+  Send,
   ShieldCheck,
   Sparkles,
   Ticket,
@@ -175,7 +176,7 @@ function describe(e: ActivityEvent): {
       };
     case "TransferBond":
       return {
-        icon: ArrowRightLeft,
+        icon: Send,
         actor: e.delegator,
         text: (
           <>
