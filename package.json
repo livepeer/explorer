@@ -24,7 +24,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.0.1",
+    "eslint-config-next": "16.3.8",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
@@ -45,7 +45,7 @@
     "geist": "^1.7.2",
     "lucide-react": "^1.48.0",
     "motion": "^13.4.3",
-    "next": "16.3.4",
+    "next": "16.3.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "recharts": "^3.10.1",
@@ -70,6 +70,7 @@
     "overrides": {
       "@types/react": "19.2.2",
       "@types/react-dom": "19.2.2",
+      "axios": "^1.20.0",
       "cuer@0.0.3>qr": "0.5.5",
       "postcss": "^8.5.23",
       "ws@^8.0.0": "^8.21.3"
