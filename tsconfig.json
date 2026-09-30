@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "paths": {
-      "@components/*": ["components/*"],
-      "@layouts/*": ["layouts/*"],
-      "@lib/*": ["lib/*"],
-      "@api/*": ["lib/api/*"],
-      "@utils/*": ["utils/*"]
+      "@/*": ["./*"]
     },
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -21,10 +17,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "downlevelIteration": true,
     "incremental": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ]
 }
