@@ -12,6 +12,15 @@
 @custom-variant dark (&:where(html[data-theme="dark"] *));
 @custom-variant light (&:where(html[data-theme="light"] *));
 
+/* A row of tabs that scrolls sideways on phones, without a scrollbar
+   under it: the cut-off tab already shows there's more. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ── Registry dark theme (default) ─────────────────────────────────────── */
 :root {
   --background: oklch(0 0 0);
@@ -401,9 +410,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--muted-foreground) transparent;
+/* In the base layer, so utilities like scrollbar-none can override it. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
 }
 
 ::selection {

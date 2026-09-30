@@ -468,7 +468,7 @@ function HistorySection() {
         <ErrorNotice error={error} onRetry={() => refetch()} />
       ) : (
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto px-4 pt-4 sm:px-5">
+          <div className="scrollbar-none overflow-x-auto px-4 pt-4 sm:px-5">
             <Segmented
               label="Chart metric"
               value={metric}

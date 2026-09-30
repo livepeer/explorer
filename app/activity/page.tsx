@@ -295,7 +295,7 @@ function ActivityView() {
           )}
         </form>
         {!tx && (
-          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <div className="scrollbar-none -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
             <Segmented
               label="Filter events"
               value={filter}

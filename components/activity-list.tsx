@@ -374,23 +374,26 @@ export function ActivityList({
                 <Icon className="size-3.5" />
               </span>
             )}
-            <p className="min-w-0 flex-1 text-ui-body text-muted-foreground">
-              {text}
-            </p>
-            <Tooltip
-              content={`Round ${e.round.toLocaleString()} · ${new Date(
-                e.timestamp * 1000
-              ).toLocaleString()}`}
-            >
-              <a
-                href={txUrl(e.tx)}
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 text-ui-caption whitespace-nowrap text-subtle-foreground hover:text-foreground"
+            {/* Phones put the time under the sentence, giving it the width. */}
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
+              <p className="min-w-0 flex-1 text-ui-body text-muted-foreground">
+                {text}
+              </p>
+              <Tooltip
+                content={`Round ${e.round.toLocaleString()} · ${new Date(
+                  e.timestamp * 1000
+                ).toLocaleString()}`}
               >
-                {formatRelativeTime(e.timestamp, nowMs)}
-              </a>
-            </Tooltip>
+                <a
+                  href={txUrl(e.tx)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-fit shrink-0 text-ui-caption whitespace-nowrap text-subtle-foreground hover:text-foreground"
+                >
+                  {formatRelativeTime(e.timestamp, nowMs)}
+                </a>
+              </Tooltip>
+            </div>
           </div>
         );
       })}

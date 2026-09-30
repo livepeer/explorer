@@ -69,11 +69,8 @@ export default function AccountPage() {
           <Avatar address={address} src={avatar} size={52} />
           <div className="flex min-w-0 flex-col gap-1">
             <div className="text-ui-caption text-muted-foreground">
-              {isConnected
-                ? "Connected wallet"
-                : saved
-                ? "In your portfolio"
-                : "Account"}
+              {/* Portfolio membership shows on the button beside it. */}
+              {isConnected ? "Connected wallet" : "Account"}
             </div>
             <div className="flex min-w-0 items-center gap-1.5">
               <h1 className="truncate text-[26px] leading-8 font-light tracking-[-0.01em]">

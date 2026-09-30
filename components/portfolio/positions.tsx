@@ -10,6 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { Fragment } from "react";
 
 import { Sparkline } from "@/components/charts/time-series";
 import { Avatar, Identity, useIdentity } from "@/components/identity";
@@ -237,14 +238,22 @@ export function Positions({
                 />
               </div>
               {showAccount && p.delegate && (
-                <div className="flex items-center gap-2 text-ui-caption text-muted-foreground">
-                  <span>Delegated to</span>
-                  <Identity
-                    address={p.delegate}
-                    href={`/orchestrators/${p.delegate}`}
-                    size={18}
-                  />
-                  {!p.active && <Badge tone="warning">Inactive</Badge>}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-ui-caption text-muted-foreground">
+                    <span>Delegated to</span>
+                    <Identity
+                      address={p.delegate}
+                      href={`/orchestrators/${p.delegate}`}
+                      size={18}
+                    />
+                    {!p.active && <Badge tone="warning">Inactive</Badge>}
+                  </div>
+                  {o && (
+                    <p className="text-[11px] text-subtle-foreground">
+                      {formatNumber(o.rewardCut, { decimals: 0 })}% cut ·{" "}
+                      {formatNumber(o.feeShare, { decimals: 0 })}% fee share
+                    </p>
+                  )}
                 </div>
               )}
               <dl className="grid grid-cols-3 gap-3">
@@ -266,7 +275,7 @@ export function Positions({
                   </div>
                 ))}
               </dl>
-              {o && (
+              {!showAccount && o && (
                 <p className="text-[11px] text-subtle-foreground">
                   {formatNumber(o.rewardCut, { decimals: 0 })}% cut ·{" "}
                   {formatNumber(o.feeShare, { decimals: 0 })}% fee share
@@ -423,7 +432,16 @@ function OrchestratorHeader({
         </span>
         {terms.length > 0 && (
           <span className="text-ui-caption text-muted-foreground">
-            {terms.join(" · ")}
+            {/* Each term stays whole, so a wrap never strands a dot. */}
+            {terms.map((t, i) => (
+              <Fragment key={t}>
+                {i > 0 && " "}
+                <span className="whitespace-nowrap">
+                  {i > 0 && "· "}
+                  {t}
+                </span>
+              </Fragment>
+            ))}
           </span>
         )}
       </span>
@@ -566,54 +584,109 @@ export function DelegationCard({
       </dl>
 
       {canManage && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-hairline px-5 py-3">
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => open({ kind: "delegate", to: p.delegate!, account })}
-          >
-            <Plus /> Delegate more
-          </Button>
-          <Link
-            href="/orchestrators?move=1"
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            <ArrowRightLeft /> Switch
-            <span className="-ml-1 hidden sm:inline">orchestrator</span>
-          </Link>
-          <div className="ml-auto flex items-center gap-1">
-            {canMove && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() =>
-                  open({
-                    kind: "transfer",
-                    account,
-                    delegate: p.delegate!,
-                    staked: p.stake,
-                  })
-                }
-              >
-                <Send /> Transfer
-                <span className="-ml-1 hidden sm:inline">stake</span>
-              </Button>
-            )}
-            {p.stake > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() =>
-                  open({
-                    kind: "undelegate",
-                    account,
-                    delegate: p.delegate!,
-                    staked: p.stake,
-                  })
-                }
-              >
-                <Minus /> Undelegate
-              </Button>
+        <div className="@container border-t border-hairline">
+          <div className="flex items-center gap-2 px-4 py-3 @min-[44rem]:px-5">
+            <Button
+              size="sm"
+              variant="primary"
+              className="flex-1 @min-[44rem]:flex-none"
+              onClick={() =>
+                open({ kind: "delegate", to: p.delegate!, account })
+              }
+            >
+              <Plus /> Delegate more
+            </Button>
+            <Link
+              href="/orchestrators?move=1"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <ArrowRightLeft /> Switch
+              <span className="-ml-1 hidden @min-[44rem]:inline">
+                orchestrator
+              </span>
+            </Link>
+            {/* A wide card shows the rarer actions; a narrow one, on a phone or
+              beside the side panels, folds them into a menu so the footer
+              stays one row. */}
+            <div className="ml-auto hidden items-center gap-1 @min-[44rem]:flex">
+              {canMove && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    open({
+                      kind: "transfer",
+                      account,
+                      delegate: p.delegate!,
+                      staked: p.stake,
+                    })
+                  }
+                >
+                  <Send /> Transfer stake
+                </Button>
+              )}
+              {p.stake > 0 && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    open({
+                      kind: "undelegate",
+                      account,
+                      delegate: p.delegate!,
+                      staked: p.stake,
+                    })
+                  }
+                >
+                  <Minus /> Undelegate
+                </Button>
+              )}
+            </div>
+            {(canMove || p.stake > 0) && (
+              <Menu>
+                <MenuTrigger
+                  render={
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="More actions"
+                      className="ml-auto @min-[44rem]:hidden"
+                    />
+                  }
+                >
+                  <MoreHorizontal />
+                </MenuTrigger>
+                <MenuContent>
+                  {canMove && (
+                    <MenuItem
+                      onClick={() =>
+                        open({
+                          kind: "transfer",
+                          account,
+                          delegate: p.delegate!,
+                          staked: p.stake,
+                        })
+                      }
+                    >
+                      <Send /> Transfer stake
+                    </MenuItem>
+                  )}
+                  {p.stake > 0 && (
+                    <MenuItem
+                      onClick={() =>
+                        open({
+                          kind: "undelegate",
+                          account,
+                          delegate: p.delegate!,
+                          staked: p.stake,
+                        })
+                      }
+                    >
+                      <Minus /> Undelegate
+                    </MenuItem>
+                  )}
+                </MenuContent>
+              </Menu>
             )}
           </div>
         </div>

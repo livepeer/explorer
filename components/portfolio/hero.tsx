@@ -169,13 +169,16 @@ export function PortfolioHero({
           </div>
           {!loading && perRound > 0 && (
             <Tooltip content="Your average reward per round over the last 30 rounds. It arrives each round your orchestrator calls reward.">
-              <div className="mt-1 flex w-fit cursor-default items-center gap-2 text-ui-caption text-muted-foreground">
-                <StatusDot pulse />
-                About
-                <span className="font-mono text-foreground tabular-nums">
-                  +{formatNumber(perRound, { decimals: 2 })} LPT
-                </span>
-                per round at the current rate
+              <div className="mt-1 flex w-fit cursor-default items-baseline gap-2 text-ui-caption text-muted-foreground">
+                <StatusDot pulse className="shrink-0 -translate-y-px" />
+                {/* One sentence, so it wraps as text on narrow screens. */}
+                <p>
+                  About{" "}
+                  <span className="font-mono whitespace-nowrap text-foreground tabular-nums">
+                    +{formatNumber(perRound, { decimals: 2 })} LPT
+                  </span>{" "}
+                  per round at the current rate
+                </p>
               </div>
             </Tooltip>
           )}
