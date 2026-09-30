@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: ['*']
 
+# Least privilege: jobs only read the repo unless they say otherwise.
+permissions:
+  contents: read
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -41,11 +45,10 @@ jobs:
       - name: 🧪 Run tests
         run: pnpm test
 
-      # Fails on known critical advisories in production dependencies.
-      # Tighten to `high` once the remaining high (sharp, pinned by next)
-      # clears upstream.
+      # Fails on known high or critical advisories in production
+      # dependencies.
       - name: 🔒 Audit production dependencies
-        run: pnpm audit --prod --audit-level=critical
+        run: pnpm audit --prod --audit-level=high
 
   # Fails the PR if it introduces a dependency with a known vulnerability.
   dependency-review:

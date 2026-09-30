@@ -81,9 +81,9 @@ jobs:
           pnpm dlx @lhci/cli collect --config=./.lighthouserc.json \
             --url="$PREVIEW_URL/" \
             --url="$PREVIEW_URL/orchestrators" \
-            --url="$PREVIEW_URL/leaderboard" \
-            --url="$PREVIEW_URL/transactions" \
-            --url="$PREVIEW_URL/voting" \
-            --url="$PREVIEW_URL/treasury"
+            --url="$PREVIEW_URL/network" \
+            --url="$PREVIEW_URL/activity" \
+            --url="$PREVIEW_URL/governance" \
+            --url="$PREVIEW_URL/gateways"
           pnpm dlx @lhci/cli assert  --config=./.lighthouserc.json
           pnpm dlx @lhci/cli upload  --config=./.lighthouserc.json --target=temporary-public-storage
