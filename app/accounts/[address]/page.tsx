@@ -75,13 +75,27 @@ export default function AccountPage() {
                 ? "In your portfolio"
                 : "Account"}
             </div>
-            <h1 className="truncate text-[26px] leading-8 font-light tracking-[-0.01em]">
-              {label ?? name ?? (
-                <span className="font-mono text-[22px]">
-                  {shortAddress(address, 8, 6)}
-                </span>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <h1 className="truncate text-[26px] leading-8 font-light tracking-[-0.01em]">
+                {label ?? name ?? (
+                  <span className="font-mono text-[22px]">
+                    {shortAddress(address, 8, 6)}
+                  </span>
+                )}
+              </h1>
+              {/* Only saved wallets carry a label to edit. */}
+              {list.some((w) => w.address === address) && (
+                <Button
+                  size="icon-xs"
+                  variant="ghost"
+                  aria-label={label ? "Rename" : "Name this wallet"}
+                  onClick={() => setRenaming(true)}
+                  className="shrink-0 text-subtle-foreground"
+                >
+                  <Pencil />
+                </Button>
               )}
-            </h1>
+            </div>
             <div className="flex items-center gap-1 text-ui-caption text-muted-foreground">
               <a
                 href={addressUrl(address)}
