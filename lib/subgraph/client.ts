@@ -30,10 +30,11 @@ const PAGE = 1000;
  * stays fast past the first few thousand rows. The query must accept
  * `$first` and `$lastId` and filter on `id_gt: $lastId`.
  *
- * Reaching `max` with more rows left throws rather than return a partial
- * list that reads as complete, since callers sum these into balances and
- * history. A caller that can work with a sample passes `partial: true` and
- * checks the length against `max` itself.
+ * More than `max` rows throws rather than return a partial list that reads
+ * as complete, since callers sum these into balances and history. It only
+ * throws once a row past `max` has actually been read, so exactly `max` is
+ * fine. A caller that can work with a sample passes `partial: true`, gets
+ * the first `max`, and checks the length against `max` itself.
  */
 export async function paginate<Row extends { id: string }>(
   query: string,
@@ -44,12 +45,6 @@ export async function paginate<Row extends { id: string }>(
   const rows: Row[] = [];
   let lastId = "";
   for (;;) {
-    if (rows.length >= max) {
-      if (partial) break;
-      throw new SubgraphError(
-        `More than ${max.toLocaleString()} ${key} to load; stopping rather than show incomplete data`
-      );
-    }
     const data = await querySubgraph<Record<string, Row[]>>(query, {
       ...variables,
       first: PAGE,
@@ -57,6 +52,12 @@ export async function paginate<Row extends { id: string }>(
     });
     const page = data[key] ?? [];
     rows.push(...page);
+    if (rows.length > max) {
+      if (partial) return rows.slice(0, max);
+      throw new SubgraphError(
+        `More than ${max.toLocaleString()} ${key} to load; stopping rather than show incomplete data`
+      );
+    }
     if (page.length < PAGE) break;
     lastId = page[page.length - 1].id;
   }

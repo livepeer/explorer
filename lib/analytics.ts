@@ -27,10 +27,18 @@ export type FunnelEvent =
   | "redelegation_started"
   | "unbonding_or_exit_started";
 
-/** Replaces addresses and ENS names in tracked URLs, e.g. `/accounts/0x…`. */
+/** Query parameters holding what someone typed, sent only as "[query]". */
+const TYPED_PARAMS = /([?&]q=)[^&#]*/g;
+
+/**
+ * Replaces addresses and ENS names in tracked URLs, e.g. `/accounts/0x…`,
+ * and drops search text entirely: names can end in any TLD (`alice.xyz`),
+ * so a pattern can't reliably catch them there.
+ */
 export const redactUrl: BeforeSend = (event) => ({
   ...event,
   url: event.url
+    .replace(TYPED_PARAMS, "$1[query]")
     .replace(/0x[0-9a-fA-F]{40}/g, "[address]")
     .replace(/[\w-]+(\.[\w-]+)*\.eth\b/gi, "[name]"),
 });

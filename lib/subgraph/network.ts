@@ -639,15 +639,17 @@ export async function fetchOrchestrators(
       round: String(protocol.currentRound),
     }
   );
-  // Best effort: without it, fee yields just include self-payment.
+  // Read in full, not sampled: a partial list would zero some
+  // orchestrators' self-payment and inflate their fee yield in the ranking.
+  // Only tickets between active orchestrators match, a few at most.
+  // If it can't be read at all, fee yields just include self-payment.
   const self = await paginate<RawSelfTicket>(
     SELF_PAID_TICKETS,
     "winningTicketRedeemedEvents",
     {
       ids: transcoders.map((t) => t.id),
       since: Math.floor(Date.now() / 1000) - 90 * 86400,
-    },
-    { max: 10_000, partial: true }
+    }
   )
     .then(selfPaid)
     .catch(() => new Map<string, number>());

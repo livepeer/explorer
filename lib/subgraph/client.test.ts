@@ -26,6 +26,13 @@ describe("paginate", () => {
     );
   });
 
+  it("reads exactly the cap without calling it incomplete", async () => {
+    mockRows(2000);
+    await expect(
+      paginate("q", "items", {}, { max: 2000 })
+    ).resolves.toHaveLength(2000);
+  });
+
   it("returns what it has at the cap when partial results are fine", async () => {
     mockRows(3500);
     await expect(

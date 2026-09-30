@@ -22,13 +22,24 @@ describe("redactUrl", () => {
       url(
         "https://beta.explorer.livepeer.org/activity?q=0xb29178bd5e0da702ab69129048af7b9fcf222026"
       )
-    ).toBe("https://beta.explorer.livepeer.org/activity?q=[address]");
+    ).toBe("https://beta.explorer.livepeer.org/activity?q=[query]");
+  });
+
+  it("drops search text whatever it is, and leaves other params", () => {
+    expect(
+      url("https://beta.explorer.livepeer.org/activity?q=alice.xyz&filter=fees")
+    ).toBe("https://beta.explorer.livepeer.org/activity?q=[query]&filter=fees");
+    expect(
+      url(
+        "https://beta.explorer.livepeer.org/activity?filter=fees&q=titan-node.eth"
+      )
+    ).toBe("https://beta.explorer.livepeer.org/activity?filter=fees&q=[query]");
   });
 
   it("removes ENS names but leaves the host alone", () => {
     expect(
-      url("https://beta.explorer.livepeer.org/activity?q=titan-node.eth")
-    ).toBe("https://beta.explorer.livepeer.org/activity?q=[name]");
+      url("https://beta.explorer.livepeer.org/accounts/titan-node.eth")
+    ).toBe("https://beta.explorer.livepeer.org/accounts/[name]");
     expect(url("https://beta.explorer.livepeer.org/orchestrators")).toBe(
       "https://beta.explorer.livepeer.org/orchestrators"
     );
