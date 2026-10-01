@@ -44,7 +44,14 @@ export type Position = {
   active: boolean;
 };
 
-function AccountCell({ account }: { account: PortfolioAccount }) {
+function AccountCell({
+  account,
+  quiet = false,
+}: {
+  account: PortfolioAccount;
+  /** Leave out "Not connected": cards don't need it to line up, as rows do. */
+  quiet?: boolean;
+}) {
   const { name, avatar } = useIdentity(account.address);
   return (
     <Link
@@ -60,20 +67,79 @@ function AccountCell({ account }: { account: PortfolioAccount }) {
             </span>
           )}
         </span>
-        <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
-          {account.connected ? (
-            <>
-              <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
-              Connected
-            </>
-          ) : account.label || name ? (
-            <span className="font-mono">{shortAddress(account.address)}</span>
-          ) : (
-            "Not connected"
-          )}
-        </span>
+        {(account.connected || account.label || name || !quiet) && (
+          <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
+            {account.connected ? (
+              <>
+                <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
+                Connected
+              </>
+            ) : account.label || name ? (
+              <span className="font-mono">{shortAddress(account.address)}</span>
+            ) : (
+              "Not connected"
+            )}
+          </span>
+        )}
       </span>
     </Link>
+  );
+}
+
+/** "152,374 LPT" with the unit quiet, so the number is what's read. */
+function Amount({ value }: { value: string }) {
+  const i = value.lastIndexOf(" ");
+  if (i < 0) return <>{value}</>;
+  return (
+    <>
+      {value.slice(0, i)}
+      <span className="text-muted-foreground">{value.slice(i)}</span>
+    </>
+  );
+}
+
+/** A card's supporting line: who the wallet delegates to, and on what terms. */
+function DelegatedTo({
+  address,
+  active,
+  orchestrator: o,
+}: {
+  address: string;
+  active: boolean;
+  orchestrator: Orchestrator | undefined;
+}) {
+  const { name, avatar } = useIdentity(address);
+  // Each item carries its separator in its left padding, and the row is
+  // pulled left by that much inside a clipping box: a separator at the start
+  // of a wrapped line falls outside it, so no line begins with a dot.
+  return (
+    <div className="overflow-hidden text-ui-caption text-muted-foreground">
+      <div className="-ml-3.5 flex flex-wrap items-center gap-y-1">
+        <span className="flex min-w-0 items-center gap-1.5 pl-3.5">
+          <span className="shrink-0">Delegated to</span>
+          <Link
+            href={`/orchestrators/${address}`}
+            className="inline-flex min-w-0 items-center gap-1.5 rounded-sm text-foreground outline-none hover:opacity-80"
+          >
+            <Avatar address={address} src={avatar} size={16} />
+            <span className="truncate">
+              {name ?? (
+                <span className="font-mono text-[12px]">
+                  {shortAddress(address)}
+                </span>
+              )}
+            </span>
+          </Link>
+          {!active && <Badge tone="warning">Inactive</Badge>}
+        </span>
+        {o && (
+          <span className="relative pl-3.5 whitespace-nowrap text-subtle-foreground before:absolute before:left-[5px] before:content-['·']">
+            {formatNumber(o.rewardCut, { decimals: 0 })}% cut ·{" "}
+            {formatNumber(o.feeShare, { decimals: 0 })}% fee share
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -216,64 +282,71 @@ export function Positions({
   // panels a desktop column can be narrower than the full table needs.
   return (
     <div className="@container">
-      {/* Narrow: one card per position, figures stacked under the names. */}
+      {/* Narrow: one card per position. The wallet, a quiet line for who
+          it delegates to, then its figures as one strip. */}
       <Card className="divide-y divide-(--hairline) @min-[44rem]:hidden">
         {positions.map((p) => {
           const o = p.delegate ? orchestrators.get(p.delegate) : undefined;
           return (
             <div key={p.account.address} className="flex flex-col gap-3 p-4">
-              <div className="flex items-start justify-between gap-3">
-                {showAccount ? (
-                  <AccountCell account={p.account} />
-                ) : p.delegate ? (
-                  <Identity
-                    address={p.delegate}
-                    href={`/orchestrators/${p.delegate}`}
-                    size={26}
-                  />
-                ) : null}
-                <RowActions
-                  position={p}
-                  canManage={canManage(p.account.address)}
-                />
-              </div>
-              {showAccount && p.delegate && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 text-ui-caption text-muted-foreground">
-                    <span>Delegated to</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  {showAccount ? (
+                    <AccountCell account={p.account} quiet />
+                  ) : p.delegate ? (
                     <Identity
                       address={p.delegate}
                       href={`/orchestrators/${p.delegate}`}
-                      size={18}
+                      size={26}
                     />
-                    {!p.active && <Badge tone="warning">Inactive</Badge>}
-                  </div>
-                  {o && (
-                    <p className="text-[11px] text-subtle-foreground">
-                      {formatNumber(o.rewardCut, { decimals: 0 })}% cut ·{" "}
-                      {formatNumber(o.feeShare, { decimals: 0 })}% fee share
-                    </p>
-                  )}
+                  ) : null}
+                  <RowActions
+                    position={p}
+                    canManage={canManage(p.account.address)}
+                  />
                 </div>
-              )}
-              <dl className="grid grid-cols-3 gap-3">
-                {[
-                  ["Stake", formatLPT(p.stake)],
-                  [
-                    "30d rewards",
-                    `${p.rewards30d > 0 ? "+" : ""}${formatLPT(p.rewards30d)}`,
-                  ],
-                  ["Fees", p.fees > 0 ? formatETH(p.fees) : "—"],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex min-w-0 flex-col gap-0.5">
-                    <dt className="text-[11px] text-muted-foreground">
-                      {label}
-                    </dt>
-                    <dd className="truncate font-mono text-[12.5px] tabular-nums">
-                      {value}
-                    </dd>
-                  </div>
-                ))}
+                {showAccount && p.delegate && (
+                  <DelegatedTo
+                    address={p.delegate}
+                    active={p.active}
+                    orchestrator={o}
+                  />
+                )}
+              </div>
+              {/* Fixed columns, so they line up from card to card, weighted
+                  to what each holds: equal thirds cut a fee like
+                  "0.000596 ETH" off on a phone. */}
+              <dl className="grid grid-cols-[1fr_1fr_1.1fr] gap-2 rounded-md bg-hover/60 px-2.5 py-2.5">
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <dt className="text-[11px] text-muted-foreground">Stake</dt>
+                  <dd className="truncate font-mono text-[12.5px] tabular-nums">
+                    <Amount value={formatLPT(p.stake)} />
+                  </dd>
+                </div>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <dt className="text-[11px] text-muted-foreground">
+                    30d rewards
+                  </dt>
+                  <dd
+                    className={cn(
+                      "truncate font-mono text-[12.5px] tabular-nums",
+                      p.rewards30d > 0 && "text-green-bright"
+                    )}
+                  >
+                    {p.rewards30d > 0 ? "+" : ""}
+                    {formatLPT(p.rewards30d)}
+                  </dd>
+                </div>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <dt className="text-[11px] text-muted-foreground">Fees</dt>
+                  <dd className="truncate font-mono text-[12.5px] tabular-nums">
+                    {p.fees > 0 ? (
+                      <Amount value={formatETH(p.fees)} />
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </dd>
+                </div>
               </dl>
               {!showAccount && o && (
                 <p className="text-[11px] text-subtle-foreground">
