@@ -3,12 +3,15 @@ const nextConfig = {
   productionBrowserSourceMaps: true,
 
   turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
+    resolveAlias: Object.fromEntries(
+      [
+        "@x402/core/client",
+        "@x402/evm",
+        "@x402/evm/exact/client",
+        "@x402/evm/upto/client",
+        "@x402/svm/exact/client",
+      ].map((m) => [m, "./lib/empty-module.js"])
+    ),
   },
 
   // Safe{Wallet} fetches the manifest cross-origin to add the explorer as a Safe App.
@@ -21,37 +24,50 @@ const nextConfig = {
     ];
   },
 
+  // Keep links into the previous explorer's URL structure working.
   async redirects() {
+    const accountTabs = [
+      "delegating",
+      "orchestrating",
+      "history",
+      "staking",
+      "overview",
+      "transcoding",
+      "campaign",
+    ];
     return [
+      ...accountTabs.map((tab) => ({
+        source: `/accounts/:account/${tab}`,
+        destination: "/accounts/:account",
+        permanent: true,
+      })),
       {
-        source: "/accounts/:slug",
-        destination: "/accounts/:slug/delegating",
-        permanent: false,
+        source: "/accounts/:account/broadcasting",
+        destination: "/gateways/:account",
+        permanent: true,
       },
       {
         source: "/transcoders",
         destination: "/orchestrators",
-        permanent: false,
+        permanent: true,
       },
       {
-        source: "/accounts/:account/transcoding",
-        destination: "/accounts/:account/orchestrating",
-        permanent: false,
+        source: "/leaderboard",
+        destination: "/orchestrators",
+        permanent: true,
       },
+      { source: "/transactions", destination: "/activity", permanent: true },
+      { source: "/voting", destination: "/governance", permanent: true },
       {
-        source: "/accounts/:account/campaign",
-        destination: "/accounts/:account/orchestrating",
-        permanent: false,
+        source: "/voting/:poll",
+        destination: "/governance/polls/:poll",
+        permanent: true,
       },
+      { source: "/treasury", destination: "/governance", permanent: true },
       {
-        source: "/accounts/:account/staking",
-        destination: "/accounts/:account/delegating",
-        permanent: false,
-      },
-      {
-        source: "/accounts/:account/overview",
-        destination: "/accounts/:account/delegating",
-        permanent: false,
+        source: "/treasury/:proposal",
+        destination: "/governance/proposals/:proposal",
+        permanent: true,
       },
     ];
   },
