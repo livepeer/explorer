@@ -75,9 +75,11 @@ function NameCell({ o, rank }: { o: Orchestrator; rank: number | null }) {
   return (
     <Link
       href={`/orchestrators/${o.id}`}
-      className="flex min-w-0 items-center gap-3 outline-none"
+      // The name takes whatever width the visible columns leave (--rest is
+      // their combined width), so it's only cut short when there's no room.
+      className="flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-2 outline-none [--rest:455px] @min-[726px]:[--rest:531px] @min-[816px]:[--rest:621px] @min-[906px]:[--rest:711px] @min-[980px]:[--rest:785px]"
     >
-      <span className="w-6 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
+      <span className="w-5 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
         {rank}
       </span>
       <Avatar address={o.id} src={avatar} size={28} />
@@ -98,7 +100,6 @@ function NameCell({ o, rank }: { o: Orchestrator; rank: number | null }) {
 }
 
 function CallsMeter({ calls, window }: { calls: number; window: number }) {
-  const pct = window ? calls / window : 0;
   const missed = window - calls;
   return (
     <Tooltip
@@ -108,27 +109,14 @@ function CallsMeter({ calls, window }: { calls: number; window: number }) {
           : `Missed ${missed} of the last ${window} reward calls`
       }
     >
-      <span className="inline-flex cursor-default items-center gap-2">
-        <span
-          className="flex h-1.5 w-14 overflow-hidden rounded-full bg-foreground/8"
-          aria-hidden="true"
-        >
-          <span
-            className={cn(
-              "h-full rounded-full",
-              missed > 2 ? "bg-warm" : "bg-foreground/60"
-            )}
-            style={{ width: `${pct * 100}%` }}
-          />
-        </span>
-        <span
-          className={cn(
-            "font-mono text-[12px] tabular-nums",
-            missed > 2 ? "text-warm" : "text-muted-foreground"
-          )}
-        >
-          {calls}/{window}
-        </span>
+      {/* The count alone: a bar beside it said the same thing twice. */}
+      <span
+        className={cn(
+          "cursor-default font-mono text-[13px] tabular-nums",
+          missed > 2 && "text-warm"
+        )}
+      >
+        {calls}/{window}
       </span>
     </Tooltip>
   );
@@ -198,7 +186,7 @@ function AprValue({ o }: { o: Listed }) {
         <span className="cursor-default">{total.toFixed(1)}%</span>
       </Tooltip>
       {lower != null && (
-        <div className="text-[11px] text-warm">
+        <div className="font-sans text-[11px] text-warm">
           ~{lower.toFixed(1)}% at new cut
         </div>
       )}
@@ -426,14 +414,20 @@ function OrchestratorTable() {
               <EmptyState title="No orchestrators match" />
             )}
           </Card>
-          <Card className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[940px] text-left text-ui-body">
+          {/* Columns appear as the table has room for them (it measures itself,
+              not the screen), most useful first, so nothing sits out of
+              sight behind a sideways scroll. Each threshold leaves room for
+              a typical name beside the columns it adds. An orchestrator's
+              page has the rest. */}
+          <Card className="@container hidden overflow-x-auto md:block">
+            <table className="w-full text-left text-ui-body">
               <thead>
                 <tr className="border-b border-hairline text-ui-caption">
-                  <th className="sticky left-0 z-10 bg-surface px-3 py-2.5 pl-4 font-normal text-muted-foreground">
+                  <th className="sticky left-0 z-10 bg-surface px-1.5 py-2.5 pl-4 font-normal text-muted-foreground">
                     Orchestrator
                   </th>
                   <SortHeader
+                    className="px-1.5"
                     label="Realised APR"
                     k="apr"
                     sort={sort}
@@ -441,10 +435,11 @@ function OrchestratorTable() {
                     onSort={onSort}
                     hint="What delegators actually earned, annualised: inflation rewards over the last 30 rounds plus ETH fees over the last 90 days, valued at today's ETH/LPT price. Fees an orchestrator paid itself as a gateway are left out. Hover a figure for the split."
                   />
-                  <th className="px-3 py-2.5 text-right font-normal whitespace-nowrap text-muted-foreground">
+                  <th className="hidden @min-[726px]:table-cell px-1.5 py-2.5 text-right font-normal whitespace-nowrap text-muted-foreground">
                     Est. yearly
                   </th>
                   <SortHeader
+                    className="px-1.5"
                     label="Reward calls"
                     k="calls"
                     sort={sort}
@@ -453,6 +448,7 @@ function OrchestratorTable() {
                     hint="Completed rounds in which the orchestrator called reward, out of the last 30 it was active. A missed call means its delegators earn no rewards that round."
                   />
                   <SortHeader
+                    className="px-1.5"
                     label="Reward cut"
                     k="rewardCut"
                     sort={sort}
@@ -461,6 +457,7 @@ function OrchestratorTable() {
                     hint="Share of inflationary rewards the orchestrator keeps."
                   />
                   <SortHeader
+                    className="px-1.5"
                     label="Fee share"
                     k="feeShare"
                     sort={sort}
@@ -469,6 +466,7 @@ function OrchestratorTable() {
                     hint="Share of ETH fees passed on to delegators."
                   />
                   <SortHeader
+                    className="hidden @min-[906px]:table-cell px-1.5"
                     label="30d fees"
                     k="fees"
                     sort={sort}
@@ -476,6 +474,7 @@ function OrchestratorTable() {
                     onSort={onSort}
                   />
                   <SortHeader
+                    className="hidden @min-[816px]:table-cell px-1.5"
                     label="Total stake"
                     k="stake"
                     sort={sort}
@@ -483,13 +482,19 @@ function OrchestratorTable() {
                     onSort={onSort}
                   />
                   <SortHeader
+                    className="hidden @min-[980px]:table-cell px-1.5"
                     label="Delegators"
                     k="delegators"
                     sort={sort}
                     dir={dir}
                     onSort={onSort}
                   />
-                  <th className="w-24 px-3 py-2.5" aria-label="Actions" />
+                  {/* Pinned like the name, so the action stays in view however
+                      far the table scrolls. */}
+                  <th
+                    className="sticky right-0 z-10 bg-surface px-1.5 py-2.5 shadow-[-1px_0_0_var(--hairline)]"
+                    aria-label="Actions"
+                  />
                 </tr>
               </thead>
               <tbody>
@@ -523,38 +528,38 @@ function OrchestratorTable() {
                         </tr>
                       )}
                       <tr className="group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60">
-                        <td className="sticky left-0 z-10 bg-surface px-3 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
+                        <td className="sticky left-0 z-10 bg-surface px-1.5 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
                           <NameCell o={o} rank={rank} />
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
                           <AprValue o={o} />
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[726px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
                           {expected != null && stakeAmount > 0
                             ? `+${formatNumber(stakeAmount * (expected / 100), {
                                 decimals:
                                   stakeAmount * (expected / 100) >= 100 ? 0 : 1,
-                              })}`
+                              })} LPT`
                             : "—"}
                         </td>
-                        <td className="px-3 py-3 text-right">
+                        <td className="px-1.5 py-3 text-right">
                           <CallsMeter
                             calls={o.rewardCalls}
                             window={o.rewardWindow}
                           />
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
                           <CutValue o={o} />
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
                           {o.feeShare.toFixed(o.feeShare % 1 ? 1 : 0)}%
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[906px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.thirtyDayVolumeETH > 0
                             ? formatETH(o.thirtyDayVolumeETH)
                             : "—"}
                         </td>
-                        <td className="px-3 py-3 text-right">
+                        <td className="hidden @min-[816px]:table-cell px-1.5 py-3 text-right">
                           <div className="font-mono text-[13px] whitespace-nowrap tabular-nums">
                             {formatLPT(o.totalStake, { compact: true })}
                           </div>
@@ -564,18 +569,16 @@ function OrchestratorTable() {
                             </div>
                           )}
                         </td>
-                        <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[980px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.delegatorCount >= 1000
                             ? "1,000+"
                             : o.delegatorCount.toLocaleString()}
                         </td>
-                        <td className="px-3 py-3 pr-4 text-right">
+                        <td className="sticky right-0 z-10 bg-surface px-1.5 py-3 pr-2 text-right shadow-[-1px_0_0_var(--hairline)] group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
+                          {/* Always shown: on hover alone it never appeared
+                              on a touch screen. */}
                           <Button
                             size="xs"
-                            className={cn(
-                              !moving &&
-                                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 max-lg:opacity-100"
-                            )}
                             onClick={() => open({ kind: "delegate", to: o.id })}
                           >
                             {moving ? "Switch here" : "Delegate"}

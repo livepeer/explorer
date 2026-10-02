@@ -30,12 +30,14 @@ export function SortHeader<K extends string>({
       type="button"
       onClick={() => onSort(k)}
       className={cn(
-        "inline-flex cursor-pointer items-center gap-1 rounded-sm transition-colors hover:text-foreground",
+        "inline-flex cursor-pointer items-center gap-0.5 rounded-sm transition-colors hover:text-foreground",
         active ? "text-foreground" : "text-muted-foreground"
       )}
     >
       {label}
-      <Icon className={cn("size-3", active ? "opacity-100" : "opacity-0")} />
+      {/* Only on the sorted column: holding its place on the others pushed
+          every label off the figures beneath it and widened the table. */}
+      {active && <Icon className="size-3" />}
     </button>
   );
   return (

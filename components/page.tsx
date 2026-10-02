@@ -9,7 +9,7 @@ export function Page({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[1200px] px-4 pt-6 pb-16 sm:px-6 lg:px-10 lg:pt-10",
+        "mx-auto w-full max-w-[1200px] px-4 pt-6 pb-16 sm:px-6 lg:pt-10 min-[1360px]:px-10",
         className
       )}
       {...props}
