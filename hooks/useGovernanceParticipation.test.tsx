@@ -63,6 +63,41 @@ const clientWrapper = (client: ReturnType<typeof createClient>) =>
     return <ApolloProvider client={client}>{children}</ApolloProvider>;
   };
 
+it("survives React's development remount when the first request is aborted", async () => {
+  const signals: AbortSignal[] = [];
+  const client = createClient(
+    (operation) =>
+      new Observable((observer) => {
+        const signal: AbortSignal = operation.getContext().fetchOptions.signal;
+        signals.push(signal);
+        const abort = () =>
+          observer.error(new DOMException("Aborted", "AbortError"));
+        signal.addEventListener("abort", abort);
+        queueMicrotask(() => {
+          if (!signal.aborted) {
+            observer.next({ data: activePage });
+            observer.complete();
+          }
+        });
+        return () => signal.removeEventListener("abort", abort);
+      })
+  );
+  const { result } = renderHook(
+    () => useGovernanceParticipation("delegate", "10"),
+    {
+      wrapper: clientWrapper(client),
+      reactStrictMode: true,
+    }
+  );
+  await waitFor(() =>
+    expect(result.current.treasury).toEqual({ voted: 1, total: 1 })
+  );
+  expect(signals).toHaveLength(2);
+  expect(signals[0].aborted).toBe(true);
+  expect(signals[1].aborted).toBe(false);
+  expect(result.current.error).toBeUndefined();
+});
+
 it("paginates all four histories independently at one indexed block", async () => {
   const proposals = Array.from(
     { length: GOVERNANCE_PAGE_SIZE * 2 + 1 },
