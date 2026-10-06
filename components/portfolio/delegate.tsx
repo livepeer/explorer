@@ -167,7 +167,7 @@ export function IdleLptAction({
         <span className="font-mono text-foreground tabular-nums">
           {formatLPT(total)}
         </span>{" "}
-        unstaked
+        available
       </span>
       {action}
     </div>
