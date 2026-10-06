@@ -21,7 +21,6 @@ const Index = ({
     delegator,
     currentRound,
     action: "redelegateFromUndelegated",
-    targetOrchestrator: delegate,
   });
   const accountAddress = useAccountAddress();
 

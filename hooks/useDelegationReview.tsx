@@ -14,68 +14,73 @@ type DelegationAction =
   | "redelegateFromUndelegated"
   | "withdrawFees";
 
-type ReviewOrchestrator = { lastRewardRound?: { id: string } | null } | null;
-
 type DelegationReviewParams = {
   delegator?: Delegator | null;
   currentRound?: CurrentRound | null;
   action: DelegationAction;
-  targetOrchestrator?: ReviewOrchestrator;
 };
 
 export const getDelegationWarning = ({
   delegator,
   currentRound,
   action,
-  targetOrchestrator,
 }: DelegationReviewParams) => {
   if (!delegator || !currentRound) {
     return null;
   }
 
-  const isDelegated = delegator.bondedAmount && delegator.bondedAmount !== "0";
-  const hasStakeAtRisk =
-    action === "redelegateFromUndelegated"
-      ? Boolean(targetOrchestrator)
-      : Boolean(isDelegated);
+  const currentRoundNum = Number(currentRound.id);
+  const startRound = Number(delegator.startRound);
+  const lastClaimRound = Number(delegator.lastClaimRound?.id ?? 0);
 
-  // Use an explicit orchestrator when the action concerns stake outside the
-  // account's current delegate, such as rebonding from an unbonded lock.
-  const orchestratorToCheck = targetOrchestrator || delegator.delegate;
+  // Earnings are claimed against the current delegate before stake is moved.
+  const orchestratorToCheck = delegator.delegate;
+  // New or fully unbonded stake starts earning next round. A claim that already
+  // covered this round also means another action cannot forfeit more earnings.
+  const hasStakeAtRisk =
+    action !== "redelegateFromUndelegated" &&
+    Number(delegator.bondedAmount) > 0 &&
+    orchestratorToCheck?.active &&
+    startRound > 0 &&
+    startRound <= currentRoundNum &&
+    lastClaimRound < currentRoundNum;
+
+  if (!hasStakeAtRisk) {
+    return null;
+  }
+
   const orchestratorLastRewardRoundId =
     orchestratorToCheck?.lastRewardRound?.id;
   const orchestratorLastRewardRound = orchestratorLastRewardRoundId
     ? parseInt(orchestratorLastRewardRoundId, 10)
     : 0;
-  const currentRoundNum = currentRound.id ? parseInt(currentRound.id, 10) : 0;
-
-  // Per LIP-36: Warn if the relevant orchestrator hasn't called reward() yet
-  // this round and the action can still affect stake that was delegated to it.
+  // Per LIP-36, reward eligibility depends on reward(), while fees redeemed
+  // later in the round can still be forfeited after reward() has been called.
   const orchestratorHasntCalledReward =
-    hasStakeAtRisk &&
-    Boolean(orchestratorToCheck) &&
     orchestratorLastRewardRound < currentRoundNum;
 
-  if (!orchestratorHasntCalledReward) {
-    return null;
+  const actionDescription =
+    action === "redelegate"
+      ? "Rebonding"
+      : action === "moveStake"
+      ? "Moving stake to a different orchestrator"
+      : "Performing this action";
+  const stakeDescription =
+    action === "redelegate"
+      ? "your entire existing stake"
+      : "your existing stake";
+
+  if (orchestratorHasntCalledReward) {
+    return `${actionDescription} before your current orchestrator calls reward will forfeit this round's LPT rewards on ${stakeDescription}. You may also forfeit fees earned later this round.`;
   }
 
-  switch (action) {
-    case "redelegate":
-      return "Rebonding will forfeit rewards and fees for the current round on your entire stake.";
-    case "moveStake":
-    case "redelegateFromUndelegated":
-      return "Moving stake to a different orchestrator will forfeit rewards and fees for the current round.";
-    default:
-      return "Performing this action before your orchestrator calls reward will forfeit rewards and fees for the current round.";
-  }
+  return `${actionDescription} may forfeit fees earned later this round on ${stakeDescription}.`;
 };
 
 export const useDelegationReview = ({
   delegator,
   currentRound,
   action,
-  targetOrchestrator,
 }: DelegationReviewParams) => {
   const delegationWarning = useMemo(
     () =>
@@ -83,9 +88,8 @@ export const useDelegationReview = ({
         delegator,
         currentRound,
         action,
-        targetOrchestrator,
       }),
-    [delegator, currentRound, action, targetOrchestrator]
+    [delegator, currentRound, action]
   );
 
   return {

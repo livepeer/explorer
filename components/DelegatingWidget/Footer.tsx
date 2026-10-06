@@ -93,8 +93,6 @@ const Footer = ({
     delegator,
     currentRound,
     action: delegationReviewAction,
-    targetOrchestrator:
-      delegationReviewAction === "undelegate" ? undefined : transcoder,
   });
   const stakeWei = useMemo(
     () =>
