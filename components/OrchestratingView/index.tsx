@@ -14,15 +14,9 @@ import {
   formatStakeAmount,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
-import {
-  AccountQueryResult,
-  OrderDirection,
-  TranscoderActivatedEvent_OrderBy,
-  useTranscoderActivatedEventsQuery,
-  useTreasuryProposalsQuery,
-  useTreasuryVotesQuery,
-} from "apollo";
+import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
+import { useGovernanceParticipation } from "hooks/useGovernanceParticipation";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -52,47 +46,11 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const { data: firstTranscoderActivatedEventsData } =
-    useTranscoderActivatedEventsQuery({
-      variables: {
-        where: {
-          delegate: transcoder?.id,
-        },
-        first: 1,
-        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
-        orderDirection: OrderDirection.Asc,
-      },
-    });
-
-  const firstActivationRound = useMemo(() => {
-    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
-      ?.activationRound;
-  }, [firstTranscoderActivatedEventsData]);
-
-  const { data: treasuryVotesData } = useTreasuryVotesQuery({
-    variables: {
-      where: {
-        voter: transcoder?.id,
-      },
-    },
-  });
-
-  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
-    variables: {
-      where: {
-        voteStart_gt: firstActivationRound,
-      },
-    },
-    skip: !firstActivationRound,
-  });
-
-  const govStats = useMemo(() => {
-    if (!treasuryVotesData || !eligebleProposalsData) return null;
-    return {
-      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
-      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
-    };
-  }, [treasuryVotesData, eligebleProposalsData]);
+  const {
+    treasury: govStats,
+    loading: governanceLoading,
+    error: governanceError,
+  } = useGovernanceParticipation(transcoder?.id, currentRound?.id);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
@@ -154,6 +112,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           modelText: "",
         };
   }, [knownRegions?.regions, maxScore, scores]);
+
+  const govParticipation =
+    govStats && govStats.total > 0 ? govStats.voted / govStats.total : 0;
 
   return (
     <Box
@@ -347,8 +308,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           variant="interactive"
           tooltip={
             <Box>
-              Number of proposals voted on relative to the number of proposals
-              the orchestrator was eligible for while active.
+              Counts proposals whose voting began while this orchestrator was in
+              the active set, and how many it voted on. Totals vary with
+              activation history.
             </Box>
           }
           value={
@@ -362,17 +324,21 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     fontWeight: 500,
                   }}
                 >
-                  / {formatNumber(govStats.eligible, { precision: 0 })}{" "}
-                  Proposals
+                  / {formatNumber(govStats.total, { precision: 0 })} proposals
+                  while active
                 </Box>
               </Flex>
+            ) : governanceLoading ? (
+              "Loading…"
+            ) : governanceError ? (
+              "Unavailable"
             ) : (
               "N/A"
             )
           }
           meta={
             <Box css={{ width: "100%", marginTop: "$2" }}>
-              {govStats && (
+              {govStats && govStats.total > 0 && (
                 <Box
                   css={{
                     width: "100%",
@@ -385,7 +351,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                 >
                   <Box
                     css={{
-                      width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                      width: `${govParticipation * 100}%`,
                       height: "100%",
                       backgroundColor: "$primary11",
                     }}
@@ -399,9 +365,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                   width: "100%",
                 }}
               >
-                {govStats && (
+                {govStats && govStats.total > 0 && (
                   <Text size="2" css={{ color: "$neutral11", fontWeight: 600 }}>
-                    {formatPercent(govStats.voted / govStats.eligible, {
+                    {formatPercent(govParticipation, {
                       precision: 0,
                     })}{" "}
                     Participation
