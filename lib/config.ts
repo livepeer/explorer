@@ -26,8 +26,15 @@ export const SUBGRAPH_URL =
       : `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`
     : STAGING_SUBGRAPH_URL);
 
+/**
+ * Reown (formerly WalletConnect) project. v2 has its own, so its domains can
+ * be allowlisted without touching the one explorer.livepeer.org uses; the
+ * shared one stands in until it's set.
+ */
 export const WALLET_CONNECT_PROJECT_ID =
-  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ?? "";
+  process.env.NEXT_PUBLIC_REOWN_PROJECT_ID ||
+  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ||
+  "";
 
 const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 

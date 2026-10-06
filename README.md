@@ -79,7 +79,7 @@ public RPCs, which is fine for local development.
 | `NEXT_PUBLIC_SUBGRAPH_DEPLOYMENT`                                            | Pins one subgraph version by deployment id (`Qm…`).                                                  |
 | `NEXT_PUBLIC_SUBGRAPH_ENDPOINT`                                              | Full subgraph URL; overrides the two above.                                                          |
 | `NEXT_PUBLIC_INFURA_KEY`, `NEXT_PUBLIC_L1_RPC_URL`, `NEXT_PUBLIC_L2_RPC_URL` | RPC endpoints (Arbitrum for staking, mainnet for ENS).                                               |
-| `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`                                      | WalletConnect project.                                                                               |
+| `NEXT_PUBLIC_REOWN_PROJECT_ID`                                               | Reown (WalletConnect) project; its allowlist must include each domain the app runs on.               |
 | `SITE_URL`                                                                   | Absolute URLs for share images.                                                                      |
 | `PINATA_JWT`                                                                 | Pins LIP text to IPFS when creating a poll. Server-only.                                             |
 | `GITHUB_ACCESS_TOKEN`                                                        | Optional; raises the GitHub rate limit for reading LIPs. Server-only.                                |

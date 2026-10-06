@@ -55,7 +55,7 @@ function makeWagmiConfig() {
     // WalletConnect (and wallets that fall back to it, like Trust without
     // its extension) can't connect without a project ID; say so plainly.
     console.warn(
-      "Livepeer Explorer: NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID was not set when this build was made, so WalletConnect won't connect."
+      "Livepeer Explorer: NEXT_PUBLIC_REOWN_PROJECT_ID was not set when this build was made, so WalletConnect won't connect."
     );
   }
   const isSafeApp = typeof window !== "undefined" && window.parent !== window;
