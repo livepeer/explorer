@@ -1,6 +1,7 @@
 import ErrorComponent from "@components/Error";
 import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
+import { trackVercelAnalyticsEventOnce } from "@lib/analytics";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -8,6 +9,9 @@ import {
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { isAddress } from "viem";
 
 type PageProps = {
   hadError: boolean;
@@ -21,6 +25,18 @@ const Orchestrating = ({
   account,
   sortedOrchestrators,
 }: PageProps) => {
+  const { query } = useRouter();
+  const viewedAccount = String(query.account);
+
+  useEffect(() => {
+    if (!hadError) {
+      trackVercelAnalyticsEventOnce(
+        "orchestrator_detail_viewed",
+        viewedAccount
+      );
+    }
+  }, [hadError, viewedAccount]);
+
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }
@@ -51,11 +67,16 @@ export const getStaticProps = async (context: {
   params: { account: string };
 }) => {
   try {
+    const accountId = context.params?.account?.toString().toLowerCase();
+
+    // 404 only on malformed addresses; a valid address with no on-chain activity still
+    // renders the empty-state account page.
+    if (!accountId || !isAddress(accountId)) {
+      return { notFound: true };
+    }
+
     const client = getApollo();
-    const { account, fallback } = await getAccount(
-      client,
-      context.params?.account?.toString().toLowerCase()
-    );
+    const { account, fallback } = await getAccount(client, accountId);
 
     // If we couldn't fetch account data, treat it as a temporary error
     if (!account.data) {
@@ -68,12 +89,6 @@ export const getStaticProps = async (context: {
     // If we couldn't fetch orchestrators data, treat it as a temporary error
     if (!sortedOrchestrators.data) {
       throw new Error("Failed to fetch orchestrators data");
-    }
-
-    // Only return 404 if the account truly doesn't exist (no delegator AND no transcoder)
-    // Don't cache 404s to avoid stale 404 responses from transient failures
-    if (!account.data?.delegator && !account.data?.transcoder) {
-      return { notFound: true };
     }
 
     const props: PageProps = {

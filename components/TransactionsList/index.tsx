@@ -2,12 +2,23 @@ import EthAddressBadge from "@components/EthAddressBadge";
 import Table from "@components/Table";
 import TransactionBadge from "@components/TransactionBadge";
 import { parseProposalText } from "@lib/api/treasury";
-import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
+import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
 import { Badge, Box, Flex, Link as A, Text } from "@livepeer/design-system";
+import {
+  formatETH,
+  formatLPT,
+  formatPercent,
+  formatRound,
+} from "@utils/numberFormatters";
+import {
+  EMPTY_ADDRESS,
+  PERCENTAGE_PRECISION_BILLION,
+  PERCENTAGE_PRECISION_MILLION,
+} from "@utils/web3";
 import { EventsQueryResult, TreasuryProposal } from "apollo";
 import { sentenceCase } from "change-case";
-import numbro from "numbro";
+import { usePersistedExplorerListState } from "hooks";
 import { useCallback, useMemo } from "react";
 
 export const FILTERED_EVENT_TYPENAMES = [
@@ -16,43 +27,38 @@ export const FILTERED_EVENT_TYPENAMES = [
   "EarningsClaimedEvent",
 ];
 
+const isTinyAmount = (amount: number) => amount > 0 && amount < 0.01;
+
 const getLptAmount = (number: number | string | undefined) => {
   const amount = Number(number ?? 0) || 0;
+  const isTinyLPT = isTinyAmount(amount);
   return (
-    <Badge size="1">{`${numbro(amount).format(
-      amount > 0 && amount < 0.01
-        ? { mantissa: 4, trimMantissa: true }
-        : { mantissa: 2, average: true, lowPrecision: false }
-    )} LPT`}</Badge>
+    <Badge size="1">
+      {formatLPT(amount, {
+        precision: isTinyLPT ? 4 : 2,
+        abbreviate: isTinyLPT ? false : true,
+      })}
+    </Badge>
   );
 };
 
 const getEthAmount = (number?: number | string) => {
   const amount = Number(number ?? 0) || 0;
+  const isTinyETH = isTinyAmount(amount);
   return (
     <Badge size="1">
-      {`${numbro(amount).format(
-        amount > 0 && amount < 0.01
-          ? { mantissa: 4, trimMantissa: true }
-          : { mantissa: 2, average: true, lowPrecision: false }
-      )} ETH`}
+      {formatETH(amount, {
+        precision: isTinyETH ? 4 : 2,
+        abbreviate: isTinyETH ? false : true,
+      })}
     </Badge>
   );
-};
-
-const getRound = (number: number | string | undefined) => {
-  return `#${numbro(number || 0).format({
-    mantissa: 0,
-  })}`;
 };
 
 const getPercentAmount = (number: number | string | undefined) => {
   return (
     <Badge color="white" size="1">
-      {numbro(number || 0).format({
-        output: "percent",
-        mantissa: 0,
-      })}
+      {formatPercent(number, { precision: 0 })}
     </Badge>
   );
 };
@@ -63,15 +69,33 @@ const renderEmoji = (emoji: string) => (
   </Box>
 );
 
+const DEFAULT_SORT_BY = [
+  {
+    id: "timestamp",
+    desc: true,
+  },
+];
+
 const TransactionsList = ({
   events,
+  listKey,
   pageSize = 10,
+  routePath,
 }: {
+  listKey: string;
   pageSize: number;
+  routePath: string;
   events: NonNullable<
     EventsQueryResult["data"]
   >["transactions"][number]["events"];
 }) => {
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey,
+      routePath,
+    });
+  const pageCount = Math.max(1, Math.ceil((events?.length ?? 0) / pageSize));
+  const pageIndex = Math.min(persistedState.pageIndex, pageCount - 1);
   const getAccountForRow = useCallback(
     (
       event: NonNullable<
@@ -94,6 +118,9 @@ const TransactionsList = ({
         case "RewardEvent":
           return <EthAddressBadge value={event?.delegate?.id} />;
 
+        case "RewardCallerSetEvent":
+          return <EthAddressBadge value={event?.delegate?.id} />;
+
         case "WithdrawStakeEvent":
           return <EthAddressBadge value={event?.delegator?.id} />;
 
@@ -105,6 +132,9 @@ const TransactionsList = ({
 
         case "DepositFundedEvent":
           return <EthAddressBadge value={event?.sender?.id} />;
+
+        case "ReserveClaimedEvent":
+          return <EthAddressBadge value={event?.claimant?.id} />;
 
         case "ReserveFundedEvent":
           return <EthAddressBadge value={event?.reserveHolder?.id} />;
@@ -216,9 +246,13 @@ const TransactionsList = ({
           return (
             <Box>
               {`Updated their reward/fee cut to `}
-              {getPercentAmount(Number(event?.rewardCut ?? 0) / 1000000)}
+              {getPercentAmount(
+                Number(event?.rewardCut ?? 0) / PERCENTAGE_PRECISION_MILLION
+              )}
               {` and `}
-              {getPercentAmount(1 - Number(event?.feeShare ?? 0) / 1000000)}
+              {getPercentAmount(
+                1 - Number(event?.feeShare ?? 0) / PERCENTAGE_PRECISION_MILLION
+              )}
             </Box>
           );
         case "RewardEvent":
@@ -228,6 +262,16 @@ const TransactionsList = ({
               {getLptAmount(Number(event?.rewardTokens))}
               {` in newly minted tokens`}
               {renderEmoji("🌿")}
+            </Box>
+          );
+        case "RewardCallerSetEvent":
+          return event?.rewardCaller === EMPTY_ADDRESS ? (
+            <Box>{`Removed their reward caller`}</Box>
+          ) : (
+            <Box>
+              {`Authorized `}
+              <EthAddressBadge value={event?.rewardCaller} />
+              {` to call reward on their behalf`}
             </Box>
           );
         case "WithdrawStakeEvent":
@@ -268,6 +312,15 @@ const TransactionsList = ({
               {getEthAmount(event?.amount)}
             </Box>
           );
+        case "ReserveClaimedEvent":
+          return (
+            <Box>
+              {`Claimed `}
+              {getEthAmount(event?.amount)}
+              {` from the reserve of `}
+              <EthAddressBadge value={event?.reserveHolder?.id} />
+            </Box>
+          );
         case "TransferBondEvent":
           return (
             <Box>
@@ -282,14 +335,14 @@ const TransactionsList = ({
           return (
             <Box>
               {`Starts orchestrating in round `}
-              {getRound(event?.activationRound)}
+              {formatRound(event?.activationRound)}
             </Box>
           );
         case "TranscoderDeactivatedEvent":
           return (
             <Box>
               {`Stops orchestrating in round `}
-              {getRound(event?.deactivationRound)}
+              {formatRound(event?.deactivationRound)}
             </Box>
           );
         // case "EarningsClaimedEvent":
@@ -325,12 +378,11 @@ const TransactionsList = ({
             <Box>
               {`The inflation has been set to `}
               <Badge size="1">
-                {numbro(event?.currentInflation || 0)
-                  .divide(1000000000)
-                  .format({
-                    output: "percent",
-                    mantissa: 4,
-                  })}
+                {formatPercent(
+                  Number(event?.currentInflation || 0) /
+                    PERCENTAGE_PRECISION_BILLION,
+                  { precision: 4 }
+                )}
               </Badge>
             </Box>
           );
@@ -344,30 +396,25 @@ const TransactionsList = ({
               event?.param ?? "unknown"
             }, has been updated`}</Box>
           );
-        case "VoteEvent":
+        case "VoteEvent": {
+          const vote = POLL_VOTES[event?.choiceID];
           return (
             <Box>
               {`Voted `}
-              <Badge
-                css={{
-                  backgroundColor:
-                    +event?.choiceID === 0 ? "$grass3" : "$tomato9",
-                  color: +event?.choiceID === 0 ? "$grass11" : "$tomato11",
-                }}
-                size="1"
-              >
-                {+event?.choiceID === 0 ? '"For"' : '"Against"'}
+              <Badge css={vote.style} size="1">
+                {`"${vote.text}"`}
               </Badge>
               {` on a proposal`}
               {renderEmoji("👩‍⚖️")}
             </Box>
           );
+        }
         case "PollCreatedEvent":
           return (
             <Box>
               {`Poll `}
               <EthAddressBadge value={event?.poll?.id} />
-              {` has been created and will end on block ${getRound(
+              {` has been created and will end on block ${formatRound(
                 event?.endBlock
               )}`}
             </Box>
@@ -545,19 +592,22 @@ const TransactionsList = ({
   );
 
   return (
-    <Table
-      data={events as object[]}
-      columns={columns}
-      initialState={{
-        pageSize,
-        sortBy: [
-          {
-            id: "timestamp",
-            desc: true,
-          },
-        ],
-      }}
-    />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        data={(events ?? []) as object[]}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={{
+          pageIndex,
+          pageSize,
+          sortBy: persistedState.sortBy.length
+            ? persistedState.sortBy
+            : DEFAULT_SORT_BY,
+        }}
+      />
+    </Box>
   );
 };
 

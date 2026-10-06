@@ -3,6 +3,7 @@ import "react-circular-progressbar/dist/styles.css";
 import ErrorComponent from "@components/Error";
 import type { Group } from "@components/ExplorerChart";
 import ExplorerChart from "@components/ExplorerChart";
+import GatewayList from "@components/GatewayList";
 import OrchestratorList from "@components/OrchestratorList";
 import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
@@ -10,8 +11,8 @@ import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
 } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
-import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import { ProtocolDay } from "@lib/api/types/get-protocol-day-data";
 import {
   Box,
   Button,
@@ -20,18 +21,25 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ArrowRightIcon } from "@modulz/radix-icons";
-import { useChartData } from "hooks";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { PERCENTAGE_PRECISION_BILLION } from "@utils/web3";
+import { useProtocolDayData } from "hooks";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   EventsQueryResult,
+  GatewaysQueryResult,
   getApollo,
   OrchestratorsQueryResult,
   ProtocolQueryResult,
 } from "../apollo";
-import { getEvents, getOrchestrators, getProtocol } from "../lib/api/ssr";
+import {
+  getEvents,
+  getGateways,
+  getOrchestrators,
+  getProtocol,
+} from "../lib/api/ssr";
 
 const Panel = ({ children }) => (
   <Flex
@@ -52,47 +60,33 @@ const Panel = ({ children }) => (
   </Flex>
 );
 
-const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
+const Charts = () => {
+  const protocolDayData = useProtocolDayData();
+
   const [feesPaidGrouping, setFeesPaidGrouping] = useState<Group>("week");
   const feesPaidData = useMemo(
     () =>
       (feesPaidGrouping === "day"
-        ? chartData?.dayData?.map((day) => ({
+        ? protocolDayData?.dayData?.map((day) => ({
             x: Number(day.dateS),
             y: Number(day.volumeUsd),
           }))
-        : chartData?.weeklyData?.map((week) => ({
+        : protocolDayData?.weeklyData?.map((week) => ({
             x: Number(week.date),
             y: Number(week.weeklyVolumeUsd),
           }))) ?? [],
-    [feesPaidGrouping, chartData]
-  );
-
-  const [usageGrouping, setUsageGrouping] = useState<Group>("week");
-  const usageData = useMemo(
-    () =>
-      (usageGrouping === "day"
-        ? chartData?.dayData?.map((day) => ({
-            x: Number(day.dateS),
-            y: Number(day.feeDerivedMinutes),
-          }))
-        : chartData?.weeklyData?.map((week) => ({
-            x: Number(week.date),
-            y: Number(week.weeklyUsageMinutes),
-          }))) ?? [],
-    [usageGrouping, chartData]
+    [feesPaidGrouping, protocolDayData]
   );
 
   const getDaySeries = useCallback(
-    (
-      grouping: Group,
-      accessor: (day: NonNullable<HomeChartData["dayData"]>[number]) => number
-    ) =>
-      chartData?.dayData?.slice(grouping === "year" ? -365 : 1).map((day) => ({
-        x: Number(day.dateS),
-        y: accessor(day),
-      })) ?? [],
-    [chartData]
+    (grouping: Group, accessor: (day: ProtocolDay) => number) =>
+      protocolDayData?.dayData
+        ?.slice(grouping === "year" ? -365 : 0)
+        .map((day) => ({
+          x: Number(day.dateS),
+          y: accessor(day),
+        })) ?? [],
+    [protocolDayData]
   );
 
   const [participationGrouping, setParticipationGrouping] =
@@ -110,7 +104,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
     () =>
       getDaySeries(
         inflationGrouping,
-        (day) => Number(day?.inflation ?? 0) / 1000000000
+        (day) => Number(day.inflation) / PERCENTAGE_PRECISION_BILLION
       ),
     [getDaySeries, inflationGrouping]
   );
@@ -138,7 +132,7 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip={`The amount of ${
             feesPaidGrouping === "day" ? "daily" : "weekly"
-          } fees in dollars which have been historically paid out using the protocol.`}
+          } fees in dollars which have been historically paid out using the protocol. Values exclude activity from a network incident that caused anomalous fee data.`}
           data={
             feesPaidGrouping === "week"
               ? feesPaidData.slice(-26)
@@ -146,13 +140,13 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           }
           base={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.oneDayVolumeUSD
-              : chartData?.oneWeekVolumeUSD) ?? 0
+              ? protocolDayData?.oneDayVolumeUSD
+              : protocolDayData?.oneWeekVolumeUSD) ?? 0
           )}
           basePercentChange={Number(
             (feesPaidGrouping === "day"
-              ? chartData?.volumeChangeUSD
-              : chartData?.weeklyVolumeChangeUSD) ?? 0
+              ? protocolDayData?.volumeChangeUSD
+              : protocolDayData?.weeklyVolumeChangeUSD) ?? 0
           )}
           title={`Fees Paid ${feesPaidGrouping === "day" ? "(1d)" : "(7d)"}`}
           unit="usd"
@@ -165,8 +159,10 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The percent of LPT which has been delegated to an orchestrator."
           data={participationRateData}
-          base={Number(chartData?.participationRate ?? 0)}
-          basePercentChange={Number(chartData?.participationRateChange ?? 0)}
+          base={Number(protocolDayData?.participationRate ?? 0)}
+          basePercentChange={Number(
+            protocolDayData?.participationRateChange ?? 0
+          )}
           title="Participation Rate"
           unit="percent"
           type="line"
@@ -178,8 +174,11 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The percent of LPT which is minted each round as rewards for delegators/orchestrators on the network."
           data={inflationRateData}
-          base={Number(chartData?.inflation ?? 0) / 1000000000}
-          basePercentChange={Number(chartData?.inflationChange ?? 0)}
+          base={
+            Number(protocolDayData?.inflation ?? 0) /
+            PERCENTAGE_PRECISION_BILLION
+          }
+          basePercentChange={Number(protocolDayData?.inflationChange ?? 0)}
           title="Inflation Rate"
           unit="small-percent"
           type="line"
@@ -187,11 +186,23 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           onToggleGrouping={setInflationGrouping}
         />
       </Panel>
+      {/* Estimated Usage chart temporarily hidden.
       <Panel>
         <ExplorerChart
-          tooltip={`The ${
-            usageGrouping === "day" ? "daily" : "weekly"
-          } usage of the network in minutes.`}
+          tooltip={
+            <>
+              {`The ${
+                usageGrouping === "day" ? "daily" : "weekly"
+              } usage of the network in minutes.`}
+              <br />
+              <br />
+              {"The estimation methodology was updated on 8/21/23. "}
+              <a href="https://forum.livepeer.org/t/livepeer-explorer-minutes-estimation-methodology/2140">
+                Read more about the changes
+              </a>
+              {"."}
+            </>
+          }
           data={
             usageGrouping === "week"
               ? usageData.slice(-26)
@@ -214,12 +225,15 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
           onToggleGrouping={setUsageGrouping}
         />
       </Panel>
+      */}
       <Panel>
         <ExplorerChart
           tooltip="The count of delegators participating in the network."
           data={delegatorsCountData}
-          base={Number(chartData?.delegatorsCount ?? 0)}
-          basePercentChange={Number(chartData?.delegatorsCountChange ?? 0)}
+          base={Number(protocolDayData?.delegatorsCount ?? 0)}
+          basePercentChange={Number(
+            protocolDayData?.delegatorsCountChange ?? 0
+          )}
           title="Delegators"
           unit="small-unitless"
           type="line"
@@ -231,9 +245,9 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
         <ExplorerChart
           tooltip="The number of orchestrators providing transcoding services to the network."
           data={activeTranscoderCountData}
-          base={Number(chartData?.activeTranscoderCount ?? 0)}
+          base={Number(protocolDayData?.activeTranscoderCount ?? 0)}
           basePercentChange={Number(
-            chartData?.activeTranscoderCountChange ?? 0
+            protocolDayData?.activeTranscoderCountChange ?? 0
           )}
           title="Orchestrators"
           unit="none"
@@ -249,12 +263,19 @@ const Charts = ({ chartData }: { chartData: HomeChartData | null }) => {
 type PageProps = {
   hadError: boolean;
   orchestrators: OrchestratorsQueryResult["data"] | null;
+  gateways: GatewaysQueryResult["data"] | null;
   events: EventsQueryResult["data"] | null;
   protocol: ProtocolQueryResult["data"] | null;
   fallback: { [key: string]: EnsIdentity };
 };
 
-const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
+const Home = ({
+  hadError,
+  orchestrators,
+  gateways,
+  events,
+  protocol,
+}: PageProps) => {
   const [showOrchList, setShowOrchList] = useState(false);
 
   useEffect(() => {
@@ -275,8 +296,6 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
         ?.slice(0, 100) ?? [],
     [events]
   );
-
-  const chartData = useChartData();
 
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
@@ -339,7 +358,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                     gridTemplateColumns: "1fr 1fr 1fr",
                   }}
                 >
-                  <Charts chartData={chartData} />
+                  <Charts />
                 </Box>
               </Flex>
               <Flex
@@ -370,17 +389,41 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               <Flex
                 css={{
                   flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
                   "@bp1": {
                     flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
+                  Orchestrators
+                </Heading>
+              </Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  flexWrap: "nowrap",
+                  "@bp1": {
+                    width: "auto",
+                    justifyContent: "flex-start",
                   },
                 }}
                 align="center"
               >
-                <Heading size="2" css={{ fontWeight: 600 }}>
-                  Orchestrators
-                </Heading>
-              </Flex>
-              <Flex align="center">
                 {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
                   process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
                   <A as={Link} href="/leaderboard" passHref>
@@ -389,7 +432,14 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                       css={{
                         color: "$hiContrast",
                         fontSize: "$2",
-                        marginRight: "$2",
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        marginRight: 0,
+                        "@bp1": {
+                          paddingLeft: "$2",
+                          paddingRight: "$2",
+                          marginRight: "$2",
+                        },
                       }}
                     >
                       Performance Leaderboard
@@ -397,7 +447,19 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                   </A>
                 )}
                 <A as={Link} href="/orchestrators" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
                     View All
                     <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
@@ -414,6 +476,7 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                 {showOrchList ? (
                   <OrchestratorList
                     data={orchestrators?.transcoders}
+                    listKey="home"
                     pageSize={10}
                     protocolData={protocol?.protocol}
                   />
@@ -442,19 +505,136 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
               <Flex
                 css={{
                   flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
                   "@bp1": {
                     flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
+                  Gateways
+                </Heading>
+              </Flex>
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  "@bp1": {
+                    width: "auto",
                   },
                 }}
                 align="center"
               >
-                <Heading size="2" css={{ fontWeight: 600 }}>
+                <A as={Link} href="/gateways" passHref>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
+                    View All
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                  </Button>
+                </A>
+              </Flex>
+            </Flex>
+            {!gateways?.gateways ? (
+              <Flex align="center" justify="center">
+                <Spinner />
+              </Flex>
+            ) : (
+              <Box>
+                <GatewayList
+                  data={gateways.gateways}
+                  listKey="home-gateways"
+                  pageSize={10}
+                  routePath="/"
+                />
+              </Box>
+            )}
+
+            <Flex
+              css={{
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginBottom: "$4",
+                marginTop: "$7",
+                alignItems: "center",
+                "@bp1": {
+                  flexDirection: "row",
+                },
+              }}
+            >
+              <Flex
+                css={{
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "100%",
+                  "@bp1": {
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "auto",
+                  },
+                }}
+              >
+                <Heading
+                  size="2"
+                  css={{
+                    fontWeight: 600,
+                    width: "100%",
+                    textAlign: "left",
+                    "@bp1": {
+                      width: "auto",
+                    },
+                  }}
+                >
                   Transactions
                 </Heading>
               </Flex>
-              <Flex align="center">
+              <Flex
+                css={{
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  "@bp1": {
+                    width: "auto",
+                  },
+                }}
+                align="center"
+              >
                 <A as={Link} href="/transactions" passHref>
-                  <Button ghost css={{ color: "$hiContrast", fontSize: "$2" }}>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
                     View All
                     <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
                   </Button>
@@ -469,7 +649,9 @@ const Home = ({ hadError, orchestrators, events, protocol }: PageProps) => {
                     EventsQueryResult["data"]
                   >["transactions"][number]["events"]
                 }
+                listKey="home-transactions"
                 pageSize={10}
+                routePath="/"
               />
             </Box>
           </Box>
@@ -483,6 +665,7 @@ export const getStaticProps = async () => {
   const errorProps: PageProps = {
     hadError: true,
     orchestrators: null,
+    gateways: null,
     events: null,
     protocol: null,
     fallback: {},
@@ -493,8 +676,14 @@ export const getStaticProps = async () => {
     const { orchestrators } = await getOrchestrators(client);
     const { events } = await getEvents(client);
     const protocol = await getProtocol(client);
+    const { gateways } = await getGateways(client);
 
-    if (!orchestrators.data || !events.data || !protocol.data) {
+    if (
+      !orchestrators.data ||
+      !events.data ||
+      !protocol.data ||
+      !gateways.data
+    ) {
       return {
         props: errorProps,
         revalidate: 60,
@@ -504,6 +693,7 @@ export const getStaticProps = async () => {
     const props: PageProps = {
       hadError: false,
       orchestrators: orchestrators.data,
+      gateways: gateways.data,
       events: events.data,
       protocol: protocol.data,
       fallback: {},

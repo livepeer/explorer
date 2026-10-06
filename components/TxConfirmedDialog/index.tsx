@@ -13,21 +13,29 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { CheckIcon } from "@modulz/radix-icons";
-import { TransactionStatus, useExplorerStore } from "hooks";
+import { CheckIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
+import { formatAddress, fromWei } from "@utils/web3";
+import {
+  TransactionStatus,
+  useAccountAddress,
+  useActiveChain,
+  useExplorerStore,
+  useIsSafe,
+} from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { MdReceipt } from "react-icons/md";
 import { Address } from "viem";
-import { useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 
-import { formatAddress, fromWei, txMessages } from "../../lib/utils";
+import { txMessages } from "../../lib/utils";
 
 const Index = () => {
   const router = useRouter();
   const { latestTransaction, clearLatestTransaction } = useExplorerStore();
+  const isSafe = useIsSafe();
 
   const onDismiss = useCallback(() => {
     clearLatestTransaction();
@@ -51,16 +59,17 @@ const Index = () => {
     >
       <DialogContent
         onPointerDownOutside={onDismiss}
-        css={{ maxWidth: 390, width: "100%" }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
+        css={{
+          maxWidth: 390,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
       >
         <DialogTitle asChild>
           <Heading
             size="1"
             css={{
-              mb: "$4",
+              mb: "$3",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -72,25 +81,71 @@ const Index = () => {
               css={{
                 display: "flex",
                 alignItems: "center",
-                fontSize: "$5",
+                fontSize: "$4",
                 paddingLeft: "$3",
                 paddingRight: "$3",
-                paddingTop: "$4",
-                paddingBottom: "$4",
+                paddingTop: "$2",
+                paddingBottom: "$2",
               }}
             >
-              <CheckIcon width={22} height={22} />
-              <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>Success</Box>
+              <CheckIcon width={18} height={18} />
+              <Box css={{ paddingLeft: "$1", paddingRight: "$1" }}>
+                {isSafe === undefined
+                  ? "Submitted"
+                  : isSafe
+                  ? "Sent to Safe"
+                  : "Success"}
+              </Box>
             </Badge>
           </Heading>
         </DialogTitle>
         <TransactionContent tx={latestTransaction} onDismiss={onDismiss} />
+        {latestTransaction.inputData && <SafeAppHint />}
       </DialogContent>
     </Dialog>
   );
 };
 
 export default Index;
+
+// Suggest the Safe App to Safes connected from outside Safe{Wallet}.
+function SafeAppHint() {
+  const account = useAccountAddress();
+  const activeChain = useActiveChain();
+  const isSafe = useIsSafe();
+  const { connector } = useAccount();
+
+  if (!account || !isSafe || connector?.id === "safe") return null;
+
+  const chainInfo =
+    CHAIN_INFO[activeChain?.id as keyof typeof CHAIN_INFO] ??
+    CHAIN_INFO[DEFAULT_CHAIN_ID];
+  const safeId = `${chainInfo.safePrefix}:${account}`;
+  const appUrl = encodeURIComponent(window.location.origin);
+
+  return (
+    <Box
+      css={{
+        mt: "$3",
+        textAlign: "center",
+        fontSize: "$2",
+        color: "$neutral11",
+      }}
+    >
+      Next time, use the explorer inside your Safe.{" "}
+      <A
+        variant="primary"
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`https://app.safe.global/apps/open?safe=${safeId}&appUrl=${appUrl}`}
+        css={{ display: "inline-flex", alignItems: "center", gap: "$1" }}
+      >
+        Open as Safe App
+        <ExternalLinkIcon aria-hidden />
+      </A>
+    </Box>
+  );
+}
 
 const TransactionContent = ({
   tx,
@@ -99,7 +154,34 @@ const TransactionContent = ({
   tx: TransactionStatus;
   onDismiss: () => void;
 }) => {
+  const isSafe = useIsSafe();
+
   if (!tx.inputData) return;
+  if (isSafe === undefined) {
+    return <Box css={{ textAlign: "center" }}>Checking wallet status...</Box>;
+  }
+  if (isSafe) {
+    return (
+      <Box>
+        <Table css={{ mb: "$4" }}>
+          <Header tx={tx} />
+          <Box css={{ padding: "$3" }}>
+            Your transaction was sent to Safe. Check its status there; it takes
+            effect only after on-chain execution.
+          </Box>
+        </Table>
+        <Button
+          onClick={onDismiss}
+          size="4"
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          Close
+        </Button>
+      </Box>
+    );
+  }
+
   switch (tx.name) {
     case "bond":
       return (
@@ -540,6 +622,26 @@ function Table({ css = {}, children, ...props }) {
 }
 
 function Header({ tx }: { tx: TransactionStatus }) {
+  const account = useAccountAddress();
+  const activeChain = useActiveChain();
+  const isSafe = useIsSafe();
+  const chainInfo =
+    CHAIN_INFO[activeChain?.id as keyof typeof CHAIN_INFO] ??
+    CHAIN_INFO[DEFAULT_CHAIN_ID];
+
+  // A Safe returns a Safe tx hash, so link to its queue instead of the explorer.
+  const link = isSafe
+    ? {
+        label: "View in Safe",
+        href: `https://app.safe.global/transactions/queue?safe=${chainInfo.safePrefix}:${account}`,
+        icon: <ExternalLinkIcon />,
+      }
+    : {
+        label: "Transfer Receipt",
+        href: `${chainInfo.explorer}tx/${tx?.hash}`,
+        icon: <MdReceipt />,
+      };
+
   return (
     <Flex
       css={{
@@ -551,20 +653,27 @@ function Header({ tx }: { tx: TransactionStatus }) {
       }}
     >
       <Flex css={{ fontWeight: 700, alignItems: "center" }}>
-        <Box css={{ marginRight: "10px" }}>🎉</Box>
-        {txMessages[tx?.name ?? ""]?.confirmed}
+        {isSafe ? (
+          "Sign and execute it in your Safe"
+        ) : (
+          <>
+            <Box css={{ marginRight: "10px" }}>🎉</Box>
+            {txMessages[tx?.name ?? ""]?.confirmed}
+          </>
+        )}
       </Flex>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
-        href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        href={link.href}
+        aria-label={link.label}
       >
-        Transfer Receipt{" "}
-        <Box css={{ marginLeft: "6px", color: "$primary10" }}>
-          <MdReceipt />
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          {link.label}
         </Box>
+        <Box css={{ marginLeft: "6px", color: "$primary10" }}>{link.icon}</Box>
       </A>
     </Flex>
   );

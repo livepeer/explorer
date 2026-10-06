@@ -118,7 +118,8 @@ export function calculateROI({
 
     totalLptRewards = expectedTotalYearlyRewards;
     delegatorLptRewards = expectedDelegatorYearlyRewards;
-    percentLptRewards = expectedDelegatorYearlyRewards / principle;
+    percentLptRewards =
+      principle > 0 ? expectedDelegatorYearlyRewards / principle : 0;
   }
 
   let percentExpectedLptFeeCutDelegator = 0;
@@ -139,7 +140,8 @@ export function calculateROI({
     totalFees = expectedPeriodVolumeEth;
     delegatorFees = expectedPeriodFeeCutDelegator;
     delegatorLptFees = expectedLptFeeCutDelegator;
-    percentExpectedLptFeeCutDelegator = expectedLptFeeCutDelegator / principle;
+    percentExpectedLptFeeCutDelegator =
+      principle > 0 ? expectedLptFeeCutDelegator / principle : 0;
   }
 
   return {

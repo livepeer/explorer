@@ -1,6 +1,6 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { formatAddress } from "@lib/utils";
 import { Box, Flex, Heading } from "@livepeer/design-system";
+import { formatAddress } from "@utils/web3";
 import { QRCodeCanvas } from "qrcode.react";
 
 import { TranscoderOrDelegateType } from ".";

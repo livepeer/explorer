@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: true,
+
   turbopack: {
     rules: {
       "*.svg": {
@@ -7,6 +9,16 @@ const nextConfig = {
         as: "*.js",
       },
     },
+  },
+
+  // Safe{Wallet} fetches the manifest cross-origin to add the explorer as a Safe App.
+  async headers() {
+    return [
+      {
+        source: "/manifest.json",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+    ];
   },
 
   async redirects() {

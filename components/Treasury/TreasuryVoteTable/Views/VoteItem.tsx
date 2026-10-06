@@ -1,7 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { formatTransactionHash } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -17,6 +16,7 @@ import {
   ChevronUpIcon,
   CounterClockwiseClockIcon,
 } from "@radix-ui/react-icons";
+import { formatTransactionHash } from "@utils/web3";
 import { TreasuryVoteSupport } from "apollo/subgraph";
 import { useState } from "react";
 

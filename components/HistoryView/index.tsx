@@ -4,7 +4,6 @@ import { Fm, parsePollIpfs } from "@lib/api/polls";
 import { parseProposalText, Proposal } from "@lib/api/treasury";
 import { POLL_VOTES, VOTING_SUPPORT_MAP } from "@lib/api/types/votes";
 import dayjs from "@lib/dayjs";
-import { formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -14,6 +13,14 @@ import {
   styled,
 } from "@livepeer/design-system";
 import {
+  formatETH,
+  formatLPT,
+  formatPercent,
+  formatRound,
+} from "@utils/numberFormatters";
+import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
+import { PERCENTAGE_PRECISION_TEN_THOUSAND } from "@utils/web3";
+import {
   TransactionsQuery,
   TreasuryVoteEvent,
   TreasuryVoteSupport,
@@ -22,10 +29,10 @@ import {
 } from "apollo";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
-import numbro from "numbro";
-import { useEffect, useMemo, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { catIpfsJson, IpfsPoll } from "utils/ipfs";
+
+const PAGE_SIZE = 25;
 
 const Card = styled(CardBase, {
   length: {},
@@ -44,15 +51,16 @@ const Index = () => {
     loading,
     error,
     fetchMore: fetchMoreTransactions,
-    stopPolling,
   } = useTransactionsQuery({
     variables: {
       account: account.toLowerCase(),
-      first: 10,
+      first: PAGE_SIZE,
       skip: 0,
     },
     notifyOnNetworkStatusChange: true,
   });
+
+  const [reachedEnd, setReachedEnd] = useState(false);
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -75,6 +83,8 @@ const Index = () => {
   const isVoteEvent = isType("VoteEvent");
   const isTreasuryVoteEvent = isType("TreasuryVoteEvent");
 
+  // Clamps tickets/rewards to the oldest loaded transaction so rows only
+  // append; nothing is stranded, registration precedes both.
   const lastEventTimestamp = useMemo(
     () =>
       Number(events?.[(events?.length || 0) - 1]?.transaction?.timestamp ?? 0),
@@ -143,38 +153,136 @@ const Index = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events]);
 
-  // performs filtering of winning ticket redeemed events and merges with separate "winning tickets"
-  // this is so Os winning tickets show properly: https://github.com/livepeer/explorer/issues/108
+  // Tag winning tickets (in/out/self) within the current window
+  const ticketEvents = useMemo(() => {
+    const tickets =
+      data?.winningTicketRedeemedEvents?.filter(
+        (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
+      ) ?? [];
+    const accountLower = account.toLowerCase();
+    return tickets.map((e) => ({
+      ...e,
+      direction:
+        e?.sender?.id?.toLowerCase() === accountLower &&
+        e?.recipient?.id?.toLowerCase() === accountLower
+          ? ("self" as const)
+          : e?.sender?.id?.toLowerCase() === accountLower
+          ? ("out" as const)
+          : ("in" as const),
+    }));
+  }, [data?.winningTicketRedeemedEvents, account, lastEventTimestamp]);
+
+  // Covers both sides of a reward call: the orchestrator it was made for, and
+  // the reward caller that made it.
+  const rewardEvents = useMemo(() => {
+    const accountLower = account.toLowerCase();
+    return (
+      data?.rewardEvents
+        ?.filter((e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp)
+        .map((e) => ({
+          ...e,
+          isRewardCaller: e?.delegate?.id?.toLowerCase() !== accountLower,
+        })) ?? []
+    );
+  }, [data?.rewardEvents, account, lastEventTimestamp]);
+
   const mergedEvents = useMemo(
     () =>
       [
+        // Dropped here and re-added below from the enriched (tickets, votes)
+        // and superset (rewards) lists, so they are not listed twice.
         ...events.filter(
           (e) =>
             e?.__typename !== "WinningTicketRedeemedEvent" &&
             e?.__typename !== "TreasuryVoteEvent" &&
-            e?.__typename !== "VoteEvent"
+            e?.__typename !== "VoteEvent" &&
+            e?.__typename !== "RewardEvent"
         ),
-        ...(data?.winningTicketRedeemedEvents?.filter(
-          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
-        ) ?? []),
-        ...extendedTreasuryVoteEventsData.filter(
-          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
-        ),
-        ...extendedVoteEventsData.filter(
-          (e) => (e?.transaction?.timestamp ?? 0) > lastEventTimestamp
-        ),
+        ...ticketEvents,
+        ...rewardEvents,
+        ...extendedTreasuryVoteEventsData,
+        ...extendedVoteEventsData,
       ].sort(
         (a, b) =>
           (b?.transaction?.timestamp ?? 0) - (a?.transaction?.timestamp ?? 0)
       ),
     [
       events,
-      data,
-      lastEventTimestamp,
+      ticketEvents,
+      rewardEvents,
       extendedTreasuryVoteEventsData,
       extendedVoteEventsData,
     ]
   );
+
+  const totalLoaded = Math.max(
+    data?.transactions?.length ?? 0,
+    data?.winningTicketRedeemedEvents?.length ?? 0,
+    data?.rewardEvents?.length ?? 0
+  );
+
+  const fetchingRef = useRef(false);
+  const fetchNext = useCallback(async () => {
+    // Concurrency lock — ref so it's synchronous.
+    if (fetchingRef.current || loading) return;
+    fetchingRef.current = true;
+
+    try {
+      await fetchMoreTransactions({
+        variables: {
+          // Shared skip: a shorter list is only over-skipped once exhausted.
+          skip: totalLoaded,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult;
+          // Stop only once every list is exhausted. Rewards and ticket
+          // redemptions can be submitted by another address, so neither list is
+          // bounded by `transactions`.
+          if (
+            fetchMoreResult.transactions.length < PAGE_SIZE &&
+            fetchMoreResult.winningTicketRedeemedEvents.length < PAGE_SIZE &&
+            fetchMoreResult.rewardEvents.length < PAGE_SIZE
+          )
+            setReachedEnd(true);
+
+          return {
+            ...previousResult,
+            transactions: [
+              ...previousResult.transactions,
+              ...fetchMoreResult.transactions,
+            ],
+            winningTicketRedeemedEvents: [
+              ...previousResult.winningTicketRedeemedEvents,
+              ...fetchMoreResult.winningTicketRedeemedEvents,
+            ],
+            rewardEvents: [
+              ...previousResult.rewardEvents,
+              ...fetchMoreResult.rewardEvents,
+            ],
+          };
+        },
+      });
+    } catch (error) {
+      console.error("fetchNext failed:", error);
+    } finally {
+      fetchingRef.current = false;
+    }
+  }, [loading, totalLoaded, fetchMoreTransactions]);
+
+  // Create a sentinel ref and observe it while more pages are available.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || reachedEnd || totalLoaded < PAGE_SIZE) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) fetchNext();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fetchNext, reachedEnd, totalLoaded]);
 
   if (error) {
     console.error(error);
@@ -195,78 +303,42 @@ const Index = () => {
     );
   }
 
-  if (!data?.transactions?.length) {
+  if (
+    !data?.transactions?.length &&
+    !data?.winningTicketRedeemedEvents?.length &&
+    !data?.rewardEvents?.length
+  ) {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
 
   return (
-    <InfiniteScroll
-      css={{ overflow: "hidden !important" }}
-      scrollThreshold={0.5}
-      dataLength={data && data.transactions.length}
-      next={async () => {
-        stopPolling();
-        if (!loading && data.transactions.length >= 10) {
-          try {
-            await fetchMoreTransactions({
-              variables: {
-                skip: data.transactions.length,
-              },
-              updateQuery: (previousResult, { fetchMoreResult }) => {
-                if (!fetchMoreResult) {
-                  return previousResult;
-                }
-
-                return {
-                  ...previousResult,
-                  transactions: [
-                    ...previousResult.transactions,
-                    ...fetchMoreResult.transactions,
-                  ],
-                  // Basing the query skip for winning tickets on transactions.length is fine because there will always be more transactions than winning tickets
-                  // So, we will always have winning ticket events that are older than the last transaction timestamp
-                  // Allowing mergedEvents to filter correctly
-                  winningTicketRedeemedEvents: [
-                    ...previousResult.winningTicketRedeemedEvents,
-                    ...fetchMoreResult.winningTicketRedeemedEvents,
-                  ],
-                };
-              },
-            });
-          } catch (e) {
-            return e;
-          }
-        }
+    <Box
+      css={{
+        marginTop: "$3",
+        marginBottom: "$5",
+        paddingBottom: "$4",
+        position: "relative",
       }}
-      hasMore={true}
     >
-      <Box
-        css={{
-          marginTop: "$3",
-          marginBottom: "$5",
-          paddingBottom: "$4",
-          position: "relative",
-        }}
-      >
-        <Box css={{ paddingBottom: "$3" }}>
-          {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
-        </Box>
-        {loading && data.transactions.length >= 10 && (
-          <Flex
-            css={{
-              position: "absolute",
-              transform: "translateX(-50%)",
-              left: "50%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Spinner />
-          </Flex>
-        )}
+      <Box css={{ paddingBottom: "$3" }}>
+        {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
       </Box>
-    </InfiniteScroll>
+      {totalLoaded >= PAGE_SIZE && !reachedEnd && (
+        <Flex
+          css={{
+            position: "absolute",
+            transform: "translateX(-50%)",
+            left: "50%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Spinner />
+        </Flex>
+      )}
+      <div ref={sentinelRef} />
+    </Box>
   );
 };
 
@@ -306,7 +378,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -315,13 +387,11 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.additionalAmount).format({
-                  mantissa: 1,
-                  average: true,
+                {formatLPT(event.additionalAmount, {
+                  precision: 1,
+                  forceSign: true,
                 })}
-              </Box>{" "}
-              LPT
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -356,16 +426,15 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              Round #
               <Box as="span" css={{ fontWeight: 600 }}>
-                {event.round.id}
+                Round {formatRound(event.round.id)}
               </Box>
             </Box>
           </Flex>
@@ -403,7 +472,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -412,13 +481,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 1,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                {formatLPT(event.amount, { precision: 1, forceSign: true })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -455,7 +519,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -464,13 +528,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                -
-                {numbro(event.amount).format({
-                  mantissa: 1,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                {formatLPT(-event.amount, { precision: 1, forceSign: true })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -499,7 +558,9 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Claimed inflationary token reward
+                {event.isRewardCaller
+                  ? `Called reward for ${formatAddress(event.delegate.id)}`
+                  : "Claimed inflationary token reward"}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
@@ -507,22 +568,66 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
               </Box>
             </Box>
-            <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
-              {" "}
-              <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.rewardTokens).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+            {/* Minted for the orchestrator, never earned by the reward caller. */}
+            {!event.isRewardCaller && (
+              <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
+                {" "}
+                <Box as="span" css={{ fontWeight: 600 }}>
+                  {formatLPT(event.rewardTokens, {
+                    precision: 2,
+                    forceSign: true,
+                  })}
+                </Box>
+              </Box>
+            )}
+          </Flex>
+        </Card>
+      );
+    case "RewardCallerSetEvent":
+      return (
+        <Card
+          as={A}
+          key={i}
+          href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${event.transaction.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            textDecoration: "none",
+            "&:hover": {
+              textDecoration: "none",
+            },
+          }}
+        >
+          <Flex
+            css={{
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Box css={{ fontWeight: 500 }}>
+                {event.rewardCaller === EMPTY_ADDRESS
+                  ? "Removed reward caller"
+                  : `Set reward caller ${formatAddress(event.rewardCaller)}`}
+              </Box>
+              <Box
+                css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
+              >
+                {dayjs
+                  .unix(event.transaction.timestamp)
+                  .format("MM/DD/YYYY h:mm:ss a")}{" "}
+                - Round {formatRound(event.round.id)}
+              </Box>
+              <Box css={{ marginTop: "$2" }}>
+                <TransactionBadge id={event.transaction.id} />
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -557,7 +662,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -566,15 +671,18 @@ function renderSwitch(event, i: number) {
             <Box css={{ textAlign: "right", fontSize: "$2", marginLeft: "$4" }}>
               <Box>
                 <Box as="span" css={{ fontWeight: 600 }}>
-                  {event.rewardCut / 10000}% R
+                  {formatPercent(
+                    event.rewardCut / PERCENTAGE_PRECISION_TEN_THOUSAND
+                  )}{" "}
+                  R
                 </Box>{" "}
               </Box>
               <Box>
                 <Box as="span" css={{ fontWeight: 600 }}>
-                  {(100 - event.feeShare / 10000)
-                    .toFixed(2)
-                    .replace(/[.,]00$/, "")}
-                  % F
+                  {formatPercent(
+                    1 - event.feeShare / PERCENTAGE_PRECISION_TEN_THOUSAND
+                  )}{" "}
+                  F
                 </Box>{" "}
               </Box>
             </Box>
@@ -611,7 +719,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -620,12 +728,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              LPT
+                {formatLPT(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -660,7 +764,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -669,17 +773,22 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                {numbro(event.amount).format({
-                  mantissa: 3,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                {formatETH(event.amount, { precision: 3 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
       );
-    case "WinningTicketRedeemedEvent":
+    case "WinningTicketRedeemedEvent": {
+      const direction = event.direction;
+      const title =
+        direction === "out"
+          ? "Paid winning ticket"
+          : direction === "self"
+          ? "Self-redeemed winning ticket"
+          : "Redeemed winning ticket";
+      const amountPrefix =
+        direction === "out" ? "-" : direction === "self" ? "±" : "+";
       return (
         <Card
           as={A}
@@ -702,14 +811,14 @@ function renderSwitch(event, i: number) {
             }}
           >
             <Box>
-              <Box css={{ fontWeight: 500 }}>Redeemed winning ticket</Box>
+              <Box css={{ fontWeight: 500 }}>{title}</Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
               >
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -718,17 +827,16 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.faceValue).format({
-                  mantissa: 3,
-                  average: true,
+                {amountPrefix}
+                {formatETH(event.faceValue, {
+                  precision: 3,
                 })}
-              </Box>{" "}
-              ETH
+              </Box>
             </Box>
           </Flex>
         </Card>
       );
+    }
     case "DepositFundedEvent":
       return (
         <Card
@@ -759,7 +867,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -768,13 +876,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                +{formatETH(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -814,7 +917,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -823,13 +926,8 @@ function renderSwitch(event, i: number) {
             <Box css={{ fontSize: "$3", marginLeft: "$4" }}>
               {" "}
               <Box as="span" css={{ fontWeight: 600 }}>
-                +
-                {numbro(event.amount).format({
-                  mantissa: 2,
-                  average: true,
-                })}
-              </Box>{" "}
-              ETH
+                +{formatETH(event.amount, { precision: 2 })}
+              </Box>
             </Box>
           </Flex>
         </Card>
@@ -870,7 +968,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />
@@ -939,7 +1037,7 @@ function renderSwitch(event, i: number) {
                 {dayjs
                   .unix(event.transaction.timestamp)
                   .format("MM/DD/YYYY h:mm:ss a")}{" "}
-                - Round #{event.round.id}
+                - Round {formatRound(event.round.id)}
               </Box>
               <Box css={{ marginTop: "$2" }}>
                 <TransactionBadge id={event.transaction.id} />

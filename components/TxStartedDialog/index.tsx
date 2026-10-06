@@ -1,4 +1,4 @@
-import { formatAddress, fromWei, txMessages } from "@lib/utils";
+import { txMessages } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -11,7 +11,8 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ExternalLinkIcon } from "@modulz/radix-icons";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
+import { formatAddress, fromWei } from "@utils/web3";
 import { TransactionStatus, useAccountAddress, useExplorerStore } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 
@@ -56,10 +57,11 @@ const Index = () => {
         </Heading>
       </DialogTitle>
       <DialogContent
-        css={{ maxWidth: 370, width: "100%" }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
+        css={{
+          maxWidth: 370,
+          width: "calc(100% - 32px)",
+          "@bp1": { maxWidth: 450 },
+        }}
       >
         <Box>
           <Header tx={latestTransaction} />
@@ -220,12 +222,15 @@ function Header({ tx }: { tx: TransactionStatus }) {
       </Box>
       <A
         variant="primary"
-        css={{ display: "flex", alignItems: "center" }}
+        css={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         target="_blank"
         rel="noopener noreferrer"
         href={`${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}tx/${tx?.hash}`}
+        aria-label="Transaction details"
       >
-        Details{" "}
+        <Box css={{ display: "none", "@bp1": { display: "inline" } }}>
+          Details
+        </Box>
         <Box
           as={ExternalLinkIcon}
           css={{ marginLeft: "6px", color: "$primary11" }}

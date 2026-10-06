@@ -1,4 +1,6 @@
 import BottomDrawer from "@components/BottomDrawer";
+import BroadcastingView from "@components/BroadcastingView";
+import DelegatorsView from "@components/DelegatorsView";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
@@ -6,17 +8,14 @@ import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
   Button,
   Container,
   Flex,
   Link as A,
-  Sheet,
-  SheetContent,
-  SheetTrigger,
 } from "@livepeer/design-system";
+import { checkAddressEquality } from "@utils/web3";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -49,16 +48,29 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history";
+type TabTypeEnum =
+  | "delegating"
+  | "orchestrating"
+  | "delegators"
+  | "history"
+  | "broadcasting";
 
-const ACCOUNT_VIEWS: TabTypeEnum[] = ["delegating", "orchestrating", "history"];
+const ACCOUNT_VIEWS: TabTypeEnum[] = [
+  "delegating",
+  "orchestrating",
+  "delegators",
+  "broadcasting",
+  "history",
+];
 
 const AccountLayout = ({
   account,
   sortedOrchestrators,
+  isSelfRedeeming,
 }: {
   account?: AccountQueryResult["data"] | null;
   sortedOrchestrators: OrchestratorsSortedQueryResult["data"];
+  isSelfRedeeming?: boolean;
 }) => {
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
@@ -69,7 +81,8 @@ const AccountLayout = ({
     [asPath]
   );
 
-  const { setSelectedStakingAction, latestTransaction } = useExplorerStore();
+  const { setSelectedStakingAction, setBottomDrawerOpen, latestTransaction } =
+    useExplorerStore();
 
   const accountId = useMemo(
     () => query?.account?.toString().toLowerCase(),
@@ -90,6 +103,8 @@ const AccountLayout = ({
     skip: !accountAddress,
     pollInterval,
   });
+
+  const delegateIdentity = useEnsData(dataMyAccount?.delegator?.delegate?.id);
 
   // Fetch fresh account data client-side, using static props as fallback
   const { data: dataViewedAccount } = useAccountQuery({
@@ -132,7 +147,15 @@ const AccountLayout = ({
   );
   const isOrchestrator = useMemo(
     () => Boolean(viewedAccount?.transcoder),
-    [viewedAccount]
+    [viewedAccount?.transcoder]
+  );
+  const isGateway = useMemo(
+    () => Boolean(viewedAccount?.gateway),
+    [viewedAccount?.gateway]
+  );
+  const isDelegator = useMemo(
+    () => Boolean(viewedAccount?.delegator),
+    [viewedAccount?.delegator]
   );
   const isMyDelegate = useMemo(
     () => accountId === dataMyAccount?.delegator?.delegate?.id.toLowerCase(),
@@ -152,9 +175,20 @@ const AccountLayout = ({
         isOrchestrator,
         accountId ?? "",
         view ?? "delegating",
-        isMyDelegate
+        isMyDelegate,
+        isGateway,
+        isMyAccount,
+        isDelegator
       ),
-    [isOrchestrator, accountId, view, isMyDelegate]
+    [
+      isOrchestrator,
+      accountId,
+      view,
+      isMyDelegate,
+      isGateway,
+      isMyAccount,
+      isDelegator,
+    ]
   );
 
   useEffect(() => {
@@ -171,6 +205,10 @@ const AccountLayout = ({
             paddingRight: 0,
             paddingTop: "$4",
             width: "100%",
+            // Allow this column to shrink to its flex share instead of being
+            // held open by wide content (e.g. the delegators table's minWidth),
+            // which would otherwise squeeze the side widget.
+            minWidth: 0,
             "@bp3": {
               paddingTop: "$6",
               paddingRight: "$7",
@@ -181,6 +219,7 @@ const AccountLayout = ({
             isActive={isActive}
             account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
+            isOrchestrator={isOrchestrator}
             identity={identity}
           />
           <Flex
@@ -202,85 +241,35 @@ const AccountLayout = ({
             {(isOrchestrator ||
               isMyDelegate ||
               isDelegatingAndIsMyAccountView) && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="primary"
-                    css={{ marginRight: "$3" }}
-                    size="4"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setSelectedStakingAction("delegate");
-                    }}
-                  >
-                    Delegate
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  css={{ height: "initial" }}
-                  onPointerEnterCapture={undefined}
-                  onPointerLeaveCapture={undefined}
-                  placeholder={undefined}
-                  side="bottom"
-                >
-                  <DelegatingWidget
-                    transcoders={sortedOrchestrators?.transcoders}
-                    delegator={dataMyAccount?.delegator}
-                    account={myIdentity}
-                    transcoder={
-                      isDelegatingAndIsMyAccountView
-                        ? dataMyAccount?.delegator?.delegate
-                        : viewedAccount?.transcoder
-                    }
-                    protocol={viewedAccount?.protocol}
-                    treasury={treasury}
-                    delegateProfile={identity}
-                  />
-                </SheetContent>
-              </Sheet>
+              <Button
+                variant="primary"
+                css={{ marginRight: "$3" }}
+                size="4"
+                onClick={() => {
+                  setSelectedStakingAction("delegate");
+                  setBottomDrawerOpen(true);
+                }}
+              >
+                Delegate
+              </Button>
             )}
-            {isMyDelegate ||
-              (isDelegatingAndIsMyAccountView && (
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="red"
-                      size="4"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setSelectedStakingAction("undelegate");
-                      }}
-                    >
-                      Undelegate
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="bottom"
-                    css={{ height: "initial" }}
-                    placeholder={undefined}
-                    onPointerEnterCapture={undefined}
-                    onPointerLeaveCapture={undefined}
-                  >
-                    <DelegatingWidget
-                      transcoders={sortedOrchestrators?.transcoders}
-                      delegator={dataMyAccount?.delegator}
-                      account={myIdentity}
-                      transcoder={
-                        isDelegatingAndIsMyAccountView
-                          ? dataMyAccount?.delegator?.delegate
-                          : viewedAccount?.transcoder
-                      }
-                      protocol={viewedAccount?.protocol}
-                      treasury={treasury}
-                      delegateProfile={identity}
-                    />
-                  </SheetContent>
-                </Sheet>
-              ))}
+            {(isMyDelegate || isDelegatingAndIsMyAccountView) && (
+              <Button
+                variant="red"
+                size="4"
+                onClick={() => {
+                  setSelectedStakingAction("undelegate");
+                  setBottomDrawerOpen(true);
+                }}
+              >
+                Undelegate
+              </Button>
+            )}
           </Flex>
           <HorizontalScrollContainer
             role="navigation"
             ariaLabel="Account navigation tabs"
+            activeItemKey={view ?? "delegating"}
           >
             {tabs.map((tab: TabType, i: number) => (
               <A
@@ -332,6 +321,9 @@ const AccountLayout = ({
               transcoder={viewedAccount?.transcoder}
             />
           )}
+          {view === "delegators" && (
+            <DelegatorsView transcoder={viewedAccount?.transcoder} />
+          )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
@@ -341,9 +333,15 @@ const AccountLayout = ({
             />
           )}
           {view === "history" && <HistoryView />}
+          {view === "broadcasting" && (
+            <BroadcastingView
+              gateway={account?.gateway}
+              isSelfRedeeming={isSelfRedeeming}
+            />
+          )}
         </Flex>
         {(isOrchestrator || isMyDelegate || isDelegatingAndIsMyAccountView) &&
-          (width > 1020 ? (
+          (width >= 1200 ? (
             <Flex
               css={{
                 display: "none",
@@ -368,7 +366,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </Flex>
           ) : (
@@ -384,7 +384,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </BottomDrawer>
           ))}
@@ -401,27 +403,45 @@ function getTabs(
   isOrchestrator: boolean,
   account: string,
   view: TabTypeEnum,
-  isMyDelegate: boolean
+  isMyDelegate: boolean,
+  isGateway: boolean,
+  isMyAccount: boolean,
+  hasDelegator: boolean
 ): Array<TabType> {
-  const tabs: Array<TabType> = [
-    {
-      name: "Delegating",
-      href: `/accounts/${account}/delegating`,
-      isActive: view === "delegating",
-    },
-    {
-      name: "History",
-      href: `/accounts/${account}/history`,
-      isActive: view === "history",
-    },
-  ];
+  const tabs: Array<TabType> = [];
   if (isOrchestrator || isMyDelegate) {
-    tabs.unshift({
+    tabs.push({
       name: "Orchestrating",
       href: `/accounts/${account}/orchestrating`,
       isActive: view === "orchestrating",
     });
   }
+  if (isGateway) {
+    tabs.push({
+      name: "Broadcasting",
+      href: `/accounts/${account}/broadcasting`,
+      isActive: view === "broadcasting",
+    });
+  }
+  if (isMyAccount || hasDelegator) {
+    tabs.push({
+      name: "Delegating",
+      href: `/accounts/${account}/delegating`,
+      isActive: view === "delegating",
+    });
+  }
+  if (isOrchestrator) {
+    tabs.push({
+      name: "Delegators",
+      href: `/accounts/${account}/delegators`,
+      isActive: view === "delegators",
+    });
+  }
+  tabs.push({
+    name: "History",
+    href: `/accounts/${account}/history`,
+    isActive: view === "history",
+  });
 
   return tabs;
 }

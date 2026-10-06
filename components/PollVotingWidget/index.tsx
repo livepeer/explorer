@@ -1,32 +1,23 @@
+import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog";
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress } from "@lib/utils";
 import {
   Box,
   Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
   Flex,
   Heading,
+  Link as A,
   Text,
-  useSnackbar,
 } from "@livepeer/design-system";
-import {
-  CheckCircledIcon,
-  Cross1Icon,
-  CrossCircledIcon,
-} from "@radix-ui/react-icons";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
-import { useEffect, useMemo, useState } from "react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import { formatPercent, getVotingPower } from "utils/voting";
-
-import Check from "../../public/img/check.svg";
-import Copy from "../../public/img/copy.svg";
+import Link, { LinkProps } from "next/link";
+import { useMemo } from "react";
+import { getVotingPower } from "utils/voting";
 
 type Props = {
   poll: PollExtended;
@@ -49,6 +40,7 @@ type Props = {
     | undefined
     | null;
   myAccount: AccountQuery;
+  votesTabHref?: LinkProps["href"] | string;
 };
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -69,17 +61,6 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const Index = ({ data }: { data: Props }) => {
   const accountAddress = useAccountAddress();
-  const [copied, setCopied] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [openSnackbar] = useSnackbar();
-
-  useEffect(() => {
-    if (copied) {
-      setTimeout(() => {
-        setCopied(false);
-      }, 5000);
-    }
-  }, [copied]);
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(
     data?.myAccount?.delegator?.id
@@ -182,7 +163,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.yes, 2)}
+                {formatPercent(data.poll.percent.yes)}
               </Text>
             </Flex>
 
@@ -239,28 +220,58 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.no, 2)}
+                {formatPercent(data.poll.percent.no)}
               </Text>
             </Flex>
           </Box>
 
-          <Box css={{ fontSize: "$2", color: "$neutral11" }}>
-            {data.poll.votes.length}{" "}
-            {`${
-              data.poll.votes.length > 1 || data.poll.votes.length === 0
-                ? "votes"
-                : "vote"
-            }`}{" "}
-            · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
-            {data.poll.status !== "active"
-              ? "Final Results"
-              : dayjs
-                  .duration(
-                    dayjs().unix() - data.poll.estimatedEndTime,
-                    "seconds"
-                  )
-                  .humanize() + " left"}
-          </Box>
+          {/* Summary line */}
+          <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
+            <Box css={{ fontSize: "$2", color: "$neutral11" }}>
+              {data.poll.votes.length}{" "}
+              {`${
+                data.poll.votes.length > 1 || data.poll.votes.length === 0
+                  ? "votes"
+                  : "vote"
+              }`}{" "}
+              · {formatVotingPower(data.poll.stake.voters)} ·{" "}
+              {data.poll.status !== "active"
+                ? "Final Results"
+                : dayjs
+                    .duration(
+                      dayjs().unix() - data.poll.estimatedEndTime,
+                      "seconds"
+                    )
+                    .humanize() + " left"}
+            </Box>
+            {data.votesTabHref ? (
+              <Link href={data.votesTabHref} passHref legacyBehavior>
+                <A
+                  css={{
+                    fontSize: "$1",
+                    color: "$primary11",
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                    cursor: "pointer",
+                  }}
+                >
+                  View votes
+                </A>
+              </Link>
+            ) : (
+              <A
+                href="#votes-section"
+                css={{
+                  fontSize: "$1",
+                  color: "$primary11",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                View votes
+              </A>
+            )}
+          </Flex>
         </Box>
 
         {/* ========== YOUR VOTE SECTION ========== */}
@@ -326,14 +337,12 @@ const Index = ({ data }: { data: Props }) => {
                     css={{ fontWeight: 500, color: "$hiContrast" }}
                   >
                     <Box as="span">
-                      {abbreviateNumber(votingPower, 4)} LPT (
-                      {(
-                        (+votingPower /
-                          (data.poll.stake.nonVoters +
-                            data.poll.stake.voters)) *
-                        100
-                      ).toPrecision(2)}
-                      %)
+                      {formatVotingPower(votingPower)} (
+                      {formatPercent(
+                        +votingPower /
+                          (data.poll.stake.nonVoters + data.poll.stake.voters)
+                      )}
+                      )
                     </Box>
                   </Box>
                 </Flex>
@@ -373,139 +382,13 @@ const Index = ({ data }: { data: Props }) => {
       </Box>
 
       {data.poll.status === "active" && (
-        <Box
-          css={{
-            display: "none",
-            marginTop: "$3",
-            fontSize: "$1",
-            borderRadius: "$4",
-            border: "1px solid $neutral4",
-            padding: "$3",
-            "@bp3": {
-              display: "block",
-            },
-          }}
-        >
-          <Box css={{ lineHeight: 1.8 }}>
-            Are you an orchestrator?{" "}
-            <Box
-              as="span"
-              onClick={() => setModalOpen(true)}
-              css={{ color: "$primary11", cursor: "pointer" }}
-            >
-              Follow these instructions
-            </Box>{" "}
-            if you prefer to vote with the Livepeer CLI.
-          </Box>
-        </Box>
+        <CliVotingInstructionsDialog
+          voteId={data.poll.id}
+          idLabel="poll's contract address"
+          cliOptionName="Vote on a poll"
+          voteInstructions='Enter 0 to vote "For" or 1 to vote "Against".'
+        />
       )}
-      <Dialog onOpenChange={setModalOpen} open={modalOpen}>
-        <DialogContent
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
-        >
-          <Flex
-            css={{
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "$4",
-            }}
-          >
-            <DialogTitle asChild>
-              <Heading size="1" css={{ fontWeight: 700, width: "100%" }}>
-                Livepeer CLI Voting Instructions
-              </Heading>
-            </DialogTitle>
-            <DialogClose asChild>
-              <Box
-                as={Cross1Icon}
-                css={{
-                  alignSelf: "flex-start",
-                  cursor: "pointer",
-                  color: "$white",
-                  width: 16,
-                  height: 16,
-                }}
-              />
-            </DialogClose>
-          </Flex>
-
-          <Box as="ol" css={{ paddingLeft: 15 }}>
-            <Box as="li" css={{ marginBottom: "$4" }}>
-              <Box css={{ marginBottom: "$3" }}>
-                Run the Livepeer CLI and select the option to &quot;Vote on a
-                poll&quot;. When prompted for a contract address, copy and paste
-                this poll&apos;s contract address:
-              </Box>
-              <Box
-                css={{
-                  padding: "$3",
-                  marginBottom: "$2",
-                  position: "relative",
-                  color: "$primary11",
-                  backgroundColor: "$primary4",
-                  borderRadius: "$4",
-                  fontWeight: 500,
-                }}
-              >
-                {data.poll.id}
-                <CopyToClipboard
-                  text={data.poll.id}
-                  onCopy={() => {
-                    setCopied(true);
-                    openSnackbar("Copied to clipboard");
-                  }}
-                >
-                  <Flex
-                    css={{
-                      marginLeft: "$2",
-                      marginTop: "3px",
-                      position: "absolute",
-                      right: 12,
-                      top: 10,
-                      cursor: "pointer",
-                      borderRadius: 1000,
-                      width: 26,
-                      height: 26,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {copied ? (
-                      <Check
-                        css={{
-                          width: 12,
-                          height: 12,
-                        }}
-                      />
-                    ) : (
-                      <Copy
-                        css={{
-                          width: 12,
-                          height: 12,
-                        }}
-                      />
-                    )}
-                  </Flex>
-                </CopyToClipboard>
-              </Box>
-            </Box>
-            <Box as="li" css={{ marginBottom: "$4" }}>
-              <Box css={{ marginBottom: "$3" }}>
-                The Livepeer CLI will prompt you for your vote. Enter 0 to vote
-                &quot;For&quot; or 1 to vote &quot;Against&quot;.
-              </Box>
-            </Box>
-            <Box as="li" css={{ marginBottom: 0 }}>
-              <Box css={{ marginBottom: "$3" }}>
-                Once your vote is confirmed, check back here to see it reflected
-                in the UI.
-              </Box>
-            </Box>
-          </Box>
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };

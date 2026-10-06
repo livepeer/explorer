@@ -1,22 +1,88 @@
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { livepeerToken } from "@lib/api/abis/main/LivepeerToken";
+import dayjs from "@lib/dayjs";
 import { MAXIMUM_VALUE_UINT256 } from "@lib/utils";
-import { Box, Button } from "@livepeer/design-system";
+import { Box, Button, Flex, Text } from "@livepeer/design-system";
+import {
+  ExclamationTriangleIcon,
+  InfoCircledIcon,
+} from "@radix-ui/react-icons";
+import { formatPercent } from "@utils/numberFormatters";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { useOrchestratorRewardCutSpike } from "hooks/useOrchestratorRewardCutSpike";
 import { useMemo, useState } from "react";
 import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
 
+/**
+ * Info banner above the Delegate button. Becomes a yellow warning when
+ * `useOrchestratorRewardCutSpike` returns a qualifying spike.
+ */
+const CutChangeNotice = ({ orchestratorId }: { orchestratorId?: string }) => {
+  const spike = useOrchestratorRewardCutSpike(orchestratorId);
+
+  if (spike) {
+    return (
+      <Flex
+        css={{
+          alignItems: "center",
+          gap: "$3",
+          padding: "$3",
+          marginBottom: "$3",
+          borderRadius: "$3",
+          background: "$yellow3",
+          border: "1px solid $yellow7",
+        }}
+      >
+        <Box
+          as={ExclamationTriangleIcon}
+          css={{ color: "$yellow11", flexShrink: 0, width: 16, height: 16 }}
+        />
+        <Text css={{ fontSize: "$2", color: "$yellow11", lineHeight: 1.5 }}>
+          This orchestrator&apos;s reward cut increased sharply{" "}
+          {dayjs(spike.endTimestamp).fromNow()} (
+          {formatPercent(spike.fromRewardCut, { precision: 0 })} →{" "}
+          {formatPercent(spike.toRewardCut, { precision: 0 })}). Review history
+          before delegating.
+        </Text>
+      </Flex>
+    );
+  }
+
+  return (
+    <Flex
+      css={{
+        alignItems: "center",
+        gap: "$3",
+        padding: "$3",
+        marginBottom: "$3",
+        borderRadius: "$3",
+        background: "$neutral3",
+      }}
+    >
+      <Box
+        as={InfoCircledIcon}
+        css={{ color: "white", flexShrink: 0, width: 16, height: 16 }}
+      />
+      <Text css={{ fontSize: "$2", color: "white", lineHeight: 1.5 }}>
+        Please ensure you have checked the reward & fee cut history before
+        delegating.
+      </Text>
+    </Flex>
+  );
+};
+
 const Delegate = ({
   to,
   amount,
   isTransferStake,
+  isMyTranscoder,
   tokenBalance,
   transferAllowance,
   reset,
@@ -61,6 +127,7 @@ const Delegate = ({
   const bondWithHintArgs = {
     amount: amount?.toString() ? parseEther(amount) : BigInt(0),
     to,
+    isTransferStake,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
@@ -167,48 +234,62 @@ const Delegate = ({
     );
   }
 
+  const cutChangeNotice = isMyTranscoder ? null : (
+    <CutChangeNotice orchestratorId={to} />
+  );
+
   if (showApproveFlow) {
     return (
-      <Box>
-        <Box
-          css={{ display: "grid", gap: "$3", gridTemplateColumns: "1fr 1fr" }}
-        >
-          <Button
-            size="4"
-            variant="primary"
-            disabled={sufficientTransferAllowance}
-            onClick={onApprove}
-            css={{ width: "100%" }}
+      <>
+        {cutChangeNotice}
+        <Box>
+          <Box
+            css={{
+              display: "grid",
+              gap: "$3",
+              gridTemplateColumns: "1fr 1fr",
+            }}
           >
-            Approve
-          </Button>
-          <Button
-            size="4"
-            disabled={!sufficientTransferAllowance}
-            variant="primary"
-            onClick={onDelegate}
-            css={{ width: "100%" }}
-          >
-            {+amount >= 0 && isTransferStake ? "Switch" : "Delegate"}
-          </Button>
+            <Button
+              size="4"
+              variant="primary"
+              disabled={sufficientTransferAllowance}
+              onClick={onApprove}
+              css={{ width: "100%" }}
+            >
+              Approve
+            </Button>
+            <Button
+              size="4"
+              disabled={!sufficientTransferAllowance}
+              variant="primary"
+              onClick={onDelegate}
+              css={{ width: "100%" }}
+            >
+              {+amount >= 0 && isTransferStake ? "Switch" : "Delegate"}
+            </Button>
+          </Box>
+          <ProgressSteps
+            steps={[sufficientTransferAllowance]}
+            css={{ mt: "$3" }}
+          />
         </Box>
-        <ProgressSteps
-          steps={[sufficientTransferAllowance]}
-          css={{ mt: "$3" }}
-        />
-      </Box>
+      </>
     );
   }
 
   return (
-    <Button
-      size="4"
-      onClick={onDelegate}
-      variant="primary"
-      css={{ width: "100%" }}
-    >
-      {+amount >= 0 && isTransferStake ? "Move Delegated Stake" : "Delegate"}
-    </Button>
+    <>
+      {cutChangeNotice}
+      <Button
+        size="4"
+        onClick={onDelegate}
+        variant="primary"
+        css={{ width: "100%" }}
+      >
+        {+amount >= 0 && isTransferStake ? "Move Delegated Stake" : "Delegate"}
+      </Button>
+    </>
   );
 };
 

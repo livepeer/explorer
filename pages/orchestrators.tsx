@@ -2,6 +2,7 @@ import ErrorComponent from "@components/Error";
 import OrchestratorList from "@components/OrchestratorList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
+import { trackVercelAnalyticsEvent } from "@lib/analytics";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -12,7 +13,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ArrowRightIcon } from "@modulz/radix-icons";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -43,6 +44,12 @@ const OrchestratorsPage = ({
     return () => cancelAnimationFrame(id);
   }, []);
 
+  useEffect(() => {
+    if (!hadError) {
+      trackVercelAnalyticsEvent("orchestrators_page_viewed");
+    }
+  }, [hadError]);
+
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }
@@ -61,40 +68,69 @@ const OrchestratorsPage = ({
           }}
         >
           <Flex
-            align="center"
             css={{
-              marginBottom: "$3",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              gap: "$3",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              marginBottom: "$4",
+              alignItems: "center",
               "@bp1": {
-                justifyContent: "space-between",
+                flexDirection: "row",
               },
             }}
           >
-            <Heading size="2" as="h1" css={{ fontWeight: 700 }}>
+            <Heading
+              size="2"
+              as="h1"
+              css={{
+                fontWeight: 700,
+                width: "100%",
+                textAlign: "left",
+                marginBottom: "$2",
+                "@bp1": {
+                  width: "auto",
+                  marginBottom: "0",
+                },
+              }}
+            >
               Orchestrators
             </Heading>
-            {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
-              process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
-              <A as={Link} href="/leaderboard" passHref>
-                <Button
-                  ghost
-                  css={{
-                    color: "$hiContrast",
-                    fontSize: "$2",
-                  }}
-                >
-                  Performance Leaderboard
-                  <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
-                </Button>
-              </A>
-            )}
+            <Flex
+              css={{
+                width: "100%",
+                justifyContent: "flex-start",
+                "@bp1": {
+                  width: "auto",
+                },
+              }}
+            >
+              {(process.env.NEXT_PUBLIC_NETWORK == "MAINNET" ||
+                process.env.NEXT_PUBLIC_NETWORK == "ARBITRUM_ONE") && (
+                <A as={Link} href="/leaderboard" passHref>
+                  <Button
+                    ghost
+                    css={{
+                      color: "$hiContrast",
+                      fontSize: "$2",
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      "@bp1": {
+                        paddingLeft: "$2",
+                        paddingRight: "$2",
+                      },
+                    }}
+                  >
+                    Performance Leaderboard
+                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                  </Button>
+                </A>
+              )}
+            </Flex>
           </Flex>
           <Box css={{ marginBottom: "$5" }}>
             {showOrchList ? (
               <OrchestratorList
                 data={orchestrators?.transcoders}
+                listKey="orchestrators"
                 pageSize={20}
                 protocolData={protocol?.protocol}
               />

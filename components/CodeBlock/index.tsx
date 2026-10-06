@@ -28,9 +28,18 @@ export function CodeBlock({
   }, [preRef]);
 
   useEffect(() => {
-    if (hasCopied && code) copy(code);
-    setTimeout(() => setHasCopied(false), 1500);
-  }, [code, hasCopied]);
+    if (!hasCopied) return;
+    const timer = setTimeout(() => setHasCopied(false), 1500);
+    return () => clearTimeout(timer);
+  }, [hasCopied]);
+
+  const handleCopy = () => {
+    if (!code) return;
+
+    if (copy(code)) {
+      setHasCopied(true);
+    }
+  };
 
   return (
     <Box
@@ -84,7 +93,7 @@ export function CodeBlock({
             transition: "background-color .3s",
           },
         }}
-        onClick={() => setHasCopied(true)}
+        onClick={handleCopy}
       >
         {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
       </IconButton>

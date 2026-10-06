@@ -22,6 +22,9 @@ const eslintConfig = defineConfig([
     },
   },
   globalIgnores([
+    ".claude/**",
+    ".playwright-mcp/**",
+    ".vscode/**",
     "apollo/**",
     "@types/**",
     ".next/**",
