@@ -10,9 +10,12 @@ import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
+import {
+  trackVercelAnalyticsEvent,
+  trackWalletConnected,
+} from "@lib/analytics";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
-import { EMPTY_ADDRESS, formatAddress } from "@lib/utils";
 import {
   Badge,
   Box,
@@ -32,13 +35,15 @@ import {
   ArrowTopRightIcon,
   ChevronDownIcon,
   EyeOpenIcon,
-} from "@modulz/radix-icons";
+} from "@radix-ui/react-icons";
+import { EMPTY_ADDRESS, formatAddress } from "@utils/web3";
 import {
   useAccountQuery,
   usePollsQuery,
   useProtocolQuery,
   useTreasuryProposalsQuery,
 } from "apollo";
+import { BRIDGE_LPT_URL, GET_LPT_URL } from "constants/links";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import dynamic from "next/dynamic";
@@ -58,9 +63,11 @@ import React, {
 } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
+import { FiInfo } from "react-icons/fi";
 import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
+import { useAccountEffect } from "wagmi";
 
 import {
   useAccountAddress,
@@ -70,6 +77,7 @@ import {
   useExplorerStore,
   useOnClickOutside,
   usePendingFeesAndStakeData,
+  useSubgraphDegraded,
 } from "../hooks";
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
@@ -104,6 +112,7 @@ export type DrawerItem = {
   as: string;
   icon: React.ElementType;
   className?: string;
+  onClick?: () => void;
 };
 
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
@@ -141,6 +150,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
+  const subgraphDegraded = useSubgraphDegraded();
 
   const viewedAccountId = query?.account?.toString().toLowerCase();
   const { data: viewedAccountData } = useAccountQuery({
@@ -261,6 +271,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     ReactGA.pageview(window.location.pathname + window.location.search);
   }, []);
 
+  useAccountEffect({
+    onConnect: ({ isReconnected }) => {
+      // Reconnects restore a previous session, so they don't count.
+      if (!isReconnected) {
+        trackWalletConnected(asPath);
+      }
+    },
+  });
+
   const items: DrawerItem[] = [
     {
       name: "Overview",
@@ -275,6 +294,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/orchestrators",
       icon: DNS,
       className: "orchestrators",
+      onClick: () => trackVercelAnalyticsEvent("orchestrators_nav_clicked"),
     },
     {
       name: "Gateways",
@@ -412,6 +432,45 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
             {bannerActive && (
               <URLVerificationBanner onDismiss={onBannerDismiss} />
             )}
+            {subgraphDegraded && (
+              <Flex
+                role="status"
+                css={{
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "$blue3",
+                  borderBottom: "1px solid $blue6",
+                  fontSize: "$2",
+                  gap: "$2",
+                  paddingLeft: "$4",
+                  paddingRight: "$4",
+                  paddingTop: "$2",
+                  paddingBottom: "$2",
+                  textAlign: "center",
+                  "@bp3": {
+                    fontSize: "$3",
+                  },
+                }}
+              >
+                <Box
+                  as={FiInfo}
+                  aria-hidden="true"
+                  css={{
+                    color: "$blue11",
+                    width: 16,
+                    height: 16,
+                    flexShrink: 0,
+                  }}
+                />
+                <Text
+                  css={{ color: "$blue11", fontWeight: 400, lineHeight: 1.4 }}
+                >
+                  Some Explorer data may be temporarily out of date due to a
+                  subgraph indexing issue — the protocol is operating normally.
+                </Text>
+              </Flex>
+            )}
 
             <Box css={{}}>
               <Box
@@ -505,6 +564,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Link passHref href="/orchestrators">
                             <Button
                               size="3"
+                              onClick={() =>
+                                trackVercelAnalyticsEvent(
+                                  "orchestrators_nav_clicked"
+                                )
+                              }
                               css={{
                                 marginLeft: "$1",
                                 backgroundColor: isOrchestratorsNavActive
@@ -694,9 +758,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
-                              onPointerEnterCapture={undefined}
-                              onPointerLeaveCapture={undefined}
-                              placeholder={undefined}
                             >
                               <Flex
                                 css={{
@@ -733,13 +794,19 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://swap.defillama.com/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x289ba1701c2f088cf0faf8b3705246331cb8a839`}
+                                  href={GET_LPT_URL}
                                 >
                                   Get LPT
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://discord.gg/livepeer`}
+                                  href={BRIDGE_LPT_URL}
+                                >
+                                  Bridge LPT
+                                </PopoverLink>
+                                <PopoverLink
+                                  newWindow={true}
+                                  href={`https://discord.gg/55SZFEEH5y`}
                                 >
                                   Discord
                                 </PopoverLink>
@@ -882,9 +949,6 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           borderRadius: "$4",
           bc: "$neutral4",
         }}
-        placeholder={undefined}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
       >
         <Box
           css={{
@@ -968,7 +1032,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
             <Link
               passHref
-              href="https://docs.livepeer.org/references/contract-addresses"
+              href="https://docs.livepeer.org/network/reference/contracts#contract-addresses"
             >
               <A>
                 <Flex

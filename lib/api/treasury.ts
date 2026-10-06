@@ -1,6 +1,6 @@
 import { AVERAGE_L1_BLOCK_TIME } from "@lib/chains";
 import dayjs from "@lib/dayjs";
-import { fromWei } from "@lib/utils";
+import { fromWei } from "@utils/web3";
 import { ProtocolQuery, TreasuryProposalQuery } from "apollo";
 import fm from "front-matter";
 

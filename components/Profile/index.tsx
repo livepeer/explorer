@@ -1,18 +1,32 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import SafeHtml from "@components/SafeHtml";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { formatAddress } from "@lib/utils";
-import { Box, Flex, Heading, Link as A, Text } from "@livepeer/design-system";
+import { ensDescriptionSchema } from "@lib/sanitize";
+import { sanitizeExternalUrl } from "@lib/utils";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Flex,
+  Heading,
+  Link as A,
+  Text,
+} from "@livepeer/design-system";
 import {
   CheckIcon,
   CopyIcon,
   GitHubLogoIcon,
   GlobeIcon,
   TwitterLogoIcon,
-} from "@modulz/radix-icons";
+} from "@radix-ui/react-icons";
+import { formatAddress } from "@utils/web3";
 import copy from "copy-to-clipboard";
 import { QRCodeCanvas } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { LuBell } from "react-icons/lu";
 
 import EditProfile from "../EditProfile";
 
@@ -20,12 +34,27 @@ interface Props {
   account: string;
   isActive: boolean;
   isMyAccount: boolean;
+  isOrchestrator?: boolean;
   css?: object;
   identity: EnsIdentity;
 }
 
-const Index = ({ account, isMyAccount = false, identity }: Props) => {
+const Index = ({
+  account,
+  isMyAccount = false,
+  isOrchestrator = false,
+  identity,
+}: Props) => {
   const [copied, setCopied] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [commandCopied, setCommandCopied] = useState(false);
+
+  const handleCopyCommand = useCallback(() => {
+    if (copy(`/subscribe ${account}`)) {
+      setCommandCopied(true);
+      setTimeout(() => setCommandCopied(false), 2000);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (!copied) return;
@@ -40,6 +69,9 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
       setCopied(true);
     }
   };
+
+  // identity.url is an owner-set ENS text record, so treat it as untrusted.
+  const safeIdentityUrl = sanitizeExternalUrl(identity?.url);
 
   return (
     <Box css={{ marginBottom: "$3" }}>
@@ -202,6 +234,35 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                   )}
                 </Flex>
               </ExplorerTooltip>
+              {isOrchestrator && (
+                <ExplorerTooltip content="Get alerts">
+                  <Flex
+                    as="button"
+                    type="button"
+                    aria-label="Get orchestrator alerts"
+                    onClick={() => setAlertsOpen(true)}
+                    css={{
+                      marginLeft: "$2",
+                      cursor: "pointer",
+                      borderRadius: 1000,
+                      backgroundColor: "$neutral3",
+                      border: "1px solid $neutral6",
+                      padding: 0,
+                      width: 28,
+                      height: 28,
+                      flexShrink: 0,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "$muted",
+                      "&:hover": {
+                        color: "white",
+                      },
+                    }}
+                  >
+                    <LuBell size={14} />
+                  </Flex>
+                </ExplorerTooltip>
+              )}
             </Flex>
             {isMyAccount && (
               <Box
@@ -217,20 +278,37 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
             )}
           </Flex>
           <Flex align="center" css={{ flexWrap: "wrap" }}>
-            {identity?.url && (
+            {safeIdentityUrl && (
               <A
                 variant="contrast"
-                css={{ fontSize: "$2" }}
-                href={identity.url}
-                target="__blank"
+                css={{ fontSize: "$2", minWidth: 0, maxWidth: "100%" }}
+                href={safeIdentityUrl}
+                target="_blank"
                 rel="noopener noreferrer"
+                title={safeIdentityUrl}
               >
                 <Flex
                   align="center"
-                  css={{ marginTop: "$2", marginRight: "$3" }}
+                  css={{ marginTop: "$2", marginRight: "$3", minWidth: 0 }}
                 >
-                  <Box as={GlobeIcon} css={{ marginRight: "$1" }} />
-                  {identity.url.replace(/(^\w+:|^)\/\//, "")}
+                  <Box
+                    as={GlobeIcon}
+                    css={{ marginRight: "$1", flexShrink: 0 }}
+                  />
+                  <Box
+                    as="span"
+                    css={{
+                      display: "block",
+                      flex: 1,
+                      minWidth: 0,
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {safeIdentityUrl.replace(/(^\w+:|^)\/\//, "")}
+                  </Box>
                 </Flex>
               </A>
             )}
@@ -240,7 +318,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://twitter.com/${identity.twitter}`}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <Flex
@@ -266,7 +344,7 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
                 variant="contrast"
                 css={{ fontSize: "$2" }}
                 href={`https://github.com/${identity.github}`}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <Flex
@@ -293,15 +371,117 @@ const Index = ({ account, isMyAccount = false, identity }: Props) => {
       {identity?.description && (
         <Text css={{ marginTop: "$4", marginBottom: "$4" }}>
           <ShowMoreRichText lines={3}>
-            <Box
-              css={{ a: { color: "$primary11" } }}
-              dangerouslySetInnerHTML={{
-                __html: identity.description,
-              }}
-            />
+            <Box css={{ a: { color: "$primary11" } }}>
+              <SafeHtml
+                html={identity.description}
+                schema={ensDescriptionSchema}
+              />
+            </Box>
           </ShowMoreRichText>
         </Text>
       )}
+
+      <Dialog open={alertsOpen} onOpenChange={setAlertsOpen}>
+        <DialogContent
+          css={{
+            maxWidth: 400,
+            width: "calc(100vw - 32px)",
+            padding: "$4",
+            paddingRight: "$5",
+            "@bp2": {
+              padding: "$5",
+              paddingRight: "$6",
+            },
+          }}
+        >
+          <DialogTitle asChild>
+            <Text
+              as="h2"
+              css={{
+                fontWeight: 600,
+                fontSize: "$4",
+                marginBottom: "$3",
+                lineHeight: 1.3,
+              }}
+            >
+              Get Orchestrator Alerts
+            </Text>
+          </DialogTitle>
+          <Text
+            css={{
+              marginBottom: "$3",
+              color: "$neutral11",
+              lineHeight: 1.5,
+            }}
+          >
+            Get notified about reward calls, missed rounds, and cut changes via
+            our Telegram bot. Native notifications are coming soon.
+          </Text>
+          <Text
+            css={{
+              fontSize: "$2",
+              color: "$neutral11",
+              marginBottom: "$2",
+            }}
+          >
+            Send this command to the bot:
+          </Text>
+          <Box
+            as="button"
+            type="button"
+            onClick={handleCopyCommand}
+            css={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "$2",
+              width: "100%",
+              background: "$neutral3",
+              border: "1px solid $neutral5",
+              borderRadius: "$2",
+              padding: "$2 $3",
+              marginBottom: "$4",
+              fontFamily: "monospace",
+              fontSize: "$1",
+              color: "white",
+              wordBreak: "break-all",
+              lineHeight: 1.4,
+              cursor: "pointer",
+              textAlign: "left",
+              "&:hover": {
+                background: "$neutral5",
+              },
+            }}
+          >
+            <span>/subscribe {account}</span>
+            <Box
+              as={commandCopied ? CheckIcon : CopyIcon}
+              css={{
+                flexShrink: 0,
+                width: 14,
+                height: 14,
+                marginTop: 2,
+                color: commandCopied ? "$primary11" : "$neutral9",
+              }}
+            />
+          </Box>
+          <Button
+            as="a"
+            href="https://t.me/OrchestratorWatcherBot"
+            target="_blank"
+            rel="noopener noreferrer"
+            size="3"
+            variant="primary"
+            css={{
+              width: "100%",
+              justifyContent: "center",
+              textDecoration: "none",
+            }}
+          >
+            Open Telegram Bot
+          </Button>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

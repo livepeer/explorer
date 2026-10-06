@@ -40,6 +40,8 @@ const config: Config = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
 
+  setupFiles: ["<rootDir>/jest.setup.ts"],
+
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
   //   "json",
@@ -97,7 +99,9 @@ const config: Config = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  moduleNameMapper: {
+    "^@lib/(.*)$": "<rootDir>/lib/$1",
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -203,4 +207,11 @@ const config: Config = {
   // watchman: true,
 };
 
-export default createJestConfig(config);
+// next/jest skips transforming node_modules, but the unified/rehype packages
+// behind lib/sanitize are ESM-only, so let SWC compile them for Jest too.
+const jestConfig = async () => ({
+  ...(await createJestConfig(config)()),
+  transformIgnorePatterns: [],
+});
+
+export default jestConfig;

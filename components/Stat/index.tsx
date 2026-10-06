@@ -7,7 +7,7 @@ import {
   Skeleton,
   Text,
 } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
 
 type Props = {

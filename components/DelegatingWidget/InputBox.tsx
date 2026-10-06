@@ -1,8 +1,8 @@
 import { TranscoderOrDelegateType } from "@components/DelegatingWidget";
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { fromWei } from "@lib/utils";
 import { Box, Card, Flex } from "@livepeer/design-system";
+import { fromWei } from "@utils/web3";
 import { AccountQueryResult } from "apollo";
 import {
   StakingAction,

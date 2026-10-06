@@ -12,8 +12,10 @@ import {
   useAccountAddress,
   useAccountBalanceData,
   useDelegationReview,
+  useExpectedChainId,
   usePendingFeesAndStakeData,
 } from "hooks";
+import { CHAIN_INFO } from "lib/chains";
 import { useMemo } from "react";
 import { parseEther } from "viem";
 
@@ -29,6 +31,7 @@ type FooterData = {
 
   action: StakingAction;
   amount: string;
+  isWrongRouteChain: boolean;
 
   currentRound:
     | NonNullable<
@@ -60,11 +63,14 @@ const Footer = ({
     transcoder,
     action,
     amount,
+    isWrongRouteChain,
     currentRound,
   },
   css = {},
 }: Props) => {
   const accountAddress = useAccountAddress();
+  const expectedChainId = useExpectedChainId();
+  const expectedChainLabel = CHAIN_INFO[expectedChainId].label;
 
   const delegatorPendingStakeAndFees = usePendingFeesAndStakeData(
     delegator?.id
@@ -151,6 +157,25 @@ const Footer = ({
     }
   }, [isOwnOrchestrator, stakeWei, amount]);
 
+  if (isWrongRouteChain) {
+    return (
+      <>
+        <Button
+          size="4"
+          disabled={true}
+          variant="primary"
+          css={{ width: "100%" }}
+        >
+          {action === "delegate" ? "Delegate" : "Undelegate"}
+        </Button>
+        <Footnote>
+          Switch to {expectedChainLabel} to{" "}
+          {action === "delegate" ? "delegate" : "undelegate"}.
+        </Footnote>
+      </>
+    );
+  }
+
   if (!accountAddress) {
     return (
       <>
@@ -177,6 +202,7 @@ const Footer = ({
           to={transcoder?.id}
           amount={amount}
           isTransferStake={isTransferStake}
+          isMyTranscoder={isMyTranscoder}
           tokenBalance={tokenBalance}
           transferAllowance={transferAllowance}
           reset={reset}

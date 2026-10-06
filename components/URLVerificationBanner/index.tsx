@@ -116,9 +116,6 @@ const URLVerificationBanner: React.FC<URLVerificationBannerProps> = ({
               paddingRight: "$6",
             },
           }}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
         >
           <DialogTitle asChild>
             <Text

@@ -94,12 +94,7 @@ const Undelegate = ({
       </Button>
 
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent
-          css={{ maxWidth: 390, width: "100%" }}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
-          placeholder={undefined}
-        >
+        <DialogContent css={{ maxWidth: 390, width: "100%" }}>
           <DialogTitle asChild>
             <Text
               as="h2"

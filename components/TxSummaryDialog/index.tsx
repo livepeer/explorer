@@ -38,9 +38,6 @@ const Index = () => {
           "@bp1": { maxWidth: 450 },
         }}
         onPointerDownOutside={clearLatestTransaction}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         {latestTransaction?.error ? (
           <Box />
@@ -83,7 +80,7 @@ const Index = () => {
         <Box css={{ textAlign: "center", marginTop: "$2", fontSize: "$2" }}>
           {latestTransaction?.error ? (
             <>
-              <Text css={{ marginBottom: "$3", maxWidth: 350 }}>
+              <Text css={{ display: "block", marginBottom: "$3" }}>
                 {latestTransaction?.error.length < 50
                   ? `${sentenceCase(latestTransaction?.error)}.`
                   : "Error with transaction, please check your inputs and try again."}
