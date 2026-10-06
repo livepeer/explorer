@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Event = {
   __typename: string;
@@ -31,7 +31,7 @@ export const ALL_EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS);
 
 export const useHistoryFilter = (mergedEvents: Event[]) => {
   const router = useRouter();
-  const selectedEventTypes = useMemo(() => {
+  const urlEventTypes = useMemo(() => {
     const values = router.query.eventTypes;
     const types = (Array.isArray(values) ? values : [values ?? ""])
       .flatMap((value) => value.split(","))
@@ -39,6 +39,12 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
       .filter((value) => ALL_EVENT_TYPES.includes(value));
     return [...new Set(types)];
   }, [router.query.eventTypes]);
+  const [optimisticEventTypes, setOptimisticEventTypes] = useState<
+    string[] | null
+  >(null);
+  const optimisticEventTypesRef = useRef<string[] | null>(null);
+  const navigationId = useRef(0);
+  const selectedEventTypes = optimisticEventTypes ?? urlEventTypes;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredEvents = useMemo(() => {
@@ -50,8 +56,13 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
     );
   }, [mergedEvents, selectedEventTypes]);
 
-  const updateFilters = (eventTypes: string[]) => {
+  const updateFilters = async (eventTypes: string[]) => {
     if (!router.isReady) return;
+
+    const currentNavigationId = ++navigationId.current;
+    // Keep rapid clicks cumulative, even before React renders or the URL changes.
+    optimisticEventTypesRef.current = eventTypes;
+    setOptimisticEventTypes(eventTypes);
 
     const query = { ...router.query };
     if (eventTypes.length) {
@@ -60,26 +71,41 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
       delete query.eventTypes;
     }
 
-    void router.push(
-      {
-        pathname: router.pathname,
-        query,
-        hash: router.asPath.split("#")[1],
-      },
-      undefined,
-      { shallow: true, scroll: false }
-    );
+    try {
+      await router.push(
+        {
+          pathname: router.pathname,
+          query,
+          hash: router.asPath.split("#")[1],
+        },
+        undefined,
+        { shallow: true, scroll: false }
+      );
+    } catch (error) {
+      if (!(error as { cancelled?: boolean })?.cancelled) {
+        console.error("Failed to update history filters:", error);
+      }
+    } finally {
+      // An older navigation must not discard a newer optimistic selection.
+      if (currentNavigationId === navigationId.current) {
+        optimisticEventTypesRef.current = null;
+        setOptimisticEventTypes(null);
+      }
+    }
   };
 
   const toggleEventType = (eventType: string) => {
-    updateFilters(
-      selectedEventTypes.includes(eventType)
-        ? selectedEventTypes.filter((type) => type !== eventType)
-        : [...selectedEventTypes, eventType]
+    const current = optimisticEventTypesRef.current ?? urlEventTypes;
+    void updateFilters(
+      current.includes(eventType)
+        ? current.filter((type) => type !== eventType)
+        : [...current, eventType]
     );
   };
 
-  const clearFilters = () => updateFilters([]);
+  const clearFilters = () => {
+    void updateFilters([]);
+  };
 
   // Close filter when scrolling outside the filter area (page scroll)
   useEffect(() => {

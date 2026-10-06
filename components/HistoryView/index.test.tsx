@@ -69,6 +69,12 @@ jest.mock("@components/HistoryView/HistoryFilter", () => ({
   ),
 }));
 
+const clickFilter = async (name: string) => {
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name }));
+  });
+};
+
 const emptyPage = (): TransactionsQuery => ({
   __typename: "Query",
   transactions: [],
@@ -165,7 +171,7 @@ beforeEach(() => {
 it("continues pagination when the loaded page has no matching events", async () => {
   data.transactions = Array.from({ length: 25 }, (_, i) => roundTransaction(i));
   const { rerender } = render(<HistoryView />);
-  fireEvent.click(screen.getByRole("button", { name: "Reward Caller Set" }));
+  await clickFilter("Reward Caller Set");
   expect(screen.queryAllByText("Initialized round")).toHaveLength(0);
   expect(screen.getByText("No events match the selected filters")).toBeTruthy();
 
@@ -206,7 +212,7 @@ it("continues pagination when the loaded page has no matching events", async () 
   expect(screen.queryByText("No events match the selected filters")).toBeNull();
   expect(screen.queryByRole("status")).toBeNull();
 
-  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  await clickFilter("Clear");
   expect(screen.getAllByText("Initialized round")).toHaveLength(25);
 });
 
@@ -225,7 +231,7 @@ it("keeps loading when rewards have more pages than account transactions", async
     delegate: { __typename: "Transcoder", id: "0xorchestrator" },
   }));
   render(<HistoryView />);
-  fireEvent.click(screen.getByRole("button", { name: "Reward" }));
+  await clickFilter("Reward");
   await act(async () => {
     onIntersect(
       [{ isIntersecting: true } as IntersectionObserverEntry],
@@ -258,7 +264,7 @@ it("waits for poll metadata before showing an empty filtered history", async () 
     },
   ];
   render(<HistoryView />);
-  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  await clickFilter("Poll Vote");
   expect(screen.getByRole("status")).toBeTruthy();
   expect(screen.queryByText("No events match the selected filters")).toBeNull();
   await act(async () => resolveIpfs(null));
@@ -286,7 +292,7 @@ it.each([new Error("Network failure"), new SyntaxError("Invalid JSON")])(
 
     try {
       const { rerender } = render(<HistoryView />);
-      fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+      await clickFilter("Poll Vote");
       await waitFor(() => {
         expect(screen.getByText("Voted on poll")).toBeTruthy();
         expect(screen.getByText('Voted on poll "Test poll"')).toBeTruthy();
@@ -331,7 +337,7 @@ it("uses the empty state when Reserve Funded only matches hidden rows", async ()
   await act(async () => {});
   expect(screen.getByText("No history")).toBeTruthy();
 
-  fireEvent.click(screen.getByRole("button", { name: "Reserve Funded" }));
+  await clickFilter("Reserve Funded");
   expect(screen.getByText("No events match the selected filters")).toBeTruthy();
   expect(screen.queryByText("Reserve funded")).toBeNull();
 
@@ -367,7 +373,7 @@ it("restores URL filters on load and keeps other query parameters and the hash",
   ).toBe("true");
   expect(screen.getByText("Initialized round")).toBeTruthy();
 
-  fireEvent.click(screen.getByRole("button", { name: "Treasury Vote" }));
+  await clickFilter("Treasury Vote");
   expect(push).toHaveBeenCalledWith(
     {
       pathname: "/accounts/[account]/history",
@@ -406,7 +412,7 @@ it("accepts comma-separated and repeated filters while ignoring invalid and dupl
       .map((button) => button.textContent)
   ).toEqual(["Initialize Round", "Poll Vote"]);
 
-  fireEvent.click(screen.getByRole("button", { name: "Initialize Round" }));
+  await clickFilter("Initialize Round");
   expect(router.query.eventTypes).toBe("VoteEvent");
   expect(screen.getByText("No events match the selected filters")).toBeTruthy();
 });
@@ -427,12 +433,12 @@ it("removes the URL parameter when clearing filters or deselecting the last type
   await act(async () => {
     render(<HistoryView />);
   });
-  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  await clickFilter("Clear");
   expect(router.query).toEqual({ account: "0xaccount", source: "votes" });
   expect(screen.getByText("Initialized round")).toBeTruthy();
 
-  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
-  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  await clickFilter("Poll Vote");
+  await clickFilter("Poll Vote");
   expect(router.query).toEqual({ account: "0xaccount", source: "votes" });
   expect(screen.getByText("Initialized round")).toBeTruthy();
 });
@@ -442,7 +448,7 @@ it("updates selections and visible rows when browser navigation changes the URL"
   await act(async () => {
     render(<HistoryView />);
   });
-  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  await clickFilter("Poll Vote");
   expect(screen.getByText("No events match the selected filters")).toBeTruthy();
   act(() => navigate({ account: "0xaccount" }));
   expect(screen.getByText("Initialized round")).toBeTruthy();
