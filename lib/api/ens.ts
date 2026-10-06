@@ -1,5 +1,6 @@
 import { l1PublicClient } from "@lib/chains";
 import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
+import { sanitizeExternalUrl } from "@lib/sanitizeExternalUrl";
 import { formatAddress } from "@utils/web3";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
@@ -33,7 +34,9 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
 
     // Invalid ENS records fall back to null without discarding the identity.
     const descriptionValidation = EnsTextRecordSchema.safeParse(descriptionRaw);
-    const urlValidation = WebUrlSchema.nullable().safeParse(urlRaw);
+    const urlValidation = WebUrlSchema.nullable().safeParse(
+      sanitizeExternalUrl(urlRaw)
+    );
     const twitterValidation =
       TwitterHandleSchema.nullable().safeParse(twitterRaw);
     const githubValidation = GithubHandleSchema.nullable().safeParse(githubRaw);

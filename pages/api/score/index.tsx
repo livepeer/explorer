@@ -66,11 +66,15 @@ const handler = async (
         ? process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
         : process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
       const metricsService = pipeline ? "AI metrics server" : "metrics server";
-      const metricsUrl = `${baseUrl}/api/aggregated_stats${
-        pipeline ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}` : ""
-      }`;
+      const metricsUrl = new URL(`${baseUrl}/api/aggregated_stats`);
+      if (pipeline) {
+        metricsUrl.searchParams.set("pipeline", pipeline);
+        if (model) {
+          metricsUrl.searchParams.set("model", model);
+        }
+      }
 
-      const metricsResponse = await fetchWithRetry(metricsUrl);
+      const metricsResponse = await fetchWithRetry(metricsUrl.toString());
 
       if (!metricsResponse.ok) {
         const errorText = await metricsResponse.text();

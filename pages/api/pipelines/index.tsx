@@ -43,14 +43,17 @@ const handler = async (
         );
       }
 
-      const url = `${
-        process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
-      }/api/pipelines${validatedRegion ? `?region=${validatedRegion}` : ""}`;
+      const url = new URL(
+        `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/pipelines`
+      );
+      if (validatedRegion) {
+        url.searchParams.set("region", validatedRegion);
+      }
 
       let pipelinesResponse: AvailablePipelines;
 
       try {
-        const response = await fetchWithRetry(url);
+        const response = await fetchWithRetry(url.toString());
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => "");

@@ -94,7 +94,7 @@ export const validateInput = <T>(
 /**
  * Validates output data against a Zod schema.
  * In development, returns an error response if validation fails.
- * In production, logs the error but allows execution to continue.
+ * In production and tests, logs the error but allows execution to continue.
  *
  * @param outputResult - The result from Zod's safeParse()
  * @param res - Next.js API response object
@@ -113,8 +113,8 @@ export const validateOutput = <T>(
       `[${endpointName}] Output validation failed:`,
       outputResult.error
     );
-    // In production, we might still return the data, but log the error
-    // In development, this helps catch contract/API changes early
+    // Development fails early on contract changes; other environments log
+    // mismatches without turning an otherwise available response into a 500.
     if (process.env.NODE_ENV === "development") {
       internalError(
         res,
