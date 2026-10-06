@@ -169,6 +169,22 @@ const Index: React.FC<PollVotePopoverProps> = ({ voter, ensName, onClose }) => {
             </Badge>
           </Flex>
         )}
+        <Link
+          href={`/accounts/${voter}/history?eventTypes=VoteEvent`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "$1",
+            marginTop: "$3",
+            fontSize: "$1",
+            color: "$primary11",
+          }}
+        >
+          View full history
+          <Box as={ArrowTopRightIcon} css={{ width: 12, height: 12 }} />
+        </Link>
       </Box>
     );
   }, [stats, voter, ensName]);

@@ -102,6 +102,7 @@ const config: Config = {
   moduleNameMapper: {
     "^@components/(.*)$": "<rootDir>/components/$1",
     "^@lib/(.*)$": "<rootDir>/lib/$1",
+    "^@layouts/(.*)$": "<rootDir>/layouts/$1",
     "^@utils/(.*)$": "<rootDir>/utils/$1",
   },
   modulePaths: ["<rootDir>"],

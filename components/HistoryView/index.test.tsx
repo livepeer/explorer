@@ -9,7 +9,8 @@ import {
 } from "@testing-library/react";
 import { useTransactionsQuery } from "apollo";
 import type { TransactionsQuery } from "apollo/subgraph";
-import { ComponentProps } from "react";
+import { NextRouter, useRouter } from "next/router";
+import { ComponentProps, useSyncExternalStore } from "react";
 import { catIpfsJson } from "utils/ipfs";
 
 import HistoryView from ".";
@@ -20,7 +21,7 @@ jest.mock("apollo", () => ({
   useTransactionsQuery: jest.fn(),
 }));
 jest.mock("next/router", () => ({
-  useRouter: () => ({ query: { account: "0xaccount" } }),
+  useRouter: jest.fn(),
 }));
 jest.mock("lib/chains", () => ({
   DEFAULT_CHAIN_ID: 42161,
@@ -51,10 +52,15 @@ jest.mock("@components/HistoryView/HistoryFilter", () => ({
     eventTypeLabels,
     onToggleEventType,
     onClearFilters,
+    selectedEventTypes,
   }: ComponentProps<typeof HistoryFilter>) => (
     <div>
       {allEventTypes.map((eventType) => (
-        <button key={eventType} onClick={() => onToggleEventType(eventType)}>
+        <button
+          key={eventType}
+          aria-pressed={selectedEventTypes.includes(eventType)}
+          onClick={() => onToggleEventType(eventType)}
+        >
           {eventTypeLabels[eventType]}
         </button>
       ))}
@@ -111,8 +117,36 @@ const pollVote = (id: string) => ({
 let data: TransactionsQuery;
 let onIntersect: IntersectionObserverCallback;
 const fetchMore = jest.fn();
+const push = jest.fn();
+let router: NextRouter;
+let navigate: (query: NextRouter["query"]) => void;
 
 beforeEach(() => {
+  const listeners = new Set<() => void>();
+  navigate = (query) => {
+    router = { ...router, query };
+    listeners.forEach((listener) => listener());
+  };
+  router = {
+    query: { account: "0xaccount" },
+    pathname: "/accounts/[account]/history",
+    asPath: "/accounts/0xaccount/history#history",
+    isReady: true,
+    push,
+  } as unknown as NextRouter;
+  push.mockImplementation(({ query }) => {
+    navigate(query);
+    return Promise.resolve(true);
+  });
+  const subscribe = (listener: () => void) => {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  };
+  jest
+    .mocked(useRouter)
+    .mockImplementation(() => useSyncExternalStore(subscribe, () => router));
   data = emptyPage();
   jest
     .mocked(useTransactionsQuery)
@@ -314,4 +348,115 @@ it("uses the empty state when Reserve Funded only matches hidden rows", async ()
   await act(async () => rerender(<HistoryView />));
   expect(screen.getByText("Reserve funded")).toBeTruthy();
   expect(screen.queryByText("No events match the selected filters")).toBeNull();
+});
+
+it("restores URL filters on load and keeps other query parameters and the hash", async () => {
+  navigate({
+    account: "0xaccount",
+    eventTypes: "NewRoundEvent",
+    source: "votes",
+  });
+  data.transactions = [roundTransaction(0)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  expect(
+    screen
+      .getByRole("button", { name: "Initialize Round" })
+      .getAttribute("aria-pressed")
+  ).toBe("true");
+  expect(screen.getByText("Initialized round")).toBeTruthy();
+
+  fireEvent.click(screen.getByRole("button", { name: "Treasury Vote" }));
+  expect(push).toHaveBeenCalledWith(
+    {
+      pathname: "/accounts/[account]/history",
+      query: {
+        account: "0xaccount",
+        eventTypes: "NewRoundEvent,TreasuryVoteEvent",
+        source: "votes",
+      },
+      hash: "history",
+    },
+    undefined,
+    { shallow: true, scroll: false }
+  );
+  expect(
+    screen
+      .getByRole("button", { name: "Treasury Vote" })
+      .getAttribute("aria-pressed")
+  ).toBe("true");
+});
+
+it("accepts comma-separated and repeated filters while ignoring invalid and duplicate values", async () => {
+  navigate({
+    account: "0xaccount",
+    eventTypes: [
+      "NewRoundEvent,UnknownEvent",
+      " NewRoundEvent ,VoteEvent,toString",
+    ],
+  });
+  data.transactions = [roundTransaction(0)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  expect(
+    screen
+      .getAllByRole("button", { pressed: true })
+      .map((button) => button.textContent)
+  ).toEqual(["Initialize Round", "Poll Vote"]);
+
+  fireEvent.click(screen.getByRole("button", { name: "Initialize Round" }));
+  expect(router.query.eventTypes).toBe("VoteEvent");
+  expect(screen.getByText("No events match the selected filters")).toBeTruthy();
+});
+
+it("shows all events when the URL contains only invalid filters", async () => {
+  navigate({ account: "0xaccount", eventTypes: "UnknownEvent,,toString" });
+  data.transactions = [roundTransaction(0)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  expect(screen.queryAllByRole("button", { pressed: true })).toHaveLength(0);
+  expect(screen.getByText("Initialized round")).toBeTruthy();
+});
+
+it("removes the URL parameter when clearing filters or deselecting the last type", async () => {
+  navigate({ account: "0xaccount", eventTypes: "VoteEvent", source: "votes" });
+  data.transactions = [roundTransaction(0)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  expect(router.query).toEqual({ account: "0xaccount", source: "votes" });
+  expect(screen.getByText("Initialized round")).toBeTruthy();
+
+  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  expect(router.query).toEqual({ account: "0xaccount", source: "votes" });
+  expect(screen.getByText("Initialized round")).toBeTruthy();
+});
+
+it("updates selections and visible rows when browser navigation changes the URL", async () => {
+  data.transactions = [roundTransaction(0)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Poll Vote" }));
+  expect(screen.getByText("No events match the selected filters")).toBeTruthy();
+  act(() => navigate({ account: "0xaccount" }));
+  expect(screen.getByText("Initialized round")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("button", { name: "Poll Vote" })
+      .getAttribute("aria-pressed")
+  ).toBe("false");
+  act(() => navigate({ account: "0xaccount", eventTypes: "VoteEvent" }));
+  expect(screen.getByText("No events match the selected filters")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("button", { name: "Poll Vote" })
+      .getAttribute("aria-pressed")
+  ).toBe("true");
+  expect(push).toHaveBeenCalledTimes(1);
 });

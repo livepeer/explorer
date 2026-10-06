@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
 type Event = {
@@ -29,7 +30,15 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
 export const ALL_EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS);
 
 export const useHistoryFilter = (mergedEvents: Event[]) => {
-  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  const router = useRouter();
+  const selectedEventTypes = useMemo(() => {
+    const values = router.query.eventTypes;
+    const types = (Array.isArray(values) ? values : [values ?? ""])
+      .flatMap((value) => value.split(","))
+      .map((value) => value.trim())
+      .filter((value) => ALL_EVENT_TYPES.includes(value));
+    return [...new Set(types)];
+  }, [router.query.eventTypes]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredEvents = useMemo(() => {
@@ -41,17 +50,36 @@ export const useHistoryFilter = (mergedEvents: Event[]) => {
     );
   }, [mergedEvents, selectedEventTypes]);
 
-  const toggleEventType = (eventType: string) => {
-    setSelectedEventTypes((prev) =>
-      prev.includes(eventType)
-        ? prev.filter((type) => type !== eventType)
-        : [...prev, eventType]
+  const updateFilters = (eventTypes: string[]) => {
+    if (!router.isReady) return;
+
+    const query = { ...router.query };
+    if (eventTypes.length) {
+      query.eventTypes = eventTypes.join(",");
+    } else {
+      delete query.eventTypes;
+    }
+
+    void router.push(
+      {
+        pathname: router.pathname,
+        query,
+        hash: router.asPath.split("#")[1],
+      },
+      undefined,
+      { shallow: true, scroll: false }
     );
   };
 
-  const clearFilters = () => {
-    setSelectedEventTypes([]);
+  const toggleEventType = (eventType: string) => {
+    updateFilters(
+      selectedEventTypes.includes(eventType)
+        ? selectedEventTypes.filter((type) => type !== eventType)
+        : [...selectedEventTypes, eventType]
+    );
   };
+
+  const clearFilters = () => updateFilters([]);
 
   // Close filter when scrolling outside the filter area (page scroll)
   useEffect(() => {
