@@ -1,5 +1,6 @@
 import BottomDrawer from "@components/BottomDrawer";
 import BroadcastingView from "@components/BroadcastingView";
+import DelegatorsView from "@components/DelegatorsView";
 import HistoryView from "@components/HistoryView";
 import HorizontalScrollContainer from "@components/HorizontalScrollContainer";
 import OrchestratingView from "@components/OrchestratingView";
@@ -7,7 +8,6 @@ import Profile from "@components/Profile";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality } from "@lib/utils";
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
   Flex,
   Link as A,
 } from "@livepeer/design-system";
+import { checkAddressEquality } from "@utils/web3";
 import {
   AccountQueryResult,
   OrchestratorsSortedQueryResult,
@@ -47,11 +48,17 @@ export interface TabType {
   isActive?: boolean;
 }
 
-type TabTypeEnum = "delegating" | "orchestrating" | "history" | "broadcasting";
+type TabTypeEnum =
+  | "delegating"
+  | "orchestrating"
+  | "delegators"
+  | "history"
+  | "broadcasting";
 
 const ACCOUNT_VIEWS: TabTypeEnum[] = [
   "delegating",
   "orchestrating",
+  "delegators",
   "broadcasting",
   "history",
 ];
@@ -96,6 +103,8 @@ const AccountLayout = ({
     skip: !accountAddress,
     pollInterval,
   });
+
+  const delegateIdentity = useEnsData(dataMyAccount?.delegator?.delegate?.id);
 
   // Fetch fresh account data client-side, using static props as fallback
   const { data: dataViewedAccount } = useAccountQuery({
@@ -196,6 +205,10 @@ const AccountLayout = ({
             paddingRight: 0,
             paddingTop: "$4",
             width: "100%",
+            // Allow this column to shrink to its flex share instead of being
+            // held open by wide content (e.g. the delegators table's minWidth),
+            // which would otherwise squeeze the side widget.
+            minWidth: 0,
             "@bp3": {
               paddingTop: "$6",
               paddingRight: "$7",
@@ -206,6 +219,7 @@ const AccountLayout = ({
             isActive={isActive}
             account={query?.account?.toString() ?? ""}
             isMyAccount={isMyAccount}
+            isOrchestrator={isOrchestrator}
             identity={identity}
           />
           <Flex
@@ -307,6 +321,9 @@ const AccountLayout = ({
               transcoder={viewedAccount?.transcoder}
             />
           )}
+          {view === "delegators" && (
+            <DelegatorsView transcoder={viewedAccount?.transcoder} />
+          )}
           {view === "delegating" && (
             <DelegatingView
               transcoders={sortedOrchestrators?.transcoders}
@@ -349,7 +366,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </Flex>
           ) : (
@@ -365,7 +384,9 @@ const AccountLayout = ({
                 }
                 protocol={viewedAccount?.protocol}
                 treasury={treasury}
-                delegateProfile={identity}
+                delegateProfile={
+                  isDelegatingAndIsMyAccountView ? delegateIdentity : identity
+                }
               />
             </BottomDrawer>
           ))}
@@ -407,6 +428,13 @@ function getTabs(
       name: "Delegating",
       href: `/accounts/${account}/delegating`,
       isActive: view === "delegating",
+    });
+  }
+  if (isOrchestrator) {
+    tabs.push({
+      name: "Delegators",
+      href: `/accounts/${account}/delegators`,
+      isActive: view === "delegators",
     });
   }
   tabs.push({

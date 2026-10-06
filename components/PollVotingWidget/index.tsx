@@ -2,13 +2,22 @@ import CliVotingInstructionsDialog from "@components/CliVotingInstructionsDialog
 import VoteButton from "@components/VoteButton";
 import { PollExtended } from "@lib/api/polls";
 import dayjs from "@lib/dayjs";
-import { abbreviateNumber, formatAddress } from "@lib/utils";
-import { Box, Button, Flex, Heading, Text } from "@livepeer/design-system";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Link as A,
+  Text,
+} from "@livepeer/design-system";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
+import { formatPercent, formatVotingPower } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { AccountQuery, PollChoice, TranscoderStatus } from "apollo";
 import { useAccountAddress, usePendingFeesAndStakeData } from "hooks";
+import Link, { LinkProps } from "next/link";
 import { useMemo } from "react";
-import { formatPercent, getVotingPower } from "utils/voting";
+import { getVotingPower } from "utils/voting";
 
 type Props = {
   poll: PollExtended;
@@ -31,6 +40,7 @@ type Props = {
     | undefined
     | null;
   myAccount: AccountQuery;
+  votesTabHref?: LinkProps["href"] | string;
 };
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -153,7 +163,7 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.yes, 2)}
+                {formatPercent(data.poll.percent.yes)}
               </Text>
             </Flex>
 
@@ -210,28 +220,58 @@ const Index = ({ data }: { data: Props }) => {
                   textAlign: "right",
                 }}
               >
-                {formatPercent(data.poll.percent.no, 2)}
+                {formatPercent(data.poll.percent.no)}
               </Text>
             </Flex>
           </Box>
 
-          <Box css={{ fontSize: "$2", color: "$neutral11" }}>
-            {data.poll.votes.length}{" "}
-            {`${
-              data.poll.votes.length > 1 || data.poll.votes.length === 0
-                ? "votes"
-                : "vote"
-            }`}{" "}
-            · {abbreviateNumber(data.poll.stake.voters, 4)} LPT ·{" "}
-            {data.poll.status !== "active"
-              ? "Final Results"
-              : dayjs
-                  .duration(
-                    dayjs().unix() - data.poll.estimatedEndTime,
-                    "seconds"
-                  )
-                  .humanize() + " left"}
-          </Box>
+          {/* Summary line */}
+          <Flex css={{ alignItems: "center", justifyContent: "space-between" }}>
+            <Box css={{ fontSize: "$2", color: "$neutral11" }}>
+              {data.poll.votes.length}{" "}
+              {`${
+                data.poll.votes.length > 1 || data.poll.votes.length === 0
+                  ? "votes"
+                  : "vote"
+              }`}{" "}
+              · {formatVotingPower(data.poll.stake.voters)} ·{" "}
+              {data.poll.status !== "active"
+                ? "Final Results"
+                : dayjs
+                    .duration(
+                      dayjs().unix() - data.poll.estimatedEndTime,
+                      "seconds"
+                    )
+                    .humanize() + " left"}
+            </Box>
+            {data.votesTabHref ? (
+              <Link href={data.votesTabHref} passHref legacyBehavior>
+                <A
+                  css={{
+                    fontSize: "$1",
+                    color: "$primary11",
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                    cursor: "pointer",
+                  }}
+                >
+                  View votes
+                </A>
+              </Link>
+            ) : (
+              <A
+                href="#votes-section"
+                css={{
+                  fontSize: "$1",
+                  color: "$primary11",
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                View votes
+              </A>
+            )}
+          </Flex>
         </Box>
 
         {/* ========== YOUR VOTE SECTION ========== */}
@@ -297,14 +337,12 @@ const Index = ({ data }: { data: Props }) => {
                     css={{ fontWeight: 500, color: "$hiContrast" }}
                   >
                     <Box as="span">
-                      {abbreviateNumber(votingPower, 4)} LPT (
-                      {(
-                        (+votingPower /
-                          (data.poll.stake.nonVoters +
-                            data.poll.stake.voters)) *
-                        100
-                      ).toPrecision(2)}
-                      %)
+                      {formatVotingPower(votingPower)} (
+                      {formatPercent(
+                        +votingPower /
+                          (data.poll.stake.nonVoters + data.poll.stake.voters)
+                      )}
+                      )
                     </Box>
                   </Box>
                 </Flex>

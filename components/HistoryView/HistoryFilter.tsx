@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Text,
 } from "@livepeer/design-system";
-import { CheckIcon } from "@modulz/radix-icons";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 interface HistoryFilterProps {
   selectedEventTypes: string[];
@@ -93,9 +93,6 @@ const HistoryFilter = ({
           marginRight: "$3",
           overflow: "hidden",
         }}
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        placeholder={undefined}
       >
         <Flex
           css={{

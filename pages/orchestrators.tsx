@@ -2,6 +2,7 @@ import ErrorComponent from "@components/Error";
 import OrchestratorList from "@components/OrchestratorList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { getLayout } from "@layouts/main";
+import { trackVercelAnalyticsEvent } from "@lib/analytics";
 import { getOrchestrators, getProtocol } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -12,7 +13,7 @@ import {
   Heading,
   Link as A,
 } from "@livepeer/design-system";
-import { ArrowRightIcon } from "@modulz/radix-icons";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -42,6 +43,12 @@ const OrchestratorsPage = ({
     const id = requestAnimationFrame(() => setShowOrchList(true));
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+    if (!hadError) {
+      trackVercelAnalyticsEvent("orchestrators_page_viewed");
+    }
+  }, [hadError]);
 
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
@@ -123,6 +130,7 @@ const OrchestratorsPage = ({
             {showOrchList ? (
               <OrchestratorList
                 data={orchestrators?.transcoders}
+                listKey="orchestrators"
                 pageSize={20}
                 protocolData={protocol?.protocol}
               />

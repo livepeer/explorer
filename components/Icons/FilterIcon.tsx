@@ -1,9 +1,9 @@
 import { Box } from "@livepeer/design-system";
-import { CSS } from "@stitches/react";
+import type { ComponentProps } from "react";
 
 interface FilterIconProps {
   size?: number;
-  css?: CSS;
+  css?: ComponentProps<typeof Box>["css"];
 }
 
 const FilterIcon = ({ size = 16, css }: FilterIconProps) => (

@@ -26,6 +26,14 @@ export type Scalars = {
   Timestamp: any;
 };
 
+/** Indicates whether the current, partially filled bucket should be included in the response. Defaults to `exclude` */
+export enum Aggregation_Current {
+  /** Exclude the current, partially filled bucket from the response */
+  Exclude = 'exclude',
+  /** Include the current, partially filled bucket in the response */
+  Include = 'include'
+}
+
 export enum Aggregation_Interval {
   Day = 'day',
   Hour = 'hour'
@@ -231,6 +239,7 @@ export enum BondEvent_OrderBy {
   NewDelegateId = 'newDelegate__id',
   NewDelegateLastActiveStakeUpdateRound = 'newDelegate__lastActiveStakeUpdateRound',
   NewDelegateNinetyDayVolumeEth = 'newDelegate__ninetyDayVolumeETH',
+  NewDelegateRewardCaller = 'newDelegate__rewardCaller',
   NewDelegateRewardCut = 'newDelegate__rewardCut',
   NewDelegateRewardCutUpdateTimestamp = 'newDelegate__rewardCutUpdateTimestamp',
   NewDelegateServiceUri = 'newDelegate__serviceURI',
@@ -250,6 +259,7 @@ export enum BondEvent_OrderBy {
   OldDelegateId = 'oldDelegate__id',
   OldDelegateLastActiveStakeUpdateRound = 'oldDelegate__lastActiveStakeUpdateRound',
   OldDelegateNinetyDayVolumeEth = 'oldDelegate__ninetyDayVolumeETH',
+  OldDelegateRewardCaller = 'oldDelegate__rewardCaller',
   OldDelegateRewardCut = 'oldDelegate__rewardCut',
   OldDelegateRewardCutUpdateTimestamp = 'oldDelegate__rewardCutUpdateTimestamp',
   OldDelegateServiceUri = 'oldDelegate__serviceURI',
@@ -971,6 +981,7 @@ export enum Delegator_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -1354,6 +1365,7 @@ export enum EarningsClaimedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -1618,6 +1630,7 @@ export enum LivepeerAccount_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -1638,6 +1651,23 @@ export enum LivepeerAccount_OrderBy {
   DelegatorWithdrawnFees = 'delegator__withdrawnFees',
   Id = 'id',
   LastUpdatedTimestamp = 'lastUpdatedTimestamp'
+}
+
+/**
+ * The severity level of a log entry.
+ * Log levels are ordered from most to least severe: CRITICAL > ERROR > WARNING > INFO > DEBUG
+ */
+export enum LogLevel {
+  /** Critical errors that require immediate attention */
+  Critical = 'CRITICAL',
+  /** Detailed diagnostic information for debugging */
+  Debug = 'DEBUG',
+  /** Error conditions that indicate a failure */
+  Error = 'ERROR',
+  /** Informational messages about normal operations */
+  Info = 'INFO',
+  /** Warning conditions that may require attention */
+  Warning = 'WARNING'
 }
 
 /** MigrateDelegatorFinalizedEvent entities are created for every emitted WithdrawStake event. */
@@ -2868,6 +2898,7 @@ export enum Pool_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -3323,6 +3354,8 @@ export enum Protocol_OrderBy {
 
 export type Query = {
   __typename: 'Query';
+  /** Query execution logs emitted by the subgraph during indexing. Results are sorted by timestamp in descending order (newest first). */
+  _logs: Array<_Log_>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
   bondEvent?: Maybe<BondEvent>;
@@ -3371,6 +3404,8 @@ export type Query = {
   reserveClaimedEvents: Array<ReserveClaimedEvent>;
   reserveFundedEvent?: Maybe<ReserveFundedEvent>;
   reserveFundedEvents: Array<ReserveFundedEvent>;
+  rewardCallerSetEvent?: Maybe<RewardCallerSetEvent>;
+  rewardCallerSetEvents: Array<RewardCallerSetEvent>;
   rewardEvent?: Maybe<RewardEvent>;
   rewardEvents: Array<RewardEvent>;
   round?: Maybe<Round>;
@@ -3425,6 +3460,17 @@ export type Query = {
   withdrawStakeEvents: Array<WithdrawStakeEvent>;
   withdrawalEvent?: Maybe<WithdrawalEvent>;
   withdrawalEvents: Array<WithdrawalEvent>;
+};
+
+
+export type Query_LogsArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  from?: InputMaybe<Scalars['String']>;
+  level?: InputMaybe<LogLevel>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  search?: InputMaybe<Scalars['String']>;
+  skip?: InputMaybe<Scalars['Int']>;
+  to?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -3844,6 +3890,24 @@ export type QueryReserveFundedEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<ReserveFundedEvent_Filter>;
+};
+
+
+export type QueryRewardCallerSetEventArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryRewardCallerSetEventsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<RewardCallerSetEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<RewardCallerSetEvent_Filter>;
 };
 
 
@@ -4485,6 +4549,7 @@ export enum RebondEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -4681,6 +4746,7 @@ export enum ReserveClaimedEvent_OrderBy {
   ClaimantId = 'claimant__id',
   ClaimantLastActiveStakeUpdateRound = 'claimant__lastActiveStakeUpdateRound',
   ClaimantNinetyDayVolumeEth = 'claimant__ninetyDayVolumeETH',
+  ClaimantRewardCaller = 'claimant__rewardCaller',
   ClaimantRewardCut = 'claimant__rewardCut',
   ClaimantRewardCutUpdateTimestamp = 'claimant__rewardCutUpdateTimestamp',
   ClaimantServiceUri = 'claimant__serviceURI',
@@ -4891,6 +4957,182 @@ export enum ReserveFundedEvent_OrderBy {
   TransactionTo = 'transaction__to'
 }
 
+/** RewardCallerSetEvent entities are created for every emitted RewardCallerSet event. */
+export type RewardCallerSetEvent = Event & {
+  __typename: 'RewardCallerSetEvent';
+  /** Reference to the transcoder that set the reward caller */
+  delegate: Transcoder;
+  /** Ethereum transaction hash + event log index */
+  id: Scalars['ID'];
+  /** Address authorized to call reward - the zero address when unset */
+  rewardCaller: Scalars['String'];
+  /** Reference to the round the event occured in */
+  round: Round;
+  /** Timestamp of the transaction the event was included in */
+  timestamp: Scalars['Int'];
+  /** Reference to the transaction the event was included in */
+  transaction: Transaction;
+};
+
+export type RewardCallerSetEvent_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<RewardCallerSetEvent_Filter>>>;
+  delegate?: InputMaybe<Scalars['String']>;
+  delegate_?: InputMaybe<Transcoder_Filter>;
+  delegate_contains?: InputMaybe<Scalars['String']>;
+  delegate_contains_nocase?: InputMaybe<Scalars['String']>;
+  delegate_ends_with?: InputMaybe<Scalars['String']>;
+  delegate_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  delegate_gt?: InputMaybe<Scalars['String']>;
+  delegate_gte?: InputMaybe<Scalars['String']>;
+  delegate_in?: InputMaybe<Array<Scalars['String']>>;
+  delegate_lt?: InputMaybe<Scalars['String']>;
+  delegate_lte?: InputMaybe<Scalars['String']>;
+  delegate_not?: InputMaybe<Scalars['String']>;
+  delegate_not_contains?: InputMaybe<Scalars['String']>;
+  delegate_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  delegate_not_ends_with?: InputMaybe<Scalars['String']>;
+  delegate_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  delegate_not_in?: InputMaybe<Array<Scalars['String']>>;
+  delegate_not_starts_with?: InputMaybe<Scalars['String']>;
+  delegate_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  delegate_starts_with?: InputMaybe<Scalars['String']>;
+  delegate_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<RewardCallerSetEvent_Filter>>>;
+  rewardCaller?: InputMaybe<Scalars['String']>;
+  rewardCaller_contains?: InputMaybe<Scalars['String']>;
+  rewardCaller_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_ends_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_gt?: InputMaybe<Scalars['String']>;
+  rewardCaller_gte?: InputMaybe<Scalars['String']>;
+  rewardCaller_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardCaller_lt?: InputMaybe<Scalars['String']>;
+  rewardCaller_lte?: InputMaybe<Scalars['String']>;
+  rewardCaller_not?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_contains?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_ends_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardCaller_not_starts_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_starts_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  round?: InputMaybe<Scalars['String']>;
+  round_?: InputMaybe<Round_Filter>;
+  round_contains?: InputMaybe<Scalars['String']>;
+  round_contains_nocase?: InputMaybe<Scalars['String']>;
+  round_ends_with?: InputMaybe<Scalars['String']>;
+  round_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  round_gt?: InputMaybe<Scalars['String']>;
+  round_gte?: InputMaybe<Scalars['String']>;
+  round_in?: InputMaybe<Array<Scalars['String']>>;
+  round_lt?: InputMaybe<Scalars['String']>;
+  round_lte?: InputMaybe<Scalars['String']>;
+  round_not?: InputMaybe<Scalars['String']>;
+  round_not_contains?: InputMaybe<Scalars['String']>;
+  round_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  round_not_ends_with?: InputMaybe<Scalars['String']>;
+  round_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  round_not_in?: InputMaybe<Array<Scalars['String']>>;
+  round_not_starts_with?: InputMaybe<Scalars['String']>;
+  round_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  round_starts_with?: InputMaybe<Scalars['String']>;
+  round_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_Filter>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+};
+
+export enum RewardCallerSetEvent_OrderBy {
+  Delegate = 'delegate',
+  DelegateActivationRound = 'delegate__activationRound',
+  DelegateActivationTimestamp = 'delegate__activationTimestamp',
+  DelegateActive = 'delegate__active',
+  DelegateDeactivationRound = 'delegate__deactivationRound',
+  DelegateFeeShare = 'delegate__feeShare',
+  DelegateFeeShareUpdateTimestamp = 'delegate__feeShareUpdateTimestamp',
+  DelegateId = 'delegate__id',
+  DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
+  DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
+  DelegateRewardCut = 'delegate__rewardCut',
+  DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
+  DelegateServiceUri = 'delegate__serviceURI',
+  DelegateSixtyDayVolumeEth = 'delegate__sixtyDayVolumeETH',
+  DelegateStatus = 'delegate__status',
+  DelegateThirtyDayVolumeEth = 'delegate__thirtyDayVolumeETH',
+  DelegateTotalStake = 'delegate__totalStake',
+  DelegateTotalVolumeEth = 'delegate__totalVolumeETH',
+  DelegateTotalVolumeUsd = 'delegate__totalVolumeUSD',
+  Id = 'id',
+  RewardCaller = 'rewardCaller',
+  Round = 'round',
+  RoundActiveTranscoderCount = 'round__activeTranscoderCount',
+  RoundDelegatorsCount = 'round__delegatorsCount',
+  RoundEndBlock = 'round__endBlock',
+  RoundId = 'round__id',
+  RoundInflation = 'round__inflation',
+  RoundInitialized = 'round__initialized',
+  RoundLength = 'round__length',
+  RoundMintableTokens = 'round__mintableTokens',
+  RoundMovedStake = 'round__movedStake',
+  RoundNewStake = 'round__newStake',
+  RoundNumActiveTranscoders = 'round__numActiveTranscoders',
+  RoundParticipationRate = 'round__participationRate',
+  RoundStartBlock = 'round__startBlock',
+  RoundStartTimestamp = 'round__startTimestamp',
+  RoundTotalActiveStake = 'round__totalActiveStake',
+  RoundTotalSupply = 'round__totalSupply',
+  RoundVolumeEth = 'round__volumeETH',
+  RoundVolumeUsd = 'round__volumeUSD',
+  Timestamp = 'timestamp',
+  Transaction = 'transaction',
+  TransactionBlockNumber = 'transaction__blockNumber',
+  TransactionFrom = 'transaction__from',
+  TransactionGasPrice = 'transaction__gasPrice',
+  TransactionGasUsed = 'transaction__gasUsed',
+  TransactionId = 'transaction__id',
+  TransactionTimestamp = 'transaction__timestamp',
+  TransactionTo = 'transaction__to'
+}
+
 /** RewardEvent entities are created for every emitted Reward event. */
 export type RewardEvent = Event & {
   __typename: 'RewardEvent';
@@ -5013,6 +5255,7 @@ export enum RewardEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -5756,8 +5999,8 @@ export type Transaction = {
   id: Scalars['ID'];
   /** Timestamp for transaction */
   timestamp: Scalars['Int'];
-  /** The receiving party of the transaction */
-  to: Scalars['String'];
+  /** The receiving party of the transaction - null for contract-creation transactions */
+  to?: Maybe<Scalars['String']>;
 };
 
 
@@ -5898,6 +6141,8 @@ export type Transcoder = {
   ninetyDayVolumeETH: Scalars['BigDecimal'];
   /** Pools associated with the transcoder */
   pools?: Maybe<Array<Pool>>;
+  /** Address delegated to call reward on the transcoder's behalf - null if unset */
+  rewardCaller?: Maybe<Scalars['String']>;
   /** % of block reward cut paid to transcoder by a delegator */
   rewardCut: Scalars['BigInt'];
   /** The last timestamped update to reward cut, beginning at 12:00am UTC */
@@ -6073,6 +6318,7 @@ export enum TranscoderActivatedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -6201,6 +6447,7 @@ export enum TranscoderDay_OrderBy {
   TranscoderId = 'transcoder__id',
   TranscoderLastActiveStakeUpdateRound = 'transcoder__lastActiveStakeUpdateRound',
   TranscoderNinetyDayVolumeEth = 'transcoder__ninetyDayVolumeETH',
+  TranscoderRewardCaller = 'transcoder__rewardCaller',
   TranscoderRewardCut = 'transcoder__rewardCut',
   TranscoderRewardCutUpdateTimestamp = 'transcoder__rewardCutUpdateTimestamp',
   TranscoderServiceUri = 'transcoder__serviceURI',
@@ -6337,6 +6584,7 @@ export enum TranscoderDeactivatedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -6489,6 +6737,7 @@ export enum TranscoderEvictedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -6641,6 +6890,7 @@ export enum TranscoderResignedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -6825,6 +7075,7 @@ export enum TranscoderSlashedEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -7005,6 +7256,7 @@ export enum TranscoderUpdateEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -7164,6 +7416,26 @@ export type Transcoder_Filter = {
   ninetyDayVolumeETH_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   or?: InputMaybe<Array<InputMaybe<Transcoder_Filter>>>;
   pools_?: InputMaybe<Pool_Filter>;
+  rewardCaller?: InputMaybe<Scalars['String']>;
+  rewardCaller_contains?: InputMaybe<Scalars['String']>;
+  rewardCaller_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_ends_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_gt?: InputMaybe<Scalars['String']>;
+  rewardCaller_gte?: InputMaybe<Scalars['String']>;
+  rewardCaller_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardCaller_lt?: InputMaybe<Scalars['String']>;
+  rewardCaller_lte?: InputMaybe<Scalars['String']>;
+  rewardCaller_not?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_contains?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_ends_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardCaller_not_starts_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardCaller_starts_with?: InputMaybe<Scalars['String']>;
+  rewardCaller_starts_with_nocase?: InputMaybe<Scalars['String']>;
   rewardCut?: InputMaybe<Scalars['BigInt']>;
   rewardCutUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   rewardCutUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -7293,6 +7565,7 @@ export enum Transcoder_OrderBy {
   LastRewardRoundVolumeUsd = 'lastRewardRound__volumeUSD',
   NinetyDayVolumeEth = 'ninetyDayVolumeETH',
   Pools = 'pools',
+  RewardCaller = 'rewardCaller',
   RewardCut = 'rewardCut',
   RewardCutUpdateTimestamp = 'rewardCutUpdateTimestamp',
   ServiceUri = 'serviceURI',
@@ -7570,10 +7843,8 @@ export type TreasuryProposal_Filter = {
   and?: InputMaybe<Array<InputMaybe<TreasuryProposal_Filter>>>;
   calldatas?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_contains?: InputMaybe<Array<Scalars['Bytes']>>;
-  calldatas_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not?: InputMaybe<Array<Scalars['Bytes']>>;
   calldatas_not_contains?: InputMaybe<Array<Scalars['Bytes']>>;
-  calldatas_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   description?: InputMaybe<Scalars['String']>;
   description_contains?: InputMaybe<Scalars['String']>;
   description_contains_nocase?: InputMaybe<Scalars['String']>;
@@ -7648,10 +7919,8 @@ export type TreasuryProposal_Filter = {
   totalVotes_not_in?: InputMaybe<Array<Scalars['BigDecimal']>>;
   values?: InputMaybe<Array<Scalars['BigInt']>>;
   values_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  values_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not?: InputMaybe<Array<Scalars['BigInt']>>;
   values_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  values_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   voteEnd?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gt?: InputMaybe<Scalars['BigInt']>;
   voteEnd_gte?: InputMaybe<Scalars['BigInt']>;
@@ -8195,6 +8464,7 @@ export enum UnbondEvent_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -8378,6 +8648,7 @@ export enum UnbondingLock_OrderBy {
   DelegateId = 'delegate__id',
   DelegateLastActiveStakeUpdateRound = 'delegate__lastActiveStakeUpdateRound',
   DelegateNinetyDayVolumeEth = 'delegate__ninetyDayVolumeETH',
+  DelegateRewardCaller = 'delegate__rewardCaller',
   DelegateRewardCut = 'delegate__rewardCut',
   DelegateRewardCutUpdateTimestamp = 'delegate__rewardCutUpdateTimestamp',
   DelegateServiceUri = 'delegate__serviceURI',
@@ -9001,6 +9272,7 @@ export enum WinningTicketRedeemedEvent_OrderBy {
   RecipientId = 'recipient__id',
   RecipientLastActiveStakeUpdateRound = 'recipient__lastActiveStakeUpdateRound',
   RecipientNinetyDayVolumeEth = 'recipient__ninetyDayVolumeETH',
+  RecipientRewardCaller = 'recipient__rewardCaller',
   RecipientRewardCut = 'recipient__rewardCut',
   RecipientRewardCutUpdateTimestamp = 'recipient__rewardCutUpdateTimestamp',
   RecipientServiceUri = 'recipient__serviceURI',
@@ -9575,6 +9847,54 @@ export type _Block_ = {
   timestamp?: Maybe<Scalars['Int']>;
 };
 
+/**
+ * A key-value pair of additional data associated with a log entry.
+ * These correspond to arguments passed to the log function in the subgraph code.
+ */
+export type _LogArgument_ = {
+  __typename: '_LogArgument_';
+  /** The parameter name */
+  key: Scalars['String'];
+  /** The parameter value, serialized as a string */
+  value: Scalars['String'];
+};
+
+/**
+ * Source code location metadata for a log entry.
+ * Indicates where in the subgraph's AssemblyScript code the log statement was executed.
+ */
+export type _LogMeta_ = {
+  __typename: '_LogMeta_';
+  /** The column number in the source file */
+  column: Scalars['Int'];
+  /** The line number in the source file */
+  line: Scalars['Int'];
+  /** The module or file path where the log was emitted */
+  module: Scalars['String'];
+};
+
+/**
+ * A log entry emitted by a subgraph during indexing.
+ * Logs can be generated by the subgraph's AssemblyScript code using the `log.*` functions.
+ */
+export type _Log_ = {
+  __typename: '_Log_';
+  /** Additional structured data passed to the log function as key-value pairs */
+  arguments: Array<_LogArgument_>;
+  /** Unique identifier for this log entry */
+  id: Scalars['String'];
+  /** The severity level of the log entry */
+  level: LogLevel;
+  /** Metadata about the source location in the subgraph code where the log was emitted */
+  meta: _LogMeta_;
+  /** The deployment hash of the subgraph that emitted this log */
+  subgraphId: Scalars['String'];
+  /** The log message text */
+  text: Scalars['String'];
+  /** The timestamp when the log was emitted, in RFC3339 format (e.g., '2024-01-15T10:30:00Z') */
+  timestamp: Scalars['String'];
+};
+
 /** The type for the top-level _meta field */
 export type _Meta_ = {
   __typename: '_Meta_';
@@ -9603,7 +9923,7 @@ export type AccountQueryVariables = Exact<{
 }>;
 
 
-export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
+export type AccountQuery = { __typename: 'Query', delegator?: { __typename: 'Delegator', id: string, bondedAmount: string, principal: string, unbonded: string, withdrawnFees: string, startRound: string, lastClaimRound?: { __typename: 'Round', id: string } | null, unbondingLocks?: Array<{ __typename: 'UnbondingLock', id: string, amount: string, unbondingLockId: number, withdrawRound: string, delegate: { __typename: 'Transcoder', id: string } }> | null, delegate?: { __typename: 'Transcoder', id: string, active: boolean, status: TranscoderStatus, totalStake: string, feeShare: string, rewardCut: string, ninetyDayVolumeETH: string, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null } | null } | null, transcoder?: { __typename: 'Transcoder', id: string, active: boolean, feeShare: string, rewardCut: string, status: TranscoderStatus, totalStake: string, totalVolumeETH: string, activationTimestamp: number, activationRound: string, deactivationRound: string, thirtyDayVolumeETH: string, ninetyDayVolumeETH: string, lastRewardRound?: { __typename: 'Round', id: string } | null, pools?: Array<{ __typename: 'Pool', rewardTokens?: string | null }> | null, delegators?: Array<{ __typename: 'Delegator', id: string }> | null } | null, gateway?: { __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number } | null, protocol?: { __typename: 'Protocol', id: string, totalSupply: string, totalActiveStake: string, participationRate: string, inflation: string, inflationChange: string, lptPriceEth: string, roundLength: string, currentRound: { __typename: 'Round', id: string } } | null };
 
 export type AccountInactiveQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -9631,7 +9951,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MigrateDelegatorFinalizedEvent', l1Addr: string, l2Addr: string, stake: string, delegatedStake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'NewRoundEvent', transaction: { __typename: 'Transaction', from: string, id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'ParameterUpdateEvent', param: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PollCreatedEvent', endBlock: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RewardEvent', rewardTokens: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ServiceURIUpdateEvent', addr: string, serviceURI: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'SetCurrentRewardTokensEvent', currentInflation: string, currentMintableTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'StakeClaimedEvent', stake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderActivatedEvent', activationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderDeactivatedEvent', deactivationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderEvictedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderResignedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TransferBondEvent', amount: string, newDelegator: { __typename: 'Delegator', id: string }, oldDelegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TreasuryVoteEvent', support: TreasuryVoteSupport, proposal: { __typename: 'TreasuryProposal', id: string, description: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'VoteEvent', voter: string, choiceID: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, recipient: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawFeesEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawStakeEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawalEvent', deposit: string, reserve: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } }> | null }>, transcoders: Array<{ __typename: 'Transcoder', id: string }> };
+export type EventsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MigrateDelegatorFinalizedEvent', l1Addr: string, l2Addr: string, stake: string, delegatedStake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'NewRoundEvent', transaction: { __typename: 'Transaction', from: string, id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'ParameterUpdateEvent', param: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'PollCreatedEvent', endBlock: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveClaimedEvent', amount: string, claimant: { __typename: 'Transcoder', id: string }, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RewardCallerSetEvent', rewardCaller: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'RewardEvent', rewardTokens: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'ServiceURIUpdateEvent', addr: string, serviceURI: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'SetCurrentRewardTokensEvent', currentInflation: string, currentMintableTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'StakeClaimedEvent', stake: string, fees: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderActivatedEvent', activationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderDeactivatedEvent', deactivationRound: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderEvictedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderResignedEvent', delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TransferBondEvent', amount: string, newDelegator: { __typename: 'Delegator', id: string }, oldDelegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'TreasuryVoteEvent', support: TreasuryVoteSupport, proposal: { __typename: 'TreasuryProposal', id: string, description: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'VoteEvent', voter: string, choiceID: string, poll: { __typename: 'Poll', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, recipient: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawFeesEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawStakeEvent', amount: string, delegator: { __typename: 'Delegator', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } } | { __typename: 'WithdrawalEvent', deposit: string, reserve: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number, from: string } }> | null }>, transcoders: Array<{ __typename: 'Transcoder', id: string }> };
 
 export type GatewaySelfRedeemQueryVariables = Exact<{
   account: Scalars['String'];
@@ -9649,10 +9969,38 @@ export type GatewaysQueryVariables = Exact<{
 
 export type GatewaysQuery = { __typename: 'Query', gateways: Array<{ __typename: 'Broadcaster', id: string, deposit: string, reserve: string, totalVolumeETH: string, ninetyDayVolumeETH: string, firstActiveDay: number, lastActiveDay: number }> };
 
+export type GovernanceParticipationQueryVariables = Exact<{
+  delegate: Scalars['String'];
+  first: Scalars['Int'];
+  block?: InputMaybe<Block_Height>;
+  activationCursor: Scalars['ID'];
+  deactivationCursor: Scalars['ID'];
+  proposalCursor: Scalars['ID'];
+  voteCursor: Scalars['ID'];
+  includeActivations: Scalars['Boolean'];
+  includeDeactivations: Scalars['Boolean'];
+  includeProposals: Scalars['Boolean'];
+  includeVotes: Scalars['Boolean'];
+}>;
+
+
+export type GovernanceParticipationQuery = { __typename: 'Query', _meta?: { __typename: '_Meta_', block: { __typename: '_Block_', number: number } } | null, transcoderActivatedEvents?: Array<{ __typename: 'TranscoderActivatedEvent', id: string, activationRound: string, transaction: { __typename: 'Transaction', blockNumber: string } }>, transcoderDeactivatedEvents?: Array<{ __typename: 'TranscoderDeactivatedEvent', id: string, deactivationRound: string, transaction: { __typename: 'Transaction', blockNumber: string } }>, treasuryProposals?: Array<{ __typename: 'TreasuryProposal', id: string, voteStart: string }>, treasuryVotes?: Array<{ __typename: 'TreasuryVote', id: string, proposal: { __typename: 'TreasuryProposal', id: string } }> };
+
 export type MetaQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MetaQuery = { __typename: 'Query', _meta?: { __typename: '_Meta_', hasIndexingErrors: boolean } | null };
+export type MetaQuery = { __typename: 'Query', _meta?: { __typename: '_Meta_', hasIndexingErrors: boolean, block: { __typename: '_Block_', number: number } } | null };
+
+export type OrchestratorDelegatorsQueryVariables = Exact<{
+  id: Scalars['ID'];
+  first?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Delegator_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+}>;
+
+
+export type OrchestratorDelegatorsQuery = { __typename: 'Query', transcoder?: { __typename: 'Transcoder', id: string, delegators?: Array<{ __typename: 'Delegator', id: string, bondedAmount: string, startRound: string }> | null } | null };
 
 export type OrchestratorsQueryVariables = Exact<{
   currentRound?: InputMaybe<Scalars['BigInt']>;
@@ -9677,7 +10025,7 @@ export type PollQueryVariables = Exact<{
 }>;
 
 
-export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string }> } | null };
+export type PollQuery = { __typename: 'Query', poll?: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string, tally?: { __typename: 'PollTally', yes: string, no: string } | null, votes: Array<{ __typename: 'Vote', id: string, choiceID?: PollChoice | null, voter: string, voteStake: string, nonVoteStake: string }> } | null };
 
 export type PollsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9703,17 +10051,17 @@ export type TransactionsQueryVariables = Exact<{
 }>;
 
 
-export type TransactionsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MigrateDelegatorFinalizedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'NewRoundEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ParameterUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PollCreatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardEvent', rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ServiceURIUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'SetCurrentRewardTokensEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'StakeClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderActivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderDeactivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderEvictedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderResignedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TransferBondEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TreasuryVoteEvent', id: string, reason?: string | null, support: TreasuryVoteSupport, timestamp: number, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, targets: Array<string>, description: string }, treasuryVoter: { __typename: 'LivepeerAccount', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'VoteEvent', voter: string, choiceID: string, id: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'WinningTicketRedeemedEvent', faceValue: string, sender: { __typename: 'Broadcaster', id: string }, recipient: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawFeesEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawStakeEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawalEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> | null }>, winningTicketRedeemedEvents: Array<{ __typename: 'WinningTicketRedeemedEvent', id: string, faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, sender: { __typename: 'Broadcaster', id: string }, recipient: { __typename: 'Transcoder', id: string } }> };
+export type TransactionsQuery = { __typename: 'Query', transactions: Array<{ __typename: 'Transaction', events?: Array<{ __typename: 'BondEvent', additionalAmount: string, delegator: { __typename: 'Delegator', id: string }, newDelegate: { __typename: 'Transcoder', id: string }, oldDelegate?: { __typename: 'Transcoder', id: string } | null, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'BurnEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'DepositFundedEvent', amount: string, sender: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'EarningsClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MigrateDelegatorFinalizedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'MintEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'NewRoundEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ParameterUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'PollCreatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RebondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ReserveFundedEvent', amount: string, reserveHolder: { __typename: 'Broadcaster', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardCallerSetEvent', rewardCaller: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'RewardEvent', rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'ServiceURIUpdateEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'SetCurrentRewardTokensEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'StakeClaimedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderActivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderDeactivatedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderEvictedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderResignedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderSlashedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TranscoderUpdateEvent', rewardCut: string, feeShare: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TransferBondEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'TreasuryVoteEvent', id: string, reason?: string | null, support: TreasuryVoteSupport, timestamp: number, weight: string, proposal: { __typename: 'TreasuryProposal', id: string, targets: Array<string>, description: string }, treasuryVoter: { __typename: 'LivepeerAccount', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnbondEvent', amount: string, delegate: { __typename: 'Transcoder', id: string }, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'UnpauseEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'VoteEvent', voter: string, choiceID: string, id: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string, endBlock: string, quorum: string, quota: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, round: { __typename: 'Round', id: string } } | { __typename: 'WinningTicketRedeemedEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawFeesEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawStakeEvent', amount: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } } | { __typename: 'WithdrawalEvent', round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> | null }>, winningTicketRedeemedEvents: Array<{ __typename: 'WinningTicketRedeemedEvent', id: string, faceValue: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, sender: { __typename: 'Broadcaster', id: string }, recipient: { __typename: 'Transcoder', id: string } }>, rewardEvents: Array<{ __typename: 'RewardEvent', id: string, rewardTokens: string, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number }, delegate: { __typename: 'Transcoder', id: string } }> };
 
-export type TranscoderActivatedEventsQueryVariables = Exact<{
-  where?: InputMaybe<TranscoderActivatedEvent_Filter>;
+export type TranscoderUpdateEventsQueryVariables = Exact<{
+  where?: InputMaybe<TranscoderUpdateEvent_Filter>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TranscoderActivatedEvent_OrderBy>;
+  orderBy?: InputMaybe<TranscoderUpdateEvent_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
 }>;
 
 
-export type TranscoderActivatedEventsQuery = { __typename: 'Query', transcoderActivatedEvents: Array<{ __typename: 'TranscoderActivatedEvent', activationRound: string, id: string }> };
+export type TranscoderUpdateEventsQuery = { __typename: 'Query', transcoderUpdateEvents: Array<{ __typename: 'TranscoderUpdateEvent', id: string, rewardCut: string, feeShare: string, timestamp: number, round: { __typename: 'Round', id: string }, transaction: { __typename: 'Transaction', id: string } }> };
 
 export type TreasuryProposalQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -9751,7 +10099,15 @@ export type VoteQueryVariables = Exact<{
 }>;
 
 
-export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string } | null };
+export type VoteQuery = { __typename: 'Query', vote?: { __typename: 'Vote', choiceID?: PollChoice | null, voteStake: string, nonVoteStake: string, poll?: { __typename: 'Poll', id: string, votes: Array<{ __typename: 'Vote', voteStake: string, id: string }> } | null } | null };
+
+export type VoteEventsQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<VoteEvent_Filter>;
+}>;
+
+
+export type VoteEventsQuery = { __typename: 'Query', voteEvents: Array<{ __typename: 'VoteEvent', id: string, choiceID: string, voter: string, timestamp: number, poll: { __typename: 'Poll', id: string, proposal: string }, transaction: { __typename: 'Transaction', id: string, timestamp: number } }> };
 
 
 export const AccountDocument = gql`
@@ -9780,6 +10136,12 @@ export const AccountDocument = gql`
       active
       status
       totalStake
+      feeShare
+      rewardCut
+      ninetyDayVolumeETH
+      pools(first: 30, skip: 1, orderBy: id, orderDirection: desc) {
+        rewardTokens
+      }
     }
   }
   transcoder(id: $account) {
@@ -10046,6 +10408,12 @@ export const EventsDocument = gql`
         }
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        delegate {
+          id
+        }
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         delegator {
           id
@@ -10111,6 +10479,15 @@ export const EventsDocument = gql`
         transaction {
           from
         }
+      }
+      ... on ReserveClaimedEvent {
+        claimant {
+          id
+        }
+        reserveHolder {
+          id
+        }
+        amount
       }
       ... on WithdrawalEvent {
         sender {
@@ -10287,9 +10664,107 @@ export function useGatewaysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
 export type GatewaysQueryHookResult = ReturnType<typeof useGatewaysQuery>;
 export type GatewaysLazyQueryHookResult = ReturnType<typeof useGatewaysLazyQuery>;
 export type GatewaysQueryResult = Apollo.QueryResult<GatewaysQuery, GatewaysQueryVariables>;
+export const GovernanceParticipationDocument = gql`
+    query governanceParticipation($delegate: String!, $first: Int!, $block: Block_height, $activationCursor: ID!, $deactivationCursor: ID!, $proposalCursor: ID!, $voteCursor: ID!, $includeActivations: Boolean!, $includeDeactivations: Boolean!, $includeProposals: Boolean!, $includeVotes: Boolean!) {
+  _meta(block: $block) {
+    block {
+      number
+    }
+  }
+  transcoderActivatedEvents(
+    first: $first
+    block: $block
+    where: {delegate: $delegate, id_gt: $activationCursor}
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeActivations) {
+    id
+    activationRound
+    transaction {
+      blockNumber
+    }
+  }
+  transcoderDeactivatedEvents(
+    first: $first
+    block: $block
+    where: {delegate: $delegate, id_gt: $deactivationCursor}
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeDeactivations) {
+    id
+    deactivationRound
+    transaction {
+      blockNumber
+    }
+  }
+  treasuryProposals(
+    first: $first
+    block: $block
+    where: {id_gt: $proposalCursor}
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeProposals) {
+    id
+    voteStart
+  }
+  treasuryVotes(
+    first: $first
+    block: $block
+    where: {voter: $delegate, id_gt: $voteCursor}
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeVotes) {
+    id
+    proposal {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGovernanceParticipationQuery__
+ *
+ * To run a query within a React component, call `useGovernanceParticipationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGovernanceParticipationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGovernanceParticipationQuery({
+ *   variables: {
+ *      delegate: // value for 'delegate'
+ *      first: // value for 'first'
+ *      block: // value for 'block'
+ *      activationCursor: // value for 'activationCursor'
+ *      deactivationCursor: // value for 'deactivationCursor'
+ *      proposalCursor: // value for 'proposalCursor'
+ *      voteCursor: // value for 'voteCursor'
+ *      includeActivations: // value for 'includeActivations'
+ *      includeDeactivations: // value for 'includeDeactivations'
+ *      includeProposals: // value for 'includeProposals'
+ *      includeVotes: // value for 'includeVotes'
+ *   },
+ * });
+ */
+export function useGovernanceParticipationQuery(baseOptions: Apollo.QueryHookOptions<GovernanceParticipationQuery, GovernanceParticipationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GovernanceParticipationQuery, GovernanceParticipationQueryVariables>(GovernanceParticipationDocument, options);
+      }
+export function useGovernanceParticipationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GovernanceParticipationQuery, GovernanceParticipationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GovernanceParticipationQuery, GovernanceParticipationQueryVariables>(GovernanceParticipationDocument, options);
+        }
+export type GovernanceParticipationQueryHookResult = ReturnType<typeof useGovernanceParticipationQuery>;
+export type GovernanceParticipationLazyQueryHookResult = ReturnType<typeof useGovernanceParticipationLazyQuery>;
+export type GovernanceParticipationQueryResult = Apollo.QueryResult<GovernanceParticipationQuery, GovernanceParticipationQueryVariables>;
 export const MetaDocument = gql`
     query meta {
   _meta {
+    block {
+      number
+    }
     hasIndexingErrors
   }
 }
@@ -10321,6 +10796,55 @@ export function useMetaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MetaQ
 export type MetaQueryHookResult = ReturnType<typeof useMetaQuery>;
 export type MetaLazyQueryHookResult = ReturnType<typeof useMetaLazyQuery>;
 export type MetaQueryResult = Apollo.QueryResult<MetaQuery, MetaQueryVariables>;
+export const OrchestratorDelegatorsDocument = gql`
+    query orchestratorDelegators($id: ID!, $first: Int, $skip: Int, $orderBy: Delegator_orderBy, $orderDirection: OrderDirection) {
+  transcoder(id: $id) {
+    id
+    delegators(
+      first: $first
+      skip: $skip
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+    ) {
+      id
+      bondedAmount
+      startRound
+    }
+  }
+}
+    `;
+
+/**
+ * __useOrchestratorDelegatorsQuery__
+ *
+ * To run a query within a React component, call `useOrchestratorDelegatorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrchestratorDelegatorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrchestratorDelegatorsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
+ *   },
+ * });
+ */
+export function useOrchestratorDelegatorsQuery(baseOptions: Apollo.QueryHookOptions<OrchestratorDelegatorsQuery, OrchestratorDelegatorsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<OrchestratorDelegatorsQuery, OrchestratorDelegatorsQueryVariables>(OrchestratorDelegatorsDocument, options);
+      }
+export function useOrchestratorDelegatorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<OrchestratorDelegatorsQuery, OrchestratorDelegatorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<OrchestratorDelegatorsQuery, OrchestratorDelegatorsQueryVariables>(OrchestratorDelegatorsDocument, options);
+        }
+export type OrchestratorDelegatorsQueryHookResult = ReturnType<typeof useOrchestratorDelegatorsQuery>;
+export type OrchestratorDelegatorsLazyQueryHookResult = ReturnType<typeof useOrchestratorDelegatorsLazyQuery>;
+export type OrchestratorDelegatorsQueryResult = Apollo.QueryResult<OrchestratorDelegatorsQuery, OrchestratorDelegatorsQueryVariables>;
 export const OrchestratorsDocument = gql`
     query orchestrators($currentRound: BigInt, $currentRoundString: String, $where: Transcoder_filter, $first: Int, $skip: Int, $orderBy: Transcoder_orderBy, $orderDirection: OrderDirection) {
   transcoders(
@@ -10447,6 +10971,10 @@ export const PollDocument = gql`
     }
     votes {
       id
+      choiceID
+      voter
+      voteStake
+      nonVoteStake
     }
   }
 }
@@ -10672,20 +11200,14 @@ export const TransactionsDocument = gql`
       ... on RewardEvent {
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         amount
       }
       ... on WithdrawFeesEvent {
         amount
-      }
-      ... on WinningTicketRedeemedEvent {
-        faceValue
-        sender {
-          id
-        }
-        recipient {
-          id
-        }
       }
       ... on DepositFundedEvent {
         sender {
@@ -10767,6 +11289,27 @@ export const TransactionsDocument = gql`
       id
     }
   }
+  rewardEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    where: {or: [{delegate: $account}, {transaction_: {from: $account}}]}
+    first: $first
+    skip: $skip
+  ) {
+    __typename
+    id
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+    rewardTokens
+    delegate {
+      id
+    }
+  }
 }
     `;
 
@@ -10799,31 +11342,39 @@ export function useTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type TransactionsQueryHookResult = ReturnType<typeof useTransactionsQuery>;
 export type TransactionsLazyQueryHookResult = ReturnType<typeof useTransactionsLazyQuery>;
 export type TransactionsQueryResult = Apollo.QueryResult<TransactionsQuery, TransactionsQueryVariables>;
-export const TranscoderActivatedEventsDocument = gql`
-    query transcoderActivatedEvents($where: TranscoderActivatedEvent_filter, $first: Int, $orderBy: TranscoderActivatedEvent_orderBy, $orderDirection: OrderDirection) {
-  transcoderActivatedEvents(
+export const TranscoderUpdateEventsDocument = gql`
+    query transcoderUpdateEvents($where: TranscoderUpdateEvent_filter, $first: Int, $orderBy: TranscoderUpdateEvent_orderBy, $orderDirection: OrderDirection) {
+  transcoderUpdateEvents(
     where: $where
     first: $first
     orderBy: $orderBy
     orderDirection: $orderDirection
   ) {
-    activationRound
     id
+    rewardCut
+    feeShare
+    timestamp
+    round {
+      id
+    }
+    transaction {
+      id
+    }
   }
 }
     `;
 
 /**
- * __useTranscoderActivatedEventsQuery__
+ * __useTranscoderUpdateEventsQuery__
  *
- * To run a query within a React component, call `useTranscoderActivatedEventsQuery` and pass it any options that fit your needs.
- * When your component renders, `useTranscoderActivatedEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTranscoderUpdateEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranscoderUpdateEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTranscoderActivatedEventsQuery({
+ * const { data, loading, error } = useTranscoderUpdateEventsQuery({
  *   variables: {
  *      where: // value for 'where'
  *      first: // value for 'first'
@@ -10832,17 +11383,17 @@ export const TranscoderActivatedEventsDocument = gql`
  *   },
  * });
  */
-export function useTranscoderActivatedEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>) {
+export function useTranscoderUpdateEventsQuery(baseOptions?: Apollo.QueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>(TranscoderActivatedEventsDocument, options);
+        return Apollo.useQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
       }
-export function useTranscoderActivatedEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>) {
+export function useTranscoderUpdateEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>(TranscoderActivatedEventsDocument, options);
+          return Apollo.useLazyQuery<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>(TranscoderUpdateEventsDocument, options);
         }
-export type TranscoderActivatedEventsQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsQuery>;
-export type TranscoderActivatedEventsLazyQueryHookResult = ReturnType<typeof useTranscoderActivatedEventsLazyQuery>;
-export type TranscoderActivatedEventsQueryResult = Apollo.QueryResult<TranscoderActivatedEventsQuery, TranscoderActivatedEventsQueryVariables>;
+export type TranscoderUpdateEventsQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsQuery>;
+export type TranscoderUpdateEventsLazyQueryHookResult = ReturnType<typeof useTranscoderUpdateEventsLazyQuery>;
+export type TranscoderUpdateEventsQueryResult = Apollo.QueryResult<TranscoderUpdateEventsQuery, TranscoderUpdateEventsQueryVariables>;
 export const TreasuryProposalDocument = gql`
     query treasuryProposal($id: ID!) {
   treasuryProposal(id: $id) {
@@ -11054,6 +11605,13 @@ export const VoteDocument = gql`
     choiceID
     voteStake
     nonVoteStake
+    poll {
+      id
+      votes {
+        voteStake
+        id
+      }
+    }
   }
 }
     `;
@@ -11085,3 +11643,55 @@ export function useVoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteQ
 export type VoteQueryHookResult = ReturnType<typeof useVoteQuery>;
 export type VoteLazyQueryHookResult = ReturnType<typeof useVoteLazyQuery>;
 export type VoteQueryResult = Apollo.QueryResult<VoteQuery, VoteQueryVariables>;
+export const VoteEventsDocument = gql`
+    query voteEvents($first: Int, $where: VoteEvent_filter) {
+  voteEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    first: $first
+    where: $where
+  ) {
+    id
+    choiceID
+    voter
+    timestamp
+    poll {
+      id
+      proposal
+    }
+    transaction {
+      id
+      timestamp
+    }
+  }
+}
+    `;
+
+/**
+ * __useVoteEventsQuery__
+ *
+ * To run a query within a React component, call `useVoteEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVoteEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVoteEventsQuery({
+ *   variables: {
+ *      first: // value for 'first'
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useVoteEventsQuery(baseOptions?: Apollo.QueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+      }
+export function useVoteEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VoteEventsQuery, VoteEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VoteEventsQuery, VoteEventsQueryVariables>(VoteEventsDocument, options);
+        }
+export type VoteEventsQueryHookResult = ReturnType<typeof useVoteEventsQuery>;
+export type VoteEventsLazyQueryHookResult = ReturnType<typeof useVoteEventsLazyQuery>;
+export type VoteEventsQueryResult = Apollo.QueryResult<VoteEventsQuery, VoteEventsQueryVariables>;

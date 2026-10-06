@@ -1,20 +1,21 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { checkAddressEquality, formatAddress } from "@lib/utils";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { formatETH, formatLPT, formatPercent } from "@utils/numberFormatters";
+import { checkAddressEquality, formatAddress } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
   useEnsData,
+  useIsSafe,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import numbro from "numbro";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
 import { Address } from "viem";
@@ -63,6 +64,23 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   });
   const { data, isPending, writeContract, isSuccess, error } =
     useWriteContract();
+  // Simulation reverts for Safes (2300-gas transfer into a cold proxy) but
+  // execTransaction succeeds; Safe runs its own simulation, so skip the gate.
+  const isSafe = useIsSafe();
+  const canWithdraw = Boolean(
+    config || (isSafe && bondingManagerAddress && recipient)
+  );
+  const withdrawFees = () => {
+    if (config) return writeContract(config.request);
+    if (bondingManagerAddress && recipient) {
+      writeContract({
+        address: bondingManagerAddress,
+        abi: bondingManager,
+        functionName: "withdrawFees",
+        args: [recipient, BigInt(amount)],
+      });
+    }
+  };
 
   useHandleTransaction("withdrawFees", data, error, isPending, isSuccess, {
     recipient,
@@ -103,6 +121,22 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     () => pendingFees === 0,
     [pendingFees]
   );
+
+  const networkEquity = (() => {
+    if (!totalActiveStake) {
+      return 0;
+    }
+
+    // If self-delegating, include total delegated stake + pending stake
+    if (delegator?.delegate?.id === delegator?.id) {
+      const delegateTotalStake = Math.abs(
+        +(delegator?.delegate?.totalStake ?? 0)
+      );
+      return (delegateTotalStake + pendingStake) / totalActiveStake;
+    }
+
+    return pendingStake / totalActiveStake;
+  })();
 
   if (!delegator?.bondedAmount) {
     if (isMyAccount) {
@@ -185,11 +219,9 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {`${numbro(pendingStake).format(
-                  pendingStake > 0 && pendingStake < 0.01
-                    ? { mantissa: 4, trimMantissa: true }
-                    : { mantissa: 2, average: true, lowPrecision: false }
-                )} LPT`}
+                {`${formatLPT(pendingStake, {
+                  precision: pendingStake > 0 && pendingStake < 0.01 ? 4 : 2,
+                })}`}
               </Box>
             ) : null
           }
@@ -224,12 +256,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      {numbro(-unbonded).format({
-                        mantissa: 2,
-                        average: true,
-                        forceSign: true,
-                      })}{" "}
-                      LPT
+                      {formatLPT(-unbonded, { forceSign: true, precision: 2 })}
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -258,12 +285,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  {numbro(Math.abs(rewards)).format({
-                    mantissa: 2,
-                    average: true,
+                  {formatLPT(Math.abs(rewards), {
                     forceSign: true,
-                  })}{" "}
-                  LPT
+                    precision: 2,
+                  })}
                 </Text>
               </Flex>
             </Box>
@@ -280,10 +305,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {numbro(pendingFees).format({
-                  mantissa: 3,
-                })}{" "}
-                ETH
+                {formatETH(pendingFees, { precision: 3 })}
               </Box>
             ) : null
           }
@@ -316,11 +338,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numbro(lifetimeEarnings || 0).format({
-                    mantissa: 3,
-                    average: true,
-                  })}{" "}
-                  ETH
+                  {formatETH(lifetimeEarnings || 0, {
+                    abbreviate: true,
+                    precision: 3,
+                  })}
                 </Text>
               </Flex>
               <Flex
@@ -349,11 +370,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600 }}>
-                  {numbro(delegator?.withdrawnFees || 0).format({
-                    mantissa: 3,
-                    average: true,
-                  })}{" "}
-                  ETH
+                  {formatETH(delegator?.withdrawnFees, {
+                    abbreviate: true,
+                    precision: 3,
+                  })}
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
@@ -362,8 +382,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     marginTop: "$3",
                     width: "100%",
                   }}
-                  disabled={!config}
-                  onClick={() => config && writeContract(config.request)}
+                  disabled={!canWithdraw}
+                  onClick={withdrawFees}
                   size="4"
                   variant="primary"
                 >
@@ -396,22 +416,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 </ExplorerTooltip>
               </Flex>
             }
-            value={
-              <Box>
-                {numbro(
-                  totalActiveStake === 0
-                    ? 0
-                    : delegator.delegate.id === delegator.id
-                    ? (Math.abs(+delegator.delegate.totalStake) +
-                        pendingStake) /
-                      totalActiveStake
-                    : pendingStake / totalActiveStake
-                ).format({
-                  output: "percent",
-                  mantissa: 3,
-                })}
-              </Box>
-            }
+            value={<Box>{formatPercent(networkEquity, { precision: 3 })}</Box>}
             meta={
               <Box css={{ marginTop: "$4" }}>
                 <Flex
@@ -423,22 +428,16 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 >
                   <Box>
                     Account (
-                    {numbro(
+                    {formatPercent(
                       totalActiveStake === 0
                         ? 0
-                        : pendingStake / totalActiveStake
-                    ).format({
-                      output: "percent",
-                      mantissa: 2,
-                    })}
+                        : pendingStake / totalActiveStake,
+                      { precision: 2 }
+                    )}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numbro(pendingStake).format({
-                      mantissa: 2,
-                      average: true,
-                    })}{" "}
-                    LPT
+                    {formatLPT(pendingStake, { precision: 2 })}
                   </Text>
                 </Flex>
                 <Flex
@@ -450,23 +449,20 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 >
                   <Box>
                     Orchestrator (
-                    {numbro(
+                    {formatPercent(
                       totalActiveStake === 0
                         ? 0
                         : Math.abs(+delegator.delegate.totalStake) /
-                            totalActiveStake
-                    ).format({
-                      output: "percent",
-                      mantissa: 2,
-                    })}
+                            totalActiveStake,
+                      { precision: 2 }
+                    )}
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {numbro(Math.abs(+delegator.delegate.totalStake)).format({
-                      mantissa: 2,
-                      average: true,
-                    })}{" "}
-                    LPT
+                    {formatLPT(Math.abs(+delegator.delegate.totalStake), {
+                      precision: 2,
+                      abbreviate: true,
+                    })}
                   </Text>
                 </Flex>
               </Box>

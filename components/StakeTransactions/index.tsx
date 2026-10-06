@@ -1,14 +1,11 @@
 import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
+import { formatLPT } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { UnbondingLock } from "apollo";
 import { useMemo } from "react";
 import { parseEther } from "viem";
 
-import {
-  abbreviateNumber,
-  formatAddress,
-  getHint,
-  simulateNewActiveSetOrder,
-} from "../../lib/utils";
+import { getHint, simulateNewActiveSetOrder } from "../../lib/utils";
 import Redelegate from "../Redelegate";
 import RedelegateFromUndelegated from "../RedelegateFromUndelegated";
 import WithdrawStake from "../WithdrawStake";
@@ -103,6 +100,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                           width: "100%",
                           "@bp2": {
                             width: "auto",
+                            marginLeft: "$4",
                           },
                         }}
                       >
@@ -130,15 +128,14 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         "@bp2": {
                           alignSelf: "auto",
                           fontWeight: 400,
-                          marginLeft: "$4",
                           marginTop: 0,
+                          order: -1,
                         },
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 4)}
-                      </Box>{" "}
-                      LPT
+                        {formatLPT(lock.amount)}
+                      </Box>
                     </Box>
                   </Flex>
                 </Flex>
@@ -213,6 +210,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             flexDirection: "row",
                             gap: 0,
                             width: "auto",
+                            marginLeft: "$4",
                           },
                         }}
                       >
@@ -241,15 +239,14 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                         "@bp2": {
                           alignSelf: "auto",
                           fontWeight: 400,
-                          marginLeft: "$4",
                           marginTop: 0,
+                          order: -1,
                         },
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {abbreviateNumber(lock.amount, 3)}
-                      </Box>{" "}
-                      LPT
+                        {formatLPT(lock.amount)}
+                      </Box>
                     </Box>
                   </Flex>
                 </Flex>

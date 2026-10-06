@@ -7,7 +7,6 @@ import { l1Migrator } from "@lib/api/abis/bridge/L1Migrator";
 import { nodeInterface } from "@lib/api/abis/bridge/NodeInterface";
 import { getL1MigratorAddress } from "@lib/api/contracts";
 import { isL2ChainId, l1PublicClient, l2PublicClient } from "@lib/chains";
-import { formatAddress, formatTransactionHash } from "@lib/utils";
 import {
   Box,
   Button,
@@ -20,9 +19,9 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@radix-ui/react-icons";
+import { formatAddress, formatTransactionHash } from "@utils/web3";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID, L1_CHAIN_ID } from "lib/chains";
@@ -197,6 +196,7 @@ const MigrateOrchestrator = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { writeContractAsync } = useWriteContract();
+  const [render, setRender] = useState(false);
 
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
@@ -216,7 +216,6 @@ const MigrateOrchestrator = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -840,7 +839,7 @@ const MigrateOrchestrator = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             ghost
