@@ -4,6 +4,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
   ArrowUpRight,
   BookOpen,
+  Globe,
   Menu as MenuIcon,
   Search,
   X,
@@ -124,6 +125,29 @@ function SearchTrigger({ onOpen }: { onOpen: () => void }) {
   );
 }
 
+function ExternalLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex h-7 items-center gap-2.5 rounded-sm px-2 text-ui-caption text-muted-foreground transition-colors hover:bg-hover hover:text-foreground [&>svg:first-child]:size-3.5"
+    >
+      {icon}
+      {children}
+      <ArrowUpRight className="ml-auto size-3 opacity-60" />
+    </a>
+  );
+}
+
 function SidebarBody({
   onSearch,
   onNavigate,
@@ -152,18 +176,20 @@ function SidebarBody({
 
       <div className="flex-1" />
 
-      <div className="flex flex-col gap-1 px-3 pb-3">
-        <a
+      <div className="flex flex-col gap-0.5 px-3 pb-3">
+        <ExternalLink
           href="https://docs.livepeer.org/network/tutorials/delegate-your-first-lpt"
-          target="_blank"
-          rel="noreferrer"
-          className="flex h-7 items-center gap-2.5 rounded-sm px-2 text-ui-caption text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+          icon={<BookOpen />}
         >
-          <BookOpen className="size-3.5" />
           Staking guide
-          <ArrowUpRight className="ml-auto size-3 opacity-60" />
-        </a>
-        <SidebarRoundClock />
+        </ExternalLink>
+        <ExternalLink href="https://livepeer.org" icon={<Globe />}>
+          Livepeer.org
+        </ExternalLink>
+        {/* Live status, not a link: set apart from the two above. */}
+        <div className="mt-2">
+          <SidebarRoundClock />
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-hairline p-3">
