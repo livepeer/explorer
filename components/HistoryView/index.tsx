@@ -104,10 +104,16 @@ const Index = () => {
         .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
       const newExtendedVoteEventsData = await Promise.all(
         newVoteEvents.map(async (voteEvent) => {
-          const ipfsObject = await catIpfsJson<IpfsPoll>(
-            voteEvent.poll?.proposal
-          );
-          const attributes = parsePollIpfs(ipfsObject);
+          let attributes: Fm | null = null;
+          try {
+            const ipfsObject = await catIpfsJson<IpfsPoll>(
+              voteEvent.poll?.proposal
+            );
+            attributes = parsePollIpfs(ipfsObject);
+          } catch (error) {
+            // Metadata is optional; retain the vote and finish loading it.
+            console.error("Failed to load poll metadata:", error);
+          }
           return {
             ...voteEvent,
             attributes,
@@ -359,6 +365,10 @@ const Index = () => {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
 
+  const historyRows = filteredEvents
+    .map((event, i: number) => renderSwitch(event, i))
+    .filter((row) => row != null);
+
   return (
     <Box
       css={{
@@ -386,8 +396,8 @@ const Index = () => {
         />
       </Flex>
       <Box css={{ paddingBottom: "$3" }}>
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event, i: number) => renderSwitch(event, i))
+        {historyRows.length > 0 ? (
+          historyRows
         ) : isHydratingFilteredEvents ? (
           <Flex
             css={{
@@ -1113,7 +1123,10 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Voted on poll &quot;{event.attributes?.title?.trim()}&quot;
+                Voted on poll
+                {event.attributes?.title?.trim() && (
+                  <> &quot;{event.attributes.title.trim()}&quot;</>
+                )}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
