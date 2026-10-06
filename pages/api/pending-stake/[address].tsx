@@ -1,6 +1,10 @@
-import { getCacheControlHeader, getCurrentRound } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
-import { getBondingManagerAddress } from "@lib/api/contracts";
+import { roundsManager } from "@lib/api/abis/main/RoundsManager";
+import {
+  getBondingManagerAddress,
+  getRoundsManagerAddress,
+} from "@lib/api/contracts";
 import {
   internalError,
   methodNotAllowed,
@@ -24,28 +28,21 @@ const handler = async (
 
       const { address } = req.query;
 
-      // AddressSchema handles undefined, arrays, and validates format
       const addressResult = AddressSchema.safeParse(address);
-      const inputValidationError = validateInput(
-        addressResult,
-        res,
-        "Invalid address format"
-      );
-      if (inputValidationError) return inputValidationError;
-
+      if (!addressResult.success) {
+        return validateInput(addressResult, res, "Invalid address format");
+      }
       const validatedAddress = addressResult.data;
 
-      const bondingManagerAddress = await getBondingManagerAddress();
-
-      const {
-        data: { protocol },
-      } = await getCurrentRound();
-      const currentRoundString = protocol?.currentRound?.id;
-
-      if (!currentRoundString) {
-        throw new Error("No current round found");
-      }
-      const currentRound = BigInt(currentRoundString);
+      const [bondingManagerAddress, roundsManagerAddress] = await Promise.all([
+        getBondingManagerAddress(),
+        getRoundsManagerAddress(),
+      ]);
+      const currentRound = await l2PublicClient.readContract({
+        address: roundsManagerAddress,
+        abi: roundsManager,
+        functionName: "currentRound",
+      });
 
       const [pendingStake, pendingFees] = await l2PublicClient.multicall({
         allowFailure: false,

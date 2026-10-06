@@ -11,6 +11,16 @@ const nextConfig = {
     },
   },
 
+  // Safe{Wallet} fetches the manifest cross-origin to add the explorer as a Safe App.
+  async headers() {
+    return [
+      {
+        source: "/manifest.json",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+    ];
+  },
+
   async redirects() {
     return [
       {

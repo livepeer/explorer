@@ -25,9 +25,8 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { formatAddress, formatTransactionHash } from "@utils/web3";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain } from "hooks";
@@ -858,7 +857,7 @@ const MigrateBroadcaster = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             ghost

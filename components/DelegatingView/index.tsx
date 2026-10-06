@@ -2,13 +2,14 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { formatETH, formatLPT, formatPercent } from "@utils/numberFormatters";
 import { checkAddressEquality, formatAddress } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
   useEnsData,
+  useIsSafe,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
@@ -63,6 +64,23 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   });
   const { data, isPending, writeContract, isSuccess, error } =
     useWriteContract();
+  // Simulation reverts for Safes (2300-gas transfer into a cold proxy) but
+  // execTransaction succeeds; Safe runs its own simulation, so skip the gate.
+  const isSafe = useIsSafe();
+  const canWithdraw = Boolean(
+    config || (isSafe && bondingManagerAddress && recipient)
+  );
+  const withdrawFees = () => {
+    if (config) return writeContract(config.request);
+    if (bondingManagerAddress && recipient) {
+      writeContract({
+        address: bondingManagerAddress,
+        abi: bondingManager,
+        functionName: "withdrawFees",
+        args: [recipient, BigInt(amount)],
+      });
+    }
+  };
 
   useHandleTransaction("withdrawFees", data, error, isPending, isSuccess, {
     recipient,
@@ -364,8 +382,8 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     marginTop: "$3",
                     width: "100%",
                   }}
-                  disabled={!config}
-                  onClick={() => config && writeContract(config.request)}
+                  disabled={!canWithdraw}
+                  onClick={withdrawFees}
                   size="4"
                   variant="primary"
                 >

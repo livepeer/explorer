@@ -1,14 +1,17 @@
+import { trackVercelAnalyticsEvent } from "@lib/analytics";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
 import { formatLPT } from "@utils/numberFormatters";
 import { fromWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
+  useAccountAddress,
   useEnsData,
   useExplorerStore,
+  useIsWrongRouteChain,
   usePendingFeesAndStakeData,
 } from "hooks";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import ArrowDown from "../../public/img/arrow-down.svg";
 import Footer from "./Footer";
@@ -48,6 +51,8 @@ const Index = ({
   const [amount, setAmount] = useState("");
   const { selectedStakingAction, setSelectedStakingAction } =
     useExplorerStore();
+  const isWrongRouteChain = useIsWrongRouteChain();
+  const accountAddress = useAccountAddress();
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
 
@@ -69,6 +74,28 @@ const Index = ({
   const currentPendingStake = Number(
     fromWei(pendingFeesAndStake?.pendingStake ?? "0")
   );
+
+  // Fire once per delegation attempt by a connected wallet, the first time
+  // the form goes from clean to dirty - not again on every clear/refill of
+  // the amount. Covers both typed amounts and the "max" shortcut.
+  const hasTrackedFormStart = useRef(false);
+  useEffect(() => {
+    if (
+      !hasTrackedFormStart.current &&
+      accountAddress &&
+      selectedStakingAction === "delegate" &&
+      parseFloat(amount) > 0
+    ) {
+      hasTrackedFormStart.current = true;
+      trackVercelAnalyticsEvent("delegation_form_started");
+    }
+  }, [accountAddress, amount, selectedStakingAction]);
+
+  // Submitting ends the attempt, so the next one is tracked again.
+  const resetForm = () => {
+    setAmount("");
+    hasTrackedFormStart.current = false;
+  };
 
   return (
     <Box
@@ -96,15 +123,19 @@ const Index = ({
         <Tabs
           index={selectedStakingAction === "delegate" ? 0 : 1}
           onChange={(index: number) => {
+            if (isWrongRouteChain) return;
             setSelectedStakingAction(index ? "undelegate" : "delegate");
           }}
         >
           <TabList>
-            <Tab isSelected={selectedStakingAction === "delegate"}>
+            <Tab
+              disabled={isWrongRouteChain}
+              isSelected={selectedStakingAction === "delegate"}
+            >
               Delegate
             </Tab>
             <Tab
-              disabled={isTransferStake}
+              disabled={isTransferStake || isWrongRouteChain}
               isSelected={selectedStakingAction === "undelegate"}
             >
               Undelegate
@@ -190,7 +221,7 @@ const Index = ({
           </>
         )}
         <Footer
-          reset={() => setAmount("")}
+          reset={resetForm}
           data={{
             isTransferStake: isTransferStake || false,
             isMyTranscoder,
@@ -202,6 +233,7 @@ const Index = ({
             transcoder,
             action: selectedStakingAction,
             amount,
+            isWrongRouteChain,
           }}
         />
       </Box>

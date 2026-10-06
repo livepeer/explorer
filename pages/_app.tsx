@@ -2,14 +2,14 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 
 import { ApolloProvider } from "@apollo/client";
+import { redactAddresses } from "@lib/analytics";
 import { fetcher } from "@lib/fetcher";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DEFAULT_CHAIN, L1_CHAIN } from "lib/chains";
+import { Analytics } from "@vercel/analytics/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Tooltip } from "radix-ui";
-import { useMemo } from "react";
 import { CookiesProvider } from "react-cookie";
 import { SWRConfig } from "swr";
 
@@ -24,11 +24,7 @@ const Web3Providers = dynamic(() => import("../components/Web3Providers"), {
 
 function App({ Component, pageProps, fallback = null }) {
   const client = useApollo();
-  const { route, locale } = useRouter();
-
-  const isMigrateRoute = useMemo(() => route.includes("/migrate"), [route]);
-  const chains = [isMigrateRoute ? L1_CHAIN : DEFAULT_CHAIN];
-  const layoutKey = chains.map((e) => e.id).join(",");
+  const { locale } = useRouter();
 
   const getLayout = Component.getLayout || ((page) => <Layout>{page}</Layout>);
 
@@ -43,13 +39,12 @@ function App({ Component, pageProps, fallback = null }) {
         <title>Livepeer Explorer</title>
       </Head>
 
-      <ApolloProvider
-        key={layoutKey} // triggers a re-render of the entire app, to make sure that the chains are not memo-ized incorrectly
-        client={client}
-      >
+      <Analytics beforeSend={redactAddresses} />
+
+      <ApolloProvider client={client}>
         <Tooltip.Provider>
           <QueryClientProvider client={queryClient}>
-            <Web3Providers isMigrateRoute={isMigrateRoute} locale={locale}>
+            <Web3Providers locale={locale}>
               <SWRConfig
                 value={{
                   dedupingInterval: 5000,

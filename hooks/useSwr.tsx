@@ -14,6 +14,7 @@ import {
   AllPerformanceMetrics,
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
+import { ProtocolDayData } from "@lib/api/types/get-protocol-day-data";
 import { Regions } from "@lib/api/types/get-regions";
 import { SupplyChangeData } from "@lib/api/types/get-supply-change";
 import {
@@ -59,6 +60,12 @@ export const useAllEnsData = (): EnsIdentity[] => {
 
 export const useChartData = () => {
   const { data } = useSWR<HomeChartData>(`/usage`);
+
+  return data ?? null;
+};
+
+export const useProtocolDayData = () => {
+  const { data } = useSWR<ProtocolDayData>(`/protocol-day-data`);
 
   return data ?? null;
 };

@@ -2,7 +2,11 @@ import OrchestratorCutHistory from "@components/OrchestratorCutHistory";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
 import { Box, Flex, Link as A, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon, CheckIcon, Cross1Icon } from "@modulz/radix-icons";
+import {
+  ArrowTopRightIcon,
+  CheckIcon,
+  Cross1Icon,
+} from "@radix-ui/react-icons";
 import {
   formatETH,
   formatNumber,
@@ -10,15 +14,9 @@ import {
   formatStakeAmount,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
-import {
-  AccountQueryResult,
-  OrderDirection,
-  TranscoderActivatedEvent_OrderBy,
-  useTranscoderActivatedEventsQuery,
-  useTreasuryProposalsQuery,
-  useTreasuryVotesQuery,
-} from "apollo";
+import { AccountQueryResult } from "apollo";
 import { useScoreData } from "hooks";
+import { useGovernanceParticipation } from "hooks/useGovernanceParticipation";
 import { useRegionsData } from "hooks/useSwr";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -48,52 +46,16 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
   const scores = useScoreData(transcoder?.id);
   const knownRegions = useRegionsData();
 
-  const { data: firstTranscoderActivatedEventsData } =
-    useTranscoderActivatedEventsQuery({
-      variables: {
-        where: {
-          delegate: transcoder?.id,
-        },
-        first: 1,
-        orderBy: TranscoderActivatedEvent_OrderBy.ActivationRound,
-        orderDirection: OrderDirection.Asc,
-      },
-    });
-
-  const firstActivationRound = useMemo(() => {
-    return firstTranscoderActivatedEventsData?.transcoderActivatedEvents[0]
-      ?.activationRound;
-  }, [firstTranscoderActivatedEventsData]);
-
-  const { data: treasuryVotesData } = useTreasuryVotesQuery({
-    variables: {
-      where: {
-        voter: transcoder?.id,
-      },
-    },
-  });
-
-  const { data: eligebleProposalsData } = useTreasuryProposalsQuery({
-    variables: {
-      where: {
-        voteStart_gt: firstActivationRound,
-      },
-    },
-    skip: !firstActivationRound,
-  });
-
-  const govStats = useMemo(() => {
-    if (!treasuryVotesData || !eligebleProposalsData) return null;
-    return {
-      voted: treasuryVotesData?.treasuryVotes.length ?? 0,
-      eligible: eligebleProposalsData?.treasuryProposals.length ?? 0,
-    };
-  }, [treasuryVotesData, eligebleProposalsData]);
+  const {
+    treasury: govStats,
+    loading: governanceLoading,
+    error: governanceError,
+  } = useGovernanceParticipation(transcoder?.id, currentRound?.id);
 
   const maxScore = useMemo(() => {
     const topTransData = Object.keys(scores?.scores ?? {}).reduce(
       (prev, curr) => {
-        const score = scores?.scores[curr];
+        const score = scores?.scores?.[curr];
         const region =
           knownRegions?.regions?.find((r) => r.id === curr)?.name ?? "N/A";
         if (
@@ -103,7 +65,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
         ) {
           return {
             region: region,
-            score: scores?.scores[curr],
+            score,
           };
         }
         return prev;
@@ -124,8 +86,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           precision: 1,
         })} - ${maxScore.transcoding.region}`
       : "";
-    return outputTrans ? transcodingInfo : "N/A";
-  }, [maxScore]);
+    if (outputTrans) return transcodingInfo;
+    return scores?.scores === null ? "Unavailable" : "N/A";
+  }, [maxScore, scores]);
 
   const maxAIScoreOutput = useMemo(() => {
     const outputAI = maxScore.ai?.value && maxScore.ai?.value > 0;
@@ -144,8 +107,14 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           score: aiInfo,
           modelText: `. The pipeline and model for this Orchestrator was '${maxScore.ai?.pipeline}' and '${maxScore.ai?.model}'`,
         }
-      : { score: "N/A", modelText: "" };
-  }, [knownRegions?.regions, maxScore]);
+      : {
+          score: scores?.topAIScore === null ? "Unavailable" : "N/A",
+          modelText: "",
+        };
+  }, [knownRegions?.regions, maxScore, scores]);
+
+  const govParticipation =
+    govStats && govStats.total > 0 ? govStats.voted / govStats.total : 0;
 
   return (
     <Box
@@ -219,7 +188,13 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           className="masonry-grid_item"
           label="Price / Pixel"
           tooltip="The most recent price for transcoding which the orchestrator is currently advertising off-chain to gateways. This may be different from on-chain pricing."
-          value={scores ? `${formatNumber(scores.pricePerPixel)} WEI` : "N/A"}
+          value={
+            !scores
+              ? "N/A"
+              : scores.pricePerPixel === null
+              ? "Unavailable"
+              : `${formatNumber(scores.pricePerPixel)} WEI`
+          }
         />
         {/* <Stat
           className="masonry-grid_item"
@@ -333,8 +308,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           variant="interactive"
           tooltip={
             <Box>
-              Number of proposals voted on relative to the number of proposals
-              the orchestrator was eligible for while active.
+              Counts proposals whose voting began while this orchestrator was in
+              the active set, and how many it voted on. Totals vary with
+              activation history.
             </Box>
           }
           value={
@@ -348,17 +324,21 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                     fontWeight: 500,
                   }}
                 >
-                  / {formatNumber(govStats.eligible, { precision: 0 })}{" "}
-                  Proposals
+                  / {formatNumber(govStats.total, { precision: 0 })} proposals
+                  while active
                 </Box>
               </Flex>
+            ) : governanceLoading ? (
+              "Loading…"
+            ) : governanceError ? (
+              "Unavailable"
             ) : (
               "N/A"
             )
           }
           meta={
             <Box css={{ width: "100%", marginTop: "$2" }}>
-              {govStats && (
+              {govStats && govStats.total > 0 && (
                 <Box
                   css={{
                     width: "100%",
@@ -371,7 +351,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                 >
                   <Box
                     css={{
-                      width: `${(govStats.voted / govStats.eligible) * 100}%`,
+                      width: `${govParticipation * 100}%`,
                       height: "100%",
                       backgroundColor: "$primary11",
                     }}
@@ -385,9 +365,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
                   width: "100%",
                 }}
               >
-                {govStats && (
+                {govStats && govStats.total > 0 && (
                   <Text size="2" css={{ color: "$neutral11", fontWeight: 600 }}>
-                    {formatPercent(govStats.voted / govStats.eligible, {
+                    {formatPercent(govParticipation, {
                       precision: 0,
                     })}{" "}
                     Participation

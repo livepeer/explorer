@@ -8,6 +8,7 @@ import {
   getHint,
   getPercentChange,
   isImageUrl,
+  sanitizeExternalUrl,
   simulateNewActiveSetOrder,
   textTruncate,
 } from "./utils";
@@ -273,5 +274,50 @@ describe("isImageUrl", () => {
   it("returns false for non-image URLs", () => {
     expect(isImageUrl("https://example.com/index.html")).toBe(false);
     expect(isImageUrl("not-a-url")).toBe(false);
+  });
+});
+
+describe("sanitizeExternalUrl", () => {
+  it.each([
+    ["http://example.com", "http://example.com/"],
+    [
+      "https://example.com/path?query=value#section",
+      "https://example.com/path?query=value#section",
+    ],
+    ["  HTTPS://EXAMPLE.COM/path  ", "https://example.com/path"],
+    ["example.com/path", "https://example.com/path"],
+    ["  example.com  ", "https://example.com/"],
+    ["//example.com/path", "https://example.com/path"],
+    ["  //example.com/path  ", "https://example.com/path"],
+  ])("normalizes %p to %p", (input, expected) => {
+    expect(sanitizeExternalUrl(input)).toBe(expected);
+  });
+
+  it.each([
+    undefined,
+    null,
+    "",
+    "   ",
+    "javascript:alert(1)",
+    "  JaVaScRiPt:alert(1)  ",
+    "data:text/html,<script>alert(1)</script>",
+    "vbscript:msgbox(1)",
+    "file:///etc/passwd",
+    "ftp://example.com",
+    "mailto:user@example.com",
+    "https://",
+    "https://invalid host.com",
+    "https://[invalid]",
+    "//",
+    "/about",
+    " /example.com/path ",
+    "./about",
+    "../about",
+    ".",
+    "..",
+    "#section",
+    "?query=value",
+  ])("rejects %p", (input) => {
+    expect(sanitizeExternalUrl(input)).toBeNull();
   });
 });

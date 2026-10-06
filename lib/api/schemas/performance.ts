@@ -43,10 +43,10 @@ export const RegionalValuesSchema = z.record(z.string(), z.number());
  * Schema for performance metrics response
  */
 export const PerformanceMetricsSchema = z.object({
-  successRates: RegionalValuesSchema,
-  roundTripScores: RegionalValuesSchema,
-  scores: RegionalValuesSchema,
-  pricePerPixel: z.number(),
+  successRates: RegionalValuesSchema.nullable(),
+  roundTripScores: RegionalValuesSchema.nullable(),
+  scores: RegionalValuesSchema.nullable(),
+  pricePerPixel: z.number().nullable(),
   topAIScore: z.preprocess(
     (val) =>
       typeof val === "object" && val !== null && Object.keys(val).length === 0

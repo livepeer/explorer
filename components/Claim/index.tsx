@@ -2,7 +2,7 @@ import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { l2Migrator } from "@lib/api/abis/bridge/L2Migrator";
 import { getL2MigratorAddress } from "@lib/api/contracts";
 import { Box, Button, Container, Flex, Text } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { formatAddress } from "@utils/web3";
 import { constants, ethers } from "ethers";
 import { useAccountAddress, useL1DelegatorData } from "hooks";
@@ -246,7 +246,7 @@ const Claim = () => {
           )}
           <Button
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             variant="transparentWhite"

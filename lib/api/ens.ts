@@ -1,87 +1,43 @@
-import { l1Provider } from "@lib/chains";
+import { l1PublicClient } from "@lib/chains";
+import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
 import { formatAddress } from "@utils/web3";
-import sanitizeHtml from "sanitize-html";
+import { isAddress } from "viem";
+import { normalize } from "viem/ens";
 
 import {
   GithubHandleSchema,
   TwitterHandleSchema,
   WebUrlSchema,
 } from "./schemas/common";
-import { EnsAvatarProviderSchema, EnsTextRecordSchema } from "./schemas/ens";
+import { EnsTextRecordSchema } from "./schemas/ens";
 import { EnsIdentity } from "./types/get-ens";
-
-const sanitizeOptions: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "b",
-    "i",
-    "em",
-    "strong",
-    "a",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "hr",
-    "li",
-    "ol",
-    "p",
-    "pre",
-    "ul",
-    "br",
-    "code",
-    "span",
-  ],
-  disallowedTagsMode: "discard",
-  allowedAttributes: {
-    a: ["href"],
-  },
-  // Lots of these won't come up by default because we don't allow them
-  selfClosing: [
-    "img",
-    "br",
-    "hr",
-    "area",
-    "base",
-    "basefont",
-    "input",
-    "link",
-    "meta",
-  ],
-  // URL schemes we permit
-  allowedSchemes: ["https", "mailto", "tel"],
-  allowedSchemesByTag: {},
-  allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
-  allowProtocolRelative: false,
-  enforceHtmlBoundary: true,
-};
 
 export const getEnsForAddress = async (address: string | null | undefined) => {
   const idShort = address?.replace(address?.slice(6, 38), "…");
 
-  const name = address ? await l1Provider.lookupAddress(address) : null;
+  const name =
+    address && isAddress(address)
+      ? await l1PublicClient.getEnsName({ address })
+      : null;
 
   if (name) {
-    const resolver = await l1Provider.getResolver(name);
+    const normalizedName = normalize(name);
     const [descriptionRaw, urlRaw, twitterRaw, githubRaw, avatarRaw] =
       await Promise.all([
-        resolver?.getText("description"),
-        resolver?.getText("url"),
-        resolver?.getText("com.twitter"),
-        resolver?.getText("com.github"),
-        resolver?.getAvatar(),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "description" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "url" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "com.twitter" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "com.github" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "avatar" }),
       ]);
 
-    // Validate all ENS provider responses with graceful fallback
-    // If validation fails, we set the field to null rather than crashing
+    // Invalid ENS records fall back to null without discarding the identity.
     const descriptionValidation = EnsTextRecordSchema.safeParse(descriptionRaw);
     const urlValidation = WebUrlSchema.nullable().safeParse(urlRaw);
     const twitterValidation =
       TwitterHandleSchema.nullable().safeParse(twitterRaw);
     const githubValidation = GithubHandleSchema.nullable().safeParse(githubRaw);
-    const avatarValidation = EnsAvatarProviderSchema.safeParse(avatarRaw);
+    const avatarValidation = EnsTextRecordSchema.safeParse(avatarRaw);
 
     const description = descriptionValidation.success
       ? descriptionValidation.data
@@ -95,11 +51,13 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       id: address ?? "",
       idShort: idShort ?? "",
       name: name ?? null,
-      description: sanitizeHtml(nl2br(description), sanitizeOptions),
+      description: sanitizeHtml(nl2br(description), ensDescriptionSchema),
       url,
       twitter,
       github,
-      avatar: avatar?.url ? `/api/ens-data/image/${name}` : null,
+      avatar: avatar
+        ? `/api/ens-data/image/${encodeURIComponent(normalizedName)}`
+        : null,
     };
 
     return ens;
@@ -129,7 +87,10 @@ export const nl2br = (str, is_xhtml = true) => {
 export const getEnsForVotes = async (address: string | null | undefined) => {
   const idShort = formatAddress(address);
 
-  const name = address ? await l1Provider.lookupAddress(address) : null;
+  const name =
+    address && isAddress(address)
+      ? await l1PublicClient.getEnsName({ address })
+      : null;
 
   return {
     id: address ?? "",

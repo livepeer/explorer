@@ -46,20 +46,14 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       ... on RewardEvent {
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         amount
       }
       ... on WithdrawFeesEvent {
         amount
-      }
-      ... on WinningTicketRedeemedEvent {
-        faceValue
-        sender {
-          id
-        }
-        recipient {
-          id
-        }
       }
       ... on DepositFundedEvent {
         sender {
@@ -138,6 +132,29 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       id
     }
     recipient {
+      id
+    }
+  }
+  rewardEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    where: {
+      or: [{ delegate: $account }, { transaction_: { from: $account } }]
+    }
+    first: $first
+    skip: $skip
+  ) {
+    __typename
+    id
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+    rewardTokens
+    delegate {
       id
     }
   }

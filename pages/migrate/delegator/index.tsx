@@ -24,9 +24,8 @@ import {
   Text,
   TextField,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
 import { Step, StepContent, StepLabel, Stepper } from "@mui/material";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, ArrowTopRightIcon } from "@radix-ui/react-icons";
 import { formatAddress, formatTransactionHash } from "@utils/web3";
 import { ethers } from "ethers";
 import { useAccountAddress, useActiveChain, useL1DelegatorData } from "hooks";
@@ -208,6 +207,7 @@ function reducer(state, action) {
 const MigrateUndelegatedStake = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [render, setRender] = useState(false);
 
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
@@ -227,7 +227,6 @@ const MigrateUndelegatedStake = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -463,16 +462,30 @@ const MigrateUndelegatedStake = () => {
     const init = async () => {
       if (accountAddress && l1SignerOrAddress) {
         const locks = l1SignerOrAddress.activeLocks.map((e) => e.id);
+        const addr = state.signer ? state.signer : accountAddress;
+
+        // Empty lock array reverts EMPTY_LOCK_IDS; short-circuit to initialize.
+        if (!locks.length) {
+          dispatch({
+            type: "initialize",
+            payload: {
+              migrationCallData: null,
+              migrationParams: {
+                l1Addr: addr,
+                l2Addr: addr,
+                total: BigInt(0),
+                unbondingLockIds: [],
+              },
+            },
+          });
+          return;
+        }
 
         const [data, params] = await l1PublicClient.readContract({
           address: CHAIN_INFO[DEFAULT_CHAIN_ID].contracts.l1Migrator,
           abi: l1Migrator,
           functionName: "getMigrateUnbondingLocksParams",
-          args: [
-            state.signer ? state.signer : accountAddress,
-            state.signer ? state.signer : accountAddress,
-            locks.map((e) => BigInt(e)),
-          ],
+          args: [addr, addr, locks.map((e) => BigInt(e))],
         });
         dispatch({
           type: "initialize",
@@ -855,7 +868,7 @@ const MigrateUndelegatedStake = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             ghost

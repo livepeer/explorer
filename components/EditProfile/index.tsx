@@ -11,7 +11,7 @@ import {
   Link as A,
   Text,
 } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 
 const Index = () => {
   return (
