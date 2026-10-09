@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 
@@ -369,6 +369,9 @@ export function PortfolioView({
     <IdleLptAction idle={idle} accounts={accounts} positions={view.positions} />
   );
   const lpt = prices?.lpt;
+  // Problems costing the delegator rewards, lifted to the top of the page;
+  // votes, Safe actions and withdrawals wait in the list below.
+  const urgent = insights.filter((i) => i.tone === "warning");
   // Connected wallets with fees to withdraw, most first.
   const withdrawable =
     view?.positions
@@ -381,6 +384,22 @@ export function PortfolioView({
         <div className="mb-5">
           <ScopeBar accounts={accounts} scope={scope} onScope={setScope} />
         </div>
+      )}
+
+      {urgent.length > 0 && (
+        <a
+          href="#needs-attention"
+          className="mb-5 flex items-center gap-2.5 rounded-md bg-warm-subtle px-3.5 py-2.5 text-ui-caption text-warm transition-colors hover:bg-warm-subtle/80"
+        >
+          <AlertTriangle className="size-3.5 shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            {urgent[0].title}
+            {urgent.length > 1 && ` · and ${urgent.length - 1} more`}
+          </span>
+          <span className="flex shrink-0 items-center gap-1">
+            Review <ArrowDown className="size-3" />
+          </span>
+        </a>
       )}
 
       <div className="animate-rise">
@@ -516,7 +535,7 @@ export function PortfolioView({
       </div>
 
       {insights.length > 0 && (
-        <Section className="mt-10">
+        <Section id="needs-attention" className="mt-10 scroll-mt-6">
           <SectionHeader
             title="Needs attention"
             description="Open votes, pending Safe actions, and your orchestrators' last 30 rounds"
