@@ -3,9 +3,11 @@ import { Fragment } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * A deliberately small markdown reader: headings, lists, quotes, fenced code,
- * tables, rules and paragraphs, plus inline links, bold, code and `<br>`
- * line breaks. Everything renders as React text nodes — no HTML is ever
+ * A deliberately small markdown reader: headings, lists (task lists too),
+ * quotes, fenced code, tables, rules and paragraphs, plus inline links
+ * (reference-style too), bold, italic, code, escapes, entities and `<br>`
+ * line breaks. Images become links rather than loading from whatever host a
+ * proposal names. Everything renders as React text nodes — no HTML is ever
  * injected.
  */
 
@@ -27,9 +29,15 @@ const cells = (row: string) =>
     .split("|")
     .map((c) => c.trim());
 
-function parseBlocks(source: string): Block[] {
+/** Reference-style link targets, e.g. `[1]: https://…`, by lowercased id. */
+type Refs = Map<string, string>;
+
+const REF_DEF = /^\[([^\]^]+)\]:\s*<?(\S+?)>?(?:\s+["'(].*)?$/;
+
+function parseBlocks(source: string): { blocks: Block[]; refs: Refs } {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
   const blocks: Block[] = [];
+  const refs: Refs = new Map();
   let para: string[] = [];
   const flush = () => {
     if (para.length) blocks.push({ kind: "paragraph", lines: para });
@@ -52,8 +60,20 @@ function parseBlocks(source: string): Block[] {
     }
     // A line holding only `<br>` is spacing between sections: treat it as
     // a blank line rather than showing the tag.
-    if (!line || line.replace(BR, "").trim() === "") {
+    if (
+      !line ||
+      line
+        .replace(BR, "")
+        .replace(/&nbsp;/g, "")
+        .trim() === ""
+    ) {
       flush();
+      continue;
+    }
+    const ref = REF_DEF.exec(line);
+    if (ref) {
+      flush();
+      refs.set(ref[1].toLowerCase(), ref[2]);
       continue;
     }
     if (/^([-*_])(\s*\1){2,}$/.test(line)) {
@@ -115,7 +135,7 @@ function parseBlocks(source: string): Block[] {
     para.push(line);
   }
   flush();
-  return blocks;
+  return { blocks, refs };
 }
 
 const SAFE_URL = /^(https?:|mailto:)/i;
@@ -132,66 +152,145 @@ function safeHref(url: string, base?: string) {
   return null;
 }
 
-const INLINE =
-  /\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|(https?:\/\/[^\s)<>]+[^\s)<>.,;:!?'"])|\*\*([^*]+)\*\*|__([^_]+)__|`([^`]+)`|(<br\s*\/?>)/gi;
+const ENTITIES: Record<string, string> = {
+  nbsp: "\u00a0",
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+};
 
-function Inline({ text, base }: { text: string; base?: string }) {
+/** Plain text with HTML entities (`&nbsp;`, `&amp;`, `&#39;`) decoded. */
+function decode(text: string) {
+  return text.replace(/&(#\d+|#x[\da-f]+|[a-z]+);/gi, (m, e: string) => {
+    if (e[0] !== "#") return ENTITIES[e.toLowerCase()] ?? m;
+    const code =
+      e[1] === "x" || e[1] === "X"
+        ? parseInt(e.slice(2), 16)
+        : parseInt(e.slice(1), 10);
+    return Number.isFinite(code) && code > 0 ? String.fromCodePoint(code) : m;
+  });
+}
+
+const INLINE = new RegExp(
+  [
+    // `code`, first so nothing inside it is formatted.
+    /`(?<code>[^`]+)`/,
+    // \* and friends: the character itself.
+    /\\(?<escaped>[\\`*_{}[\]()#+\-.!>|~])/,
+    // [![thumbnail](image)](url), e.g. a video's preview: a link to the url.
+    /\[!\[[^\]]*\]\([^)\s]+\)\]\((?<linkedImg>[^)\s]+)\)/,
+    // ![alt](url) and <img alt src>: a link, never a fetched image.
+    /!\[(?<imgAlt>[^\]]*)\]\((?<imgSrc>[^)\s]+)(?:\s+"[^"]*")?\)/,
+    /<img\b(?<imgTag>[^>]*)>/,
+    // [text](url), and [text][ref] or ![alt][ref] from a definition below.
+    /\[(?<text>[^\]]+)\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/,
+    /(?<refImg>!)?\[(?<refText>[^\]]+)\]\[(?<ref>[^\]]*)\]/,
+    /(?<url>https?:\/\/[^\s)<>]+[^\s)<>.,;:!?'"])/,
+    /\*\*\*(?<strongEm>[^*]+)\*\*\*/,
+    /\*\*(?<strong>[^*]+)\*\*|__(?<strong2>[^_]+)__/,
+    // *em* and _em_, but not a lone * or snake_case.
+    /(?<![\w*])\*(?=\S)(?<em>[^*\n]*?\S)\*(?![\w*])/,
+    /(?<!\w)_(?=\S)(?<em2>[^_\n]*?\S)_(?!\w)/,
+    /(?<br><br\s*\/?>)/,
+  ]
+    .map((r) => r.source)
+    .join("|"),
+  "gi"
+);
+
+const attr = (tag: string, name: string) =>
+  new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, "i").exec(tag)?.[1];
+
+type Ctx = { base?: string; refs: Refs };
+
+function Inline({ text, ctx }: { text: string; ctx: Ctx }) {
   const out: React.ReactNode[] = [];
   let last = 0;
   let key = 0;
+  const link = (href: string | null, label: React.ReactNode, wrap = false) =>
+    href ? (
+      <a
+        key={key++}
+        href={href}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={cn(LINK, wrap && "break-all")}
+      >
+        {label}
+      </a>
+    ) : (
+      <Fragment key={key++}>{label}</Fragment>
+    );
+  const image = (alt: string | undefined, src: string | undefined) =>
+    link(src ? safeHref(src, ctx.base) : null, `[${alt || "Image"}]`);
+
   for (const m of text.matchAll(INLINE)) {
+    const g = m.groups!;
     const idx = m.index ?? 0;
-    if (idx > last) out.push(text.slice(last, idx));
-    if (m[1] != null) {
-      const href = safeHref(m[2], base);
-      out.push(
-        href ? (
-          <a
-            key={key++}
-            href={href}
-            target="_blank"
-            rel="noreferrer noopener"
-            className={LINK}
-          >
-            {m[1]}
-          </a>
-        ) : (
-          m[1]
-        )
-      );
-    } else if (m[3] != null) {
-      out.push(
-        <a
-          key={key++}
-          href={m[3]}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={cn(LINK, "break-all")}
-        >
-          {m[3]}
-        </a>
-      );
-    } else if (m[4] != null || m[5] != null) {
-      out.push(
-        <strong key={key++} className="font-medium text-foreground">
-          {m[4] ?? m[5]}
-        </strong>
-      );
-    } else if (m[7] != null) {
-      out.push(<br key={key++} />);
-    } else if (m[6] != null) {
+    if (idx > last) out.push(decode(text.slice(last, idx)));
+    if (g.code != null) {
       out.push(
         <code
           key={key++}
           className="rounded-[3px] bg-hover px-1 py-px font-mono text-[0.9em]"
         >
-          {m[6]}
+          {g.code}
         </code>
       );
+    } else if (g.escaped != null) {
+      out.push(g.escaped);
+    } else if (g.linkedImg != null) {
+      const href = safeHref(g.linkedImg, ctx.base);
+      out.push(link(href, href ?? g.linkedImg, true));
+    } else if (g.imgSrc != null) {
+      out.push(image(g.imgAlt, g.imgSrc));
+    } else if (g.imgTag != null) {
+      out.push(image(attr(g.imgTag, "alt"), attr(g.imgTag, "src")));
+    } else if (g.href != null) {
+      out.push(
+        link(safeHref(g.href, ctx.base), <Inline text={g.text} ctx={ctx} />)
+      );
+    } else if (g.refText != null) {
+      const target = ctx.refs.get((g.ref || g.refText).toLowerCase());
+      if (!target) out.push(decode(m[0]));
+      else if (g.refImg) out.push(image(g.refText, target));
+      else
+        out.push(
+          link(
+            safeHref(target, ctx.base),
+            <Inline text={g.refText} ctx={ctx} />
+          )
+        );
+    } else if (g.url != null) {
+      out.push(link(g.url, g.url, true));
+    } else if (g.strongEm != null) {
+      out.push(
+        <strong key={key++} className="font-medium text-foreground">
+          <em>
+            <Inline text={g.strongEm} ctx={ctx} />
+          </em>
+        </strong>
+      );
+    } else if (g.strong != null || g.strong2 != null) {
+      out.push(
+        <strong key={key++} className="font-medium text-foreground">
+          <Inline text={(g.strong ?? g.strong2)!} ctx={ctx} />
+        </strong>
+      );
+    } else if (g.em != null || g.em2 != null) {
+      out.push(
+        <em key={key++}>
+          <Inline text={(g.em ?? g.em2)!} ctx={ctx} />
+        </em>
+      );
+    } else if (g.br != null) {
+      out.push(<br key={key++} />);
     }
     last = idx + m[0].length;
   }
-  if (last < text.length) out.push(text.slice(last));
+  if (last < text.length) out.push(decode(text.slice(last)));
   return <>{out}</>;
 }
 
@@ -213,7 +312,8 @@ export function PlainMarkdown({
   base?: string;
   className?: string;
 }) {
-  const blocks = parseBlocks(source);
+  const { blocks, refs } = parseBlocks(source);
+  const ctx: Ctx = { base, refs };
   return (
     <div
       className={cn(
@@ -233,7 +333,7 @@ export function PlainMarkdown({
                   HEADING[b.level] ?? "mt-5 text-[15px] font-medium first:mt-0"
                 )}
               >
-                <Inline text={b.text} base={base} />
+                <Inline text={b.text} ctx={ctx} />
               </Tag>
             );
           }
@@ -247,11 +347,34 @@ export function PlainMarkdown({
                   b.ordered ? "list-decimal" : "list-disc"
                 )}
               >
-                {b.items.map((item, j) => (
-                  <li key={j} className="pl-1 marker:text-subtle-foreground">
-                    <Inline text={item} base={base} />
-                  </li>
-                ))}
+                {b.items.map((item, j) => {
+                  // - [x] done / - [ ] to do
+                  const task = /^\[([ xX])\]\s+/.exec(item);
+                  return (
+                    <li
+                      key={j}
+                      className={cn(
+                        "pl-1 marker:text-subtle-foreground",
+                        task && "-ml-5 list-none"
+                      )}
+                    >
+                      {task && (
+                        <input
+                          type="checkbox"
+                          checked={task[1] !== " "}
+                          readOnly
+                          disabled
+                          aria-label={task[1] !== " " ? "Done" : "Not done"}
+                          className="mr-2 align-[-2px]"
+                        />
+                      )}
+                      <Inline
+                        text={task ? item.slice(task[0].length) : item}
+                        ctx={ctx}
+                      />
+                    </li>
+                  );
+                })}
               </Tag>
             );
           }
@@ -264,7 +387,7 @@ export function PlainMarkdown({
                 {b.lines.map((l, j) => (
                   <Fragment key={j}>
                     {j > 0 && <br />}
-                    <Inline text={l} base={base} />
+                    <Inline text={l} ctx={ctx} />
                   </Fragment>
                 ))}
               </blockquote>
@@ -292,7 +415,7 @@ export function PlainMarkdown({
                             key={j}
                             className="px-3 py-2 align-bottom font-medium text-foreground"
                           >
-                            <Inline text={c} base={base} />
+                            <Inline text={c} ctx={ctx} />
                           </th>
                         ))}
                       </tr>
@@ -306,7 +429,7 @@ export function PlainMarkdown({
                       >
                         {r.map((c, k) => (
                           <td key={k} className="px-3 py-2 align-top">
-                            <Inline text={c} base={base} />
+                            <Inline text={c} ctx={ctx} />
                           </td>
                         ))}
                       </tr>
@@ -321,7 +444,7 @@ export function PlainMarkdown({
                 {b.lines.map((l, j) => (
                   <Fragment key={j}>
                     {j > 0 && <br />}
-                    <Inline text={l} base={base} />
+                    <Inline text={l} ctx={ctx} />
                   </Fragment>
                 ))}
               </p>
