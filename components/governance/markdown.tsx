@@ -4,8 +4,9 @@ import { cn } from "@/lib/cn";
 
 /**
  * A deliberately small markdown reader: headings, lists, quotes, fenced code,
- * tables (kept monospace) and paragraphs, plus inline links, bold and code.
- * Everything renders as React text nodes — no HTML is ever injected.
+ * tables, rules and paragraphs, plus inline links, bold, code and `<br>`
+ * line breaks. Everything renders as React text nodes — no HTML is ever
+ * injected.
  */
 
 type Block =
@@ -13,7 +14,18 @@ type Block =
   | { kind: "list"; ordered: boolean; items: string[] }
   | { kind: "quote"; lines: string[] }
   | { kind: "code"; text: string }
+  | { kind: "table"; head: string[] | null; rows: string[][] }
+  | { kind: "rule" }
   | { kind: "paragraph"; lines: string[] };
+
+/** A `<br>` tag, which markdown written elsewhere uses for line breaks. */
+const BR = /<br\s*\/?>/gi;
+
+const cells = (row: string) =>
+  row
+    .slice(1, -1)
+    .split("|")
+    .map((c) => c.trim());
 
 function parseBlocks(source: string): Block[] {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
@@ -38,8 +50,15 @@ function parseBlocks(source: string): Block[] {
       blocks.push({ kind: "code", text: code.join("\n") });
       continue;
     }
-    if (!line) {
+    // A line holding only `<br>` is spacing between sections: treat it as
+    // a blank line rather than showing the tag.
+    if (!line || line.replace(BR, "").trim() === "") {
       flush();
+      continue;
+    }
+    if (/^([-*_])(\s*\1){2,}$/.test(line)) {
+      flush();
+      blocks.push({ kind: "rule" });
       continue;
     }
     if (/^\|.*\|$/.test(line)) {
@@ -48,9 +67,12 @@ function parseBlocks(source: string): Block[] {
       while (i < lines.length && /^\|.*\|$/.test(lines[i].trim()))
         rows.push(lines[i++].trim());
       i--;
+      // The first row is a header when a separator row (|---|) follows it.
+      const separated = rows.length > 1 && /^\|[\s:|-]+\|$/.test(rows[1]);
       blocks.push({
-        kind: "code",
-        text: rows.filter((r) => !/^\|[\s:|-]+\|$/.test(r)).join("\n"),
+        kind: "table",
+        head: separated ? cells(rows[0]) : null,
+        rows: rows.slice(separated ? 2 : 0).map(cells),
       });
       continue;
     }
@@ -111,7 +133,7 @@ function safeHref(url: string, base?: string) {
 }
 
 const INLINE =
-  /\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|(https?:\/\/[^\s)<>]+[^\s)<>.,;:!?'"])|\*\*([^*]+)\*\*|__([^_]+)__|`([^`]+)`/g;
+  /\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|(https?:\/\/[^\s)<>]+[^\s)<>.,;:!?'"])|\*\*([^*]+)\*\*|__([^_]+)__|`([^`]+)`|(<br\s*\/?>)/gi;
 
 function Inline({ text, base }: { text: string; base?: string }) {
   const out: React.ReactNode[] = [];
@@ -155,6 +177,8 @@ function Inline({ text, base }: { text: string; base?: string }) {
           {m[4] ?? m[5]}
         </strong>
       );
+    } else if (m[7] != null) {
+      out.push(<br key={key++} />);
     } else if (m[6] != null) {
       out.push(
         <code
@@ -253,6 +277,43 @@ export function PlainMarkdown({
               >
                 {b.text}
               </pre>
+            );
+          case "rule":
+            return <hr key={i} className="border-hairline" />;
+          case "table":
+            return (
+              <div key={i} className="surface overflow-x-auto">
+                <table className="w-full text-left text-ui-caption leading-5">
+                  {b.head && (
+                    <thead>
+                      <tr className="border-b border-hairline">
+                        {b.head.map((c, j) => (
+                          <th
+                            key={j}
+                            className="px-3 py-2 align-bottom font-medium text-foreground"
+                          >
+                            <Inline text={c} base={base} />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                  )}
+                  <tbody>
+                    {b.rows.map((r, j) => (
+                      <tr
+                        key={j}
+                        className="border-b border-hairline last:border-0"
+                      >
+                        {r.map((c, k) => (
+                          <td key={k} className="px-3 py-2 align-top">
+                            <Inline text={c} base={base} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             );
           case "paragraph":
             return (
