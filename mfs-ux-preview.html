@@ -4,13 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Delegation under Min-Fee-Stake · Design review</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
     <style>
+      /* Inter latin 400–700: same files as @fontsource/inter (see mfs-ux-preview/fonts/). */
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-display: swap;
+        font-weight: 400;
+        src: url("mfs-ux-preview/fonts/inter-latin-400-normal.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-display: swap;
+        font-weight: 500;
+        src: url("mfs-ux-preview/fonts/inter-latin-500-normal.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-display: swap;
+        font-weight: 600;
+        src: url("mfs-ux-preview/fonts/inter-latin-600-normal.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-display: swap;
+        font-weight: 700;
+        src: url("mfs-ux-preview/fonts/inter-latin-700-normal.woff2")
+          format("woff2");
+      }
       :root {
         --bg: #0d0d0d;
         --panel: #141414;
