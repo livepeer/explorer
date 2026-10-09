@@ -1,5 +1,5 @@
 {
   "name": "Livepeer Explorer",
-  "description": "Delegate LPT, manage your stake and vote on Livepeer governance.",
-  "iconPath": "img/logos/logo-circle-green.svg"
+  "description": "Track your Livepeer stake, rewards and fees across every wallet. Delegate to orchestrators and take part in governance.",
+  "iconPath": "icon.svg"
 }
