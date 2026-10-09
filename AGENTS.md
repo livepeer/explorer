@@ -139,7 +139,7 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 - MUST: Keep reward-history and validator-score UX out of MFS list/detail design; those are separate tickets
 - SHOULD: Primary compare on `/orchestrators`; one-node explanation on `/accounts/[account]/orchestrating`; already-bonded status on `/accounts/[account]/delegating`
 - SHOULD: Optional checkout-style disclosure for reward/fee breakdown; one shell, flat line-items inside
-- Design notes and mocks: `docs/mfs/`, `mfs-ux-preview.html`
+- Design notes and mocks: `docs/mfs/`, `design/mocks/mfs-delegation-802/`
 
 ## Learned User Preferences
 
@@ -156,5 +156,5 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 
 ## Learned Workspace Facts
 
-- Design-bounty precedent is standalone HTML previews at the repo root that reuse Explorer design tokens (eg. `voting-widget-preview.html`), not feature implementation.
+- Design-bounty mocks live under `design/mocks/` (`index.html` per issue); share Inter from `design/mocks/shared/`. Not product implementation until approved.
 - Body font is Inter via `$body` in `@livepeer/design-system`; load it with Fontsource, not Google Fonts `display=optional` links.

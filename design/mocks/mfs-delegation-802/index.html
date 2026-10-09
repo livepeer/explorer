@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delegation under Min-Fee-Stake · Design review</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --panel: #141414;
+        --neutral2: #191919;
+        --neutral3: #1f1f1f;
+        --neutral4: #2a2a2a;
+        --neutral5: #333333;
+        --neutral6: #3d3d3d;
+        --neutral8: #6b6b6b;
+        --neutral10: #8f8f8f;
+        --neutral11: #a0a0a0;
+        --hiContrast: #ffffff;
+        --primary4: #113123;
+        --primary11: #4cc38a;
+        /* Quantity colors. Blue is always fees, violet is always stake.
+         A state takes the color of whichever side is the minimum.
+         Neither state is good or bad, so neither gets green or amber. */
+        --fee3: #10243a;
+        --fee9: #0091ff;
+        --fee11: #52a9ff;
+        --stake3: #231d38;
+        --stake9: #6e56cf;
+        --stake11: #a58fff;
+        --tomato3: #291415;
+        --tomato4: #351719;
+        --tomato11: #ff6b47;
+        --radius: 12px;
+        --radius-sm: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--hiContrast);
+        padding: 40px;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- page chrome (preview only, not product UI) ---------- */
+
+      .page-head {
+        margin-bottom: 48px;
+        max-width: 860px;
+      }
+
+      .issue-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--primary11);
+        text-decoration: none;
+        margin-bottom: 12px;
+      }
+      .issue-link:hover {
+        text-decoration: underline;
+      }
+      .issue-link:focus-visible,
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+
+      .page-head p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--neutral11);
+        max-width: 65ch;
+      }
+      .page-head p + p {
+        margin-top: 8px;
+      }
+      .page-head strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .page-head code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        background: var(--neutral3);
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: var(--hiContrast);
+      }
+
+      .status-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: var(--neutral3);
+        color: var(--neutral11);
+        margin-bottom: 16px;
+      }
+
+      .section {
+        margin-bottom: 64px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--neutral4);
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .section-route {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--neutral10);
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--neutral11);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        max-width: 72ch;
+      }
+
+      .notes {
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.7;
+        max-width: 72ch;
+      }
+      .notes li {
+        margin-left: 20px;
+        margin-bottom: 4px;
+      }
+      .notes sup {
+        color: var(--primary11);
+        font-weight: 600;
+      }
+
+      sup.ref {
+        color: var(--primary11);
+        font-weight: 600;
+        font-size: 11px;
+      }
+
+      .variant-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral10);
+        margin-bottom: 8px;
+      }
+
+      /* ---------- shared atoms ---------- */
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .chip svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+      }
+      .chip.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .chip.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+      .chip.balanced {
+        background: var(--neutral3);
+        color: var(--neutral11);
+      }
+
+      .tag {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        margin-left: 6px;
+        vertical-align: 1px;
+        white-space: nowrap;
+      }
+      .tag.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .tag.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+
+      .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--hiContrast);
+        flex-shrink: 0;
+      }
+
+      .identity {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .identity .name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--hiContrast);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .identity .addr {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--neutral8);
+      }
+
+      .tooltip-dot {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 1px solid var(--neutral6);
+        color: var(--neutral10);
+        font-size: 9px;
+        font-weight: 700;
+        margin-left: 5px;
+        vertical-align: 1px;
+        cursor: help;
+      }
+
+      /* fees-vs-stake number lines (table version of the comparison) */
+      .kv {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .kv-line {
+        font-size: 13px;
+        color: var(--neutral11);
+        white-space: nowrap;
+      }
+      .kv-line .pct {
+        font-weight: 700;
+        color: var(--hiContrast);
+      }
+      .kv-line.binding .pct {
+        text-decoration: underline dotted;
+        text-underline-offset: 3px;
+      }
+
+      /* ---------- table (orchestrators list) ---------- */
+
+      .table-shell {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--neutral4);
+      }
+
+      .search {
+        flex: 1;
+        min-width: 200px;
+        max-width: 320px;
+        background: var(--neutral3);
+        border: 1px solid var(--neutral5);
+        border-radius: var(--radius-sm);
+        color: var(--hiContrast);
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+      .search::placeholder {
+        color: var(--neutral8);
+      }
+
+      .seg {
+        display: inline-flex;
+        background: var(--neutral3);
+        border: 1px solid var(--neutral5);
+        border-radius: var(--radius-sm);
+        padding: 2px;
+      }
+      .seg button {
+        border: 0;
+        background: transparent;
+        color: var(--neutral11);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--neutral5);
+        color: var(--hiContrast);
+      }
+
+      .window-note {
+        font-size: 12px;
+        color: var(--neutral10);
+        margin-left: auto;
+      }
+
+      .sort-note {
+        padding: 10px 16px;
+        font-size: 12.5px;
+        color: var(--neutral10);
+        border-bottom: 1px solid var(--neutral4);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--neutral10);
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--neutral4);
+        white-space: nowrap;
+      }
+      thead th.num,
+      td.num {
+        text-align: right;
+      }
+
+      tbody td {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--neutral3);
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      tbody tr:hover {
+        background: var(--neutral2);
+      }
+
+      td .cell-main {
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+      td .cell-sub {
+        font-size: 11px;
+        color: var(--neutral8);
+        margin-top: 2px;
+      }
+
+      .state-sub {
+        font-size: 11px;
+        color: var(--neutral10);
+        margin-top: 4px;
+        max-width: 180px;
+      }
+
+      .reward-cap {
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .reward-cap.stake {
+        color: var(--stake11);
+      }
+      .reward-cap.fee {
+        color: var(--fee11);
+      }
+      .reward-cap.balanced {
+        color: var(--neutral11);
+      }
+
+      .delegate-btn {
+        background: var(--primary4);
+        color: var(--primary11);
+        border: 1px solid transparent;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: transform 0.08s ease, background-color 0.15s ease;
+      }
+      .delegate-btn:hover {
+        background: #16402c;
+      }
+      .delegate-btn:active {
+        transform: translateY(1px);
+      }
+
+      .table-foot {
+        padding: 12px 16px;
+        font-size: 12px;
+        color: var(--neutral10);
+        border-top: 1px solid var(--neutral4);
+      }
+
+      /* skeleton row */
+      .sk {
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--neutral3) 25%,
+          var(--neutral4) 50%,
+          var(--neutral3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sk {
+          animation: none;
+        }
+      }
+
+      /* ---------- mobile card ---------- */
+
+      .mobile-wrap {
+        max-width: 400px;
+      }
+
+      .m-card {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+      .m-card .top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .m-card .top .chip {
+        margin-left: auto;
+      }
+      .m-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--neutral3);
+      }
+      .m-stat .k {
+        font-size: 11.5px;
+        color: var(--neutral10);
+        margin-bottom: 4px;
+      }
+      .m-stat .v {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .m-card .delegate-btn {
+        width: 100%;
+        margin-top: 14px;
+        padding: 11px;
+        font-size: 14px;
+      }
+
+      /* ---------- orchestrating page MFS block (themed per state) ---------- */
+
+      .mfs-block {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 720px;
+      }
+      /* the undertone: panel and border take a wash of the binding side's color */
+      .mfs-block.theme-stake {
+        background: linear-gradient(
+            rgba(110, 86, 207, 0.07),
+            rgba(110, 86, 207, 0.07)
+          ),
+          var(--panel);
+        border-color: rgba(165, 143, 255, 0.22);
+      }
+      .mfs-block.theme-fee {
+        background: linear-gradient(
+            rgba(0, 145, 255, 0.06),
+            rgba(0, 145, 255, 0.06)
+          ),
+          var(--panel);
+        border-color: rgba(82, 169, 255, 0.2);
+      }
+
+      .mfs-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+      .mfs-title {
+        font-size: 16px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      .mfs-head .chip {
+        margin-left: auto;
+      }
+      .mfs-window {
+        font-size: 12px;
+        color: var(--neutral10);
+        margin-bottom: 16px;
+      }
+
+      .mfs-sentence {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--neutral11);
+        max-width: 62ch;
+      }
+      .mfs-sentence strong {
+        color: var(--hiContrast);
+        font-weight: 650;
+      }
+      .mfs-sentence .hl-stake {
+        color: var(--stake11);
+        font-weight: 700;
+      }
+      .mfs-sentence .hl-fee {
+        color: var(--fee11);
+        font-weight: 700;
+      }
+
+      /* min() comparison: two inputs, one result. No shared bar cut (that implies
+         "N% of each", which is the wrong story). */
+      .mfs-compare {
+        margin: 18px 0 4px;
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .mfs-compare-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--neutral4);
+      }
+      .mfs-compare-row:last-child {
+        border-bottom: 0;
+      }
+      .mfs-compare-row .name {
+        font-size: 13px;
+        color: var(--neutral11);
+      }
+      .mfs-compare-row .pct-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+      }
+      .mfs-compare-row .pct {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .mfs-compare-row .unit {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--neutral8);
+      }
+      .mfs-compare-row.binding .name,
+      .mfs-compare-row.binding .pct {
+        color: var(--hiContrast);
+      }
+      .mfs-compare-row.binding .name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .mfs-compare-row.result {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .theme-stake .mfs-compare-row.result {
+        background: rgba(110, 86, 207, 0.12);
+      }
+      .theme-fee .mfs-compare-row.result {
+        background: rgba(0, 145, 255, 0.12);
+      }
+      .theme-stake .mfs-compare-row.binding .pct {
+        color: var(--stake11);
+      }
+      .theme-fee .mfs-compare-row.binding .pct {
+        color: var(--fee11);
+      }
+      .theme-stake .mfs-compare-row.result .pct {
+        color: var(--stake11);
+      }
+      .theme-fee .mfs-compare-row.result .pct {
+        color: var(--fee11);
+      }
+      .mfs-compare-row .hint {
+        font-size: 12px;
+        color: var(--neutral10);
+        font-weight: 500;
+      }
+      .mfs-compare-row.result .name {
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+
+      /* Balanced cards skip the double bars: near-equal lengths add no decision. */
+      .balance-summary {
+        margin: 18px 0 4px;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: var(--neutral2);
+        border: 1px solid var(--neutral3);
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .balance-summary .approx {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--hiContrast);
+      }
+      .balance-summary .meta {
+        font-size: 13px;
+        color: var(--neutral10);
+      }
+      .balance-summary .split {
+        margin-left: auto;
+        font-size: 12.5px;
+        color: var(--neutral11);
+      }
+      .balance-summary .split .num {
+        font-weight: 600;
+        color: var(--neutral11);
+      }
+
+      /* Checkout-style fee details: one shell, flat line-items inside. */
+      .split-disclosure {
+        margin-top: 14px;
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .split-disclosure > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        user-select: none;
+      }
+      .split-disclosure > summary::-webkit-details-marker {
+        display: none;
+      }
+      .split-disclosure > summary .chev {
+        width: 16px;
+        height: 16px;
+        color: var(--neutral8);
+        flex-shrink: 0;
+        transition: transform 0.12s ease;
+      }
+      .split-disclosure[open] > summary .chev {
+        transform: rotate(180deg);
+      }
+      .split-disclosure > summary:hover {
+        color: var(--hiContrast);
+      }
+      .split-disclosure > summary:hover .chev {
+        color: var(--neutral11);
+      }
+      .split-disclosure > summary:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: -2px;
+        border-radius: var(--radius-sm);
+      }
+      .split-disclosure[open] > summary {
+        border-bottom: 1px solid var(--neutral4);
+      }
+
+      .split-stack {
+        display: grid;
+        gap: 0;
+        padding: 4px 14px 12px;
+      }
+      .split-block + .split-block {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--neutral4);
+      }
+      .split-block-head {
+        font-size: 12px;
+        color: var(--neutral10);
+        line-height: 1.45;
+        padding: 8px 0 4px;
+      }
+      .split-block-head strong {
+        color: var(--neutral11);
+        font-weight: 600;
+      }
+      .theme-stake .split-block.lpt .split-block-head strong {
+        color: var(--stake11);
+      }
+      .theme-fee .split-block.lpt .split-block-head strong {
+        color: var(--fee11);
+      }
+      .split-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: baseline;
+        padding: 6px 0;
+        font-size: 13px;
+        color: var(--neutral11);
+      }
+      .split-row .who {
+        color: var(--neutral10);
+      }
+      .split-row .amt {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+      .split-note {
+        font-size: 11.5px;
+        color: var(--neutral8);
+        line-height: 1.45;
+        padding-bottom: 2px;
+      }
+
+      .lockup-note {
+        display: grid;
+        grid-template-columns: 16px 1fr;
+        column-gap: 10px;
+        align-items: start;
+        margin-top: 16px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--neutral11);
+      }
+      .theme-stake .lockup-note {
+        background: rgba(110, 86, 207, 0.1);
+        border-color: rgba(165, 143, 255, 0.22);
+        color: #c4b5fd;
+      }
+      .theme-fee .lockup-note {
+        background: rgba(0, 145, 255, 0.1);
+        border-color: rgba(82, 169, 255, 0.22);
+        color: #93c5fd;
+      }
+      .lockup-note .lockup-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: calc(13px * 1.55);
+        color: currentColor;
+      }
+      .lockup-note .lockup-icon svg {
+        display: block;
+        flex-shrink: 0;
+      }
+
+      .delay-note {
+        margin-top: 12px;
+        font-size: 12.5px;
+        color: var(--neutral10);
+        line-height: 1.55;
+      }
+      .delay-note a {
+        color: var(--primary11);
+        text-decoration: none;
+      }
+      .delay-note a:hover {
+        text-decoration: underline;
+      }
+
+      .variant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* ---------- delegating page stat ---------- */
+
+      .stat-card {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 20px;
+        max-width: 460px;
+        display: block;
+        text-decoration: none;
+        transition: border-color 0.15s ease;
+      }
+      .stat-card:hover {
+        border-color: var(--neutral6);
+      }
+      .stat-card.theme-stake {
+        background: linear-gradient(
+            rgba(110, 86, 207, 0.07),
+            rgba(110, 86, 207, 0.07)
+          ),
+          var(--panel);
+        border-color: rgba(165, 143, 255, 0.22);
+      }
+      .stat-card.theme-fee {
+        background: linear-gradient(
+            rgba(0, 145, 255, 0.06),
+            rgba(0, 145, 255, 0.06)
+          ),
+          var(--panel);
+        border-color: rgba(82, 169, 255, 0.2);
+      }
+      .stat-card .top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .stat-card .title {
+        font-size: 15px;
+        font-weight: 650;
+      }
+      .stat-card .top .chip {
+        margin-left: auto;
+      }
+      .stat-card .d {
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.55;
+      }
+      .stat-card .d a {
+        color: var(--primary11);
+        text-decoration: none;
+      }
+      .stat-card .d a:hover {
+        text-decoration: underline;
+      }
+
+      /* ---------- edge states ---------- */
+
+      .edge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* ---------- open questions ---------- */
+
+      .questions {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 860px;
+      }
+      .questions li {
+        margin-left: 20px;
+        margin-bottom: 14px;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--neutral11);
+      }
+      .questions li strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .questions code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        background: var(--neutral3);
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: var(--hiContrast);
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 20px;
+        }
+        .edge-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-head">
+      <span class="status-pill">Design review · mockups only</span>
+      <h1>Delegation under Min-Fee-Stake</h1>
+      <a
+        class="issue-link"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+      >
+        Issue #802 ↗
+      </a>
+      <p>
+        Livepeer 2.0 changes how inflationary LPT is earned:
+        <code>reward % = min(fee % of network, stake % of network)</code>. USDC
+        fees for work stay uncapped. Stake only unlocks more LPT when a node is
+        earning more fees than it has stake behind it.
+      </p>
+      <p>
+        <strong>Goal:</strong> help prospective delegators see where new stake
+        still earns, and help anyone already bonded see whether their node is
+        full or still has room, without teaching the formula first.
+      </p>
+      <p>
+        <strong>Visual system:</strong> blue = fees, violet = stake. State color
+        follows whichever side is smaller. We avoid green/amber so neither state
+        reads as success or failure. Numbers are shares of the network, not APY.
+      </p>
+    </header>
+
+    <!-- ==================== 1. ORCHESTRATORS LIST ==================== -->
+    <section class="section" aria-labelledby="s1">
+      <div class="section-header">
+        <h2 class="section-title" id="s1">Orchestrators list</h2>
+        <span class="section-route">/orchestrators</span>
+      </div>
+      <p class="section-description">
+        Where people choose a node. Default sort answers “where does new stake
+        still earn?” State and fee-vs-stake numbers lead; tooltips hold the
+        formula. Absolute stake and trailing fee volume stay available but are
+        no longer the decision columns.
+      </p>
+
+      <div class="table-shell">
+        <div class="table-toolbar">
+          <input
+            class="search"
+            type="search"
+            placeholder="Search name or address…"
+            aria-label="Search orchestrators"
+          />
+          <div class="seg" role="group" aria-label="Registration filter">
+            <button aria-pressed="true">Earning now · 38</button>
+            <button aria-pressed="false">All nodes · 214</button>
+          </div>
+          <span class="window-note">
+            Last 7 settled rounds (2,731–2,737)<span
+              class="tooltip-dot"
+              title="One round can be faked by a dishonest node. Seven settled rounds is much harder to fake, and matches the 7-round reward delay."
+              >?</span
+            >
+          </span>
+        </div>
+        <div class="sort-note">Sorted by where new stake earns the most.</div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Orchestrator</th>
+              <th>
+                State<span
+                  class="tooltip-dot"
+                  title="Whether new stake would earn more here."
+                  >?</span
+                >
+              </th>
+              <th>
+                Fees vs stake<span
+                  class="tooltip-dot"
+                  title="Share of network fees earned vs share of network stake, last 7 settled rounds. The smaller one caps rewards."
+                  >?</span
+                >
+              </th>
+              <th class="num">
+                Reward cap<span
+                  class="tooltip-dot"
+                  title="The most new LPT this node can earn each round right now: the smaller of its fee share and stake share."
+                  >?</span
+                >
+              </th>
+              <th class="num">
+                Node keeps<span
+                  class="tooltip-dot"
+                  title="How much the node keeps before delegators share the rest."
+                  >?</span
+                >
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #2e4a3a">TN</span>
+                  <span
+                    ><span class="name">Titan Node</span><br /><span
+                      class="addr"
+                      >0x4f2a…81bd</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip stake"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M9.5 4.5h4v4"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Room to earn</span
+                >
+                <div class="state-sub">New stake earns, up to +9.5%</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="11.8 percent of fees, 2.3 percent of stake. Stake caps rewards."
+                >
+                  <span class="kv-line"
+                    ><span class="pct num">11.8%</span> of fees</span
+                  >
+                  <span class="kv-line binding"
+                    ><span class="pct num">2.3%</span> of stake
+                    <span class="tag stake">caps rewards</span></span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap stake num">2.3%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">8%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">92% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #3a3a5e">S1</span>
+                  <span
+                    ><span class="name">Stakehouse One</span><br /><span
+                      class="addr"
+                      >0x91cc…04e7</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip stake"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M9.5 4.5h4v4"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Room to earn</span
+                >
+                <div class="state-sub">New stake earns, up to +6.3%</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="7.4 percent of fees, 1.1 percent of stake. Stake caps rewards."
+                >
+                  <span class="kv-line"
+                    ><span class="pct num">7.4%</span> of fees</span
+                  >
+                  <span class="kv-line binding"
+                    ><span class="pct num">1.1%</span> of stake
+                    <span class="tag stake">caps rewards</span></span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap stake num">1.1%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">12%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">95% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #5e4a2e">MW</span>
+                  <span
+                    ><span class="name">Meridian Works</span><br /><span
+                      class="addr"
+                      >0x77d1…f2a0</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip stake"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M9.5 4.5h4v4"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Room to earn</span
+                >
+                <div class="state-sub">New stake earns, up to +2.5%</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="5.9 percent of fees, 3.4 percent of stake. Stake caps rewards."
+                >
+                  <span class="kv-line"
+                    ><span class="pct num">5.9%</span> of fees</span
+                  >
+                  <span class="kv-line binding"
+                    ><span class="pct num">3.4%</span> of stake
+                    <span class="tag stake">caps rewards</span></span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap stake num">3.4%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">6%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">90% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #2e3a5e">RX</span>
+                  <span
+                    ><span class="name">RockX</span><br /><span class="addr"
+                      >0x1b88…c3d4</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip stake"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M9.5 4.5h4v4"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Room to earn</span
+                >
+                <div class="state-sub">New stake earns, up to +0.8%</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="1.2 percent of fees, 0.4 percent of stake. Stake caps rewards."
+                >
+                  <span class="kv-line"
+                    ><span class="pct num">1.2%</span> of fees</span
+                  >
+                  <span class="kv-line binding"
+                    ><span class="pct num">0.4%</span> of stake
+                    <span class="tag stake">caps rewards</span></span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap stake num">0.4%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">20%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">85% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #4a2e4a">C1</span>
+                  <span
+                    ><span class="name">Chorus One</span><br /><span
+                      class="addr"
+                      >0xad09…7e55</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip balanced"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M3.2 6.4c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0M3.2 10c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Balanced</span
+                >
+                <div class="state-sub">Fees and stake are level</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="2.8 percent of fees, 2.7 percent of stake. The two are level."
+                >
+                  <span class="kv-line"
+                    ><span class="pct num">2.8%</span> of fees</span
+                  >
+                  <span class="kv-line"
+                    ><span class="pct num">2.7%</span> of stake</span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap balanced num">2.7%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">9%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">94% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #2e5e5e">ES</span>
+                  <span
+                    ><span class="name">Everstake</span><br /><span class="addr"
+                      >0x63f0…9a1b</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip fee"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="5.2"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                    />
+                  </svg>
+                  Full</span
+                >
+                <div class="state-sub">Extra stake earns nothing</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="4.2 percent of fees, 6.8 percent of stake. Fees cap rewards."
+                >
+                  <span class="kv-line binding"
+                    ><span class="pct num">4.2%</span> of fees
+                    <span class="tag fee">caps rewards</span></span
+                  >
+                  <span class="kv-line"
+                    ><span class="pct num">6.8%</span> of stake</span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap fee num">4.2%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">10%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">97% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="identity">
+                  <span class="avatar" style="background: #5e2e3a">FG</span>
+                  <span
+                    ><span class="name">Figment</span><br /><span class="addr"
+                      >0x2c7e…d608</span
+                    ></span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="chip fee"
+                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="5.2"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                    />
+                  </svg>
+                  Full</span
+                >
+                <div class="state-sub">Extra stake earns nothing</div>
+              </td>
+              <td>
+                <div
+                  class="kv"
+                  role="img"
+                  aria-label="1.9 percent of fees, 4.6 percent of stake. Fees cap rewards."
+                >
+                  <span class="kv-line binding"
+                    ><span class="pct num">1.9%</span> of fees
+                    <span class="tag fee">caps rewards</span></span
+                  >
+                  <span class="kv-line"
+                    ><span class="pct num">4.6%</span> of stake</span
+                  >
+                </div>
+              </td>
+              <td class="num">
+                <span class="reward-cap fee num">1.9%</span>
+                <div class="cell-sub">of network rewards</div>
+              </td>
+              <td class="num">
+                <span class="cell-main num">14%</span>
+                <span class="cell-sub">of rewards</span>
+                <div class="cell-sub num">98% of fees</div>
+              </td>
+              <td><button class="delegate-btn">Delegate</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="table-foot">Loading state mirrors row height:</div>
+        <table aria-hidden="true">
+          <tbody>
+            <tr>
+              <td style="width: 22%">
+                <div class="sk" style="width: 140px"></div>
+              </td>
+              <td style="width: 16%">
+                <div class="sk" style="width: 96px"></div>
+              </td>
+              <td style="width: 20%">
+                <div class="sk" style="width: 150px"></div>
+              </td>
+              <td class="num">
+                <div class="sk" style="width: 44px; margin-left: auto"></div>
+              </td>
+              <td class="num">
+                <div class="sk" style="width: 64px; margin-left: auto"></div>
+              </td>
+              <td><div class="sk" style="width: 76px"></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="notes">
+        <li>
+          <strong>Why these labels:</strong> “Room to earn” / “Full” /
+          “Balanced” say what a move does. The smaller share gets a “caps
+          rewards” tag so the min() is visible without a chart.
+        </li>
+        <li>
+          <strong>Why the filter:</strong> “Earning now” is the default so empty
+          registrations don’t flood the list. “All nodes” keeps every address
+          reachable.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ==================== 2. MOBILE LIST CARD ==================== -->
+    <section class="section" aria-labelledby="s2">
+      <div class="section-header">
+        <h2 class="section-title" id="s2">Mobile list</h2>
+        <span class="section-route">/orchestrators · &lt;768px</span>
+      </div>
+      <p class="section-description">
+        Same hierarchy as the table, in a card. Delegate stays full-width for a
+        comfortable tap target.
+      </p>
+
+      <div class="mobile-wrap">
+        <article class="m-card">
+          <div class="top">
+            <span class="avatar" style="background: #2e4a3a">TN</span>
+            <div>
+              <div style="font-size: 14px; font-weight: 600">Titan Node</div>
+              <div
+                style="
+                  font-family: ui-monospace, Menlo, monospace;
+                  font-size: 11px;
+                  color: var(--neutral8);
+                "
+              >
+                0x4f2a…81bd
+              </div>
+            </div>
+            <span class="chip stake"
+              ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9.5 4.5h4v4"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Room to earn</span
+            >
+          </div>
+          <div
+            class="kv"
+            role="img"
+            aria-label="11.8 percent of fees, 2.3 percent of stake. Stake caps rewards."
+          >
+            <span class="kv-line"
+              ><span class="pct num">11.8%</span> of fees</span
+            >
+            <span class="kv-line binding"
+              ><span class="pct num">2.3%</span> of stake
+              <span class="tag stake">caps rewards</span></span
+            >
+          </div>
+          <div class="m-stats">
+            <div class="m-stat">
+              <div class="k">Reward cap</div>
+              <div class="v num" style="color: var(--stake11)">2.3%</div>
+            </div>
+            <div class="m-stat">
+              <div class="k">Room</div>
+              <div class="v num">+9.5%</div>
+            </div>
+            <div class="m-stat">
+              <div class="k">Node keeps</div>
+              <div class="v num">
+                8<span
+                  style="
+                    color: var(--neutral8);
+                    font-weight: 500;
+                    font-size: 12px;
+                  "
+                >
+                  / 92%</span
+                >
+              </div>
+            </div>
+          </div>
+          <button class="delegate-btn">Delegate</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==================== 3. ORCHESTRATING PAGE BLOCK ==================== -->
+    <section class="section" aria-labelledby="s3">
+      <div class="section-header">
+        <h2 class="section-title" id="s3">Orchestrator detail</h2>
+        <span class="section-route">/accounts/[account]/orchestrating</span>
+      </div>
+      <p class="section-description">
+        Where Delegate already lands. One block, three states: explain the cap,
+        show the fee/stake comparison, then optionally the reward and fee split.
+        The move lockup sits before any signature. Card color matches fees or
+        stake so the state is visible before reading.
+      </p>
+
+      <div class="variant-grid">
+        <div>
+          <div class="variant-label">Room to earn</div>
+          <div class="mfs-block theme-stake">
+            <div class="mfs-head">
+              <span class="mfs-title">Rewards capped by stake</span>
+              <span class="chip stake"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M9.5 4.5h4v4"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Room to earn</span
+              >
+            </div>
+            <div class="mfs-window">Last 7 settled rounds</div>
+            <p class="mfs-sentence">
+              Earns <strong>11.8%</strong> of fees, backed by
+              <strong>2.3%</strong> of stake. Rewards follow the smaller number,
+              so they cap at <span class="hl-stake">2.3%</span>. New stake keeps
+              earning until the two meet.
+            </p>
+            <div
+              class="mfs-compare"
+              role="img"
+              aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. Room left: 9.5 percent."
+            >
+              <div class="mfs-compare-row">
+                <span class="name">Fees</span>
+                <span class="pct-wrap"
+                  ><span class="pct num">11.8%</span
+                  ><span class="unit">of network fees</span></span
+                >
+              </div>
+              <div class="mfs-compare-row binding">
+                <span class="name"
+                  >Stake <span class="tag stake">smaller</span></span
+                >
+                <span class="pct-wrap"
+                  ><span class="pct num">2.3%</span
+                  ><span class="unit">of network stake</span></span
+                >
+              </div>
+              <div class="mfs-compare-row result">
+                <span class="name"
+                  >Rewards follow the smaller
+                  <span class="hint">· room left +9.5%</span></span
+                >
+                <span class="pct-wrap"
+                  ><span class="pct num">2.3%</span
+                  ><span class="unit">of network rewards</span></span
+                >
+              </div>
+            </div>
+            <details class="split-disclosure">
+              <summary>
+                <span>Reward and fee breakdown</span>
+                <svg
+                  class="chev"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 6.5 8 10.5 12 6.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+              <div class="split-stack">
+                <div class="split-block lpt">
+                  <div class="split-block-head">
+                    Of that <strong>2.3% LPT reward</strong> (the capped amount)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">92%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">8%</span>
+                  </div>
+                  <p class="split-note">
+                    Split among delegators pro-rata by stake.
+                  </p>
+                </div>
+                <div class="split-block">
+                  <div class="split-block-head">
+                    Of this node's <strong>USDC fees</strong> (separate from
+                    LPT)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">8%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">92%</span>
+                  </div>
+                  <p class="split-note">Fees are never capped by stake.</p>
+                </div>
+              </div>
+            </details>
+            <div class="lockup-note">
+              <span class="lockup-icon"
+                ><svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.4"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                  <path
+                    d="M8 4.8V8l2.2 1.6"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+              <span
+                >Moving stake takes about 21&nbsp;days. It starts earning on the
+                new node only after that.</span
+              >
+            </div>
+            <p class="delay-note">
+              Rewards are paid about a week after the round.
+              <a href="#">See reward history →</a>
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="variant-label">Full</div>
+          <div class="mfs-block theme-fee">
+            <div class="mfs-head">
+              <span class="mfs-title">Rewards capped by fees</span>
+              <span class="chip fee"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="5.2"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                </svg>
+                Full</span
+              >
+            </div>
+            <div class="mfs-window">Last 7 settled rounds</div>
+            <p class="mfs-sentence">
+              Backed by <strong>6.8%</strong> of stake, earning
+              <strong>4.2%</strong> of fees. Rewards follow the smaller number,
+              so they cap at <span class="hl-fee">4.2%</span>. Extra stake earns
+              nothing.
+            </p>
+            <div
+              class="mfs-compare"
+              role="img"
+              aria-label="Fees 4.2 percent of network. Stake 6.8 percent of network. Rewards equal the smaller number: 4.2 percent. Extra stake earns nothing."
+            >
+              <div class="mfs-compare-row binding">
+                <span class="name"
+                  >Fees <span class="tag fee">smaller</span></span
+                >
+                <span class="pct-wrap"
+                  ><span class="pct num">4.2%</span
+                  ><span class="unit">of network fees</span></span
+                >
+              </div>
+              <div class="mfs-compare-row">
+                <span class="name">Stake</span>
+                <span class="pct-wrap"
+                  ><span class="pct num">6.8%</span
+                  ><span class="unit">of network stake</span></span
+                >
+              </div>
+              <div class="mfs-compare-row result">
+                <span class="name"
+                  >Rewards follow the smaller
+                  <span class="hint">· extra stake earns nothing</span></span
+                >
+                <span class="pct-wrap"
+                  ><span class="pct num">4.2%</span
+                  ><span class="unit">of network rewards</span></span
+                >
+              </div>
+            </div>
+            <details class="split-disclosure">
+              <summary>
+                <span>Reward and fee breakdown</span>
+                <svg
+                  class="chev"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 6.5 8 10.5 12 6.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+              <div class="split-stack">
+                <div class="split-block lpt">
+                  <div class="split-block-head">
+                    Of that <strong>4.2% LPT reward</strong> (the capped amount)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">90%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">10%</span>
+                  </div>
+                  <p class="split-note">
+                    Split among delegators pro-rata by stake.
+                  </p>
+                </div>
+                <div class="split-block">
+                  <div class="split-block-head">
+                    Of this node's <strong>USDC fees</strong> (separate from
+                    LPT)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">3%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">97%</span>
+                  </div>
+                  <p class="split-note">Fees are never capped by stake.</p>
+                </div>
+              </div>
+            </details>
+            <div class="lockup-note">
+              <span class="lockup-icon"
+                ><svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.4"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                  <path
+                    d="M8 4.8V8l2.2 1.6"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+              <span
+                >Moving stake takes about 21&nbsp;days. It starts earning on the
+                new node only after that.</span
+              >
+            </div>
+            <p class="delay-note">
+              Rewards are paid about a week after the round.
+              <a href="#">See reward history →</a>
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="variant-label">Balanced</div>
+          <div class="mfs-block">
+            <div class="mfs-head">
+              <span class="mfs-title">Fees and stake in balance</span>
+              <span class="chip balanced"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M3.2 6.4c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0M3.2 10c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                Balanced</span
+              >
+            </div>
+            <div class="mfs-window">Last 7 settled rounds</div>
+            <p class="mfs-sentence">
+              Fees and stake are level. New stake earns only if fees grow too.
+            </p>
+            <div
+              class="balance-summary"
+              role="img"
+              aria-label="Fees 2.8 percent and stake 2.7 percent of network, roughly level."
+            >
+              <span class="approx num">≈ 2.7%</span>
+              <span class="meta">of network</span>
+              <span class="split"
+                ><span class="num">2.8%</span> fees ·
+                <span class="num">2.7%</span> stake</span
+              >
+            </div>
+            <details class="split-disclosure">
+              <summary>
+                <span>Reward and fee breakdown</span>
+                <svg
+                  class="chev"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 6.5 8 10.5 12 6.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+              <div class="split-stack">
+                <div class="split-block lpt">
+                  <div class="split-block-head">
+                    Of that <strong>2.7% LPT reward</strong> (the capped amount)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">91%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">9%</span>
+                  </div>
+                  <p class="split-note">
+                    Split among delegators pro-rata by stake.
+                  </p>
+                </div>
+                <div class="split-block">
+                  <div class="split-block-head">
+                    Of this node's <strong>USDC fees</strong> (separate from
+                    LPT)
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Delegators share</span>
+                    <span class="amt num">6%</span>
+                  </div>
+                  <div class="split-row">
+                    <span class="who">Node keeps</span>
+                    <span class="amt num">94%</span>
+                  </div>
+                  <p class="split-note">Fees are never capped by stake.</p>
+                </div>
+              </div>
+            </details>
+            <div class="lockup-note">
+              <span class="lockup-icon"
+                ><svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.4"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                  <path
+                    d="M8 4.8V8l2.2 1.6"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                  /></svg
+              ></span>
+              <span
+                >Moving stake takes about 21&nbsp;days. It starts earning on the
+                new node only after that.</span
+              >
+            </div>
+            <p class="delay-note">
+              Rewards are paid about a week after the round.
+              <a href="#">See reward history →</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <ul class="notes">
+        <li>
+          <strong>Why the breakdown is collapsed:</strong> the decision is
+          whether stake still earns. How LPT and USDC split is useful before
+          signing, not on first glance.
+        </li>
+        <li>
+          <strong>Why two pots:</strong> the capped LPT reward and USDC fees are
+          separate. Cuts apply inside each pot; they are not slices of the same
+          percentage.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ==================== 4. DELEGATING PAGE ==================== -->
+    <section class="section" aria-labelledby="s4">
+      <div class="section-header">
+        <h2 class="section-title" id="s4">Your delegation</h2>
+        <span class="section-route">/accounts/[account]/delegating</span>
+      </div>
+      <p class="section-description">
+        For people already bonded: one status for the node they’re on, and a
+        clear next step back to the list. Comparison stays on
+        <code>/orchestrators</code>.
+      </p>
+
+      <div class="variant-grid">
+        <div>
+          <div class="variant-label">Your node is full</div>
+          <a class="stat-card theme-fee" href="#">
+            <div class="top">
+              <span class="title">Everstake</span>
+              <span class="chip fee"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="5.2"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                </svg>
+                Full</span
+              >
+            </div>
+            <div class="d">
+              This node has more stake than work, so extra stake earns nothing.
+              <span style="color: var(--primary11)"
+                >See nodes with room to earn →</span
+              >
+            </div>
+          </a>
+        </div>
+        <div>
+          <div class="variant-label">Your node has room</div>
+          <a class="stat-card theme-stake" href="#">
+            <div class="top">
+              <span class="title">Titan Node</span>
+              <span class="chip stake"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M9.5 4.5h4v4"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Room to earn</span
+              >
+            </div>
+            <div class="d">
+              Your stake is helping this node earn more. Moving takes about
+              21&nbsp;days.
+              <span style="color: var(--primary11)">View node →</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. EDGE STATES ==================== -->
+    <section class="section" aria-labelledby="s5">
+      <div class="section-header">
+        <h2 class="section-title" id="s5">Empty registration</h2>
+        <span class="section-route">/accounts/[account]/orchestrating</span>
+      </div>
+      <p class="section-description">
+        2.0 allows anyone to register with no bond. The detail page must stay
+        honest for a node with nothing behind it; the default list keeps these
+        out of the way under “All nodes.”
+      </p>
+
+      <div class="edge-grid">
+        <div>
+          <div class="variant-label">Registered, no activity yet</div>
+          <div class="mfs-block">
+            <div class="mfs-head">
+              <span class="mfs-title">0x7f3d…a91c</span>
+              <span class="chip balanced"
+                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="5.2"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M8 5.2v5.6M5.2 8h5.6"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                New</span
+              >
+            </div>
+            <div class="mfs-window">Registered 2 rounds ago</div>
+            <p class="mfs-sentence">
+              No stake and no fees yet, so this node earns nothing. Anyone can
+              run a node; earnings start with real work and stake behind it.
+            </p>
+            <p class="delay-note">
+              Hidden from the default list. Reachable under "All nodes".
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. DESIGN DECISIONS ==================== -->
+    <section class="section" aria-labelledby="s6">
+      <div class="section-header">
+        <h2 class="section-title" id="s6">Design decisions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>Shares of the network, not APY.</strong> Emissions are still
+            unsettled in the litepaper. The UI shows how stake moves a node’s
+            reward ceiling (for example from 2.3% toward 11.8%), not a dollar or
+            percent-per-year forecast.
+          </li>
+          <li>
+            <strong>Seven settled rounds on the list.</strong> Default windows
+            match the proposed reward delay. Single-round spikes are easy to
+            game; per-round history is a separate reward-history design.
+          </li>
+          <li>
+            <strong>State chips replace “Active.”</strong> “Active” today means
+            membership in a capped set. That cap goes away, so we show Room to
+            earn / Full / Balanced instead of overloading the old word.
+          </li>
+          <li>
+            <strong
+              >21-day move lockup is shown as the working assumption.</strong
+            >
+            If protocol keeps instant bond transfers, that note is removed
+            before ship. Copy is written so it can flip with the parameter.
+          </li>
+          <li>
+            <strong>Validator scoring is not in this design.</strong> Honesty
+            scores and validator set UX are a separate ticket so this review
+            stays focused on fee-vs-stake delegation.
+          </li>
+        </ul>
+      </div>
+    </section>
+  </body>
+</html>
