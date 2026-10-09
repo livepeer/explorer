@@ -23,9 +23,13 @@ type Block =
 /** A `<br>` tag, which markdown written elsewhere uses for line breaks. */
 const BR = /<br\s*\/?>/gi;
 
+/** A table row: starts with `|` and has another. The closing `|` is optional. */
+const ROW = /^\|.*\|/;
+
 const cells = (row: string) =>
   row
-    .slice(1, -1)
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
     .split("|")
     .map((c) => c.trim());
 
@@ -60,8 +64,10 @@ function parseBlocks(source: string): { blocks: Block[]; refs: Refs } {
     }
     // A line holding only `<br>` is spacing between sections: treat it as
     // a blank line rather than showing the tag.
+    // So is `****` alone, an empty bold pair left by exported docs.
     if (
       !line ||
+      line === "****" ||
       line
         .replace(BR, "")
         .replace(/&nbsp;/g, "")
@@ -81,14 +87,31 @@ function parseBlocks(source: string): { blocks: Block[]; refs: Refs } {
       blocks.push({ kind: "rule" });
       continue;
     }
-    if (/^\|.*\|$/.test(line)) {
+    if (ROW.test(line)) {
       flush();
       const rows: string[] = [];
-      while (i < lines.length && /^\|.*\|$/.test(lines[i].trim()))
-        rows.push(lines[i++].trim());
+      while (i < lines.length && ROW.test(lines[i].trim())) {
+        let row = lines[i++].trim();
+        // A cell broken across lines: rejoin it, but only when a line within
+        // the next few closes the row, so text after a table isn't swept in.
+        if (!row.endsWith("|")) {
+          const more: string[] = [];
+          for (let j = i; j < Math.min(i + 3, lines.length); j++) {
+            const next = lines[j].trim();
+            if (!next || next.startsWith("|")) break;
+            more.push(next);
+            if (next.endsWith("|")) {
+              row = [row, ...more].join(" ");
+              i = j + 1;
+              break;
+            }
+          }
+        }
+        rows.push(row);
+      }
       i--;
       // The first row is a header when a separator row (|---|) follows it.
-      const separated = rows.length > 1 && /^\|[\s:|-]+\|$/.test(rows[1]);
+      const separated = rows.length > 1 && /^\|[\s:|-]+\|?$/.test(rows[1]);
       blocks.push({
         kind: "table",
         head: separated ? cells(rows[0]) : null,
@@ -173,6 +196,13 @@ function decode(text: string) {
   });
 }
 
+/**
+ * Text between the matches below. Bold pairs are matched there, so a `**`
+ * left here has no partner, a slip like `[name](url)**` in a table cell:
+ * drop it rather than show the asterisks.
+ */
+const plain = (text: string) => decode(text.replace(/\*{2,}/g, ""));
+
 const INLINE = new RegExp(
   [
     // `code`, first so nothing inside it is formatted.
@@ -223,13 +253,17 @@ function Inline({ text, ctx }: { text: string; ctx: Ctx }) {
     ) : (
       <Fragment key={key++}>{label}</Fragment>
     );
+  // The forum appends a size to image names ("Roadmap|690x486"): drop it.
   const image = (alt: string | undefined, src: string | undefined) =>
-    link(src ? safeHref(src, ctx.base) : null, `[${alt || "Image"}]`);
+    link(
+      src ? safeHref(src, ctx.base) : null,
+      `[${alt?.replace(/\|\d+x\d+.*$/, "").trim() || "Image"}]`
+    );
 
   for (const m of text.matchAll(INLINE)) {
     const g = m.groups!;
     const idx = m.index ?? 0;
-    if (idx > last) out.push(decode(text.slice(last, idx)));
+    if (idx > last) out.push(plain(text.slice(last, idx)));
     if (g.code != null) {
       out.push(
         <code
@@ -290,7 +324,7 @@ function Inline({ text, ctx }: { text: string; ctx: Ctx }) {
     }
     last = idx + m[0].length;
   }
-  if (last < text.length) out.push(decode(text.slice(last)));
+  if (last < text.length) out.push(plain(text.slice(last)));
   return <>{out}</>;
 }
 
