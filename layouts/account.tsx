@@ -75,10 +75,10 @@ const AccountLayout = ({
   const accountAddress = useAccountAddress();
   const { width } = useWindowSize();
   const router = useRouter();
-  const { query, asPath } = router;
+  const { query, pathname } = router;
   const view = useMemo(
-    () => ACCOUNT_VIEWS.find((v) => asPath.split("/")[3] === v),
-    [asPath]
+    () => ACCOUNT_VIEWS.find((v) => pathname.split("/")[3] === v),
+    [pathname]
   );
 
   const { setSelectedStakingAction, setBottomDrawerOpen, latestTransaction } =

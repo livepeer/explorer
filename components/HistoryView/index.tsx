@@ -1,3 +1,4 @@
+import HistoryFilter from "@components/HistoryView/HistoryFilter";
 import Spinner from "@components/Spinner";
 import TransactionBadge from "@components/TransactionBadge";
 import { Fm, parsePollIpfs } from "@lib/api/polls";
@@ -27,6 +28,7 @@ import {
   useTransactionsQuery,
   VoteEvent,
 } from "apollo";
+import { useHistoryFilter } from "hooks";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -102,10 +104,16 @@ const Index = () => {
         .filter((e) => !extendedVoteEventsData.find((ve) => ve.id === e.id));
       const newExtendedVoteEventsData = await Promise.all(
         newVoteEvents.map(async (voteEvent) => {
-          const ipfsObject = await catIpfsJson<IpfsPoll>(
-            voteEvent.poll?.proposal
-          );
-          const attributes = parsePollIpfs(ipfsObject);
+          let attributes: Fm | null = null;
+          try {
+            const ipfsObject = await catIpfsJson<IpfsPoll>(
+              voteEvent.poll?.proposal
+            );
+            attributes = parsePollIpfs(ipfsObject);
+          } catch (error) {
+            // Metadata is optional; retain the vote and finish loading it.
+            console.error("Failed to load poll metadata:", error);
+          }
           return {
             ...voteEvent,
             attributes,
@@ -215,6 +223,52 @@ const Index = () => {
     ]
   );
 
+  // Filter events using history hook
+  const {
+    filteredEvents,
+    selectedEventTypes,
+    toggleEventType,
+    clearFilters,
+    isFilterOpen,
+    setIsFilterOpen,
+    allEventTypes,
+    eventTypeLabels,
+  } = useHistoryFilter(mergedEvents);
+  const hasActiveFilters = selectedEventTypes.length > 0;
+
+  const isHydratingFilteredEvents = useMemo(() => {
+    const extendedVoteEventIds = new Set(
+      extendedVoteEventsData.map((event) => event.id)
+    );
+    const extendedTreasuryVoteEventIds = new Set(
+      extendedTreasuryVoteEventsData.map((event) => event.id)
+    );
+
+    return events.some((event) => {
+      if (hasActiveFilters && !selectedEventTypes.includes(event.__typename)) {
+        return false;
+      }
+
+      if (isVoteEvent(event)) {
+        return !extendedVoteEventIds.has(event.id);
+      }
+
+      if (isTreasuryVoteEvent(event)) {
+        return !extendedTreasuryVoteEventIds.has(event.id);
+      }
+
+      return false;
+    });
+  }, [
+    events,
+    extendedTreasuryVoteEventsData,
+    extendedVoteEventsData,
+    hasActiveFilters,
+    isTreasuryVoteEvent,
+    isVoteEvent,
+    selectedEventTypes,
+  ]);
+
   const totalLoaded = Math.max(
     data?.transactions?.length ?? 0,
     data?.winningTicketRedeemedEvents?.length ?? 0,
@@ -311,6 +365,10 @@ const Index = () => {
     return <Box css={{ paddingTop: "$3" }}>No history</Box>;
   }
 
+  const historyRows = filteredEvents
+    .map((event, i: number) => renderSwitch(event, i))
+    .filter((row) => row != null);
+
   return (
     <Box
       css={{
@@ -320,8 +378,44 @@ const Index = () => {
         position: "relative",
       }}
     >
+      <Flex
+        css={{
+          justifyContent: "flex-end",
+          marginBottom: "$3",
+          alignItems: "center",
+        }}
+      >
+        <HistoryFilter
+          selectedEventTypes={selectedEventTypes}
+          isOpen={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
+          onToggleEventType={toggleEventType}
+          onClearFilters={clearFilters}
+          allEventTypes={allEventTypes}
+          eventTypeLabels={eventTypeLabels}
+        />
+      </Flex>
       <Box css={{ paddingBottom: "$3" }}>
-        {mergedEvents.map((event, i: number) => renderSwitch(event, i))}
+        {historyRows.length > 0 ? (
+          historyRows
+        ) : isHydratingFilteredEvents ? (
+          <Flex
+            css={{
+              paddingTop: "$3",
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Spinner />
+          </Flex>
+        ) : (
+          <Box css={{ paddingTop: "$3", color: "$neutral11" }}>
+            {hasActiveFilters
+              ? "No events match the selected filters"
+              : "No history"}
+          </Box>
+        )}
       </Box>
       {totalLoaded >= PAGE_SIZE && !reachedEnd && (
         <Flex
@@ -1029,7 +1123,10 @@ function renderSwitch(event, i: number) {
           >
             <Box>
               <Box css={{ fontWeight: 500 }}>
-                Voted on poll &quot;{event.attributes?.title?.trim()}&quot;
+                Voted on poll
+                {event.attributes?.title?.trim() && (
+                  <> &quot;{event.attributes.title.trim()}&quot;</>
+                )}
               </Box>
               <Box
                 css={{ marginTop: "$2", fontSize: "$1", color: "$neutral11" }}
