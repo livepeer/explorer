@@ -14,7 +14,7 @@ jest.mock("@lib/chains", () => ({
 const originalFetch = global.fetch;
 const fetchMock = jest.fn() as jest.MockedFunction<typeof fetch>;
 
-const request = (name: string) =>
+const request = (name: string | string[] | undefined) =>
   ({ method: "GET", query: { name } } as unknown as NextApiRequest);
 
 const response = () => {
@@ -61,6 +61,16 @@ describe("ENS avatar image API", () => {
     expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/png");
     expect(res.end).toHaveBeenCalledWith(image);
   });
+
+  it.each([undefined, "", ["alice.eth"], "salty-minning.eth"])(
+    "rejects invalid or blacklisted ENS input %j before fetching",
+    async (name) => {
+      const res = response();
+      await handler(request(name), res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(fetchMock).not.toHaveBeenCalled();
+    }
+  );
 
   it("rejects non-image responses", async () => {
     fetchMock.mockResolvedValue(

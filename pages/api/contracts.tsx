@@ -5,7 +5,12 @@ import {
   getLivepeerGovernorAddress,
   getTreasuryAddress,
 } from "@lib/api/contracts";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateOutput,
+} from "@lib/api/errors";
+import { ContractInfoSchema } from "@lib/api/schemas/contracts";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -123,6 +128,11 @@ const handler = async (
           link: `${CHAIN_INFO[DEFAULT_CHAIN_ID].explorer}address/${contracts.BondingVotes}`,
         },
       };
+
+      const validationResult = ContractInfoSchema.safeParse(contractsInfo);
+      if (validateOutput(validationResult, res, "contracts")) {
+        return;
+      }
 
       return res.status(200).json(contractsInfo);
     }

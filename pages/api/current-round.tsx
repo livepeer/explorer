@@ -1,7 +1,12 @@
 import { getCacheControlHeader } from "@lib/api";
 import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import { getContractAddress } from "@lib/api/contracts";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateOutput,
+} from "@lib/api/errors";
+import { CurrentRoundInfoSchema } from "@lib/api/schemas/current-round";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -68,6 +73,11 @@ const handler = async (
         currentL1Block: Number(currentL1Block),
         currentL2Block: Number(currentL2Block),
       };
+
+      const validationResult = CurrentRoundInfoSchema.safeParse(roundInfo);
+      if (validateOutput(validationResult, res, "current-round")) {
+        return;
+      }
 
       return res.status(200).json(roundInfo);
     }

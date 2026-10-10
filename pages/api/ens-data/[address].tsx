@@ -1,13 +1,15 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+  validateOutput,
+} from "@lib/api/errors";
+import { EnsAddressSchema, EnsIdentitySchema } from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address, isAddress } from "viem";
-
-const blacklist = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"].map((a) =>
-  a.toLowerCase()
-);
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -17,22 +19,33 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { address } = req.query;
-
       res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-      if (
-        !!address &&
-        !Array.isArray(address) &&
-        isAddress(address) &&
-        !blacklist.includes(address.toLowerCase())
-      ) {
-        const ens = await getEnsForAddress(address as Address);
+      const { address } = req.query;
 
-        return res.status(200).json(ens);
-      } else {
-        return badRequest(res, "Invalid address format");
-      }
+      // EnsAddressSchema handles undefined, arrays, and validates format + blacklist
+      const addressResult = EnsAddressSchema.safeParse(address);
+      const inputValidationError = validateInput(
+        addressResult,
+        res,
+        "Invalid address format"
+      );
+      if (inputValidationError) return inputValidationError;
+
+      const validatedAddress = addressResult.data;
+
+      const ens = await getEnsForAddress(validatedAddress as Address);
+
+      // Validate output: ENS identity response
+      const outputResult = EnsIdentitySchema.safeParse(ens);
+      const outputValidationError = validateOutput(
+        outputResult,
+        res,
+        "api/ens-data"
+      );
+      if (outputValidationError) return outputValidationError;
+
+      return res.status(200).json(ens);
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);
