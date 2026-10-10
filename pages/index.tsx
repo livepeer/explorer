@@ -9,6 +9,7 @@ import RoundStatus from "@components/RoundStatus";
 import Spinner from "@components/Spinner";
 import TransactionsList, {
   FILTERED_EVENT_TYPENAMES,
+  withoutTransferBondInternals,
 } from "@components/TransactionsList";
 import { LAYOUT_MAX_WIDTH } from "@layouts/constants";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -287,7 +288,9 @@ const Home = ({
   const allEvents = useMemo(
     () =>
       events?.transactions
-        ?.flatMap((transaction) => transaction.events)
+        ?.flatMap((transaction) =>
+          withoutTransferBondInternals(transaction.events ?? [])
+        )
         ?.filter((e) =>
           e?.__typename === "BondEvent"
             ? e?.additionalAmount !== "0.000000000000000001"
