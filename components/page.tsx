@@ -139,15 +139,20 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center gap-3 px-6 py-12 text-center",
+        "flex flex-col items-center gap-4 px-6 py-12 text-center",
         className
       )}
     >
+      {/* A tile anchors the icon, so it doesn't float above the text. */}
       {icon && (
-        <div className="text-subtle-foreground [&_svg]:size-8">{icon}</div>
+        <div className="flex size-11 items-center justify-center rounded-xl border border-hairline bg-foreground/[0.04] text-muted-foreground [&_svg]:size-5">
+          {icon}
+        </div>
       )}
       <div className="flex flex-col gap-1">
-        <p className="text-ui-body font-medium text-foreground">{title}</p>
+        <p className="text-[15px] leading-6 font-medium text-foreground">
+          {title}
+        </p>
         {description && (
           <p className="max-w-[62ch] text-ui-caption text-balance text-muted-foreground">
             {description}
