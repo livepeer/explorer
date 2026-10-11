@@ -49,7 +49,12 @@ import type { Orchestrator } from "@/lib/subgraph/network";
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import { DelegationCard, type Position, Positions } from "./positions";
+import {
+  DelegationCard,
+  DUST_ETH,
+  type Position,
+  Positions,
+} from "./positions";
 import { safeInsights } from "./safe-insights";
 import { ScopeBar } from "./scope-bar";
 import {
@@ -375,7 +380,7 @@ export function PortfolioView({
   // Connected wallets with fees to withdraw, most first.
   const withdrawable =
     view?.positions
-      .filter((p) => canManage(p.account.address) && p.fees > 0)
+      .filter((p) => canManage(p.account.address) && p.fees >= DUST_ETH)
       .sort((a, b) => b.fees - a.fees) ?? [];
 
   return (

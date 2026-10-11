@@ -7,10 +7,13 @@ import {
   MoreHorizontal,
   Plus,
   Send,
+  Trash2,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
+import { toast } from "sonner";
+import { useDisconnect } from "wagmi";
 
 import { Sparkline } from "@/components/charts/time-series";
 import { Avatar, Identity, useIdentity } from "@/components/identity";
@@ -28,8 +31,10 @@ import {
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
+import { useViewScope } from "@/lib/hooks/view-scope";
 import {
   type PortfolioAccount,
+  useAddresses,
   usePortfolioAccounts,
 } from "@/lib/hooks/watchlist";
 import type { Orchestrator } from "@/lib/subgraph/network";
@@ -153,6 +158,9 @@ function useCanMove(p: Position) {
   );
 }
 
+/** Fees below this show as 0.000000 ETH: not worth a withdrawal's gas. */
+export const DUST_ETH = 0.0000005;
+
 function RowActions({
   position,
   canManage,
@@ -162,6 +170,25 @@ function RowActions({
 }) {
   const { open } = useStaking();
   const canMove = useCanMove(position);
+  const { list, add, remove } = useAddresses();
+  const { disconnect } = useDisconnect();
+  const [scope, setScope] = useViewScope(list.map((w) => w.address));
+  const account = position.account;
+  const saved = list.some((w) => w.address === account.address);
+
+  // As in the sidebar's switcher: forgetting is undoable, so no confirm. A
+  // connected wallet would be added straight back, so it's disconnected too.
+  const removeAccount = () => {
+    if (account.connected) disconnect();
+    remove(account.address);
+    if (scope === account.address) setScope("all");
+    toast(`Removed ${account.label ?? shortAddress(account.address)}`, {
+      action: {
+        label: "Undo",
+        onClick: () => add(account.address, account.label),
+      },
+    });
+  };
   if (!canManage) {
     return (
       <Tooltip content="Add this address to your portfolio to manage it here.">
@@ -225,7 +252,7 @@ function RowActions({
             <Minus /> Undelegate
           </MenuItem>
         )}
-        {position.fees > 0 && (
+        {position.fees >= DUST_ETH && (
           <>
             <MenuSeparator />
             <MenuItem
@@ -238,6 +265,20 @@ function RowActions({
               }
             >
               <Wallet /> Withdraw {formatETH(position.fees)}
+            </MenuItem>
+          </>
+        )}
+        {saved && (
+          <>
+            <MenuSeparator />
+            <MenuItem
+              className="text-destructive [&_svg]:text-destructive"
+              onClick={removeAccount}
+            >
+              <Trash2 />
+              {account.connected
+                ? "Disconnect and remove"
+                : "Remove from portfolio"}
             </MenuItem>
           </>
         )}
@@ -340,7 +381,7 @@ export function Positions({
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <dt className="text-[11px] text-muted-foreground">Fees</dt>
                   <dd className="truncate font-mono text-[12.5px] tabular-nums">
-                    {p.fees > 0 ? (
+                    {p.fees >= DUST_ETH ? (
                       <Amount value={formatETH(p.fees)} />
                     ) : (
                       <span className="text-muted-foreground">—</span>
@@ -450,7 +491,7 @@ export function Positions({
                     </span>
                   </td>
                   <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
-                    {p.fees > 0 ? (
+                    {p.fees >= DUST_ETH ? (
                       <span className="text-foreground">
                         {formatETH(p.fees)}
                       </span>
@@ -628,7 +669,7 @@ export function DelegationCard({
         <Figure
           label="Unclaimed fees"
           action={
-            canManage && p.fees > 0 ? (
+            canManage && p.fees >= DUST_ETH ? (
               <button
                 type="button"
                 onClick={() =>
@@ -641,7 +682,7 @@ export function DelegationCard({
             ) : undefined
           }
         >
-          {p.fees > 0 ? formatETH(p.fees) : "—"}
+          {p.fees >= DUST_ETH ? formatETH(p.fees) : "—"}
         </Figure>
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-ui-caption text-muted-foreground">
