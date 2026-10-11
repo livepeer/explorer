@@ -77,6 +77,7 @@ import {
   transferHints,
 } from "@/lib/staking/hints";
 import { refreshWhenIndexed } from "@/lib/subgraph/sync";
+import { REVERTED } from "@/lib/tx";
 
 import { type Recipient, RecipientPicker, RecipientRow } from "./recipient";
 
@@ -202,10 +203,15 @@ function useTx(
     chainId: L2_CHAIN.id,
   });
 
+  // Mined isn't enough: a reverted transaction has a receipt but changed
+  // nothing.
+  const confirmed = receipt.isSuccess && receipt.data?.status === "success";
+  const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
+
   useEffect(() => {
-    if (receipt.isSuccess) onConfirmed();
+    if (confirmed) onConfirmed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receipt.isSuccess]);
+  }, [confirmed]);
 
   // Never sign from an account other than the one this action is for.
   const checkSigner = () => {
@@ -254,7 +260,8 @@ function useTx(
       : !isSafe && hash && receipt.isLoading
       ? "confirm"
       : null,
-    confirmed: receipt.isSuccess,
+    confirmed,
+    reverted,
     block: receipt.data?.blockNumber,
   };
 }
@@ -1220,6 +1227,10 @@ function StakingFlow({
     : tx.hash ?? (approveTx.busy ? approveTx.hash : undefined);
   // Wait for the Safe check, so a proposal is never tracked as a transaction.
   canRun = canRun && isSafe !== undefined;
+
+  useEffect(() => {
+    if (tx.reverted || approveTx.reverted) setError(REVERTED);
+  }, [tx.reverted, approveTx.reverted]);
 
   useEffect(() => {
     if (!tx.confirmed || !tx.hash) return;

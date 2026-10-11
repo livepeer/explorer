@@ -19,6 +19,7 @@ import { cn } from "@/lib/cn";
 import { L2_CHAIN, txUrl } from "@/lib/config";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { refreshWhenIndexed } from "@/lib/subgraph/sync";
+import { REVERTED } from "@/lib/tx";
 
 type Hash = `0x${string}`;
 
@@ -69,8 +70,12 @@ export function VoteForm({
     chainId: L2_CHAIN.id,
   });
 
+  // Mined isn't enough: a reverted vote has a receipt but recorded nothing.
+  const succeeded = receipt.isSuccess && receipt.data?.status === "success";
+  const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
+
   useEffect(() => {
-    if (!receipt.isSuccess || !hash) return;
+    if (!succeeded || !hash) return;
     const h = hash;
     const view = {
       label: "View",
@@ -94,11 +99,12 @@ export function VoteForm({
     );
     onConfirmed?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receipt.isSuccess]);
+  }, [succeeded]);
 
   useEffect(() => {
     if (receipt.isError) setError(errorMessage(receipt.error));
-  }, [receipt.isError, receipt.error]);
+    else if (reverted) setError(REVERTED);
+  }, [receipt.isError, receipt.error, reverted]);
 
   if (!isConnected) {
     return (
@@ -134,7 +140,7 @@ export function VoteForm({
     );
   }
 
-  if (receipt.isSuccess && hash) {
+  if (succeeded && hash) {
     return (
       <div className="flex flex-col gap-2 rounded-md bg-hover px-3 py-3">
         <p className="flex items-center gap-2 text-ui-body font-medium">

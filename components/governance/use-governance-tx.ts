@@ -11,6 +11,7 @@ import {
 
 import { L2_CHAIN } from "@/lib/config";
 import { useIsSafe } from "@/lib/hooks/safe";
+import { REVERTED } from "@/lib/tx";
 
 export function txErrorMessage(e: unknown) {
   const msg =
@@ -40,6 +41,10 @@ export function useGovernanceTx() {
     chainId: L2_CHAIN.id,
   });
 
+  // A receipt only says the transaction was mined; its status says whether
+  // it did anything.
+  const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
+
   const send = async (
     args: Parameters<UseWriteContractReturnType["writeContractAsync"]>[0]
   ) => {
@@ -61,13 +66,19 @@ export function useGovernanceTx() {
   return {
     send,
     hash,
-    error: error ?? (receipt.isError ? txErrorMessage(receipt.error) : null),
+    error:
+      error ??
+      (reverted
+        ? REVERTED
+        : receipt.isError
+        ? txErrorMessage(receipt.error)
+        : null),
     setError,
     /** Waiting for the Safe check: don't send yet. */
     checking: isSafe === undefined,
     signing,
     confirming: !isSafe && Boolean(hash) && receipt.isLoading,
-    confirmed: receipt.isSuccess,
+    confirmed: receipt.isSuccess && receipt.data?.status === "success",
     proposed: Boolean(isSafe && hash),
     block: receipt.data?.blockNumber,
   };
