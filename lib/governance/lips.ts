@@ -50,7 +50,12 @@ async function mapLimit<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>) {
   return out;
 }
 
-/** LIP numbers that already have a poll, from each poll's IPFS document. */
+/**
+ * LIP numbers that already have a poll, from each poll's IPFS document.
+ * Fails rather than guess: an unreadable poll list or document would make an
+ * already-polled LIP look pollable, inviting a duplicate poll, so any fetch
+ * or parse failure throws and poll creation stops until it reads cleanly.
+ */
 async function polledLips(): Promise<Set<string>> {
   const res = await fetch(SUBGRAPH_URL, {
     method: "POST",
@@ -58,25 +63,29 @@ async function polledLips(): Promise<Set<string>> {
     body: JSON.stringify({ query: "{ polls(first: 1000) { proposal } }" }),
     next: { revalidate: REVALIDATE },
   });
+  if (!res.ok) throw new Error(`Subgraph returned ${res.status}`);
   const json = (await res.json()) as {
     data?: { polls: { proposal: string | null }[] };
+    errors?: { message: string }[];
   };
-  const hashes = (json.data?.polls ?? [])
+  // GraphQL reports failures in an `errors` array, often with a 200.
+  if (json.errors?.length) throw new Error(json.errors[0].message);
+  if (!json.data) throw new Error("Subgraph returned no polls");
+
+  const hashes = json.data.polls
     .map((p) => p.proposal)
     .filter((h): h is string => Boolean(h));
   const lips = await mapLimit(hashes, 6, async (hash) => {
-    try {
-      const doc = await fetch(`https://ipfs.livepeer.com/ipfs/${hash}`, {
-        next: { revalidate: 86_400 },
-        signal: AbortSignal.timeout(8_000),
-      });
-      const { text } = (await doc.json()) as { text?: string };
-      return typeof text === "string"
-        ? parseDocument(text).attributes.lip ?? null
-        : null;
-    } catch {
-      return null;
-    }
+    const doc = await fetch(`https://ipfs.livepeer.com/ipfs/${hash}`, {
+      next: { revalidate: 86_400 },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!doc.ok) throw new Error(`IPFS returned ${doc.status} for ${hash}`);
+    const { text } = (await doc.json()) as { text?: string };
+    // Read cleanly but not a LIP document: genuinely no LIP number.
+    return typeof text === "string"
+      ? parseDocument(text).attributes.lip ?? null
+      : null;
   });
   return new Set(lips.filter((l): l is string => Boolean(l)));
 }
