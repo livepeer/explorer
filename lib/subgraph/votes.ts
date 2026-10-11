@@ -114,7 +114,12 @@ export async function fetchPollVotes(poll: string): Promise<CastVote[]> {
       return {
         voter: id,
         choice: v.choiceID === "Yes" ? "yes" : "no",
-        weight: Number(v.voteStake),
+        // An orchestrator's voteStake still counts delegators who voted for
+        // themselves; their stake is its nonVoteStake, so take it off, as the
+        // previous explorer did. A delegator's nonVoteStake is zero.
+        weight: orchestrator
+          ? Math.max(0, Number(v.voteStake) - Number(v.nonVoteStake))
+          : Number(v.voteStake),
         orchestrator,
         delegate: orchestrator ? null : delegate,
         timestamp: e?.timestamp ?? null,
