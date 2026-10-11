@@ -304,11 +304,12 @@ function OrchestratorTable() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by name or address"
             aria-label="Filter orchestrators by ENS name or address"
-            className="pl-8"
+            className="h-8 pl-8"
           />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex h-9 items-center gap-2 rounded-sm bg-hover pr-1 pl-3 text-ui-caption text-muted-foreground">
+          {/* Built like the filter beside it: same height, inset and type. */}
+          <label className="inline-flex h-8 items-center gap-2 rounded-sm bg-hover p-0.5 px-2.5 pr-2.5 text-xs font-medium text-muted-foreground">
             Estimate for
             <input
               value={amount}
@@ -317,7 +318,7 @@ function OrchestratorTable() {
                 /^\d*\.?\d*$/.test(e.target.value) && setAmount(e.target.value)
               }
               aria-label="Stake amount for yearly estimate"
-              className="h-7 w-20 rounded-[4px] bg-background/60 px-2 text-right font-mono text-[13px] text-foreground tabular-nums outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40 light:bg-background"
+              className="h-7 w-20 rounded-[4px] bg-input/50 px-2 text-right font-mono text-[13px] text-foreground tabular-nums ring-1 ring-foreground/10 outline-none ring-inset focus-visible:ring-green-bright/40 light:bg-background"
             />
             LPT
           </label>

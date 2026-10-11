@@ -163,7 +163,7 @@ export default function GatewaysPage() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by address"
             aria-label="Filter gateways by address"
-            className="pl-8"
+            className="h-8 pl-8"
           />
         </div>
         <p className="text-ui-caption text-muted-foreground">

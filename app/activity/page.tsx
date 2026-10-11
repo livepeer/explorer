@@ -278,7 +278,7 @@ function ActivityView() {
             placeholder="Address, ENS name or transaction hash"
             aria-label="Search activity"
             aria-invalid={!inputValid}
-            className="pr-8 pl-8 font-mono text-[13px] placeholder:font-sans"
+            className="h-8 pr-8 pl-8 font-mono text-[13px] placeholder:font-sans"
           />
           {input && (
             <button

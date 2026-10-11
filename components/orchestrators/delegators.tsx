@@ -70,7 +70,7 @@ export function OrchestratorDelegators({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by address or ENS name"
             aria-label="Filter delegators"
-            className="pl-8"
+            className="h-8 pl-8"
           />
         </div>
       )}
