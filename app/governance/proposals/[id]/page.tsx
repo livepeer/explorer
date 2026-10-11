@@ -33,6 +33,7 @@ import {
 } from "@/components/governance/proposal-vote";
 import {
   proposalSeries,
+  QuorumMeter,
   TallyBar,
   TallyLegend,
 } from "@/components/governance/tally";
@@ -166,6 +167,16 @@ export default function ProposalPage() {
                 </div>
                 <TallyBar series={series} className="h-2.5" />
                 <TallyLegend series={series} />
+                {thresholds && phase !== "pending" && (
+                  <div className="-mx-4 border-t border-hairline px-4 pt-4">
+                    <QuorumMeter
+                      participation={thresholds.participation}
+                      quorum={thresholds.quorum}
+                      toQuorum={thresholds.toQuorum}
+                      ended={phase !== "active"}
+                    />
+                  </div>
+                )}
                 {phase === "active" && (
                   <div className="-mx-4 border-t border-hairline px-4 pt-4">
                     <ProposalVoteForm proposal={proposal} />
@@ -210,30 +221,6 @@ export default function ProposalPage() {
                       ? formatPercent(thresholds.quorum, { decimals: 2 })
                       : "—"}
                   </DetailItem>
-                  {thresholds && phase !== "pending" && (
-                    <DetailItem
-                      label="Participation"
-                      sub={
-                        <span
-                          className={
-                            thresholds.quorumReached
-                              ? "text-green-bright"
-                              : undefined
-                          }
-                        >
-                          {thresholds.quorumReached
-                            ? "Quorum reached"
-                            : phase === "active"
-                            ? "Below quorum so far"
-                            : "Quorum not reached"}
-                        </span>
-                      }
-                    >
-                      {formatPercent(thresholds.participation, {
-                        decimals: 2,
-                      })}
-                    </DetailItem>
-                  )}
                   <DetailItem
                     label="Quota"
                     sub="of For and Against votes must be For"

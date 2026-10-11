@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { formatPercent, formatToken } from "@/lib/format";
+import { formatLPT, formatPercent, formatToken } from "@/lib/format";
 import type { Poll, TreasuryProposal } from "@/lib/subgraph/network";
 
 export type TallySeries = {
@@ -130,5 +130,76 @@ export function TallyKey({
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * Turnout against quorum, under the tally: a vote that misses quorum fails
+ * however lopsided it is, so it sits beside the result rather than in the
+ * details. The bar fills as turnout approaches quorum.
+ */
+export function QuorumMeter({
+  participation,
+  quorum,
+  toQuorum,
+  ended,
+}: {
+  /** Share of the electorate that has voted, %. */
+  participation: number;
+  /** Share that must vote, %. */
+  quorum: number;
+  /** LPT still needed to reach quorum, when known. */
+  toQuorum?: number | null;
+  ended: boolean;
+}) {
+  const reached = participation >= quorum;
+  const progress = quorum > 0 ? Math.min(1, participation / quorum) : 1;
+  const status = reached
+    ? "Quorum reached"
+    : ended
+    ? "Quorum not reached"
+    : toQuorum != null && toQuorum > 0
+    ? `${formatLPT(toQuorum, { compact: true })} more needed`
+    : "Below quorum so far";
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3 text-ui-body">
+        <span className="text-muted-foreground">Quorum</span>
+        <span className="font-mono text-[13px] tabular-nums">
+          {formatPercent(participation, { decimals: 2 })}
+          <span className="text-subtle-foreground">
+            {" "}
+            / {formatPercent(quorum, { decimals: 2 })}
+          </span>
+        </span>
+      </div>
+      <div
+        role="meter"
+        aria-label="Turnout towards quorum"
+        aria-valuemin={0}
+        aria-valuemax={quorum}
+        aria-valuenow={Math.min(participation, quorum)}
+        aria-valuetext={`${formatPercent(participation, {
+          decimals: 2,
+        })} of ${formatPercent(quorum, { decimals: 2 })} quorum`}
+        className="h-1.5 w-full overflow-hidden rounded-[2px] bg-foreground/[0.06]"
+      >
+        <span
+          className={cn(
+            "block h-full rounded-[2px]",
+            reached ? "bg-green-bright" : "bg-warm"
+          )}
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+      <span
+        className={cn(
+          "text-ui-caption",
+          reached ? "text-green-bright" : "text-warm"
+        )}
+      >
+        {status}
+      </span>
+    </div>
   );
 }

@@ -7,6 +7,8 @@ export type ProposalThresholds = {
   /** Share of voting power that did vote, %. */
   participation: number;
   quorumReached: boolean;
+  /** LPT still needed to reach quorum; 0 once reached. */
+  toQuorum: number;
   /** For's share of For + Against that must be exceeded, %. */
   quota: number;
   /** For's share of For + Against, %. Null before any For or Against vote. */
@@ -46,6 +48,7 @@ export function proposalThresholds({
     quorum: (quorumVotes / totalSupply) * 100,
     participation: (cast / totalSupply) * 100,
     quorumReached: cast >= quorumVotes,
+    toQuorum: Math.max(0, quorumVotes - cast),
     quota,
     forShare,
     quotaMet: forShare != null && forShare > quota,

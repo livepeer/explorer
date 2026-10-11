@@ -28,6 +28,7 @@ import {
 } from "@/components/governance/model";
 import {
   pollSeries,
+  QuorumMeter,
   TallyBar,
   TallyLegend,
 } from "@/components/governance/tally";
@@ -160,6 +161,16 @@ export default function PollPage() {
                 </div>
                 <TallyBar series={series} className="h-2.5" />
                 <TallyLegend series={series} />
+                {participation != null && activeStake != null && (
+                  <div className="-mx-4 border-t border-hairline px-4 pt-4">
+                    <QuorumMeter
+                      participation={participation}
+                      quorum={poll.quorum}
+                      toQuorum={(poll.quorum / 100) * activeStake - voted}
+                      ended={phase === "ended"}
+                    />
+                  </div>
+                )}
                 {phase === "active" && (
                   <div className="-mx-4 border-t border-hairline px-4 pt-4">
                     <PollVoteForm pollAddress={poll.id} />
@@ -182,28 +193,6 @@ export default function PollPage() {
                   <DetailItem label="Quorum" sub="of active stake must vote">
                     {formatPercent(poll.quorum, { decimals: 2 })}
                   </DetailItem>
-                  {participation != null && (
-                    <DetailItem
-                      label="Participation"
-                      sub={
-                        <span
-                          className={
-                            participation >= poll.quorum
-                              ? "text-green-bright"
-                              : undefined
-                          }
-                        >
-                          {participation >= poll.quorum
-                            ? "Quorum reached"
-                            : phase === "active"
-                            ? "Below quorum so far"
-                            : "Quorum not reached"}
-                        </span>
-                      }
-                    >
-                      {formatPercent(participation, { decimals: 2 })}
-                    </DetailItem>
-                  )}
                   <DetailItem label="Quota" sub="of votes must be yes">
                     {formatPercent(poll.quota, { decimals: 2 })}
                   </DetailItem>
