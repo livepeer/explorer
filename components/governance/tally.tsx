@@ -187,7 +187,11 @@ export function QuorumMeter({
         <span
           className={cn(
             "block h-full rounded-[2px]",
-            reached ? "bg-green-bright" : "bg-warm"
+            reached
+              ? "bg-green-bright"
+              : // Light mode's warm is dark enough for text; a bar can be the
+                // brighter amber dark mode shows.
+                "bg-warm light:bg-[#f59e0b]"
           )}
           style={{ width: `${progress * 100}%` }}
         />
