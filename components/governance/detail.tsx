@@ -13,7 +13,7 @@ export function BackLink({ href = "/governance" }: { href?: string }) {
   return (
     <Link
       href={href}
-      className="-ml-1.5 mb-6 inline-flex h-7 items-center gap-1.5 rounded-sm px-1.5 text-ui-caption text-muted-foreground transition-colors outline-none hover:bg-hover hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40"
+      className="-ml-1.5 mb-6 inline-flex h-7 items-center gap-1.5 rounded-sm px-1.5 text-ui-caption text-muted-foreground transition-colors outline-none hover:bg-hover hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 lg:hidden"
     >
       <ArrowLeft className="size-3.5" /> Governance
     </Link>

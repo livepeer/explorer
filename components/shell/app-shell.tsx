@@ -15,13 +15,16 @@ import { useEffect, useState } from "react";
 
 import { ExplorerBadge } from "@/components/brand/explorer-badge";
 import { LivepeerWordmark } from "@/components/brand/logo";
+import { PAGE_ACTIONS_SLOT, PAGE_INFO_SLOT } from "@/components/page-header";
 import { THEME_OPTIONS, useTheme } from "@/components/theme";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { useSubgraphHealth } from "@/lib/hooks/queries";
 
+import { Breadcrumbs } from "./breadcrumbs";
 import { CommandSearch } from "./command-search";
+import { ConnectedPill } from "./connected-pill";
 import { NAV } from "./nav";
 import { SidebarRoundClock } from "./round-clock";
 import { WalletButton } from "./wallet-button";
@@ -296,6 +299,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main id="main" className="min-w-0 flex-1">
+          {/* Desktop header, Linear-style: where you are on the left, who
+              you'd sign as on the right. Level with the sidebar's logo, and
+              padded like Page so both ends line up with the content. */}
+          <header className="hidden h-14 border-b border-hairline lg:block">
+            <div className="mx-auto flex h-full w-full max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6 min-[1360px]:px-10">
+              <div className="flex min-w-0 items-center gap-1">
+                <Breadcrumbs />
+                <span id={PAGE_INFO_SLOT} className="contents" />
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {/* The page's own buttons, then a hairline, then your wallet. */}
+                <div
+                  id={PAGE_ACTIONS_SLOT}
+                  className="flex items-center gap-2 after:mx-1 after:h-5 after:w-px after:bg-hairline empty:hidden"
+                />
+                <ConnectedPill />
+              </div>
+            </div>
+          </header>
           <StaleDataBanner />
           {children}
         </main>

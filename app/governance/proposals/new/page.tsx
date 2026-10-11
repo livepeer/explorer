@@ -144,7 +144,7 @@ export default function NewProposalPage() {
     <Page className="max-w-[760px]">
       <Link
         href="/governance"
-        className="mb-6 inline-flex items-center gap-1.5 text-ui-caption text-muted-foreground hover:text-foreground"
+        className="mb-6 inline-flex items-center gap-1.5 text-ui-caption text-muted-foreground hover:text-foreground lg:hidden"
       >
         <ArrowLeft className="size-3.5" /> Governance
       </Link>

@@ -9,7 +9,7 @@ export function Page({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[1200px] px-4 pt-6 pb-16 sm:px-6 lg:pt-10 min-[1360px]:px-10",
+        "mx-auto w-full max-w-[1200px] px-4 pt-6 pb-16 sm:px-6 min-[1360px]:px-10",
         className
       )}
       {...props}
@@ -17,47 +17,7 @@ export function Page({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-export function PageHeader({
-  eyebrow,
-  title,
-  description,
-  actions,
-  className,
-}: {
-  eyebrow?: React.ReactNode;
-  title: React.ReactNode;
-  description?: React.ReactNode;
-  actions?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <header
-      className={cn(
-        "mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
-        className
-      )}
-    >
-      <div className="flex min-w-0 flex-col gap-2">
-        {eyebrow && (
-          <div className="text-ui-caption text-muted-foreground">{eyebrow}</div>
-        )}
-        <h1 className="text-page-title font-light tracking-[-0.01em] text-balance">
-          {title}
-        </h1>
-        {description && (
-          <p className="max-w-[62ch] text-ui-body text-muted-foreground text-pretty">
-            {description}
-          </p>
-        )}
-      </div>
-      {actions && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {actions}
-        </div>
-      )}
-    </header>
-  );
-}
+export { PageHeader } from "./page-header";
 
 export function SectionHeader({
   title,
@@ -92,7 +52,17 @@ export function Section({
   className,
   ...props
 }: React.ComponentProps<"section">) {
-  return <section className={cn("mt-10 first:mt-0", className)} {...props} />;
+  // First on the page, or first after the page header (which on desktop
+  // shows only to screen readers), a section starts flush.
+  return (
+    <section
+      className={cn(
+        "mt-10 first:mt-0 lg:[header:first-child+&]:mt-0",
+        className
+      )}
+      {...props}
+    />
+  );
 }
 
 export function Card({ className, ...props }: React.ComponentProps<"div">) {
