@@ -95,13 +95,17 @@ function GovernanceLists() {
 
   return (
     <>
-      <Segmented
-        label="Governance type"
-        value={tab}
-        onChange={setTab}
-        options={TABS}
-        className="mb-8"
-      />
+      {/* The switch on the left, and on the right the key to the vote bars
+          in every list below it. Lists start a section's distance down. */}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          label="Governance type"
+          value={tab}
+          onChange={setTab}
+          options={TABS}
+        />
+        <TallyKey series={tab === "polls" ? POLL_KEY : PROPOSAL_KEY} />
+      </div>
       <div>{tab === "proposals" ? <Proposals /> : <Polls />}</div>
     </>
   );
@@ -152,11 +156,7 @@ function Proposals() {
     <>
       {open.length > 0 && (
         <Section>
-          <SectionHeader
-            title="Open"
-            description="Active and upcoming votes"
-            action={<TallyKey series={PROPOSAL_KEY} />}
-          />
+          <SectionHeader title="Open" description="Active and upcoming votes" />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
             {open.map((x) => (
               <ProposalRow key={x.id} proposal={x} protocol={p} nowMs={nowMs} />
@@ -169,9 +169,6 @@ function Proposals() {
           <SectionHeader
             title="Past"
             description="Outcome shown is the vote majority. Open a proposal for its quorum, quota and on-chain state."
-            action={
-              open.length === 0 ? <TallyKey series={PROPOSAL_KEY} /> : undefined
-            }
           />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
             {past.map((x) => (
@@ -226,10 +223,7 @@ function Polls() {
     <>
       {open.length > 0 && (
         <Section>
-          <SectionHeader
-            title="Active"
-            action={<TallyKey series={POLL_KEY} />}
-          />
+          <SectionHeader title="Active" />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
             {open.map((x) => (
               <PollRow key={x.id} poll={x} l1Block={l1Block} nowMs={nowMs} />
@@ -245,9 +239,6 @@ function Polls() {
               l1Block == null
                 ? "Couldn't read the current Ethereum block, so poll status is unknown."
                 : "Outcome shown is the vote majority; quorum and quota are on each poll."
-            }
-            action={
-              open.length === 0 ? <TallyKey series={POLL_KEY} /> : undefined
             }
           />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
