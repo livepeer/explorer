@@ -41,11 +41,31 @@ async function fetchLips(): Promise<{ commit: string; lips: Lip[] }> {
   return json;
 }
 
+const LIPS_REPO = "https://github.com/livepeer/LIPs";
+const LIP_PROCESS = `${LIPS_REPO}/blob/master/LIPs/LIP-1.md`;
+
 /**
  * Put a LIP to a stake-weighted poll. PollCreator requires 100 LPT of
  * delegated stake (or an orchestrator's total stake) and no fee; the LIP's
  * text is pinned to IPFS by the explorer and the poll points at it.
  */
+/** Which commit of the LIPs repository the list was read from. */
+function CheckedAgainst({ commit }: { commit: string }) {
+  return (
+    <p className="text-ui-caption text-muted-foreground">
+      Checked against{" "}
+      <a
+        href={`${LIPS_REPO}/tree/${commit}`}
+        target="_blank"
+        rel="noreferrer"
+        className="font-mono underline-offset-4 hover:text-foreground hover:underline"
+      >
+        livepeer/LIPs@{commit.slice(0, 7)}
+      </a>
+    </p>
+  );
+}
+
 export default function NewPollPage() {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
@@ -132,8 +152,9 @@ export default function NewPollPage() {
       </Link>
       <PageHeader
         title="New poll"
-        description="Put a proposed LIP to a stake-weighted vote. Polls run for 10 rounds and need 33.33% of stake to vote, with more than half voting yes. Creating one needs 100 LPT staked and costs no LPT."
+        description="Put a proposed LIP to a stake-weighted vote. Polls run for about 8 days and need 33.33% of stake to vote, with more than half voting yes. Creating one needs 100 LPT staked and costs no LPT."
       />
+
 
       {tx.proposed && address ? (
         <Card className="px-5">
@@ -184,23 +205,41 @@ export default function NewPollPage() {
           ))}
         </div>
       ) : lips.data.lips.length === 0 ? (
-        <Card>
+        // The whole page is empty, so no card: centred in the space under
+        // the header (its 56px plus Page's 24px top and 64px bottom
+        // padding), as an app's empty view is, and lifted a little, since
+        // true centre reads low.
+        <div className="flex min-h-[50vh] items-center justify-center pb-[10vh] lg:min-h-[calc(100dvh-9rem)]">
           <EmptyState
             icon={<FileText />}
             title="No LIPs are open for a poll"
             description="Only LIPs with status Proposed, and without a poll already, can be put to a vote. Propose a LIP in the LIPs repository first."
             action={
-              <a
-                href="https://github.com/livepeer/LIPS"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-ui-caption text-foreground underline-offset-4 hover:underline"
-              >
-                LIPs repository <ExternalLink className="size-3" />
-              </a>
+              <div className="flex flex-col items-center gap-5">
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  size="sm"
+                  render={
+                    <a href={LIP_PROCESS} target="_blank" rel="noreferrer" />
+                  }
+                >
+                  How to write a LIP <ExternalLink />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  render={
+                    <a href={LIPS_REPO} target="_blank" rel="noreferrer" />
+                  }
+                >
+                  LIPs repository <ExternalLink />
+                </Button>
+              </div>
+              <CheckedAgainst commit={lips.data.commit} />
+              </div>
             }
           />
-        </Card>
+        </div>
       ) : (
         <>
           {/* Native radios: arrow keys move between LIPs and Tab leaves the
@@ -261,6 +300,10 @@ export default function NewPollPage() {
             })}
           </fieldset>
 
+          <div className="mt-3">
+            <CheckedAgainst commit={lips.data.commit} />
+          </div>
+
           <div className="mt-6 flex flex-col items-end gap-2">
             {tx.error && (
               <p className="text-ui-caption text-destructive">{tx.error}</p>
@@ -298,6 +341,7 @@ export default function NewPollPage() {
           </div>
         </>
       )}
+
     </Page>
   );
 }
