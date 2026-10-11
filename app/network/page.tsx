@@ -53,48 +53,55 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
     minute: "2-digit",
   });
 
+  const pct = Math.floor(s.progress * 100);
+  const late = s.overdue || !s.initialized;
+
+  // Lined up with the KPI tiles beside it: their label row at the top,
+  // their caption row pinned to the bottom, and the ring in between.
   return (
     <Card className="flex h-full flex-col">
-      <div className="flex flex-1 items-center gap-5 p-5 sm:p-6">
-        <Ring
-          progress={s.progress}
-          size={112}
-          stroke={9}
-          tone={s.overdue || !s.initialized ? "warning" : "positive"}
-        >
-          <span className="text-[22px] leading-7 font-medium tracking-[-0.01em]">
-            {Math.floor(s.progress * 100)}%
-          </span>
-          <span className="text-[11px] text-muted-foreground">elapsed</span>
-        </Ring>
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <div className="text-ui-caption text-muted-foreground">
-            Current round
-          </div>
-          <div className="text-[22px] leading-7 font-medium tracking-[-0.01em]">
-            {protocol.currentRound.toLocaleString()}
-          </div>
-          <div className="font-mono text-ui-body text-foreground tabular-nums">
-            {s.overdue
-              ? "Ready to initialize"
-              : `${formatDuration(s.remaining)} left`}
-          </div>
-          <div className="text-ui-caption text-muted-foreground">
-            {s.overdue
-              ? `Round ${next.toLocaleString()} can be initialized now`
-              : `Round ${next.toLocaleString()} begins around ${endsAt}`}
-          </div>
-          <div className="text-ui-caption text-muted-foreground">
-            <span className="font-mono tabular-nums">
-              ~{s.blocksElapsed.toLocaleString()} /{" "}
-              {protocol.roundLength.toLocaleString()}
-            </span>{" "}
-            L1 blocks
-          </div>
-          <div className="mt-1 flex items-center gap-2 text-ui-caption text-muted-foreground">
+      <div className="flex flex-1 flex-col gap-1.5 px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between gap-3 text-ui-caption text-muted-foreground">
+          <span>Current round</span>
+          <span className="flex items-center gap-1.5">
             <StatusDot tone={s.initialized ? "positive" : "warning"} />
             {s.initialized ? "Initialized" : "Awaiting initialization"}
+          </span>
+        </div>
+        <div className="flex flex-1 items-center gap-5 py-3">
+          <Ring
+            progress={s.progress}
+            size={104}
+            stroke={8}
+            tone={late ? "warning" : "positive"}
+          >
+            <span className="text-[20px] leading-6 font-medium tracking-[-0.01em] tabular-nums">
+              {pct}%
+            </span>
+            <span className="text-[11px] text-muted-foreground">elapsed</span>
+          </Ring>
+          <div className="flex min-w-0 flex-col gap-1">
+            <div className="text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
+              {protocol.currentRound.toLocaleString()}
+            </div>
+            <div className="text-ui-body text-foreground tabular-nums">
+              {s.overdue
+                ? "Ready to initialize"
+                : `${formatDuration(s.remaining)} left`}
+            </div>
+            <div className="text-ui-caption text-muted-foreground">
+              {s.overdue
+                ? `Round ${next.toLocaleString()} can be initialized now`
+                : `Round ${next.toLocaleString()} begins around ${endsAt}`}
+            </div>
           </div>
+        </div>
+        <div className="flex justify-between font-mono text-[10px] text-subtle-foreground tabular-nums">
+          <span>Round length</span>
+          <span>
+            ~{s.blocksElapsed.toLocaleString()} /{" "}
+            {protocol.roundLength.toLocaleString()} L1 blocks
+          </span>
         </div>
       </div>
       <RewardCalls round={protocol.currentRound} />
@@ -105,15 +112,17 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
 function RoundCardSkeleton() {
   return (
     <Card className="flex h-full flex-col">
-      <div className="flex flex-1 items-center gap-5 p-5 sm:p-6">
-        <Skeleton className="size-28 shrink-0 rounded-full" />
-        <div className="flex flex-1 flex-col gap-2">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-3 w-44" />
-          <Skeleton className="h-3 w-32" />
+      <div className="flex flex-1 flex-col gap-2 px-4 py-4 sm:px-5">
+        <Skeleton className="h-3 w-24" />
+        <div className="flex flex-1 items-center gap-5 py-3">
+          <Skeleton className="size-[104px] shrink-0 rounded-full" />
+          <div className="flex flex-1 flex-col gap-2">
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-44" />
+          </div>
         </div>
+        <Skeleton className="h-2.5 w-full" />
       </div>
       <div className="border-t border-hairline px-5 py-3.5 sm:px-6">
         <Skeleton className="h-3.5 w-full" />
