@@ -73,4 +73,21 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+/** `PHASE_PRODUCTION_BUILD` from next/constants: `next build`. */
+const PHASE_PRODUCTION_BUILD = "phase-production-build";
+
+module.exports = (phase) => {
+  // Without a subgraph key or endpoint the app falls back to the staging
+  // subgraph, which is fine for `next dev` but would ship staging balances
+  // and votes as if they were production's. Refuse to build that.
+  if (
+    phase === PHASE_PRODUCTION_BUILD &&
+    !process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY &&
+    !process.env.NEXT_PUBLIC_SUBGRAPH_ENDPOINT
+  ) {
+    throw new Error(
+      "Set NEXT_PUBLIC_SUBGRAPH_API_KEY or NEXT_PUBLIC_SUBGRAPH_ENDPOINT to build. Without either, the app would read the staging subgraph."
+    );
+  }
+  return nextConfig;
+};

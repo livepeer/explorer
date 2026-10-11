@@ -14,7 +14,11 @@ const SUBGRAPH_ID = "8BAy1zU5zAd5VXQEU6yh16PpCgrJ2E5SMrnP6M91uGK6";
 const SUBGRAPH_DEPLOYMENT = process.env.NEXT_PUBLIC_SUBGRAPH_DEPLOYMENT;
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
 
-/** Without a key (local development): Studio's rate-limited query URL. */
+/**
+ * Without a key: Studio's rate-limited query URL, for local development
+ * only. A production build without a key or endpoint fails instead (see
+ * next.config.js), so this never ships as if it were production data.
+ */
 export const STAGING_SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/20534/livepeer-staging/v0.0.15";
 
