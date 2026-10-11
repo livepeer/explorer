@@ -53,6 +53,12 @@ describe("PlainMarkdown", () => {
     expect(html("**bold** and \\*\\*")).toContain("and **");
   });
 
+  it("leaves an out-of-range numeric entity as written", () => {
+    expect(html("big &#1114112; and &#x110000;")).toContain(
+      "big &amp;#1114112; and &amp;#x110000;"
+    );
+  });
+
   it("reads escapes and entities", () => {
     expect(html("a \\- b \\*c\\*")).toContain("a - b *c*");
     expect(html("x&nbsp;&amp;&#39;y")).toContain("x &amp;&#x27;y");

@@ -192,7 +192,11 @@ function decode(text: string) {
       e[1] === "x" || e[1] === "X"
         ? parseInt(e.slice(2), 16)
         : parseInt(e.slice(1), 10);
-    return Number.isFinite(code) && code > 0 ? String.fromCodePoint(code) : m;
+    // Past U+10FFFF, fromCodePoint throws: proposal text is untrusted, so
+    // leave such an entity as written rather than crash the page.
+    return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+      ? String.fromCodePoint(code)
+      : m;
   });
 }
 
