@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import {
   formatLastDay,
   formatRunway,
-  GATEWAY_HINT,
   GatewayName,
   RUNWAY_HINT,
   WeeklyTrend,
@@ -140,17 +139,7 @@ export default function GatewaysPage() {
     <Page>
       <PageHeader
         title="Gateways"
-        description={
-          <>
-            Gateways send jobs to orchestrators and pay for them in ETH:
-            they&apos;re where the network&apos;s fees come from.{" "}
-            <Tooltip content={GATEWAY_HINT}>
-              <span className="cursor-help underline decoration-dotted decoration-foreground/30 underline-offset-4">
-                How it works
-              </span>
-            </Tooltip>
-          </>
-        }
+        description="Gateways send video and AI jobs to orchestrators and pay for them in ETH through probabilistic tickets. They're where the network's fees come from, which orchestrators share with their delegators."
       />
 
       <GatewayKpis data={data} />

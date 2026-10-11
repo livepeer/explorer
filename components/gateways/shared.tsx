@@ -9,9 +9,6 @@ import { dailyFees, type GatewayDay } from "@/lib/subgraph/gateways";
 
 const DAY = 86400;
 
-export const GATEWAY_HINT =
-  "Gateways send video and AI jobs to orchestrators and pay for them in ETH through probabilistic tickets. Those fees are what orchestrators share with their delegators.";
-
 export const RUNWAY_HINT =
   "How long the deposit lasts at the gateway's pace over the last 30 days. When the deposit runs out, the reserve backs its tickets until it's topped up.";
 
