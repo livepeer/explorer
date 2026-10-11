@@ -318,7 +318,7 @@ function OrchestratorTable() {
                 /^\d*\.?\d*$/.test(e.target.value) && setAmount(e.target.value)
               }
               aria-label="Stake amount for yearly estimate"
-              className="h-7 w-20 rounded-[4px] bg-input/50 px-2 text-right font-mono text-[13px] text-foreground tabular-nums ring-1 ring-foreground/10 outline-none ring-inset focus-visible:ring-green-bright/40 light:bg-background"
+              className="h-7 w-20 rounded-[4px] bg-input/50 px-2 text-right font-mono text-[13px] text-foreground tabular-nums ring-1 ring-foreground/10 outline-none ring-inset focus-visible:ring-green-bright/40 light:bg-card"
             />
             LPT
           </label>

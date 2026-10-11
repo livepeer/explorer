@@ -77,7 +77,9 @@
 
 /* ── Registry light theme ──────────────────────────────────────────────── */
 html[data-theme="light"] {
-  --background: oklch(1 0 0);
+  /* Lighter on top, as in dark mode: an off-white page and sidebar, with
+     white cards, panels and popovers raised on it. */
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -110,8 +112,8 @@ html[data-theme="light"] {
   --series-6: #008300;
   --series-7: #4a3aa7;
   --series-other: rgba(24, 24, 27, 0.3);
-  --surface: var(--muted);
-  --surface-highlight: 0 0 #0000;
+  --surface: oklch(1 0 0);
+  --surface-highlight: 0 1px 2px rgb(24 24 27 / 0.04);
   --hairline: color-mix(in oklch, var(--border) 80%, transparent);
   --hover: color-mix(in oklch, var(--foreground) 5%, transparent);
   --active: color-mix(in oklch, var(--foreground) 8%, transparent);

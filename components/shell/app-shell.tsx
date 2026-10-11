@@ -100,7 +100,7 @@ function ThemeSwitch() {
             className={cn(
               "inline-flex size-6 cursor-pointer items-center justify-center rounded-full transition-colors",
               preference === value
-                ? "bg-secondary text-foreground light:bg-background light:shadow-sm"
+                ? "bg-secondary text-foreground light:bg-card light:shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -117,7 +117,7 @@ function SearchTrigger({ onOpen }: { onOpen: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      className="flex h-8 w-full cursor-pointer items-center gap-2 rounded-sm border border-hairline bg-foreground/[0.03] px-2 text-ui-body text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground light:bg-background"
+      className="flex h-8 w-full cursor-pointer items-center gap-2 rounded-sm border border-hairline bg-foreground/[0.03] px-2 text-ui-body text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground light:bg-card"
     >
       <Search className="size-3.5" />
       <span className="flex-1 text-left">Search</span>

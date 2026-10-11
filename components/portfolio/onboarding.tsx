@@ -154,7 +154,7 @@ export function Onboarding() {
               },
             ].map(({ icon: Icon, title, text }) => (
               <li key={title} className="flex gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-hairline bg-background/50 text-muted-foreground light:bg-background">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-hairline bg-background/50 text-muted-foreground light:bg-card">
                   <Icon className="size-4" />
                 </span>
                 <span className="flex flex-col gap-0.5">
