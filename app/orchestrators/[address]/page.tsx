@@ -102,6 +102,23 @@ function RewardStrip({
   );
 }
 
+/**
+ * When the cut or fee share last changed. One never changed since
+ * activation has no time in the subgraph (0, which would read as 1970), so
+ * it's dated from the orchestrator's first round instead.
+ */
+function CutUpdated({ o }: { o: OrchestratorDetail }) {
+  const changed = Math.max(o.rewardCutUpdateTimestamp, o.feeShareUpdateTimestamp);
+  if (changed > 0) return <>Updated {formatRelativeTime(changed)}</>;
+  const since = o.pools[0]?.ts;
+  return since ? (
+    <>
+      Unchanged since{" "}
+      {formatDate(since, { month: "short", year: "numeric" })}
+    </>
+  ) : null;
+}
+
 function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
   // Only real changes: the first pool in the window is a starting point, not
   // a change.
@@ -133,7 +150,22 @@ function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
     return (
       <Card className="px-4 py-3.5">
         <p className="text-ui-body text-muted-foreground">
-          Unchanged since round {pools[0].round.toLocaleString()}
+          Unchanged since{" "}
+          {pools[0].ts > 0 ? (
+            <>
+              {formatDate(pools[0].ts, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+              <span className="text-subtle-foreground">
+                {" "}
+                · round {pools[0].round.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            <>round {pools[0].round.toLocaleString()}</>
+          )}
         </p>
         <p className="mt-1 font-mono text-[12.5px] tabular-nums">
           {current.rewardCut.toFixed(1)}% cut · {current.feeShare.toFixed(1)}%
@@ -339,7 +371,7 @@ export default function OrchestratorPage() {
                   <Globe className="size-3" /> {host}
                 </span>
               )}
-              {o && (
+              {o && o.activationTimestamp > 0 && (
                 <span>
                   Active since{" "}
                   {formatDate(o.activationTimestamp, {
@@ -464,14 +496,7 @@ export default function OrchestratorPage() {
                 )
               }
               sub={
-                o
-                  ? `Updated ${formatRelativeTime(
-                      Math.max(
-                        o.rewardCutUpdateTimestamp,
-                        o.feeShareUpdateTimestamp
-                      )
-                    )}`
-                  : undefined
+                o ? <CutUpdated o={o} /> : undefined
               }
             />
             <Kpi
