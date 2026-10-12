@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Delegation under Min-Fee-Stake · Design review</title>
+    <title>Helping people pick where to stake · Design review</title>
     <link rel="stylesheet" href="../shared/inter.css" />
     <style>
       :root {
@@ -109,6 +109,38 @@
         padding: 2px 6px;
         border-radius: 5px;
         color: var(--hiContrast);
+      }
+      .swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 1px;
+        padding: 2px 8px 2px 4px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        vertical-align: 1px;
+        white-space: nowrap;
+      }
+      .swatch i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .swatch.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+      .swatch.fee i {
+        background: var(--fee9);
+      }
+      .swatch.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .swatch.stake i {
+        background: var(--stake9);
       }
 
       .status-pill {
@@ -1087,6 +1119,159 @@
         text-decoration: underline;
       }
 
+      /* ---------- day-one / getting started ---------- */
+
+      .day-one {
+        position: relative;
+        max-width: 560px;
+        background: linear-gradient(
+            180deg,
+            rgba(76, 195, 138, 0.16) 0%,
+            rgba(76, 195, 138, 0.05) 42%,
+            rgba(76, 195, 138, 0) 78%
+          ),
+          var(--panel);
+        border: 1px solid rgba(76, 195, 138, 0.28);
+        border-radius: var(--radius);
+        padding: 22px;
+        overflow: hidden;
+      }
+      .day-one .logo-bg {
+        position: absolute;
+        right: -28px;
+        top: -36px;
+        width: 220px;
+        height: 228px;
+        color: var(--primary11);
+        opacity: 0.1;
+        pointer-events: none;
+        transform: rotate(12deg);
+      }
+      .day-one .logo-bg svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .day-one .intro,
+      .day-one .pitch,
+      .day-one .steps,
+      .day-one .foot {
+        position: relative;
+        z-index: 1;
+      }
+      .day-one .intro {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .day-one .burst {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        background: var(--primary4);
+        border: 1px solid rgba(76, 195, 138, 0.35);
+        color: var(--primary11);
+      }
+      .day-one .burst svg {
+        width: 22px;
+        height: 23px;
+      }
+      .day-one .intro-copy {
+        min-width: 0;
+        flex: 1;
+      }
+      .day-one .headline {
+        font-size: 18px;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+        color: var(--hiContrast);
+        margin-bottom: 6px;
+      }
+      .day-one .addr-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--neutral8);
+      }
+      .day-one .addr-line .addr {
+        font-weight: 600;
+        color: var(--neutral11);
+      }
+      .day-one .addr-line .sep {
+        color: var(--neutral6);
+      }
+      .day-one .addr-line .when {
+        color: var(--primary11);
+        font-weight: 600;
+      }
+      .day-one .pitch {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        margin: 0 0 16px;
+      }
+      .day-one .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .day-one .step {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid var(--neutral4);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+      }
+      .day-one .step:hover {
+        border-color: var(--neutral6);
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .day-one .step .n {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 700;
+        background: var(--neutral3);
+        color: var(--hiContrast);
+      }
+      .day-one .step .t {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+      .day-one .step .s {
+        font-size: 12px;
+        color: var(--neutral10);
+        margin-top: 2px;
+      }
+      .day-one .step .go {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary11);
+        white-space: nowrap;
+      }
+      .day-one .foot {
+        font-size: 12px;
+        color: var(--neutral10);
+        line-height: 1.5;
+      }
+
       /* ---------- edge states ---------- */
 
       .edge-grid {
@@ -1138,7 +1323,7 @@
   <body>
     <header class="page-head">
       <span class="status-pill">Design review · mockups only</span>
-      <h1>Delegation under Min-Fee-Stake</h1>
+      <h1>Helping people pick where to stake</h1>
       <a
         class="issue-link"
         href="https://github.com/livepeer/explorer/issues/802"
@@ -1147,21 +1332,34 @@
       >
         Issue #802 ↗
       </a>
+      <a class="issue-link" href="./802-mfs-delegation-ux.md">
+        Design notes ↗
+      </a>
       <p>
-        Livepeer 2.0 changes how inflationary LPT is earned:
-        <code>reward % = min(fee % of network, stake % of network)</code>. USDC
-        fees for work stay uncapped. Stake only unlocks more LPT when a node is
-        earning more fees than it has stake behind it.
+        In Livepeer 2.0, a node’s new LPT rewards follow the smaller of two
+        shares: how much work it does (fees), and how much stake sits behind it.
+        Cash for that work stays whole. Stake unlocks more LPT only while the
+        node is doing more work than it has stake for.
       </p>
       <p>
-        <strong>Goal:</strong> help prospective delegators see where new stake
-        still earns, and help anyone already bonded see whether their node is
-        full or still has room, without teaching the formula first.
+        These mocks are for the moment of choice. If you are picking a node, you
+        should feel where new stake still earns. If you are already bonded, you
+        should know whether yours still has room, and what moving would cost.
+        Plain language carries the story; the math waits in tooltips for anyone
+        who wants it.
       </p>
       <p>
-        <strong>Visual system:</strong> blue = fees, violet = stake. State color
-        follows whichever side is smaller. We avoid green/amber so neither state
-        reads as success or failure. Numbers are shares of the network, not APY.
+        Color maps quantity.
+        <span class="swatch fee" title="Fees"
+          ><i aria-hidden="true"></i>Fees</span
+        >
+        and
+        <span class="swatch stake" title="Stake"
+          ><i aria-hidden="true"></i>Stake</span
+        >
+        stay fixed; the state chip takes the color of whichever side is smaller.
+        Emissions are still settling, so the numbers here are shares of the
+        network: how far a ceiling can still move.
       </p>
     </header>
 
@@ -1172,10 +1370,11 @@
         <span class="section-route">/orchestrators</span>
       </div>
       <p class="section-description">
-        Where people choose a node. Default sort answers “where does new stake
-        still earn?” State and fee-vs-stake numbers lead; tooltips hold the
-        formula. Absolute stake and trailing fee volume stay available but are
-        no longer the decision columns.
+        Most people arrive here while choosing a node, so the table opens on
+        that question: where does new stake still earn? State and the fee-vs-
+        stake comparison sit up front. The formula lives in tooltips, ready when
+        someone asks why. Absolute totals remain available; they just stop
+        competing for the first glance.
       </p>
 
       <div class="table-shell">
@@ -1495,10 +1694,28 @@
                 <span class="chip balanced"
                   ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path
-                      d="M3.2 6.4c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0M3.2 10c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0"
+                      d="M8 2.8v8"
                       stroke="currentColor"
-                      stroke-width="1.7"
+                      stroke-width="1.5"
                       stroke-linecap="round"
+                    />
+                    <path
+                      d="M4 13h8"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M3 6.2h10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
                     />
                   </svg>
                   Balanced</span
@@ -1668,14 +1885,14 @@
 
       <ul class="notes">
         <li>
-          <strong>Why these labels:</strong> “Room to earn” / “Full” /
-          “Balanced” say what a move does. The smaller share gets a “caps
-          rewards” tag so the min() is visible without a chart.
+          <strong>Labels:</strong> “Room to earn,” “Full,” and “Balanced” name
+          what happens if you stake here. A “caps rewards” tag marks the
+          limiting side so the ceiling is visible at a glance.
         </li>
         <li>
-          <strong>Why the filter:</strong> “Earning now” is the default so empty
-          registrations don’t flood the list. “All nodes” keeps every address
-          reachable.
+          <strong>Filter:</strong> “Earning now” keeps the list focused on nodes
+          with real activity. “All nodes” keeps every address reachable when you
+          need a specific one.
         </li>
       </ul>
     </section>
@@ -1687,9 +1904,11 @@
         <span class="section-route">/orchestrators · &lt;768px</span>
       </div>
       <p class="section-description">
-        Market-board layout, not a form card. Twin tiles put fees and stake side
-        by side like Yes / No odds so the smaller (binding) share is the
-        glanceable number. Binding tint fades from the top into the panel.
+        The same decision, sized for a phone. Fees and stake sit as twin
+        figures, the way odds read on a market board, so the limiting share
+        carries the eye. That side alone takes color, with a soft wash from the
+        top of the card so the state arrives before the words. Delegate rests in
+        the footer beside a short line about what new stake still does.
       </p>
 
       <div class="mobile-wrap">
@@ -1799,18 +2018,29 @@
             </div>
             <span class="chip balanced"
               ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle
-                  cx="8"
-                  cy="8"
-                  r="5.2"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
                 <path
-                  d="M8 5.2v5.6M5.2 8h5.6"
+                  d="M8 2.8v8"
                   stroke="currentColor"
                   stroke-width="1.5"
                   stroke-linecap="round"
+                />
+                <path
+                  d="M4 13h8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M3 6.2h10"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
                 />
               </svg>
               Balanced</span
@@ -1843,10 +2073,11 @@
         <span class="section-route">/accounts/[account]/orchestrating</span>
       </div>
       <p class="section-description">
-        Where Delegate already lands. One block, three states: explain the cap,
-        show the fee/stake comparison, then optionally the reward and fee split.
-        The move lockup sits before any signature. Binding tint fades from the
-        top into the panel so state is visible before reading.
+        After Delegate, this is the one-node story. It walks through what caps
+        rewards, how fees and stake compare, and, when opened, how LPT and USDC
+        each split. The move lockup sits ahead of any signature, so the cost of
+        changing later is known in time. The same top-fade tint as the list
+        keeps browse and detail feeling like one place.
       </p>
 
       <div class="variant-grid">
@@ -2153,10 +2384,28 @@
               <span class="chip balanced"
                 ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path
-                    d="M3.2 6.4c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0M3.2 10c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0"
+                    d="M8 2.8v8"
                     stroke="currentColor"
-                    stroke-width="1.7"
+                    stroke-width="1.5"
                     stroke-linecap="round"
+                  />
+                  <path
+                    d="M4 13h8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M3 6.2h10"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
                   />
                 </svg>
                 Balanced</span
@@ -2268,14 +2517,14 @@
 
       <ul class="notes">
         <li>
-          <strong>Why the breakdown is collapsed:</strong> the decision is
-          whether stake still earns. How LPT and USDC split is useful before
-          signing, not on first glance.
+          <strong>Collapsed breakdown:</strong> the open question is whether
+          stake still earns. How the cut divides between node and delegators
+          waits until someone is ready to commit.
         </li>
         <li>
-          <strong>Why two pots:</strong> the capped LPT reward and USDC fees are
-          separate. Cuts apply inside each pot; they are not slices of the same
-          percentage.
+          <strong>Two pots:</strong> new LPT and USDC fees are separate rewards,
+          so each lists its own split. A single “you get 92%” figure would blur
+          pots that do not share a cut.
         </li>
       </ul>
     </section>
@@ -2287,9 +2536,9 @@
         <span class="section-route">/accounts/[account]/delegating</span>
       </div>
       <p class="section-description">
-        For people already bonded: one status for the node they’re on, and a
-        clear next step back to the list. Comparison stays on
-        <code>/orchestrators</code>.
+        For anyone already bonded: one card that answers whether your node is
+        full or still has room. When it is full, the path forward returns to the
+        compare list. The orchestrators page stays the place to shop.
       </p>
 
       <div class="variant-grid">
@@ -2358,51 +2607,107 @@
     <!-- ==================== 5. EDGE STATES ==================== -->
     <section class="section" aria-labelledby="s5">
       <div class="section-header">
-        <h2 class="section-title" id="s5">Empty registration</h2>
+        <h2 class="section-title" id="s5">Day one</h2>
         <span class="section-route">/accounts/[account]/orchestrating</span>
       </div>
       <p class="section-description">
-        2.0 allows anyone to register with no bond. The detail page must stay
-        honest for a node with nothing behind it; the default list keeps these
-        out of the way under “All nodes.”
+        Permissionless registration is a green light. This screen is a launch
+        checklist: where work comes from, what unlocks rewards, and how to show
+        up on the default list.
       </p>
 
-      <div class="edge-grid">
-        <div>
-          <div class="variant-label">Registered, no activity yet</div>
-          <div class="mfs-block">
-            <div class="mfs-head">
-              <span class="mfs-title">0x7f3d…a91c</span>
-              <span class="chip balanced"
-                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <circle
-                    cx="8"
-                    cy="8"
-                    r="5.2"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M8 5.2v5.6M5.2 8h5.6"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                New</span
-              >
+      <div class="day-one">
+        <div class="logo-bg" aria-hidden="true">
+          <svg viewBox="0 0 29 30" fill="currentColor">
+            <path
+              d="M0.07 5.36V0h5.36v5.36H0.07Zm0 6.78v5.36h5.36v-5.36H0.07Zm22.86 0v5.36h5.36v-5.36h-5.36ZM0.07 24.64V30h5.36v-5.36H0.07ZM11.5 11.43V6.07h5.36v5.36H11.5Zm0 7.14v5.36h5.36v-5.36H11.5Z"
+            />
+          </svg>
+        </div>
+        <div class="intro">
+          <div class="burst" aria-hidden="true">
+            <svg viewBox="0 0 29 30" fill="currentColor">
+              <path
+                d="M0.07 5.36V0h5.36v5.36H0.07Zm0 6.78v5.36h5.36v-5.36H0.07Zm22.86 0v5.36h5.36v-5.36h-5.36ZM0.07 24.64V30h5.36v-5.36H0.07ZM11.5 11.43V6.07h5.36v5.36H11.5Zm0 7.14v5.36h5.36v-5.36H11.5Z"
+              />
+            </svg>
+          </div>
+          <div class="intro-copy">
+            <div class="headline">You’re on the map. Time to get loud.</div>
+            <div class="addr-line">
+              <span class="addr">0x7f3d…a91c</span>
+              <span class="sep" aria-hidden="true">·</span>
+              <span class="when">Registered 2 rounds ago</span>
             </div>
-            <div class="mfs-window">Registered 2 rounds ago</div>
-            <p class="mfs-sentence">
-              No stake and no fees yet, so this node earns nothing. Anyone can
-              run a node; earnings start with real work and stake behind it.
-            </p>
-            <p class="delay-note">
-              Hidden from the default list. Reachable under "All nodes".
-            </p>
           </div>
         </div>
+
+        <p class="pitch">
+          Gateways only send jobs to nodes they can reach. Get online, win some
+          fees, then stake so LPT can climb with the work.
+        </p>
+
+        <div class="steps" role="list">
+          <a
+            class="step"
+            role="listitem"
+            href="https://docs.livepeer.org"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="n">1</span>
+            <span>
+              <div class="t">Get found by gateways</div>
+              <div class="s">
+                Run your orchestrator and open discovery so Livepeer gateways
+                can route jobs to you.
+              </div>
+            </span>
+            <span class="go">Docs →</span>
+          </a>
+          <div class="step" role="listitem">
+            <span class="n">2</span>
+            <span>
+              <div class="t">Win your first fees</div>
+              <div class="s">
+                USDC for real work. That is how the network knows you are
+                earning.
+              </div>
+            </span>
+            <span class="go" aria-hidden="true">···</span>
+          </div>
+          <div class="step" role="listitem">
+            <span class="n">3</span>
+            <span>
+              <div class="t">Back it with stake</div>
+              <div class="s">
+                Self-stake or invite delegators so reward room can grow with
+                fees.
+              </div>
+            </span>
+            <span class="go" aria-hidden="true">···</span>
+          </div>
+        </div>
+
+        <p class="foot">
+          Once fees land, you’ll show up on the main orchestrator list where
+          people shop for stake.
+        </p>
       </div>
+
+      <ul class="notes">
+        <li>
+          <strong>Launch card:</strong> three steps (gateways → fees → stake) so
+          a new operator has somewhere to go. Brand green and the Livepeer mark
+          carry the energy; no status pill on top of a card that already says
+          you just arrived.
+        </li>
+        <li>
+          <strong>List hygiene:</strong> fresh nodes stay under “All nodes”
+          until fees land, so the default compare list stays useful for people
+          choosing where to stake.
+        </li>
+      </ul>
     </section>
 
     <!-- ==================== 6. DESIGN DECISIONS ==================== -->
@@ -2413,32 +2718,41 @@
       <div class="questions">
         <ul>
           <li>
-            <strong>Shares of the network, not APY.</strong> Emissions are still
-            unsettled in the litepaper. The UI shows how stake moves a node’s
-            reward ceiling (for example from 2.3% toward 11.8%), not a dollar or
-            percent-per-year forecast.
+            <strong>Network shares.</strong> How much new LPT the network mints
+            is still being finalized, so these screens show how far a node’s
+            reward ceiling can still move (for example from 2.3% toward 11.8%).
+            That keeps the compare about opportunity while emissions settle.
           </li>
           <li>
-            <strong>Seven settled rounds on the list.</strong> Default windows
-            match the proposed reward delay. Single-round spikes are easy to
-            game; per-round history is a separate reward-history design.
+            <strong>Seven settled rounds.</strong> The list defaults to the last
+            week of settled work. That window is harder to game, and it lines up
+            with when rewards are paid. Deeper history has its own design later.
           </li>
           <li>
-            <strong>State chips replace “Active.”</strong> “Active” today means
-            membership in a capped set. That cap goes away, so we show Room to
-            earn / Full / Balanced instead of overloading the old word.
+            <strong>Room to earn / Full / Balanced.</strong> Those names speak
+            to the stake choice itself. Under 2.0 the old “Active” label loses
+            its meaning with the capped set, so the chips carry language that
+            matches the new decision.
           </li>
           <li>
-            <strong
-              >21-day move lockup is shown as the working assumption.</strong
-            >
-            If protocol keeps instant bond transfers, that note is removed
-            before ship. Copy is written so it can flip with the parameter.
+            <strong>Day one is a checklist.</strong> The launch card names where
+            work comes from (gateways), then fees, then stake, with brand green
+            and the Livepeer mark as the backdrop.
           </li>
           <li>
-            <strong>Validator scoring is not in this design.</strong> Honesty
-            scores and validator set UX are a separate ticket so this review
-            stays focused on fee-vs-stake delegation.
+            <strong>About 21 days to move.</strong> That is the working
+            assumption here. If the protocol keeps instant transfers, the note
+            comes out before ship. The wording is ready to follow the rule.
+          </li>
+          <li>
+            <strong>Fee and stake only.</strong> Honesty scores and validator
+            set design are a separate project. This review stays with where
+            stake still earns.
+          </li>
+          <li>
+            <strong>One vocabulary.</strong> List, mobile, and detail all mark
+            the limiting side with “caps rewards,” and describe leftover room as
+            “new stake still earns, up to +X%.”
           </li>
         </ul>
       </div>
