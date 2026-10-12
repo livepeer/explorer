@@ -173,6 +173,7 @@
         font-size: 20px;
         font-weight: 600;
         letter-spacing: -0.01em;
+        scroll-margin-top: 16px;
       }
 
       .section-route {
@@ -303,16 +304,38 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        padding: 0;
         border-radius: 50%;
         border: 1px solid var(--neutral6);
+        background: transparent;
         color: var(--neutral10);
-        font-size: 9px;
+        font: inherit;
+        font-size: 10px;
         font-weight: 700;
+        line-height: 1;
         margin-left: 5px;
         vertical-align: 1px;
         cursor: help;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .tooltip-dot:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+      }
+      .tooltip-help {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       /* fees-vs-stake number lines (table version of the comparison) */
@@ -361,7 +384,7 @@
         border: 1px solid var(--neutral5);
         border-radius: var(--radius-sm);
         color: var(--hiContrast);
-        font-size: 13px;
+        font-size: 16px;
         padding: 8px 12px;
       }
       .search::placeholder {
@@ -514,12 +537,6 @@
           background-position: -200% 0;
         }
       }
-      @media (prefers-reduced-motion: reduce) {
-        .sk {
-          animation: none;
-        }
-      }
-
       /* ---------- mobile list (market-card pattern) ---------- */
 
       .mobile-wrap {
@@ -707,7 +724,7 @@
         padding: 10px 16px;
         font-size: 13px;
         border-radius: var(--radius-sm);
-        min-height: 40px;
+        min-height: 44px;
       }
 
       /* ---------- orchestrating page MFS block (themed per state) ---------- */
@@ -1045,7 +1062,7 @@
 
       .variant-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
         gap: 20px;
         align-items: start;
       }
@@ -1276,7 +1293,7 @@
 
       .edge-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
         gap: 20px;
         align-items: start;
       }
@@ -1318,9 +1335,45 @@
           grid-template-columns: 1fr;
         }
       }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 8px 12px;
+        background: var(--hiContrast);
+        color: var(--bg);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sk {
+          animation: none;
+        }
+        button,
+        .delegate-btn,
+        .m-card,
+        .mfs-block,
+        .edge-card,
+        .checklist-item,
+        .disclosure summary,
+        .disclosure summary::after,
+        .chip,
+        a {
+          transition: none !important;
+        }
+      }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#s1">Skip to content</a>
     <header class="page-head">
       <span class="status-pill">Design review · mockups only</span>
       <h1>Helping people pick where to stake</h1>
@@ -1332,9 +1385,7 @@
       >
         Issue #802 ↗
       </a>
-      <a class="issue-link" href="./802-mfs-delegation-ux.md">
-        Design notes ↗
-      </a>
+      <a class="issue-link" href="#s6">Design decisions ↓</a>
       <p>
         In Livepeer 2.0, a node’s new LPT rewards follow the smaller of two
         shares: how much work it does (fees), and how much stake sits behind it.
@@ -1390,11 +1441,19 @@
             <button aria-pressed="false">All nodes · 214</button>
           </div>
           <span class="window-note">
-            Last 7 settled rounds (2,731–2,737)<span
+            Last 7 settled rounds (2,731–2,737)
+            <button
+              type="button"
               class="tooltip-dot"
-              title="One round can be faked by a dishonest node. Seven settled rounds is much harder to fake, and matches the 7-round reward delay."
-              >?</span
+              aria-label="Help: settled rounds window"
+              aria-describedby="help-rounds"
             >
+              ?
+            </button>
+            <span id="help-rounds" class="tooltip-help">
+              One round can be faked by a dishonest node. Seven settled rounds
+              is much harder to fake, and matches the 7-round reward delay.
+            </span>
           </span>
         </div>
         <div class="sort-note">Sorted by where new stake earns the most.</div>
@@ -1404,32 +1463,62 @@
             <tr>
               <th>Orchestrator</th>
               <th>
-                State<span
+                State
+                <button
+                  type="button"
                   class="tooltip-dot"
-                  title="Whether new stake would earn more here."
-                  >?</span
+                  aria-label="Help: state"
+                  aria-describedby="help-state"
                 >
+                  ?
+                </button>
+                <span id="help-state" class="tooltip-help">
+                  Whether new stake would earn more here.
+                </span>
               </th>
               <th>
-                Fees vs stake<span
+                Fees vs stake
+                <button
+                  type="button"
                   class="tooltip-dot"
-                  title="Share of network fees earned vs share of network stake, last 7 settled rounds. The smaller one caps rewards."
-                  >?</span
+                  aria-label="Help: fees vs stake"
+                  aria-describedby="help-fees-stake"
                 >
+                  ?
+                </button>
+                <span id="help-fees-stake" class="tooltip-help">
+                  Share of network fees earned vs share of network stake, last 7
+                  settled rounds. The smaller one caps rewards.
+                </span>
               </th>
               <th class="num">
-                Reward cap<span
+                Reward cap
+                <button
+                  type="button"
                   class="tooltip-dot"
-                  title="The most new LPT this node can earn each round right now: the smaller of its fee share and stake share."
-                  >?</span
+                  aria-label="Help: reward cap"
+                  aria-describedby="help-reward-cap"
                 >
+                  ?
+                </button>
+                <span id="help-reward-cap" class="tooltip-help">
+                  The most new LPT this node can earn each round right now: the
+                  smaller of its fee share and stake share.
+                </span>
               </th>
               <th class="num">
-                Node keeps<span
+                Node keeps
+                <button
+                  type="button"
                   class="tooltip-dot"
-                  title="How much the node keeps before delegators share the rest."
-                  >?</span
+                  aria-label="Help: node keeps"
+                  aria-describedby="help-node-keeps"
                 >
+                  ?
+                </button>
+                <span id="help-node-keeps" class="tooltip-help">
+                  How much the node keeps before delegators share the rest.
+                </span>
               </th>
               <th></th>
             </tr>
@@ -2228,7 +2317,6 @@
             </div>
             <p class="delay-note">
               Rewards are paid about a week after the round.
-              <a href="#">See reward history →</a>
             </p>
           </div>
         </div>
@@ -2372,7 +2460,6 @@
             </div>
             <p class="delay-note">
               Rewards are paid about a week after the round.
-              <a href="#">See reward history →</a>
             </p>
           </div>
         </div>
@@ -2509,7 +2596,6 @@
             </div>
             <p class="delay-note">
               Rewards are paid about a week after the round.
-              <a href="#">See reward history →</a>
             </p>
           </div>
         </div>

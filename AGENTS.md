@@ -8,14 +8,15 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
   - MUST: Manage focus (trap, move, and return) per APG patterns
 - Targets & input
   - MUST: Hit target ≥24px (mobile ≥44px) If visual <24px, expand hit area
-  - MUST: Mobile `<input>` font-size ≥16px or set:
+  - MUST: Mobile `<input>` font-size ≥16px (avoids iOS focus zoom without locking scale)
+  - NEVER: Disable browser zoom (`maximum-scale`, `user-scalable=no`, or equivalent)
+  - SHOULD: Viewport meta stays zoomable, e.g.:
     ```html
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     ```
-  - NEVER: Disable browser zoom
   - MUST: `touch-action: manipulation` to prevent double-tap zoom; set `-webkit-tap-highlight-color` to match design
 - Inputs & forms (behavior)
   - MUST: Hydration-safe inputs (no lost focus/value)

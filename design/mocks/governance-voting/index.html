@@ -98,7 +98,10 @@
 
       .widgets-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(360px, 420px));
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(360px, 100%), 420px)
+        );
         gap: 24px;
       }
 
@@ -401,15 +404,48 @@
       .info-banner-link:hover {
         text-decoration: underline;
       }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 8px 12px;
+        background: var(--hiContrast);
+        color: var(--bg);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+
+      .reason-input label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--neutral11);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bar-fill,
+        .vote-btn {
+          transition: none;
+        }
+      }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <h1>Voting Widget Preview</h1>
 
     <!-- ============================================== -->
     <!-- TREASURY PROPOSALS SECTION -->
     <!-- ============================================== -->
-    <div class="section">
+    <div class="section" id="main-content">
       <div class="section-header">
         <h2 class="section-title">Treasury Proposals</h2>
         <span class="section-badge treasury">On-chain Governance</span>
@@ -593,8 +629,13 @@
                   Abstain
                 </button>
                 <div class="reason-input">
+                  <label for="vote-reason"
+                    >Reason for your vote (optional)</label
+                  >
                   <textarea
-                    placeholder="Add a reason for your vote (optional)…"
+                    id="vote-reason"
+                    name="vote-reason"
+                    placeholder="e.g. Supports the treasury request…"
                   ></textarea>
                 </div>
               </div>
