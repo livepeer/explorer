@@ -263,7 +263,6 @@
         text-overflow: ellipsis;
       }
       .identity .addr {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 11px;
         color: var(--neutral8);
       }
@@ -489,17 +488,42 @@
         }
       }
 
-      /* ---------- mobile card ---------- */
+      /* ---------- mobile list (market-card pattern) ---------- */
 
       .mobile-wrap {
         max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       .m-card {
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        padding: 16px;
+        padding: 14px;
+        overflow: visible;
+      }
+      /* Binding tint: soft top fade into panel */
+      .m-card.theme-stake {
+        background: linear-gradient(
+            180deg,
+            rgba(110, 86, 207, 0.16) 0%,
+            rgba(110, 86, 207, 0.06) 42%,
+            rgba(110, 86, 207, 0) 78%
+          ),
+          var(--panel);
+        border-color: rgba(165, 143, 255, 0.22);
+      }
+      .m-card.theme-fee {
+        background: linear-gradient(
+            180deg,
+            rgba(0, 145, 255, 0.14) 0%,
+            rgba(0, 145, 255, 0.05) 42%,
+            rgba(0, 145, 255, 0) 78%
+          ),
+          var(--panel);
+        border-color: rgba(82, 169, 255, 0.2);
       }
       .m-card .top {
         display: flex;
@@ -507,31 +531,151 @@
         gap: 10px;
         margin-bottom: 12px;
       }
+      .m-card .top .who {
+        flex: 1;
+        min-width: 0;
+      }
+      .m-card .top .who .name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--hiContrast);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .m-card .top .who .addr {
+        font-size: 11px;
+        color: var(--neutral8);
+        margin-top: 1px;
+      }
       .m-card .top .chip {
         margin-left: auto;
+        flex-shrink: 0;
       }
-      .m-stats {
+      .m-card .avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+        border-radius: 10px;
+      }
+
+      /* Twin odds tiles: fees vs stake, like Yes / No market outcomes */
+      .m-odds {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding-top: 10px; /* room for border-cut “caps rewards” */
+        overflow: visible;
+      }
+      .m-odd {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 12px 10px;
+        border-radius: 10px;
+        background: var(--neutral2);
+        border: 1px solid var(--neutral4);
+        min-width: 0;
+        overflow: visible;
+      }
+      .m-odd .label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--neutral10);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .m-odd .pct {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        color: var(--hiContrast);
+      }
+      .m-odd .unit {
+        font-size: 11px;
+        color: var(--neutral8);
+      }
+      /* Only the binding (caps rewards) tile is tinted */
+      .m-odd.fee.binding {
+        border-color: rgba(82, 169, 255, 0.45);
+        background: linear-gradient(
+            rgba(0, 145, 255, 0.06),
+            rgba(0, 145, 255, 0.06)
+          ),
+          var(--neutral2);
+      }
+      .m-odd.fee.binding .pct {
+        color: var(--fee11);
+      }
+      .m-odd.stake.binding {
+        border-color: rgba(165, 143, 255, 0.45);
+        background: linear-gradient(
+            rgba(110, 86, 207, 0.07),
+            rgba(110, 86, 207, 0.07)
+          ),
+          var(--neutral2);
+      }
+      .m-odd.stake.binding .pct {
+        color: var(--stake11);
+      }
+      /* Pill seated on the top border: ──[ caps rewards ]── */
+      .m-odd .cap-tag {
+        position: absolute;
+        top: 0;
+        right: 10px;
+        z-index: 1;
+        transform: translateY(-50%);
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        padding: 4px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .m-odd.fee .cap-tag {
+        background: var(--fee3);
+        color: var(--fee11);
+        box-shadow: 0 0 0 1px rgba(82, 169, 255, 0.28);
+      }
+      .m-odd.stake .cap-tag {
+        background: var(--stake3);
+        color: var(--stake11);
+        box-shadow: 0 0 0 1px rgba(165, 143, 255, 0.28);
+      }
+
+      .m-foot {
+        display: flex;
+        align-items: center;
         gap: 10px;
-        margin-top: 14px;
-        padding-top: 14px;
+        margin-top: 12px;
+        padding-top: 12px;
         border-top: 1px solid var(--neutral3);
       }
-      .m-stat .k {
-        font-size: 11.5px;
+      .m-foot .meta {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
         color: var(--neutral10);
-        margin-bottom: 4px;
+        line-height: 1.35;
       }
-      .m-stat .v {
-        font-size: 15px;
+      .m-foot .meta strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .m-foot .meta .room {
+        color: var(--hiContrast);
         font-weight: 700;
       }
       .m-card .delegate-btn {
-        width: 100%;
-        margin-top: 14px;
-        padding: 11px;
-        font-size: 14px;
+        flex-shrink: 0;
+        width: auto;
+        margin: 0;
+        padding: 10px 16px;
+        font-size: 13px;
+        border-radius: var(--radius-sm);
+        min-height: 40px;
       }
 
       /* ---------- orchestrating page MFS block (themed per state) ---------- */
@@ -543,19 +687,23 @@
         padding: 24px;
         max-width: 720px;
       }
-      /* the undertone: panel and border take a wash of the binding side's color */
+      /* Binding tint: soft top fade into panel */
       .mfs-block.theme-stake {
         background: linear-gradient(
-            rgba(110, 86, 207, 0.07),
-            rgba(110, 86, 207, 0.07)
+            180deg,
+            rgba(110, 86, 207, 0.16) 0%,
+            rgba(110, 86, 207, 0.06) 42%,
+            rgba(110, 86, 207, 0) 78%
           ),
           var(--panel);
         border-color: rgba(165, 143, 255, 0.22);
       }
       .mfs-block.theme-fee {
         background: linear-gradient(
-            rgba(0, 145, 255, 0.06),
-            rgba(0, 145, 255, 0.06)
+            180deg,
+            rgba(0, 145, 255, 0.14) 0%,
+            rgba(0, 145, 255, 0.05) 42%,
+            rgba(0, 145, 255, 0) 78%
           ),
           var(--panel);
         border-color: rgba(82, 169, 255, 0.2);
@@ -887,16 +1035,20 @@
       }
       .stat-card.theme-stake {
         background: linear-gradient(
-            rgba(110, 86, 207, 0.07),
-            rgba(110, 86, 207, 0.07)
+            180deg,
+            rgba(110, 86, 207, 0.16) 0%,
+            rgba(110, 86, 207, 0.06) 42%,
+            rgba(110, 86, 207, 0) 78%
           ),
           var(--panel);
         border-color: rgba(165, 143, 255, 0.22);
       }
       .stat-card.theme-fee {
         background: linear-gradient(
-            rgba(0, 145, 255, 0.06),
-            rgba(0, 145, 255, 0.06)
+            180deg,
+            rgba(0, 145, 255, 0.14) 0%,
+            rgba(0, 145, 255, 0.05) 42%,
+            rgba(0, 145, 255, 0) 78%
           ),
           var(--panel);
         border-color: rgba(82, 169, 255, 0.2);
@@ -1527,25 +1679,21 @@
         <span class="section-route">/orchestrators · &lt;768px</span>
       </div>
       <p class="section-description">
-        Same hierarchy as the table, in a card. Delegate stays full-width for a
-        comfortable tap target.
+        Market-board layout, not a form card. Twin tiles put fees and stake side
+        by side like Yes / No odds so the smaller (binding) share is the
+        glanceable number. Binding tint fades from the top into the panel.
       </p>
 
       <div class="mobile-wrap">
-        <article class="m-card">
+        <article
+          class="m-card theme-stake"
+          aria-label="Titan Node. Top-fade tint option."
+        >
           <div class="top">
             <span class="avatar" style="background: #2e4a3a">TN</span>
-            <div>
-              <div style="font-size: 14px; font-weight: 600">Titan Node</div>
-              <div
-                style="
-                  font-family: ui-monospace, Menlo, monospace;
-                  font-size: 11px;
-                  color: var(--neutral8);
-                "
-              >
-                0x4f2a…81bd
-              </div>
+            <div class="who">
+              <div class="name">Titan Node</div>
+              <div class="addr">0x4f2a…81bd</div>
             </div>
             <span class="chip stake"
               ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -1567,44 +1715,115 @@
               Room to earn</span
             >
           </div>
-          <div
-            class="kv"
-            role="img"
-            aria-label="11.8 percent of fees, 2.3 percent of stake. Stake caps rewards."
-          >
-            <span class="kv-line"
-              ><span class="pct num">11.8%</span> of fees</span
-            >
-            <span class="kv-line binding"
-              ><span class="pct num">2.3%</span> of stake
-              <span class="tag stake">caps rewards</span></span
-            >
-          </div>
-          <div class="m-stats">
-            <div class="m-stat">
-              <div class="k">Reward cap</div>
-              <div class="v num" style="color: var(--stake11)">2.3%</div>
+          <div class="m-odds">
+            <div class="m-odd fee">
+              <span class="label">Fees</span>
+              <span class="pct num">11.8%</span>
+              <span class="unit">of network</span>
             </div>
-            <div class="m-stat">
-              <div class="k">Room</div>
-              <div class="v num">+9.5%</div>
-            </div>
-            <div class="m-stat">
-              <div class="k">Node keeps</div>
-              <div class="v num">
-                8<span
-                  style="
-                    color: var(--neutral8);
-                    font-weight: 500;
-                    font-size: 12px;
-                  "
-                >
-                  / 92%</span
-                >
-              </div>
+            <div class="m-odd stake binding">
+              <span class="label">Stake</span>
+              <span class="pct num">2.3%</span>
+              <span class="unit">of network</span>
+              <span class="cap-tag">caps rewards</span>
             </div>
           </div>
-          <button class="delegate-btn">Delegate</button>
+          <div class="m-foot">
+            <div class="meta">
+              New stake still earns, up to
+              <span class="room num">+9.5%</span>
+            </div>
+            <button class="delegate-btn">Delegate</button>
+          </div>
+        </article>
+
+        <article
+          class="m-card theme-fee"
+          aria-label="Nexus Transcoder. Top-fade tint option."
+        >
+          <div class="top">
+            <span class="avatar" style="background: #1e3a5f">NX</span>
+            <div class="who">
+              <div class="name">Nexus Transcoder</div>
+              <div class="addr">0x91cc…04e7</div>
+            </div>
+            <span class="chip fee"
+              ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                <circle
+                  cx="8"
+                  cy="8"
+                  r="5.2"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                />
+              </svg>
+              Full</span
+            >
+          </div>
+          <div class="m-odds">
+            <div class="m-odd fee binding">
+              <span class="label">Fees</span>
+              <span class="pct num">1.4%</span>
+              <span class="unit">of network</span>
+              <span class="cap-tag">caps rewards</span>
+            </div>
+            <div class="m-odd stake">
+              <span class="label">Stake</span>
+              <span class="pct num">6.1%</span>
+              <span class="unit">of network</span>
+            </div>
+          </div>
+          <div class="m-foot">
+            <div class="meta">
+              Extra stake earns <strong>nothing</strong> until fees rise
+            </div>
+            <button class="delegate-btn">Delegate</button>
+          </div>
+        </article>
+
+        <article class="m-card" aria-label="Livepeer Inc. Balanced, no tint.">
+          <div class="top">
+            <span class="avatar" style="background: #3a3a3a">LI</span>
+            <div class="who">
+              <div class="name">Livepeer Inc</div>
+              <div class="addr">0x77d1…f2a0</div>
+            </div>
+            <span class="chip balanced"
+              ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle
+                  cx="8"
+                  cy="8"
+                  r="5.2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M8 5.2v5.6M5.2 8h5.6"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              Balanced</span
+            >
+          </div>
+          <div class="m-odds">
+            <div class="m-odd fee">
+              <span class="label">Fees</span>
+              <span class="pct num">4.2%</span>
+              <span class="unit">of network</span>
+            </div>
+            <div class="m-odd stake">
+              <span class="label">Stake</span>
+              <span class="pct num">4.2%</span>
+              <span class="unit">of network</span>
+            </div>
+          </div>
+          <div class="m-foot">
+            <div class="meta">Fees and stake match · keeps 10%</div>
+            <button class="delegate-btn">Delegate</button>
+          </div>
         </article>
       </div>
     </section>
@@ -1618,13 +1837,12 @@
       <p class="section-description">
         Where Delegate already lands. One block, three states: explain the cap,
         show the fee/stake comparison, then optionally the reward and fee split.
-        The move lockup sits before any signature. Card color matches fees or
-        stake so the state is visible before reading.
+        The move lockup sits before any signature. Binding tint fades from the
+        top into the panel so state is visible before reading.
       </p>
 
       <div class="variant-grid">
         <div>
-          <div class="variant-label">Room to earn</div>
           <div class="mfs-block theme-stake">
             <div class="mfs-head">
               <span class="mfs-title">Rewards capped by stake</span>
@@ -1658,7 +1876,7 @@
             <div
               class="mfs-compare"
               role="img"
-              aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. Room left: 9.5 percent."
+              aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. New stake still earns, up to 9.5 percent."
             >
               <div class="mfs-compare-row">
                 <span class="name">Fees</span>
@@ -1669,7 +1887,7 @@
               </div>
               <div class="mfs-compare-row binding">
                 <span class="name"
-                  >Stake <span class="tag stake">smaller</span></span
+                  >Stake <span class="tag stake">caps rewards</span></span
                 >
                 <span class="pct-wrap"
                   ><span class="pct num">2.3%</span
@@ -1679,7 +1897,9 @@
               <div class="mfs-compare-row result">
                 <span class="name"
                   >Rewards follow the smaller
-                  <span class="hint">· room left +9.5%</span></span
+                  <span class="hint"
+                    >· new stake still earns, up to +9.5%</span
+                  ></span
                 >
                 <span class="pct-wrap"
                   ><span class="pct num">2.3%</span
@@ -1775,7 +1995,6 @@
         </div>
 
         <div>
-          <div class="variant-label">Full</div>
           <div class="mfs-block theme-fee">
             <div class="mfs-head">
               <span class="mfs-title">Rewards capped by fees</span>
@@ -1807,7 +2026,7 @@
             >
               <div class="mfs-compare-row binding">
                 <span class="name"
-                  >Fees <span class="tag fee">smaller</span></span
+                  >Fees <span class="tag fee">caps rewards</span></span
                 >
                 <span class="pct-wrap"
                   ><span class="pct num">4.2%</span
@@ -1920,7 +2139,6 @@
         </div>
 
         <div>
-          <div class="variant-label">Balanced</div>
           <div class="mfs-block">
             <div class="mfs-head">
               <span class="mfs-title">Fees and stake in balance</span>
