@@ -1027,11 +1027,18 @@
         padding: 20px;
         max-width: 460px;
         display: block;
+        color: inherit;
         text-decoration: none;
         transition: border-color 0.15s ease;
       }
-      .stat-card:hover {
+      .stat-card:hover,
+      .stat-card:focus-visible {
         border-color: var(--neutral6);
+        color: inherit;
+        text-decoration: none;
+      }
+      .stat-card:visited {
+        color: inherit;
       }
       .stat-card.theme-stake {
         background: linear-gradient(
@@ -1062,6 +1069,7 @@
       .stat-card .title {
         font-size: 15px;
         font-weight: 650;
+        color: var(--hiContrast);
       }
       .stat-card .top .chip {
         margin-left: auto;
