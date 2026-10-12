@@ -5,8 +5,13 @@ import { ArrowLeft, Check, ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { encodeFunctionData, isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { useAccount, useEnsAddress, useReadContract } from "wagmi";
+import { normalize, toCoinType } from "viem/ens";
+import {
+  useAccount,
+  useBytecode,
+  useEnsAddress,
+  useReadContract,
+} from "wagmi";
 
 import { PlainMarkdown } from "@/components/governance/markdown";
 import { useControllerContract } from "@/components/governance/model";
@@ -75,7 +80,9 @@ export default function NewProposalPage() {
     query: { enabled: Boolean(governor && address && clock != null) },
   });
 
-  // Receiver: an address, or an ENS name resolved on mainnet.
+  // Receiver: an address, or an ENS name. The treasury pays on Arbitrum,
+  // so a name's Arbitrum address (ENSIP-11) wins over its mainnet one,
+  // which it falls back to.
   const trimmed = receiver.trim();
   let ens: string | undefined;
   try {
@@ -83,18 +90,46 @@ export default function NewProposalPage() {
   } catch {
     ens = undefined;
   }
-  const { data: resolved, isFetching: resolving } = useEnsAddress({
+  const { data: resolvedL2, isFetching: resolvingL2 } = useEnsAddress({
+    name: ens,
+    coinType: toCoinType(L2_CHAIN.id),
+    chainId: L1_CHAIN.id,
+    query: { enabled: Boolean(ens), retry: false },
+  });
+  const { data: resolvedL1, isFetching: resolvingL1 } = useEnsAddress({
     name: ens,
     chainId: L1_CHAIN.id,
     query: { enabled: Boolean(ens), retry: false },
   });
-  const to = isAddress(trimmed) ? trimmed : resolved ?? undefined;
+  const resolving = resolvingL2 || resolvingL1;
+  const to = isAddress(trimmed)
+    ? trimmed
+    : resolvedL2 ?? resolvedL1 ?? undefined;
   const receiverError =
     trimmed && !to && !resolving
       ? ens
         ? "This name doesn't resolve to an address"
         : "Enter an address or ENS name"
       : null;
+
+  // A contract on mainnet with nothing at the same address on Arbitrum is
+  // most likely a mainnet-only Safe: whoever controls that address on
+  // Arbitrum, if anyone, isn't its owners, and the LPT would be lost.
+  // (EIP-7702 code, 0xef0100…, is an ordinary account's, so it's skipped.)
+  const { data: codeL1 } = useBytecode({
+    address: to,
+    chainId: L1_CHAIN.id,
+    query: { enabled: Boolean(to) },
+  });
+  const { data: codeL2, isFetched: checkedL2 } = useBytecode({
+    address: to,
+    chainId: L2_CHAIN.id,
+    query: { enabled: Boolean(to) },
+  });
+  const mainnetOnlyContract =
+    Boolean(codeL1 && codeL1 !== "0x" && !codeL1.startsWith("0xef0100")) &&
+    checkedL2 &&
+    (!codeL2 || codeL2 === "0x");
 
   let wei: bigint | null = null;
   try {
@@ -255,9 +290,16 @@ export default function NewProposalPage() {
               label="Receiver"
               htmlFor="receiver"
               error={receiverError}
+              warning={
+                mainnetOnlyContract
+                  ? "This is a contract on Ethereum with nothing at the same address on Arbitrum, where the treasury pays. If it's a Safe, its owners don't control this address on Arbitrum and the LPT would be lost. Use an address that works on Arbitrum."
+                  : null
+              }
               hint={
                 to && ens
-                  ? `Resolves to ${to}`
+                  ? `Resolves to ${to}${
+                      resolvedL2 ? " on Arbitrum" : ""
+                    }`
                   : "The address the LPT is sent to if the proposal passes."
               }
             >
@@ -348,6 +390,7 @@ function Field({
   htmlFor,
   hint,
   error,
+  warning,
   aside,
   children,
 }: {
@@ -355,6 +398,7 @@ function Field({
   htmlFor: string;
   hint?: React.ReactNode;
   error?: string | null;
+  warning?: string | null;
   aside?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -367,6 +411,11 @@ function Field({
         {aside}
       </div>
       {children}
+      {warning && !error && (
+        <p role="alert" className="text-ui-caption text-pretty text-warm">
+          {warning}
+        </p>
+      )}
       {(error || hint) && (
         <p
           className={cn(
