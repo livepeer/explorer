@@ -7,11 +7,11 @@ import {
   Check,
   ChevronsUpDown,
   Copy,
+  Eye,
   Layers,
   LogOut,
   MoreHorizontal,
   Pencil,
-  Plus,
   Trash2,
   UserRound,
   Wallet,
@@ -263,7 +263,7 @@ function PortfolioSwitcher({
           ))}
           <MenuSeparator />
           <MenuItem onClick={() => setAdding(true)}>
-            <Plus /> Add address
+            <Eye /> Watch address
           </MenuItem>
           <MenuSeparator />
           <MenuItem onClick={connectWallet}>

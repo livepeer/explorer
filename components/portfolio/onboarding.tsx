@@ -3,9 +3,9 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import {
   ArrowRight,
+  Eye,
   Layers,
   LineChart,
-  Plus,
   ShieldCheck,
   Wallet,
 } from "lucide-react";
@@ -130,7 +130,7 @@ export function Onboarding() {
                 <Wallet /> Connect wallet
               </Button>
               <Button size="lg" onClick={() => setTracking(true)}>
-                <Plus /> Add an address
+                <Eye /> Watch an address
               </Button>
             </div>
           </div>

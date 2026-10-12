@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Wallet, X } from "lucide-react";
+import { Eye, Wallet, X } from "lucide-react";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 
@@ -162,14 +162,16 @@ export function ScopeBar({
           onClick={() => setAdding(true)}
           className="rounded-full"
         >
-          <Plus /> Add address
+          <Eye /> Watch address
         </Button>
+        {/* Desktop has Connect wallet in the header; phones don't, when
+            they show the wallet switcher instead. */}
         {!isConnected && (
           <Button
             variant="ghost"
             size="sm"
             onClick={connectWallet}
-            className="rounded-full"
+            className="rounded-full lg:hidden"
           >
             <Wallet /> Connect wallet
           </Button>

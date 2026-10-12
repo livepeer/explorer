@@ -52,10 +52,11 @@ export function AddAddressDialog({
           }}
         >
           <DialogHeader>
-            <DialogTitle>Add an address</DialogTitle>
+            <DialogTitle>Watch an address</DialogTitle>
             <DialogDescription>
-              A cold wallet, a multisig, or any delegator. It stays in this
-              browser; to act for it, you&apos;ll be asked to connect it.
+              Follow a cold wallet, a multisig, or any delegator, read-only. It
+              stays in this browser; to act for it, you&apos;ll be asked to
+              connect it.
             </DialogDescription>
           </DialogHeader>
           <DialogBody>
@@ -96,7 +97,7 @@ export function AddAddressDialog({
           </DialogBody>
           <DialogFooter>
             <Button type="submit" variant="primary" disabled={!address}>
-              Add address
+              Watch address
             </Button>
           </DialogFooter>
         </form>
