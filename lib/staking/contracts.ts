@@ -20,7 +20,10 @@ export function useProtocolContract(
     functionName: "getContract",
     args: [keccak256(toBytes(name))],
     chainId: L2_CHAIN.id,
-    query: { staleTime: Infinity },
+    // Not forever: the registry can point a name at an upgraded contract,
+    // and a tab left open shouldn't keep sending to the old one. Stale
+    // after ten minutes, it's read again on the next mount or focus.
+    query: { staleTime: 10 * 60_000 },
   });
   return data as `0x${string}` | undefined;
 }
