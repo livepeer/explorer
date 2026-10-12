@@ -1,5 +1,5 @@
-/* Inter latin 400–700 from @fontsource/inter. Used by all design/mocks/*/
-index.html */ @font-face {
+/* Inter latin 400-700 from @fontsource/inter. Shared by design/mocks HTML previews. */
+@font-face {
   font-family: "Inter";
   font-style: normal;
   font-display: swap;
