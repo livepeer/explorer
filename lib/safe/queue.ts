@@ -35,7 +35,11 @@ type QueueItem = {
 };
 
 type TxDetails = {
-  txData?: { hexData?: Hex | null; to?: { value: string } } | null;
+  txData?: {
+    hexData?: Hex | null;
+    to?: { value: string };
+    operation?: number;
+  } | null;
 };
 
 /** How many queued transactions to inspect per Safe. */
@@ -75,8 +79,9 @@ export async function fetchSafeProposals(
         );
         const to = details?.txData?.to?.value;
         const data = details?.txData?.hexData;
-        if (!to || !data) return null;
-        const actions = describeProposal({ to, data }, contracts);
+        const operation = details?.txData?.operation;
+        if (!to || !data || (operation !== 0 && operation !== 1)) return null;
+        const actions = describeProposal({ to, data, operation }, contracts);
         if (!actions.length) return null;
         const info = t.executionInfo!;
         return {

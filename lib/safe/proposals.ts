@@ -24,7 +24,10 @@ export type ProposalAction =
   | { kind: "treasuryVote"; proposal: bigint; support: number }
   | { kind: "pollVote"; poll: string; choice: bigint };
 
-type Call = { to: string; data: Hex };
+/** Safe's operation: 0 is a CALL, 1 a DELEGATECALL. */
+export type Operation = 0 | 1;
+
+type Call = { to: string; data: Hex; operation: Operation };
 
 /** Known contracts; a call to an address we can't confirm is left out. */
 export type LivepeerContracts = {
@@ -34,6 +37,21 @@ export type LivepeerContracts = {
 };
 
 const MULTI_SEND = "0x8d80ff0a"; // multiSend(bytes)
+
+/**
+ * Safe's canonical MultiSend and MultiSendCallOnly deployments on Arbitrum
+ * (v1.3.0, its EIP-155 variants, and v1.4.1). A batch is only read when the
+ * Safe delegatecalls one of these; delegatecalling anything else runs
+ * arbitrary code as the Safe, whatever its calldata looks like.
+ */
+const MULTI_SEND_CONTRACTS = [
+  "0xa238cbeb142c10ef7ad8442c6d1f9e89e07e7761",
+  "0x40a2accbd92bca938b02010e17a5b8929b49130d",
+  "0x998739bfdaadde7c933b942a68053933098f9eda",
+  "0xa1dabef33b3b82c7814b6d82a79e50f4ac44102b",
+  "0x38869bf66a61cf6bdb996a6ae40d5853fd43b526",
+  "0x9641d764fc13c8b624c04430c7356c1c7c8102e2",
+];
 
 /**
  * Unpack a Safe MultiSend batch: each call is packed as operation (1 byte),
@@ -50,10 +68,12 @@ export function unpackMultiSend(data: Hex): Call[] | null {
     let i = 0;
     const size = (packed.length - 2) / 2;
     while (i < size) {
+      const operation = hexToNumber(slice(packed, i, i + 1));
+      if (operation !== 0 && operation !== 1) return null;
       const to = slice(packed, i + 1, i + 21);
       const n = Number(hexToBigInt(slice(packed, i + 53, i + 85)));
       const callData = n ? slice(packed, i + 85, i + 85 + n) : "0x";
-      calls.push({ to, data: callData });
+      calls.push({ to, data: callData, operation });
       i += 85 + n;
     }
     return calls;
@@ -62,8 +82,9 @@ export function unpackMultiSend(data: Hex): Call[] | null {
   }
 }
 
+/** An unresolved known address matches nothing: fail closed. */
 const same = (a: string, b?: string) =>
-  b == null || isAddressEqual(a as Hex, b as Hex);
+  b != null && isAddressEqual(a as Hex, b as Hex);
 
 /** One call, if it's a Livepeer action from the Safe. */
 export function describeCall(
@@ -148,6 +169,9 @@ export function describeCall(
   return null;
 }
 
+const isMultiSend = (to: string) =>
+  MULTI_SEND_CONTRACTS.some((m) => isAddressEqual(to as Hex, m as Hex));
+
 /**
  * The Livepeer actions in a Safe transaction, batch or single call. Empty
  * when it has nothing to do with Livepeer, or anything we don't recognise
@@ -157,7 +181,14 @@ export function describeProposal(
   call: Call,
   contracts: LivepeerContracts
 ): ProposalAction[] {
-  const calls = unpackMultiSend(call.data) ?? [call];
+  const batch = unpackMultiSend(call.data);
+  // A batch only when the Safe delegatecalls a real MultiSend; any other
+  // delegatecall runs someone else's code as the Safe.
+  if (batch && (call.operation !== 1 || !isMultiSend(call.to))) return [];
+  if (!batch && call.operation !== 0) return [];
+  const calls = batch ?? [call];
+  // Every action is a plain CALL from the Safe, not code it runs as itself.
+  if (calls.some((c) => c.operation !== 0)) return [];
   const actions = calls.map((c) => describeCall(c, contracts));
   return actions.every(Boolean) ? (actions as ProposalAction[]) : [];
 }

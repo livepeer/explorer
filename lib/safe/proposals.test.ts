@@ -35,12 +35,12 @@ const approve = (amount: bigint) =>
   });
 
 /** Pack calls the way Safe's MultiSend contract expects. */
-function multiSend(calls: { to: string; data: Hex }[]) {
+function multiSend(calls: { to: string; data: Hex; operation?: 0 | 1 }[]) {
   const packed = concat(
     calls.map((c) =>
       encodePacked(
         ["uint8", "address", "uint256", "uint256", "bytes"],
-        [0, c.to as Hex, 0n, BigInt(size(c.data)), c.data]
+        [c.operation ?? 0, c.to as Hex, 0n, BigInt(size(c.data)), c.data]
       )
     )
   );
@@ -63,9 +63,9 @@ const LPT_5K = 5000n * 10n ** 18n;
 
 describe("describeProposal", () => {
   it("reads a delegation", () => {
-    expect(describeProposal({ to: BM, data: bond(LPT_5K) }, contracts)).toEqual(
-      [{ kind: "delegate", to: ORCH, amount: LPT_5K }]
-    );
+    expect(
+      describeProposal({ to: BM, data: bond(LPT_5K), operation: 0 }, contracts)
+    ).toEqual([{ kind: "delegate", to: ORCH, amount: LPT_5K }]);
   });
 
   it("unpacks an approve-and-delegate batch", () => {
@@ -74,7 +74,9 @@ describe("describeProposal", () => {
       { to: BM, data: bond(LPT_5K) },
     ]);
     expect(unpackMultiSend(data)).toHaveLength(2);
-    expect(describeProposal({ to: MULTI_SEND, data }, contracts)).toEqual([
+    expect(
+      describeProposal({ to: MULTI_SEND, data, operation: 1 }, contracts)
+    ).toEqual([
       { kind: "approve", amount: LPT_5K },
       { kind: "delegate", to: ORCH, amount: LPT_5K },
     ]);
@@ -86,9 +88,9 @@ describe("describeProposal", () => {
       functionName: "castVote",
       args: [42n, 1],
     });
-    expect(describeProposal({ to: GOV, data }, contracts)).toEqual([
-      { kind: "treasuryVote", proposal: 42n, support: 1 },
-    ]);
+    expect(
+      describeProposal({ to: GOV, data, operation: 0 }, contracts)
+    ).toEqual([{ kind: "treasuryVote", proposal: 42n, support: 1 }]);
   });
 
   it("ignores approvals for anyone but the BondingManager", () => {
@@ -97,13 +99,15 @@ describe("describeProposal", () => {
       functionName: "approve",
       args: [ORCH, maxUint256],
     });
-    expect(describeProposal({ to: LPT, data }, contracts)).toEqual([]);
+    expect(
+      describeProposal({ to: LPT, data, operation: 0 }, contracts)
+    ).toEqual([]);
   });
 
   it("ignores calls to a lookalike contract", () => {
-    expect(describeProposal({ to: ORCH, data: bond(1n) }, contracts)).toEqual(
-      []
-    );
+    expect(
+      describeProposal({ to: ORCH, data: bond(1n), operation: 0 }, contracts)
+    ).toEqual([]);
   });
 
   it("says nothing about a batch with unknown calls in it", () => {
@@ -111,6 +115,45 @@ describe("describeProposal", () => {
       { to: BM, data: bond(LPT_5K) },
       { to: ORCH, data: "0xdeadbeef" },
     ]);
-    expect(describeProposal({ to: MULTI_SEND, data }, contracts)).toEqual([]);
+    expect(
+      describeProposal({ to: MULTI_SEND, data, operation: 1 }, contracts)
+    ).toEqual([]);
+  });
+
+  it("ignores a direct delegatecall, whatever its calldata", () => {
+    expect(
+      describeProposal({ to: BM, data: bond(LPT_5K), operation: 1 }, contracts)
+    ).toEqual([]);
+  });
+
+  it("only reads a batch delegatecalled to a real MultiSend", () => {
+    const data = multiSend([{ to: BM, data: bond(LPT_5K) }]);
+    expect(
+      describeProposal({ to: ORCH, data, operation: 1 }, contracts)
+    ).toEqual([]);
+    expect(
+      describeProposal({ to: MULTI_SEND, data, operation: 0 }, contracts)
+    ).toEqual([]);
+  });
+
+  it("says nothing about a batch with a delegatecall in it", () => {
+    const data = multiSend([{ to: BM, data: bond(LPT_5K), operation: 1 }]);
+    expect(
+      describeProposal({ to: MULTI_SEND, data, operation: 1 }, contracts)
+    ).toEqual([]);
+  });
+
+  it("matches nothing while a known contract is unresolved", () => {
+    const data = encodeFunctionData({
+      abi: livepeerGovernor,
+      functionName: "castVote",
+      args: [42n, 1],
+    });
+    expect(
+      describeProposal(
+        { to: GOV, data, operation: 0 },
+        { bondingManager: BM, token: LPT }
+      )
+    ).toEqual([]);
   });
 });
