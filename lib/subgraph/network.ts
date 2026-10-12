@@ -1497,11 +1497,39 @@ export function proposalTitle(description: string) {
   return (line ?? "Untitled proposal").replace(/^#+\s*/, "");
 }
 
+const POLL_VOTE_IDS = /* GraphQL */ `
+  query PollVoteIds($poll: String!, $first: Int!, $lastId: String!) {
+    votes(first: $first, where: { poll: $poll, id_gt: $lastId }, orderBy: id) {
+      id
+    }
+  }
+`;
+
+/** Nested lists stop at 1,000, so a poll at the cap is counted in full. */
+const NESTED_CAP = 1000;
+
 export async function fetchGovernance() {
   const { treasuryProposals, polls } = await querySubgraph<{
     treasuryProposals: RawProposal[];
     polls: RawPoll[];
   }>(GOVERNANCE);
+  const counts = new Map(
+    await Promise.all(
+      polls
+        .filter((p) => (p.votes?.length ?? 0) >= NESTED_CAP)
+        .map(
+          async (p) =>
+            [
+              p.id,
+              (
+                await paginate<{ id: string }>(POLL_VOTE_IDS, "votes", {
+                  poll: p.id,
+                })
+              ).length,
+            ] as const
+        )
+    )
+  );
   return {
     proposals: treasuryProposals.map(
       (p): TreasuryProposal => ({
@@ -1526,7 +1554,7 @@ export async function fetchGovernance() {
         quota: Number(p.quota) / 1e4,
         yes: Number(p.tally?.yes ?? 0),
         no: Number(p.tally?.no ?? 0),
-        voteCount: p.votes?.length ?? 0,
+        voteCount: counts.get(p.id) ?? p.votes?.length ?? 0,
       })
     ),
   };

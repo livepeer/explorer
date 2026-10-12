@@ -1,4 +1,4 @@
-import { querySubgraph } from "./client";
+import { paginate, querySubgraph } from "./client";
 
 /*
  * Who voted on a poll or treasury proposal. One entity per voter carries the
@@ -24,6 +24,7 @@ export type CastVote = {
 };
 
 type RawEvent = {
+  id: string;
   voter: string | { id: string };
   timestamp: number;
   transaction: { id: string };
@@ -56,30 +57,44 @@ const VOTER_DELEGATES = /* GraphQL */ `
 /** Who each voter delegates to; an orchestrator is bonded to itself. */
 async function fetchDelegates(ids: string[]) {
   const map = new Map<string, string>();
-  if (!ids.length) return map;
-  const { delegators } = await querySubgraph<{
-    delegators: { id: string; delegate: { id: string } | null }[];
-  }>(VOTER_DELEGATES, { ids });
-  for (const d of delegators)
-    if (d.delegate) map.set(d.id.toLowerCase(), d.delegate.id.toLowerCase());
+  // A page of ids at a time, so no voter falls past the 1,000-row limit.
+  for (let i = 0; i < ids.length; i += 1000) {
+    const { delegators } = await querySubgraph<{
+      delegators: { id: string; delegate: { id: string } | null }[];
+    }>(VOTER_DELEGATES, { ids: ids.slice(i, i + 1000) });
+    for (const d of delegators)
+      if (d.delegate) map.set(d.id.toLowerCase(), d.delegate.id.toLowerCase());
+  }
   return map;
 }
 
+/*
+ * Votes and their events are paged to completion: a poll or proposal with
+ * more than 1,000 voters would otherwise show a subset, with shares worked
+ * out against it.
+ */
+
 const POLL_VOTES = /* GraphQL */ `
-  query PollVotes($poll: String!) {
-    votes(first: 1000, where: { poll: $poll }) {
+  query PollVotes($poll: String!, $first: Int!, $lastId: String!) {
+    votes(first: $first, where: { poll: $poll, id_gt: $lastId }, orderBy: id) {
+      id
       voter
       voteStake
       nonVoteStake
       choiceID
       registeredTranscoder
     }
+  }
+`;
+
+const POLL_VOTE_EVENTS = /* GraphQL */ `
+  query PollVoteEvents($poll: String!, $first: Int!, $lastId: String!) {
     voteEvents(
-      first: 1000
-      where: { poll: $poll }
-      orderBy: timestamp
-      orderDirection: desc
+      first: $first
+      where: { poll: $poll, id_gt: $lastId }
+      orderBy: id
     ) {
+      id
       voter
       timestamp
       transaction {
@@ -90,16 +105,18 @@ const POLL_VOTES = /* GraphQL */ `
 `;
 
 export async function fetchPollVotes(poll: string): Promise<CastVote[]> {
-  const { votes, voteEvents } = await querySubgraph<{
-    votes: {
+  const vars = { poll: poll.toLowerCase() };
+  const [votes, voteEvents] = await Promise.all([
+    paginate<{
+      id: string;
       voter: string;
       voteStake: string;
       nonVoteStake: string;
       choiceID: "Yes" | "No" | null;
       registeredTranscoder: boolean | null;
-    }[];
-    voteEvents: RawEvent[];
-  }>(POLL_VOTES, { poll: poll.toLowerCase() });
+    }>(POLL_VOTES, "votes", vars),
+    paginate<RawEvent>(POLL_VOTE_EVENTS, "voteEvents", vars),
+  ]);
   const events = latestEvents(voteEvents);
   const cast = votes.filter((v) => v.choiceID);
   const delegates = await fetchDelegates(
@@ -130,8 +147,13 @@ export async function fetchPollVotes(poll: string): Promise<CastVote[]> {
 }
 
 const PROPOSAL_VOTES = /* GraphQL */ `
-  query ProposalVotes($proposal: String!) {
-    treasuryVotes(first: 1000, where: { proposal: $proposal }) {
+  query ProposalVotes($proposal: String!, $first: Int!, $lastId: String!) {
+    treasuryVotes(
+      first: $first
+      where: { proposal: $proposal, id_gt: $lastId }
+      orderBy: id
+    ) {
+      id
       voter {
         id
       }
@@ -139,12 +161,17 @@ const PROPOSAL_VOTES = /* GraphQL */ `
       weight
       reason
     }
+  }
+`;
+
+const PROPOSAL_VOTE_EVENTS = /* GraphQL */ `
+  query ProposalVoteEvents($proposal: String!, $first: Int!, $lastId: String!) {
     treasuryVoteEvents(
-      first: 1000
-      where: { proposal: $proposal }
-      orderBy: timestamp
-      orderDirection: desc
+      first: $first
+      where: { proposal: $proposal, id_gt: $lastId }
+      orderBy: id
     ) {
+      id
       voter {
         id
       }
@@ -165,15 +192,18 @@ const SUPPORT: Record<string, VoteChoice> = {
 export async function fetchProposalVotes(
   proposal: string
 ): Promise<CastVote[]> {
-  const { treasuryVotes, treasuryVoteEvents } = await querySubgraph<{
-    treasuryVotes: {
+  const [treasuryVotes, treasuryVoteEvents] = await Promise.all([
+    paginate<{
+      id: string;
       voter: { id: string };
       support: string;
       weight: string;
       reason: string | null;
-    }[];
-    treasuryVoteEvents: RawEvent[];
-  }>(PROPOSAL_VOTES, { proposal });
+    }>(PROPOSAL_VOTES, "treasuryVotes", { proposal }),
+    paginate<RawEvent>(PROPOSAL_VOTE_EVENTS, "treasuryVoteEvents", {
+      proposal,
+    }),
+  ]);
   const events = latestEvents(treasuryVoteEvents);
   const cast = treasuryVotes.filter((v) => SUPPORT[v.support]);
   const delegates = await fetchDelegates(
