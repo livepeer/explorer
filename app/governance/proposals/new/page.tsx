@@ -6,12 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { encodeFunctionData, isAddress } from "viem";
 import { normalize, toCoinType } from "viem/ens";
-import {
-  useAccount,
-  useBytecode,
-  useEnsAddress,
-  useReadContract,
-} from "wagmi";
+import { useAccount, useBytecode, useEnsAddress, useReadContract } from "wagmi";
 
 import { PlainMarkdown } from "@/components/governance/markdown";
 import { useControllerContract } from "@/components/governance/model";
@@ -116,7 +111,7 @@ export default function NewProposalPage() {
   // most likely a mainnet-only Safe: whoever controls that address on
   // Arbitrum, if anyone, isn't its owners, and the LPT would be lost.
   // (EIP-7702 code, 0xef0100…, is an ordinary account's, so it's skipped.)
-  const { data: codeL1 } = useBytecode({
+  const { data: codeL1, isFetched: checkedL1 } = useBytecode({
     address: to,
     chainId: L1_CHAIN.id,
     query: { enabled: Boolean(to) },
@@ -148,8 +143,18 @@ export default function NewProposalPage() {
   const required = threshold as bigint | undefined;
   const have = (votes as bigint | undefined) ?? 0n;
   const eligible = required != null && have >= required;
+  // The receiver is settled only once every lookup has finished: a name's
+  // Arbitrum address can still replace its mainnet one, and the contract
+  // check can still find it's somewhere the LPT would be lost.
+  const receiverReady =
+    Boolean(to) && !resolving && checkedL1 && checkedL2 && !mainnetOnlyContract;
   const complete =
-    title.trim() && body.trim() && to && wei && wei > 0n && !amountError;
+    title.trim() &&
+    body.trim() &&
+    receiverReady &&
+    wei &&
+    wei > 0n &&
+    !amountError;
   const busy = tx.signing || tx.confirming;
 
   const description = `# ${title.trim()}\n\n${body.trim()}\n`;
@@ -292,14 +297,12 @@ export default function NewProposalPage() {
               error={receiverError}
               warning={
                 mainnetOnlyContract
-                  ? "This is a contract on Ethereum with nothing at the same address on Arbitrum, where the treasury pays. If it's a Safe, its owners don't control this address on Arbitrum and the LPT would be lost. Use an address that works on Arbitrum."
+                  ? "This is a contract on Ethereum with nothing at the same address on Arbitrum, where the treasury pays. If it's a Safe, its owners don't control this address on Arbitrum and the LPT would be lost. Use an address that works on Arbitrum to continue."
                   : null
               }
               hint={
                 to && ens
-                  ? `Resolves to ${to}${
-                      resolvedL2 ? " on Arbitrum" : ""
-                    }`
+                  ? `Resolves to ${to}${resolvedL2 ? " on Arbitrum" : ""}`
                   : "The address the LPT is sent to if the proposal passes."
               }
             >
