@@ -32,11 +32,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
 import { useViewScope } from "@/lib/hooks/view-scope";
-import {
-  type PortfolioAccount,
-  useAddresses,
-  usePortfolioAccounts,
-} from "@/lib/hooks/watchlist";
+import { type PortfolioAccount, useAddresses } from "@/lib/hooks/watchlist";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
 export type Position = {
@@ -148,14 +144,12 @@ function DelegatedTo({
   );
 }
 
-/** Stake can be transferred when there's stake and another wallet to take it. */
+/**
+ * Stake can be transferred whenever there's stake: to another of the
+ * portfolio's wallets, or to any address typed into the picker.
+ */
 function useCanMove(p: Position) {
-  const { accounts } = usePortfolioAccounts();
-  return (
-    Boolean(p.delegate) &&
-    p.stake > 0 &&
-    accounts.some((a) => a.address !== p.account.address)
-  );
+  return Boolean(p.delegate) && p.stake > 0;
 }
 
 /** Fees below this show as 0.000000 ETH: not worth a withdrawal's gas. */

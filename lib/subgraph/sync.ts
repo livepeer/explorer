@@ -44,7 +44,9 @@ export async function waitForIndexed(
   while (Date.now() < deadline) {
     // Each probe gets what's left of the deadline, at most 10s, so a request
     // that never answers can't hold this past it.
-    const remaining = deadline - Date.now();
+    // Clamped: the clock can pass the deadline between the loop's check and
+    // here, and a negative timeout throws.
+    const remaining = Math.max(0, deadline - Date.now());
     const indexed = await fetchIndexedBlock(
       AbortSignal.timeout(Math.min(remaining, 10_000))
     );
