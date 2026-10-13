@@ -444,13 +444,6 @@
         margin-left: auto;
       }
 
-      .sort-note {
-        padding: 10px 16px;
-        font-size: 12.5px;
-        color: var(--neutral10);
-        border-bottom: 1px solid var(--neutral4);
-      }
-
       table {
         width: 100%;
         border-collapse: collapse;
@@ -462,7 +455,7 @@
         color: var(--neutral10);
         text-align: left;
         padding: 10px 14px;
-        border-bottom: 1px solid var(--neutral4);
+        border-bottom: 1px solid var(--neutral3);
         white-space: nowrap;
       }
       thead th.num,
@@ -472,7 +465,7 @@
 
       tbody td {
         padding: 13px 14px;
-        border-bottom: 1px solid var(--neutral3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         font-size: 13px;
         vertical-align: middle;
       }
@@ -512,6 +505,42 @@
       }
       .reward-cap.balanced {
         color: var(--neutral11);
+      }
+
+      /* Quieter secondary metrics: hierarchy is column order, not chrome */
+      thead th.ctx {
+        font-weight: 500;
+        color: var(--neutral10);
+      }
+      td.ctx {
+        font-size: 12.5px;
+      }
+      td.ctx .cell-main,
+      td.ctx .ctx-val {
+        font-weight: 500;
+        color: var(--neutral11);
+      }
+      td.ctx .ctx-yield {
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+
+      /* Narrower laptops: drop the quietest columns first rather than
+         letting the table scroll sideways. */
+      @media (max-width: 1360px) {
+        .ctx-keeps {
+          display: none;
+        }
+      }
+      @media (max-width: 1240px) {
+        .ctx-fees {
+          display: none;
+        }
+      }
+      @media (max-width: 1100px) {
+        .ctx-stake {
+          display: none;
+        }
       }
 
       .delegate-btn {
@@ -718,6 +747,33 @@
         box-shadow: 0 0 0 1px rgba(165, 143, 255, 0.28);
       }
 
+      /* Familiar numbers from today's list, quiet under the decision */
+      .m-ctx {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--neutral3);
+      }
+      .m-ctx dt {
+        font-size: 11px;
+        color: var(--neutral10);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .m-ctx dd {
+        margin-top: 2px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--neutral11);
+      }
+
+      .m-ctx + .m-foot {
+        margin-top: 12px;
+        padding-top: 12px;
+      }
       .m-foot {
         display: flex;
         align-items: center;
@@ -1447,10 +1503,10 @@
       </div>
       <p class="section-description">
         Most people arrive here while choosing a node, so the table opens on
-        that question: where does new stake still earn? State and the fee-vs-
-        stake comparison sit up front. The formula lives in tooltips, ready when
-        someone asks why. Absolute totals remain available; they just stop
-        competing for the first glance.
+        that question: where does new stake still earn? State, fees vs stake,
+        and the reward cap come first. Forecasted yield, delegated stake, and
+        trailing fees follow quieter. Column order is the hierarchy; the formula
+        lives in tooltips.
       </p>
 
       <div class="table-shell">
@@ -1471,19 +1527,19 @@
               <button
                 type="button"
                 class="tooltip-dot"
-                aria-label="Help: settled rounds window"
-                aria-describedby="help-rounds"
+                aria-label="Help: list window and sort"
+                aria-describedby="help-window"
               >
                 ?
               </button>
-              <span id="help-rounds" class="tooltip-help" role="tooltip">
-                One round can be faked by a dishonest node. Seven settled rounds
-                is much harder to fake, and matches the 7-round reward delay.
+              <span id="help-window" class="tooltip-help" role="tooltip">
+                Sorted by where new stake earns the most. Forecasted yield is an
+                estimate, so it does not set the order. The seven settled rounds
+                are harder to fake than one, and match when rewards are paid.
               </span>
             </span>
           </span>
         </div>
-        <div class="sort-note">Sorted by where new stake earns the most.</div>
 
         <table>
           <thead>
@@ -1547,7 +1603,58 @@
                   </span>
                 </span>
               </th>
-              <th class="num">
+              <th class="num ctx">
+                Forecasted yield
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: forecasted yield"
+                    aria-describedby="help-yield"
+                  >
+                    ?
+                  </button>
+                  <span id="help-yield" class="tooltip-help" role="tooltip">
+                    A rough estimate of what 150&nbsp;LPT would earn over one
+                    year, using today’s numbers. It can differ from what you
+                    actually earn, and it does not set the order of this list.
+                  </span>
+                </span>
+              </th>
+              <th class="num ctx ctx-stake">
+                Delegated stake
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: delegated stake"
+                    aria-describedby="help-stake"
+                  >
+                    ?
+                  </button>
+                  <span id="help-stake" class="tooltip-help" role="tooltip">
+                    All the LPT currently delegated to this node.
+                  </span>
+                </span>
+              </th>
+              <th class="num ctx ctx-fees">
+                Trailing 90D fees
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: trailing 90d fees"
+                    aria-describedby="help-fees90"
+                  >
+                    ?
+                  </button>
+                  <span id="help-fees90" class="tooltip-help" role="tooltip">
+                    Fees this node earned over the past 90 calendar days, in
+                    USDC. A hint at how steady its work is.
+                  </span>
+                </span>
+              </th>
+              <th class="num ctx ctx-keeps">
                 Node keeps
                 <span class="help">
                   <button
@@ -1624,7 +1731,19 @@
                 <span class="reward-cap stake num">2.3%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">12.8%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">918,420</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$241K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">8%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">92% of fees</div>
@@ -1685,7 +1804,19 @@
                 <span class="reward-cap stake num">1.1%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">9.7%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">441,305</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$149K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">12%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">95% of fees</div>
@@ -1746,7 +1877,19 @@
                 <span class="reward-cap stake num">3.4%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">10.4%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">1,362,790</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$118K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">6%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">90% of fees</div>
@@ -1806,7 +1949,19 @@
                 <span class="reward-cap stake num">0.4%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">6.9%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">158,946</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$23.6K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">20%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">85% of fees</div>
@@ -1876,7 +2031,19 @@
                 <span class="reward-cap balanced num">2.7%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">6.1%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">1,079,512</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$57.2K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">9%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">94% of fees</div>
@@ -1930,7 +2097,19 @@
                 <span class="reward-cap fee num">4.2%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">3.4%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">2,718,064</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$84.8K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">10%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">97% of fees</div>
@@ -1984,7 +2163,19 @@
                 <span class="reward-cap fee num">1.9%</span>
                 <div class="cell-sub">of network rewards</div>
               </td>
-              <td class="num">
+              <td class="num ctx">
+                <span class="ctx-yield num">2.6%</span>
+                <div class="cell-sub">est. over 1Y</div>
+              </td>
+              <td class="num ctx ctx-stake">
+                <span class="ctx-val num">1,841,377</span>
+                <div class="cell-sub">LPT</div>
+              </td>
+              <td class="num ctx ctx-fees">
+                <span class="ctx-val num">$37.9K</span>
+                <div class="cell-sub">USDC</div>
+              </td>
+              <td class="num ctx ctx-keeps">
                 <span class="cell-main num">14%</span>
                 <span class="cell-sub">of rewards</span>
                 <div class="cell-sub num">98% of fees</div>
@@ -1998,20 +2189,29 @@
         <table aria-hidden="true">
           <tbody>
             <tr>
-              <td style="width: 22%">
+              <td style="width: 18%">
                 <div class="sk" style="width: 140px"></div>
               </td>
-              <td style="width: 16%">
+              <td style="width: 15%">
                 <div class="sk" style="width: 96px"></div>
               </td>
-              <td style="width: 20%">
-                <div class="sk" style="width: 150px"></div>
+              <td style="width: 15%">
+                <div class="sk" style="width: 130px"></div>
               </td>
               <td class="num">
                 <div class="sk" style="width: 44px; margin-left: auto"></div>
               </td>
+              <td class="num ctx">
+                <div class="sk" style="width: 44px; margin-left: auto"></div>
+              </td>
               <td class="num">
                 <div class="sk" style="width: 64px; margin-left: auto"></div>
+              </td>
+              <td class="num ctx-fees">
+                <div class="sk" style="width: 48px; margin-left: auto"></div>
+              </td>
+              <td class="num ctx-keeps">
+                <div class="sk" style="width: 40px; margin-left: auto"></div>
               </td>
               <td><div class="sk" style="width: 76px"></div></td>
             </tr>
@@ -2028,7 +2228,16 @@
         <li>
           <strong>Filter:</strong> “Earning now” keeps the list focused on nodes
           with real activity. “All nodes” keeps every address reachable when you
-          need a specific one.
+          need a specific one. It only changes which nodes appear. The columns
+          stay the same.
+        </li>
+        <li>
+          <strong>Familiar numbers:</strong> Forecasted yield, Delegated stake,
+          and Trailing 90D fees stay after the decision columns, quieter by type
+          weight. Column order is the hierarchy; no group labels. Yield is a
+          guess from current shares, so it informs the choice but never sets the
+          order. On narrower laptops the quietest columns drop first (Node
+          keeps, then 90D fees, then Delegated stake). Yield stays.
         </li>
       </ul>
     </section>
@@ -2044,7 +2253,9 @@
         figures, the way odds read on a market board, so the limiting share
         carries the eye. That side alone takes color, with a soft wash from the
         top of the card so the state arrives before the words. Delegate rests in
-        the footer beside a short line about what new stake still does.
+        the footer beside a short line about what new stake still does. A quiet
+        row of yield, stake, and recent fees keeps the numbers from today’s list
+        in reach without crowding the decision.
       </p>
 
       <div class="mobile-wrap">
@@ -2091,6 +2302,20 @@
               <span class="cap-tag">caps rewards</span>
             </div>
           </div>
+          <dl class="m-ctx">
+            <div>
+              <dt>Forecasted yield</dt>
+              <dd class="num">12.8%</dd>
+            </div>
+            <div>
+              <dt>Delegated stake</dt>
+              <dd class="num">918K LPT</dd>
+            </div>
+            <div>
+              <dt>90D fees</dt>
+              <dd class="num">$241K</dd>
+            </div>
+          </dl>
           <div class="m-foot">
             <div class="meta">
               New stake still earns, up to
@@ -2137,6 +2362,20 @@
               <span class="unit">of network</span>
             </div>
           </div>
+          <dl class="m-ctx">
+            <div>
+              <dt>Forecasted yield</dt>
+              <dd class="num">2.9%</dd>
+            </div>
+            <div>
+              <dt>Delegated stake</dt>
+              <dd class="num">2.44M LPT</dd>
+            </div>
+            <div>
+              <dt>90D fees</dt>
+              <dd class="num">$27.6K</dd>
+            </div>
+          </dl>
           <div class="m-foot">
             <div class="meta">
               Extra stake earns <strong>nothing</strong> until fees rise
@@ -2194,6 +2433,20 @@
               <span class="unit">of network</span>
             </div>
           </div>
+          <dl class="m-ctx">
+            <div>
+              <dt>Forecasted yield</dt>
+              <dd class="num">6.6%</dd>
+            </div>
+            <div>
+              <dt>Delegated stake</dt>
+              <dd class="num">1.68M LPT</dd>
+            </div>
+            <div>
+              <dt>90D fees</dt>
+              <dd class="num">$84.1K</dd>
+            </div>
+          </dl>
           <div class="m-foot">
             <div class="meta">Fees and stake match · keeps 10%</div>
             <button class="delegate-btn">Delegate</button>
