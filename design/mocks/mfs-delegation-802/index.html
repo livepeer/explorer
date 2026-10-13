@@ -814,7 +814,8 @@
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
         padding: 24px;
-        max-width: 720px;
+        /* Match the Orchestrating left column in .page-frame */
+        max-width: 600px;
       }
       /* Binding tint: soft top fade into panel */
       .mfs-block.theme-stake {
@@ -1140,11 +1141,304 @@
         text-decoration: underline;
       }
 
+      /* ---------- orchestrating page frame (preview of the real split) ----------
+         Live: account layout = left column (tabs + tab content) + sticky right rail
+         (DelegatingWidget, 40%). Orchestrating tab content is a 2-up grid of Stat
+         cards. Below 1200px the rail moves into a bottom drawer. */
+      .page-frame {
+        width: fit-content;
+        max-width: 100%;
+        border: 1px solid var(--neutral4);
+        border-radius: 16px;
+        background: var(--bg);
+        overflow: clip;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.3);
+      }
+      .pf-account {
+        padding: 20px 24px 0;
+        border-bottom: 1px solid var(--neutral3);
+        background: rgba(255, 255, 255, 0.015);
+      }
+      .pf-account .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+      .pf-account .identity .name {
+        font-size: 18px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      .pf-account .identity .addr {
+        font-size: 12px;
+      }
+      .pf-tabs {
+        display: flex;
+        gap: 20px;
+        margin-top: 16px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .pf-tabs span {
+        padding-bottom: 8px;
+        margin-bottom: -1px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral10);
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+      }
+      .pf-tabs span[aria-current="page"] {
+        color: var(--hiContrast);
+        border-bottom-color: var(--primary11);
+      }
+      .pf-body {
+        display: grid;
+        /* Left ~60% of the prior ~1000px stretch (~600). Rail stays compact. */
+        grid-template-columns: minmax(0, 600px) minmax(280px, 340px);
+        gap: 20px;
+        align-items: start;
+        padding: 20px 24px 24px;
+      }
+      .pf-tag {
+        display: block;
+        margin-bottom: 10px;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--neutral10);
+      }
+      /* Orchestrating tab: 2-up grid. The MFS card spans both columns. */
+      .pf-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .pf-grid > .mfs-block {
+        grid-column: 1 / -1;
+        max-width: none;
+      }
+      .pf-stat {
+        background: var(--panel);
+        border: 1px solid var(--neutral3);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        min-height: 88px;
+      }
+      .pf-stat .label {
+        font-size: 12px;
+        color: var(--neutral10);
+        margin-bottom: 6px;
+      }
+      .pf-stat .value {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--neutral11);
+      }
+      .pf-more {
+        grid-column: 1 / -1;
+        padding: 10px 0 0;
+        font-size: 12px;
+        color: var(--neutral8);
+        text-align: center;
+      }
+      .pf-grid .mfs-cta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .mfs-cta .delegate-btn {
+        min-height: 44px;
+        padding: 10px 18px;
+        font-size: 13px;
+        touch-action: manipulation;
+      }
+      .mfs-cta .cta-note {
+        flex: 1 1 220px;
+        min-width: 0;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--neutral10);
+      }
+
+      /* Right rail: simplified DelegatingWidget */
+      .pf-rail {
+        position: sticky;
+        top: 16px;
+        align-self: start;
+        margin-top: 0;
+      }
+      .dw {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 18px;
+      }
+      .dw-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        padding: 2px;
+        margin-bottom: 16px;
+        background: var(--neutral3);
+        border: 1px solid var(--neutral5);
+        border-radius: var(--radius-sm);
+      }
+      .dw-tabs button {
+        min-height: 40px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--neutral11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .dw-tabs button[aria-pressed="true"] {
+        background: var(--neutral5);
+        color: var(--hiContrast);
+      }
+      .dw-tabs button:hover {
+        color: var(--hiContrast);
+      }
+      .dw-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--neutral10);
+      }
+      .dw-input-row {
+        position: relative;
+      }
+      .dw-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 10px 64px 10px 14px;
+        border: 1px solid var(--neutral5);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+        color: var(--hiContrast);
+        font: inherit;
+        font-size: 16px; /* avoids iOS focus zoom */
+        font-variant-numeric: tabular-nums;
+      }
+      .dw-input::placeholder {
+        color: var(--neutral8);
+      }
+      .dw-input:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 1px;
+      }
+      .dw-unit {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral10);
+        pointer-events: none;
+      }
+      .dw-lines {
+        margin: 16px 0;
+        border-top: 1px solid var(--neutral3);
+      }
+      .dw-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--neutral3);
+        font-size: 13px;
+        color: var(--neutral10);
+      }
+      .dw-line .num {
+        color: var(--neutral11);
+        font-weight: 600;
+      }
+      .dw-submit {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        background: var(--primary4);
+        color: var(--primary11);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: background-color 0.15s ease, transform 0.08s ease;
+      }
+      .dw-submit:hover {
+        background: #16402c;
+      }
+      .dw-submit:active {
+        transform: translateY(1px);
+      }
+      /* Under 1200px the live rail becomes a bottom drawer */
+      .pf-drawer {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 24px;
+        border-top: 1px solid var(--neutral4);
+        background: var(--panel);
+        font-size: 12.5px;
+        color: var(--neutral10);
+      }
+      .pf-drawer .delegate-btn {
+        min-height: 44px;
+        padding: 10px 18px;
+        margin-left: auto;
+        font-size: 13px;
+      }
+      @media (max-width: 1199px) {
+        .pf-body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .pf-rail {
+          display: none;
+        }
+        .pf-drawer {
+          display: flex;
+        }
+      }
+      @media (max-width: 560px) {
+        .pf-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .pf-body,
+        .pf-account {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+      .variant-sub {
+        margin: 32px 0 12px;
+        font-size: 13px;
+        color: var(--neutral10);
+      }
+
       .variant-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
         gap: 20px;
         align-items: start;
+      }
+      /* Same Orchestrating slot width as the framed card (600px), stacked */
+      .variant-grid.mfs-states {
+        grid-template-columns: minmax(0, 600px);
+        max-width: 600px;
       }
 
       /* ---------- delegating page stat ---------- */
@@ -1442,6 +1736,7 @@
         .delegate-btn,
         .m-card,
         .mfs-block,
+        .dw-submit,
         .edge-card,
         .checklist-item,
         .disclosure summary,
@@ -2462,166 +2757,288 @@
         <span class="section-route">/accounts/[account]/orchestrating</span>
       </div>
       <p class="section-description">
-        After Delegate, this is the one-node story. It walks through what caps
-        rewards, how fees and stake compare, and, when opened, how LPT and USDC
-        each split. The move lockup sits ahead of any signature, so the cost of
-        changing later is known in time. The same top-fade tint as the list
-        keeps browse and detail feeling like one place.
+        Open a node and the page already has a home for the explanation: the top
+        of the Orchestrating tab, full width, above the usual two-column grid of
+        stats. The Delegate box stays in the right rail the whole time. The card
+        explains; the box acts. The move lockup sits ahead of any signature, so
+        the cost of changing later is known in time. The same top-fade tint as
+        the list keeps browse and detail feeling like one place.
       </p>
 
-      <div class="variant-grid">
-        <div>
-          <div class="mfs-block theme-stake">
-            <div class="mfs-head">
-              <span class="mfs-title">Rewards capped by stake</span>
-              <span class="chip stake"
-                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M9.5 4.5h4v4"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Room to earn</span
-              >
-            </div>
-            <div class="mfs-window">Last 7 settled rounds</div>
-            <p class="mfs-sentence">
-              Earns <strong>11.8%</strong> of fees, backed by
-              <strong>2.3%</strong> of stake. Rewards follow the smaller number,
-              so they cap at <span class="hl-stake">2.3%</span>. New stake keeps
-              earning until the two meet.
-            </p>
-            <div
-              class="mfs-compare"
-              role="img"
-              aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. New stake still earns, up to 9.5 percent."
+      <div class="variant-label">Page frame · Room to earn</div>
+      <figure
+        class="page-frame"
+        aria-label="Illustration of the orchestrating page: the stake card sits at the top of the left column, the Delegate box stays in the right rail"
+        style="margin: 0"
+      >
+        <div class="pf-account" aria-hidden="true">
+          <div class="identity">
+            <span class="avatar" style="background: #2e4a3a">TN</span>
+            <span
+              ><span class="name">Titan Node</span><br /><span class="addr"
+                >0x4f2a…81bd</span
+              ></span
             >
-              <div class="mfs-compare-row">
-                <span class="name">Fees</span>
-                <span class="pct-wrap"
-                  ><span class="pct num">11.8%</span
-                  ><span class="unit">of network fees</span></span
-                >
-              </div>
-              <div class="mfs-compare-row binding">
-                <span class="name"
-                  >Stake <span class="tag stake">caps rewards</span></span
-                >
-                <span class="pct-wrap"
-                  ><span class="pct num">2.3%</span
-                  ><span class="unit">of network stake</span></span
-                >
-              </div>
-              <div class="mfs-compare-row result">
-                <span class="name"
-                  >Rewards follow the smaller
-                  <span class="hint"
-                    >· new stake still earns, up to +9.5%</span
-                  ></span
-                >
-                <span class="pct-wrap"
-                  ><span class="pct num">2.3%</span
-                  ><span class="unit">of network rewards</span></span
-                >
-              </div>
-            </div>
-            <details class="split-disclosure">
-              <summary>
-                <span>Reward and fee breakdown</span>
-                <svg
-                  class="chev"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M4 6.5 8 10.5 12 6.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </summary>
-              <div class="split-stack">
-                <div class="split-block lpt">
-                  <div class="split-block-head">
-                    Of that <strong>2.3% LPT reward</strong> (the capped amount)
-                  </div>
-                  <div class="split-row">
-                    <span class="who">Delegators share</span>
-                    <span class="amt num">92%</span>
-                  </div>
-                  <div class="split-row">
-                    <span class="who">Node keeps</span>
-                    <span class="amt num">8%</span>
-                  </div>
-                  <p class="split-note">
-                    Split among delegators pro-rata by stake.
-                  </p>
-                </div>
-                <div class="split-block">
-                  <div class="split-block-head">
-                    Of this node's <strong>USDC fees</strong> (separate from
-                    LPT)
-                  </div>
-                  <div class="split-row">
-                    <span class="who">Delegators share</span>
-                    <span class="amt num">8%</span>
-                  </div>
-                  <div class="split-row">
-                    <span class="who">Node keeps</span>
-                    <span class="amt num">92%</span>
-                  </div>
-                  <p class="split-note">Fees are never capped by stake.</p>
-                </div>
-              </div>
-            </details>
-            <div class="lockup-note">
-              <span class="lockup-icon"
-                ><svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <circle
-                    cx="8"
-                    cy="8"
-                    r="6.4"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                  />
-                  <path
-                    d="M8 4.8V8l2.2 1.6"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                    stroke-linecap="round"
-                  /></svg
-              ></span>
-              <span
-                >Moving stake takes about 21&nbsp;days. It starts earning on the
-                new node only after that.</span
-              >
-            </div>
-            <p class="delay-note">
-              Rewards are paid about a week after the round.
-            </p>
+          </div>
+          <div class="pf-tabs">
+            <span aria-current="page">Orchestrating</span>
+            <span>Broadcasting</span>
+            <span>Delegating</span>
+            <span>Delegators</span>
+            <span>History</span>
           </div>
         </div>
+        <div class="pf-body">
+          <div>
+            <span class="pf-tag" aria-hidden="true"
+              >Orchestrating tab · 2-column grid</span
+            >
+            <div class="pf-grid">
+              <div class="mfs-block theme-stake">
+                <div class="mfs-head">
+                  <span class="mfs-title">Rewards capped by stake</span>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn</span
+                  >
+                </div>
+                <div class="mfs-window">Last 7 settled rounds</div>
+                <p class="mfs-sentence">
+                  Earns <strong>11.8%</strong> of fees, backed by
+                  <strong>2.3%</strong> of stake. Rewards follow the smaller
+                  number, so they cap at <span class="hl-stake">2.3%</span>. New
+                  stake keeps earning until the two meet.
+                </p>
+                <div
+                  class="mfs-compare"
+                  role="img"
+                  aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. New stake still earns, up to 9.5 percent."
+                >
+                  <div class="mfs-compare-row">
+                    <span class="name">Fees</span>
+                    <span class="pct-wrap"
+                      ><span class="pct num">11.8%</span
+                      ><span class="unit">of network fees</span></span
+                    >
+                  </div>
+                  <div class="mfs-compare-row binding">
+                    <span class="name"
+                      >Stake <span class="tag stake">caps rewards</span></span
+                    >
+                    <span class="pct-wrap"
+                      ><span class="pct num">2.3%</span
+                      ><span class="unit">of network stake</span></span
+                    >
+                  </div>
+                  <div class="mfs-compare-row result">
+                    <span class="name"
+                      >Rewards follow the smaller
+                      <span class="hint"
+                        >· new stake still earns, up to +9.5%</span
+                      ></span
+                    >
+                    <span class="pct-wrap"
+                      ><span class="pct num">2.3%</span
+                      ><span class="unit">of network rewards</span></span
+                    >
+                  </div>
+                </div>
+                <details class="split-disclosure">
+                  <summary>
+                    <span>Reward and fee breakdown</span>
+                    <svg
+                      class="chev"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M4 6.5 8 10.5 12 6.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </summary>
+                  <div class="split-stack">
+                    <div class="split-block lpt">
+                      <div class="split-block-head">
+                        Of that <strong>2.3% LPT reward</strong> (the capped
+                        amount)
+                      </div>
+                      <div class="split-row">
+                        <span class="who">Delegators share</span>
+                        <span class="amt num">92%</span>
+                      </div>
+                      <div class="split-row">
+                        <span class="who">Node keeps</span>
+                        <span class="amt num">8%</span>
+                      </div>
+                      <p class="split-note">
+                        Split among delegators pro-rata by stake.
+                      </p>
+                    </div>
+                    <div class="split-block">
+                      <div class="split-block-head">
+                        Of this node's <strong>USDC fees</strong> (separate from
+                        LPT)
+                      </div>
+                      <div class="split-row">
+                        <span class="who">Delegators share</span>
+                        <span class="amt num">8%</span>
+                      </div>
+                      <div class="split-row">
+                        <span class="who">Node keeps</span>
+                        <span class="amt num">92%</span>
+                      </div>
+                      <p class="split-note">Fees are never capped by stake.</p>
+                    </div>
+                  </div>
+                </details>
+                <div class="lockup-note">
+                  <span class="lockup-icon"
+                    ><svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6.4"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                      />
+                      <path
+                        d="M8 4.8V8l2.2 1.6"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                      /></svg
+                  ></span>
+                  <span
+                    >Moving stake takes about 21&nbsp;days. It starts earning on
+                    the new node only after that.</span
+                  >
+                </div>
+                <p class="delay-note">
+                  Rewards are paid about a week after the round.
+                </p>
+                <div class="mfs-cta">
+                  <button type="button" class="delegate-btn" data-focus-widget>
+                    Delegate
+                  </button>
+                  <p class="cta-note">
+                    Takes you to the amount box on the right. On a phone it
+                    opens the bottom drawer.
+                  </p>
+                </div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Total delegated stake</div>
+                <div class="value num">648,210 LPT</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Status</div>
+                <div class="value num">Active</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Fee cut</div>
+                <div class="value num">92%</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Reward cut</div>
+                <div class="value num">8%</div>
+              </div>
+              <div class="pf-more" aria-hidden="true">
+                The rest of the existing stat cards follow, unchanged
+              </div>
+            </div>
+          </div>
+          <aside class="pf-rail" aria-label="Delegate">
+            <span class="pf-tag" aria-hidden="true"
+              >Delegate box · sticky right rail</span
+            >
+            <div class="dw" id="frame-widget">
+              <div class="dw-tabs" role="group" aria-label="Action">
+                <button
+                  type="button"
+                  aria-pressed="true"
+                  data-dw-tab="Delegate"
+                >
+                  Delegate
+                </button>
+                <button
+                  type="button"
+                  aria-pressed="false"
+                  data-dw-tab="Undelegate"
+                >
+                  Undelegate
+                </button>
+              </div>
+              <label class="dw-label" for="frame-amount"
+                ><span>Amount</span
+                ><span class="num">Balance 1,250 LPT</span></label
+              >
+              <div class="dw-input-row">
+                <input
+                  id="frame-amount"
+                  class="dw-input"
+                  name="amount"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="0.0…"
+                />
+                <span class="dw-unit" aria-hidden="true">LPT</span>
+              </div>
+              <div class="dw-lines">
+                <div class="dw-line">
+                  <span>Forecasted yield (1Y)</span
+                  ><span class="num">0 LPT</span>
+                </div>
+                <div class="dw-line">
+                  <span>Forecasted fees (1Y)</span><span class="num">$0</span>
+                </div>
+              </div>
+              <button type="button" class="dw-submit" data-dw-submit>
+                Delegate
+              </button>
+            </div>
+          </aside>
+        </div>
+        <div class="pf-drawer" aria-hidden="true">
+          <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
+          <span class="delegate-btn" role="presentation">Delegate</span>
+        </div>
+      </figure>
 
+      <p class="variant-sub">
+        Same slot, other states. Each one replaces the card at the top of the
+        grid; nothing else on the page moves.
+      </p>
+      <div class="variant-grid mfs-states">
         <div>
+          <div class="variant-label">Full</div>
           <div class="mfs-block theme-fee">
             <div class="mfs-head">
               <span class="mfs-title">Rewards capped by fees</span>
@@ -2765,6 +3182,7 @@
         </div>
 
         <div>
+          <div class="variant-label">Balanced</div>
           <div class="mfs-block">
             <div class="mfs-head">
               <span class="mfs-title">Fees and stake in balance</span>
@@ -2902,6 +3320,28 @@
       </div>
 
       <ul class="notes">
+        <li>
+          <strong>Where it sits:</strong> first item in the Orchestrating tab’s
+          two-column grid, spanning both columns of the left content area.
+          Existing stats stay below. The Delegate box stays in the right rail.
+          Not a replacement for that box, and not a third column.
+        </li>
+        <li>
+          <strong>Two jobs:</strong> the card answers whether this node still
+          has room (network fee share vs stake share). The right-rail box is the
+          checkout for your amount: forecasted yield, inflationary rewards, and
+          fee share for the LPT you type. Same word “fees,” different math.
+        </li>
+        <li>
+          <strong>Delegate on the card:</strong> optional. On desktop it moves
+          focus to the amount box already on screen. Under 1200px it opens the
+          existing bottom drawer. No stepped flow that hides the box.
+        </li>
+        <li>
+          <strong>Same slot, other states:</strong> Full and Balanced are the
+          same width as the card in the page frame (~600px). Each one only swaps
+          that top slot; the rail and stats stay put.
+        </li>
         <li>
           <strong>Collapsed breakdown:</strong> the open question is whether
           stake still earns. How the cut divides between node and delegators
@@ -3146,5 +3586,36 @@
         </ul>
       </div>
     </section>
+    <script>
+      (function () {
+        var input = document.getElementById("frame-amount");
+        var submit = document.querySelector("[data-dw-submit]");
+        var tabs = document.querySelectorAll("[data-dw-tab]");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            tabs.forEach(function (t) {
+              t.setAttribute("aria-pressed", String(t === tab));
+            });
+            if (submit) submit.textContent = tab.getAttribute("data-dw-tab");
+          });
+        });
+        document
+          .querySelectorAll("[data-focus-widget]")
+          .forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var rail = document.getElementById("frame-widget");
+              if (!input || !rail || rail.offsetParent === null) return;
+              var reduce = window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+              ).matches;
+              rail.scrollIntoView({
+                block: "nearest",
+                behavior: reduce ? "auto" : "smooth",
+              });
+              input.focus({ preventScroll: true });
+            });
+          });
+      })();
+    </script>
   </body>
 </html>
