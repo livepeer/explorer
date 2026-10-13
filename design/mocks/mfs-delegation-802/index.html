@@ -300,6 +300,13 @@
         color: var(--neutral8);
       }
 
+      .help {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+        vertical-align: 1px;
+      }
       .tooltip-dot {
         display: inline-flex;
         align-items: center;
@@ -317,8 +324,6 @@
         font-size: 10px;
         font-weight: 700;
         line-height: 1;
-        margin-left: 5px;
-        vertical-align: 1px;
         cursor: help;
         -webkit-tap-highlight-color: transparent;
       }
@@ -328,14 +333,32 @@
       }
       .tooltip-help {
         position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        z-index: 30;
+        width: max-content;
+        max-width: 240px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--neutral5);
+        background: var(--neutral2);
+        color: var(--neutral11);
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.45;
+        white-space: normal;
+        text-align: left;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        transform: translateX(-50%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.12s ease, visibility 0.12s ease;
+      }
+      .help:hover .tooltip-help,
+      .help:focus-within .tooltip-help {
+        opacity: 1;
+        visibility: visible;
       }
 
       /* fees-vs-stake number lines (table version of the comparison) */
@@ -364,7 +387,8 @@
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        overflow: hidden;
+        /* visible so header help popovers are not clipped */
+        overflow: visible;
       }
 
       .table-toolbar {
@@ -1357,6 +1381,7 @@
         .sk {
           animation: none;
         }
+        .tooltip-help,
         button,
         .delegate-btn,
         .m-card,
@@ -1442,17 +1467,19 @@
           </div>
           <span class="window-note">
             Last 7 settled rounds (2,731–2,737)
-            <button
-              type="button"
-              class="tooltip-dot"
-              aria-label="Help: settled rounds window"
-              aria-describedby="help-rounds"
-            >
-              ?
-            </button>
-            <span id="help-rounds" class="tooltip-help">
-              One round can be faked by a dishonest node. Seven settled rounds
-              is much harder to fake, and matches the 7-round reward delay.
+            <span class="help">
+              <button
+                type="button"
+                class="tooltip-dot"
+                aria-label="Help: settled rounds window"
+                aria-describedby="help-rounds"
+              >
+                ?
+              </button>
+              <span id="help-rounds" class="tooltip-help" role="tooltip">
+                One round can be faked by a dishonest node. Seven settled rounds
+                is much harder to fake, and matches the 7-round reward delay.
+              </span>
             </span>
           </span>
         </div>
@@ -1464,60 +1491,80 @@
               <th>Orchestrator</th>
               <th>
                 State
-                <button
-                  type="button"
-                  class="tooltip-dot"
-                  aria-label="Help: state"
-                  aria-describedby="help-state"
-                >
-                  ?
-                </button>
-                <span id="help-state" class="tooltip-help">
-                  Whether new stake would earn more here.
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: state"
+                    aria-describedby="help-state"
+                  >
+                    ?
+                  </button>
+                  <span id="help-state" class="tooltip-help" role="tooltip">
+                    Whether new stake would earn more here.
+                  </span>
                 </span>
               </th>
               <th>
                 Fees vs stake
-                <button
-                  type="button"
-                  class="tooltip-dot"
-                  aria-label="Help: fees vs stake"
-                  aria-describedby="help-fees-stake"
-                >
-                  ?
-                </button>
-                <span id="help-fees-stake" class="tooltip-help">
-                  Share of network fees earned vs share of network stake, last 7
-                  settled rounds. The smaller one caps rewards.
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: fees vs stake"
+                    aria-describedby="help-fees-stake"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="help-fees-stake"
+                    class="tooltip-help"
+                    role="tooltip"
+                  >
+                    Share of network fees earned vs share of network stake, last
+                    7 settled rounds. The smaller one caps rewards.
+                  </span>
                 </span>
               </th>
               <th class="num">
                 Reward cap
-                <button
-                  type="button"
-                  class="tooltip-dot"
-                  aria-label="Help: reward cap"
-                  aria-describedby="help-reward-cap"
-                >
-                  ?
-                </button>
-                <span id="help-reward-cap" class="tooltip-help">
-                  The most new LPT this node can earn each round right now: the
-                  smaller of its fee share and stake share.
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: reward cap"
+                    aria-describedby="help-reward-cap"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="help-reward-cap"
+                    class="tooltip-help"
+                    role="tooltip"
+                  >
+                    The most new LPT this node can earn each round right now:
+                    the smaller of its fee share and stake share.
+                  </span>
                 </span>
               </th>
               <th class="num">
                 Node keeps
-                <button
-                  type="button"
-                  class="tooltip-dot"
-                  aria-label="Help: node keeps"
-                  aria-describedby="help-node-keeps"
-                >
-                  ?
-                </button>
-                <span id="help-node-keeps" class="tooltip-help">
-                  How much the node keeps before delegators share the rest.
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-label="Help: node keeps"
+                    aria-describedby="help-node-keeps"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="help-node-keeps"
+                    class="tooltip-help"
+                    role="tooltip"
+                  >
+                    How much the node keeps before delegators share the rest.
+                  </span>
                 </span>
               </th>
               <th></th>
@@ -2622,14 +2669,15 @@
         <span class="section-route">/accounts/[account]/delegating</span>
       </div>
       <p class="section-description">
-        For anyone already bonded: one card that answers whether your node is
-        full or still has room. When it is full, the path forward returns to the
-        compare list. The orchestrators page stays the place to shop.
+        For anyone already bonded: one card that answers whether you are earning
+        on this node or sitting idle relative to its work. “Room to earn” stays
+        on the compare list for people still choosing. When you are full here,
+        the path forward returns to that list.
       </p>
 
       <div class="variant-grid">
         <div>
-          <div class="variant-label">Your node is full</div>
+          <div class="variant-label">Not earning more from new work</div>
           <a class="stat-card theme-fee" href="#">
             <div class="top">
               <span class="title">Everstake</span>
@@ -2648,7 +2696,8 @@
               >
             </div>
             <div class="d">
-              This node has more stake than work, so extra stake earns nothing.
+              This node has more stake than work, so your stake is not lifting
+              rewards right now.
               <span style="color: var(--primary11)"
                 >See nodes with room to earn →</span
               >
@@ -2656,7 +2705,7 @@
           </a>
         </div>
         <div>
-          <div class="variant-label">Your node has room</div>
+          <div class="variant-label">Earning on this node</div>
           <a class="stat-card theme-stake" href="#">
             <div class="top">
               <span class="title">Titan Node</span>
@@ -2677,11 +2726,11 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                Room to earn</span
+                You’re earning</span
               >
             </div>
             <div class="d">
-              Your stake is helping this node earn more. Moving takes about
+              You’re earning rewards on this node right now. Moving takes about
               21&nbsp;days.
               <span style="color: var(--primary11)">View node →</span>
             </div>
@@ -2815,9 +2864,11 @@
           </li>
           <li>
             <strong>Room to earn / Full / Balanced.</strong> Those names speak
-            to the stake choice itself. Under 2.0 the old “Active” label loses
-            its meaning with the capped set, so the chips carry language that
-            matches the new decision.
+            to the stake choice on the compare list. Under 2.0 the old “Active”
+            label loses its meaning with the capped set. On
+            <code>/delegating</code>, the same stake-capped state reads “You’re
+            earning” instead: the user already bonded, so the copy is about
+            their stake, not leftover room for new stake.
           </li>
           <li>
             <strong>Day one is a checklist.</strong> The launch card names where
