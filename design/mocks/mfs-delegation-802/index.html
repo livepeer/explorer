@@ -1394,8 +1394,9 @@
         grid-template-columns: minmax(0, var(--pf-main));
         max-width: var(--pf-main);
       }
+      /* Bonded status cards fill one pf-grid cell, not the full left column */
       .variant-grid.mfs-states .stat-card {
-        max-width: none;
+        max-width: calc((var(--pf-main) - 12px) / 2);
         width: 100%;
       }
 
