@@ -3003,7 +3003,7 @@
             </div>
           </aside>
         </div>
-        <div class="pf-drawer" aria-hidden="true">
+        <div class="pf-drawer">
           <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
           <button
             type="button"
@@ -3450,7 +3450,7 @@
             </div>
           </aside>
         </div>
-        <div class="pf-drawer" aria-hidden="true">
+        <div class="pf-drawer">
           <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
           <button
             type="button"
@@ -3701,7 +3701,8 @@
               /* Under 1200px the rail is hidden; open the bottom drawer path */
               if (!rail || rail.offsetParent === null) {
                 if (!drawer) return;
-                drawer.setAttribute("aria-hidden", "false");
+                /* Drawer is display:none above 1200px; below that it is visible
+                   and must stay in the a11y tree (no aria-hidden). */
                 drawer.classList.add("is-open");
                 drawer.scrollIntoView({ block: "nearest", behavior: behavior });
                 var drawerFocus =
