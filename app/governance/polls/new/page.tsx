@@ -155,7 +155,6 @@ export default function NewPollPage() {
         description="Put a proposed LIP to a stake-weighted vote. Polls run for about 8 days and need 33.33% of stake to vote, with more than half voting yes. Creating one needs 100 LPT staked and costs no LPT."
       />
 
-
       {tx.proposed && address ? (
         <Card className="px-5">
           <SafeProposed safe={address}>
@@ -205,37 +204,39 @@ export default function NewPollPage() {
           ))}
         </div>
       ) : lips.data.lips.length === 0 ? (
-        // The whole page is empty, so no card: centred in the space under
-        // the header (its 56px plus Page's 24px top and 64px bottom
-        // padding), as an app's empty view is, and lifted a little, since
-        // true centre reads low.
-        <div className="flex min-h-[50vh] items-center justify-center pb-[10vh] lg:min-h-[calc(100dvh-9rem)]">
+        // The whole page is empty, so no card. On desktop, where the title
+        // is in the header, it's centred in the space under it (the header's
+        // 56px plus Page's 24px top and 64px bottom padding), lifted a
+        // little since true centre reads low. On phones it follows the
+        // title and description, which already start the page.
+        <div className="flex justify-center lg:min-h-[calc(100dvh-9rem)] lg:items-center lg:pb-[10vh]">
           <EmptyState
+            className="pt-2 lg:pt-12"
             icon={<FileText />}
             title="No LIPs are open for a poll"
             description="Only LIPs with status Proposed, and without a poll already, can be put to a vote. Propose a LIP in the LIPs repository first."
             action={
               <div className="flex flex-col items-center gap-5">
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  size="sm"
-                  render={
-                    <a href={LIP_PROCESS} target="_blank" rel="noreferrer" />
-                  }
-                >
-                  How to write a LIP <ExternalLink />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  render={
-                    <a href={LIPS_REPO} target="_blank" rel="noreferrer" />
-                  }
-                >
-                  LIPs repository <ExternalLink />
-                </Button>
-              </div>
-              <CheckedAgainst commit={lips.data.commit} />
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Button
+                    size="sm"
+                    render={
+                      <a href={LIP_PROCESS} target="_blank" rel="noreferrer" />
+                    }
+                  >
+                    How to write a LIP <ExternalLink />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    render={
+                      <a href={LIPS_REPO} target="_blank" rel="noreferrer" />
+                    }
+                  >
+                    LIPs repository <ExternalLink />
+                  </Button>
+                </div>
+                <CheckedAgainst commit={lips.data.commit} />
               </div>
             }
           />
@@ -341,7 +342,6 @@ export default function NewPollPage() {
           </div>
         </>
       )}
-
     </Page>
   );
 }
