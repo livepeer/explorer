@@ -26,6 +26,9 @@ type QueueItem = {
   type: string;
   transaction?: {
     id: string;
+    /** "Custom" is a contract call or batch; transfers, settings changes
+     * and rejections have their own types and can't be Livepeer actions. */
+    txInfo?: { type: string; isCancellation?: boolean };
     executionInfo?: {
       nonce: number;
       confirmationsRequired: number;
@@ -42,13 +45,42 @@ type TxDetails = {
   } | null;
 };
 
-/** How many queued transactions to inspect per Safe. */
-const LIMIT = 10;
+type QueuePage = { next?: string | null; results: QueueItem[] };
+
+/** A guard against a runaway queue, far past any real Safe's. */
+const MAX_PAGES = 25;
+/** Transaction details fetched at once. */
+const CONCURRENCY = 5;
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T | null> {
-  const res = await fetch(`${GATEWAY}${path}`, { signal });
+  return getUrl(`${GATEWAY}${path}`, signal);
+}
+
+async function getUrl<T>(url: string, signal?: AbortSignal): Promise<T | null> {
+  // Only ever follow the gateway's own links.
+  if (!url.startsWith(`${GATEWAY}/`)) return null;
+  const res = await fetch(url, { signal });
   if (!res.ok) return null;
   return (await res.json()) as T;
+}
+
+/** Run `fn` over `items`, at most `n` at a time, keeping order. */
+async function mapLimit<T, R>(
+  items: T[],
+  n: number,
+  fn: (t: T) => Promise<R>
+): Promise<R[]> {
+  const out: R[] = [];
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(n, items.length) }, async () => {
+      while (next < items.length) {
+        const i = next++;
+        out[i] = await fn(items[i]);
+      }
+    })
+  );
+  return out;
 }
 
 /**
@@ -63,16 +95,32 @@ export async function fetchSafeProposals(
 ): Promise<SafeProposal[]> {
   const safe = getAddress(address);
   try {
-    const queue = await get<{ results: QueueItem[] }>(
+    // The whole queue, page by page: a Livepeer action can sit behind any
+    // number of unrelated transactions.
+    const items: QueueItem[] = [];
+    let page = await get<QueuePage>(
       `/safes/${safe}/transactions/queued`,
       signal
     );
-    const txs = (queue?.results ?? [])
-      .filter((r) => r.type === "TRANSACTION" && r.transaction?.executionInfo)
-      .slice(0, LIMIT)
+    for (let i = 1; page; i++) {
+      items.push(...page.results);
+      if (!page.next || i >= MAX_PAGES) break;
+      page = await getUrl<QueuePage>(page.next, signal);
+    }
+    // Only contract calls can be Livepeer actions, so only they're opened.
+    const txs = items
+      .filter(
+        (r) =>
+          r.type === "TRANSACTION" &&
+          r.transaction?.executionInfo &&
+          r.transaction.txInfo?.type === "Custom" &&
+          !r.transaction.txInfo.isCancellation
+      )
       .map((r) => r.transaction!);
-    const out = await Promise.all(
-      txs.map(async (t): Promise<SafeProposal | null> => {
+    const out = await mapLimit(
+      txs,
+      CONCURRENCY,
+      async (t): Promise<SafeProposal | null> => {
         const details = await get<TxDetails>(
           `/transactions/${encodeURIComponent(t.id)}`,
           signal
@@ -92,7 +140,7 @@ export async function fetchSafeProposals(
           required: info.confirmationsRequired,
           actions,
         };
-      })
+      }
     );
     return out.filter((p): p is SafeProposal => p != null);
   } catch (e) {
