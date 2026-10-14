@@ -314,6 +314,7 @@
         vertical-align: 1px;
       }
       .tooltip-dot {
+        position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -332,6 +333,18 @@
         line-height: 1;
         cursor: help;
         -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      /* Expand hit area; keep the 18px visual */
+      .tooltip-dot::before {
+        content: "";
+        position: absolute;
+        inset: -3px; /* ≥24px desktop */
+      }
+      @media (max-width: 720px) {
+        .tooltip-dot::before {
+          inset: -13px; /* ≥44px mobile */
+        }
       }
       .tooltip-dot:focus-visible {
         outline: 2px solid var(--primary11);
@@ -393,8 +406,18 @@
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        /* visible so header help popovers are not clipped */
-        overflow: visible;
+        overflow: hidden;
+      }
+      /* Contain wide tables without scrolling the whole preview */
+      .table-scroll {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      /* Open header help below so the scroller does not clip them */
+      .table-scroll .tooltip-help {
+        bottom: auto;
+        top: calc(100% + 8px);
       }
 
       .table-toolbar {
@@ -1356,6 +1379,10 @@
         margin-left: auto;
         font-size: 13px;
       }
+      .pf-drawer.is-open {
+        outline: 2px solid var(--primary11);
+        outline-offset: -2px;
+      }
       @media (max-width: 1199px) {
         .pf-body {
           grid-template-columns: minmax(0, 1fr);
@@ -1802,682 +1829,685 @@
           </span>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Orchestrator</th>
-              <th>
-                State
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: state"
-                    aria-describedby="help-state"
-                  >
-                    ?
-                  </button>
-                  <span id="help-state" class="tooltip-help" role="tooltip">
-                    Whether new stake would earn more here.
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Orchestrator</th>
+                <th>
+                  State
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: state"
+                      aria-describedby="help-state"
+                    >
+                      ?
+                    </button>
+                    <span id="help-state" class="tooltip-help" role="tooltip">
+                      Whether new stake would earn more here.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th>
-                Fees vs stake
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: fees vs stake"
-                    aria-describedby="help-fees-stake"
-                  >
-                    ?
-                  </button>
-                  <span
-                    id="help-fees-stake"
-                    class="tooltip-help"
-                    role="tooltip"
-                  >
-                    Share of network fees earned vs share of network stake, last
-                    7 settled rounds. The smaller one caps rewards.
+                </th>
+                <th>
+                  Fees vs stake
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: fees vs stake"
+                      aria-describedby="help-fees-stake"
+                    >
+                      ?
+                    </button>
+                    <span
+                      id="help-fees-stake"
+                      class="tooltip-help"
+                      role="tooltip"
+                    >
+                      Share of network fees earned vs share of network stake,
+                      last 7 settled rounds. The smaller one caps rewards.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th class="num">
-                Reward cap
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: reward cap"
-                    aria-describedby="help-reward-cap"
-                  >
-                    ?
-                  </button>
-                  <span
-                    id="help-reward-cap"
-                    class="tooltip-help"
-                    role="tooltip"
-                  >
-                    The most new LPT this node can earn each round right now:
-                    the smaller of its fee share and stake share.
+                </th>
+                <th class="num">
+                  Reward cap
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: reward cap"
+                      aria-describedby="help-reward-cap"
+                    >
+                      ?
+                    </button>
+                    <span
+                      id="help-reward-cap"
+                      class="tooltip-help"
+                      role="tooltip"
+                    >
+                      The most new LPT this node can earn each round right now:
+                      the smaller of its fee share and stake share.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th class="num ctx">
-                Forecasted yield
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: forecasted yield"
-                    aria-describedby="help-yield"
-                  >
-                    ?
-                  </button>
-                  <span id="help-yield" class="tooltip-help" role="tooltip">
-                    A rough estimate of what 150&nbsp;LPT would earn over one
-                    year, using today’s numbers. It can differ from what you
-                    actually earn, and it does not set the order of this list.
+                </th>
+                <th class="num ctx">
+                  Forecasted yield
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: forecasted yield"
+                      aria-describedby="help-yield"
+                    >
+                      ?
+                    </button>
+                    <span id="help-yield" class="tooltip-help" role="tooltip">
+                      A rough estimate of what 150&nbsp;LPT would earn over one
+                      year, using today’s numbers. It can differ from what you
+                      actually earn, and it does not set the order of this list.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th class="num ctx ctx-stake">
-                Delegated stake
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: delegated stake"
-                    aria-describedby="help-stake"
-                  >
-                    ?
-                  </button>
-                  <span id="help-stake" class="tooltip-help" role="tooltip">
-                    All the LPT currently delegated to this node.
+                </th>
+                <th class="num ctx ctx-stake">
+                  Delegated stake
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: delegated stake"
+                      aria-describedby="help-stake"
+                    >
+                      ?
+                    </button>
+                    <span id="help-stake" class="tooltip-help" role="tooltip">
+                      All the LPT currently delegated to this node.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th class="num ctx ctx-fees">
-                Trailing 90D fees
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: trailing 90d fees"
-                    aria-describedby="help-fees90"
-                  >
-                    ?
-                  </button>
-                  <span id="help-fees90" class="tooltip-help" role="tooltip">
-                    Fees this node earned over the past 90 calendar days, in
-                    USDC. A hint at how steady its work is.
+                </th>
+                <th class="num ctx ctx-fees">
+                  Trailing 90D fees
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: trailing 90d fees"
+                      aria-describedby="help-fees90"
+                    >
+                      ?
+                    </button>
+                    <span id="help-fees90" class="tooltip-help" role="tooltip">
+                      Fees this node earned over the past 90 calendar days, in
+                      USDC. A hint at how steady its work is.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th class="num ctx ctx-keeps">
-                Node keeps
-                <span class="help">
-                  <button
-                    type="button"
-                    class="tooltip-dot"
-                    aria-label="Help: node keeps"
-                    aria-describedby="help-node-keeps"
-                  >
-                    ?
-                  </button>
-                  <span
-                    id="help-node-keeps"
-                    class="tooltip-help"
-                    role="tooltip"
-                  >
-                    How much the node keeps before delegators share the rest.
+                </th>
+                <th class="num ctx ctx-keeps">
+                  Node keeps
+                  <span class="help">
+                    <button
+                      type="button"
+                      class="tooltip-dot"
+                      aria-label="Help: node keeps"
+                      aria-describedby="help-node-keeps"
+                    >
+                      ?
+                    </button>
+                    <span
+                      id="help-node-keeps"
+                      class="tooltip-help"
+                      role="tooltip"
+                    >
+                      How much the node keeps before delegators share the rest.
+                    </span>
                   </span>
-                </span>
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #2e4a3a">TN</span>
-                  <span
-                    ><span class="name">Titan Node</span><br /><span
-                      class="addr"
-                      >0x4f2a…81bd</span
-                    ></span
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #2e4a3a">TN</span>
+                    <span
+                      ><span class="name">Titan Node</span><br /><span
+                        class="addr"
+                        >0x4f2a…81bd</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip stake"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9.5 4.5h4v4"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  Room to earn</span
-                >
-                <div class="state-sub">New stake earns, up to +9.5%</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="11.8 percent of fees, 2.3 percent of stake. Stake caps rewards."
-                >
-                  <span class="kv-line"
-                    ><span class="pct num">11.8%</span> of fees</span
+                  <div class="state-sub">New stake earns, up to +9.5%</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="11.8 percent of fees, 2.3 percent of stake. Stake caps rewards."
                   >
-                  <span class="kv-line binding"
-                    ><span class="pct num">2.3%</span> of stake
-                    <span class="tag stake">caps rewards</span></span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap stake num">2.3%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">12.8%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">918,420</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$241K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">8%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">92% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line"
+                      ><span class="pct num">11.8%</span> of fees</span
+                    >
+                    <span class="kv-line binding"
+                      ><span class="pct num">2.3%</span> of stake
+                      <span class="tag stake">caps rewards</span></span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap stake num">2.3%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">12.8%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">918,420</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$241K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">8%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">92% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #3a3a5e">S1</span>
-                  <span
-                    ><span class="name">Stakehouse One</span><br /><span
-                      class="addr"
-                      >0x91cc…04e7</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #3a3a5e">S1</span>
+                    <span
+                      ><span class="name">Stakehouse One</span><br /><span
+                        class="addr"
+                        >0x91cc…04e7</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip stake"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9.5 4.5h4v4"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  Room to earn</span
-                >
-                <div class="state-sub">New stake earns, up to +6.3%</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="7.4 percent of fees, 1.1 percent of stake. Stake caps rewards."
-                >
-                  <span class="kv-line"
-                    ><span class="pct num">7.4%</span> of fees</span
+                  <div class="state-sub">New stake earns, up to +6.3%</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="7.4 percent of fees, 1.1 percent of stake. Stake caps rewards."
                   >
-                  <span class="kv-line binding"
-                    ><span class="pct num">1.1%</span> of stake
-                    <span class="tag stake">caps rewards</span></span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap stake num">1.1%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">9.7%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">441,305</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$149K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">12%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">95% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line"
+                      ><span class="pct num">7.4%</span> of fees</span
+                    >
+                    <span class="kv-line binding"
+                      ><span class="pct num">1.1%</span> of stake
+                      <span class="tag stake">caps rewards</span></span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap stake num">1.1%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">9.7%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">441,305</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$149K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">12%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">95% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #5e4a2e">MW</span>
-                  <span
-                    ><span class="name">Meridian Works</span><br /><span
-                      class="addr"
-                      >0x77d1…f2a0</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #5e4a2e">MW</span>
+                    <span
+                      ><span class="name">Meridian Works</span><br /><span
+                        class="addr"
+                        >0x77d1…f2a0</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip stake"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9.5 4.5h4v4"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  Room to earn</span
-                >
-                <div class="state-sub">New stake earns, up to +2.5%</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="5.9 percent of fees, 3.4 percent of stake. Stake caps rewards."
-                >
-                  <span class="kv-line"
-                    ><span class="pct num">5.9%</span> of fees</span
+                  <div class="state-sub">New stake earns, up to +2.5%</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="5.9 percent of fees, 3.4 percent of stake. Stake caps rewards."
                   >
-                  <span class="kv-line binding"
-                    ><span class="pct num">3.4%</span> of stake
-                    <span class="tag stake">caps rewards</span></span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap stake num">3.4%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">10.4%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">1,362,790</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$118K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">6%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">90% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line"
+                      ><span class="pct num">5.9%</span> of fees</span
+                    >
+                    <span class="kv-line binding"
+                      ><span class="pct num">3.4%</span> of stake
+                      <span class="tag stake">caps rewards</span></span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap stake num">3.4%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">10.4%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">1,362,790</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$118K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">6%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">90% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #2e3a5e">RX</span>
-                  <span
-                    ><span class="name">RockX</span><br /><span class="addr"
-                      >0x1b88…c3d4</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #2e3a5e">RX</span>
+                    <span
+                      ><span class="name">RockX</span><br /><span class="addr"
+                        >0x1b88…c3d4</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip stake"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9.5 4.5h4v4"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  Room to earn</span
-                >
-                <div class="state-sub">New stake earns, up to +0.8%</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="1.2 percent of fees, 0.4 percent of stake. Stake caps rewards."
-                >
-                  <span class="kv-line"
-                    ><span class="pct num">1.2%</span> of fees</span
+                  <div class="state-sub">New stake earns, up to +0.8%</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="1.2 percent of fees, 0.4 percent of stake. Stake caps rewards."
                   >
-                  <span class="kv-line binding"
-                    ><span class="pct num">0.4%</span> of stake
-                    <span class="tag stake">caps rewards</span></span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap stake num">0.4%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">6.9%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">158,946</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$23.6K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">20%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">85% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line"
+                      ><span class="pct num">1.2%</span> of fees</span
+                    >
+                    <span class="kv-line binding"
+                      ><span class="pct num">0.4%</span> of stake
+                      <span class="tag stake">caps rewards</span></span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap stake num">0.4%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">6.9%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">158,946</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$23.6K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">20%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">85% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #4a2e4a">C1</span>
-                  <span
-                    ><span class="name">Chorus One</span><br /><span
-                      class="addr"
-                      >0xad09…7e55</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #4a2e4a">C1</span>
+                    <span
+                      ><span class="name">Chorus One</span><br /><span
+                        class="addr"
+                        >0xad09…7e55</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip balanced"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M8 2.8v8"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M4 13h8"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M3 6.2h10"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Balanced</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip balanced"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M8 2.8v8"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M4 13h8"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M3 6.2h10"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  Balanced</span
-                >
-                <div class="state-sub">Fees and stake are level</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="2.8 percent of fees, 2.7 percent of stake. The two are level."
-                >
-                  <span class="kv-line"
-                    ><span class="pct num">2.8%</span> of fees</span
+                  <div class="state-sub">Fees and stake are level</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="2.8 percent of fees, 2.7 percent of stake. The two are level."
                   >
-                  <span class="kv-line"
-                    ><span class="pct num">2.7%</span> of stake</span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap balanced num">2.7%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">6.1%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">1,079,512</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$57.2K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">9%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">94% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line"
+                      ><span class="pct num">2.8%</span> of fees</span
+                    >
+                    <span class="kv-line"
+                      ><span class="pct num">2.7%</span> of stake</span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap balanced num">2.7%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">6.1%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">1,079,512</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$57.2K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">9%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">94% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #2e5e5e">ES</span>
-                  <span
-                    ><span class="name">Everstake</span><br /><span class="addr"
-                      >0x63f0…9a1b</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #2e5e5e">ES</span>
+                    <span
+                      ><span class="name">Everstake</span><br /><span
+                        class="addr"
+                        >0x63f0…9a1b</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip fee"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.2"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                      />
+                    </svg>
+                    Full</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip fee"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="5.2" fill="currentColor" />
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="5.2"
-                      stroke="currentColor"
-                      stroke-width="1.4"
-                    />
-                  </svg>
-                  Full</span
-                >
-                <div class="state-sub">Extra stake earns nothing</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="4.2 percent of fees, 6.8 percent of stake. Fees cap rewards."
-                >
-                  <span class="kv-line binding"
-                    ><span class="pct num">4.2%</span> of fees
-                    <span class="tag fee">caps rewards</span></span
+                  <div class="state-sub">New stake doesn’t lift the cap</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="4.2 percent of fees, 6.8 percent of stake. Fees cap rewards."
                   >
-                  <span class="kv-line"
-                    ><span class="pct num">6.8%</span> of stake</span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap fee num">4.2%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">3.4%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">2,718,064</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$84.8K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">10%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">97% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
+                    <span class="kv-line binding"
+                      ><span class="pct num">4.2%</span> of fees
+                      <span class="tag fee">caps rewards</span></span
+                    >
+                    <span class="kv-line"
+                      ><span class="pct num">6.8%</span> of stake</span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap fee num">4.2%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">3.4%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">2,718,064</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$84.8K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">10%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">97% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
 
-            <tr>
-              <td>
-                <div class="identity">
-                  <span class="avatar" style="background: #5e2e3a">FG</span>
-                  <span
-                    ><span class="name">Figment</span><br /><span class="addr"
-                      >0x2c7e…d608</span
-                    ></span
+              <tr>
+                <td>
+                  <div class="identity">
+                    <span class="avatar" style="background: #5e2e3a">FG</span>
+                    <span
+                      ><span class="name">Figment</span><br /><span class="addr"
+                        >0x2c7e…d608</span
+                      ></span
+                    >
+                  </div>
+                </td>
+                <td>
+                  <span class="chip fee"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.2"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                      />
+                    </svg>
+                    Full</span
                   >
-                </div>
-              </td>
-              <td>
-                <span class="chip fee"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="5.2" fill="currentColor" />
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="5.2"
-                      stroke="currentColor"
-                      stroke-width="1.4"
-                    />
-                  </svg>
-                  Full</span
-                >
-                <div class="state-sub">Extra stake earns nothing</div>
-              </td>
-              <td>
-                <div
-                  class="kv"
-                  role="img"
-                  aria-label="1.9 percent of fees, 4.6 percent of stake. Fees cap rewards."
-                >
-                  <span class="kv-line binding"
-                    ><span class="pct num">1.9%</span> of fees
-                    <span class="tag fee">caps rewards</span></span
+                  <div class="state-sub">New stake doesn’t lift the cap</div>
+                </td>
+                <td>
+                  <div
+                    class="kv"
+                    role="img"
+                    aria-label="1.9 percent of fees, 4.6 percent of stake. Fees cap rewards."
                   >
-                  <span class="kv-line"
-                    ><span class="pct num">4.6%</span> of stake</span
-                  >
-                </div>
-              </td>
-              <td class="num">
-                <span class="reward-cap fee num">1.9%</span>
-                <div class="cell-sub">of network rewards</div>
-              </td>
-              <td class="num ctx">
-                <span class="ctx-yield num">2.6%</span>
-                <div class="cell-sub">est. over 1Y</div>
-              </td>
-              <td class="num ctx ctx-stake">
-                <span class="ctx-val num">1,841,377</span>
-                <div class="cell-sub">LPT</div>
-              </td>
-              <td class="num ctx ctx-fees">
-                <span class="ctx-val num">$37.9K</span>
-                <div class="cell-sub">USDC</div>
-              </td>
-              <td class="num ctx ctx-keeps">
-                <span class="cell-main num">14%</span>
-                <span class="cell-sub">of rewards</span>
-                <div class="cell-sub num">98% of fees</div>
-              </td>
-              <td><button class="delegate-btn">Delegate</button></td>
-            </tr>
-          </tbody>
-        </table>
+                    <span class="kv-line binding"
+                      ><span class="pct num">1.9%</span> of fees
+                      <span class="tag fee">caps rewards</span></span
+                    >
+                    <span class="kv-line"
+                      ><span class="pct num">4.6%</span> of stake</span
+                    >
+                  </div>
+                </td>
+                <td class="num">
+                  <span class="reward-cap fee num">1.9%</span>
+                  <div class="cell-sub">of network rewards</div>
+                </td>
+                <td class="num ctx">
+                  <span class="ctx-yield num">2.6%</span>
+                  <div class="cell-sub">est. over 1Y</div>
+                </td>
+                <td class="num ctx ctx-stake">
+                  <span class="ctx-val num">1,841,377</span>
+                  <div class="cell-sub">LPT</div>
+                </td>
+                <td class="num ctx ctx-fees">
+                  <span class="ctx-val num">$37.9K</span>
+                  <div class="cell-sub">USDC</div>
+                </td>
+                <td class="num ctx ctx-keeps">
+                  <span class="cell-main num">14%</span>
+                  <span class="cell-sub">of rewards</span>
+                  <div class="cell-sub num">98% of fees</div>
+                </td>
+                <td><button class="delegate-btn">Delegate</button></td>
+              </tr>
+            </tbody>
+          </table>
 
-        <div class="table-foot">Loading state mirrors row height:</div>
-        <table aria-hidden="true">
-          <tbody>
-            <tr>
-              <td style="width: 18%">
-                <div class="sk" style="width: 140px"></div>
-              </td>
-              <td style="width: 15%">
-                <div class="sk" style="width: 96px"></div>
-              </td>
-              <td style="width: 15%">
-                <div class="sk" style="width: 130px"></div>
-              </td>
-              <td class="num">
-                <div class="sk" style="width: 44px; margin-left: auto"></div>
-              </td>
-              <td class="num ctx">
-                <div class="sk" style="width: 44px; margin-left: auto"></div>
-              </td>
-              <td class="num">
-                <div class="sk" style="width: 64px; margin-left: auto"></div>
-              </td>
-              <td class="num ctx-fees">
-                <div class="sk" style="width: 48px; margin-left: auto"></div>
-              </td>
-              <td class="num ctx-keeps">
-                <div class="sk" style="width: 40px; margin-left: auto"></div>
-              </td>
-              <td><div class="sk" style="width: 76px"></div></td>
-            </tr>
-          </tbody>
-        </table>
+          <div class="table-foot">Loading state mirrors row height:</div>
+          <table aria-hidden="true">
+            <tbody>
+              <tr>
+                <td style="width: 18%">
+                  <div class="sk" style="width: 140px"></div>
+                </td>
+                <td style="width: 15%">
+                  <div class="sk" style="width: 96px"></div>
+                </td>
+                <td style="width: 15%">
+                  <div class="sk" style="width: 130px"></div>
+                </td>
+                <td class="num">
+                  <div class="sk" style="width: 44px; margin-left: auto"></div>
+                </td>
+                <td class="num ctx">
+                  <div class="sk" style="width: 44px; margin-left: auto"></div>
+                </td>
+                <td class="num">
+                  <div class="sk" style="width: 64px; margin-left: auto"></div>
+                </td>
+                <td class="num ctx-fees">
+                  <div class="sk" style="width: 48px; margin-left: auto"></div>
+                </td>
+                <td class="num ctx-keeps">
+                  <div class="sk" style="width: 40px; margin-left: auto"></div>
+                </td>
+                <td><div class="sk" style="width: 76px"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <ul class="notes">
@@ -2639,7 +2669,7 @@
           </dl>
           <div class="m-foot">
             <div class="meta">
-              Extra stake earns <strong>nothing</strong> until fees rise
+              New stake doesn’t lift the cap until fees rise
             </div>
             <button class="delegate-btn">Delegate</button>
           </div>
@@ -2975,7 +3005,14 @@
         </div>
         <div class="pf-drawer" aria-hidden="true">
           <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
-          <span class="delegate-btn" role="presentation">Delegate</span>
+          <button
+            type="button"
+            class="delegate-btn"
+            data-drawer-focus
+            aria-label="Delegate from bottom drawer"
+          >
+            Delegate
+          </button>
         </div>
       </figure>
 
@@ -3022,7 +3059,7 @@
               </div>
             </div>
             <p class="mfs-outcome">
-              Extra stake earns nothing until fees catch up.
+              New stake doesn’t lift the reward cap until fees catch up.
             </p>
             <details class="split-disclosure">
               <summary>
@@ -3415,7 +3452,14 @@
         </div>
         <div class="pf-drawer" aria-hidden="true">
           <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
-          <span class="delegate-btn" role="presentation">Delegate</span>
+          <button
+            type="button"
+            class="delegate-btn"
+            data-drawer-focus
+            aria-label="Delegate from bottom drawer"
+          >
+            Delegate
+          </button>
         </div>
       </figure>
 
@@ -3648,13 +3692,28 @@
           .forEach(function (btn) {
             btn.addEventListener("click", function () {
               var rail = document.getElementById("frame-widget");
-              if (!input || !rail || rail.offsetParent === null) return;
+              var frame = btn.closest(".page-frame");
+              var drawer = frame && frame.querySelector(".pf-drawer");
               var reduce = window.matchMedia(
                 "(prefers-reduced-motion: reduce)"
               ).matches;
+              var behavior = reduce ? "auto" : "smooth";
+              /* Under 1200px the rail is hidden; open the bottom drawer path */
+              if (!rail || rail.offsetParent === null) {
+                if (!drawer) return;
+                drawer.setAttribute("aria-hidden", "false");
+                drawer.classList.add("is-open");
+                drawer.scrollIntoView({ block: "nearest", behavior: behavior });
+                var drawerFocus =
+                  drawer.querySelector("[data-drawer-focus]") ||
+                  drawer.querySelector("button, a, [tabindex]");
+                if (drawerFocus) drawerFocus.focus({ preventScroll: true });
+                return;
+              }
+              if (!input) return;
               rail.scrollIntoView({
                 block: "nearest",
-                behavior: reduce ? "auto" : "smooth",
+                behavior: behavior,
               });
               input.focus({ preventScroll: true });
             });

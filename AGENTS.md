@@ -82,7 +82,7 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 - MUST: Tabular numbers for comparisons (`font-variant-numeric: tabular-nums` or a mono like Geist Mono)
 - MUST: Redundant status cues (not color-only); icons have text labels
 - MUST: Don’t ship the schema—visuals may omit labels but accessible names still exist
-- MUST: Use the ellipsis character `…` (not ``)
+- MUST: Use the ellipsis character `…` (not `...`)
 - MUST: `scroll-margin-top` on headings for anchored links; include a “Skip to content” link; hierarchical `<h1–h6>`
 - MUST: Resilient to user-generated content (short/avg/very long)
 - MUST: Locale-aware dates/times/numbers/currency
