@@ -1,7 +1,13 @@
 "use client";
 
+import {
+  pollTitle,
+  toProposalId,
+  usePollDocument,
+} from "@/components/governance/model";
 import { useIdentity } from "@/components/identity";
 import { formatETH, formatLPT, fromWei, shortAddress } from "@/lib/format";
+import { useGovernance } from "@/lib/hooks/queries";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
 import type { ProposalAction } from "@/lib/safe/proposals";
 import { type SafeProposal, safeTxUrl } from "@/lib/safe/queue";
@@ -14,6 +20,31 @@ function WalletName({ address, label }: { address: string; label?: string }) {
     <span className="text-foreground">
       {label ?? name ?? shortAddress(address)}
     </span>
+  );
+}
+
+/** The treasury proposal being voted on, by title once governance loads. */
+function ProposalName({ id }: { id: bigint }) {
+  const { data } = useGovernance();
+  const p = data?.proposals.find((x) => toProposalId(x.id) === id);
+  return p ? (
+    <span className="text-foreground">{p.title}</span>
+  ) : (
+    <>a treasury proposal</>
+  );
+}
+
+/** The LIP poll being voted on, by its LIP title once it loads. */
+function PollName({ address }: { address: string }) {
+  const { data } = useGovernance();
+  const p = data?.polls.find(
+    (x) => x.id.toLowerCase() === address.toLowerCase()
+  );
+  const doc = usePollDocument(p?.proposal);
+  return p ? (
+    <span className="text-foreground">{pollTitle(p, doc.data)}</span>
+  ) : (
+    <>an LIP poll</>
   );
 }
 
@@ -51,7 +82,7 @@ function summary(actions: ProposalAction[]): React.ReactNode {
           <span className="text-foreground">
             {SUPPORT[main.support] ?? "on"}
           </span>{" "}
-          on a treasury proposal
+          on <ProposalName id={main.proposal} />
         </>
       );
     case "pollVote":
@@ -61,7 +92,7 @@ function summary(actions: ProposalAction[]): React.ReactNode {
           <span className="text-foreground">
             {main.choice === 0n ? "Yes" : "No"}
           </span>{" "}
-          on an LIP poll
+          on <PollName address={main.poll} />
         </>
       );
   }
