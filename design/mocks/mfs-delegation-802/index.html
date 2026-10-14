@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Helping people pick where to stake · Design review</title>
     <link rel="stylesheet" href="../shared/inter.css" />
     <style>
@@ -34,6 +37,9 @@
         --tomato11: #ff6b47;
         --radius: 12px;
         --radius-sm: 8px;
+        /* Shared account-page frame sizes (orchestrating + delegating) */
+        --pf-main: 720px;
+        --pf-rail: 320px;
       }
 
       * {
@@ -814,8 +820,8 @@
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
         padding: 24px;
-        /* Match the Orchestrating left column in .page-frame */
-        max-width: 600px;
+        /* Match .page-frame left column */
+        max-width: var(--pf-main);
       }
       /* Binding tint: soft top fade into panel */
       .mfs-block.theme-stake {
@@ -860,123 +866,70 @@
         margin-bottom: 16px;
       }
 
-      .mfs-sentence {
-        font-size: 15px;
-        line-height: 1.6;
-        color: var(--neutral11);
-        max-width: 62ch;
+      /* Wide-slot compare: twin tiles carry the numbers; one outcome line
+         carries what that means for new stake. No prose that restates both. */
+      .mfs-duo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 8px 0 10px;
+        padding-top: 10px;
+        overflow: visible;
       }
-      .mfs-sentence strong {
+      .mfs-duo .m-odd {
+        padding: 14px 14px 12px;
+      }
+      .mfs-duo .m-odd .pct {
+        font-size: 26px;
+      }
+      .mfs-outcome {
+        margin: 0 0 4px;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--neutral4);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 13.5px;
+        line-height: 1.45;
+        color: var(--neutral11);
+      }
+      .theme-stake .mfs-outcome {
+        border-color: rgba(165, 143, 255, 0.28);
+        background: rgba(110, 86, 207, 0.12);
         color: var(--hiContrast);
+      }
+      .theme-fee .mfs-outcome {
+        border-color: rgba(82, 169, 255, 0.28);
+        background: rgba(0, 145, 255, 0.12);
+        color: var(--hiContrast);
+      }
+      .mfs-outcome strong {
         font-weight: 650;
       }
-      .mfs-sentence .hl-stake {
+      .theme-stake .mfs-outcome strong {
         color: var(--stake11);
-        font-weight: 700;
       }
-      .mfs-sentence .hl-fee {
+      .theme-fee .mfs-outcome strong {
         color: var(--fee11);
-        font-weight: 700;
       }
 
-      /* min() comparison: two inputs, one result. No shared bar cut (that implies
-         "N% of each", which is the wrong story). */
-      .mfs-compare {
-        margin: 18px 0 4px;
-        border: 1px solid var(--neutral4);
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-        background: rgba(0, 0, 0, 0.2);
-      }
-      .mfs-compare-row {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-        align-items: center;
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--neutral4);
-      }
-      .mfs-compare-row:last-child {
-        border-bottom: 0;
-      }
-      .mfs-compare-row .name {
-        font-size: 13px;
-        color: var(--neutral11);
-      }
-      .mfs-compare-row .pct-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
-      }
-      .mfs-compare-row .pct {
-        font-size: 15px;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-      }
-      .mfs-compare-row .unit {
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--neutral8);
-      }
-      .mfs-compare-row.binding .name,
-      .mfs-compare-row.binding .pct {
-        color: var(--hiContrast);
-      }
-      .mfs-compare-row.binding .name {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .mfs-compare-row.result {
-        background: rgba(255, 255, 255, 0.03);
-      }
-      .theme-stake .mfs-compare-row.result {
-        background: rgba(110, 86, 207, 0.12);
-      }
-      .theme-fee .mfs-compare-row.result {
-        background: rgba(0, 145, 255, 0.12);
-      }
-      .theme-stake .mfs-compare-row.binding .pct {
-        color: var(--stake11);
-      }
-      .theme-fee .mfs-compare-row.binding .pct {
-        color: var(--fee11);
-      }
-      .theme-stake .mfs-compare-row.result .pct {
-        color: var(--stake11);
-      }
-      .theme-fee .mfs-compare-row.result .pct {
-        color: var(--fee11);
-      }
-      .mfs-compare-row .hint {
-        font-size: 12px;
-        color: var(--neutral10);
-        font-weight: 500;
-      }
-      .mfs-compare-row.result .name {
-        font-weight: 600;
-        color: var(--hiContrast);
-      }
-
-      /* Balanced cards skip the double bars: near-equal lengths add no decision. */
+      /* Balanced: one full-width level read, no fake twin race */
       .balance-summary {
         margin: 18px 0 4px;
-        padding: 12px 14px;
+        padding: 16px 18px;
         border-radius: var(--radius-sm);
         background: var(--neutral2);
         border: 1px solid var(--neutral3);
         display: flex;
         align-items: baseline;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
       }
       .balance-summary .approx {
-        font-size: 20px;
+        font-size: 28px;
         font-weight: 700;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
         color: var(--hiContrast);
+        line-height: 1;
       }
       .balance-summary .meta {
         font-size: 13px;
@@ -1141,10 +1094,9 @@
         text-decoration: underline;
       }
 
-      /* ---------- orchestrating page frame (preview of the real split) ----------
-         Live: account layout = left column (tabs + tab content) + sticky right rail
-         (DelegatingWidget, 40%). Orchestrating tab content is a 2-up grid of Stat
-         cards. Below 1200px the rail moves into a bottom drawer. */
+      /* ---------- account page frame (orchestrating + delegating) ----------
+         Live: left tab content + sticky right DelegatingWidget. Shared widths so
+         both section frames stay consistent. Below 1200px the rail is a drawer. */
       .page-frame {
         width: fit-content;
         max-width: 100%;
@@ -1195,8 +1147,10 @@
       }
       .pf-body {
         display: grid;
-        /* Left ~60% of the prior ~1000px stretch (~600). Rail stays compact. */
-        grid-template-columns: minmax(0, 600px) minmax(280px, 340px);
+        grid-template-columns: minmax(0, var(--pf-main)) minmax(
+            280px,
+            var(--pf-rail)
+          );
         gap: 20px;
         align-items: start;
         padding: 20px 24px 24px;
@@ -1435,10 +1389,14 @@
         gap: 20px;
         align-items: start;
       }
-      /* Same Orchestrating slot width as the framed card (600px), stacked */
+      /* Same slot width as the framed card, stacked */
       .variant-grid.mfs-states {
-        grid-template-columns: minmax(0, 600px);
-        max-width: 600px;
+        grid-template-columns: minmax(0, var(--pf-main));
+        max-width: var(--pf-main);
+      }
+      .variant-grid.mfs-states .stat-card {
+        max-width: none;
+        width: 100%;
       }
 
       /* ---------- delegating page stat ---------- */
@@ -1453,6 +1411,13 @@
         color: inherit;
         text-decoration: none;
         transition: border-color 0.15s ease;
+      }
+      /* Inside the account page frame, fill the Delegated With slot */
+      .pf-grid > .stat-card {
+        max-width: none;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
       }
       .stat-card:hover,
       .stat-card:focus-visible {
@@ -2818,46 +2783,27 @@
                   >
                 </div>
                 <div class="mfs-window">Last 7 settled rounds</div>
-                <p class="mfs-sentence">
-                  Earns <strong>11.8%</strong> of fees, backed by
-                  <strong>2.3%</strong> of stake. Rewards follow the smaller
-                  number, so they cap at <span class="hl-stake">2.3%</span>. New
-                  stake keeps earning until the two meet.
-                </p>
                 <div
-                  class="mfs-compare"
+                  class="mfs-duo"
                   role="img"
-                  aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Rewards equal the smaller number: 2.3 percent. New stake still earns, up to 9.5 percent."
+                  aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Stake caps rewards."
                 >
-                  <div class="mfs-compare-row">
-                    <span class="name">Fees</span>
-                    <span class="pct-wrap"
-                      ><span class="pct num">11.8%</span
-                      ><span class="unit">of network fees</span></span
-                    >
+                  <div class="m-odd fee">
+                    <span class="label">Fees</span>
+                    <span class="pct num">11.8%</span>
+                    <span class="unit">of network fees</span>
                   </div>
-                  <div class="mfs-compare-row binding">
-                    <span class="name"
-                      >Stake <span class="tag stake">caps rewards</span></span
-                    >
-                    <span class="pct-wrap"
-                      ><span class="pct num">2.3%</span
-                      ><span class="unit">of network stake</span></span
-                    >
-                  </div>
-                  <div class="mfs-compare-row result">
-                    <span class="name"
-                      >Rewards follow the smaller
-                      <span class="hint"
-                        >· new stake still earns, up to +9.5%</span
-                      ></span
-                    >
-                    <span class="pct-wrap"
-                      ><span class="pct num">2.3%</span
-                      ><span class="unit">of network rewards</span></span
-                    >
+                  <div class="m-odd stake binding">
+                    <span class="cap-tag">caps rewards</span>
+                    <span class="label">Stake</span>
+                    <span class="pct num">2.3%</span>
+                    <span class="unit">of network stake</span>
                   </div>
                 </div>
+                <p class="mfs-outcome">
+                  New stake still earns, up to <strong>+9.5%</strong>, until
+                  fees and stake meet.
+                </p>
                 <details class="split-disclosure">
                   <summary>
                     <span>Reward and fee breakdown</span>
@@ -3057,44 +3003,26 @@
               >
             </div>
             <div class="mfs-window">Last 7 settled rounds</div>
-            <p class="mfs-sentence">
-              Backed by <strong>6.8%</strong> of stake, earning
-              <strong>4.2%</strong> of fees. Rewards follow the smaller number,
-              so they cap at <span class="hl-fee">4.2%</span>. Extra stake earns
-              nothing.
-            </p>
             <div
-              class="mfs-compare"
+              class="mfs-duo"
               role="img"
-              aria-label="Fees 4.2 percent of network. Stake 6.8 percent of network. Rewards equal the smaller number: 4.2 percent. Extra stake earns nothing."
+              aria-label="Fees 4.2 percent of network. Stake 6.8 percent of network. Fees cap rewards."
             >
-              <div class="mfs-compare-row binding">
-                <span class="name"
-                  >Fees <span class="tag fee">caps rewards</span></span
-                >
-                <span class="pct-wrap"
-                  ><span class="pct num">4.2%</span
-                  ><span class="unit">of network fees</span></span
-                >
+              <div class="m-odd fee binding">
+                <span class="cap-tag">caps rewards</span>
+                <span class="label">Fees</span>
+                <span class="pct num">4.2%</span>
+                <span class="unit">of network fees</span>
               </div>
-              <div class="mfs-compare-row">
-                <span class="name">Stake</span>
-                <span class="pct-wrap"
-                  ><span class="pct num">6.8%</span
-                  ><span class="unit">of network stake</span></span
-                >
-              </div>
-              <div class="mfs-compare-row result">
-                <span class="name"
-                  >Rewards follow the smaller
-                  <span class="hint">· extra stake earns nothing</span></span
-                >
-                <span class="pct-wrap"
-                  ><span class="pct num">4.2%</span
-                  ><span class="unit">of network rewards</span></span
-                >
+              <div class="m-odd stake">
+                <span class="label">Stake</span>
+                <span class="pct num">6.8%</span>
+                <span class="unit">of network stake</span>
               </div>
             </div>
+            <p class="mfs-outcome">
+              Extra stake earns nothing until fees catch up.
+            </p>
             <details class="split-disclosure">
               <summary>
                 <span>Reward and fee breakdown</span>
@@ -3217,9 +3145,6 @@
               >
             </div>
             <div class="mfs-window">Last 7 settled rounds</div>
-            <p class="mfs-sentence">
-              Fees and stake are level. New stake earns only if fees grow too.
-            </p>
             <div
               class="balance-summary"
               role="img"
@@ -3232,6 +3157,7 @@
                 <span class="num">2.7%</span> stake</span
               >
             </div>
+            <p class="mfs-outcome">New stake earns only if fees grow too.</p>
             <details class="split-disclosure">
               <summary>
                 <span>Reward and fee breakdown</span>
@@ -3338,9 +3264,14 @@
           existing bottom drawer. No stepped flow that hides the box.
         </li>
         <li>
-          <strong>Same slot, other states:</strong> Full and Balanced are the
-          same width as the card in the page frame (~600px). Each one only swaps
-          that top slot; the rail and stats stay put.
+          <strong>Same slot, other states:</strong> Full and Balanced match the
+          framed card width (shared with the Delegating page frame). Each one
+          only swaps that top slot; the rail and stats stay put.
+        </li>
+        <li>
+          <strong>Wide-slot compare:</strong> twin fee/stake tiles carry the
+          numbers (same idea as mobile). One short outcome line says what that
+          means for new stake. No prose that restates the same %s again.
         </li>
         <li>
           <strong>Collapsed breakdown:</strong> the open question is whether
@@ -3362,15 +3293,138 @@
         <span class="section-route">/accounts/[account]/delegating</span>
       </div>
       <p class="section-description">
-        For anyone already bonded: one card that answers whether you are earning
-        on this node or sitting idle relative to its work. “Room to earn” stays
-        on the compare list for people still choosing. When you are full here,
-        the path forward returns to that list.
+        For anyone already bonded: replace the top-left
+        <strong>Delegated with</strong> slot on this page. Same two-column
+        layout and right-rail Delegate box; Stake, Pending fees, and Network
+        equity stay. The card says whether you are earning on this node or
+        sitting idle. “Room to earn” stays on the compare list for people still
+        choosing.
       </p>
 
-      <div class="variant-grid">
+      <div class="variant-label">Page frame · You’re earning</div>
+      <figure
+        class="page-frame"
+        aria-label="Illustration of the delegating page: the status card replaces Delegated with in the top-left slot; the Delegate box stays in the right rail"
+        style="margin: 0"
+      >
+        <div class="pf-account" aria-hidden="true">
+          <div class="identity">
+            <span class="avatar" style="background: #3a2e4a">BE</span>
+            <span
+              ><span class="name">beyondr.eth</span><br /><span class="addr"
+                >0x7f3d…a91c</span
+              ></span
+            >
+          </div>
+          <div class="pf-tabs">
+            <span aria-current="page">Delegating</span>
+            <span>History</span>
+          </div>
+        </div>
+        <div class="pf-body">
+          <div>
+            <span class="pf-tag" aria-hidden="true"
+              >Delegating tab · replaces Delegated with</span
+            >
+            <div class="pf-grid">
+              <a class="stat-card theme-stake" href="#">
+                <div class="top">
+                  <span class="title">Titan Node</span>
+                  <span class="chip stake"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    You’re earning</span
+                  >
+                </div>
+                <div class="d">
+                  You’re earning rewards on this node right now. Moving takes
+                  about 21&nbsp;days.
+                  <span style="color: var(--primary11)">View node →</span>
+                </div>
+              </a>
+              <div class="pf-stat">
+                <div class="label">Stake</div>
+                <div class="value num">48.08 LPT</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Pending fees</div>
+                <div class="value num">&lt; 0.001 ETH</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Network equity</div>
+                <div class="value num">0.000%</div>
+              </div>
+            </div>
+          </div>
+          <aside class="pf-rail" aria-label="Delegate">
+            <span class="pf-tag" aria-hidden="true"
+              >Delegate box · sticky right rail</span
+            >
+            <div class="dw">
+              <div class="dw-tabs" role="group" aria-label="Bond action">
+                <button type="button" aria-pressed="true">Delegate</button>
+                <button type="button" aria-pressed="false">Undelegate</button>
+              </div>
+              <label class="dw-label" for="delegating-amount"
+                ><span>Amount</span
+                ><span class="num">Balance 23.9 LPT</span></label
+              >
+              <div class="dw-input-row">
+                <input
+                  id="delegating-amount"
+                  class="dw-input"
+                  name="amount"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="0.0…"
+                />
+                <span class="dw-unit" aria-hidden="true">LPT</span>
+              </div>
+              <div class="dw-lines">
+                <div class="dw-line">
+                  <span>Forecasted yield (1Y)</span><span class="num">0%</span>
+                </div>
+                <div class="dw-line">
+                  <span>Inflationary rewards</span
+                  ><span class="num">0 LPT</span>
+                </div>
+                <div class="dw-line">
+                  <span>Fee share</span><span class="num">0 ETH</span>
+                </div>
+              </div>
+              <button type="button" class="dw-submit">Enter an amount</button>
+            </div>
+          </aside>
+        </div>
+        <div class="pf-drawer" aria-hidden="true">
+          <span>Under 1200px the Delegate box opens from a bottom drawer.</span>
+          <span class="delegate-btn" role="presentation">Delegate</span>
+        </div>
+      </figure>
+
+      <p class="variant-sub">
+        Same Delegated with slot, other state. Stake, fees, equity, and the
+        right rail stay put.
+      </p>
+      <div class="variant-grid mfs-states">
         <div>
-          <div class="variant-label">Not earning more from new work</div>
+          <div class="variant-label">Full · not lifting rewards</div>
           <a class="stat-card theme-fee" href="#">
             <div class="top">
               <span class="title">Everstake</span>
@@ -3397,39 +3451,27 @@
             </div>
           </a>
         </div>
-        <div>
-          <div class="variant-label">Earning on this node</div>
-          <a class="stat-card theme-stake" href="#">
-            <div class="top">
-              <span class="title">Titan Node</span>
-              <span class="chip stake"
-                ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M9.5 4.5h4v4"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                You’re earning</span
-              >
-            </div>
-            <div class="d">
-              You’re earning rewards on this node right now. Moving takes about
-              21&nbsp;days.
-              <span style="color: var(--primary11)">View node →</span>
-            </div>
-          </a>
-        </div>
       </div>
+
+      <ul class="notes">
+        <li>
+          <strong>Where it sits:</strong> replaces the top-left
+          <strong>Delegated with</strong> card on
+          <code>/accounts/[account]/delegating</code>. Stake, Pending fees, and
+          Network equity stay. The Delegate / Undelegate box stays in the right
+          rail (or the bottom drawer under 1200px).
+        </li>
+        <li>
+          <strong>Bonded language:</strong> use “You’re earning” / “Full” here,
+          not “Room to earn.” That phrase is for the compare list when someone
+          is still choosing a node.
+        </li>
+        <li>
+          <strong>Still a link:</strong> the card keeps linking to the node’s
+          orchestrating page (and to the compare list when full), so the market
+          stays one click away.
+        </li>
+      </ul>
     </section>
 
     <!-- ==================== 5. EDGE STATES ==================== -->
@@ -3581,7 +3623,8 @@
           <li>
             <strong>One vocabulary.</strong> List, mobile, and detail all mark
             the limiting side with “caps rewards,” and describe leftover room as
-            “new stake still earns, up to +X%.”
+            “new stake still earns, up to +X%.” Detail uses the same twin fee /
+            stake tiles as mobile, sized for the wide Orchestrating slot.
           </li>
         </ul>
       </div>

@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Voting Widget Preview</title>
     <link rel="stylesheet" href="../shared/inter.css" />
     <style>
@@ -330,7 +333,7 @@
         background: var(--neutral3);
         color: var(--hiContrast);
         font-family: inherit;
-        font-size: 13px;
+        font-size: 16px; /* avoids iOS focus zoom */
         resize: vertical;
         min-height: 60px;
       }
