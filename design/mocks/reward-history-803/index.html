@@ -1276,8 +1276,8 @@
                       <path d="M8 5v3.2l2 1.3" stroke-linecap="round" />
                     </svg>
                     <div>
-                      Worked in round <strong class="num">4210</strong> · Paid
-                      in round <strong class="num">4217</strong>
+                      Worked in round <strong class="num">4210</strong> ·
+                      Claimable in round <strong class="num">4217</strong>
                       <span class="help">
                         <button
                           type="button"
@@ -1292,10 +1292,10 @@
                           role="tooltip"
                           id="help-delay"
                         >
-                          Rewards for round R become claimable at R+7. The
-                          honesty factor used is the median score at claim time,
-                          so a one-round fee spike can still be zeroed before
-                          payout.
+                          Rewards for round R become claimable at R+7
+                          (RewardsDelayPeriod). The median RewardMultiplier at
+                          claim time scales the payout, so a one-round fee spike
+                          can still be zeroed before anyone claims.
                         </span>
                       </span>
                     </div>
@@ -1376,8 +1376,9 @@
                             id="help-mult"
                           >
                             Median RewardMultiplier from validators at claim
-                            time (0 to 1). This receipt shows the factor that
-                            already applied. Scoring product is issue 804.
+                            time (0 to 1). Scales for dishonest behavior (not
+                            QoS). This receipt shows the factor that already
+                            applied. Scoring product is issue 804.
                           </span>
                         </span></span
                       >
@@ -1832,9 +1833,9 @@
           delay.innerHTML =
             'Worked in round <strong class="num">' +
             r.work +
-            '</strong> · Paid in round <strong class="num">' +
+            '</strong> · Claimable in round <strong class="num">' +
             r.paid +
-            '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Rewards for round R become claimable at R+7. The honesty factor used is the median score at claim time.</span></span>';
+            '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Rewards for round R become claimable at R+7 (RewardsDelayPeriod). The median RewardMultiplier at claim time scales the payout.</span></span>';
 
           var steps = story.querySelectorAll(".step");
           steps[0].querySelector(".val").textContent = r.fee;
