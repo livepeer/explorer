@@ -2,7 +2,6 @@ FROM node:24 AS builder
 WORKDIR /app
 RUN corepack enable
 
-ARG CHANGEFEED_ACCESS_TOKEN
 ARG GITHUB_ACCESS_TOKEN
 ARG LIVEPEER_COM_API_ADMIN_TOKEN
 ARG PINATA_JWT
@@ -19,8 +18,7 @@ ARG NEXT_PUBLIC_METRICS_SERVER_URL=https://leaderboard-serverless.vercel.app
 ARG NEXT_PUBLIC_AI_METRICS_SERVER_URL=https://leaderboard-api.livepeer.cloud
 
 # Step 5: Create .env file with substituted values
-RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
-    echo "GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}" >> .env && \
+RUN echo "GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}" >> .env && \
     echo "LIVEPEER_COM_API_ADMIN_TOKEN=${LIVEPEER_COM_API_ADMIN_TOKEN}" >> .env && \
     echo "PINATA_JWT=${PINATA_JWT}" >> .env && \
     echo "NEXT_PUBLIC_GA_TRACKING_ID=${NEXT_PUBLIC_GA_TRACKING_ID}" >> .env && \
