@@ -3,7 +3,6 @@ import {
   AvailablePipelines,
   Pipeline,
 } from "@lib/api/types/get-available-pipelines";
-import { GetChangefeed } from "@lib/api/types/get-changefeed";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
@@ -66,12 +65,6 @@ export const useChartData = () => {
 
 export const useProtocolDayData = () => {
   const { data } = useSWR<ProtocolDayData>(`/protocol-day-data`);
-
-  return data ?? null;
-};
-
-export const useChangefeedData = () => {
-  const { data } = useSWR<GetChangefeed>(`/changefeed`);
 
   return data ?? null;
 };
