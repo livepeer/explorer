@@ -2,7 +2,8 @@
 
 Decision for [livepeer/explorer#803](https://github.com/livepeer/explorer/issues/803). Grounded in the September 2026 Livepeer 2.0 litepaper draft, the current Explorer account tabs, and the boundary set by [802](https://github.com/livepeer/explorer/issues/802). [804](https://github.com/livepeer/explorer/issues/804) (validator UX) stays out, except that a past payout may show the median `RewardMultiplier` as one historical factor.
 
-Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). Litepaper draft lives beside the 802 mock: [`../mfs-delegation-802/Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](../mfs-delegation-802/Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
+Protocol KV: [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md) (prefer over inventing; do not counter the PDF).  
+Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). PDF: [`../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
 
 ## Where it lives
 
@@ -12,13 +13,13 @@ Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](.
 
 **Do not relocate the 802 card onto History and hang a round list under it.** That reads as “current status, plus some history tacked on,” which is nonsense on a History tab. History leads with the past (a list of settled rounds). Selecting a row opens a **receipt** for that round only: which share capped rewards, delay, honesty factor, cut, your share. Live compare stays one click away on Orchestrating.
 
-| Surface                                                                                                       | Role for 803                                                                                                                                                                                          |
-| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`/accounts/[account]/history`](../../../pages/accounts/[account]/history.tsx) on the **node** (orchestrator) | **Primary.** **Rewards** mode as master-detail: rounds list                                                                                                                                           | receipt (wide), list → drill-in receipt (narrow). Keep today’s chronological tx feed as **Transactions** on the same tab. Deep-link: `?mode=rewards&round=N` (optional `?as=delegatorAddress`). |
-| [`/accounts/[account]/orchestrating`](../../../pages/accounts/[account]/orchestrating.tsx)                    | **Keeps the 802 status card.** Entry only for 803: “Rewards are paid about a week after the round” → this node’s History · Rewards (selects a settled round). No past-round table here.               |
-| [`/accounts/[account]/delegating`](../../../pages/accounts/[account]/delegating.tsx)                          | **Entry only.** Bonded card keeps current 802 state. One past line (“Round N paid you X LPT · Why?”) opens the **delegate node’s** History · Rewards receipt. Optional `?as=` for the personal share. |
-| Own-account History when the viewer is only a delegator                                                       | **Light.** Claim rows deep-link to the node’s round receipt. Derivation always lives on the node.                                                                                                     |
-| Home, `/orchestrators`, Delegators tab                                                                        | **Out.** Dashboard / market / roster.                                                                                                                                                                 |
+| Surface                                                                                                       | Role for 803                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`/accounts/[account]/history`](../../../pages/accounts/[account]/history.tsx) on the **node** (orchestrator) | **Primary.** **Rewards** mode as master-detail: rounds list / receipt (wide), list → drill-in receipt (narrow). Keep today’s chronological tx feed as **Transactions**. Deep-link: `?mode=rewards&round=N` (optional `?as=delegatorAddress`). |
+| [`/accounts/[account]/orchestrating`](../../../pages/accounts/[account]/orchestrating.tsx)                    | **Keeps the 802 status card.** Entry only for 803: “Rewards are paid about a week after the round” → this node’s History · Rewards (selects a settled round). No past-round table here.                                                       |
+| [`/accounts/[account]/delegating`](../../../pages/accounts/[account]/delegating.tsx)                          | **Entry only.** Bonded card keeps current 802 state. One past line (“Round N paid you X LPT · Why?”) opens the **delegate node’s** History · Rewards receipt. Optional `?as=` for the personal share.                                         |
+| Own-account History when the viewer is only a delegator                                                       | **Light.** Claim rows deep-link to the node’s round receipt. Derivation always lives on the node.                                                                                                                                             |
+| Home, `/orchestrators`, Delegators tab                                                                        | **Out.** Dashboard / market / roster.                                                                                                                                                                                                         |
 
 Do not add a top-level “Rewards” product page. Today’s History tab is only a tx chronology (`components/HistoryView/`); that feed lists `RewardEvent` amounts without saying what capped them. 803 reuses the tab for past _rewards_, not for a second live MFS card.
 
@@ -26,7 +27,7 @@ Do not add a top-level “Rewards” product page. Today’s History tab is only
 
 Wrong: History = 802 status card on top + “recent rounds” below.  
 Right: History = settled rounds list on top + past-tense receipt for the selected round.  
-802 vocabulary (“Room to earn”, “Full”) stays on Orchestrating / Delegating. Receipts say “Round N · capped by stake/fees” and tag the binding step “capped rewards.”
+802 vocabulary (“Room to earn”, “Full”) stays on Orchestrating / Delegating. Receipt title is just “Round N”; status is wash + list meta + binding tag “capped rewards.”
 
 ### Why this beats the alternatives
 
@@ -83,10 +84,10 @@ Fees in USDC are a separate pot. They are never capped by stake. This surface ma
 
 Plain labels in chrome (History / receipt):
 
-- Title → “Round N · capped by stake” / “capped by fees” / “fees and stake in balance”. Past tense. **Not** “Room to earn” / “Full” (those are 802 live states).
+- Title → “Round N” only. Cap status lives in wash color, list meta, and the binding-step tag. **Not** “Room to earn” / “Full” (802 live states).
 - Tag on the binding step → “capped rewards” (same idea as 802’s “caps rewards”, past tense).
 - Multiplier → “Honesty score at payout” with the 0–1 factor; no validator product.
-- Delay → “Worked in round R · Paid in round R+7”.
+- Delay → “Worked in round R · Claimable in round R+7” (litepaper: claimable at `R+7`; list meta may still say “paid” as shorthand for settled).
 
 No jargon in visible labels: no “MFS”, no “headroom”, no “binding constraint”. Formula and parameter names live in tooltips and this doc.
 
@@ -124,7 +125,7 @@ Subgraph was not reachable from this environment without `NEXT_PUBLIC_SUBGRAPH_A
 | Input                          | Value                     | Notes                                                           |
 | ------------------------------ | ------------------------- | --------------------------------------------------------------- |
 | Work round `R`                 | 4210                      |                                                                 |
-| Paid round                     | 4217                      | `R + 7` (`RewardsDelayPeriod`)                                  |
+| Claimable round                | 4217                      | `R + 7` (`RewardsDelayPeriod`)                                  |
 | Node                           | Titan Node (illustrative) |                                                                 |
 | Fee share                      | 11.8%                     | blue                                                            |
 | Stake share                    | 2.3%                      | green; **smaller → caps rewards**                               |
@@ -165,8 +166,56 @@ Today’s History queries `rewardEvents { rewardTokens, round, delegate }` and m
 
 1. **APY / realized return %.** Ticket asked for delegator APY. 802 already flagged emissions as an unfinished draft. **Recommended default:** show LPT amounts and share math only; do not ship APY or “% return” until emissions are fixed. Flag for @ECWireless.
 2. **History default mode.** **Recommended default:** `Rewards` when the account is an orchestrator (or when `?mode=rewards`); `Transactions` when the account has no node history. Confirm with stakeholders who still live in the tx feed.
-3. **Claim vs auto-distribute.** Litepaper says rewards become claimable after 7 rounds. Exact wallet UX for claim may change how “Paid in round R+7” is worded. Design assumes claimable-at / paid-at are the same round for copy; adjust if claiming is a separate user action shown in Transactions.
+3. **Claim vs auto-distribute.** Litepaper: claimable at `R+7`. Mock chrome now says **Claimable in round R+7**. If product later auto-distributes, list meta can stay “paid”; adjust if claim is a separate Transactions action.
 4. **`transferBond` / 21-round move** stays an 802 copy concern, not a column here.
+
+## Litepaper assessment (803 vs cliff notes)
+
+Checked against [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md). Do not counter the PDF.
+
+| Litepaper fact                        | 803 mock / rationale                                                | Verdict |
+| ------------------------------------- | ------------------------------------------------------------------- | ------- |
+| `reward % = min(fee%, stake%)`        | Receipt steps 1–3; “rewards follow the smaller number”; binding tag | Pass    |
+| Fees never stake-capped               | Footnote on fee step + cut block (“USDC… never capped by stake”)    | Pass    |
+| LPT capped by stake share             | Wash + list meta + binding tag (not restated in the H3)             | Pass    |
+| `RewardsDelayPeriod` = 7 rounds       | Worked R · Claimable R+7; tooltip names the parameter               | Pass    |
+| Multiplier = median at **claim** time | Step 5 + delay tooltip; retroactive / can zero a fee spike          | Pass    |
+| Multiplier ≠ QoS                      | Honesty tooltip: dishonest behavior, not QoS; product = 804         | Pass    |
+| Cut then pro-rata by stake            | Steps after pool; reader toggle for node kept vs delegator share    | Pass    |
+| Emissions draft / no dollar APY       | Share math only; pot labeled illustrative in this doc, not chrome   | Pass    |
+| NodeEmissionShare 94% of mint         | “Of that round’s node emissions pot” (sample pot); not shown as APY | Pass    |
+| Past vs live (802 boundary)           | History = settled rounds; Orchestrating keeps “Room to earn”        | Pass    |
+| Claimable vs “paid” wording           | Was “Paid in round”; now **Claimable** to match litepaper           | Fixed   |
+
+**Still open (need human):** APY (Q1), History default mode (Q2), whether claim is a user action separate from claimable-at (Q3).
+
+## Narrative + 802 boundary
+
+- **Do not reprint 802.** Entry points live in the 802 mock. Link only.
+- **Don’t bury the lead.** Receipt: amount → why → derivation disclosure → next step → 802 for today.
+- List rows: round + status chip + amount. Title is just `Round N`.
+
+## Status icons (shared with 802)
+
+Canonical SVGs: [`../shared/mfs-status-icons.md`](../shared/mfs-status-icons.md).
+
+- Stake binding (past **Stake capped** = live **Room to earn**): trend-up arrow
+- Fee binding (past **Fees capped** = live **Full**): filled circle
+- Do not invent per-ticket icons
+
+## Accessibility (APG / AGENTS.md)
+
+Mock implements these; product must keep them:
+
+| Concern                     | Pattern in mock                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Screen reader selection     | `radiogroup` + `role="radio"` for History mode, reader, and round list; arrow/Home/End + roving `tabindex` |
+| Selection change            | `aria-live="polite"` announces round, cap side, and amount                                                 |
+| Colorblind / not color-only | Chip = icon + label + border; selected row uses inset bar + weight, not green wash alone                   |
+| Focus                       | Visible `:focus-visible`; mobile drill-in moves focus to receipt; Back restores focus to selected round    |
+| Help                        | `?` buttons ≥24px hit target; tooltip on `:focus-within` / hover via `aria-describedby`                    |
+| Motion                      | `prefers-reduced-motion` → no smooth scroll                                                                |
+| Semantics                   | Prefer native/`radiogroup` over fake `listbox`; decorative SVG `aria-hidden`                               |
 
 ## Acceptance
 
