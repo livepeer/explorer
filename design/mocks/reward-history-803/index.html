@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Why this payout · Design review</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --panel: #141414;
+        --neutral2: #191919;
+        --neutral3: #1f1f1f;
+        --neutral4: #2a2a2a;
+        --neutral5: #333333;
+        --neutral6: #3d3d3d;
+        --neutral8: #6b6b6b;
+        --neutral10: #8f8f8f;
+        --neutral11: #a0a0a0;
+        --hiContrast: #ffffff;
+        --primary4: #113123;
+        --primary11: #4cc38a;
+        /* Quantity colors from livepeer.org/brand: blue = fees, green = stake */
+        --fee3: #0c222c;
+        --fee9: #146a8f;
+        --fee11: #25abd0;
+        --stake3: #0f241c;
+        --stake9: #18794e;
+        --stake11: #4cc38a;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --pf-main: 720px;
+        --pf-rail: 320px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--hiContrast);
+        padding: 40px;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 8px 12px;
+        background: var(--hiContrast);
+        color: var(--bg);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+
+      .page-head {
+        margin-bottom: 48px;
+        max-width: 860px;
+      }
+
+      .status-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: var(--neutral3);
+        color: var(--neutral11);
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+
+      .issue-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--primary11);
+        text-decoration: none;
+        margin-right: 16px;
+        margin-bottom: 12px;
+      }
+      .issue-link:hover {
+        text-decoration: underline;
+      }
+
+      .page-head p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--neutral11);
+        max-width: 65ch;
+      }
+      .page-head p + p {
+        margin-top: 8px;
+      }
+      .page-head strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .page-head code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        background: var(--neutral3);
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: var(--hiContrast);
+      }
+
+      .swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 1px;
+        padding: 2px 8px 2px 4px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        vertical-align: 1px;
+        white-space: nowrap;
+      }
+      .swatch i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .swatch.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+      .swatch.fee i {
+        background: var(--fee9);
+      }
+      .swatch.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .swatch.stake i {
+        background: var(--stake9);
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      .section {
+        margin-bottom: 64px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--neutral4);
+        flex-wrap: wrap;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        scroll-margin-top: 16px;
+      }
+
+      .section-route {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--neutral10);
+      }
+
+      .section-badge {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--primary4);
+        color: var(--primary11);
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--neutral11);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        max-width: 72ch;
+      }
+
+      .notes {
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.7;
+        max-width: 72ch;
+      }
+      .notes li {
+        margin-left: 20px;
+        margin-bottom: 4px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .chip svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+      }
+      .chip.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .chip.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+      .chip.balanced {
+        background: var(--neutral3);
+        color: var(--neutral11);
+      }
+
+      .tag {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        margin-left: 6px;
+        vertical-align: 1px;
+        white-space: nowrap;
+      }
+      .tag.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+      }
+      .tag.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+      }
+
+      .help {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+        vertical-align: 1px;
+      }
+      .tooltip-dot {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        padding: 0;
+        border-radius: 50%;
+        border: 1px solid var(--neutral6);
+        background: transparent;
+        color: var(--neutral10);
+        font: inherit;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: help;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .tooltip-dot::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+      }
+      @media (max-width: 720px) {
+        .tooltip-dot::before {
+          inset: -13px;
+        }
+      }
+      .tooltip-help {
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        z-index: 30;
+        width: max-content;
+        max-width: 260px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--neutral5);
+        background: var(--neutral2);
+        color: var(--neutral11);
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.45;
+        white-space: normal;
+        text-align: left;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        transform: translateX(-50%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.12s ease, visibility 0.12s ease;
+      }
+      .help:hover .tooltip-help,
+      .help:focus-within .tooltip-help {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Account frame — wide enough for History master-detail */
+      .pf {
+        max-width: min(1120px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .pf-top {
+        padding: 18px 20px 0;
+        border-bottom: 1px solid var(--neutral4);
+      }
+      .pf-identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #3d2a6d, #1a4a6e);
+        color: var(--hiContrast);
+        flex-shrink: 0;
+      }
+      .pf-identity .name {
+        font-size: 16px;
+        font-weight: 650;
+      }
+      .pf-identity .addr {
+        font-size: 12px;
+        color: var(--neutral8);
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      .pf-tabs {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .pf-tabs a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 12px 10px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--neutral11);
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+        margin-bottom: -1px;
+      }
+      .pf-tabs a:hover {
+        color: var(--hiContrast);
+      }
+      .pf-tabs a[aria-current="page"] {
+        color: var(--hiContrast);
+        border-bottom-color: var(--primary11);
+        font-weight: 600;
+      }
+      .pf-body {
+        padding: 20px;
+      }
+
+      .mode-seg {
+        display: inline-flex;
+        background: var(--neutral3);
+        border-radius: 8px;
+        padding: 3px;
+        margin-bottom: 18px;
+        gap: 2px;
+      }
+      .mode-seg button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--neutral11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        min-height: 36px;
+        touch-action: manipulation;
+      }
+      .mode-seg button[aria-pressed="true"] {
+        background: var(--neutral5);
+        color: var(--hiContrast);
+      }
+      .mode-seg button:hover {
+        color: var(--hiContrast);
+      }
+
+      /* Master-detail: list | receipt on wide; mobile swaps panes */
+      .md-split {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); /* 40 / 60 */
+        gap: 20px;
+        align-items: start;
+      }
+      .md-list {
+        min-width: 0;
+      }
+      .md-list > h3 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral10);
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+      }
+      .md-detail {
+        min-width: 0;
+        position: sticky;
+        top: 16px;
+      }
+      .md-back {
+        display: none;
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--primary11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 0 0 12px;
+        min-height: 44px;
+        cursor: pointer;
+        touch-action: manipulation;
+        align-items: center;
+        gap: 6px;
+      }
+      .md-back:hover {
+        text-decoration: underline;
+      }
+      .md-back svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .receipt-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--neutral10);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin: 0 0 10px;
+      }
+      .receipt .story-top h3 {
+        font-size: 15px;
+      }
+      /* Receipt is quieter than 802's live status card: no market chip, flatter wash */
+      .receipt.story {
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 860px) {
+        .md-split {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .md-detail {
+          position: static;
+        }
+        .md-back {
+          display: inline-flex;
+        }
+        /* Mobile: list OR receipt, not both (master-detail drill-in) */
+        .md-split[data-mobile-pane="list"] .md-detail {
+          display: none;
+        }
+        .md-split[data-mobile-pane="detail"] .md-list {
+          display: none;
+        }
+      }
+
+      .reader-seg {
+        display: inline-flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .reader-seg button {
+        appearance: none;
+        border: 1px solid var(--neutral5);
+        background: var(--neutral2);
+        color: var(--neutral11);
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 7px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        min-height: 32px;
+        touch-action: manipulation;
+      }
+      .reader-seg button[aria-pressed="true"] {
+        border-color: rgba(76, 195, 138, 0.35);
+        background: var(--primary4);
+        color: var(--primary11);
+      }
+
+      .story {
+        border: 1px solid rgba(24, 121, 78, 0.28);
+        border-radius: var(--radius);
+        background: linear-gradient(
+            180deg,
+            rgba(24, 121, 78, 0.16) 0%,
+            rgba(24, 121, 78, 0.06) 42%,
+            rgba(24, 121, 78, 0) 78%
+          ),
+          var(--neutral2);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .story.theme-fee {
+        border-color: rgba(37, 171, 208, 0.28);
+        background: linear-gradient(
+            180deg,
+            rgba(37, 171, 208, 0.14) 0%,
+            rgba(37, 171, 208, 0.05) 42%,
+            rgba(37, 171, 208, 0) 78%
+          ),
+          var(--neutral2);
+      }
+      .story-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .story-top h3 {
+        font-size: 16px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        flex: 1;
+        min-width: 180px;
+      }
+      .story-lede {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        margin-bottom: 16px;
+        max-width: 58ch;
+      }
+      .story-lede strong {
+        color: var(--hiContrast);
+        font-weight: 650;
+      }
+      .theme-stake .story-lede strong.cap {
+        color: var(--stake11);
+      }
+      .theme-fee .story-lede strong.cap {
+        color: var(--fee11);
+      }
+
+      .delay-row {
+        display: grid;
+        grid-template-columns: 16px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--neutral4);
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral11);
+        margin-bottom: 16px;
+      }
+      .delay-row svg {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        color: var(--neutral10);
+      }
+      .delay-row strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+
+      .steps {
+        display: grid;
+        gap: 0;
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        background: rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 10px;
+        align-items: baseline;
+        padding: 12px 14px;
+        border-top: 1px solid var(--neutral4);
+        font-size: 13px;
+      }
+      .step:first-child {
+        border-top: 0;
+      }
+      .step .n {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--neutral8);
+      }
+      .step .label {
+        color: var(--neutral11);
+        line-height: 1.4;
+      }
+      .step .label .who {
+        color: var(--neutral10);
+      }
+      .step .val {
+        font-weight: 650;
+        color: var(--hiContrast);
+        text-align: right;
+        white-space: nowrap;
+      }
+      .step.binding .val {
+        text-decoration: underline dotted;
+        text-underline-offset: 3px;
+      }
+      .step.result {
+        background: rgba(24, 121, 78, 0.12);
+      }
+      .theme-fee .step.result {
+        background: rgba(37, 171, 208, 0.12);
+      }
+      .step.result .val {
+        color: var(--stake11);
+      }
+      .theme-fee .step.result .val {
+        color: var(--fee11);
+      }
+      .step.muted .val {
+        color: var(--neutral11);
+        font-weight: 600;
+      }
+
+      .payout {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--neutral4);
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .payout .kicker {
+        font-size: 12px;
+        color: var(--neutral10);
+        margin-bottom: 4px;
+      }
+      .payout .amt {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+      .payout .hint {
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.45;
+        max-width: 52ch;
+      }
+      .payout .hint a {
+        color: var(--primary11);
+        text-decoration: none;
+      }
+      .payout .hint a:hover {
+        text-decoration: underline;
+      }
+
+      .next {
+        margin-top: 14px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px dashed var(--neutral5);
+      }
+      .next strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+
+      .split-disclosure {
+        margin-top: 14px;
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .split-disclosure > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        user-select: none;
+      }
+      .split-disclosure > summary::-webkit-details-marker {
+        display: none;
+      }
+      .split-disclosure > summary .chev {
+        width: 16px;
+        height: 16px;
+        color: var(--neutral8);
+        flex-shrink: 0;
+        transition: transform 0.12s ease;
+      }
+      .split-disclosure[open] > summary .chev {
+        transform: rotate(180deg);
+      }
+      .split-disclosure[open] > summary {
+        border-bottom: 1px solid var(--neutral4);
+      }
+      .split-stack {
+        padding: 4px 14px 12px;
+      }
+      .split-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: baseline;
+        padding: 6px 0;
+        font-size: 13px;
+        color: var(--neutral11);
+      }
+      .split-row .amt {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+      .split-note {
+        font-size: 11.5px;
+        color: var(--neutral8);
+        line-height: 1.45;
+        padding-bottom: 2px;
+      }
+
+      /* Match HistoryView: stacked Cards, not a mail-client list chrome */
+      .round-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 0;
+        background: transparent;
+      }
+      .round-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid var(--neutral3);
+        border-radius: var(--radius-sm);
+        background: var(--neutral2);
+        text-decoration: none;
+        color: inherit;
+        width: 100%;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+        min-height: 52px;
+      }
+      .round-row:hover {
+        border-color: var(--neutral5);
+      }
+      .round-row[aria-current="true"],
+      .round-row[aria-selected="true"] {
+        border-color: rgba(76, 195, 138, 0.45);
+        background: rgba(76, 195, 138, 0.06);
+      }
+      .round-row:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+      }
+      .round-row .main {
+        min-width: 0;
+        flex: 1;
+      }
+      .round-row .rid {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--hiContrast);
+        line-height: 1.3;
+      }
+      .round-row .meta {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--neutral11);
+        line-height: 1.4;
+      }
+      .round-row .pay {
+        flex-shrink: 0;
+        font-weight: 500;
+        font-size: 14px;
+        white-space: nowrap;
+        color: var(--hiContrast);
+        margin-top: 1px;
+      }
+
+      .tx-demo {
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        opacity: 0.72;
+      }
+      .tx-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-top: 1px solid var(--neutral4);
+      }
+      .tx-card:first-child {
+        border-top: 0;
+      }
+      .tx-card .t {
+        font-weight: 500;
+        font-size: 13.5px;
+      }
+      .tx-card .s {
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--neutral10);
+      }
+      .tx-card .a {
+        font-weight: 650;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      .anti {
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: var(--neutral10);
+        line-height: 1.5;
+        max-width: 60ch;
+      }
+
+      /* Entry point frames */
+      .entry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+      .entry-card {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 18px;
+      }
+      .entry-card .route {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--neutral10);
+        margin-bottom: 10px;
+      }
+      .entry-card h3 {
+        font-size: 15px;
+        font-weight: 650;
+        margin-bottom: 8px;
+      }
+      .lockup-note {
+        display: grid;
+        grid-template-columns: 16px 1fr;
+        column-gap: 10px;
+        align-items: start;
+        margin-top: 12px;
+        padding: 12px 14px;
+        background: rgba(24, 121, 78, 0.1);
+        border: 1px solid rgba(24, 121, 78, 0.28);
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        line-height: 1.55;
+        color: #c4b5fd;
+      }
+      .lockup-note a {
+        color: var(--primary11);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .lockup-note a:hover {
+        text-decoration: underline;
+      }
+      .stat-mini {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(24, 121, 78, 0.28);
+        background: linear-gradient(
+            180deg,
+            rgba(24, 121, 78, 0.14) 0%,
+            rgba(24, 121, 78, 0) 80%
+          ),
+          var(--neutral2);
+      }
+      .stat-mini .top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .stat-mini .title {
+        font-size: 14px;
+        font-weight: 650;
+      }
+      .stat-mini .d {
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.5;
+      }
+      .stat-mini .d a {
+        color: var(--primary11);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .stat-mini .d a:hover {
+        text-decoration: underline;
+      }
+
+      .place-table {
+        width: 100%;
+        max-width: 860px;
+        border-collapse: collapse;
+        font-size: 13.5px;
+        line-height: 1.45;
+      }
+      .place-table th,
+      .place-table td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--neutral4);
+        vertical-align: top;
+      }
+      .place-table th {
+        color: var(--neutral10);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .place-table td:first-child {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--hiContrast);
+        white-space: nowrap;
+      }
+      .place-table .role {
+        color: var(--neutral11);
+      }
+      .place-table .primary-row td {
+        background: rgba(76, 195, 138, 0.06);
+      }
+
+      .illus {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: var(--neutral3);
+        color: var(--neutral10);
+        margin-left: 6px;
+        vertical-align: 2px;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 20px 16px 48px;
+        }
+        .step {
+          grid-template-columns: 22px 1fr;
+        }
+        .step .val {
+          grid-column: 2;
+          text-align: left;
+          margin-top: 2px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tooltip-help,
+        .split-disclosure > summary .chev,
+        a,
+        button {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#primary">Skip to content</a>
+
+    <header class="page-head">
+      <span class="status-pill">Design review · mockups only</span>
+      <h1>Why this payout</h1>
+      <a
+        class="issue-link"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+      >
+        Issue #803 ↗
+      </a>
+      <a class="issue-link" href="#placement">Where it lives ↓</a>
+      <a class="issue-link" href="./803-reward-history-ux.md">Rationale ↗</a>
+      <p>
+        802’s status card lives on Orchestrating (current fee vs stake). This
+        ticket is History: a list of
+        <strong>past payouts</strong>, then a receipt for the round you pick.
+        Not the same card moved downstairs.
+      </p>
+      <p>
+        Primary home is the
+        <strong>node’s History · Rewards</strong> mode. Orchestrating and
+        Delegating only deep-link in. Today’s transaction feed stays, demoted.
+      </p>
+      <p>
+        Color maps quantity.
+        <span class="swatch fee" title="Fees"
+          ><i aria-hidden="true"></i>Fees</span
+        >
+        and
+        <span class="swatch stake" title="Stake"
+          ><i aria-hidden="true"></i>Stake</span
+        >
+        stay fixed. Sample numbers until 2.0 round shares land in the subgraph
+        (math is spelled out in the rationale).
+      </p>
+    </header>
+
+    <!-- ==================== PRIMARY ==================== -->
+    <section class="section" aria-labelledby="primary">
+      <div class="section-header">
+        <h2 class="section-title" id="primary">Node History · Rewards</h2>
+        <span class="section-route"
+          >/accounts/[node]/history?mode=rewards&amp;round=4210</span
+        >
+        <span class="section-badge">Primary</span>
+      </div>
+      <p class="section-description">
+        Wide: rounds on the left, receipt on the right (sticky). Narrow: list
+        first; tapping a round drills into the receipt with a back control.
+        Receipt is past-tense archaeology only, not 802’s live status card.
+      </p>
+
+      <div class="pf" aria-label="Account page mock">
+        <div class="pf-top">
+          <div class="pf-identity">
+            <span class="avatar" aria-hidden="true">TN</span>
+            <div>
+              <div class="name">Titan Node</div>
+              <div class="addr">0x7a1b…c4e2</div>
+            </div>
+          </div>
+          <nav class="pf-tabs" aria-label="Account sections">
+            <a href="#entry-orch">Orchestrating</a>
+            <a href="#entry-deleg">Delegating</a>
+            <a href="#primary" aria-current="page">History</a>
+            <a href="#primary">Delegators</a>
+          </nav>
+        </div>
+        <div class="pf-body">
+          <div
+            class="mode-seg"
+            role="group"
+            aria-label="History mode"
+            id="mode-seg"
+          >
+            <button type="button" aria-pressed="true" data-mode="rewards">
+              Rewards
+            </button>
+            <button type="button" aria-pressed="false" data-mode="tx">
+              Transactions
+            </button>
+          </div>
+
+          <div id="panel-rewards">
+            <div
+              class="reader-seg"
+              role="group"
+              aria-label="How you are reading this"
+            >
+              <button type="button" aria-pressed="true" data-reader="delegator">
+                You delegated here
+              </button>
+              <button type="button" aria-pressed="false" data-reader="operator">
+                You operate this node
+              </button>
+            </div>
+
+            <div class="md-split" id="md-split" data-mobile-pane="list">
+              <div class="md-list">
+                <h3>Settled reward rounds</h3>
+                <div
+                  class="round-list"
+                  role="listbox"
+                  aria-label="Past reward rounds"
+                  aria-controls="story"
+                >
+                  <button
+                    type="button"
+                    class="round-row"
+                    role="option"
+                    aria-selected="true"
+                    aria-current="true"
+                    data-round="4210"
+                  >
+                    <span class="main">
+                      <span class="rid num">Round 4210</span>
+                      <span class="meta"
+                        >Capped by stake · honesty
+                        <span class="num">0.95</span> · paid
+                        <span class="num">4217</span></span
+                      >
+                    </span>
+                    <span class="pay num" id="row-pay-4210">+15.732 LPT</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="round-row"
+                    role="option"
+                    aria-selected="false"
+                    data-round="4209"
+                  >
+                    <span class="main">
+                      <span class="rid num">Round 4209</span>
+                      <span class="meta"
+                        >Capped by fees · honesty
+                        <span class="num">1.00</span> · paid
+                        <span class="num">4216</span></span
+                      >
+                    </span>
+                    <span class="pay num" id="row-pay-4209">+30.24 LPT</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="round-row"
+                    role="option"
+                    aria-selected="false"
+                    data-round="4208"
+                  >
+                    <span class="main">
+                      <span class="rid num">Round 4208</span>
+                      <span class="meta"
+                        >Capped by stake · honesty
+                        <span class="num">1.00</span> · paid
+                        <span class="num">4215</span></span
+                      >
+                    </span>
+                    <span class="pay num" id="row-pay-4208">+16.56 LPT</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="md-detail" id="md-detail">
+                <button type="button" class="md-back" id="md-back">
+                  <svg
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                  >
+                    <path
+                      d="M10 3 5 8l5 5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  All rounds
+                </button>
+                <p class="receipt-label" id="receipt-kicker">
+                  Why round 4210 paid this
+                </p>
+                <article
+                  class="story receipt theme-stake"
+                  id="story"
+                  aria-labelledby="story-title"
+                  tabindex="-1"
+                >
+                  <div class="story-top">
+                    <h3 id="story-title">Round 4210 · capped by stake</h3>
+                  </div>
+                  <p class="story-lede">
+                    That round this node earned
+                    <strong class="num">11.8%</strong> of network fees and held
+                    <strong class="num">2.3%</strong> of stake. Rewards follow
+                    the smaller number, so they capped at
+                    <strong class="cap num">2.3%</strong>. At payout the honesty
+                    factor was <span class="num">0.95</span>, so the pool was
+                    95% of that stake-capped amount.
+                  </p>
+
+                  <div class="delay-row">
+                    <svg
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <circle cx="8" cy="8" r="5.5" />
+                      <path d="M8 5v3.2l2 1.3" stroke-linecap="round" />
+                    </svg>
+                    <div>
+                      Worked in round <strong class="num">4210</strong> · Paid
+                      in round <strong class="num">4217</strong>
+                      <span class="help">
+                        <button
+                          type="button"
+                          class="tooltip-dot"
+                          aria-label="Help: seven round delay"
+                          aria-describedby="help-delay"
+                        >
+                          ?
+                        </button>
+                        <span
+                          class="tooltip-help"
+                          role="tooltip"
+                          id="help-delay"
+                        >
+                          Rewards for round R become claimable at R+7. The
+                          honesty factor used is the median score at claim time,
+                          so a one-round fee spike can still be zeroed before
+                          payout.
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="steps" aria-label="How this payout was derived">
+                    <div class="step">
+                      <span class="n">1</span>
+                      <span class="label"
+                        ><span class="swatch fee"
+                          ><i aria-hidden="true"></i></span
+                        >Fee share that round</span
+                      >
+                      <span class="val num">11.8%</span>
+                    </div>
+                    <div
+                      class="step binding"
+                      aria-label="Stake share capped rewards"
+                    >
+                      <span class="n">2</span>
+                      <span class="label"
+                        ><span class="swatch stake"
+                          ><i aria-hidden="true"></i></span
+                        >Stake share that round
+                        <span class="tag stake">capped rewards</span></span
+                      >
+                      <span class="val num">2.3%</span>
+                    </div>
+                    <div class="step result">
+                      <span class="n">3</span>
+                      <span class="label"
+                        >Eligible share
+                        <span class="help">
+                          <button
+                            type="button"
+                            class="tooltip-dot"
+                            aria-label="Help: smaller number"
+                            aria-describedby="help-min"
+                          >
+                            ?
+                          </button>
+                          <span
+                            class="tooltip-help"
+                            role="tooltip"
+                            id="help-min"
+                          >
+                            Rewards follow the smaller of fee share and stake
+                            share. Fees in USDC are never capped by stake.
+                          </span>
+                        </span></span
+                      >
+                      <span class="val num">2.3%</span>
+                    </div>
+                    <div class="step muted">
+                      <span class="n">4</span>
+                      <span class="label"
+                        >Of that round’s node emissions pot
+                        <span class="num">40,000 LPT</span></span
+                      >
+                      <span class="val num">920 LPT</span>
+                    </div>
+                    <div class="step muted">
+                      <span class="n">5</span>
+                      <span class="label"
+                        >Honesty score at payout
+                        <span class="help">
+                          <button
+                            type="button"
+                            class="tooltip-dot"
+                            aria-label="Help: honesty factor"
+                            aria-describedby="help-mult"
+                          >
+                            ?
+                          </button>
+                          <span
+                            class="tooltip-help"
+                            role="tooltip"
+                            id="help-mult"
+                          >
+                            Median RewardMultiplier from validators at claim
+                            time (0 to 1). This receipt shows the factor that
+                            already applied. Scoring product is issue 804.
+                          </span>
+                        </span></span
+                      >
+                      <span class="val num">× 0.95</span>
+                    </div>
+                    <div class="step result">
+                      <span class="n">6</span>
+                      <span class="label">Pool LPT for that round</span>
+                      <span class="val num">874 LPT</span>
+                    </div>
+                  </div>
+
+                  <div class="payout" id="payout-delegator">
+                    <div class="kicker">What you received from that pool</div>
+                    <div class="amt num">+15.732 LPT</div>
+                    <p class="hint">
+                      You were <span class="num">2%</span> of the node’s
+                      <span class="num">100,000 LPT</span> stake that round.
+                      After the node’s <span class="num">10%</span> reward cut,
+                      the delegator pot was <span class="num">786.6 LPT</span>.
+                    </p>
+                  </div>
+
+                  <div class="payout" id="payout-operator" hidden>
+                    <div class="kicker">Pool this node minted that round</div>
+                    <div class="amt num">874 LPT</div>
+                    <p class="hint">
+                      You kept <span class="num">87.4 LPT</span> (<span
+                        class="num"
+                        >10%</span
+                      >
+                      reward cut). Delegators shared
+                      <span class="num">786.6 LPT</span> pro-rata by stake.
+                      Stake capped rewards; more fees alone would not have grown
+                      that pool.
+                    </p>
+                  </div>
+
+                  <details class="split-disclosure">
+                    <summary>
+                      See cut split
+                      <svg
+                        class="chev"
+                        viewBox="0 0 16 16"
+                        aria-hidden="true"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                      >
+                        <path
+                          d="M4 6l4 4 4-4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </summary>
+                    <div class="split-stack">
+                      <div class="split-note">
+                        Of the capped <span class="num">874 LPT</span> pool (not
+                        of each share line).
+                      </div>
+                      <div class="split-row">
+                        <span>Delegators shared</span>
+                        <span class="amt num">90% · 786.6 LPT</span>
+                      </div>
+                      <div class="split-row">
+                        <span>Node kept</span>
+                        <span class="amt num">10% · 87.4 LPT</span>
+                      </div>
+                      <div class="split-note" style="padding-top: 8px">
+                        USDC fees for that round were a separate pot and were
+                        never capped by stake.
+                      </div>
+                    </div>
+                  </details>
+
+                  <p class="next" id="next-delegator">
+                    <strong>What would have changed this payout:</strong> more
+                    stake on the node before that round (ceiling could still
+                    have risen toward <span class="num">11.8%</span>), and/or a
+                    higher honesty factor at claim. For <em>current</em> room to
+                    earn, open
+                    <a href="#entry-orch" style="color: var(--primary11)"
+                      >Orchestrating</a
+                    >
+                    (802), not this receipt.
+                  </p>
+                  <p class="next" id="next-operator" hidden>
+                    <strong>What would have changed this payout:</strong> more
+                    stake before the round to close the
+                    <span class="num">9.5%</span> gap to fees, and an honesty
+                    factor nearer <span class="num">1.0</span> through claim.
+                    Live compare of today’s gap stays on
+                    <a href="#entry-orch" style="color: var(--primary11)"
+                      >Orchestrating</a
+                    >.
+                  </p>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div id="panel-tx" hidden>
+            <p class="anti">
+              Transactions mode is today’s HistoryView job: a chronology of txs.
+              Useful for bonds and votes. It is not an explanation of why a
+              reward was that size.
+            </p>
+            <div class="tx-demo" aria-label="Transaction feed anti-pattern">
+              <div class="tx-card">
+                <div>
+                  <div class="t">Claimed inflationary token reward</div>
+                  <div class="s">10/08/2026 2:14 pm · Round 4217</div>
+                </div>
+                <div class="a num">+15.73 LPT</div>
+              </div>
+              <div class="tx-card">
+                <div>
+                  <div class="t">Bonded to 0x7a1b…c4e2</div>
+                  <div class="s">09/22/2026 11:02 am · Round 4191</div>
+                </div>
+                <div class="a num">+2,000 LPT</div>
+              </div>
+              <div class="tx-card">
+                <div>
+                  <div class="t">Called reward for 0x7a1b…c4e2</div>
+                  <div class="s">10/08/2026 2:14 pm · Round 4217</div>
+                </div>
+                <div class="a" style="color: var(--neutral8)">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="notes">
+        <li>
+          Wide (≥860px): two columns, receipt sticky. Narrow: list → drill-in
+          receipt with “All rounds” back. Deep-link
+          <code>?mode=rewards&amp;round=4210&amp;as=0x…</code> lands on the
+          receipt pane on mobile.
+        </li>
+        <li>
+          Row amounts follow the reader toggle. No live MFS status card on this
+          tab.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ==================== ENTRIES ==================== -->
+    <section class="section" aria-labelledby="entries">
+      <div class="section-header">
+        <h2 class="section-title" id="entries">Entry points only</h2>
+        <span
+          class="section-badge"
+          style="background: var(--neutral3); color: var(--neutral11)"
+          >Not a second home</span
+        >
+      </div>
+      <p class="section-description">
+        Adjacent pages point at History · Rewards. They do not retell the causal
+        steps. Matches 802’s handoff sentence.
+      </p>
+
+      <div class="entry-grid">
+        <div class="entry-card" id="entry-orch">
+          <div class="route">/accounts/[node]/orchestrating · 802 block</div>
+          <h3>Orchestrating (handoff)</h3>
+          <p style="font-size: 13px; color: var(--neutral11); line-height: 1.5">
+            Current fee-vs-stake compare stays here. One quiet line sends people
+            to the past.
+          </p>
+          <div class="lockup-note">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <circle cx="8" cy="8" r="5.5" />
+              <path d="M8 5v3.2l2 1.3" stroke-linecap="round" />
+            </svg>
+            <div>
+              Rewards are paid about a week after the round.
+              <a href="#primary">Past payouts for this node →</a>
+              (802’s live “Room to earn” card stays here; History does not
+              reprint it.)
+            </div>
+          </div>
+        </div>
+
+        <div class="entry-card" id="entry-deleg">
+          <div class="route">/accounts/[you]/delegating · bonded card</div>
+          <h3>Delegating (Why?)</h3>
+          <div class="stat-mini">
+            <div class="top">
+              <span class="title">Titan Node</span>
+              <span class="chip stake" aria-label="Room to earn">
+                <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+                  <path
+                    d="M8 3.2 9.7 6.7l3.8.3-2.9 2.6.9 3.7L8 11.4l-3.5 1.9.9-3.7L2.5 7l3.8-.3L8 3.2z"
+                  />
+                </svg>
+                Room to earn
+              </span>
+            </div>
+            <p class="d">
+              Round <span class="num">4210</span> paid you
+              <span class="num">15.732 LPT</span>.
+              <a href="#primary">Why?</a>
+              Opens the node’s History · Rewards, not a second explainer here.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PLACEMENT ==================== -->
+    <section class="section" aria-labelledby="placement">
+      <div class="section-header">
+        <h2 class="section-title" id="placement">Where it lives</h2>
+      </div>
+      <p class="section-description">
+        Same pattern as 802: one primary surface, adjacent entries, explicit
+        outs. Full write-up in
+        <a
+          class="issue-link"
+          style="margin: 0"
+          href="./803-reward-history-ux.md"
+          >803-reward-history-ux.md</a
+        >.
+      </p>
+
+      <table class="place-table">
+        <thead>
+          <tr>
+            <th>Surface</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="primary-row">
+            <td>/accounts/[node]/history · Rewards</td>
+            <td class="role">
+              <strong>Primary.</strong> List of settled rounds, then a
+              master-detail (list \| receipt). Not 802’s live status card.
+              Transactions mode stays on the same tab.
+            </td>
+          </tr>
+          <tr>
+            <td>/accounts/[node]/orchestrating</td>
+            <td class="role">
+              Entry only. 802’s “paid about a week later” link.
+            </td>
+          </tr>
+          <tr>
+            <td>/accounts/[you]/delegating</td>
+            <td class="role">
+              Entry only. “Why?” on the bonded card → node’s Rewards mode.
+            </td>
+          </tr>
+          <tr>
+            <td>Home · /orchestrators · Delegators</td>
+            <td class="role">Out. Wrong job (dashboard / market / roster).</td>
+          </tr>
+          <tr>
+            <td>New /rewards product page</td>
+            <td class="role">
+              Out. Would split the past away from the account tab people already
+              use.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <script>
+      (function () {
+        var modeSeg = document.getElementById("mode-seg");
+        var panelRewards = document.getElementById("panel-rewards");
+        var panelTx = document.getElementById("panel-tx");
+        var readerBtns = document.querySelectorAll("[data-reader]");
+        var payDel = document.getElementById("payout-delegator");
+        var payOp = document.getElementById("payout-operator");
+        var nextDel = document.getElementById("next-delegator");
+        var nextOp = document.getElementById("next-operator");
+        var story = document.getElementById("story");
+        var receiptKicker = document.getElementById("receipt-kicker");
+        var mdSplit = document.getElementById("md-split");
+        var mdBack = document.getElementById("md-back");
+        var currentRound = "4210";
+        var currentReader = "delegator";
+        var mqNarrow = window.matchMedia("(max-width: 860px)");
+
+        function isNarrow() {
+          return mqNarrow.matches;
+        }
+
+        function setMobilePane(pane) {
+          if (!mdSplit) return;
+          mdSplit.setAttribute("data-mobile-pane", pane);
+        }
+
+        var rounds = {
+          4210: {
+            theme: "stake",
+            title: "Round 4210 · capped by stake",
+            lede: 'That round this node earned <strong class="num">11.8%</strong> of network fees and held <strong class="num">2.3%</strong> of stake. Rewards follow the smaller number, so they capped at <strong class="cap num">2.3%</strong>. At payout the honesty factor was <span class="num">0.95</span>, so the pool was 95% of that stake-capped amount.',
+            work: "4210",
+            paid: "4217",
+            fee: "11.8%",
+            stake: "2.3%",
+            bind: "stake",
+            eligible: "2.3%",
+            pot: "920 LPT",
+            mult: "× 0.95",
+            pool: "874 LPT",
+            delAmt: "+15.732 LPT",
+            delHint:
+              'You were <span class="num">2%</span> of the node’s <span class="num">100,000 LPT</span> stake that round. After the node’s <span class="num">10%</span> reward cut, the delegator pot was <span class="num">786.6 LPT</span>.',
+            opAmt: "874 LPT",
+            opHint:
+              'You kept <span class="num">87.4 LPT</span> (<span class="num">10%</span> reward cut). Delegators shared <span class="num">786.6 LPT</span> pro-rata by stake. Stake capped rewards; more fees alone would not have grown that pool.',
+            nextDel:
+              '<strong>What would have changed this payout:</strong> more stake on the node before that round (ceiling could still have risen toward <span class="num">11.8%</span>), and/or a higher honesty factor at claim. For <em>current</em> room to earn, open <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a> (802), not this receipt.',
+            nextOp:
+              '<strong>What would have changed this payout:</strong> more stake before the round to close the <span class="num">9.5%</span> gap to fees, and an honesty factor nearer <span class="num">1.0</span> through claim. Live compare of today’s gap stays on <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a>.',
+            splitDel: "90% · 786.6 LPT",
+            splitNode: "10% · 87.4 LPT",
+            splitPool: "874 LPT",
+          },
+          4209: {
+            theme: "fee",
+            title: "Round 4209 · capped by fees",
+            lede: 'That round this node held <strong class="num">6.8%</strong> of stake and earned <strong class="num">4.2%</strong> of fees. Rewards follow the smaller number, so they capped at <strong class="cap num">4.2%</strong>. Honesty factor at payout was <span class="num">1.00</span>.',
+            work: "4209",
+            paid: "4216",
+            fee: "4.2%",
+            stake: "6.8%",
+            bind: "fee",
+            eligible: "4.2%",
+            pot: "1,680 LPT",
+            mult: "× 1.00",
+            pool: "1,680 LPT",
+            delAmt: "+30.24 LPT",
+            delHint:
+              'Same stake share of the node (<span class="num">2%</span>). Delegator pot after <span class="num">10%</span> cut: <span class="num">1,512 LPT</span>. Fees capped rewards; extra stake earned nothing that round.',
+            opAmt: "1,680 LPT",
+            opHint:
+              'You kept <span class="num">168 LPT</span>. Extra stake would not have raised that pool until fee share caught up.',
+            nextDel:
+              '<strong>What would have changed this payout:</strong> more fee share on this node before that round, or stake elsewhere where fees still led. Moving takes about 21 days (802). Live compare stays on <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a>.',
+            nextOp:
+              '<strong>What would have changed this payout:</strong> more fee share that round. Extra delegated stake alone does not lift a fee-capped receipt. Live gap is on <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a>.',
+            splitDel: "90% · 1,512 LPT",
+            splitNode: "10% · 168 LPT",
+            splitPool: "1,680 LPT",
+          },
+          4208: {
+            theme: "stake",
+            title: "Round 4208 · capped by stake",
+            lede: 'That round this node earned <strong class="num">11.8%</strong> of fees with <strong class="num">2.3%</strong> of stake. Eligible share <strong class="cap num">2.3%</strong>, honesty factor <span class="num">1.00</span> at payout.',
+            work: "4208",
+            paid: "4215",
+            fee: "11.8%",
+            stake: "2.3%",
+            bind: "stake",
+            eligible: "2.3%",
+            pot: "920 LPT",
+            mult: "× 1.00",
+            pool: "920 LPT",
+            delAmt: "+16.56 LPT",
+            delHint:
+              'Delegator pot <span class="num">828 LPT</span> after cut; your <span class="num">2%</span> share that round.',
+            opAmt: "920 LPT",
+            opHint:
+              "Full eligible amount reached the pool (honesty factor 1.0). Stake still capped rewards.",
+            nextDel:
+              '<strong>What would have changed this payout:</strong> more stake before that round toward fee share. Current state is on <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a>.',
+            nextOp:
+              '<strong>What would have changed this payout:</strong> closing the stake gap while fees stayed ahead. Current state is on <a href="#entry-orch" style="color: var(--primary11)">Orchestrating</a>.',
+            splitDel: "90% · 828 LPT",
+            splitNode: "10% · 92 LPT",
+            splitPool: "920 LPT",
+          },
+        };
+
+        function setMode(mode) {
+          var buttons = modeSeg.querySelectorAll("button");
+          buttons.forEach(function (b) {
+            b.setAttribute(
+              "aria-pressed",
+              b.getAttribute("data-mode") === mode ? "true" : "false"
+            );
+          });
+          panelRewards.hidden = mode !== "rewards";
+          panelTx.hidden = mode !== "tx";
+        }
+
+        modeSeg.addEventListener("click", function (e) {
+          var btn = e.target.closest("button[data-mode]");
+          if (!btn) return;
+          setMode(btn.getAttribute("data-mode"));
+        });
+
+        function refreshRowAmounts() {
+          Object.keys(rounds).forEach(function (id) {
+            var el = document.getElementById("row-pay-" + id);
+            if (!el) return;
+            el.textContent =
+              currentReader === "delegator"
+                ? rounds[id].delAmt
+                : rounds[id].opAmt;
+          });
+        }
+
+        function setReader(reader) {
+          currentReader = reader;
+          readerBtns.forEach(function (b) {
+            b.setAttribute(
+              "aria-pressed",
+              b.getAttribute("data-reader") === reader ? "true" : "false"
+            );
+          });
+          var isDel = reader === "delegator";
+          payDel.hidden = !isDel;
+          nextDel.hidden = !isDel;
+          payOp.hidden = isDel;
+          nextOp.hidden = isDel;
+          refreshRowAmounts();
+        }
+
+        readerBtns.forEach(function (b) {
+          b.addEventListener("click", function () {
+            setReader(b.getAttribute("data-reader"));
+          });
+        });
+
+        function applyRound(id) {
+          var r = rounds[id];
+          if (!r) return;
+          currentRound = id;
+          story.classList.remove("theme-stake", "theme-fee");
+          story.classList.add("theme-" + r.theme);
+          document.getElementById("story-title").textContent = r.title;
+          receiptKicker.textContent = "Why round " + id + " paid this";
+          story.querySelector(".story-lede").innerHTML = r.lede;
+          var delay = story.querySelector(".delay-row div");
+          delay.innerHTML =
+            'Worked in round <strong class="num">' +
+            r.work +
+            '</strong> · Paid in round <strong class="num">' +
+            r.paid +
+            '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Rewards for round R become claimable at R+7. The honesty factor used is the median score at claim time.</span></span>';
+
+          var steps = story.querySelectorAll(".step");
+          steps[0].querySelector(".val").textContent = r.fee;
+          steps[1].querySelector(".val").textContent = r.stake;
+          if (r.bind === "fee") {
+            steps[0].classList.add("binding");
+            steps[1].classList.remove("binding");
+            steps[0].querySelector(".label").innerHTML =
+              '<span class="swatch fee"><i aria-hidden="true"></i></span>Fee share that round <span class="tag fee">capped rewards</span>';
+            steps[1].querySelector(".label").innerHTML =
+              '<span class="swatch stake"><i aria-hidden="true"></i></span>Stake share that round';
+          } else {
+            steps[0].classList.remove("binding");
+            steps[1].classList.add("binding");
+            steps[0].querySelector(".label").innerHTML =
+              '<span class="swatch fee"><i aria-hidden="true"></i></span>Fee share that round';
+            steps[1].querySelector(".label").innerHTML =
+              '<span class="swatch stake"><i aria-hidden="true"></i></span>Stake share that round <span class="tag stake">capped rewards</span>';
+          }
+          steps[2].querySelector(".val").textContent = r.eligible;
+          steps[3].querySelector(".val").textContent = r.pot;
+          steps[4].querySelector(".val").textContent = r.mult;
+          steps[5].querySelector(".val").textContent = r.pool;
+
+          payDel.querySelector(".amt").textContent = r.delAmt;
+          payDel.querySelector(".hint").innerHTML = r.delHint;
+          payOp.querySelector(".amt").textContent = r.opAmt;
+          payOp.querySelector(".hint").innerHTML = r.opHint;
+          nextDel.innerHTML = r.nextDel;
+          nextOp.innerHTML = r.nextOp;
+
+          var splitNote = story.querySelector(".split-note");
+          if (splitNote) {
+            splitNote.innerHTML =
+              'Of the capped <span class="num">' +
+              r.splitPool +
+              "</span> pool (not of each share line).";
+          }
+          var splitRows = story.querySelectorAll(".split-row .amt");
+          if (splitRows[0]) splitRows[0].textContent = r.splitDel;
+          if (splitRows[1]) splitRows[1].textContent = r.splitNode;
+
+          document.querySelectorAll(".round-row").forEach(function (row) {
+            var on = row.getAttribute("data-round") === id;
+            row.setAttribute("aria-current", on ? "true" : "false");
+            row.setAttribute("aria-selected", on ? "true" : "false");
+          });
+        }
+
+        document.querySelectorAll(".round-row").forEach(function (row) {
+          row.addEventListener("click", function () {
+            applyRound(row.getAttribute("data-round"));
+            setMode("rewards");
+            if (isNarrow()) {
+              setMobilePane("detail");
+              story.focus({ preventScroll: true });
+              story.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          });
+        });
+
+        if (mdBack) {
+          mdBack.addEventListener("click", function () {
+            setMobilePane("list");
+            var selected = document.querySelector(
+              '.round-row[aria-selected="true"]'
+            );
+            if (selected) selected.focus();
+          });
+        }
+
+        // Deep-link mock: if URL has round=, open detail on narrow
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var deepRound = params.get("round");
+          if (deepRound && rounds[deepRound]) {
+            applyRound(deepRound);
+            if (isNarrow()) setMobilePane("detail");
+          }
+        } catch (e) {}
+
+        refreshRowAmounts();
+      })();
+    </script>
+  </body>
+</html>
