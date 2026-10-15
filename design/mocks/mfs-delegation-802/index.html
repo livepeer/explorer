@@ -1799,6 +1799,7 @@
         Issue #802 ↗
       </a>
       <a class="issue-link" href="#s6">Design decisions ↓</a>
+      <a class="issue-link" href="#a11y">Who can use this ↓</a>
       <p>
         In Livepeer 2.0, a node’s new LPT rewards follow the smaller of two
         shares: how much work it does (fees), and how much stake sits behind it.
@@ -3739,6 +3740,48 @@
           </li>
         </ul>
       </div>
+    </section>
+
+    <!-- ==================== ACCESSIBILITY ==================== -->
+    <section class="section" aria-labelledby="a11y">
+      <div class="section-header">
+        <h2 class="section-title" id="a11y">Who can use this</h2>
+      </div>
+      <p class="section-description">
+        These screens should work for people who cannot rely on color alone, who
+        navigate with a keyboard, who use a screen reader, or who prefer less
+        motion. Same rules apply when this ships in the product.
+      </p>
+      <ul class="notes">
+        <li>
+          <strong>Color is not the only cue.</strong> “Room to earn,” “Full,”
+          and “Balanced” each have a word label and a distinct icon, not just a
+          green or blue tint. Fee and stake shares are spoken as numbers in
+          plain text too.
+        </li>
+        <li>
+          <strong>Keyboard.</strong> Filters and Delegate / Undelegate can be
+          moved with the arrow keys. Focus rings stay visible so you always know
+          where you are.
+        </li>
+        <li>
+          <strong>Screen readers.</strong> Choosing a filter or action is
+          announced as a real choice group. Opening the amount drawer puts you
+          on the amount field; Escape closes it.
+        </li>
+        <li>
+          <strong>Help without a mouse.</strong> The “?” tips open when you tab
+          to them, not only on hover. Targets are large enough for touch.
+        </li>
+        <li>
+          <strong>Motion.</strong> If the system asks for reduced motion, the
+          page does not smooth-scroll.
+        </li>
+        <li>
+          <strong>Skip ahead.</strong> “Skip to content” jumps past the intro
+          into the first mock.
+        </li>
+      </ul>
     </section>
     <script>
       (function () {
