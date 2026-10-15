@@ -82,7 +82,8 @@
       }
       .issue-link:focus-visible,
       a:focus-visible,
-      button:focus-visible {
+      button:focus-visible,
+      [role="radio"]:focus-visible {
         outline: 2px solid var(--primary11);
         outline-offset: 2px;
         border-radius: 4px;
@@ -236,6 +237,7 @@
         padding: 3px 9px;
         border-radius: 999px;
         white-space: nowrap;
+        border: 1px solid transparent;
       }
       .chip svg {
         width: 12px;
@@ -245,14 +247,17 @@
       .chip.stake {
         background: var(--stake3);
         color: var(--stake11);
+        border-color: rgba(76, 195, 138, 0.45);
       }
       .chip.fee {
         background: var(--fee3);
         color: var(--fee11);
+        border-color: rgba(37, 171, 208, 0.5);
       }
       .chip.balanced {
         background: var(--neutral3);
         color: var(--neutral11);
+        border-color: var(--neutral5);
       }
 
       .tag {
@@ -318,10 +323,10 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 18px;
-        height: 18px;
-        min-width: 18px;
-        min-height: 18px;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        min-height: 24px;
         padding: 0;
         border-radius: 50%;
         border: 1px solid var(--neutral6);
@@ -335,15 +340,14 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
       }
-      /* Expand hit area; keep the 18px visual */
       .tooltip-dot::before {
         content: "";
         position: absolute;
-        inset: -3px; /* ≥24px desktop */
+        inset: -10px;
       }
       @media (max-width: 720px) {
         .tooltip-dot::before {
-          inset: -13px; /* ≥44px mobile */
+          inset: -12px; /* ≥44px mobile */
         }
       }
       .tooltip-dot:focus-visible {
@@ -476,7 +480,7 @@
         cursor: pointer;
         white-space: nowrap;
       }
-      .seg button[aria-pressed="true"] {
+      .seg button[aria-checked="true"] {
         background: var(--neutral5);
         color: var(--hiContrast);
       }
@@ -1292,7 +1296,7 @@
         cursor: pointer;
         touch-action: manipulation;
       }
-      .dw-tabs button[aria-pressed="true"] {
+      .dw-tabs button[aria-checked="true"] {
         background: var(--neutral5);
         color: var(--hiContrast);
       }
@@ -1846,9 +1850,18 @@
             placeholder="Search name or address…"
             aria-label="Search orchestrators"
           />
-          <div class="seg" role="group" aria-label="Registration filter">
-            <button aria-pressed="true">Earning now · 38</button>
-            <button aria-pressed="false">All nodes · 214</button>
+          <div class="seg" role="radiogroup" aria-label="Registration filter">
+            <button type="button" role="radio" aria-checked="true">
+              Earning now · 38
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              tabindex="-1"
+            >
+              All nodes · 214
+            </button>
           </div>
           <span class="window-note">
             Last 7 settled rounds (2,731–2,737)
@@ -2996,17 +3009,20 @@
               >Delegate box · sticky right rail</span
             >
             <div class="dw" id="frame-widget">
-              <div class="dw-tabs" role="group" aria-label="Action">
+              <div class="dw-tabs" role="radiogroup" aria-label="Action">
                 <button
                   type="button"
-                  aria-pressed="true"
+                  role="radio"
+                  aria-checked="true"
                   data-dw-tab="Delegate"
                 >
                   Delegate
                 </button>
                 <button
                   type="button"
-                  aria-pressed="false"
+                  role="radio"
+                  aria-checked="false"
+                  tabindex="-1"
                   data-dw-tab="Undelegate"
                 >
                   Undelegate
@@ -3456,9 +3472,18 @@
               >Delegate box · sticky right rail</span
             >
             <div class="dw">
-              <div class="dw-tabs" role="group" aria-label="Bond action">
-                <button type="button" aria-pressed="true">Delegate</button>
-                <button type="button" aria-pressed="false">Undelegate</button>
+              <div class="dw-tabs" role="radiogroup" aria-label="Bond action">
+                <button type="button" role="radio" aria-checked="true">
+                  Delegate
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked="false"
+                  tabindex="-1"
+                >
+                  Undelegate
+                </button>
               </div>
               <label class="dw-label" for="delegating-amount"
                 ><span>Amount</span
@@ -3717,16 +3742,55 @@
     </section>
     <script>
       (function () {
-        var submit = document.querySelector("[data-dw-submit]");
-        var tabs = document.querySelectorAll("[data-dw-tab]");
-        tabs.forEach(function (tab) {
-          tab.addEventListener("click", function () {
-            tabs.forEach(function (t) {
-              t.setAttribute("aria-pressed", String(t === tab));
+        function bindRadioGroup(group) {
+          if (!group) return;
+          var radios = function () {
+            return Array.prototype.slice.call(
+              group.querySelectorAll('[role="radio"]')
+            );
+          };
+          function selectSafe(btn) {
+            radios().forEach(function (r) {
+              var on = r === btn;
+              r.setAttribute("aria-checked", on ? "true" : "false");
+              r.tabIndex = on ? 0 : -1;
             });
-            if (submit) submit.textContent = tab.getAttribute("data-dw-tab");
+            if (btn.hasAttribute("data-dw-tab")) {
+              var root = btn.closest(".dw");
+              var submit = root && root.querySelector("[data-dw-submit]");
+              if (submit) submit.textContent = btn.getAttribute("data-dw-tab");
+            }
+          }
+          group.addEventListener("click", function (e) {
+            var btn = e.target.closest('[role="radio"]');
+            if (!btn || !group.contains(btn)) return;
+            selectSafe(btn);
           });
-        });
+          group.addEventListener("keydown", function (e) {
+            var items = radios();
+            var i = items.indexOf(document.activeElement);
+            if (i < 0) return;
+            var next = i;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown")
+              next = (i + 1) % items.length;
+            else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+              next = (i - 1 + items.length) % items.length;
+            else if (e.key === "Home") next = 0;
+            else if (e.key === "End") next = items.length - 1;
+            else if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              selectSafe(items[i]);
+              return;
+            } else return;
+            e.preventDefault();
+            items[next].focus();
+            selectSafe(items[next]);
+          });
+        }
+
+        document
+          .querySelectorAll('[role="radiogroup"]')
+          .forEach(bindRadioGroup);
 
         function narrow() {
           return window.matchMedia("(max-width: 1199px)").matches;

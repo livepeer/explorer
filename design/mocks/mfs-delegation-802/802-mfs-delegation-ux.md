@@ -195,6 +195,26 @@ Today the orchestrator query gives absolute stake, lifetime and 90-day ETH volum
 
 Per-round series of those same fields is 803's schema, not a second one. Design 802's window as a sum over the rounds 803 will store. Validator score fields belong to 804, not this ticket.
 
+## Status icons (shared with 803)
+
+Canonical SVGs: [`../shared/mfs-status-icons.md`](../shared/mfs-status-icons.md).
+
+- **Room to earn** (stake binding) = trend-up arrow · past label on 803: **Stake capped**
+- **Full** (fee binding) = filled circle · past label on 803: **Fees capped**
+- **Balanced** = scale
+- Do not invent alternate chip icons per ticket
+
+## Accessibility (APG / AGENTS.md)
+
+| Concern                     | Pattern in mock                                                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Mutually exclusive controls | `radiogroup` + `role="radio"` for registration filter and Delegate/Undelegate; arrow/Home/End + roving `tabindex` |
+| Colorblind / not color-only | State chip = icon + label + border; fee/stake lines named in text; `role="img"` + `aria-label` on share pairs     |
+| Focus                       | Visible `:focus-visible`; drawer toggle `aria-expanded` / Escape closes; amount field focused on open             |
+| Help                        | `?` ≥24px; tooltip on hover and `:focus-within` via `aria-describedby`                                            |
+| Motion                      | `prefers-reduced-motion` on scroll-into-view                                                                      |
+| Skip link                   | Present to first section                                                                                          |
+
 ## Open protocol choices that change the UI
 
 - **`transferBond` vs the 21-round delay.** The litepaper wants an active delegation market and also wants stake unable to flee a penalized node. Those conflict. Design for a delayed move. If transfers stay instant, delete the lockup note rather than leaving a lie.
