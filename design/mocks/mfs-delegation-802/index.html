@@ -23,15 +23,15 @@
         --hiContrast: #ffffff;
         --primary4: #113123;
         --primary11: #4cc38a;
-        /* Quantity colors. Blue is always fees, violet is always stake.
+        /* Quantity colors from livepeer.org/brand: blue = fees, green = stake.
          A state takes the color of whichever side is the minimum.
-         Neither state is good or bad, so neither gets green or amber. */
-        --fee3: #10243a;
-        --fee9: #0091ff;
-        --fee11: #52a9ff;
-        --stake3: #231d38;
-        --stake9: #6e56cf;
-        --stake11: #a58fff;
+         Green means stake quantity here, not “good.” Never amber for either state. */
+        --fee3: #0c222c;
+        --fee9: #146a8f;
+        --fee11: #25abd0;
+        --stake3: #0f241c;
+        --stake9: #18794e;
+        --stake11: #4cc38a;
         --tomato3: #291415;
         --tomato4: #351719;
         --tomato11: #ff6b47;
@@ -639,22 +639,22 @@
       .m-card.theme-stake {
         background: linear-gradient(
             180deg,
-            rgba(110, 86, 207, 0.16) 0%,
-            rgba(110, 86, 207, 0.06) 42%,
-            rgba(110, 86, 207, 0) 78%
+            rgba(24, 121, 78, 0.16) 0%,
+            rgba(24, 121, 78, 0.06) 42%,
+            rgba(24, 121, 78, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(165, 143, 255, 0.22);
+        border-color: rgba(24, 121, 78, 0.22);
       }
       .m-card.theme-fee {
         background: linear-gradient(
             180deg,
-            rgba(0, 145, 255, 0.14) 0%,
-            rgba(0, 145, 255, 0.05) 42%,
-            rgba(0, 145, 255, 0) 78%
+            rgba(37, 171, 208, 0.14) 0%,
+            rgba(37, 171, 208, 0.05) 42%,
+            rgba(37, 171, 208, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(82, 169, 255, 0.2);
+        border-color: rgba(37, 171, 208, 0.2);
       }
       .m-card .top {
         display: flex;
@@ -730,10 +730,10 @@
       }
       /* Only the binding (caps rewards) tile is tinted */
       .m-odd.fee.binding {
-        border-color: rgba(82, 169, 255, 0.45);
+        border-color: rgba(37, 171, 208, 0.45);
         background: linear-gradient(
-            rgba(0, 145, 255, 0.06),
-            rgba(0, 145, 255, 0.06)
+            rgba(37, 171, 208, 0.06),
+            rgba(37, 171, 208, 0.06)
           ),
           var(--neutral2);
       }
@@ -741,10 +741,10 @@
         color: var(--fee11);
       }
       .m-odd.stake.binding {
-        border-color: rgba(165, 143, 255, 0.45);
+        border-color: rgba(24, 121, 78, 0.45);
         background: linear-gradient(
-            rgba(110, 86, 207, 0.07),
-            rgba(110, 86, 207, 0.07)
+            rgba(24, 121, 78, 0.07),
+            rgba(24, 121, 78, 0.07)
           ),
           var(--neutral2);
       }
@@ -768,12 +768,12 @@
       .m-odd.fee .cap-tag {
         background: var(--fee3);
         color: var(--fee11);
-        box-shadow: 0 0 0 1px rgba(82, 169, 255, 0.28);
+        box-shadow: 0 0 0 1px rgba(37, 171, 208, 0.28);
       }
       .m-odd.stake .cap-tag {
         background: var(--stake3);
         color: var(--stake11);
-        box-shadow: 0 0 0 1px rgba(165, 143, 255, 0.28);
+        box-shadow: 0 0 0 1px rgba(24, 121, 78, 0.28);
       }
 
       /* Familiar numbers from today's list, quiet under the decision */
@@ -850,22 +850,22 @@
       .mfs-block.theme-stake {
         background: linear-gradient(
             180deg,
-            rgba(110, 86, 207, 0.16) 0%,
-            rgba(110, 86, 207, 0.06) 42%,
-            rgba(110, 86, 207, 0) 78%
+            rgba(24, 121, 78, 0.16) 0%,
+            rgba(24, 121, 78, 0.06) 42%,
+            rgba(24, 121, 78, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(165, 143, 255, 0.22);
+        border-color: rgba(24, 121, 78, 0.22);
       }
       .mfs-block.theme-fee {
         background: linear-gradient(
             180deg,
-            rgba(0, 145, 255, 0.14) 0%,
-            rgba(0, 145, 255, 0.05) 42%,
-            rgba(0, 145, 255, 0) 78%
+            rgba(37, 171, 208, 0.14) 0%,
+            rgba(37, 171, 208, 0.05) 42%,
+            rgba(37, 171, 208, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(82, 169, 255, 0.2);
+        border-color: rgba(37, 171, 208, 0.2);
       }
 
       .mfs-head {
@@ -916,13 +916,13 @@
         color: var(--neutral11);
       }
       .theme-stake .mfs-outcome {
-        border-color: rgba(165, 143, 255, 0.28);
-        background: rgba(110, 86, 207, 0.12);
+        border-color: rgba(24, 121, 78, 0.28);
+        background: rgba(24, 121, 78, 0.12);
         color: var(--hiContrast);
       }
       .theme-fee .mfs-outcome {
-        border-color: rgba(82, 169, 255, 0.28);
-        background: rgba(0, 145, 255, 0.12);
+        border-color: rgba(37, 171, 208, 0.28);
+        background: rgba(37, 171, 208, 0.12);
         color: var(--hiContrast);
       }
       .mfs-outcome strong {
@@ -1081,13 +1081,13 @@
         color: var(--neutral11);
       }
       .theme-stake .lockup-note {
-        background: rgba(110, 86, 207, 0.1);
-        border-color: rgba(165, 143, 255, 0.22);
+        background: rgba(24, 121, 78, 0.1);
+        border-color: rgba(24, 121, 78, 0.22);
         color: #c4b5fd;
       }
       .theme-fee .lockup-note {
-        background: rgba(0, 145, 255, 0.1);
-        border-color: rgba(82, 169, 255, 0.22);
+        background: rgba(37, 171, 208, 0.1);
+        border-color: rgba(37, 171, 208, 0.22);
         color: #93c5fd;
       }
       .lockup-note .lockup-icon {
@@ -1459,22 +1459,22 @@
       .stat-card.theme-stake {
         background: linear-gradient(
             180deg,
-            rgba(110, 86, 207, 0.16) 0%,
-            rgba(110, 86, 207, 0.06) 42%,
-            rgba(110, 86, 207, 0) 78%
+            rgba(24, 121, 78, 0.16) 0%,
+            rgba(24, 121, 78, 0.06) 42%,
+            rgba(24, 121, 78, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(165, 143, 255, 0.22);
+        border-color: rgba(24, 121, 78, 0.22);
       }
       .stat-card.theme-fee {
         background: linear-gradient(
             180deg,
-            rgba(0, 145, 255, 0.14) 0%,
-            rgba(0, 145, 255, 0.05) 42%,
-            rgba(0, 145, 255, 0) 78%
+            rgba(37, 171, 208, 0.14) 0%,
+            rgba(37, 171, 208, 0.05) 42%,
+            rgba(37, 171, 208, 0) 78%
           ),
           var(--panel);
-        border-color: rgba(82, 169, 255, 0.2);
+        border-color: rgba(37, 171, 208, 0.2);
       }
       .stat-card .top {
         display: flex;
@@ -1769,17 +1769,18 @@
         who wants it.
       </p>
       <p>
-        Color maps quantity.
+        Color maps quantity (Livepeer brand palette).
         <span class="swatch fee" title="Fees"
-          ><i aria-hidden="true"></i>Fees</span
+          ><i aria-hidden="true"></i>Fees · blue</span
         >
         and
         <span class="swatch stake" title="Stake"
-          ><i aria-hidden="true"></i>Stake</span
+          ><i aria-hidden="true"></i>Stake · green</span
         >
         stay fixed; the state chip takes the color of whichever side is smaller.
-        Emissions are still settling, so the numbers here are shares of the
-        network: how far a ceiling can still move.
+        Green means stake, not “good.” Emissions are still settling, so the
+        numbers here are shares of the network: how far a ceiling can still
+        move.
       </p>
     </header>
 

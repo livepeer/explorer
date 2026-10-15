@@ -130,11 +130,11 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 
 - MUST: Lead with what helps the prospective delegator decide; put mechanism and jargon in tooltips/docs
 - MUST: Use plain state labels ("Room to earn" / "Full" / "Balanced"), not insider terms like "headroom" or "MFS" in visible chrome
-- MUST: Color maps to quantity, not good/bad:
-  - Fees: blue
-  - Stake: violet
+- MUST: Color maps to quantity, not good/bad (Livepeer brand palette):
+  - Fees: brand blue
+  - Stake: brand green (LPT / shares; green means stake quantity, not “good”)
   - State chip takes the color of whichever side is the `min()` (binding side)
-  - NEVER: brand green = stake-capped “good”, amber = fee-capped “warning”
+  - NEVER: amber = fee-capped “warning”
 - MUST: Rewards follow the smaller of fee share and stake share; do not imply a shared cut applies as a slice of both bars
 - MUST: Frame cut splits as pool shares of the capped LPT pot and of USDC fees separately (pro-rata by stake), not “you get 92%”
 - MUST: Keep reward-history and validator-score UX out of MFS list/detail design; those are separate tickets
