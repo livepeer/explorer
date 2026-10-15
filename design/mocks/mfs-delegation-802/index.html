@@ -406,13 +406,15 @@
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        overflow: hidden;
+        /* visible so toolbar tooltips are not clipped; scroll lives on .table-scroll */
+        overflow: visible;
       }
       /* Contain wide tables without scrolling the whole preview */
       .table-scroll {
         overflow-x: auto;
         overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
+        border-radius: 0 0 var(--radius) var(--radius);
       }
       /* Open header help below so the scroller does not clip them */
       .table-scroll .tooltip-help {
@@ -427,6 +429,18 @@
         flex-wrap: wrap;
         padding: 14px 16px;
         border-bottom: 1px solid var(--neutral4);
+        position: relative;
+        z-index: 2;
+        overflow: visible;
+        border-radius: var(--radius) var(--radius) 0 0;
+      }
+      /* Window/sort help sits in the toolbar (outside .table-scroll): open below, right-aligned */
+      .table-toolbar .tooltip-help {
+        bottom: auto;
+        top: calc(100% + 8px);
+        left: auto;
+        right: 0;
+        transform: none;
       }
 
       .search {
@@ -1362,7 +1376,7 @@
       .dw-submit:active {
         transform: translateY(1px);
       }
-      /* Under 1200px the live rail becomes a bottom drawer */
+      /* Under 1200px: collapsed bar; opening reveals the amount widget as a sheet */
       .pf-drawer {
         display: none;
         align-items: center;
@@ -1389,6 +1403,22 @@
         }
         .pf-rail {
           display: none;
+        }
+        .page-frame.is-drawer-open .pf-rail {
+          display: block;
+          position: fixed;
+          left: max(12px, env(safe-area-inset-left));
+          right: max(12px, env(safe-area-inset-right));
+          bottom: max(12px, env(safe-area-inset-bottom));
+          z-index: 50;
+          max-height: min(85vh, 560px);
+          overflow: auto;
+          overscroll-behavior: contain;
+          background: var(--panel);
+          border: 1px solid var(--neutral4);
+          border-radius: 16px;
+          padding: 16px;
+          box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5);
         }
         .pf-drawer {
           display: flex;
@@ -1607,17 +1637,27 @@
         margin-bottom: 14px;
       }
       .day-one .step {
+        border-radius: var(--radius-sm);
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid var(--neutral4);
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+      }
+      .day-one .step > a {
         display: grid;
         grid-template-columns: 28px 1fr auto;
         gap: 12px;
         align-items: center;
         padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        background: rgba(0, 0, 0, 0.28);
-        border: 1px solid var(--neutral4);
         text-decoration: none;
         color: inherit;
-        transition: border-color 0.15s ease, background-color 0.15s ease;
+        min-height: 44px;
+      }
+      .day-one .step:not(:has(> a)) {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
       }
       .day-one .step:hover {
         border-color: var(--neutral6);
@@ -2307,10 +2347,10 @@
                   <div
                     class="kv"
                     role="img"
-                    aria-label="2.8 percent of fees, 2.7 percent of stake. The two are level."
+                    aria-label="2.7 percent of fees, 2.7 percent of stake. The two are level."
                   >
                     <span class="kv-line"
-                      ><span class="pct num">2.8%</span> of fees</span
+                      ><span class="pct num">2.7%</span> of fees</span
                     >
                     <span class="kv-line"
                       ><span class="pct num">2.7%</span> of stake</span
@@ -3010,7 +3050,9 @@
             type="button"
             class="delegate-btn"
             data-drawer-focus
-            aria-label="Delegate from bottom drawer"
+            aria-expanded="false"
+            aria-controls="frame-widget"
+            aria-label="Open amount drawer"
           >
             Delegate
           </button>
@@ -3187,12 +3229,12 @@
             <div
               class="balance-summary"
               role="img"
-              aria-label="Fees 2.8 percent and stake 2.7 percent of network, roughly level."
+              aria-label="Fees 2.7 percent and stake 2.7 percent of network, level."
             >
               <span class="approx num">≈ 2.7%</span>
               <span class="meta">of network</span>
               <span class="split"
-                ><span class="num">2.8%</span> fees ·
+                ><span class="num">2.7%</span> fees ·
                 <span class="num">2.7%</span> stake</span
               >
             </div>
@@ -3457,7 +3499,9 @@
             type="button"
             class="delegate-btn"
             data-drawer-focus
-            aria-label="Delegate from bottom drawer"
+            aria-expanded="false"
+            aria-controls="delegating-amount"
+            aria-label="Open amount drawer"
           >
             Delegate
           </button>
@@ -3564,22 +3608,18 @@
         </p>
 
         <div class="steps" role="list">
-          <a
-            class="step"
-            role="listitem"
-            href="https://docs.livepeer.org"
-            target="_blank"
-            rel="noopener"
-          >
-            <span class="n">1</span>
-            <span>
-              <div class="t">Get found by gateways</div>
-              <div class="s">
-                Open discovery so Livepeer gateways can route jobs to you.
-              </div>
-            </span>
-            <span class="go">Docs →</span>
-          </a>
+          <div class="step" role="listitem">
+            <a href="https://docs.livepeer.org" target="_blank" rel="noopener">
+              <span class="n">1</span>
+              <span>
+                <div class="t">Get found by gateways</div>
+                <div class="s">
+                  Open discovery so Livepeer gateways can route jobs to you.
+                </div>
+              </span>
+              <span class="go">Docs →</span>
+            </a>
+          </div>
           <div class="step" role="listitem">
             <span class="n">2</span>
             <span>
@@ -3677,7 +3717,6 @@
     </section>
     <script>
       (function () {
-        var input = document.getElementById("frame-amount");
         var submit = document.querySelector("[data-dw-submit]");
         var tabs = document.querySelectorAll("[data-dw-tab]");
         tabs.forEach(function (tab) {
@@ -3688,38 +3727,78 @@
             if (submit) submit.textContent = tab.getAttribute("data-dw-tab");
           });
         });
+
+        function narrow() {
+          return window.matchMedia("(max-width: 1199px)").matches;
+        }
+
+        function amountInput(frame) {
+          return frame.querySelector(".pf-rail input.dw-input");
+        }
+
+        function setDrawerOpen(frame, open) {
+          if (!frame) return;
+          var drawer = frame.querySelector(".pf-drawer");
+          var toggle = drawer && drawer.querySelector("[data-drawer-focus]");
+          frame.classList.toggle("is-drawer-open", open);
+          if (drawer) drawer.classList.toggle("is-open", open);
+          if (toggle) {
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            toggle.setAttribute(
+              "aria-label",
+              open ? "Close amount drawer" : "Open amount drawer"
+            );
+          }
+          if (open) {
+            var input = amountInput(frame);
+            if (input) input.focus({ preventScroll: true });
+          }
+        }
+
+        function openAmount(frame) {
+          if (!frame) return;
+          var reduce = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+          ).matches;
+          var behavior = reduce ? "auto" : "smooth";
+          var input = amountInput(frame);
+          if (narrow()) {
+            setDrawerOpen(frame, true);
+            return;
+          }
+          var rail = frame.querySelector(".pf-rail");
+          if (rail)
+            rail.scrollIntoView({ block: "nearest", behavior: behavior });
+          if (input) input.focus({ preventScroll: true });
+        }
+
         document
           .querySelectorAll("[data-focus-widget]")
           .forEach(function (btn) {
             btn.addEventListener("click", function () {
-              var rail = document.getElementById("frame-widget");
-              var frame = btn.closest(".page-frame");
-              var drawer = frame && frame.querySelector(".pf-drawer");
-              var reduce = window.matchMedia(
-                "(prefers-reduced-motion: reduce)"
-              ).matches;
-              var behavior = reduce ? "auto" : "smooth";
-              /* Under 1200px the rail is hidden; open the bottom drawer path */
-              if (!rail || rail.offsetParent === null) {
-                if (!drawer) return;
-                /* Drawer is display:none above 1200px; below that it is visible
-                   and must stay in the a11y tree (no aria-hidden). */
-                drawer.classList.add("is-open");
-                drawer.scrollIntoView({ block: "nearest", behavior: behavior });
-                var drawerFocus =
-                  drawer.querySelector("[data-drawer-focus]") ||
-                  drawer.querySelector("button, a, [tabindex]");
-                if (drawerFocus) drawerFocus.focus({ preventScroll: true });
-                return;
-              }
-              if (!input) return;
-              rail.scrollIntoView({
-                block: "nearest",
-                behavior: behavior,
-              });
-              input.focus({ preventScroll: true });
+              openAmount(btn.closest(".page-frame"));
             });
           });
+
+        document
+          .querySelectorAll("[data-drawer-focus]")
+          .forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var frame = btn.closest(".page-frame");
+              if (!frame) return;
+              var open = !frame.classList.contains("is-drawer-open");
+              setDrawerOpen(frame, open);
+            });
+          });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          document
+            .querySelectorAll(".page-frame.is-drawer-open")
+            .forEach(function (frame) {
+              setDrawerOpen(frame, false);
+            });
+        });
       })();
     </script>
   </body>

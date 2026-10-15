@@ -2,7 +2,8 @@
 
 Decision for [livepeer/explorer#802](https://github.com/livepeer/explorer/issues/802). Grounded in the September 2026 Livepeer 2.0 litepaper draft and the current Explorer surfaces. [803](https://github.com/livepeer/explorer/issues/803) (reward history) and [804](https://github.com/livepeer/explorer/issues/804) (validator UX) should hang off this, not get designed inside it.
 
-Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). Litepaper draft: [`Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](./Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
+Protocol KV: [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md) (prefer over inventing; do not counter the PDF).  
+Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). PDF: [`../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
 
 ## Put it on the orchestrator list, explain it on the orchestrating page
 
@@ -120,13 +121,13 @@ Default sort: where new stake earns the most. "Room to earn" nodes first, widest
 
 Lead columns:
 
-| Column        | What it is                                                                                                      |
-| ------------- | --------------------------------------------------------------------------------------------------------------- |
-| Orchestrator  | Unchanged.                                                                                                      |
-| State         | "Room to earn" / "Full" / "Balanced". Text chip, plus one plain subline ("Extra stake earns nothing").          |
-| Fees vs stake | Two number lines: "11.8% of fees", "2.3% of stake". The smaller one carries a "caps rewards" tag. No bars here. |
-| Reward cap    | `min(fee share, stake share)`, colored by the binding side, with "of network rewards" as the subline.           |
-| Node keeps    | Quiet: reward cut / fee cut. Detail lives in the optional breakdown on the orchestrating page.                  |
+| Column        | What it is                                                                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Orchestrator  | Unchanged.                                                                                                                                |
+| State         | "Room to earn" / "Full" / "Balanced". Text chip, plus one plain subline (Full: "Extra stake earns nothing" / "doesn’t lift the LPT cap"). |
+| Fees vs stake | Two number lines: "11.8% of fees", "2.3% of stake". The smaller one carries a "caps rewards" tag. No bars here.                           |
+| Reward cap    | `min(fee share, stake share)`, colored by the binding side, with "of network rewards" as the subline.                                     |
+| Node keeps    | Quiet: reward cut / fee cut. Detail lives in the optional breakdown on the orchestrating page.                                            |
 
 Demote, do not delete: absolute delegated stake, trailing fee volume, regional scores. Trailing volume is a stability hint. It is denominated in USDC once fees are, and it is not the MFS input.
 
