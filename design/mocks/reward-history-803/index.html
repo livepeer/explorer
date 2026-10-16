@@ -820,18 +820,30 @@
       .round-row:hover {
         border-color: var(--neutral5);
       }
+      /* Selected ≠ focus. Theme green, never white - still a clear non-color cue
+         via the inset bar + weight (works for keyboard and colorblind). */
       .round-row[aria-checked="true"] {
-        border-color: var(--hiContrast);
-        border-width: 2px;
-        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(76, 195, 138, 0.5);
+        background: rgba(76, 195, 138, 0.08);
         box-shadow: inset 3px 0 0 var(--primary11);
       }
       .round-row[aria-checked="true"] .rid {
         font-weight: 650;
       }
+      /* Tailwind v4 equiv: outline-2 outline-offset-2 outline-[color:var(--primary11)]
+         focus-visible: only when keyboarding, not on click. */
+      .round-row:focus {
+        outline: none;
+      }
       .round-row:focus-visible {
         outline: 2px solid var(--primary11);
         outline-offset: 2px;
+        border-color: rgba(76, 195, 138, 0.65);
+      }
+      .round-row[aria-checked="true"]:focus-visible {
+        outline-color: var(--primary11);
+        box-shadow: inset 3px 0 0 var(--primary11),
+          0 0 0 1px rgba(76, 195, 138, 0.25);
       }
       .round-row .main {
         min-width: 0;
@@ -1005,10 +1017,14 @@
         letter-spacing: 0.04em;
       }
       .place-table td:first-child {
+        font-weight: 600;
+        color: var(--hiContrast);
+        white-space: nowrap;
+      }
+      .place-table td:nth-child(2) {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--hiContrast);
-        white-space: nowrap;
       }
       .place-table .role {
         color: var(--neutral11);
@@ -1077,7 +1093,12 @@
         Settled rounds, then a receipt for
         <strong>why that round paid what it paid</strong>. Live fee-vs-stake
         (“Room to earn” / “Full” / “Balanced”) is in
-        <a href="../mfs-delegation-802/index.html">802</a>.
+        <a
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >.
         <span class="swatch fee" title="Fees"
           ><i aria-hidden="true"></i>Fees</span
         >
@@ -1113,7 +1134,7 @@
             </div>
           </div>
           <nav class="pf-tabs" aria-label="Account sections">
-            <a href="../mfs-delegation-802/index.html">Orchestrating</a>
+            <span>Orchestrating</span>
             <span>Delegating</span>
             <a href="#primary" aria-current="page">History</a>
             <span>Delegators</span>
@@ -1146,10 +1167,14 @@
           </div>
 
           <div id="panel-rewards">
+            <p class="anti" style="margin-bottom: 10px; max-width: 52ch">
+              In product: node page defaults to Node pools; your account
+              defaults to Your payouts. Toggle is for this review only.
+            </p>
             <div
               class="reader-seg"
               role="radiogroup"
-              aria-label="How you are reading this"
+              aria-label="Last mile in this mock"
               id="reader-seg"
             >
               <button
@@ -1158,7 +1183,7 @@
                 aria-checked="true"
                 data-reader="delegator"
               >
-                You delegated here
+                Your payouts
               </button>
               <button
                 type="button"
@@ -1167,7 +1192,7 @@
                 data-reader="operator"
                 tabindex="-1"
               >
-                You operate this node
+                Node pools
               </button>
             </div>
 
@@ -1561,7 +1586,9 @@
                     <span class="num">11.8%</span>), or honesty nearer
                     <span class="num">1.0</span> at claim. Today’s gap:
                     <a
-                      href="../mfs-delegation-802/index.html"
+                      href="https://github.com/livepeer/explorer/issues/802"
+                      target="_blank"
+                      rel="noopener"
                       style="color: var(--primary11)"
                       >802</a
                     >.
@@ -1571,7 +1598,9 @@
                     <span class="num">9.5%</span> stake gap, or keep honesty at
                     <span class="num">1.0</span> through claim. Today’s gap:
                     <a
-                      href="../mfs-delegation-802/index.html"
+                      href="https://github.com/livepeer/explorer/issues/802"
+                      target="_blank"
+                      rel="noopener"
                       style="color: var(--primary11)"
                       >802</a
                     >.
@@ -1628,33 +1657,70 @@
         <h2 class="section-title" id="placement">Where it lives</h2>
       </div>
       <p class="section-description">
-        Entries from Orchestrating / Delegating are in
-        <a href="../mfs-delegation-802/index.html">802</a>.
+        Same History · Rewards shell, two homes. Whose account you’re on picks
+        the default last mile. The toggle above is only so both can be reviewed
+        in one mock.
       </p>
 
       <table class="place-table">
         <thead>
           <tr>
+            <th>Who</th>
             <th>Surface</th>
-            <th>Role</th>
+            <th>What they get</th>
           </tr>
         </thead>
         <tbody>
           <tr class="primary-row">
+            <td>You run the node</td>
             <td>/accounts/[node]/history · Rewards</td>
             <td class="role">
-              <strong>Primary.</strong> Settled rounds → receipt for why that
-              round paid. Transactions mode stays on the same tab.
+              <strong>Primary for operators.</strong> Settled rounds for this
+              node → receipt for the pool that round (and what you kept).
+              Transactions stays on the same tab.
             </td>
           </tr>
-          <tr>
-            <td>Orchestrating / Delegating</td>
+          <tr class="primary-row">
+            <td>You delegated</td>
+            <td>/accounts/[you]/history · Rewards</td>
             <td class="role">
-              Entry only. See
-              <a href="../mfs-delegation-802/index.html">802</a>.
+              <strong>Primary for delegators.</strong> Settled rounds that paid
+              <em>you</em> → receipt for why that amount (node’s cap math, then
+              your share). Deep-link can open the node’s round if you want the
+              full derivation there.
             </td>
           </tr>
           <tr>
+            <td>Live status</td>
+            <td>/accounts/[node]/orchestrating</td>
+            <td class="role">
+              Entry only. “Paid about a week later” → this node’s History ·
+              Rewards.
+              <a
+                href="https://github.com/livepeer/explorer/issues/802"
+                target="_blank"
+                rel="noopener"
+                >802</a
+              >
+              keeps the live fee-vs-stake card here.
+            </td>
+          </tr>
+          <tr>
+            <td>Live status</td>
+            <td>/accounts/[you]/delegating</td>
+            <td class="role">
+              Entry only. “Round N paid you · Why?” → your History · Rewards (or
+              the node’s receipt with your share). Live card stays
+              <a
+                href="https://github.com/livepeer/explorer/issues/802"
+                target="_blank"
+                rel="noopener"
+                >802</a
+              >.
+            </td>
+          </tr>
+          <tr>
+            <td></td>
             <td>Home · /orchestrators · Delegators · new /rewards</td>
             <td class="role">Out.</td>
           </tr>
@@ -1688,7 +1754,7 @@
         }
 
         var link802 =
-          '<a href="../mfs-delegation-802/index.html" style="color: var(--primary11)">802</a>';
+          '<a href="https://github.com/livepeer/explorer/issues/802" target="_blank" rel="noopener" style="color: var(--primary11)">802</a>';
         var rounds = {
           4210: {
             theme: "stake",

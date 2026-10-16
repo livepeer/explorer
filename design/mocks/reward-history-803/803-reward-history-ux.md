@@ -13,13 +13,15 @@ Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](.
 
 **Do not relocate the 802 card onto History and hang a round list under it.** That reads as “current status, plus some history tacked on,” which is nonsense on a History tab. History leads with the past (a list of settled rounds). Selecting a row opens a **receipt** for that round only: which share capped rewards, delay, honesty factor, cut, your share. Live compare stays one click away on Orchestrating.
 
-| Surface                                                                                                       | Role for 803                                                                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`/accounts/[account]/history`](../../../pages/accounts/[account]/history.tsx) on the **node** (orchestrator) | **Primary.** **Rewards** mode as master-detail: rounds list / receipt (wide), list → drill-in receipt (narrow). Keep today’s chronological tx feed as **Transactions**. Deep-link: `?mode=rewards&round=N` (optional `?as=delegatorAddress`). |
-| [`/accounts/[account]/orchestrating`](../../../pages/accounts/[account]/orchestrating.tsx)                    | **Keeps the 802 status card.** Entry only for 803: “Rewards are paid about a week after the round” → this node’s History · Rewards (selects a settled round). No past-round table here.                                                       |
-| [`/accounts/[account]/delegating`](../../../pages/accounts/[account]/delegating.tsx)                          | **Entry only.** Bonded card keeps current 802 state. One past line (“Round N paid you X LPT · Why?”) opens the **delegate node’s** History · Rewards receipt. Optional `?as=` for the personal share.                                         |
-| Own-account History when the viewer is only a delegator                                                       | **Light.** Claim rows deep-link to the node’s round receipt. Derivation always lives on the node.                                                                                                                                             |
-| Home, `/orchestrators`, Delegators tab                                                                        | **Out.** Dashboard / market / roster.                                                                                                                                                                                                         |
+| Who              | Surface                                                                                 | Role for 803                                                                                                        |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| You run the node | [`/accounts/[node]/history`](../../../pages/accounts/[account]/history.tsx) · Rewards   | **Primary for operators.** Settled node rounds → pool receipt. Transactions on the same tab.                        |
+| You delegated    | [`/accounts/[you]/history`](../../../pages/accounts/[account]/history.tsx) · Rewards    | **Primary for delegators.** Rounds that paid you → receipt (cap math + your share). May deep-link the node’s round. |
+| Live status      | [`/accounts/[node]/orchestrating`](../../../pages/accounts/[account]/orchestrating.tsx) | Entry only → node History · Rewards. 802 keeps the live card.                                                       |
+| Live status      | [`/accounts/[you]/delegating`](../../../pages/accounts/[account]/delegating.tsx)        | Entry only → your History · Rewards (or node receipt with `?as=`).                                                  |
+| -                | Home, `/orchestrators`, Delegators, new `/rewards`                                      | Out.                                                                                                                |
+
+Same shell on both History homes. Product defaults the last mile from whose account you’re on (node → Node pools; you → Your payouts). The mock toggle is review-only.
 
 Do not add a top-level “Rewards” product page. Today’s History tab is only a tx chronology (`components/HistoryView/`); that feed lists `RewardEvent` amounts without saying what capped them. 803 reuses the tab for past _rewards_, not for a second live MFS card.
 
@@ -47,7 +49,7 @@ Explorer can keep saying “orchestrator.” Below, “node” means that accoun
 | Current delegator | “What did past rounds pay me, and why was that round that size?” | List of your amounts; receipt: which share capped, multiplier, delay, pro-rata after cut. Forward-looking “room” → Orchestrating. |
 | Node operator     | “What did past pools mint, and which share capped each?”         | List of pool amounts; same receipt; last mile is pool + kept cut.                                                                 |
 
-One shell, a reader toggle (Delegated here / Operate this node). Same math; different last mile.
+One shell, two account homes. Same math; different last mile (Your payouts vs Node pools).
 
 ## Causal model
 
