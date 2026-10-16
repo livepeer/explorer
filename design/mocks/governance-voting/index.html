@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Voting Widget Preview</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --panel: #141414;
+        --neutral3: #1f1f1f;
+        --neutral4: #2a2a2a;
+        --neutral5: #333333;
+        --neutral8: #6b6b6b;
+        --neutral10: #8f8f8f;
+        --neutral11: #a0a0a0;
+        --hiContrast: #ffffff;
+        --grass3: #0f2417;
+        --grass4: #132a1a;
+        --grass9: #46a758;
+        --grass11: #4ade5b;
+        --tomato3: #291415;
+        --tomato4: #351719;
+        --tomato9: #e54d2e;
+        --tomato11: #ff6b47;
+        --primary11: #00a478;
+        --radius: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--hiContrast);
+        padding: 40px;
+        min-height: 100vh;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 40px;
+        color: var(--hiContrast);
+      }
+
+      .section {
+        margin-bottom: 56px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--neutral4);
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--hiContrast);
+      }
+
+      .section-badge {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: var(--neutral3);
+        color: var(--neutral11);
+      }
+
+      .section-badge.treasury {
+        background: rgba(0, 164, 120, 0.15);
+        color: var(--primary11);
+      }
+
+      .section-badge.lip {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--neutral11);
+        margin-bottom: 20px;
+        max-width: 600px;
+      }
+
+      .widgets-container {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(360px, 100%), 420px)
+        );
+        gap: 24px;
+      }
+
+      .widget-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .widget-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--neutral10);
+      }
+
+      .widget {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 20px;
+      }
+
+      .heading {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--neutral10);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+      }
+
+      .results-section {
+        margin-bottom: 16px;
+      }
+
+      .vote-bar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .vote-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 60px;
+        font-size: 13px;
+      }
+
+      .vote-label.for {
+        color: var(--grass11);
+      }
+      .vote-label.against {
+        color: var(--tomato11);
+      }
+      .vote-label.abstain {
+        color: var(--neutral11);
+      }
+
+      .vote-icon {
+        width: 14px;
+        height: 14px;
+      }
+
+      .bar-container {
+        flex: 1;
+        margin: 0 12px;
+        height: 8px;
+        border-radius: 1000px;
+        background: var(--neutral5);
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 1000px;
+        transition: width 0.3s ease;
+      }
+
+      .bar-fill.for {
+        background: var(--grass9);
+      }
+      .bar-fill.against {
+        background: var(--tomato9);
+      }
+      .bar-fill.abstain {
+        background: var(--neutral8);
+      }
+
+      .vote-percent {
+        font-size: 13px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        min-width: 55px;
+        text-align: right;
+      }
+
+      .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 4px;
+      }
+
+      .summary-text {
+        font-size: 13px;
+        color: var(--neutral11);
+      }
+
+      .view-votes-link {
+        font-size: 11px;
+        color: var(--primary11);
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .view-votes-link:hover {
+        text-decoration: underline;
+      }
+
+      .your-vote-section {
+        border-top: 1px solid var(--neutral4);
+        padding-top: 16px;
+      }
+
+      .vote-detail-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .vote-detail-label {
+        color: var(--neutral11);
+      }
+
+      .vote-detail-value {
+        font-weight: 500;
+        color: var(--hiContrast);
+      }
+
+      .vote-detail-value.muted {
+        color: var(--neutral11);
+      }
+
+      .vote-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .vote-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: 1px solid;
+      }
+
+      .vote-btn.for {
+        background: var(--grass3);
+        color: var(--grass11);
+        border-color: var(--grass4);
+      }
+
+      .vote-btn.for:hover {
+        background: var(--grass4);
+      }
+
+      .vote-btn.against {
+        background: var(--tomato3);
+        color: var(--tomato11);
+        border-color: var(--tomato4);
+      }
+
+      .vote-btn.against:hover {
+        background: var(--tomato4);
+      }
+
+      .vote-btn.abstain {
+        background: var(--neutral3);
+        color: var(--neutral11);
+        border-color: var(--neutral4);
+        grid-column: span 2;
+      }
+
+      .vote-btn.abstain:hover {
+        background: var(--neutral4);
+      }
+
+      .vote-btn.full-width {
+        grid-column: span 2;
+      }
+
+      .vote-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .reason-input {
+        grid-column: span 2;
+        margin-top: 8px;
+      }
+
+      .reason-input textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--neutral4);
+        background: var(--neutral3);
+        color: var(--hiContrast);
+        font-family: inherit;
+        font-size: 16px; /* avoids iOS focus zoom */
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      .reason-input textarea::placeholder {
+        color: var(--neutral10);
+      }
+
+      .reason-input textarea:focus {
+        border-color: var(--primary11);
+      }
+      .reason-input textarea:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+      }
+
+      .connect-prompt {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .connect-prompt .vote-btn {
+        width: 100%;
+      }
+
+      .connect-prompt .hint {
+        font-size: 13px;
+        color: var(--neutral11);
+      }
+
+      .info-banner {
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--neutral3);
+        border: 1px solid var(--neutral5);
+      }
+
+      .info-banner-content {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .info-banner-icon {
+        color: var(--neutral11);
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        margin-top: 1px;
+      }
+
+      .info-banner-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--hiContrast);
+        margin-bottom: 4px;
+      }
+
+      .info-banner-text {
+        font-size: 13px;
+        color: var(--neutral11);
+        margin-bottom: 12px;
+      }
+
+      .info-banner-link {
+        font-size: 13px;
+        color: var(--primary11);
+        text-decoration: none;
+      }
+
+      .info-banner-link:hover {
+        text-decoration: underline;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 8px 12px;
+        background: var(--hiContrast);
+        color: var(--bg);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+
+      .reason-input label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--neutral11);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bar-fill,
+        .vote-btn {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <h1>Voting Widget Preview</h1>
+
+    <!-- ============================================== -->
+    <!-- TREASURY PROPOSALS SECTION -->
+    <!-- ============================================== -->
+    <div class="section" id="main-content">
+      <div class="section-header">
+        <h2 class="section-title">Treasury Proposals</h2>
+        <span class="section-badge treasury">On-chain Governance</span>
+      </div>
+      <p class="section-description">
+        Treasury proposals use 3-way voting (For / Against / Abstain) with
+        optional voting reasons. Voting power is snapshotted at proposal
+        creation time.
+      </p>
+
+      <div class="widgets-container">
+        <!-- Treasury: Active, Can Vote -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Active · Can Vote</div>
+          <div class="widget">
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 62%"></div>
+                </div>
+                <div class="vote-percent">62.35%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 28%"></div>
+                </div>
+                <div class="vote-percent">28.12%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label abstain">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <line
+                      x1="4"
+                      y1="7.5"
+                      x2="11"
+                      y2="7.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Abstain
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill abstain" style="width: 9.5%"></div>
+                </div>
+                <div class="vote-percent">9.53%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text">1.24M LPT voted · 2 days left</span>
+                <a href="#" class="view-votes-link">View votes</a>
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label"
+                  >Delegate vote (0x3B2a…7F92)</span
+                >
+                <span class="vote-detail-value">Voted</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Status</span>
+                <span class="vote-detail-value">Not voted</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Voting power</span>
+                <span class="vote-detail-value">12,345.67 LPT</span>
+              </div>
+
+              <div class="vote-buttons">
+                <button class="vote-btn for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </button>
+                <button class="vote-btn against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </button>
+                <button class="vote-btn abstain">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <line
+                      x1="4"
+                      y1="7.5"
+                      x2="11"
+                      y2="7.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Abstain
+                </button>
+                <div class="reason-input">
+                  <label for="vote-reason"
+                    >Reason for your vote (optional)</label
+                  >
+                  <textarea
+                    id="vote-reason"
+                    name="vote-reason"
+                    placeholder="e.g. Supports the treasury request…"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treasury: Active, Ineligible -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Active · Ineligible</div>
+          <div class="widget">
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 45%"></div>
+                </div>
+                <div class="vote-percent">45.00%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 35%"></div>
+                </div>
+                <div class="vote-percent">35.00%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label abstain">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <line
+                      x1="4"
+                      y1="7.5"
+                      x2="11"
+                      y2="7.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Abstain
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill abstain" style="width: 20%"></div>
+                </div>
+                <div class="vote-percent">20.00%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text">890K LPT voted · 5 days left</span>
+                <a href="#" class="view-votes-link">View votes</a>
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Status</span>
+                <span class="vote-detail-value muted">Ineligible</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Voting power</span>
+                <span class="vote-detail-value muted">0 LPT</span>
+              </div>
+
+              <div class="info-banner">
+                <div class="info-banner-content">
+                  <svg class="info-banner-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <line
+                      x1="7.5"
+                      y1="5"
+                      x2="7.5"
+                      y2="8"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="7.5" cy="10.5" r="0.75" fill="currentColor" />
+                  </svg>
+                  <div>
+                    <div class="info-banner-title">Ineligible to vote</div>
+                    <div class="info-banner-text">
+                      You had 0 LPT staked on Jan 15, 2026 when this proposal
+                      was created.
+                    </div>
+                    <a href="#" class="info-banner-link"
+                      >Learn about stake snapshots</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treasury: Final Results -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Final Results</div>
+          <div class="widget">
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 72%"></div>
+                </div>
+                <div class="vote-percent">72.18%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 18%"></div>
+                </div>
+                <div class="vote-percent">18.24%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label abstain">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <line
+                      x1="4"
+                      y1="7.5"
+                      x2="11"
+                      y2="7.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Abstain
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill abstain" style="width: 9.58%"></div>
+                </div>
+                <div class="vote-percent">9.58%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text">2.1M LPT voted · Final Results</span>
+                <a href="#" class="view-votes-link">View votes</a>
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Status</span>
+                <span class="vote-detail-value">Voted</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">Voting power</span>
+                <span class="vote-detail-value">15,000 LPT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- LIP POLLS SECTION -->
+    <!-- ============================================== -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">LIP Polls</h2>
+        <span class="section-badge lip">Signaling Votes</span>
+      </div>
+      <p class="section-description">
+        LIP polls use 2-way voting (For / Against only) without voting reasons.
+        These are signaling votes to gauge community sentiment on protocol
+        improvements.
+      </p>
+
+      <div class="widgets-container">
+        <!-- LIP Poll: Active, Can Vote -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Active · Can Vote</div>
+          <div class="widget">
+            <div class="heading">Do you support LIP-93?</div>
+
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 55%"></div>
+                </div>
+                <div class="vote-percent">55.00%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 45%"></div>
+                </div>
+                <div class="vote-percent">45.00%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text"
+                  >12 votes · 234K LPT · 6 days left</span
+                >
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label"
+                  >My Delegate Vote (0x9F4a…2B1c)</span
+                >
+                <span class="vote-detail-value">N/A</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">My Vote (0x7E21…9c5A)</span>
+                <span class="vote-detail-value">N/A</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">My Voting Power</span>
+                <span class="vote-detail-value">5,678.90 LPT (2.4%)</span>
+              </div>
+
+              <div class="vote-buttons">
+                <button class="vote-btn for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </button>
+                <button class="vote-btn against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIP Poll: Already Voted -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Active · Already Voted For</div>
+          <div class="widget">
+            <div class="heading">Do you support LIP-91?</div>
+
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 85%"></div>
+                </div>
+                <div class="vote-percent">85.00%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 15%"></div>
+                </div>
+                <div class="vote-percent">15.00%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text"
+                  >18 votes · 432K LPT · 1 day left</span
+                >
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label"
+                  >My Delegate Vote (0xAb12…3F4e)</span
+                >
+                <span class="vote-detail-value">For</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">My Vote (0x7E21…9c5A)</span>
+                <span class="vote-detail-value">For</span>
+              </div>
+
+              <div class="vote-detail-row">
+                <span class="vote-detail-label">My Voting Power</span>
+                <span class="vote-detail-value">8,234.12 LPT (1.9%)</span>
+              </div>
+
+              <div class="vote-buttons">
+                <button class="vote-btn against full-width">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Change Vote To Against
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIP Poll: Not Connected -->
+        <div class="widget-wrapper">
+          <div class="widget-label">Active · Not Connected</div>
+          <div class="widget">
+            <div class="heading">Do you support LIP-92?</div>
+
+            <div class="results-section">
+              <div class="section-label">Results</div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label for">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M4.5 7.5L6.5 9.5L10.5 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  For
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill for" style="width: 78%"></div>
+                </div>
+                <div class="vote-percent">78.24%</div>
+              </div>
+
+              <div class="vote-bar-row">
+                <div class="vote-label against">
+                  <svg class="vote-icon" viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="7.5"
+                      r="6.5"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M5 5L10 10M10 5L5 10"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Against
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill against" style="width: 22%"></div>
+                </div>
+                <div class="vote-percent">21.76%</div>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-text"
+                  >24 votes · 567K LPT · 3 days left</span
+                >
+              </div>
+            </div>
+
+            <div class="your-vote-section">
+              <div class="section-label">Your vote</div>
+              <div class="connect-prompt">
+                <button
+                  class="vote-btn full-width"
+                  disabled
+                  style="
+                    background: var(--primary11);
+                    color: #000;
+                    border-color: var(--primary11);
+                    opacity: 0.5;
+                  "
+                >
+                  Vote
+                </button>
+                <span class="hint">Connect your wallet to vote.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
