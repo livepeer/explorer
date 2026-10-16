@@ -1,9 +1,8 @@
 # 803: Why a past round paid what it paid
 
-Decision for [livepeer/explorer#803](https://github.com/livepeer/explorer/issues/803). Grounded in the September 2026 Livepeer 2.0 litepaper draft, the current Explorer account tabs, and the boundary set by [802](https://github.com/livepeer/explorer/issues/802). [804](https://github.com/livepeer/explorer/issues/804) (validator UX) stays out, except that a past payout may show the median `RewardMultiplier` as one historical factor.
+Decision for [livepeer/explorer#803](https://github.com/livepeer/explorer/issues/803). Grounded in Livepeer 2.0 reward math, the current Explorer account tabs, and the boundary set by [802](https://github.com/livepeer/explorer/issues/802). [804](https://github.com/livepeer/explorer/issues/804) (validator UX) stays out, except that a past payout may show the median `RewardMultiplier` as one historical factor.
 
-Protocol KV: [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md) (prefer over inventing; do not counter the PDF).  
-Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). PDF: [`../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
+Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)).
 
 ## Where it lives
 
@@ -71,7 +70,7 @@ Inflationary LPT for a work round is not “stake × APR.” Under Livepeer 2.0 
    pool_lpt = eligible_lpt × multiplier
 
 5. Delay
-   claimable in round R + RewardsDelayPeriod (litepaper: 7 rounds)
+   claimable in round R + RewardsDelayPeriod (7 rounds)
    Score used is the median at claim, not at work time.
 
 6. Cut split (existing rewardCut)
@@ -89,7 +88,7 @@ Plain labels in chrome (History / receipt):
 - Title → “Round N” only. Cap status lives in wash color, list meta, and the binding-step tag. **Not** “Room to earn” / “Full” (802 live states).
 - Tag on the binding step → “capped rewards” (same idea as 802’s “caps rewards”, past tense).
 - Multiplier → “Honesty score at payout” with the 0–1 factor; no validator product.
-- Delay → “Worked in round R · Claimable in round R+7” (litepaper: claimable at `R+7`; list meta may still say “paid” as shorthand for settled).
+- Delay → “Worked in round R · Claimable in round R+7” (claimable at `R+7`; list meta may still say “paid” as shorthand for settled).
 
 No jargon in visible labels: no “MFS”, no “headroom”, no “binding constraint”. Formula and parameter names live in tooltips and this doc.
 
@@ -107,7 +106,7 @@ No jargon in visible labels: no “MFS”, no “headroom”, no “binding cons
 
 - **802 current-state compare** on `/orchestrators` and the orchestrating MFS block. Link out; do not redesign.
 - **804 validator product.** No score column on the list, no “how to raise your score” track, no validator set UX. Showing the historical multiplier that already applied to a paid round is in scope; building the scoring product is not.
-- **Emissions schedule / network-wide mint size.** Share math is stable; mint size is still a draft in the litepaper. Mock uses a sample pot; call that out here, not in the product chrome.
+- **Emissions schedule / network-wide mint size.** Share math is stable; mint size is still a draft. Mock uses a sample pot; call that out here, not in the product chrome.
 - **Product implementation.** This folder is design-bounty only until @ECWireless approval.
 
 ## Surfaces in the mock
@@ -168,28 +167,8 @@ Today’s History queries `rewardEvents { rewardTokens, round, delegate }` and m
 
 1. **APY / realized return %.** Ticket asked for delegator APY. 802 already flagged emissions as an unfinished draft. **Recommended default:** show LPT amounts and share math only; do not ship APY or “% return” until emissions are fixed. Flag for @ECWireless.
 2. **History default mode.** **Recommended default:** `Rewards` when the account is an orchestrator (or when `?mode=rewards`); `Transactions` when the account has no node history. Confirm with stakeholders who still live in the tx feed.
-3. **Claim vs auto-distribute.** Litepaper: claimable at `R+7`. Mock chrome now says **Claimable in round R+7**. If product later auto-distributes, list meta can stay “paid”; adjust if claim is a separate Transactions action.
+3. **Claim vs auto-distribute.** Protocol: claimable at `R+7`. Mock chrome now says **Claimable in round R+7**. If product later auto-distributes, list meta can stay “paid”; adjust if claim is a separate Transactions action.
 4. **`transferBond` / 21-round move** stays an 802 copy concern, not a column here.
-
-## Litepaper assessment (803 vs cliff notes)
-
-Checked against [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md). Do not counter the PDF.
-
-| Litepaper fact                        | 803 mock / rationale                                                | Verdict |
-| ------------------------------------- | ------------------------------------------------------------------- | ------- |
-| `reward % = min(fee%, stake%)`        | Receipt steps 1–3; “rewards follow the smaller number”; binding tag | Pass    |
-| Fees never stake-capped               | Footnote on fee step + cut block (“USDC… never capped by stake”)    | Pass    |
-| LPT capped by stake share             | Wash + list meta + binding tag (not restated in the H3)             | Pass    |
-| `RewardsDelayPeriod` = 7 rounds       | Worked R · Claimable R+7; tooltip names the parameter               | Pass    |
-| Multiplier = median at **claim** time | Step 5 + delay tooltip; retroactive / can zero a fee spike          | Pass    |
-| Multiplier ≠ QoS                      | Honesty tooltip: dishonest behavior, not QoS; product = 804         | Pass    |
-| Cut then pro-rata by stake            | Steps after pool; reader toggle for node kept vs delegator share    | Pass    |
-| Emissions draft / no dollar APY       | Share math only; pot labeled illustrative in this doc, not chrome   | Pass    |
-| NodeEmissionShare 94% of mint         | “Of that round’s node emissions pot” (sample pot); not shown as APY | Pass    |
-| Past vs live (802 boundary)           | History = settled rounds; Orchestrating keeps “Room to earn”        | Pass    |
-| Claimable vs “paid” wording           | Was “Paid in round”; now **Claimable** to match litepaper           | Fixed   |
-
-**Still open (need human):** APY (Q1), History default mode (Q2), whether claim is a user action separate from claimable-at (Q3).
 
 ## Narrative + 802 boundary
 
