@@ -1,9 +1,8 @@
 # 802: Where MFS shows up
 
-Decision for [livepeer/explorer#802](https://github.com/livepeer/explorer/issues/802). Grounded in the September 2026 Livepeer 2.0 litepaper draft and the current Explorer surfaces. [803](https://github.com/livepeer/explorer/issues/803) (reward history) and [804](https://github.com/livepeer/explorer/issues/804) (validator UX) should hang off this, not get designed inside it.
+Decision for [livepeer/explorer#802](https://github.com/livepeer/explorer/issues/802). Grounded in Livepeer 2.0 fee-vs-stake reward math and the current Explorer surfaces. [803](https://github.com/livepeer/explorer/issues/803) (reward history) and [804](https://github.com/livepeer/explorer/issues/804) (validator UX) should hang off this, not get designed inside it.
 
-Protocol KV: [`../../livepeer-2.0-litepaper-cliffnotes.md`](../../livepeer-2.0-litepaper-cliffnotes.md) (prefer over inventing; do not counter the PDF).  
-Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)). PDF: [`../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf`](../../Livepeer_2.0_Litepaper_September_2026_Draft.pdf).
+Mockups: [`index.html`](./index.html) in this folder (Inter via [`../shared/`](../shared/)).
 
 ## Put it on the orchestrator list, explain it on the orchestrating page
 
@@ -56,7 +55,7 @@ The two states are not good and bad. They are which quantity happens to be the m
 
 ## Users and jobs
 
-Explorer copy can keep saying "orchestrator." The litepaper says "node operator." Renaming is a separate ticket. Below, "node" means that orchestrator.
+Explorer copy can keep saying "orchestrator." Protocol copy may say "node operator." Renaming is a separate ticket. Below, "node" means that orchestrator.
 
 ### Prospective delegator
 
@@ -69,9 +68,9 @@ They need, in order:
 1. Which nodes have room: fee % above stake %. That is the only place new stake still earns inflation.
 2. How wide the gap is, as a share of the network, not as a raw LPT pile.
 3. What the node keeps. Reward cut comes out of the capped LPT; fee cut comes out of USDC fees, which are never capped.
-4. That moving later costs about 21 days. The litepaper's whole point is that delegation stops being risk-free yield. The unbond applies to delegators, and `transferBond` is either removed or delayed 21 rounds so a penalized node cannot walk its stake to a fresh address. That tradeoff is still an open question. The UI has to show the lockup beside every move affordance, and the copy has to be conditional until the parameter is settled.
+4. That moving later costs about 21 days. Under 2.0, delegation stops being risk-free yield. The unbond applies to delegators, and `transferBond` is either removed or delayed 21 rounds so a penalized node cannot walk its stake to a fresh address. That tradeoff is still an open question. The UI has to show the lockup beside every move affordance, and the copy has to be conditional until the parameter is settled.
 
-They do not need a dollar APY. The emissions schedule in the litepaper is still an unfinished draft. Share math is stable. Mint size is not.
+They do not need a dollar APY. The emissions schedule is still an unfinished draft. Share math is stable. Mint size is not.
 
 ### Current delegator
 
@@ -83,7 +82,7 @@ The delegating page answers "your node is full" or "your stake is helping this n
 
 ### Passive delegator
 
-The litepaper is explicit that set-and-forget stake on a node that does not earn fees should earn less than stake on a node that does. Their job is not "optimize every round." Explorer's job is to make the cost of staying visible: plenty of stake, near-zero fees, rewards capped by fees. One card and a link. No nag loop.
+Set-and-forget stake on a node that does not earn fees should earn less than stake on a node that does. Their job is not "optimize every round." Explorer's job is to make the cost of staying visible: plenty of stake, near-zero fees, rewards capped by fees. One card and a link. No nag loop.
 
 ### Orchestrator (node operator)
 
@@ -178,7 +177,7 @@ Pending fees become USDC when the protocol does. That is a unit change, not this
 ## Empty, sparse, wrong
 
 - New node, no stake, no fees: launch checklist on the detail page (gateways → fees → stake). Hidden from the default list, reachable under "All nodes".
-- Fees and no stake: capped by stake at 0%. The gap equals the fee share. This is the delegator opportunity the litepaper describes. It must be obvious, not buried under "inactive".
+- Fees and no stake: capped by stake at 0%. The gap equals the fee share. This is the delegator opportunity under min fee-stake. It must be obvious, not buried under "inactive".
 - Stake and no fees: capped by fees. The ghost-node case. State copy says rewards are capped by fees, not "inactive" in the old active-set sense.
 - Very long identity, tiny shares, huge shares: tabular numbers, shares formatted with enough precision that 0.4% and 0.04% do not collapse.
 
@@ -217,7 +216,7 @@ Canonical SVGs: [`../shared/mfs-status-icons.md`](../shared/mfs-status-icons.md)
 
 ## Open protocol choices that change the UI
 
-- **`transferBond` vs the 21-round delay.** The litepaper wants an active delegation market and also wants stake unable to flee a penalized node. Those conflict. Design for a delayed move. If transfers stay instant, delete the lockup note rather than leaving a lie.
+- **`transferBond` vs the 21-round delay.** 2.0 wants an active delegation market and also wants stake unable to flee a penalized node. Those conflict. Design for a delayed move. If transfers stay instant, delete the lockup note rather than leaving a lie.
 - **Emissions.** Do not show APY, "5× daily rewards", or a dollar mint. Do show "this stake raises the node's ceiling from 2% toward 10% of node rewards." The ceiling ratio is the formula. The mint size is still a draft.
 - **Single-round display.** Resist it on the list even if the subgraph makes it easy. Spikes are the attack.
 - **Naming and the active set.** "Active" today means "in the capped orchestrator set." After 2.0 it does not. Shipping MFS states under the old status will teach the wrong model.

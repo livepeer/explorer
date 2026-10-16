@@ -141,7 +141,6 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 - SHOULD: Primary compare on `/orchestrators`; one-node explanation on `/accounts/[account]/orchestrating`; already-bonded status on `/accounts/[account]/delegating`
 - SHOULD: Optional checkout-style disclosure for reward/fee breakdown; one shell, flat line-items inside
 - Design notes and mocks: `design/mocks/mfs-delegation-802/`
-- Protocol cliff notes (802/803/804): `design/livepeer-2.0-litepaper-cliffnotes.md` — prefer over inventing; do not contradict the litepaper PDF
 
 ## Learned User Preferences
 
