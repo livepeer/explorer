@@ -6,7 +6,10 @@ export * from "./subgraph";
 
 export const client = new ApolloClient({
   link: new HttpLink({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
+    uri:
+      typeof window === "undefined"
+        ? CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph
+        : "/api/graphql",
   }),
   cache: new InMemoryCache(),
 });
