@@ -3,17 +3,13 @@
 import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { gql } from "@apollo/client";
 
-// Next resolves this baseUrl import; Jest's aliases only cover @lib imports.
-jest.mock(
-  "lib/chains",
-  () => ({
-    DEFAULT_CHAIN_ID: 42161,
-    CHAIN_INFO: {
-      42161: { subgraph: "https://gateway.example/api/dummy-key/subgraph" },
-    },
-  }),
-  { virtual: true }
-);
+// Mock the resolved file used by Next's baseUrl import transformation.
+jest.mock("./chains", () => ({
+  DEFAULT_CHAIN_ID: 42161,
+  CHAIN_INFO: {
+    42161: { subgraph: "https://gateway.example/api/dummy-key/subgraph" },
+  },
+}));
 
 describe("Apollo request routing", () => {
   const originalFetch = global.fetch;
