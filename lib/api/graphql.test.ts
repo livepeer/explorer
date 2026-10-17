@@ -1,7 +1,11 @@
 /** @jest-environment node */
 
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+import { addTypenameToDocument } from "@apollo/client/utilities";
+import { type DocumentNode, getOperationAST, print } from "graphql";
 import type { NextApiRequest, NextApiResponse } from "next";
 
+import * as subgraph from "../../apollo/subgraph";
 import handler, { config } from "../../pages/api/graphql";
 
 jest.mock("@lib/chains", () => ({
@@ -15,10 +19,20 @@ const upstreamUrl = "https://gateway.example/api/dummy-key/subgraph";
 const originalFetch = global.fetch;
 const fetchMock = jest.fn() as jest.MockedFunction<typeof fetch>;
 const operation = {
-  query: "query Example($id: ID!) { thing(id: $id) { id } }",
-  operationName: "Example",
-  variables: { id: "123" },
+  query: print(subgraph.ProtocolByBlockDocument),
+  operationName: "protocolByBlock",
+  variables: { block: { number: 123 } },
 };
+const documents = Object.entries(subgraph)
+  .filter(([name]) => name.endsWith("Document"))
+  .map(([, document]) => document as DocumentNode);
+const approvedForms = documents.flatMap((document) =>
+  [document, addTypenameToDocument(document)].map((form, index) => ({
+    operationName: getOperationAST(form)!.name!.value,
+    form: index === 0 ? "source" : "Apollo",
+    query: print(form),
+  }))
+);
 
 const request = (overrides: Partial<NextApiRequest> = {}) =>
   ({
@@ -122,17 +136,200 @@ describe("GraphQL proxy", () => {
     expect(res.json).toHaveBeenCalledWith(result);
   });
 
-  it("accepts optional null operation fields", async () => {
+  it("finds generated query documents to exercise", () => {
+    expect(documents.length).toBeGreaterThan(0);
+  });
+
+  it.each(approvedForms)("accepts $operationName ($form)", async (body) => {
+    fetchMock.mockResolvedValue(jsonResponse({ data: null }));
+    const { query, operationName } = body;
+    const res = response();
+
+    await handler(request({ body: { query, operationName } }), res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("accepts a real Apollo HTTP request and preserves its payload", async () => {
+    const data = {
+      _meta: { block: { number: 123 }, hasIndexingErrors: false },
+    };
+    fetchMock.mockResolvedValue(jsonResponse({ data }));
+    const proxyFetch = jest.fn(
+      async (_url: RequestInfo | URL, options?: RequestInit) => {
+        const res = response();
+        await handler(
+          request({ body: JSON.parse(options!.body as string) }),
+          res
+        );
+        return jsonResponse(
+          res.json.mock.calls[0][0],
+          res.status.mock.calls[0][0]
+        );
+      }
+    );
+    const client = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new HttpLink({ uri: "/api/graphql", fetch: proxyFetch }),
+    });
+
+    try {
+      const result = await client.query({
+        query: subgraph.MetaDocument,
+        fetchPolicy: "no-cache",
+      });
+
+      expect(result.data).toEqual(data);
+      expect(proxyFetch).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const sentBody = proxyFetch.mock.calls[0][1]!.body as string;
+      expect(sentBody).toContain("__typename");
+      expect(fetchMock.mock.calls[0][1]!.body).toBe(sentBody);
+    } finally {
+      client.stop();
+    }
+  });
+
+  it("ignores whitespace and comments when matching the complete document", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ data: null }));
 
     await handler(
       request({
-        body: { query: "{ _meta { block { number } } }", variables: null },
+        body: {
+          ...operation,
+          query: `# operation\n${operation.query.replace(
+            /\n/g,
+            "\n# comment\n  "
+          )}`,
+        },
       }),
       response()
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    { query: operation.query },
+    {
+      query: operation.query,
+      operationName: null,
+      variables: null,
+      extensions: null,
+    },
+    { ...operation, extensions: {} },
+  ])("accepts omitted, null and empty optional fields (%#)", async (body) => {
+    fetchMock.mockResolvedValue(jsonResponse({ data: null }));
+
+    await handler(request({ body }), response());
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["mismatched name", { ...operation, operationName: "meta" }],
+    ["empty name", { ...operation, operationName: "" }],
+    [
+      "altered fields",
+      {
+        ...operation,
+        query: operation.query.replace("totalVolumeUSD", "totalSupply"),
+      },
+    ],
+    [
+      "altered alias",
+      {
+        ...operation,
+        query: operation.query.replace(
+          "totalVolumeUSD",
+          "stolen: totalVolumeUSD"
+        ),
+      },
+    ],
+    [
+      "altered literal",
+      { ...operation, query: operation.query.replace("id: 0", "id: 1") },
+    ],
+    [
+      "altered variable definition",
+      {
+        ...operation,
+        query: operation.query.replace(
+          "$block: Block_height",
+          "$block: Block_height!"
+        ),
+      },
+    ],
+    [
+      "added directive",
+      {
+        ...operation,
+        query: operation.query.replace(
+          "totalVolumeUSD",
+          "totalVolumeUSD @skip(if: true)"
+        ),
+      },
+    ],
+    [
+      "additional operation",
+      {
+        ...operation,
+        query: `${operation.query}\nquery Other { _meta { hasIndexingErrors } }`,
+      },
+    ],
+    [
+      "extra fragment",
+      {
+        ...operation,
+        query: `${operation.query}\nfragment Extra on Protocol { id }`,
+      },
+    ],
+    [
+      "unknown query",
+      { query: "query Unknown { _meta { hasIndexingErrors } }" },
+    ],
+    [
+      "anonymous query",
+      { query: print(subgraph.MetaDocument).replace("query meta", "") },
+    ],
+    ["malformed query", { ...operation, query: "query protocolByBlock {" }],
+    [
+      "mutation",
+      { ...operation, query: operation.query.replace("query ", "mutation ") },
+    ],
+    [
+      "subscription",
+      {
+        ...operation,
+        query: operation.query.replace("query ", "subscription "),
+      },
+    ],
+    [
+      "introspection",
+      {
+        query: "query meta { __schema { queryType { name } } }",
+        operationName: "meta",
+      },
+    ],
+    [
+      "APQ extension",
+      {
+        ...operation,
+        extensions: { persistedQuery: { version: 1, sha256Hash: "untrusted" } },
+      },
+    ],
+    ["unknown extension", { ...operation, extensions: { tracing: true } }],
+  ])("rejects %s without contacting the upstream", async (_label, body) => {
+    const res = response();
+
+    await handler(request({ body }), res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      errors: [{ message: "Invalid GraphQL request" }],
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it.each(["GET", "OPTIONS", "PUT", undefined])(

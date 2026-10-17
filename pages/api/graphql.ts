@@ -1,8 +1,40 @@
+import { addTypenameToDocument } from "@apollo/client/utilities";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
+import { type DocumentNode, getOperationAST, parse, print } from "graphql";
 import type { NextApiRequest, NextApiResponse } from "next";
+
+import * as subgraph from "../../apollo/subgraph";
 
 const MAX_REQUEST_BYTES = 64 * 1024;
 const UPSTREAM_TIMEOUT_MS = 10_000;
+
+const allowedOperations = new Map<string, string>();
+for (const [name, value] of Object.entries(subgraph)) {
+  if (!name.endsWith("Document")) continue;
+  const document = value as DocumentNode;
+  const operation = getOperationAST(document);
+  if (operation?.operation !== "query" || !operation.name) continue;
+
+  // Accept both checked-in queries and Apollo's automatic __typename fields.
+  for (const form of [document, addTypenameToDocument(document)]) {
+    allowedOperations.set(print(form), operation.name.value);
+  }
+}
+
+const isAllowedRequest = (body: Record<string, unknown>): boolean => {
+  if (isObject(body.extensions) && Object.keys(body.extensions).length > 0) {
+    return false;
+  }
+  try {
+    const name = allowedOperations.get(print(parse(body.query as string)));
+    return (
+      name !== undefined &&
+      (body.operationName == null || body.operationName === name)
+    );
+  } catch {
+    return false;
+  }
+};
 
 export const config = {
   api: {
@@ -58,6 +90,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const body = JSON.stringify(req.body);
   if (Buffer.byteLength(body, "utf8") > MAX_REQUEST_BYTES) {
     return errorResponse(res, 413, "GraphQL request body is too large");
+  }
+
+  if (!isAllowedRequest(req.body)) {
+    return errorResponse(res, 400, "Invalid GraphQL request");
   }
 
   const controller = new AbortController();
