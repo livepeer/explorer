@@ -10,6 +10,10 @@ import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
 import URLVerificationBanner from "@components/URLVerificationBanner";
+import {
+  trackVercelAnalyticsEvent,
+  trackWalletConnected,
+} from "@lib/analytics";
 import { IS_L2 } from "@lib/chains";
 import { globalStyles } from "@lib/globalStyles";
 import {
@@ -40,7 +44,6 @@ import {
   useTreasuryProposalsQuery,
 } from "apollo";
 import { BRIDGE_LPT_URL, GET_LPT_URL } from "constants/links";
-import { mergeManualPolls } from "constants/manualPolls";
 import { BigNumber } from "ethers";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "lib/chains";
 import dynamic from "next/dynamic";
@@ -64,6 +67,7 @@ import { FiInfo } from "react-icons/fi";
 import { LuRadioTower } from "react-icons/lu";
 import { useWindowSize } from "react-use";
 import { Chain } from "viem";
+import { useAccountEffect } from "wagmi";
 
 import {
   useAccountAddress,
@@ -108,6 +112,7 @@ export type DrawerItem = {
   as: string;
   icon: React.ElementType;
   className?: string;
+  onClick?: () => void;
 };
 
 const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
@@ -179,7 +184,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   const totalActivePolls = useMemo(
     () =>
-      mergeManualPolls(pollData?.polls).filter(
+      pollData?.polls.filter(
         (p) =>
           (currentRound?.currentL1Block ?? Number.MAX_VALUE) <=
           parseInt(p.endBlock)
@@ -266,6 +271,15 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
     ReactGA.pageview(window.location.pathname + window.location.search);
   }, []);
 
+  useAccountEffect({
+    onConnect: ({ isReconnected }) => {
+      // Reconnects restore a previous session, so they don't count.
+      if (!isReconnected) {
+        trackWalletConnected(asPath);
+      }
+    },
+  });
+
   const items: DrawerItem[] = [
     {
       name: "Overview",
@@ -280,6 +294,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       as: "/orchestrators",
       icon: DNS,
       className: "orchestrators",
+      onClick: () => trackVercelAnalyticsEvent("orchestrators_nav_clicked"),
     },
     {
       name: "Gateways",
@@ -549,6 +564,11 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                           <Link passHref href="/orchestrators">
                             <Button
                               size="3"
+                              onClick={() =>
+                                trackVercelAnalyticsEvent(
+                                  "orchestrators_nav_clicked"
+                                )
+                              }
                               css={{
                                 marginLeft: "$1",
                                 backgroundColor: isOrchestratorsNavActive
@@ -786,7 +806,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 </PopoverLink>
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`https://discord.gg/livepeer`}
+                                  href={`https://discord.gg/55SZFEEH5y`}
                                 >
                                   Discord
                                 </PopoverLink>
@@ -1012,7 +1032,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
 
             <Link
               passHref
-              href="https://docs.livepeer.org/references/contract-addresses"
+              href="https://docs.livepeer.org/network/reference/contracts#contract-addresses"
             >
               <A>
                 <Flex

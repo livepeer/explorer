@@ -37,35 +37,20 @@ const Index = ({
 
   const currentRoundInfo = useCurrentRoundData();
 
-  const blocksRemaining = useMemo(
-    () =>
-      currentRoundInfo?.initialized
-        ? currentRoundInfo.roundLength -
-          (Number(currentRoundInfo.currentL1Block) -
-            Number(currentRoundInfo.startBlock))
-        : 0,
-    [currentRoundInfo]
-  );
-  const timeRemaining = useMemo(
-    () => AVERAGE_L1_BLOCK_TIME * blocksRemaining,
-    [blocksRemaining]
-  );
-  const blocksSinceCurrentRoundStart = useMemo(
-    () =>
-      currentRoundInfo?.initialized
-        ? +Number(currentRoundInfo.currentL1Block) -
-          +Number(currentRoundInfo.startBlock)
-        : 0,
-    [currentRoundInfo]
-  );
-
-  const percentage = useMemo(
-    () =>
-      currentRoundInfo?.roundLength
-        ? (blocksSinceCurrentRoundStart / currentRoundInfo.roundLength) * 100
-        : 0,
-    [blocksSinceCurrentRoundStart, currentRoundInfo]
-  );
+  // A round runs past its nominal end until an orchestrator calls
+  // initializeRound(), so elapsed blocks can exceed the round length.
+  const roundLength = currentRoundInfo?.roundLength ?? 0;
+  const blocksElapsed = currentRoundInfo?.initialized
+    ? currentRoundInfo.currentL1Block - currentRoundInfo.startBlock
+    : 0;
+  const blocksRemaining = Math.max(roundLength - blocksElapsed, 0);
+  const blocksOverdue = Math.max(blocksElapsed - roundLength, 0);
+  const isOverdue = roundLength > 0 && blocksElapsed >= roundLength;
+  const timeRemaining = AVERAGE_L1_BLOCK_TIME * blocksRemaining;
+  const timeOverdue = AVERAGE_L1_BLOCK_TIME * blocksOverdue;
+  const blocksElapsedDisplay = roundLength - blocksRemaining;
+  const percentage =
+    roundLength > 0 ? (blocksElapsedDisplay / roundLength) * 100 : 0;
 
   const isRoundLocked = currentRoundInfo?.locked ?? false;
 
@@ -217,45 +202,76 @@ const Index = ({
               >
                 <Box css={{ textAlign: "center" }}>
                   <Box css={{ fontWeight: "bold", fontSize: "$5" }}>
-                    {blocksSinceCurrentRoundStart}
+                    {blocksElapsedDisplay}
                   </Box>
-                  <Box css={{ fontSize: "$1" }}>
-                    of {currentRoundInfo.roundLength} blocks
-                  </Box>
+                  <Box css={{ fontSize: "$1" }}>of {roundLength} blocks</Box>
                 </Box>
               </Box>
             </Box>
-            <Box css={{ lineHeight: 1.5 }}>
-              <Text css={{ fontSize: "$2" }}>
-                There are{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  {blocksRemaining} blocks
-                </Box>{" "}
-                and approximately{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  {dayjs().add(timeRemaining, "seconds").fromNow(true)}
-                </Box>{" "}
-                remaining until the current round ends and round{" "}
-                <Box
-                  as="span"
-                  css={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  #{+Number(currentRoundInfo.id) + 1}
-                </Box>{" "}
-                begins.
-              </Text>
+            <Box css={{ lineHeight: 1.5, minHeight: 78 }}>
+              {isOverdue ? (
+                <Text css={{ fontSize: "$2" }}>
+                  Round{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    #{currentRoundInfo.id}
+                  </Box>{" "}
+                  ended approximately{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {dayjs().subtract(timeOverdue, "seconds").fromNow(true)}
+                  </Box>{" "}
+                  ago. Awaiting an orchestrator to start round{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    #{currentRoundInfo.id + 1}
+                  </Box>
+                  .
+                </Text>
+              ) : (
+                <Text css={{ fontSize: "$2" }}>
+                  There are{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {blocksRemaining} blocks
+                  </Box>{" "}
+                  and approximately{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {dayjs().add(timeRemaining, "seconds").fromNow(true)}
+                  </Box>{" "}
+                  remaining until the current round ends and round{" "}
+                  <Box
+                    as="span"
+                    css={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    #{currentRoundInfo.id + 1}
+                  </Box>{" "}
+                  begins.
+                </Text>
+              )}
             </Box>
             {protocol && (
               <>

@@ -1,4 +1,4 @@
-FROM node:22 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 RUN corepack enable
 
@@ -38,7 +38,7 @@ RUN echo "CHANGEFEED_ACCESS_TOKEN=${CHANGEFEED_ACCESS_TOKEN}" >> .env && \
 COPY . .
 RUN pnpm install --frozen-lockfile && pnpm run build
 
-FROM node:22
+FROM node:24
 WORKDIR /app
 ENV NODE_ENV=production
 RUN corepack enable

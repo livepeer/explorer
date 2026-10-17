@@ -140,6 +140,7 @@ const Delegate = ({
   const bondWithHintArgs = {
     amount: bondAmountWei,
     to,
+    isTransferStake,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
