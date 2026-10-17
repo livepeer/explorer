@@ -37,9 +37,13 @@ pnpm install
 
 Before running the application, you must configure your environment variables:
 
-1. **Rename the Example Environment File:**
+1. **Copy the Example Environment File:**
 
-   Rename the `.env.example` file in the root of the project to `.env`.
+   Copy the `.env.example` file in the root of the project to `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
 
 2. **Update Environment Variables:**
 
@@ -77,7 +81,26 @@ To run the application in production mode, follow these steps:
    pnpm start
    ```
 
+### Docker
+
+Static pages fetch subgraph data during `pnpm build`, so private subgraph configuration is required at both build time and runtime. Export `NEXT_PUBLIC_INFURA_KEY`, `NEXT_PUBLIC_SUBGRAPH_ID` (see `.env.example`), and `SUBGRAPH_API_KEY` in your shell, then build with [Docker BuildKit secrets](https://docs.docker.com/build/building/secrets/):
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_NETWORK=ARBITRUM_ONE \
+  --build-arg NEXT_PUBLIC_INFURA_KEY \
+  --build-arg NEXT_PUBLIC_SUBGRAPH_ID \
+  --secret id=SUBGRAPH_API_KEY,env=SUBGRAPH_API_KEY \
+  -t livepeer-explorer .
+
+docker run --rm -p 3000:3000 -e SUBGRAPH_API_KEY livepeer-explorer
+```
+
+For an endpoint override, export `SUBGRAPH_ENDPOINT` and replace the build secret option with `--secret id=SUBGRAPH_ENDPOINT,env=SUBGRAPH_ENDPOINT` and the runtime option with `-e SUBGRAPH_ENDPOINT`. An override does not require `SUBGRAPH_API_KEY`. Subgraph credentials are mounted temporarily during the build and supplied separately at runtime; local `.env` files are excluded from the build context.
+
 ## Key Environment Variables
+
+Keep `SUBGRAPH_API_KEY` and `SUBGRAPH_ENDPOINT` server-only. Browser GraphQL requests use `/api/graphql`; `NEXT_PUBLIC_SUBGRAPH_ID` is a public, non-secret identifier.
 
 | Environment Variable                    | Description                                                                                                                                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,9 +109,9 @@ To run the application in production mode, follow these steps:
 | `NEXT_PUBLIC_INFURA_KEY`                | The private API key used to interact with the Infura RPC endpoints. If you prefer to use your own RPC, you can ignore this and instead set the RPC URLs in `NEXT_PUBLIC_L1_RPC_URL` and `NEXT_PUBLIC_L2_RPC_URL`. |
 | `NEXT_PUBLIC_L1_RPC_URL` (Optional)     | The L1 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
 | `NEXT_PUBLIC_L2_RPC_URL` (Optional)     | The L2 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
-| `NEXT_PUBLIC_SUBGRAPH_API_KEY`          | The API key to interact with the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                           |
-| `NEXT_PUBLIC_SUBGRAPH_ID`               | The ID of the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                                              |
-| `NEXT_PUBLIC_SUBGRAPH_ENDPOINT`         | Optional override for the subgraph URL. Must be a full URL (for example, a gateway deployments URL or a Studio URL).                                                                                              |
+| `SUBGRAPH_API_KEY`                      | Private API key for the Livepeer published subgraph. Required at build time and runtime unless `SUBGRAPH_ENDPOINT` is set.                                                                                        |
+| `NEXT_PUBLIC_SUBGRAPH_ID`               | Public, non-secret ID of the Livepeer published subgraph.                                                                                                                                                         |
+| `SUBGRAPH_ENDPOINT`                     | Optional private full-URL override for the subgraph endpoint (for example, a gateway deployments URL or a Studio URL). Takes precedence over `SUBGRAPH_API_KEY`.                                                  |
 | `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | WalletConnect (Reown) Cloud Project ID. Used to enhance wallet UX for users of Explorer.                                                                                                                          |
 | `NEXT_PUBLIC_METRICS_SERVER_URL`        | The Transcoding performance API server used by Explorer.                                                                                                                                                          |
 | `NEXT_PUBLIC_AI_METRICS_SERVER_URL`     | The AI performance API server used by Explorer.                                                                                                                                                                   |
