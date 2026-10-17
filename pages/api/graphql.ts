@@ -45,6 +45,13 @@ export const config = {
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+const isPaginationValue = (value: unknown, max: number): boolean =>
+  value == null ||
+  (typeof value === "number" &&
+    Number.isSafeInteger(value) &&
+    value >= 0 &&
+    value <= max);
+
 const isRequest = (body: unknown): body is Record<string, unknown> =>
   isObject(body) &&
   Object.keys(body).every((key) =>
@@ -53,7 +60,10 @@ const isRequest = (body: unknown): body is Record<string, unknown> =>
   typeof body.query === "string" &&
   body.query.trim().length > 0 &&
   (body.operationName == null || typeof body.operationName === "string") &&
-  (body.variables == null || isObject(body.variables)) &&
+  (body.variables == null ||
+    (isObject(body.variables) &&
+      isPaginationValue(body.variables.first, 1000) &&
+      isPaginationValue(body.variables.skip, Number.MAX_SAFE_INTEGER))) &&
   (body.extensions == null || isObject(body.extensions));
 
 const isGraphQLResponse = (body: unknown): boolean =>

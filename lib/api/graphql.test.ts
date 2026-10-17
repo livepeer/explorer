@@ -151,6 +151,82 @@ describe("GraphQL proxy", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
+  it.each([
+    { first: 0, skip: 0 },
+    { first: 1000, skip: 100_000 },
+    { first: 1, skip: Number.MAX_SAFE_INTEGER },
+  ])("preserves valid pagination: %j", async (pagination) => {
+    fetchMock.mockResolvedValue(jsonResponse({ data: null }));
+    const body = {
+      query: print(subgraph.TransactionsDocument),
+      operationName: "transactions",
+      variables: { account: "0x123", ...pagination },
+    };
+    const res = response();
+
+    await handler(request({ body }), res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][1]!.body).toBe(JSON.stringify(body));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it.each([
+    undefined,
+    null,
+    { id: "0x123" },
+    { id: "0x123", first: null, skip: null },
+    { id: "0x123", first: 10 },
+    { id: "0x123", skip: 10 },
+    { id: "0x123", first: null, skip: 10 },
+    { id: "0x123", first: 10, skip: null },
+  ])("preserves omitted and nullable pagination: %j", async (variables) => {
+    fetchMock.mockResolvedValue(jsonResponse({ data: null }));
+    const body = {
+      query: print(subgraph.OrchestratorDelegatorsDocument),
+      operationName: "orchestratorDelegators",
+      ...(variables === undefined ? {} : { variables }),
+    };
+    const res = response();
+
+    await handler(request({ body }), res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][1]!.body).toBe(JSON.stringify(body));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it.each([
+    ...["first", "skip"].flatMap((field) =>
+      [-1, 1.5, "1", true, [], {}, Number.MAX_SAFE_INTEGER + 1].map(
+        (value) => ({ field, value })
+      )
+    ),
+    { field: "first", value: 1001 },
+  ])(
+    "rejects invalid $field=$value before fetching",
+    async ({ field, value }) => {
+      const res = response();
+
+      await handler(
+        request({
+          body: {
+            query: print(subgraph.TransactionsDocument),
+            operationName: "transactions",
+            variables: { account: "0x123", first: 10, skip: 0, [field]: value },
+          },
+        }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        errors: [{ message: "Invalid GraphQL request" }],
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
+    }
+  );
+
   it("accepts a real Apollo HTTP request and preserves its payload", async () => {
     const data = {
       _meta: { block: { number: 123 }, hasIndexingErrors: false },
