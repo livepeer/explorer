@@ -37,9 +37,9 @@ pnpm install
 
 Before running the application, you must configure your environment variables:
 
-1. **Rename the Example Environment File:**
+1. **Copy the Example Environment File:**
 
-   Rename the `.env.example` file in the root of the project to `.env`.
+   Copy the `.env.example` file in the root of the project to `.env`.
 
 2. **Update Environment Variables:**
 
@@ -77,7 +77,13 @@ To run the application in production mode, follow these steps:
    pnpm start
    ```
 
+### Docker
+
+Subgraph configuration is required during static-page generation and at runtime. Export `SUBGRAPH_API_KEY`, pass `--secret id=SUBGRAPH_API_KEY,env=SUBGRAPH_API_KEY` to `docker build`, and pass `-e SUBGRAPH_API_KEY` to `docker run`. For an endpoint override, use `--secret id=SUBGRAPH_ENDPOINT,env=SUBGRAPH_ENDPOINT` and `-e SUBGRAPH_ENDPOINT` instead. Local `.env` files are excluded from the build context.
+
 ## Key Environment Variables
+
+Rename existing `NEXT_PUBLIC_SUBGRAPH_API_KEY` / `NEXT_PUBLIC_SUBGRAPH_ENDPOINT` settings to `SUBGRAPH_API_KEY` / `SUBGRAPH_ENDPOINT`. These are server-only; browser GraphQL requests use `/api/graphql`.
 
 | Environment Variable                    | Description                                                                                                                                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,9 +92,9 @@ To run the application in production mode, follow these steps:
 | `NEXT_PUBLIC_INFURA_KEY`                | The private API key used to interact with the Infura RPC endpoints. If you prefer to use your own RPC, you can ignore this and instead set the RPC URLs in `NEXT_PUBLIC_L1_RPC_URL` and `NEXT_PUBLIC_L2_RPC_URL`. |
 | `NEXT_PUBLIC_L1_RPC_URL` (Optional)     | The L1 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
 | `NEXT_PUBLIC_L2_RPC_URL` (Optional)     | The L2 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
-| `NEXT_PUBLIC_SUBGRAPH_API_KEY`          | The API key to interact with the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                           |
-| `NEXT_PUBLIC_SUBGRAPH_ID`               | The ID of the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                                              |
-| `NEXT_PUBLIC_SUBGRAPH_ENDPOINT`         | Optional override for the subgraph URL. Must be a full URL (for example, a gateway deployments URL or a Studio URL).                                                                                              |
+| `SUBGRAPH_API_KEY`                      | Private API key for the Livepeer published subgraph. Required at build time and runtime unless `SUBGRAPH_ENDPOINT` is set.                                                                                        |
+| `NEXT_PUBLIC_SUBGRAPH_ID`               | Public, non-secret ID of the Livepeer published subgraph.                                                                                                                                                         |
+| `SUBGRAPH_ENDPOINT`                     | Optional private full-URL override for the subgraph endpoint (for example, a gateway deployments URL or a Studio URL). Takes precedence over `SUBGRAPH_API_KEY`.                                                  |
 | `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | WalletConnect (Reown) Cloud Project ID. Used to enhance wallet UX for users of Explorer.                                                                                                                          |
 | `NEXT_PUBLIC_METRICS_SERVER_URL`        | The Transcoding performance API server used by Explorer.                                                                                                                                                          |
 | `NEXT_PUBLIC_AI_METRICS_SERVER_URL`     | The AI performance API server used by Explorer.                                                                                                                                                                   |
