@@ -39,11 +39,7 @@ Before running the application, you must configure your environment variables:
 
 1. **Copy the Example Environment File:**
 
-   Copy the `.env.example` file in the root of the project to `.env`:
-
-   ```bash
-   cp .env.example .env
-   ```
+   Copy the `.env.example` file in the root of the project to `.env`.
 
 2. **Update Environment Variables:**
 
@@ -83,24 +79,11 @@ To run the application in production mode, follow these steps:
 
 ### Docker
 
-Static pages fetch subgraph data during `pnpm build`, so private subgraph configuration is required at both build time and runtime. Export `NEXT_PUBLIC_INFURA_KEY`, `NEXT_PUBLIC_SUBGRAPH_ID` (see `.env.example`), and `SUBGRAPH_API_KEY` in your shell, then build with [Docker BuildKit secrets](https://docs.docker.com/build/building/secrets/):
-
-```bash
-docker build \
-  --build-arg NEXT_PUBLIC_NETWORK=ARBITRUM_ONE \
-  --build-arg NEXT_PUBLIC_INFURA_KEY \
-  --build-arg NEXT_PUBLIC_SUBGRAPH_ID \
-  --secret id=SUBGRAPH_API_KEY,env=SUBGRAPH_API_KEY \
-  -t livepeer-explorer .
-
-docker run --rm -p 3000:3000 -e SUBGRAPH_API_KEY livepeer-explorer
-```
-
-For an endpoint override, export `SUBGRAPH_ENDPOINT` and replace the build secret option with `--secret id=SUBGRAPH_ENDPOINT,env=SUBGRAPH_ENDPOINT` and the runtime option with `-e SUBGRAPH_ENDPOINT`. An override does not require `SUBGRAPH_API_KEY`. Subgraph credentials are mounted temporarily during the build and supplied separately at runtime; local `.env` files are excluded from the build context.
+Subgraph configuration is required during static-page generation and at runtime. Export `SUBGRAPH_API_KEY`, pass `--secret id=SUBGRAPH_API_KEY,env=SUBGRAPH_API_KEY` to `docker build`, and pass `-e SUBGRAPH_API_KEY` to `docker run`. For an endpoint override, use `--secret id=SUBGRAPH_ENDPOINT,env=SUBGRAPH_ENDPOINT` and `-e SUBGRAPH_ENDPOINT` instead. Local `.env` files are excluded from the build context.
 
 ## Key Environment Variables
 
-Keep `SUBGRAPH_API_KEY` and `SUBGRAPH_ENDPOINT` server-only. Browser GraphQL requests use `/api/graphql`; `NEXT_PUBLIC_SUBGRAPH_ID` is a public, non-secret identifier.
+Rename existing `NEXT_PUBLIC_SUBGRAPH_API_KEY` / `NEXT_PUBLIC_SUBGRAPH_ENDPOINT` settings to `SUBGRAPH_API_KEY` / `SUBGRAPH_ENDPOINT`. These are server-only; browser GraphQL requests use `/api/graphql`.
 
 | Environment Variable                    | Description                                                                                                                                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

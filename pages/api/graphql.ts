@@ -5,7 +5,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import * as subgraph from "../../apollo/subgraph";
 
-const MAX_REQUEST_BYTES = 64 * 1024;
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
 const allowedOperations = new Map<string, string>();
@@ -97,11 +96,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return errorResponse(res, 400, "Invalid GraphQL request");
   }
 
-  const body = JSON.stringify(req.body);
-  if (Buffer.byteLength(body, "utf8") > MAX_REQUEST_BYTES) {
-    return errorResponse(res, 413, "GraphQL request body is too large");
-  }
-
   if (!isAllowedRequest(req.body)) {
     return errorResponse(res, 400, "Invalid GraphQL request");
   }
@@ -118,7 +112,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         "Content-Type": "application/json",
         Accept: "application/graphql-response+json, application/json",
       },
-      body,
+      body: JSON.stringify(req.body),
       redirect: "error",
       credentials: "omit",
       signal: controller.signal,

@@ -46,39 +46,26 @@ describe("subgraph configuration", () => {
   };
 
   it.each([false, true])(
-    "browser imports expose the proxy URL with private configuration present: %s",
+    "browser imports use the proxy without reading private configuration (present: %s)",
     async (configured) => {
       Object.defineProperty(globalThis, "window", {
         configurable: true,
         value: {},
       });
       if (configured) {
-        process.env.SUBGRAPH_API_KEY = "private-browser-test-key";
-        process.env.SUBGRAPH_ENDPOINT =
-          "https://private-browser.example/subgraph";
-        process.env.NEXT_PUBLIC_SUBGRAPH_ID = "public-test-id";
+        for (const name of ["SUBGRAPH_API_KEY", "SUBGRAPH_ENDPOINT"]) {
+          Object.defineProperty(process.env, name, {
+            configurable: true,
+            get: () => {
+              throw new Error(`Browser read ${name}`);
+            },
+          });
+        }
       }
 
       await expectSubgraph("/api/graphql");
     }
   );
-
-  it("does not read private subgraph configuration in the browser", async () => {
-    Object.defineProperty(globalThis, "window", {
-      configurable: true,
-      value: {},
-    });
-    for (const name of ["SUBGRAPH_API_KEY", "SUBGRAPH_ENDPOINT"]) {
-      Object.defineProperty(process.env, name, {
-        configurable: true,
-        get: () => {
-          throw new Error(`Browser read private environment variable ${name}`);
-        },
-      });
-    }
-
-    await expectSubgraph("/api/graphql");
-  });
 
   it("builds the server gateway URL from the private key and public ID", async () => {
     process.env.SUBGRAPH_API_KEY = "private-server-test-key";
@@ -113,14 +100,11 @@ describe("subgraph configuration", () => {
     await expect(loadChains()).rejects.toThrow(missingConfigMessage);
   });
 
-  it.each(["NEXT_PUBLIC_SUBGRAPH_API_KEY", "NEXT_PUBLIC_SUBGRAPH_ENDPOINT"])(
-    "does not fall back to legacy %s on the server",
-    async (name) => {
-      process.env[name] = "legacy-private-value";
+  it("does not fall back to legacy public credentials on the server", async () => {
+    process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY = "legacy-private-key";
+    process.env.NEXT_PUBLIC_SUBGRAPH_ENDPOINT =
+      "https://legacy.example/subgraph";
 
-      await expect(loadChains()).rejects.toThrow(
-        new Error(missingConfigMessage)
-      );
-    }
-  );
+    await expect(loadChains()).rejects.toThrow(missingConfigMessage);
+  });
 });
