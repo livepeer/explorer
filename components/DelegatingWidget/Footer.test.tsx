@@ -118,6 +118,8 @@ it("keeps pending delegators disabled even with a simulation config", () => {
   expect(
     (useSimulateContract as jest.Mock).mock.calls.at(-1)![0].query.enabled
   ).toBe(false);
+  expect(screen.getByText(/Your account is in a pending state/)).toBeTruthy();
+  expect(screen.queryByText(/Looking to move your delegated stake/)).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Undelegate" }));
   expect(writeContract).not.toHaveBeenCalled();
 });
