@@ -12,11 +12,11 @@ import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
 import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useState } from "react";
-import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 interface Props {
   amount: string;
+  amountWei: bigint | null;
   newPosPrev: string;
   newPosNext: string;
   disabled: boolean;
@@ -25,6 +25,7 @@ interface Props {
 
 const Undelegate = ({
   amount,
+  amountWei,
   newPosPrev,
   newPosNext,
   disabled,
@@ -32,9 +33,10 @@ const Undelegate = ({
 }: Props) => {
   const accountAddress = useAccountAddress();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const canUndelegate = !disabled && amountWei !== null && amountWei > 0n;
 
   const args = {
-    amount: parseEther(amount ? amount.toString() : "0"),
+    amount: amountWei ?? 0n,
     newPosPrev,
     newPosNext,
   };
@@ -42,12 +44,12 @@ const Undelegate = ({
   const { data: bondingManagerAddress } = useBondingManagerAddress();
 
   const { data: config } = useSimulateContract({
-    query: { enabled: Boolean(bondingManagerAddress) },
+    query: { enabled: Boolean(bondingManagerAddress) && canUndelegate },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "unbondWithHint",
     args: [
-      BigInt(args.amount.toString()),
+      args.amount,
       newPosPrev as `0x${string}`,
       newPosNext as `0x${string}`,
     ],
@@ -61,16 +63,17 @@ const Undelegate = ({
   });
 
   const handleUndelegate = () => {
+    if (!canUndelegate || !config) return;
     if (willDeactivate) {
       setShowConfirmDialog(true);
-    } else if (config) {
+    } else {
       writeContract(config.request);
     }
   };
 
   const handleConfirmUnbond = () => {
     setShowConfirmDialog(false);
-    if (config) {
+    if (canUndelegate && config) {
       writeContract(config.request);
     }
   };
@@ -84,7 +87,7 @@ const Undelegate = ({
       <Button
         size="4"
         variant="red"
-        disabled={disabled || !config}
+        disabled={!canUndelegate || !config}
         css={{
           width: "100%",
         }}
@@ -160,7 +163,7 @@ const Undelegate = ({
               size="3"
               variant="red"
               onClick={handleConfirmUnbond}
-              disabled={!config}
+              disabled={!canUndelegate || !config}
             >
               Yes, unbond my stake
             </Button>
