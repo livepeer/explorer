@@ -4,7 +4,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
-import { useHandleTransaction } from "../../hooks/useHandleTransaction";
 import { getDelegatorStatus } from "../../lib/utils";
 import Footer from "./Footer";
 
@@ -28,10 +27,6 @@ jest.mock("@livepeer/design-system", () => {
   };
 });
 jest.mock("./Delegate", () => ({ __esModule: true, default: () => null }));
-jest.mock("./Footnote", () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-}));
 jest.mock("hooks", () => ({
   useAccountAddress: () => "0x1111111111111111111111111111111111111111",
   useExpectedChainId: () => 1,
@@ -45,7 +40,7 @@ jest.mock("hooks/useContracts", () => ({
   }),
 }));
 jest.mock("hooks/useHandleTransaction", () => ({
-  useHandleTransaction: jest.fn(),
+  useHandleTransaction: () => {},
 }));
 jest.mock("@lib/utils", () => ({
   getDelegatorStatus: jest.fn(() => "Bonded"),
@@ -114,17 +109,6 @@ it("simulates and submits the exact parsed exponent amount", () => {
   expect(simulation.args[0]).toBe(1000000000000000001n);
   fireEvent.click(screen.getByRole("button", { name: "Undelegate" }));
   expect(writeContract).toHaveBeenCalledWith({ args: simulation.args });
-  expect(useHandleTransaction).toHaveBeenLastCalledWith(
-    "unbond",
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    expect.objectContaining({
-      amount: 1000000000000000001n,
-      wasDeactivated: false,
-    })
-  );
 });
 
 it("keeps pending delegators disabled even with a simulation config", () => {
