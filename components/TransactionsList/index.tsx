@@ -145,6 +145,9 @@ const TransactionsList = ({
         case "DepositFundedEvent":
           return <EthAddressBadge value={event?.sender?.id} />;
 
+        case "ReserveClaimedEvent":
+          return <EthAddressBadge value={event?.claimant?.id} />;
+
         case "ReserveFundedEvent":
           return <EthAddressBadge value={event?.reserveHolder?.id} />;
 
@@ -319,6 +322,15 @@ const TransactionsList = ({
             <Box>
               {`Funded their reserve for `}
               {getEthAmount(event?.amount)}
+            </Box>
+          );
+        case "ReserveClaimedEvent":
+          return (
+            <Box>
+              {`Claimed `}
+              {getEthAmount(event?.amount)}
+              {` from the reserve of `}
+              <EthAddressBadge value={event?.reserveHolder?.id} />
             </Box>
           );
         case "TransferBondEvent":
