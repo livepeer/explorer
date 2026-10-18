@@ -13,8 +13,8 @@ import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
-import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useOrchestratorRewardCutSpike } from "hooks/useOrchestratorRewardCutSpike";
+import { useSubmitTransaction } from "hooks/useSubmitTransaction";
 import { useMemo, useState } from "react";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
@@ -104,25 +104,8 @@ const Delegate = ({
     functionName: "approve",
     args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
   });
-  const {
-    data: approveData,
-    isPending: approveIsLoading,
-    writeContract: approveWrite,
-    error: approveError,
-    isSuccess: approveIsSuccess,
-  } = useWriteContract();
-
-  useHandleTransaction(
-    "approve",
-    approveData,
-    approveError,
-    approveIsLoading,
-    approveIsSuccess,
-    {
-      type: "bond",
-      amount: BigInt(MAXIMUM_VALUE_UINT256),
-    }
-  );
+  const { writeContractAsync: approveWrite } = useWriteContract();
+  const submitApproval = useSubmitTransaction("approve");
 
   // null when the amount is absent or not yet a valid number.
   const amountWei = useMemo(() => parseAmountToWei(amount), [amount]);
@@ -166,28 +149,8 @@ const Delegate = ({
       currDelegateNewPosNext,
     ],
   });
-  const {
-    data: bondData,
-    isPending: bondIsLoading,
-    writeContract: bondWrite,
-    isSuccess: bondIsSuccess,
-    error: bondError,
-  } = useWriteContract();
-
-  // The amount is cleared on submit, well before the hash arrives, so the
-  // confirmation reports what was sent rather than what the input holds now.
-  const [submittedArgs, setSubmittedArgs] = useState<
-    typeof bondWithHintArgs | null
-  >(null);
-
-  useHandleTransaction(
-    "bond",
-    bondData,
-    bondError,
-    bondIsLoading,
-    bondIsSuccess,
-    submittedArgs ?? bondWithHintArgs
-  );
+  const { writeContractAsync: bondWrite } = useWriteContract();
+  const submitBond = useSubmitTransaction("bond");
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
 
@@ -206,7 +169,10 @@ const Delegate = ({
       }
       setApprovalSubmitted(true);
 
-      approveWrite(config.request);
+      void submitApproval(() => approveWrite(config.request), {
+        type: "bond",
+        amount: BigInt(MAXIMUM_VALUE_UINT256),
+      });
     } catch (e) {
       console.log(e);
     }
@@ -217,8 +183,11 @@ const Delegate = ({
       if (!bondWithHintConfig) {
         throw new Error("No config for bond with hint");
       }
-      setSubmittedArgs(bondWithHintArgs);
-      bondWrite(bondWithHintConfig.request);
+      // Capture the args before reset clears the amount or a resize unmounts us.
+      void submitBond(
+        () => bondWrite(bondWithHintConfig.request),
+        bondWithHintArgs
+      );
     } catch (e) {
       console.error(e);
     }
