@@ -98,8 +98,8 @@ const Footer = ({
     return amountWei <= stakeWei;
   }, [delegator, amountWei, stakeWei]);
   const canUndelegate = useMemo(
-    () => isMyTranscoder && isDelegated && parseFloat(amount) > 0,
-    [isMyTranscoder, isDelegated, amount]
+    () => isMyTranscoder && isDelegated && amountWei !== null && amountWei > 0n,
+    [isMyTranscoder, isDelegated, amountWei]
   );
   const newActiveSetOrder = useMemo(
     () =>
@@ -201,6 +201,7 @@ const Footer = ({
     <Box css={{ ...css }}>
       <Undelegate
         amount={amount}
+        amountWei={amountWei}
         newPosPrev={newPosPrev}
         newPosNext={newPosNext}
         disabled={!canUndelegate || delegatorStatus === "Pending"}
