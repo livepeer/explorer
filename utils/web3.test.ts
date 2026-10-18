@@ -74,14 +74,27 @@ describe("parseAmountToWei", () => {
     expect(parseAmountToWei("1e")).toBeNull();
   });
 
-  // Exponents are normalised through `Number`, which only writes decimals
-  // between 1e-6 and 1e21. Decimal notation has no such limit.
-  it("rejects exponents outside the range Number writes as a decimal", () => {
-    expect(parseAmountToWei("1e-6")).toBe(1000000000000n);
-    expect(parseAmountToWei("1e-7")).toBeNull();
-    expect(parseAmountToWei("0.0000001")).toBe(100000000000n);
-    expect(parseAmountToWei("1e21")).toBeNull();
+  it.each([
+    ["1.000000000000000001e0", "1.000000000000000001"],
+    ["9999.999999999999999999e0", "9999.999999999999999999"],
+    ["1234567890123456789e-18", "1.234567890123456789"],
+    ["1e-7", "0.0000001"],
+    ["1e-18", "0.000000000000000001"],
+    ["1e21", "1000000000000000000000"],
+    [".5e+1", "5"],
+    ["1.e2", "100"],
+    ["-2.5e-1", "-0.25"],
+  ])("parses %s exactly like %s", (exponent, decimal) => {
+    expect(parseAmountToWei(exponent)).toBe(parseAmountToWei(decimal));
+    expect(parseAmountToWei(exponent)).not.toBeNull();
   });
+
+  it.each(["1ee3", "1e1.5", ".e2", "1e999999999", "1e-999999999"])(
+    "rejects malformed or excessively large exponents: %s",
+    (amount) => {
+      expect(parseAmountToWei(amount)).toBeNull();
+    }
+  );
 });
 
 describe("formatAddress", () => {
