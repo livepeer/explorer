@@ -1,9 +1,15 @@
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 
 import { ApolloProvider } from "@apollo/client";
+import { redactAddresses } from "@lib/analytics";
 import { fetcher } from "@lib/fetcher";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Analytics } from "@vercel/analytics/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -36,6 +42,8 @@ function App({ Component, pageProps, fallback = null }) {
         />
         <title>Livepeer Explorer</title>
       </Head>
+
+      <Analytics beforeSend={redactAddresses} />
 
       <ApolloProvider client={client}>
         <Tooltip.Provider>

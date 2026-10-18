@@ -1,6 +1,7 @@
 import ErrorComponent from "@components/Error";
 import AccountLayout from "@layouts/account";
 import { getLayout } from "@layouts/main";
+import { trackVercelAnalyticsEventOnce } from "@lib/analytics";
 import { getAccount, getSortedOrchestrators } from "@lib/api/ssr";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import {
@@ -8,6 +9,8 @@ import {
   getApollo,
   OrchestratorsSortedQueryResult,
 } from "apollo";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { isAddress } from "viem";
 
 type PageProps = {
@@ -22,6 +25,18 @@ const Orchestrating = ({
   account,
   sortedOrchestrators,
 }: PageProps) => {
+  const { query } = useRouter();
+  const viewedAccount = String(query.account);
+
+  useEffect(() => {
+    if (!hadError) {
+      trackVercelAnalyticsEventOnce(
+        "orchestrator_detail_viewed",
+        viewedAccount
+      );
+    }
+  }, [hadError, viewedAccount]);
+
   if (hadError) {
     return <ErrorComponent statusCode={500} />;
   }

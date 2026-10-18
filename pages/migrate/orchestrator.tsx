@@ -196,6 +196,7 @@ const MigrateOrchestrator = () => {
   const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { writeContractAsync } = useWriteContract();
+  const [render, setRender] = useState(false);
 
   // Hack to get around flash of unstyled wallet connect
   useEffect(() => {
@@ -215,7 +216,6 @@ const MigrateOrchestrator = () => {
   const accountAddress = useAccountAddress();
 
   const [openSnackbar] = useSnackbar();
-  const [render, setRender] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const { register, watch } = useForm();
   const signature = watch("signature");
@@ -839,7 +839,7 @@ const MigrateOrchestrator = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             ghost

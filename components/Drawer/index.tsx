@@ -93,6 +93,7 @@ const Index = ({
               href={item.href}
               passHref
               variant="subtle"
+              onClick={item.onClick}
               css={{
                 color:
                   asPath.split("?")[0] === item.as
@@ -227,7 +228,7 @@ const Index = ({
             </EmbedModal>
             <A
               css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
-              href="https://discord.gg/livepeer"
+              href="https://discord.gg/55SZFEEH5y"
               target="_blank"
               rel="noopener noreferrer"
             >

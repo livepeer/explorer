@@ -1,4 +1,10 @@
-import { checkAddressEquality, formatAddress, fromWei, toWei } from "./web3";
+import {
+  checkAddressEquality,
+  formatAddress,
+  fromWei,
+  parseAmountToWei,
+  toWei,
+} from "./web3";
 
 describe("checkAddressEquality", () => {
   it("returns false for invalid addresses", () => {
@@ -41,6 +47,54 @@ describe("toWei", () => {
     expect(toWei(1)).toBe(1000000000000000000n);
     expect(toWei(0.5)).toBe(500000000000000000n);
   });
+});
+
+describe("parseAmountToWei", () => {
+  it("converts decimal amounts to wei", () => {
+    expect(parseAmountToWei("0.1")).toBe(100000000000000000n);
+    expect(parseAmountToWei("2.5")).toBe(2500000000000000000n);
+    expect(parseAmountToWei("100000")).toBe(100000000000000000000000n);
+  });
+
+  it("keeps decimals that exceed float precision", () => {
+    expect(parseAmountToWei("1.000000000000000001")).toBe(1000000000000000001n);
+  });
+
+  it("accepts exponent notation", () => {
+    expect(parseAmountToWei("1e3")).toBe(1000000000000000000000n);
+    expect(parseAmountToWei("1E3")).toBe(1000000000000000000000n);
+    expect(parseAmountToWei("1e-2")).toBe(10000000000000000n);
+  });
+
+  it("returns null for an absent or unparseable amount", () => {
+    expect(parseAmountToWei("")).toBeNull();
+    expect(parseAmountToWei(null)).toBeNull();
+    expect(parseAmountToWei(undefined)).toBeNull();
+    expect(parseAmountToWei("abc")).toBeNull();
+    expect(parseAmountToWei("1e")).toBeNull();
+  });
+
+  it.each([
+    ["1.000000000000000001e0", "1.000000000000000001"],
+    ["9999.999999999999999999e0", "9999.999999999999999999"],
+    ["1234567890123456789e-18", "1.234567890123456789"],
+    ["1e-7", "0.0000001"],
+    ["1e-18", "0.000000000000000001"],
+    ["1e21", "1000000000000000000000"],
+    [".5e+1", "5"],
+    ["1.e2", "100"],
+    ["-2.5e-1", "-0.25"],
+  ])("parses %s exactly like %s", (exponent, decimal) => {
+    expect(parseAmountToWei(exponent)).toBe(parseAmountToWei(decimal));
+    expect(parseAmountToWei(exponent)).not.toBeNull();
+  });
+
+  it.each(["1ee3", "1e1.5", ".e2", "1e999999999", "1e-999999999"])(
+    "rejects malformed or excessively large exponents: %s",
+    (amount) => {
+      expect(parseAmountToWei(amount)).toBeNull();
+    }
+  );
 });
 
 describe("formatAddress", () => {
