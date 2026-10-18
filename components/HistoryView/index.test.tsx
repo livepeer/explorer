@@ -79,6 +79,7 @@ const emptyPage = (): TransactionsQuery => ({
   __typename: "Query",
   transactions: [],
   winningTicketRedeemedEvents: [],
+  transferBondEvents: [],
   rewardEvents: [],
 });
 const roundTransaction = (
