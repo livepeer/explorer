@@ -7,6 +7,7 @@ import {
 import { Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+import { BaseError, ContractFunctionZeroDataError } from "viem";
 import { useAccount, useDisconnect, useReadContract } from "wagmi";
 
 const useIsChainSupported = () => {
@@ -45,9 +46,13 @@ export const useIsSafe = () => {
     query: {
       enabled: Boolean(address),
       retry: false,
-      // An EOA's probe fails. New consumers must not restart it and send the
-      // confirmation content back to pending every time its header mounts.
-      retryOnMount: false,
+      // An EOA returns no contract data. Don't restart that completed probe
+      // when the receipt header mounts; preserve retries for all other errors.
+      retryOnMount: ({ state: { error } }) =>
+        !(
+          error instanceof BaseError &&
+          error.walk((cause) => cause instanceof ContractFunctionZeroDataError)
+        ),
       staleTime: Infinity,
     },
   });
