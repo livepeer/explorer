@@ -42,7 +42,14 @@ export const useIsSafe = () => {
     address: address ?? undefined,
     abi: safe,
     functionName: "getThreshold",
-    query: { enabled: Boolean(address), retry: false, staleTime: Infinity },
+    query: {
+      enabled: Boolean(address),
+      retry: false,
+      // An EOA's probe fails. New consumers must not restart it and send the
+      // confirmation content back to pending every time its header mounts.
+      retryOnMount: false,
+      staleTime: Infinity,
+    },
   });
 
   if (!address || isPending) return undefined;
