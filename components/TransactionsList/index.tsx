@@ -12,6 +12,7 @@ import {
   formatRound,
 } from "@utils/numberFormatters";
 import {
+  EMPTY_ADDRESS,
   PERCENTAGE_PRECISION_BILLION,
   PERCENTAGE_PRECISION_MILLION,
 } from "@utils/web3";
@@ -117,6 +118,9 @@ const TransactionsList = ({
         case "RewardEvent":
           return <EthAddressBadge value={event?.delegate?.id} />;
 
+        case "RewardCallerSetEvent":
+          return <EthAddressBadge value={event?.delegate?.id} />;
+
         case "WithdrawStakeEvent":
           return <EthAddressBadge value={event?.delegator?.id} />;
 
@@ -128,6 +132,9 @@ const TransactionsList = ({
 
         case "DepositFundedEvent":
           return <EthAddressBadge value={event?.sender?.id} />;
+
+        case "ReserveClaimedEvent":
+          return <EthAddressBadge value={event?.claimant?.id} />;
 
         case "ReserveFundedEvent":
           return <EthAddressBadge value={event?.reserveHolder?.id} />;
@@ -257,6 +264,16 @@ const TransactionsList = ({
               {renderEmoji("🌿")}
             </Box>
           );
+        case "RewardCallerSetEvent":
+          return event?.rewardCaller === EMPTY_ADDRESS ? (
+            <Box>{`Removed their reward caller`}</Box>
+          ) : (
+            <Box>
+              {`Authorized `}
+              <EthAddressBadge value={event?.rewardCaller} />
+              {` to call reward on their behalf`}
+            </Box>
+          );
         case "WithdrawStakeEvent":
           return (
             <Box>
@@ -293,6 +310,15 @@ const TransactionsList = ({
             <Box>
               {`Funded their reserve for `}
               {getEthAmount(event?.amount)}
+            </Box>
+          );
+        case "ReserveClaimedEvent":
+          return (
+            <Box>
+              {`Claimed `}
+              {getEthAmount(event?.amount)}
+              {` from the reserve of `}
+              <EthAddressBadge value={event?.reserveHolder?.id} />
             </Box>
           );
         case "TransferBondEvent":

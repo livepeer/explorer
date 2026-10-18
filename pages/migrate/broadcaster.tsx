@@ -857,7 +857,7 @@ const MigrateBroadcaster = () => {
           <Button
             css={{ bottom: 20, right: 20 }}
             as="a"
-            href="https://discord.gg/livepeer"
+            href="https://discord.gg/55SZFEEH5y"
             target="_blank"
             size="3"
             ghost

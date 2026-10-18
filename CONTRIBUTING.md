@@ -48,4 +48,4 @@ In general, we follow the ["fork-and-pull" Git workflow](https://github.com/susa
 
 ## Getting Help
 
-Join us in the [Livepeer Discord](https://discord.com/invite/livepeer) and post your question in the `#🛋️|lounge` channel.
+Join us in the [Livepeer Discord](https://discord.gg/55SZFEEH5y) and post your question in the `#🛋️|lounge` channel.

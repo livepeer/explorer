@@ -11,6 +11,10 @@ query poll($id: ID!) {
     }
     votes {
       id
+      choiceID
+      voter
+      voteStake
+      nonVoteStake
     }
   }
 }

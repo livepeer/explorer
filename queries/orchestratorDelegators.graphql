@@ -1,0 +1,21 @@
+query orchestratorDelegators(
+  $id: ID!
+  $first: Int
+  $skip: Int
+  $orderBy: Delegator_orderBy
+  $orderDirection: OrderDirection
+) {
+  transcoder(id: $id) {
+    id
+    delegators(
+      first: $first
+      skip: $skip
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+    ) {
+      id
+      bondedAmount
+      startRound
+    }
+  }
+}
