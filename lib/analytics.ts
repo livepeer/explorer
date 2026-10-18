@@ -123,7 +123,8 @@ export const trackTransaction = (
   config: Config,
   id: TransactionIdentifier,
   args: InputData,
-  hash: `0x${string}`
+  hash: `0x${string}`,
+  chainId?: number
 ) => {
   const isRedelegation = id === "bond" && args.isTransferStake;
   const events = isRedelegation ? REDELEGATION_EVENTS : DELEGATION_EVENTS[id];
@@ -135,7 +136,7 @@ export const trackTransaction = (
   trackVercelAnalyticsEvent(events.submitted);
 
   const { confirmed, failed } = events;
-  const client = getPublicClient(config);
+  const client = getPublicClient(config, { chainId });
 
   if ((!confirmed && !failed) || !client) {
     return;

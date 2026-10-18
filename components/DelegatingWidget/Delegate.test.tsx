@@ -10,9 +10,10 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { useExplorerStore } from "hooks/useExplorerStore";
 import { useIsSafe } from "hooks/wallet";
 import { ComponentProps, ReactNode, useState } from "react";
-import { Hash } from "viem";
+import { ContractFunctionZeroDataError, Hash } from "viem";
 
 import Delegate from "./Delegate";
 
@@ -24,7 +25,10 @@ jest.mock("@lib/analytics", () => ({ trackTransaction: jest.fn() }));
 jest.mock("@rainbow-me/rainbowkit", () => ({
   useAddRecentTransaction: jest.fn(),
 }));
-jest.mock("hooks/wallet", () => ({ useIsSafe: jest.fn() }));
+jest.mock("hooks/wallet", () => ({
+  ...jest.requireActual("hooks/wallet"),
+  useIsSafe: jest.fn(),
+}));
 jest.mock("hooks/useContracts", () => ({
   useBondingManagerAddress: () => ({
     data: "0x0000000000000000000000000000000000000001",
@@ -52,20 +56,31 @@ jest.mock("@livepeer/design-system", () => {
     ),
   };
 });
+const initialStore = useExplorerStore.getState();
 const mockStore = {
-  setLatestTransactionSummary: jest.fn(),
-  setLatestTransactionDetails: jest.fn(),
-  setLatestTransactionConfirmed: jest.fn(),
-  setLatestTransactionError: jest.fn(),
+  setLatestTransactionSummary: jest.fn(
+    initialStore.setLatestTransactionSummary
+  ),
+  setLatestTransactionDetails: jest.fn(
+    initialStore.setLatestTransactionDetails
+  ),
+  setLatestTransactionConfirmed: jest.fn(
+    initialStore.setLatestTransactionConfirmed
+  ),
+  setLatestTransactionError: jest.fn(initialStore.setLatestTransactionError),
 };
-jest.mock("hooks/useExplorerStore", () => ({
-  useExplorerStore: () => mockStore,
-}));
 const mockWrite = jest.fn();
+const mockReadSafe = jest.fn();
+let mockChainId = 42161;
+const mockConfig = { getClient: () => ({ readContract: mockReadSafe }) };
 jest.mock("wagmi", () => {
   const { useMutation } = jest.requireActual("@tanstack/react-query");
   return {
-    useConfig: () => ({}),
+    useConfig: () => mockConfig,
+    useAccount: () => ({
+      address: "0x1111111111111111111111111111111111111111",
+      chainId: mockChainId,
+    }),
     useSimulateContract: ({ args }: { args: unknown[] }) => ({
       data: { request: { args } },
     }),
@@ -127,6 +142,9 @@ function setup(props: ComponentProps<typeof Form> = {}) {
 }
 
 beforeEach(() => {
+  mockChainId = 42161;
+  useExplorerStore.setState({ ...initialStore, ...mockStore });
+  mockReadSafe.mockReset();
   jest.mocked(useIsSafe).mockReturnValue(false);
   jest.mocked(useAddRecentTransaction).mockReturnValue(addRecentTransaction);
   mockWrite.mockImplementation(
@@ -137,6 +155,27 @@ beforeEach(() => {
       })
   );
 });
+
+afterEach(() => jest.restoreAllMocks());
+
+function deferSafeProbe() {
+  let resolveProbe: (threshold: bigint) => void;
+  let rejectProbe: (error: Error) => void;
+  const probe = new Promise<bigint>((resolve, reject) => {
+    resolveProbe = resolve;
+    rejectProbe = reject;
+  });
+  mockReadSafe.mockReturnValueOnce(probe);
+  return {
+    settle: (isSafe: boolean) =>
+      isSafe
+        ? resolveProbe(2n)
+        : rejectProbe(
+            new ContractFunctionZeroDataError({ functionName: "getThreshold" })
+          ),
+    reject: (error: Error) => rejectProbe(error),
+  };
+}
 
 it("keeps the submitted amount after reset and later input edits", async () => {
   setup();
@@ -233,6 +272,7 @@ it.each([false, true])(
   "waits for wallet classification before tracking (Safe=%s)",
   async (isSafe) => {
     jest.mocked(useIsSafe).mockReturnValue(undefined);
+    const probe = deferSafeProbe();
     setup();
     fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
     await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
@@ -242,10 +282,10 @@ it.each([false, true])(
     );
     expect(addRecentTransaction).not.toHaveBeenCalled();
     expect(trackTransaction).not.toHaveBeenCalled();
-    jest.mocked(useIsSafe).mockReturnValue(isSafe);
     fireEvent.change(screen.getByLabelText("Amount"), {
       target: { value: "7" },
     });
+    await act(async () => probe.settle(isSafe));
     expect(addRecentTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
     expect(trackTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
     if (!isSafe) {
@@ -253,7 +293,8 @@ it.each([false, true])(
         expect.anything(),
         "bond",
         expect.objectContaining({ amount: 1250000000000000000n }),
-        hash
+        hash,
+        42161
       );
     }
   }
@@ -302,5 +343,137 @@ it("uses a fresh amount for a second submission", async () => {
     secondHash,
     "bond",
     expect.objectContaining({ amount: 3000000000000000000n })
+  );
+});
+
+it.each([false, true])(
+  "finishes deferred classification after unmount (Safe=%s)",
+  async (isSafe) => {
+    jest.mocked(useIsSafe).mockReturnValue(undefined);
+    const probe = deferSafeProbe();
+    const { unmount } = setup();
+    fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+    await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+    unmount();
+    await act(async () => resolveWrite(hash));
+    expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+      hash,
+      step: "confirmed",
+    });
+    expect(trackTransaction).not.toHaveBeenCalled();
+    await act(async () => probe.settle(isSafe));
+    expect(addRecentTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
+    expect(trackTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
+    expect(mockReadSafe).toHaveBeenCalledTimes(1);
+  }
+);
+
+it("does not treat a failed RPC request as evidence of an EOA", async () => {
+  jest.mocked(useIsSafe).mockReturnValue(undefined);
+  const probe = deferSafeProbe();
+  const { unmount } = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+  await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+  unmount();
+  await act(async () => probe.reject(new Error("RPC unavailable")));
+  await act(async () => resolveWrite(hash));
+  expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+    hash,
+    step: "confirmed",
+  });
+  expect(addRecentTransaction).not.toHaveBeenCalled();
+  expect(trackTransaction).not.toHaveBeenCalled();
+});
+
+async function overlapDelegations() {
+  const first = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+  await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+  const finishFirst = resolveWrite;
+  const failFirst = rejectWrite;
+  act(() => useExplorerStore.getState().clearLatestTransaction());
+  first.unmount();
+  setup({ initial: "3" });
+  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+  await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(2));
+  return {
+    finishFirst,
+    failFirst,
+    finishSecond: resolveWrite,
+    pending: useExplorerStore.getState().latestTransaction,
+  };
+}
+
+it.each([false, true])(
+  "keeps the newer dialog when submissions overlap (older finishes first=%s)",
+  async (olderFirst) => {
+    const requests = await overlapDelegations();
+    if (olderFirst) {
+      await act(async () => requests.finishFirst(hash));
+      expect(useExplorerStore.getState().latestTransaction).toEqual(
+        requests.pending
+      );
+      expect(mockStore.setLatestTransactionConfirmed).not.toHaveBeenCalled();
+    }
+    await act(async () => requests.finishSecond(secondHash));
+    if (!olderFirst) await act(async () => requests.finishFirst(hash));
+    expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+      hash: secondHash,
+      step: "confirmed",
+      inputData: { amount: 3000000000000000000n },
+    });
+    expect(mockStore.setLatestTransactionConfirmed).toHaveBeenCalledTimes(1);
+    expect(addRecentTransaction).toHaveBeenCalledTimes(2);
+    expect(trackTransaction).toHaveBeenCalledTimes(2);
+  }
+);
+
+it("does not attach an older rejection to a newer confirmation", async () => {
+  const requests = await overlapDelegations();
+  await act(async () => requests.finishSecond(secondHash));
+  const log = jest.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    await act(async () =>
+      requests.failFirst(new Error("Old request rejected"))
+    );
+  } finally {
+    log.mockRestore();
+  }
+  expect(mockStore.setLatestTransactionError).not.toHaveBeenCalled();
+  expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+    hash: secondHash,
+    step: "confirmed",
+  });
+  expect(useExplorerStore.getState().latestTransaction?.error).toBeUndefined();
+});
+
+it("tracks a dismissed submission without reopening its dialog", async () => {
+  setup();
+  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+  await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+  act(() => useExplorerStore.getState().clearLatestTransaction());
+  await act(async () => resolveWrite(hash));
+  expect(useExplorerStore.getState().latestTransaction).toBeNull();
+  expect(mockStore.setLatestTransactionConfirmed).not.toHaveBeenCalled();
+  expect(addRecentTransaction).toHaveBeenCalledTimes(1);
+  expect(trackTransaction).toHaveBeenCalledTimes(1);
+});
+
+it("tracks the submitted chain after switching networks during classification", async () => {
+  jest.mocked(useIsSafe).mockReturnValue(undefined);
+  const probe = deferSafeProbe();
+  const { unmount } = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+  await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+  await act(async () => resolveWrite(hash));
+  unmount();
+  mockChainId = 1;
+  await act(async () => probe.settle(false));
+  expect(trackTransaction).toHaveBeenCalledWith(
+    mockConfig,
+    "bond",
+    expect.objectContaining({ amount: 1250000000000000000n }),
+    hash,
+    42161
   );
 });
