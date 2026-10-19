@@ -108,13 +108,15 @@ function RewardStrip({
  * it's dated from the orchestrator's first round instead.
  */
 function CutUpdated({ o }: { o: OrchestratorDetail }) {
-  const changed = Math.max(o.rewardCutUpdateTimestamp, o.feeShareUpdateTimestamp);
+  const changed = Math.max(
+    o.rewardCutUpdateTimestamp,
+    o.feeShareUpdateTimestamp
+  );
   if (changed > 0) return <>Updated {formatRelativeTime(changed)}</>;
   const since = o.pools[0]?.ts;
   return since ? (
     <>
-      Unchanged since{" "}
-      {formatDate(since, { month: "short", year: "numeric" })}
+      Unchanged since {formatDate(since, { month: "short", year: "numeric" })}
     </>
   ) : null;
 }
@@ -495,9 +497,7 @@ export default function OrchestratorPage() {
                   <Skeleton className="h-6 w-28" />
                 )
               }
-              sub={
-                o ? <CutUpdated o={o} /> : undefined
-              }
+              sub={o ? <CutUpdated o={o} /> : undefined}
             />
             <Kpi
               label="Fees · 30 days"
