@@ -5,12 +5,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
+import { keccak256 } from "viem";
 import {
   useAccount,
+  useConfig,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
+import { getBytecode } from "wagmi/actions";
 
 import { Button } from "@/components/ui/button";
 import { SafeProposed } from "@/components/wallet/safe-proposed";
@@ -279,8 +282,17 @@ export function VoteForm({
   );
 }
 
+/**
+ * Every poll PollCreator deploys runs the same code (its end block lives in
+ * storage), so its hash identifies a real Livepeer poll. The address comes
+ * from the subgraph, so it's checked before anything is signed.
+ */
+export const POLL_CODE_HASH =
+  "0x7393ed5b1d070138ba3d9bf672ca6727559bb3fa60ac19ee9886b55b1bd9b495";
+
 /** LIP poll ballot: `Poll.vote(choiceId)` where 0 = Yes, 1 = No. */
 export function PollVoteForm({ pollAddress }: { pollAddress: string }) {
+  const config = useConfig();
   const { writeContractAsync } = useWriteContract();
   return (
     <VoteForm
@@ -288,15 +300,24 @@ export function PollVoteForm({ pollAddress }: { pollAddress: string }) {
         { value: 0, label: "Yes" },
         { value: 1, label: "No" },
       ]}
-      send={(choice) =>
-        writeContractAsync({
+      send={async (choice) => {
+        const code = await getBytecode(config, {
+          address: pollAddress as Hash,
+          chainId: L2_CHAIN.id,
+        });
+        if (!code || keccak256(code) !== POLL_CODE_HASH) {
+          throw new Error(
+            "This address isn't a Livepeer poll contract, so no vote was sent."
+          );
+        }
+        return writeContractAsync({
           address: pollAddress as Hash,
           abi: pollAbi,
           functionName: "vote",
           args: [BigInt(choice)],
           chainId: L2_CHAIN.id,
-        })
-      }
+        });
+      }}
       note={
         <p className="text-ui-caption text-muted-foreground">
           Votes are weighted by stake. You can change your vote until the poll
