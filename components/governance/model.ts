@@ -1,14 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { keccak256, toBytes } from "viem";
-import { useBlockNumber, useReadContract } from "wagmi";
+import { useBlockNumber } from "wagmi";
 
 import { useNow } from "@/components/shell/round-clock";
-import { controller } from "@/lib/abis/Controller";
-import { CONTRACTS, L1_CHAIN, L2_CHAIN } from "@/lib/config";
+import { L1_CHAIN } from "@/lib/config";
 import { formatDate, formatDuration } from "@/lib/format";
 import { useProtocol } from "@/lib/hooks/queries";
+import { useProtocolContract } from "@/lib/staking/contracts";
 import type { Poll, Protocol, TreasuryProposal } from "@/lib/subgraph/network";
 
 export { parseDocument, proposalDocument } from "@/lib/governance/document";
@@ -196,22 +195,11 @@ export function pollTitle(p: Poll, doc: PollDocument | undefined) {
 
 /* ── Contracts ───────────────────────────────────────────────────────────── */
 
-/** Resolve a protocol contract through the Controller registry on Arbitrum. */
+/** A governance contract, pinned and cross-checked (see useProtocolContract). */
 export function useControllerContract(
   name: "LivepeerGovernor" | "BondingVotes" | "Treasury"
 ) {
-  const { data } = useReadContract({
-    address: CONTRACTS.controller,
-    abi: controller,
-    functionName: "getContract",
-    args: [keccak256(toBytes(name))],
-    chainId: L2_CHAIN.id,
-    // Not forever: the registry can point a name at an upgraded contract,
-    // and a tab left open shouldn't keep sending to the old one. Stale
-    // after ten minutes, it's read again on the next mount or focus.
-    query: { staleTime: 10 * 60_000 },
-  });
-  return data as `0x${string}` | undefined;
+  return useProtocolContract(name);
 }
 
 /** uint256 id from the subgraph's string id (decimal or hex); null if malformed. */

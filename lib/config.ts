@@ -65,6 +65,23 @@ export const CONTRACTS = {
   pollCreator: "0x8bb50806D60c492c0004DAD5D9627DAA2d9732E6",
 } as const;
 
+/**
+ * Livepeer's contracts on Arbitrum One, as the Controller registers them.
+ * These are proxies: an upgrade changes the code behind them, not the
+ * address. Transactions only ever go to these; the registry is read as a
+ * cross-check, so a lying RPC can't swap in its own contract.
+ */
+export const PROTOCOL_CONTRACTS = {
+  BondingManager: "0x35Bcf3c30594191d53231E4FF333E8A770453e40",
+  LivepeerToken: "0x289ba1701C2F088cf0faf8B3705246331cB8A839",
+  RoundsManager: "0xdd6f56DcC28D3F5f27084381fE8Df634985cc39f",
+  LivepeerGovernor: "0xcFE4E2879B786C3aa075813F0E364bb5acCb6aa0",
+  BondingVotes: "0x0B9C254837E72Ebe9Fe04960C43B69782E68169A",
+  Treasury: "0xf82C1FF415F1fCf582554fDba790E27019c8E8C4",
+} as const;
+
+export type ProtocolContractName = keyof typeof PROTOCOL_CONTRACTS;
+
 export const BLOCK_EXPLORER = "https://arbiscan.io";
 
 export const txUrl = (hash: string) => `${BLOCK_EXPLORER}/tx/${hash}`;
