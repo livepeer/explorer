@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Why this payout · Design review</title>
+    <title>Why a past round paid what it paid</title>
     <link rel="stylesheet" href="../shared/inter.css" />
     <style>
       :root {
@@ -89,19 +89,6 @@
         max-width: 860px;
       }
 
-      .status-pill {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: var(--neutral3);
-        color: var(--neutral11);
-        margin-bottom: 16px;
-      }
-
       h1 {
         font-size: 28px;
         font-weight: 600;
@@ -121,6 +108,17 @@
       }
       .issue-link:hover {
         text-decoration: underline;
+      }
+
+      .page-foot {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--neutral4);
+        max-width: 860px;
+      }
+      .page-foot .issue-link {
+        margin-right: 0;
+        margin-bottom: 0;
       }
 
       .page-head p {
@@ -243,6 +241,37 @@
       .notes li {
         margin-left: 20px;
         margin-bottom: 4px;
+      }
+      .notes li strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+
+      .questions {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 860px;
+      }
+      .questions li {
+        margin-left: 20px;
+        margin-bottom: 14px;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--neutral11);
+      }
+      .questions li strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .questions code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        background: var(--neutral3);
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: var(--hiContrast);
       }
 
       .chip {
@@ -1024,14 +1053,18 @@
       }
       .page-head p a,
       .place-table a,
-      .next a {
+      .next a,
+      .notes a,
+      .questions a {
         color: var(--primary11);
         font-weight: 600;
         text-decoration: none;
       }
       .page-head p a:hover,
       .place-table a:hover,
-      .next a:hover {
+      .next a:hover,
+      .notes a:hover,
+      .questions a:hover {
         text-decoration: underline;
       }
       .place-table .primary-row td {
@@ -1082,8 +1115,7 @@
     <a class="skip-link" href="#primary">Skip to content</a>
 
     <header class="page-head">
-      <span class="status-pill">Design review · mockups only</span>
-      <h1>Why this payout</h1>
+      <h1>Why a past round paid what it paid</h1>
       <a
         class="issue-link"
         href="https://github.com/livepeer/explorer/issues/803"
@@ -1093,11 +1125,12 @@
         Issue #803 ↗
       </a>
       <a class="issue-link" href="#placement">Where it lives ↓</a>
-      <a class="issue-link" href="./803-reward-history-ux.md">Rationale ↗</a>
+      <a class="issue-link" href="#decisions">Design decisions ↓</a>
+      <a class="issue-link" href="#a11y">Who can use this ↓</a>
       <p>
-        Settled rounds, then a receipt for
-        <strong>why that round paid what it paid</strong>. Live fee-vs-stake
-        (“Room to earn” / “Full” / “Balanced”) is in
+        Settled rounds on History, then a receipt for why that round paid that
+        amount. Live fee-vs-stake (“Room to earn” / “Full” / “Balanced”) stays
+        in
         <a
           href="https://github.com/livepeer/explorer/issues/802"
           target="_blank"
@@ -1664,6 +1697,23 @@
         the default last mile. The toggle above is only so both can be reviewed
         in one mock.
       </p>
+      <ul class="notes" style="margin-top: 0; margin-bottom: 20px">
+        <li>
+          <strong>Wrong first pass:</strong> put the
+          <a
+            href="https://github.com/livepeer/explorer/issues/802"
+            target="_blank"
+            rel="noopener"
+            >802</a
+          >
+          live status card on History and hang rounds under it.
+        </li>
+        <li>
+          <strong>Right:</strong> History leads with settled rounds; selecting a
+          row opens a past-tense receipt for that round only. Live compare stays
+          one click away on Orchestrating / Delegating.
+        </li>
+      </ul>
 
       <table class="place-table">
         <thead>
@@ -1730,6 +1780,170 @@
         </tbody>
       </table>
     </section>
+
+    <!-- ==================== DESIGN DECISIONS ==================== -->
+    <section class="section" aria-labelledby="decisions">
+      <div class="section-header">
+        <h2 class="section-title" id="decisions">Design decisions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>History is past; Orchestrating is now.</strong>
+            <a
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >802</a
+            >
+            owns the live fee-vs-stake card. This ticket owns settled rounds and
+            a receipt for why a chosen round paid that amount. Do not move the
+            live card onto History.
+          </li>
+          <li>
+            <strong>Receipt title is “Round N” only.</strong> Cap status lives
+            in wash color, list meta, and the binding-step tag (“capped
+            rewards”). Do not reuse “Room to earn” / “Full” / “Balanced” on past
+            payouts; those are live states.
+          </li>
+          <li>
+            <strong>One shell, two homes.</strong> Node account History for
+            operators (pool + kept cut). Your account History for delegators
+            (your share). Same math; different last mile. The mock toggle is
+            review-only.
+          </li>
+          <li>
+            <strong>Master-detail, not stacked.</strong> Wide: list left,
+            receipt right. Narrow: list → drill-in with Back. Rejected: full
+            receipt above a list when two columns fit.
+          </li>
+          <li>
+            <strong>Do not reprint 802.</strong> Entry sketches stay in the 802
+            mock. Link only. “What would grow the next one” may point at live
+            room; it must not impersonate the live status card.
+          </li>
+          <li>
+            <strong>Out of scope here.</strong> Validator / honesty product (<a
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >804</a
+            >) stays out, except showing the historical honesty factor that
+            already applied to a paid round. Emissions schedule / network mint
+            size is unfinished; sample pot is illustrative. No new top-level
+            Rewards page; Rewards is a mode inside History. Transactions stays
+            as a demoted feed, not deleted.
+          </li>
+          <li>
+            <strong>Rejected alternatives.</strong> Full causal UI on
+            Orchestrating or Delegating (collapses decide-now with archaeology,
+            or retells the node story on every bonded account). Gluing the 802
+            card onto History. Replacing the tx feed entirely. Home /
+            orchestrators list as the home for past payouts.
+          </li>
+          <li>
+            <strong>Copy and color.</strong> Lead with amount, then why, then
+            derivation under a disclosure. Brand blue = fees, brand green =
+            stake (quantity, not “good”). Never amber for neutral protocol
+            states. Tabular numbers. Ellipsis character …. No em dashes. No
+            dollar APY until emissions are fixed.
+          </li>
+          <li>
+            <strong>Shared status icons with 802.</strong> Stake-capped past =
+            trend-up (live “Room to earn”). Fees-capped past = filled circle
+            (live “Full”). Same SVGs; do not invent per-ticket icons.
+          </li>
+          <li>
+            <strong>Sample math (round 4210).</strong> Fee 11.8%, stake 2.3% →
+            stake caps. Illustrative pot 40,000 LPT → 920 eligible → honesty
+            0.95 → pool 874 LPT → 10% cut → sample 2% delegator gets 15.732 LPT.
+            Claimable in round 4217 (R+7). Secondary rows show fee-capped and
+            honesty 1.0 variants.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== OPEN QUESTIONS ==================== -->
+    <section class="section" aria-labelledby="open-q">
+      <div class="section-header">
+        <h2 class="section-title" id="open-q">Open questions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>APY / realized return %.</strong> Ticket asked for delegator
+            APY. Emissions are still a draft. <em>Recommended default:</em> show
+            LPT amounts and share math only; do not ship APY until emissions are
+            fixed. Flag for @ECWireless.
+          </li>
+          <li>
+            <strong>History default mode.</strong>
+            <em>Recommended default:</em>
+            <code>Rewards</code> when the account is an orchestrator (or
+            <code>?mode=rewards</code>); <code>Transactions</code> when there is
+            no node history. Confirm with people who still live in the tx feed.
+          </li>
+          <li>
+            <strong>Claim vs auto-distribute.</strong> Protocol: claimable at
+            R+7. Mock says “Claimable in round R+7.” If product later
+            auto-distributes, list meta can stay “paid”; adjust if claim is a
+            separate Transactions action.
+          </li>
+          <li>
+            <strong>Moving stake (~21 days).</strong> Stays an 802 copy concern,
+            not a column on this surface.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== ACCESSIBILITY ==================== -->
+    <section class="section" aria-labelledby="a11y">
+      <div class="section-header">
+        <h2 class="section-title" id="a11y">Who can use this</h2>
+      </div>
+      <p class="section-description">
+        These screens should work for people who cannot rely on color alone, who
+        navigate with a keyboard, who use a screen reader, or who prefer less
+        motion. Same rules apply when this ships in the product.
+      </p>
+      <ul class="notes">
+        <li>
+          <strong>Color is not the only cue.</strong> Cap chips use a word
+          label, a distinct icon, and a border; selected rounds use a full 1.5px
+          brand border plus wash and weight, not a left bar alone. Fee and stake
+          shares are spoken as numbers in plain text too.
+        </li>
+        <li>
+          <strong>Keyboard.</strong> History mode, reader, and the round list
+          are real choice groups (arrow keys, Home / End). Focus rings stay
+          visible so you always know where you are.
+        </li>
+        <li>
+          <strong>Screen readers.</strong> Choosing a round is announced
+          politely (round, which side capped, amount). On a phone, opening a
+          receipt moves focus into it; Back restores focus to the selected
+          round.
+        </li>
+        <li>
+          <strong>Help without a mouse.</strong> The “?” tips open when you tab
+          to them, not only on hover. Targets are large enough for touch.
+        </li>
+        <li>
+          <strong>Motion.</strong> If the system asks for reduced motion, the
+          page does not smooth-scroll.
+        </li>
+        <li>
+          <strong>Skip ahead.</strong> “Skip to content” jumps past the intro
+          into the mock.
+        </li>
+      </ul>
+    </section>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#primary">↑ Back to the mock</a>
+    </nav>
 
     <script>
       (function () {
