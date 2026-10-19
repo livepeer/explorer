@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Helping people pick where to stake · Design review</title>
+    <title>Helping people pick where to stake</title>
     <link rel="stylesheet" href="../shared/inter.css" />
     <style>
       :root {
@@ -25,13 +25,17 @@
         --primary11: #4cc38a;
         /* Quantity colors from livepeer.org/brand: blue = fees, green = stake.
          A state takes the color of whichever side is the minimum.
-         Green means stake quantity here, not “good.” Never amber for either state. */
+         Green means stake quantity here, not “good.” Never amber for either state.
+         Accents in OKLCH; muted = white mixed with the accent hue for secondary
+         text on tinted cards (no muddy neutral grey on green/blue). */
         --fee3: #0c222c;
         --fee9: #146a8f;
-        --fee11: #25abd0;
+        --fee11: oklch(0.689 0.12 222.069);
         --stake3: #0f241c;
         --stake9: #18794e;
-        --stake11: #4cc38a;
+        --stake11: oklch(0.735 0.136 159.28);
+        --fee-muted: color-mix(in oklch, white 70%, var(--fee11) 30%);
+        --stake-muted: color-mix(in oklch, white 70%, var(--stake11) 30%);
         --tomato3: #291415;
         --tomato4: #351719;
         --tomato11: #ff6b47;
@@ -75,6 +79,7 @@
         font-size: 13px;
         color: var(--primary11);
         text-decoration: none;
+        margin-right: 16px;
         margin-bottom: 12px;
       }
       .issue-link:hover {
@@ -94,6 +99,17 @@
         font-weight: 600;
         letter-spacing: -0.02em;
         margin-bottom: 12px;
+      }
+
+      .page-foot {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--neutral4);
+        max-width: 860px;
+      }
+      .page-foot .issue-link {
+        margin-right: 0;
+        margin-bottom: 0;
       }
 
       .page-head p {
@@ -150,19 +166,6 @@
         background: var(--stake9);
       }
 
-      .status-pill {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: var(--neutral3);
-        color: var(--neutral11);
-        margin-bottom: 16px;
-      }
-
       .section {
         margin-bottom: 64px;
       }
@@ -208,6 +211,22 @@
         margin-left: 20px;
         margin-bottom: 4px;
       }
+      .notes li strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .notes a,
+      .questions a,
+      .page-head p a {
+        color: var(--primary11);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .notes a:hover,
+      .questions a:hover,
+      .page-head p a:hover {
+        text-decoration: underline;
+      }
       .notes sup {
         color: var(--primary11);
         font-weight: 600;
@@ -237,7 +256,8 @@
         padding: 3px 9px;
         border-radius: 999px;
         white-space: nowrap;
-        border: 1px solid transparent;
+        /* Always 1.5px so state weight doesn’t shift layout */
+        border: 1.5px solid transparent;
       }
       .chip svg {
         width: 12px;
@@ -261,22 +281,26 @@
       }
 
       .tag {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         font-size: 10px;
         font-weight: 600;
-        padding: 2px 7px;
+        padding: 2px 7px 3px;
         border-radius: 999px;
         margin-left: 6px;
         vertical-align: 1px;
         white-space: nowrap;
+        border: 1.5px solid transparent;
       }
       .tag.stake {
         background: var(--stake3);
         color: var(--stake11);
+        border-color: var(--stake11);
       }
       .tag.fee {
         background: var(--fee3);
         color: var(--fee11);
+        border-color: var(--fee11);
       }
 
       .avatar {
@@ -470,7 +494,7 @@
         padding: 2px;
       }
       .seg button {
-        border: 0;
+        border: 1.5px solid transparent;
         background: transparent;
         color: var(--neutral11);
         font-size: 12px;
@@ -483,6 +507,7 @@
       .seg button[aria-checked="true"] {
         background: var(--neutral5);
         color: var(--hiContrast);
+        border-color: var(--primary11);
       }
 
       .window-note {
@@ -724,7 +749,8 @@
         padding: 12px 12px 10px;
         border-radius: 10px;
         background: var(--neutral2);
-        border: 1px solid var(--neutral4);
+        /* Always 1.5px so binding weight doesn’t shift layout */
+        border: 1.5px solid var(--neutral4);
         min-width: 0;
         overflow: visible;
       }
@@ -744,14 +770,22 @@
       }
       .m-odd .unit {
         font-size: 11px;
-        color: var(--neutral8);
+        color: var(--neutral11);
       }
-      /* Only the binding (caps rewards) tile is tinted */
+      .m-odd.fee .label,
+      .m-odd.fee .unit {
+        color: var(--fee-muted);
+      }
+      .m-odd.stake .label,
+      .m-odd.stake .unit {
+        color: var(--stake-muted);
+      }
+      /* Binding tile: 1.5px brand border + wash (not color alone) */
       .m-odd.fee.binding {
-        border-color: rgba(37, 171, 208, 0.45);
+        border-color: var(--fee11);
         background: linear-gradient(
-            rgba(37, 171, 208, 0.06),
-            rgba(37, 171, 208, 0.06)
+            color-mix(in oklch, var(--fee11) 12%, transparent),
+            color-mix(in oklch, var(--fee11) 12%, transparent)
           ),
           var(--neutral2);
       }
@@ -759,10 +793,10 @@
         color: var(--fee11);
       }
       .m-odd.stake.binding {
-        border-color: rgba(24, 121, 78, 0.45);
+        border-color: var(--stake11);
         background: linear-gradient(
-            rgba(24, 121, 78, 0.07),
-            rgba(24, 121, 78, 0.07)
+            color-mix(in oklch, var(--stake11) 14%, transparent),
+            color-mix(in oklch, var(--stake11) 14%, transparent)
           ),
           var(--neutral2);
       }
@@ -776,22 +810,26 @@
         right: 10px;
         z-index: 1;
         transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
         font-size: 10px;
         font-weight: 600;
         line-height: 1;
-        padding: 4px 8px;
+        /* Optical: lowercase sits low; less top / more bottom padding */
+        padding: 3px 8px 5px;
         border-radius: 999px;
         white-space: nowrap;
+        border: 1.5px solid transparent;
       }
       .m-odd.fee .cap-tag {
         background: var(--fee3);
         color: var(--fee11);
-        box-shadow: 0 0 0 1px rgba(37, 171, 208, 0.28);
+        border-color: var(--fee11);
       }
       .m-odd.stake .cap-tag {
         background: var(--stake3);
         color: var(--stake11);
-        box-shadow: 0 0 0 1px rgba(24, 121, 78, 0.28);
+        border-color: var(--stake11);
       }
 
       /* Familiar numbers from today's list, quiet under the decision */
@@ -1286,7 +1324,7 @@
       }
       .dw-tabs button {
         min-height: 40px;
-        border: 0;
+        border: 1.5px solid transparent;
         border-radius: 6px;
         background: transparent;
         color: var(--neutral11);
@@ -1299,6 +1337,7 @@
       .dw-tabs button[aria-checked="true"] {
         background: var(--neutral5);
         color: var(--hiContrast);
+        border-color: var(--primary11);
       }
       .dw-tabs button:hover {
         color: var(--hiContrast);
@@ -1788,7 +1827,6 @@
   <body>
     <a class="skip-link" href="#s1">Skip to content</a>
     <header class="page-head">
-      <span class="status-pill">Design review · mockups only</span>
       <h1>Helping people pick where to stake</h1>
       <a
         class="issue-link"
@@ -1799,6 +1837,7 @@
         Issue #802 ↗
       </a>
       <a class="issue-link" href="#s6">Design decisions ↓</a>
+      <a class="issue-link" href="#open-q">Open questions ↓</a>
       <a class="issue-link" href="#a11y">Who can use this ↓</a>
       <p>
         In Livepeer 2.0, a node’s new LPT rewards follow the smaller of two
@@ -2973,6 +3012,12 @@
                 </div>
                 <p class="delay-note">
                   Rewards are paid about a week after the round.
+                  <a
+                    href="https://github.com/livepeer/explorer/issues/803"
+                    target="_blank"
+                    rel="noopener"
+                    >Why a past round paid what it paid →</a
+                  >
                 </p>
                 <div class="mfs-cta">
                   <button type="button" class="delegate-btn" data-focus-widget>
@@ -3203,6 +3248,12 @@
             </div>
             <p class="delay-note">
               Rewards are paid about a week after the round.
+              <a
+                href="https://github.com/livepeer/explorer/issues/803"
+                target="_blank"
+                rel="noopener"
+                >Why a past round paid what it paid →</a
+              >
             </p>
           </div>
         </div>
@@ -3338,6 +3389,12 @@
             </div>
             <p class="delay-note">
               Rewards are paid about a week after the round.
+              <a
+                href="https://github.com/livepeer/explorer/issues/803"
+                target="_blank"
+                rel="noopener"
+                >Why a past round paid what it paid →</a
+              >
             </p>
           </div>
         </div>
@@ -3707,7 +3764,14 @@
           <li>
             <strong>Seven settled rounds.</strong> The list defaults to the last
             week of settled work. That window is harder to game, and it lines up
-            with when rewards are paid. Deeper history has its own design later.
+            with when rewards are paid. Per-round receipts are
+            <a
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >803</a
+            >
+            on History · Rewards.
           </li>
           <li>
             <strong>Room to earn / Full / Balanced.</strong> Those names speak
@@ -3729,14 +3793,70 @@
           </li>
           <li>
             <strong>Fee and stake only.</strong> Honesty scores and validator
-            set design are a separate project. This review stays with where
-            stake still earns.
+            set design (
+            <a
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >804</a
+            >) stay out. This review stays with where stake still earns.
+          </li>
+          <li>
+            <strong>History is 803.</strong> This ticket owns live fee-vs-stake
+            status. Past payouts and “why that round paid that amount” live on
+            account History · Rewards (
+            <a
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >803</a
+            >). Orchestrating only carries a week-later handoff line.
           </li>
           <li>
             <strong>One vocabulary.</strong> List, mobile, and detail all mark
             the limiting side with “caps rewards,” and describe leftover room as
             “new stake still earns, up to +X%.” Detail uses the same twin fee /
-            stake tiles as mobile, sized for the wide Orchestrating slot.
+            stake tiles as mobile, sized for the wide Orchestrating slot. Shared
+            status icons with 803 (trend-up / filled circle / scale).
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== OPEN QUESTIONS ==================== -->
+    <section class="section" aria-labelledby="open-q">
+      <div class="section-header">
+        <h2 class="section-title" id="open-q">Open questions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>Moving stake (~21 days).</strong> Design assumes a delayed
+            move so stake cannot flee a penalized node. If
+            <code>transferBond</code> stays instant, delete the lockup note
+            rather than leave a lie. Flag for protocol.
+          </li>
+          <li>
+            <strong>APY / dollar mint.</strong> Emissions are still a draft.
+            <em>Recommended default:</em> show share math and ceiling movement
+            (for example 2.3% toward 11.8%). Do not ship APY, “5× daily
+            rewards,” or a dollar mint until emissions are fixed.
+          </li>
+          <li>
+            <strong>Single-round sort.</strong> Resist sorting the list on one
+            unsettled round even if the subgraph makes it easy. Spikes are the
+            attack the seven-round window is meant to blunt.
+          </li>
+          <li>
+            <strong>Old “Active” label.</strong> Today it means “in the capped
+            orchestrator set.” After 2.0 that set goes away. Shipping fee/stake
+            states under the old status teaches the wrong model.
+          </li>
+          <li>
+            <strong>Collapsed cut breakdown.</strong> Whether stake still earns
+            is the open question on Orchestrating. How the cut divides waits
+            until someone is ready to commit. Confirm that collapsed-by-default
+            is the right default for stakeholders.
           </li>
         </ul>
       </div>
@@ -3755,9 +3875,11 @@
       <ul class="notes">
         <li>
           <strong>Color is not the only cue.</strong> “Room to earn,” “Full,”
-          and “Balanced” each have a word label and a distinct icon, not just a
-          green or blue tint. Fee and stake shares are spoken as numbers in
-          plain text too.
+          and “Balanced” each have a word label, a distinct icon, and a 1.5px
+          border, not just a green or blue tint. The tile that caps rewards uses
+          a full 1.5px brand border plus wash. Selected filters and
+          Delegate/Undelegate use a 1.5px brand border too. Fee and stake shares
+          are spoken as numbers in plain text.
         </li>
         <li>
           <strong>Keyboard.</strong> Filters and Delegate / Undelegate can be
@@ -3783,6 +3905,11 @@
         </li>
       </ul>
     </section>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#s1">↑ Back to the mock</a>
+    </nav>
+
     <script>
       (function () {
         function bindRadioGroup(group) {
