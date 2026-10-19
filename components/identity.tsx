@@ -3,7 +3,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { Check, Copy } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { normalize } from "viem/ens";
 import { useConfig, useEnsAvatar, useEnsName } from "wagmi";
 import { getEnsNameQueryOptions } from "wagmi/query";
@@ -180,10 +180,20 @@ export function Identity({
 /**
  * ENS names for every address, fetched only while searching. Shares the
  * cache with the per-row `useEnsName` lookups, so rows already on screen
- * cost nothing extra.
+ * cost nothing extra. At most `limit` addresses are looked up (the first
+ * ones, so callers pass them most important first): one lookup per address
+ * would otherwise let a long list flood the Ethereum RPC.
  */
-export function useEnsNames(addresses: string[], enabled: boolean) {
+/** The most names one search looks up. */
+export const ENS_LOOKUP_LIMIT = 300;
+
+export function useEnsNames(
+  all: string[],
+  enabled: boolean,
+  limit = ENS_LOOKUP_LIMIT
+) {
   const config = useConfig();
+  const addresses = useMemo(() => all.slice(0, limit), [all, limit]);
   // One Map per change in the resolved names, not per render, so callers
   // can depend on it in memos.
   const combine = useCallback(

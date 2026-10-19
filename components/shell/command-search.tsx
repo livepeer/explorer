@@ -54,6 +54,16 @@ function AddressLabel({ address }: { address: string }) {
   );
 }
 
+/** `value`, once it has stopped changing for `ms`. */
+function useDebounced<T>(value: T, ms: number) {
+  const [settled, setSettled] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(value), ms);
+    return () => clearTimeout(t);
+  }, [value, ms]);
+  return settled;
+}
+
 export function CommandSearch({
   open,
   onOpenChange,
@@ -70,18 +80,22 @@ export function CommandSearch({
     () => (orchestrators ?? []).map((o) => o.id),
     [orchestrators]
   );
-  // Resolved as soon as search opens, so typing part of a name finds it.
-  const names = useEnsNames(orchestratorIds, open);
+  // Resolved once there's a name-like query (not an address), so typing
+  // part of a name finds it, without a lookup per orchestrator on every open.
+  const nameQuery = query.trim().length >= 2 && !query.trim().startsWith("0x");
+  const names = useEnsNames(orchestratorIds, open && nameQuery);
   // Only fetched once search opens: most visits never need it.
   const { data: gateways } = useGateways({ enabled: open });
   const { add, list } = useAddresses();
   const { preference, setPreference } = useTheme();
 
   const trimmed = query.trim();
-  const looksEns = /\.[a-z]{2,}$/i.test(trimmed) && !trimmed.startsWith("0x");
+  // A typed name is looked up once typing pauses, not on every keystroke.
+  const settled = useDebounced(trimmed, 350);
+  const looksEns = /\.[a-z]{2,}$/i.test(settled) && !settled.startsWith("0x");
   let ensName: string | undefined;
   try {
-    ensName = looksEns ? normalize(trimmed) : undefined;
+    ensName = looksEns ? normalize(settled) : undefined;
   } catch {
     ensName = undefined;
   }
