@@ -393,10 +393,27 @@
         pointer-events: none;
         transition: opacity 0.12s ease, visibility 0.12s ease;
       }
+      /* Bridge the 8px gap so the pointer can reach the tip (WCAG 1.4.13) */
+      .tooltip-help::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 10px;
+      }
       .help:hover .tooltip-help,
       .help:focus-within .tooltip-help {
         opacity: 1;
         visibility: visible;
+        pointer-events: auto;
+      }
+      /* Escape dismisses until the next hover/focus on this help */
+      .help.is-tip-dismissed:hover .tooltip-help,
+      .help.is-tip-dismissed:focus-within .tooltip-help {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
       /* Account frame: wide enough for History master-detail */
@@ -2095,13 +2112,13 @@
           group.addEventListener("click", function (e) {
             var btn = e.target.closest('[role="radio"]');
             if (!btn || !group.contains(btn)) return;
-            onPick(btn.getAttribute(attr), btn);
+            onPick(btn.getAttribute(attr), btn, { activate: true });
           });
           group.addEventListener("keydown", function (e) {
             var items = radios();
             var i = items.indexOf(document.activeElement);
             if (i < 0) return;
-            var next = i;
+            var next;
             if (e.key === "ArrowRight" || e.key === "ArrowDown") {
               next = (i + 1) % items.length;
             } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
@@ -2112,14 +2129,19 @@
               next = items.length - 1;
             } else if (e.key === " " || e.key === "Enter") {
               e.preventDefault();
-              onPick(items[i].getAttribute(attr), items[i]);
+              onPick(items[i].getAttribute(attr), items[i], {
+                activate: true,
+              });
               return;
             } else {
               return;
             }
             e.preventDefault();
             items[next].focus();
-            onPick(items[next].getAttribute(attr), items[next]);
+            // Arrow/Home/End: move selection only (no drill-in on narrow)
+            onPick(items[next].getAttribute(attr), items[next], {
+              activate: false,
+            });
           });
         }
 
@@ -2258,10 +2280,11 @@
         bindRadioGroup(
           document.getElementById("round-list"),
           "data-round",
-          function (id) {
+          function (id, _btn, meta) {
             applyRound(id);
             setMode("rewards");
-            if (isNarrow()) {
+            // Drill-in only on click / Enter / Space, not arrow navigation
+            if (isNarrow() && meta && meta.activate) {
               setMobilePane("detail");
               story.focus({ preventScroll: true });
               story.scrollIntoView({
@@ -2271,6 +2294,23 @@
             }
           }
         );
+
+        // Tooltips: Escape dismisses until next hover/focus (WCAG 1.4.13)
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) help.classList.add("is-tip-dismissed");
+          });
+        });
 
         if (mdBack) {
           mdBack.addEventListener("click", function () {
