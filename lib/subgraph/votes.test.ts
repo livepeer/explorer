@@ -1,5 +1,5 @@
 import { paginate, querySubgraph } from "./client";
-import { fetchPollVotes } from "./votes";
+import { chainOrder, fetchPollVotes } from "./votes";
 
 jest.mock("./client", () => ({
   querySubgraph: jest.fn(),
@@ -45,5 +45,16 @@ describe("fetchPollVotes", () => {
       [ORCH, "yes", 700],
       [DELEGATOR, "no", 300],
     ]);
+  });
+});
+
+describe("chainOrder", () => {
+  it("orders events by block, then by log within the block", () => {
+    const e = (id: string, block: string) => ({
+      id,
+      transaction: { id: id.split("-")[0], blockNumber: block },
+    });
+    expect(chainOrder(e("0xabc-7", "100"))).toEqual([100, 7]);
+    expect(chainOrder(e("0xdef-12", "100"))).toEqual([100, 12]);
   });
 });

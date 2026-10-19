@@ -24,10 +24,23 @@ export type CastVote = {
 };
 
 type RawEvent = {
+  /** `<transaction hash>-<log index in the block>`. */
   id: string;
   voter: string | { id: string };
   timestamp: number;
-  transaction: { id: string };
+  transaction: { id: string; blockNumber: string };
+};
+
+/** Chain order of an event: block, then its log's position in the block. */
+export function chainOrder(e: Pick<RawEvent, "id" | "transaction">) {
+  const log = Number(e.id.split("-").pop());
+  return [Number(e.transaction.blockNumber), Number.isFinite(log) ? log : 0];
+}
+
+const later = (a: RawEvent, b: RawEvent) => {
+  const [ab, al] = chainOrder(a);
+  const [bb, bl] = chainOrder(b);
+  return ab !== bb ? ab > bb : al > bl;
 };
 
 const voterId = (v: string | { id: string }) =>
@@ -38,7 +51,9 @@ function latestEvents(events: RawEvent[]) {
   for (const e of events) {
     const id = voterId(e.voter);
     const prev = map.get(id);
-    if (!prev || e.timestamp > prev.timestamp) map.set(id, e);
+    // By chain order, not timestamp: two votes in one block share a
+    // timestamp, and the later one is the voter's current choice.
+    if (!prev || later(e, prev)) map.set(id, e);
   }
   return map;
 }
@@ -99,6 +114,7 @@ const POLL_VOTE_EVENTS = /* GraphQL */ `
       timestamp
       transaction {
         id
+        blockNumber
       }
     }
   }
@@ -178,6 +194,7 @@ const PROPOSAL_VOTE_EVENTS = /* GraphQL */ `
       timestamp
       transaction {
         id
+        blockNumber
       }
     }
   }
