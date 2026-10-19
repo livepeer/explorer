@@ -1,15 +1,12 @@
 "use client";
 
-import { isAddressEqual, keccak256, toBytes } from "viem";
+import { keccak256, toBytes } from "viem";
 import { useReadContract } from "wagmi";
 
 import { controller } from "@/lib/abis/Controller";
-import {
-  CONTRACTS,
-  L2_CHAIN,
-  PROTOCOL_CONTRACTS,
-  type ProtocolContractName,
-} from "@/lib/config";
+import { CONTRACTS, L2_CHAIN, type ProtocolContractName } from "@/lib/config";
+
+import { confirmedContract } from "./confirm";
 
 /**
  * A protocol contract's address, for reading or sending to. It's the pinned
@@ -29,18 +26,4 @@ export function useProtocolContract(name: ProtocolContractName) {
     query: { staleTime: 10 * 60_000 },
   });
   return confirmedContract(name, data as string | undefined);
-}
-
-/** The pinned address when the registry's answer matches it. */
-export function confirmedContract(
-  name: ProtocolContractName,
-  registered: string | undefined
-): `0x${string}` | undefined {
-  if (!registered) return undefined;
-  const pinned = PROTOCOL_CONTRACTS[name];
-  if (isAddressEqual(registered as `0x${string}`, pinned)) return pinned;
-  console.error(
-    `Controller returned ${registered} for ${name}, expected ${pinned}; refusing to use it.`
-  );
-  return undefined;
 }

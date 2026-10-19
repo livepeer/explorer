@@ -1,6 +1,6 @@
 import { PROTOCOL_CONTRACTS } from "@/lib/config";
 
-import { confirmedContract } from "./contracts";
+import { confirmedContract } from "./confirm";
 
 describe("confirmedContract", () => {
   beforeEach(() => jest.spyOn(console, "error").mockImplementation(() => {}));
