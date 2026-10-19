@@ -109,24 +109,28 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         ) : (
                           <RedelegateFromUndelegated
                             unbondingLockId={lock.unbondingLockId}
-                            delegate={lock.delegate.id}
+                            delegate={lock.delegate}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         )}
                       </Flex>
                     )}
                     <Box
                       css={{
-                        alignSelf: "flex-end",
+                        alignSelf: "flex-start",
                         fontWeight: 700,
                         marginTop: "$1",
                         "@bp2": {
-                          alignSelf: "auto",
+                          alignSelf: "center",
                           fontWeight: 400,
                           marginTop: 0,
                           order: -1,
@@ -219,13 +223,17 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                             unbondingLockId={lock.unbondingLockId}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         ) : (
                           <RedelegateFromUndelegated
                             unbondingLockId={lock.unbondingLockId}
-                            delegate={lock.delegate.id}
+                            delegate={lock.delegate}
                             newPosPrev={newPosPrev}
                             newPosNext={newPosNext}
+                            delegator={delegator}
+                            currentRound={currentRound}
                           />
                         )}
                         <WithdrawStake unbondingLockId={lock.unbondingLockId} />
@@ -233,11 +241,11 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                     )}
                     <Box
                       css={{
-                        alignSelf: "flex-end",
+                        alignSelf: "flex-start",
                         fontWeight: 700,
                         marginTop: "$1",
                         "@bp2": {
-                          alignSelf: "auto",
+                          alignSelf: "flex-end",
                           fontWeight: 400,
                           marginTop: 0,
                           order: -1,
