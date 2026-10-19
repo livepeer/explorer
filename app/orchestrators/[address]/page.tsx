@@ -41,6 +41,7 @@ import {
   useProtocol,
 } from "@/lib/hooks/queries";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
+import { routeParam } from "@/lib/params";
 import type { OrchestratorDetail } from "@/lib/subgraph/network";
 
 type Metric = "yield" | "stake" | "fees";
@@ -220,7 +221,7 @@ function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
 
 export default function OrchestratorPage() {
   const params = useParams<{ address: string }>();
-  const address = decodeURIComponent(params.address ?? "").toLowerCase();
+  const address = routeParam(params.address).toLowerCase();
   const valid = isAddress(address);
   // The query waits for the protocol, and reports isLoading: false while it
   // does, so "not loaded yet" is isPending, on the server too. A failed

@@ -8,6 +8,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useIdentity } from "@/components/identity";
 import { cn } from "@/lib/cn";
 import { useAddresses } from "@/lib/hooks/watchlist";
+import { routeParam } from "@/lib/params";
 
 import { NAV } from "./nav";
 
@@ -67,7 +68,7 @@ function crumbsFor(pathname: string): Crumb[] {
   if (section === "accounts" && a) {
     return [
       { label: "Accounts", icon: UserRound },
-      { label: <AddressName address={decodeURIComponent(a)} /> },
+      { label: <AddressName address={routeParam(a)} /> },
     ];
   }
   const s = SECTIONS[section];
@@ -91,7 +92,7 @@ function crumbsFor(pathname: string): Crumb[] {
   if (a && (section === "orchestrators" || section === "gateways")) {
     return [
       { label: name, icon, href: `/${section}` },
-      { label: <AddressName address={decodeURIComponent(a)} /> },
+      { label: <AddressName address={routeParam(a)} /> },
     ];
   }
   return [{ label: name, icon }];

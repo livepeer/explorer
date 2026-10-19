@@ -31,10 +31,11 @@ import { addressUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/format";
 import { useGateway, useOrchestrators } from "@/lib/hooks/queries";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
+import { routeParam } from "@/lib/params";
 
 export default function AccountPage() {
   const params = useParams<{ address: string }>();
-  const raw = decodeURIComponent(params.address ?? "");
+  const raw = routeParam(params.address);
   const address = raw.toLowerCase();
   const valid = isAddress(address);
   const { name, avatar } = useIdentity(valid ? address : null);

@@ -47,6 +47,7 @@ import {
   useGatewayPayouts,
   useOrchestrators,
 } from "@/lib/hooks/queries";
+import { routeParam } from "@/lib/params";
 import {
   dailyFees,
   depositRunway,
@@ -150,7 +151,7 @@ function Payouts({
 
 export default function GatewayPage() {
   const params = useParams<{ address: string }>();
-  const address = decodeURIComponent(params.address ?? "").toLowerCase();
+  const address = routeParam(params.address).toLowerCase();
   const valid = isAddress(address);
   const {
     data: g,

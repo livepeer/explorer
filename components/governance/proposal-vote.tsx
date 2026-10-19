@@ -32,6 +32,11 @@ export function useProposalState(proposal: TreasuryProposal | undefined) {
   return data == null ? null : Number(data);
 }
 
+/** A round number fit for BigInt: a non-negative safe integer, or null. */
+function safeRound(n: number): number | null {
+  return Number.isSafeInteger(n) && n >= 0 ? n : null;
+}
+
 /**
  * Quorum and quota for a treasury proposal, read from the governor. Neither
  * is indexed, so these come from the chain. Voting power is fixed at the
@@ -44,9 +49,11 @@ export function useProposalThresholds(
 ) {
   const governor = useControllerContract("LivepeerGovernor");
   const votes = useControllerContract("BondingVotes");
+  // A malformed round from the subgraph is skipped, not thrown mid-render.
+  const start = proposal ? safeRound(proposal.voteStart) : null;
   const snapshot =
-    proposal && currentRound != null
-      ? BigInt(Math.min(proposal.voteStart, currentRound - 1))
+    start != null && currentRound != null
+      ? BigInt(Math.min(start, currentRound - 1))
       : null;
   const enabled = snapshot != null;
   const quorum = useReadContract({
@@ -107,9 +114,13 @@ export function ProposalVoteForm({ proposal }: { proposal: TreasuryProposal }) {
     address: votes,
     abi: bondingVotes,
     functionName: "getPastVotes",
-    args: [address!, BigInt(proposal.voteStart)],
+    args: [address!, BigInt(safeRound(proposal.voteStart) ?? 0)],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(votes && address) },
+    query: {
+      enabled: Boolean(
+        votes && address && safeRound(proposal.voteStart) != null
+      ),
+    },
   });
 
   if (id == null) return null;

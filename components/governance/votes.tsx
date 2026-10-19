@@ -418,7 +418,9 @@ export function VotesPanel({
     const map = new Map<string, CastVote[]>();
     for (const v of all) {
       if (v.orchestrator || !v.delegate) continue;
-      map.set(v.delegate, [...(map.get(v.delegate) ?? []), v]);
+      const group = map.get(v.delegate);
+      if (group) group.push(v);
+      else map.set(v.delegate, [v]);
     }
     for (const group of map.values()) group.sort((a, b) => b.weight - a.weight);
     return map;

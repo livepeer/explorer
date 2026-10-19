@@ -49,9 +49,10 @@ import {
   useProposalVotes,
   useProtocol,
 } from "@/lib/hooks/queries";
+import { routeParam } from "@/lib/params";
+import type { Protocol } from "@/lib/subgraph/network";
 
 const TABS = ["description", "votes"] as const;
-import type { Protocol } from "@/lib/subgraph/network";
 
 /** Exact start time for recent rounds, otherwise an estimate from round length. */
 function roundTime(protocol: Protocol, round: number) {
@@ -63,7 +64,7 @@ function roundTime(protocol: Protocol, round: number) {
 
 export default function ProposalPage() {
   const params = useParams<{ id: string }>();
-  const id = decodeURIComponent(params.id ?? "");
+  const id = routeParam(params.id);
   const governance = useGovernance();
   const protocol = useProtocol();
   const nowMs = useNow(30_000);

@@ -43,6 +43,7 @@ import { Skeleton, StatusDot } from "@/components/ui/misc";
 import { addressUrl } from "@/lib/config";
 import { formatLPT, formatPercent, shortAddress } from "@/lib/format";
 import { useGovernance, usePollVotes, useProtocol } from "@/lib/hooks/queries";
+import { routeParam } from "@/lib/params";
 
 const TABS = ["proposal", "votes"] as const;
 
@@ -51,7 +52,7 @@ const LINK =
 
 export default function PollPage() {
   const params = useParams<{ id: string }>();
-  const id = decodeURIComponent(params.id ?? "").toLowerCase();
+  const id = routeParam(params.id).toLowerCase();
   const governance = useGovernance();
   const protocol = useProtocol();
   const { block: l1Block, isLoading: blockLoading } = useL1Block();
