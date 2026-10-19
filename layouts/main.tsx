@@ -776,7 +776,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 )}
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`/whats-new`}
+                                  href={`https://livepeer.org/changelog`}
                                 >
                                   What&apos;s New
                                 </PopoverLink>
