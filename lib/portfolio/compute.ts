@@ -43,6 +43,10 @@ export type Snapshot = {
   delegate: string | null;
   round: number;
   shares: bigint;
+  /** Bonded stake right after the event, wei; tells a claim's timing. */
+  bondedAmount?: bigint;
+  /** Orders events within a round. */
+  timestamp?: number;
 };
 
 export type RoundPoint = {
@@ -145,8 +149,12 @@ const toFloat = (wei: bigint) => Number(wei) / 1e18;
 type Holding = { shares: bigint; delegate: string | null };
 
 /** Shares held at the end of each round, from ascending snapshots. */
+/** Snapshots in event order: by round, then by time within it. */
+const byEventOrder = (a: Snapshot, b: Snapshot) =>
+  a.round - b.round || (a.timestamp ?? 0) - (b.timestamp ?? 0);
+
 function holdingsLookup(snapshots: Snapshot[]) {
-  const sorted = [...snapshots].sort((a, b) => a.round - b.round);
+  const sorted = [...snapshots].sort(byEventOrder);
   return (round: number): Holding | null => {
     let found: Holding | null = null;
     for (const s of sorted) {
@@ -155,6 +163,21 @@ function holdingsLookup(snapshots: Snapshot[]) {
     }
     return found;
   };
+}
+
+/**
+ * Whether a claim landed after its round's reward call: its bonded stake is
+ * then worth exactly its shares at the round's final reward factor (to
+ * rounding). Before the call, the factor was still the previous round's.
+ */
+function claimedAfterReward(claim: Snapshot, roundCrf: bigint) {
+  if (claim.bondedAmount == null || roundCrf === 0n) return false;
+  const atRound = (claim.shares * roundCrf) / PRECISE;
+  const diff =
+    claim.bondedAmount > atRound
+      ? claim.bondedAmount - atRound
+      : atRound - claim.bondedAmount;
+  return diff <= 1_000n;
 }
 
 export function computeAccount({
@@ -169,12 +192,12 @@ export function computeAccount({
   rounds: RoundPoint[];
 }): AccountResult {
   const id = account.id.toLowerCase();
-  const holdingAt = holdingsLookup(
-    snapshots.filter((s) => s.account.toLowerCase() === id)
-  );
-  const claimRounds = new Set(
-    snapshots.filter((s) => s.account.toLowerCase() === id).map((s) => s.round)
-  );
+  const own = snapshots
+    .filter((s) => s.account.toLowerCase() === id)
+    .sort(byEventOrder);
+  const holdingAt = holdingsLookup(own);
+  // Any bond, unbond or claim settles earnings; the round's last one wins.
+  const claimAt = new Map(own.map((s) => [s.round, s]));
 
   const crf = (d: string, r: number) => pools.get(d)?.at(r)?.crf ?? 0n;
   const cff = (d: string, r: number) => pools.get(d)?.at(r)?.cff ?? 0n;
@@ -201,7 +224,8 @@ export function computeAccount({
 
     // Commission for an orchestrator bonded to itself.
     const selfDelegated = now?.delegate === id || prev?.delegate === id;
-    if (claimRounds.has(r)) commission = 0n;
+    const claim = claimAt.get(r);
+    if (claim) commission = 0n;
     if (selfDelegated) {
       const pool = pools.get(id)?.exact(r);
       if (pool?.rewardTokens && pool.rewardTokens > 0n) {
@@ -211,7 +235,11 @@ export function computeAccount({
           pool.totalStake > 0n
             ? (toDelegators * commission) / pool.totalStake
             : 0n;
-        commission += cut + onStaked;
+        // A claim after this round's reward call already moved the
+        // commission into bonded stake; only one before it leaves it pending.
+        if (!(claim && claimedAfterReward(claim, crf(id, r)))) {
+          commission += cut + onStaked;
+        }
         rewardWei += cut + onStaked;
         cutWei += cut;
       }

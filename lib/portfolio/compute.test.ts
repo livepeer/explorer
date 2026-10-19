@@ -220,6 +220,70 @@ describe("computeAccount", () => {
     expect(result.series[2].stake).toBeCloseTo(101.8 + 2.009, 6);
     expect(result.pendingStake).toBe(lpt(101.8) + lpt(2));
   });
+
+  describe("a claim in a round with a reward call", () => {
+    // Rewards of 10 LPT at a 10% cut in rounds 11 and 12; the orchestrator
+    // claims in round 11, either after that round's reward call or before.
+    const pools = new Map([
+      [
+        D,
+        new PoolHistory([
+          pool(10, 1, { totalStake: lpt(1000) }),
+          pool(11, 1.009, {
+            rewardTokens: lpt(10),
+            rewardCut: 100_000n,
+            totalStake: lpt(1000),
+          }),
+          pool(12, 1.018, {
+            rewardTokens: lpt(10),
+            rewardCut: 100_000n,
+            totalStake: lpt(1000),
+          }),
+        ]),
+      ],
+    ]);
+    const run = (claim: { shares: bigint; bondedAmount: bigint }) =>
+      computeAccount({
+        account: {
+          id: D,
+          delegate: D,
+          shares: claim.shares,
+          fees: 0n,
+          lastClaimRound: 11,
+          pendingRewardCommission: 0n,
+        },
+        snapshots: [
+          { account: D, delegate: D, round: 10, shares: lpt(100) },
+          { account: D, delegate: D, round: 11, ...claim },
+        ],
+        pools,
+        rounds: rounds(10, 12),
+      });
+
+    it("doesn't count the round's commission again after a claim that included it", () => {
+      // Claimed after the call: 100.9 on shares plus the 1 LPT cut, bonded
+      // at round 11's final factor.
+      const bonded = lpt(101.9);
+      const result = run({
+        bondedAmount: bonded,
+        shares: (bonded * PRECISE) / factor(1.009),
+      });
+      // Only round 12's cut is still pending.
+      expect(result.series[2].stake).toBeCloseTo(
+        (101.9 * 1.018) / 1.009 + 1,
+        6
+      );
+      // Round 11 still earned its cut once.
+      expect(result.series[1].commission).toBeCloseTo(1, 6);
+    });
+
+    it("keeps the round's commission pending after a claim before its call", () => {
+      // Claimed before the call: bonded at round 10's factor, no cut yet.
+      const result = run({ bondedAmount: lpt(100), shares: lpt(100) });
+      // Round 11's cut, then round 12's plus 9·1/1000 earned by the first.
+      expect(result.series[2].stake).toBeCloseTo(101.8 + 2.009, 6);
+    });
+  });
 });
 
 describe("computePortfolio", () => {

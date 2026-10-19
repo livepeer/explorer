@@ -845,6 +845,7 @@ const resolvers = {
         delegate: ref(s.delegate),
         round: { id: String(s.round) },
         shares: s.shares,
+        bondedAmount: s.bondedAmount,
         timestamp: s.timestamp,
       })),
     };

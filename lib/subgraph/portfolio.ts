@@ -111,6 +111,7 @@ const SNAPSHOTS = /* GraphQL */ `
         id
       }
       shares
+      bondedAmount
       timestamp
     }
   }
@@ -158,6 +159,7 @@ type RawSnapshot = {
   delegate: { id: string } | null;
   round: { id: string };
   shares: string;
+  bondedAmount: string;
   timestamp: number;
 };
 
@@ -233,6 +235,8 @@ export async function fetchPortfolio(
     delegate: s.delegate?.id ?? null,
     round: Number(s.round.id),
     shares: BigInt(s.shares),
+    bondedAmount: decimalToWei(s.bondedAmount),
+    timestamp: s.timestamp,
   }));
 
   // Every orchestrator any account has ever been bonded to.
