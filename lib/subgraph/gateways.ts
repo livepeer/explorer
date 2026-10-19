@@ -147,27 +147,53 @@ type RawTicket = {
   recipient: { id: string } | null;
 };
 
-const GATEWAY_TICKETS = /* GraphQL */ `
-  query GatewayTickets(
+const TICKET_FIELDS = /* GraphQL */ `
+  id
+  timestamp
+  faceValue
+  recipient {
+    id
+  }
+`;
+
+/** Newest first, strictly before `before`. */
+const GATEWAY_TICKETS_BEFORE = /* GraphQL */ `
+  query GatewayTicketsBefore(
     $sender: String!
     $since: Int!
+    $before: Int!
+    $first: Int!
+  ) {
+    winningTicketRedeemedEvents(
+      first: $first
+      orderBy: timestamp
+      orderDirection: desc
+      where: { sender: $sender, timestamp_gte: $since, timestamp_lt: $before }
+    ) {
+      ${TICKET_FIELDS}
+    }
+  }
+`;
+
+/** Every ticket at exactly one timestamp, paged by id. */
+const GATEWAY_TICKETS_AT = /* GraphQL */ `
+  query GatewayTicketsAt(
+    $sender: String!
+    $at: Int!
     $first: Int!
     $lastId: String!
   ) {
     winningTicketRedeemedEvents(
       first: $first
       orderBy: id
-      where: { sender: $sender, timestamp_gte: $since, id_gt: $lastId }
+      where: { sender: $sender, timestamp: $at, id_gt: $lastId }
     ) {
-      id
-      timestamp
-      faceValue
-      recipient {
-        id
-      }
+      ${TICKET_FIELDS}
     }
   }
 `;
+
+const TICKET_PAGE = 1000;
 
 export type GatewayRecipient = {
   id: string;
@@ -196,13 +222,53 @@ export async function fetchGatewayPayouts(
   since: number
 ): Promise<GatewayPayouts> {
   const sender = id.toLowerCase();
-  const rows = await paginate<RawTicket>(
-    GATEWAY_TICKETS,
-    "winningTicketRedeemedEvents",
-    { sender, since },
-    { max: TICKET_CAP, partial: true }
-  );
-  return summarizePayouts(sender, since, rows, rows.length >= TICKET_CAP);
+  const { rows, truncated } = await newestTickets(sender, since, TICKET_CAP);
+  return summarizePayouts(sender, since, rows, truncated);
+}
+
+/**
+ * The gateway's most recent tickets since `since`, up to `cap`, newest
+ * first. Ids are hashes, so paging by id gave an arbitrary sample once the
+ * cap was hit; this pages by time instead. A redemption batch shares one
+ * timestamp, so each page's oldest timestamp is read in full by id before
+ * moving past it, and nothing at a boundary is skipped or repeated.
+ * `truncated` is true only if a ticket past the cap actually exists.
+ */
+export async function newestTickets(
+  sender: string,
+  since: number,
+  cap: number
+): Promise<{ rows: RawTicket[]; truncated: boolean }> {
+  const seen = new Set<string>();
+  const rows: RawTicket[] = [];
+  const add = (page: RawTicket[]) => {
+    for (const r of page) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      rows.push(r);
+    }
+  };
+  let before = 2 ** 31 - 1;
+  while (rows.length <= cap) {
+    const { winningTicketRedeemedEvents: page } = await querySubgraph<{
+      winningTicketRedeemedEvents: RawTicket[];
+    }>(GATEWAY_TICKETS_BEFORE, { sender, since, before, first: TICKET_PAGE });
+    add(page);
+    if (page.length < TICKET_PAGE) break;
+    // The page may end partway through its oldest timestamp: read all of it.
+    const at = Number(page[page.length - 1].timestamp);
+    add(
+      await paginate<RawTicket>(
+        GATEWAY_TICKETS_AT,
+        "winningTicketRedeemedEvents",
+        { sender, at },
+        { max: cap + 1, partial: true }
+      )
+    );
+    before = at;
+  }
+  rows.sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
+  return { rows: rows.slice(0, cap), truncated: rows.length > cap };
 }
 
 export function summarizePayouts(
