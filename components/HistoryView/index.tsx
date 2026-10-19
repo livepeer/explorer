@@ -64,6 +64,8 @@ const Index = () => {
   });
 
   const [reachedEnd, setReachedEnd] = useState(false);
+  const [exhaustedTransactionsAccount, setExhaustedTransactionsAccount] =
+    useState<string | null>(null);
 
   const events = useMemo(() => {
     // First reverse the order of the array of events per transaction to have events in descending order
@@ -202,6 +204,9 @@ const Index = () => {
   // account's own transactions and come from the dedicated list instead.
   const transferBondEvents = useMemo(() => {
     const accountLower = account.toLowerCase();
+    const hasMoreTransactions =
+      (data?.transactions?.length ?? 0) >= PAGE_SIZE &&
+      exhaustedTransactionsAccount !== accountLower;
     return [
       ...events.filter(isTransferBondEvent).map((e) => ({
         ...e,
@@ -210,13 +215,23 @@ const Index = () => {
       ...(data?.transferBondEvents ?? [])
         .filter(
           (e) =>
-            (e?.transaction?.timestamp ?? 0) > lastEventTimestamp &&
+            // Incoming stake can predate the recipient's first transaction.
+            // Release the window once their own transactions are exhausted.
+            (!hasMoreTransactions ||
+              (e?.transaction?.timestamp ?? 0) >= lastEventTimestamp) &&
             e?.oldDelegator?.id?.toLowerCase() !== accountLower
         )
         .map((e) => ({ ...e, direction: "in" as const })),
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events, data?.transferBondEvents, account, lastEventTimestamp]);
+  }, [
+    events,
+    data?.transferBondEvents,
+    data?.transactions?.length,
+    exhaustedTransactionsAccount,
+    account,
+    lastEventTimestamp,
+  ]);
 
   const mergedEvents = useMemo(
     () =>
@@ -317,6 +332,9 @@ const Index = () => {
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previousResult;
+          if (fetchMoreResult.transactions.length < PAGE_SIZE) {
+            setExhaustedTransactionsAccount(account.toLowerCase());
+          }
           // Stop only once every list is exhausted. Rewards, ticket
           // redemptions and incoming bond transfers can be submitted by another
           // address, so none of those lists is bounded by `transactions`.
@@ -354,7 +372,7 @@ const Index = () => {
     } finally {
       fetchingRef.current = false;
     }
-  }, [loading, totalLoaded, fetchMoreTransactions]);
+  }, [loading, totalLoaded, fetchMoreTransactions, account]);
 
   // Create a sentinel ref and observe it while more pages are available.
   const sentinelRef = useRef<HTMLDivElement>(null);

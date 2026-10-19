@@ -99,6 +99,23 @@ const roundTransaction = (
   ],
 });
 
+const incomingTransfer = (
+  id: number,
+  timestamp: number
+): TransactionsQuery["transferBondEvents"][number] => ({
+  __typename: "TransferBondEvent",
+  id: `transfer-${id}`,
+  amount: "10",
+  oldDelegator: { __typename: "Delegator", id: "0xsender" },
+  newDelegator: { __typename: "Delegator", id: "0xaccount" },
+  round: { __typename: "Round", id: "1" },
+  transaction: {
+    __typename: "Transaction",
+    id: `transfer-tx-${id}`,
+    timestamp,
+  },
+});
+
 const pollVote = (id: string) => ({
   __typename: "VoteEvent" as const,
   id,
@@ -249,6 +266,96 @@ it("keeps loading when rewards have more pages than account transactions", async
     updateQuery(data, { fetchMoreResult: nextPage });
   });
   expect(screen.getByRole("status")).toBeTruthy();
+});
+
+it("retains incoming stake after the recipient submits their first transaction", async () => {
+  data.transferBondEvents = [incomingTransfer(0, 900)];
+  const { rerender } = render(<HistoryView />);
+  expect(screen.getByText(/Received stake from/)).toBeTruthy();
+
+  data = {
+    ...data,
+    transactions: [
+      {
+        __typename: "Transaction",
+        events: [
+          {
+            __typename: "UnbondEvent",
+            amount: "1",
+            delegate: { __typename: "Transcoder", id: "0xdelegate" },
+            round: { __typename: "Round", id: "2" },
+            transaction: {
+              __typename: "Transaction",
+              id: "first-unbond",
+              timestamp: 1000,
+            },
+          },
+        ],
+      },
+    ],
+  };
+  await act(async () => rerender(<HistoryView />));
+  expect(screen.getByText(/Undelegated from/)).toBeTruthy();
+  expect(screen.getByText(/Received stake from/)).toBeTruthy();
+  expect(screen.getByText("+10 LPT")).toBeTruthy();
+  expect(fetchMore).not.toHaveBeenCalled();
+});
+
+it("includes incoming transfers at the oldest loaded transaction timestamp", async () => {
+  data.transactions = Array.from({ length: 25 }, (_, i) => roundTransaction(i));
+  data.transferBondEvents = [incomingTransfer(0, 976)];
+  await act(async () => {
+    render(<HistoryView />);
+  });
+  expect(screen.getByText(/Received stake from/)).toBeTruthy();
+});
+
+it("releases older incoming transfers when transactions end at a full page", async () => {
+  data.transactions = Array.from({ length: 25 }, (_, i) => roundTransaction(i));
+  data.transferBondEvents = Array.from({ length: 25 }, (_, i) =>
+    incomingTransfer(i, 900 - i)
+  );
+  const { rerender } = render(<HistoryView />);
+  expect(screen.queryByText(/Received stake from/)).toBeNull();
+
+  await act(async () => {
+    onIntersect(
+      [{ isIntersecting: true } as IntersectionObserverEntry],
+      {} as IntersectionObserver
+    );
+  });
+  expect(fetchMore).toHaveBeenCalledWith(
+    expect.objectContaining({ variables: { skip: 25 } })
+  );
+  const nextPage = emptyPage();
+  nextPage.transferBondEvents = Array.from({ length: 25 }, (_, i) =>
+    incomingTransfer(25 + i, 875 - i)
+  );
+  const { updateQuery } = fetchMore.mock.calls[0][0];
+  act(() => {
+    data = updateQuery(data, { fetchMoreResult: nextPage });
+  });
+  await act(async () => rerender(<HistoryView />));
+  expect(screen.getAllByText(/Received stake from/)).toHaveLength(50);
+  expect(screen.getAllByText("Initialized round")).toHaveLength(25);
+  expect(screen.getByRole("status")).toBeTruthy();
+
+  // Exhausting this account's transactions must not release another account's window.
+  data = {
+    ...emptyPage(),
+    transactions: Array.from({ length: 25 }, (_, i) => roundTransaction(i)),
+    transferBondEvents: [
+      {
+        ...incomingTransfer(100, 800),
+        newDelegator: { __typename: "Delegator", id: "0xother" },
+      },
+    ],
+  };
+  await act(async () => {
+    navigate({ account: "0xother" });
+    rerender(<HistoryView />);
+  });
+  expect(screen.queryByText(/Received stake from/)).toBeNull();
 });
 
 it("waits for poll metadata before showing an empty filtered history", async () => {
