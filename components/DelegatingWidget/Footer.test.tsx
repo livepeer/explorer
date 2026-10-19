@@ -39,8 +39,8 @@ jest.mock("hooks/useContracts", () => ({
     data: "0x2222222222222222222222222222222222222222",
   }),
 }));
-jest.mock("hooks/useHandleTransaction", () => ({
-  useHandleTransaction: () => {},
+jest.mock("hooks/useSubmitTransaction", () => ({
+  useSubmitTransaction: () => (write: () => unknown) => write(),
 }));
 jest.mock("@lib/utils", () => ({
   getDelegatorStatus: jest.fn(() => "Bonded"),
@@ -84,7 +84,9 @@ beforeEach(() => {
   (useSimulateContract as jest.Mock).mockImplementation((options) => ({
     data: { request: { args: options.args } },
   }));
-  (useWriteContract as jest.Mock).mockReturnValue({ writeContract });
+  (useWriteContract as jest.Mock).mockReturnValue({
+    writeContractAsync: writeContract,
+  });
 });
 
 it.each(["", "1e", "abc", "0", "-1", "0.0000000000000000001"])(

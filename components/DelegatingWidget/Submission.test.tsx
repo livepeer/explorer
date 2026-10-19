@@ -13,9 +13,10 @@ import {
 import { useExplorerStore } from "hooks/useExplorerStore";
 import { useIsSafe } from "hooks/wallet";
 import { ComponentProps, ReactNode, useState } from "react";
-import { ContractFunctionZeroDataError, Hash } from "viem";
+import { ContractFunctionZeroDataError, Hash, parseUnits } from "viem";
 
 import Delegate from "./Delegate";
+import Undelegate from "./Undelegate";
 
 jest.mock("@lib/utils", () => ({
   MAXIMUM_VALUE_UINT256:
@@ -28,6 +29,9 @@ jest.mock("@rainbow-me/rainbowkit", () => ({
 jest.mock("hooks/wallet", () => ({
   ...jest.requireActual("hooks/wallet"),
   useIsSafe: jest.fn(),
+}));
+jest.mock("hooks", () => ({
+  useAccountAddress: () => "0x1111111111111111111111111111111111111111",
 }));
 jest.mock("hooks/useContracts", () => ({
   useBondingManagerAddress: () => ({
@@ -49,6 +53,10 @@ jest.mock("@livepeer/design-system", () => {
     Box: Container,
     Flex: Container,
     Text: Container,
+    DialogContent: Container,
+    DialogTitle: Container,
+    Dialog: ({ open, children }: { open: boolean; children: ReactNode }) =>
+      open ? <div role="dialog">{children}</div> : null,
     Button: ({ children, disabled, onClick }: ComponentProps<"button">) => (
       <button disabled={disabled} onClick={onClick}>
         {children}
@@ -103,7 +111,13 @@ let resolveWrite: (hash: Hash) => void;
 let rejectWrite: (error: Error) => void;
 const to = "0x0000000000000000000000000000000000000003";
 
-function Form({ initial = "1.25", transfer = false, allowance = 10n ** 24n }) {
+function Form({
+  initial = "1.25",
+  transfer = false,
+  allowance = 10n ** 24n,
+  undelegate = false,
+  willDeactivate = false,
+}) {
   const [amount, setAmount] = useState(initial);
   return (
     <>
@@ -112,21 +126,32 @@ function Form({ initial = "1.25", transfer = false, allowance = 10n ** 24n }) {
         value={amount}
         onChange={(event) => setAmount(event.target.value)}
       />
-      <Delegate
-        to={to}
-        amount={amount}
-        isTransferStake={transfer}
-        isMyTranscoder={true}
-        tokenBalance={10n ** 24n}
-        transferAllowance={allowance}
-        reset={() => setAmount("")}
-        hint={{
-          oldDelegateNewPosPrev: "a",
-          oldDelegateNewPosNext: "b",
-          currDelegateNewPosPrev: "c",
-          currDelegateNewPosNext: "d",
-        }}
-      />
+      {undelegate ? (
+        <Undelegate
+          amount={amount}
+          amountWei={parseUnits(amount, 18)}
+          newPosPrev="a"
+          newPosNext="b"
+          disabled={false}
+          willDeactivate={willDeactivate}
+        />
+      ) : (
+        <Delegate
+          to={to}
+          amount={amount}
+          isTransferStake={transfer}
+          isMyTranscoder={true}
+          tokenBalance={10n ** 24n}
+          transferAllowance={allowance}
+          reset={() => setAmount("")}
+          hint={{
+            oldDelegateNewPosPrev: "a",
+            oldDelegateNewPosNext: "b",
+            currDelegateNewPosPrev: "c",
+            currDelegateNewPosNext: "d",
+          }}
+        />
+      )}
     </>
   );
 }
@@ -196,11 +221,13 @@ it("keeps the submitted amount after reset and later input edits", async () => {
   expect(trackTransaction).toHaveBeenCalledTimes(1);
 });
 
-it.each(["Delegate", "Approve"])(
+it.each(["Delegate", "Approve", "Undelegate"])(
   "finishes %s after the staking form unmounts",
   async (action) => {
     const { unmount, client } = setup(
-      action === "Approve" ? { allowance: 0n } : {}
+      action === "Approve"
+        ? { allowance: 0n }
+        : { undelegate: action === "Undelegate" }
     );
     fireEvent.click(screen.getByRole("button", { name: action }));
     await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
@@ -213,7 +240,11 @@ it.each(["Delegate", "Approve"])(
     expect(client.getMutationCache().getAll()[0].state.status).toBe("success");
     expect(mockStore.setLatestTransactionDetails).toHaveBeenCalledWith(
       hash,
-      action === "Approve" ? "approve" : "bond",
+      action === "Approve"
+        ? "approve"
+        : action === "Undelegate"
+        ? "unbond"
+        : "bond",
       expect.objectContaining({
         amount: mockWrite.mock.calls[0][0].args.at(
           action === "Approve" ? 1 : 0
@@ -225,24 +256,68 @@ it.each(["Delegate", "Approve"])(
   }
 );
 
-it("reports rejection after unmounting", async () => {
-  const { unmount } = setup();
-  fireEvent.click(screen.getByRole("button", { name: "Delegate" }));
+it("keeps the submitted undelegation amount while the input changes", async () => {
+  setup({ undelegate: true });
+  fireEvent.click(screen.getByRole("button", { name: "Undelegate" }));
   await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
-  unmount();
-  const log = jest.spyOn(console, "error").mockImplementation(() => {});
-  try {
-    await act(async () => rejectWrite(new Error("User rejected the request")));
-    await waitFor(() =>
-      expect(mockStore.setLatestTransactionError).toHaveBeenCalledWith(
-        "User rejected the request"
-      )
-    );
-    expect(mockStore.setLatestTransactionConfirmed).not.toHaveBeenCalled();
-  } finally {
-    log.mockRestore();
-  }
+  fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "7" } });
+  await act(async () => resolveWrite(hash));
+
+  expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+    hash,
+    step: "confirmed",
+    name: "unbond",
+    inputData: { amount: 1250000000000000000n, wasDeactivated: false },
+  });
 });
+
+it.each(["Delegate", "Undelegate"])(
+  "reports %s rejection after unmounting",
+  async (action) => {
+    const { unmount } = setup({ undelegate: action === "Undelegate" });
+    fireEvent.click(screen.getByRole("button", { name: action }));
+    await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+    unmount();
+    const log = jest.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await act(async () =>
+        rejectWrite(new Error("User rejected the request"))
+      );
+      await waitFor(() =>
+        expect(mockStore.setLatestTransactionError).toHaveBeenCalledWith(
+          "User rejected the request"
+        )
+      );
+      expect(mockStore.setLatestTransactionConfirmed).not.toHaveBeenCalled();
+    } finally {
+      log.mockRestore();
+    }
+  }
+);
+
+it.each([false, true])(
+  "finishes confirmed orchestrator deactivation after unmount (Safe=%s)",
+  async (isSafe) => {
+    jest.mocked(useIsSafe).mockReturnValue(isSafe);
+    const { unmount } = setup({ undelegate: true, willDeactivate: true });
+    fireEvent.click(screen.getByRole("button", { name: "Undelegate" }));
+    expect(mockWrite).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Yes, unbond my stake" })
+    );
+    await waitFor(() => expect(mockWrite).toHaveBeenCalledTimes(1));
+    unmount();
+    await act(async () => resolveWrite(hash));
+    expect(useExplorerStore.getState().latestTransaction).toMatchObject({
+      hash,
+      step: "confirmed",
+      name: "unbond",
+      inputData: { amount: 1250000000000000000n, wasDeactivated: true },
+    });
+    expect(addRecentTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
+    expect(trackTransaction).toHaveBeenCalledTimes(isSafe ? 0 : 1);
+  }
+);
 
 it.each([false, true])(
   "preserves zero-amount stake moves (Safe=%s)",
