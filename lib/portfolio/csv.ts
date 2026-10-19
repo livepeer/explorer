@@ -74,10 +74,15 @@ const num = (n: number, decimals: number) =>
     .replace(/(\.\d*?)0+$/, "$1")
     .replace(/\.$/, "");
 
-function cell(value: string) {
-  // A label starting with = + - @ would run as a formula in a spreadsheet.
-  if (/^[=+\-@]/.test(value) && !/^-?\d/.test(value)) value = `'${value}`;
-  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+/**
+ * A text cell: labels, names and addresses, some from reverse ENS, which
+ * anyone can set. Anything a spreadsheet could read as a formula (leading
+ * = + - @, tab or a line break) gets a leading apostrophe, with no exemption
+ * for things that look numeric: `-1+WEBSERVICE(...)` is a formula too.
+ */
+export function text(value: string) {
+  if (/^[=+\-@\t\r\n]/.test(value)) value = `'${value}`;
+  return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
 export function earningsCsv(
@@ -88,13 +93,15 @@ export function earningsCsv(
   const lines = rows.map(({ account, point: p, ts, basis }, i) => {
     const lpt = prices.lpt[i] ?? null;
     const eth = prices.eth[i] ?? null;
+    // Numbers are written by num() and pass through as numbers; every
+    // text value goes through text().
     return [
       new Date(ts * 1000).toISOString().replace(/\.\d{3}Z$/, "Z"),
-      basis,
+      text(basis),
       String(p.round),
-      account.address,
-      account.label ?? "",
-      p.from ?? "",
+      text(account.address),
+      text(account.label ?? ""),
+      text(p.from ?? ""),
       num(p.rewards, 10),
       num(p.commission, 10),
       num(p.fees, 10),
@@ -103,9 +110,7 @@ export function earningsCsv(
       lpt != null ? num(p.rewards * lpt, 2) : "",
       eth != null ? num(p.fees * eth, 2) : "",
       num(p.stake, 10),
-    ]
-      .map(cell)
-      .join(",");
+    ].join(",");
   });
   return [HEADER.join(","), ...lines].join("\n") + "\n";
 }
