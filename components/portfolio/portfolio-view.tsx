@@ -94,6 +94,7 @@ function SingleDelegation({
       stake: 0,
       fees: 0,
       rewards30d: 0,
+      delegatorRewards30d: 0,
       trend: [],
       active: false,
     });
@@ -181,6 +182,9 @@ export function PortfolioView({
           stake: r ? fromWei(r.pendingStake) : 0,
           fees: r ? fromWei(r.pendingFees) : 0,
           rewards30d: sumSince(s, "rewards", since30),
+          delegatorRewards30d:
+            sumSince(s, "rewards", since30) -
+            sumSince(s, "commission", since30),
           trend: s.slice(-30).map((p) => p.stake),
           active: d?.delegate?.active ?? true,
         };
@@ -270,10 +274,13 @@ export function PortfolioView({
       }
       if (o && o.rewardWindow > 0 && o.rewardCalls < o.rewardWindow) {
         const missed = o.rewardWindow - o.rewardCalls;
-        // This position's own average reward per called round, so a
-        // commission-earning account elsewhere in the portfolio can't skew it.
-        const perRound =
-          pos && o.rewardCalls > 0 ? pos.rewards30d / o.rewardCalls : 0;
+        // Every wallet delegated to it, each counting its own delegator
+        // rewards (commission is tracked apart), so the estimate covers the
+        // whole portfolio and doesn't depend on which wallet comes first.
+        const rewards30d = view.positions
+          .filter((p) => p.delegate === d)
+          .reduce((s, p) => s + p.delegatorRewards30d, 0);
+        const perRound = o.rewardCalls > 0 ? rewards30d / o.rewardCalls : 0;
         out.push({
           id: `missed-${d}`,
           tone: missed >= 3 ? "warning" : "info",

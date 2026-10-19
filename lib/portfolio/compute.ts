@@ -409,7 +409,7 @@ export function projectEarnings(
   return compounded + Math.max(0, commissionPerRound) * n;
 }
 
-export function sumSince<K extends "rewards" | "fees">(
+export function sumSince<K extends "rewards" | "fees" | "commission">(
   series: SeriesPoint[],
   key: K,
   sinceTs: number

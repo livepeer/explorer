@@ -41,6 +41,8 @@ export type Position = {
   stake: number;
   fees: number;
   rewards30d: number;
+  /** Rewards over 30 days as a delegator, without reward-cut commission. */
+  delegatorRewards30d: number;
   trend: number[];
   active: boolean;
 };
