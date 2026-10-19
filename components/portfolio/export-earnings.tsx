@@ -15,25 +15,41 @@ import { fetchRewardTimes } from "@/lib/subgraph/network";
 
 type Prices = { lpt: (number | null)[]; eth: (number | null)[] };
 
+/** Follow-up requests at most, after the first. */
+const MAX_FOLLOW_UPS = 8;
+
 /**
- * USD prices at each moment. The route stops at a time budget on a cold
- * cache, keeping what it read; one more request fills in the rest.
+ * USD prices at each moment. The route reads a bounded number of pages per
+ * request and stops at a time budget, keeping what it read; follow-up
+ * requests fill in the rest, while each one still adds prices.
  */
 async function pricesAt(times: number[]): Promise<Prices> {
-  const first = await requestPrices(times);
-  const missing = times.filter(
-    (_, i) => first.lpt[i] == null || first.eth[i] == null
-  );
-  if (!missing.length) return first;
-  const again = await requestPrices(missing).catch(() => null);
-  if (!again) return first;
-  const at = new Map(missing.map((t, i) => [t, i]));
-  const pick = (prev: number | null, next: (number | null)[], t: number) =>
-    prev ?? (at.has(t) ? next[at.get(t)!] ?? null : null);
-  return {
-    lpt: times.map((t, i) => pick(first.lpt[i], again.lpt, t)),
-    eth: times.map((t, i) => pick(first.eth[i], again.eth, t)),
-  };
+  const prices = await requestPrices(times);
+  for (let i = 0; i < MAX_FOLLOW_UPS; i++) {
+    const missing = times.filter(
+      (_, j) => prices.lpt[j] == null || prices.eth[j] == null
+    );
+    if (!missing.length) break;
+    const again = await requestPrices(missing).catch(() => null);
+    if (!again) break;
+    const at = new Map(missing.map((t, j) => [t, j]));
+    let added = 0;
+    times.forEach((t, j) => {
+      const k = at.get(t);
+      if (k == null) return;
+      if (prices.lpt[j] == null && again.lpt[k] != null) {
+        prices.lpt[j] = again.lpt[k];
+        added++;
+      }
+      if (prices.eth[j] == null && again.eth[k] != null) {
+        prices.eth[j] = again.eth[k];
+        added++;
+      }
+    });
+    // Nothing new: the rest have no price on record.
+    if (!added) break;
+  }
+  return prices;
 }
 
 /** One request to the explorer's price-history route. */
@@ -97,7 +113,13 @@ export function ExportEarnings({
     } catch {
       priced = false;
     }
-    const missing = prices.lpt.filter((p) => p == null).length;
+    // A row needs LPT's price only if it has rewards, ETH's only if it has
+    // fees: count the rows missing a price they need, of either kind.
+    const missing = rows.filter(
+      ({ point: p }, i) =>
+        (p.rewards > 0 && prices.lpt[i] == null) ||
+        (p.fees > 0 && prices.eth[i] == null)
+    ).length;
     const csv = earningsCsv(rows, prices);
     const slug = name
       .toLowerCase()

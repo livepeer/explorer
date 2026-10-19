@@ -1,4 +1,8 @@
 import { pricesAt } from "@/lib/prices/history";
+import { clientKey, rateLimiter } from "@/lib/server/memo";
+
+/** An export asks a few times; this leaves room for that, not for loops. */
+const allow = rateLimiter({ limit: 30, windowMs: 60_000 });
 
 // Vercel Hobby's ceiling. A first, uncached export may need longer, so the
 // lookup stops at a budget below it and the client asks again for the rest.
@@ -19,6 +23,7 @@ const EARLIEST = Date.UTC(2015, 0, 1) / 1000;
  * checking from a browser.
  */
 export async function POST(req: Request) {
+  if (!allow(clientKey(req))) return tooMany();
   const body = (await req.json().catch(() => null)) as {
     times?: unknown;
   } | null;
@@ -26,6 +31,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  if (!allow(clientKey(req))) return tooMany();
   const raw = new URL(req.url).searchParams.get("times");
   const times = raw
     ? raw
@@ -34,6 +40,13 @@ export async function GET(req: Request) {
         .map((t) => Number(t))
     : undefined;
   return respond(times, MAX_GET_TIMES);
+}
+
+function tooMany() {
+  return Response.json(
+    { error: "Too many requests. Try again in a minute." },
+    { status: 429 }
+  );
 }
 
 async function respond(times: unknown, max: number) {

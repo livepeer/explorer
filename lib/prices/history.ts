@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 
+import { memoize } from "@/lib/server/memo";
+
 /**
  * USD prices of LPT and ETH at given moments, from Coinbase Exchange's
  * public hourly candles (LPT-USD, ETH-USD). No key, no monthly quota.
@@ -19,12 +21,21 @@ const CONCURRENCY = 3;
 /** Gap between request starts, shared by both coins: ~6 a second. */
 const SPACING_MS = 160;
 const RETRIES = 6;
+/** Most pages one request reads; the client asks again for the rest. */
+export const MAX_PAGES_PER_REQUEST = 40;
+/** How far ahead turns may be booked before new work is refused. */
+const MAX_QUEUE_MS = 10_000;
 
 let nextSlot = 0;
-/** Wait for a turn, keeping under Coinbase's public per-second limit. */
+/**
+ * Wait for a turn, keeping under Coinbase's public per-second limit. When
+ * the queue is already booked far ahead, refuse rather than wait: one
+ * caller mustn't reserve turns that starve everyone after it.
+ */
 async function slot() {
   const now = Date.now();
   const at = Math.max(now, nextSlot);
+  if (at - now > MAX_QUEUE_MS) throw new Error("Price lookups are busy");
   nextSlot = at + SPACING_MS;
   if (at > now) await new Promise((r) => setTimeout(r, at - now));
 }
@@ -118,9 +129,37 @@ const currentPage = unstable_cache(fetchPage, ["coinbase-hourly-current"], {
   revalidate: HOUR,
 });
 
-function readPage(coin: Coin, page: number) {
-  const current = pageOf(Date.now() / 1000) === page;
-  return (current ? currentPage : pastPage)(coin, page);
+/** One read per coin and page at a time, however many requests want it. */
+const readPage = memoize(
+  (key: string) => {
+    const [coin, p] = key.split(":");
+    const page = Number(p);
+    const current = pageOf(Date.now() / 1000) === page;
+    return (current ? currentPage : pastPage)(coin as Coin, page);
+  },
+  { ttlMs: 5 * 60_000, max: 2_000 }
+);
+
+/** `promise`, or a rejection once `deadline` (ms) passes. */
+function by<T>(promise: Promise<T>, deadline: number): Promise<T> {
+  const left = deadline - Date.now();
+  if (!Number.isFinite(left)) return promise;
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(
+      () => reject(new Error("Price lookup ran out of time")),
+      Math.max(0, left)
+    );
+    promise.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      }
+    );
+  });
 }
 
 /** USD price of `coin` at each of `times` (unix s); null where unknown. */
@@ -138,7 +177,11 @@ export async function pricesAt(
     pages.add(pageOf(t + REACH * HOUR));
   }
   const now = pageOf(Date.now() / 1000);
-  const wanted = [...pages].filter((p) => p <= now).sort((a, b) => a - b);
+  // Bounded per request: the rest stay null and the client asks again.
+  const wanted = [...pages]
+    .filter((p) => p <= now)
+    .sort((a, b) => a - b)
+    .slice(0, MAX_PAGES_PER_REQUEST);
 
   const prices: HourPrices = new Map();
   const errors: unknown[] = [];
@@ -150,7 +193,8 @@ export async function pricesAt(
       wanted.slice(i, i + CONCURRENCY).map((p) =>
         // A page that still fails leaves its moments unpriced rather than
         // failing the rest; failures aren't cached, so they retry next time.
-        readPage(coin, p).catch((e) => {
+        // The deadline bounds the wait, queueing and retries included.
+        by(readPage(`${coin}:${p}`), deadline).catch((e) => {
           errors.push(e);
           return [] as [number, number][];
         })
