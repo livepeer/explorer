@@ -11,8 +11,13 @@ import { useCallback, useSyncExternalStore } from "react";
 const KEY = "livepeer-explorer.view";
 const EVENT = `${KEY}:changed`;
 let memory = "all";
+// Once a write fails, storage holds a stale view (reads can still work when
+// writes don't, e.g. a full quota), so memory is the truth from then on.
+let writeFailed = false;
 
-function read(): string {
+/** Exported for tests. */
+export function read(): string {
+  if (writeFailed) return memory;
   try {
     return window.localStorage.getItem(KEY) ?? "all";
   } catch {
@@ -29,12 +34,14 @@ function subscribe(onChange: () => void) {
   };
 }
 
-function write(next: string) {
+/** Exported for tests. */
+export function write(next: string) {
   memory = next;
   try {
     window.localStorage.setItem(KEY, next);
   } catch {
-    // blocked storage: kept in memory for this page
+    // Blocked or full storage: kept in memory for this page.
+    writeFailed = true;
   }
   window.dispatchEvent(new Event(EVENT));
 }

@@ -2,17 +2,34 @@ import { SUBGRAPH_URL } from "@/lib/config";
 
 export class SubgraphError extends Error {}
 
+/** A request that hasn't answered by now has stalled, not slowed. */
+export const SUBGRAPH_TIMEOUT_MS = 30_000;
+
 export async function querySubgraph<T>(
   query: string,
   variables: Record<string, unknown> = {},
   signal?: AbortSignal
 ): Promise<T> {
-  const res = await fetch(SUBGRAPH_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-    signal,
-  });
+  // Every request is bounded, so a stalled one ends in an error (and the
+  // page's retry) instead of loading forever; a caller's own signal still
+  // cancels it early.
+  const timeout = AbortSignal.timeout(SUBGRAPH_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(SUBGRAPH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables }),
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+    });
+  } catch (e) {
+    if (timeout.aborted && !signal?.aborted) {
+      throw new SubgraphError(
+        `Subgraph didn't respond within ${SUBGRAPH_TIMEOUT_MS / 1000}s`
+      );
+    }
+    throw e;
+  }
   if (!res.ok) {
     throw new SubgraphError(`Subgraph request failed (${res.status})`);
   }
