@@ -39,8 +39,8 @@ jest.mock("hooks/useContracts", () => ({
     data: "0x2222222222222222222222222222222222222222",
   }),
 }));
-jest.mock("hooks/useHandleTransaction", () => ({
-  useHandleTransaction: () => {},
+jest.mock("hooks/useSubmitTransaction", () => ({
+  useSubmitTransaction: () => (write: () => unknown) => write(),
 }));
 jest.mock("@lib/utils", () => ({
   getDelegatorStatus: jest.fn(() => "Bonded"),
@@ -84,7 +84,9 @@ beforeEach(() => {
   (useSimulateContract as jest.Mock).mockImplementation((options) => ({
     data: { request: { args: options.args } },
   }));
-  (useWriteContract as jest.Mock).mockReturnValue({ writeContract });
+  (useWriteContract as jest.Mock).mockReturnValue({
+    writeContractAsync: writeContract,
+  });
 });
 
 it.each(["", "1e", "abc", "0", "-1", "0.0000000000000000001"])(
@@ -118,6 +120,8 @@ it("keeps pending delegators disabled even with a simulation config", () => {
   expect(
     (useSimulateContract as jest.Mock).mock.calls.at(-1)![0].query.enabled
   ).toBe(false);
+  expect(screen.getByText(/Your account is in a pending state/)).toBeTruthy();
+  expect(screen.queryByText(/Looking to move your delegated stake/)).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Undelegate" }));
   expect(writeContract).not.toHaveBeenCalled();
 });

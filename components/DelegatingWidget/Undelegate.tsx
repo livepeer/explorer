@@ -10,7 +10,7 @@ import {
 } from "@livepeer/design-system";
 import { useAccountAddress } from "hooks";
 import { useBondingManagerAddress } from "hooks/useContracts";
-import { useHandleTransaction } from "hooks/useHandleTransaction";
+import { useSubmitTransaction } from "hooks/useSubmitTransaction";
 import { useState } from "react";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
@@ -54,28 +54,29 @@ const Undelegate = ({
       newPosNext as `0x${string}`,
     ],
   });
-  const { data, isPending, writeContract, error, isSuccess } =
-    useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+  const submitUnbond = useSubmitTransaction("unbond");
 
-  useHandleTransaction("unbond", data, error, isPending, isSuccess, {
-    ...args,
-    wasDeactivated: willDeactivate,
-  });
+  const handleSubmit = () => {
+    if (!canUndelegate || !config) return;
+    void submitUnbond(() => writeContractAsync(config.request), {
+      ...args,
+      wasDeactivated: willDeactivate,
+    });
+  };
 
   const handleUndelegate = () => {
     if (!canUndelegate || !config) return;
     if (willDeactivate) {
       setShowConfirmDialog(true);
     } else {
-      writeContract(config.request);
+      handleSubmit();
     }
   };
 
   const handleConfirmUnbond = () => {
     setShowConfirmDialog(false);
-    if (canUndelegate && config) {
-      writeContract(config.request);
-    }
+    handleSubmit();
   };
 
   if (!accountAddress) {

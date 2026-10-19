@@ -71,6 +71,17 @@ describe("getDelegatorStatus", () => {
     expect(getDelegatorStatus(delegator, currentRound)).toBe("Pending");
   });
 
+  it("prioritizes pending activation over existing withdrawal locks until the start round", () => {
+    const delegator = makeDelegator({
+      bondedAmount: "3",
+      startRound: "4376",
+      unbondingLocks: [{ withdrawRound: "4382" }],
+    });
+
+    expect(getDelegatorStatus(delegator, makeRound("4375"))).toBe("Pending");
+    expect(getDelegatorStatus(delegator, makeRound("4376"))).toBe("Unbonding");
+  });
+
   it("returns Bonded when startRound <= currentRound.id and > 0", () => {
     const delegator = makeDelegator({
       bondedAmount: "10",
