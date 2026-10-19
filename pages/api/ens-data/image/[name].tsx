@@ -1,14 +1,14 @@
 import { getCacheControlHeader } from "@lib/api/api";
 import {
-  badRequest,
   internalError,
   methodNotAllowed,
   notFound,
+  validateInput,
 } from "@lib/api/errors";
+import { EnsNameSchema } from "@lib/api/schemas/ens";
 import { NextApiRequest, NextApiResponse } from "next";
 import { normalize } from "viem/ens";
 
-const blacklist = ["salty-minning.eth"];
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 const AVATAR_TIMEOUT_MS = 10_000;
 
@@ -22,14 +22,10 @@ const handler = async (
     if (method === "GET") {
       const { name } = req.query;
 
-      if (
-        name &&
-        typeof name === "string" &&
-        name.length > 0 &&
-        !blacklist.includes(name)
-      ) {
+      const nameResult = EnsNameSchema.safeParse(name);
+      if (nameResult.success) {
         try {
-          const normalizedName = normalize(name);
+          const normalizedName = normalize(nameResult.data);
           // getEnsAvatar fetches owner-set URLs before returning them.
           const avatarUrl = new URL(
             `/mainnet/avatar/${encodeURIComponent(normalizedName)}`,
@@ -88,7 +84,7 @@ const handler = async (
           return notFound(res, "ENS avatar not found");
         }
       } else {
-        return badRequest(res, "Invalid ENS name");
+        return validateInput(nameResult, res, "Invalid ENS name");
       }
     }
 

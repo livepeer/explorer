@@ -1,6 +1,13 @@
 import { getCacheControlHeader } from "@lib/api";
 import { getEnsForAddress } from "@lib/api/ens";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+  validateOutput,
+} from "@lib/api/errors";
+import { AddressSchema, EnsIdentityArraySchema } from "@lib/api/schemas";
+import { LivepeerAccountsSubgraphSchema } from "@lib/api/schemas/subgraph";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
@@ -43,13 +50,54 @@ const handler = async (
         }
       );
 
-      const {
-        data: { livepeerAccounts },
-      } = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        console.error(
+          "Subgraph fetch error:",
+          response.status,
+          errorText,
+          `URL: ${CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph}`
+        );
+        return externalApiError(
+          res,
+          "subgraph",
+          `Status ${response.status}: ${errorText}`
+        );
+      }
 
-      const addresses: string[] = livepeerAccounts
-        ?.map((a) => a?.id)
-        .filter((e) => e);
+      const responseData = await response.json();
+
+      // Validate external API response: subgraph response structure
+      const subgraphResult =
+        LivepeerAccountsSubgraphSchema.safeParse(responseData);
+      if (!subgraphResult.success) {
+        console.error(
+          "[api/ens-data] Subgraph response validation failed:",
+          subgraphResult.error
+        );
+        return externalApiError(
+          res,
+          "subgraph",
+          "Invalid response structure from subgraph"
+        );
+      }
+
+      const { livepeerAccounts } = subgraphResult.data.data;
+
+      // Validate and filter addresses
+      const addresses: string[] = (livepeerAccounts || [])
+        .map((a) => a.id)
+        .filter((id) => {
+          const addressResult = AddressSchema.safeParse(id);
+          if (!addressResult.success) {
+            console.warn(
+              `[api/ens-data] Invalid address from subgraph: ${id}`,
+              addressResult.error.issues.map((e) => e.message).join(", ")
+            );
+            return false;
+          }
+          return true;
+        });
 
       const ensAddresses: EnsIdentity[] = (
         await Promise.all(
@@ -64,6 +112,15 @@ const handler = async (
       )
         .filter((e) => e)
         .map((e) => e!);
+
+      // Validate output: array of ENS identities
+      const outputResult = EnsIdentityArraySchema.safeParse(ensAddresses);
+      const validationError = validateOutput(
+        outputResult,
+        res,
+        "api/ens-data/index"
+      );
+      if (validationError) return validationError;
 
       return res.status(200).json(ensAddresses);
     }
