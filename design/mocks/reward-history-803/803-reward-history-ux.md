@@ -192,7 +192,7 @@ Mock implements these; product must keep them:
 | --------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Screen reader selection     | `radiogroup` + `role="radio"` for History mode, reader, and round list; arrow/Home/End + roving `tabindex` |
 | Selection change            | `aria-live="polite"` announces round, cap side, and amount                                                 |
-| Colorblind / not color-only | Chip = icon + label + border; selected row uses inset bar + weight, not green wash alone                   |
+| Colorblind / not color-only | Chip = icon + label + border; selected row uses a full 1.5px brand border + wash + weight (no left bar)    |
 | Focus                       | Visible `:focus-visible`; mobile drill-in moves focus to receipt; Back restores focus to selected round    |
 | Help                        | `?` buttons ≥24px hit target; tooltip on `:focus-within` / hover via `aria-describedby`                    |
 | Motion                      | `prefers-reduced-motion` → no smooth scroll                                                                |

@@ -588,7 +588,8 @@
         line-height: 1.55;
         color: var(--neutral11);
         margin: 0 0 14px;
-        max-width: 58ch;
+        max-width: none;
+        text-wrap: pretty;
       }
       .story-lede strong {
         color: var(--hiContrast);
@@ -708,7 +709,8 @@
         font-size: 13px;
         color: var(--neutral11);
         line-height: 1.45;
-        max-width: 52ch;
+        max-width: none;
+        text-wrap: pretty;
       }
       .payout .hint a {
         color: var(--primary11);
@@ -805,7 +807,8 @@
         justify-content: space-between;
         gap: 12px;
         padding: 14px 16px;
-        border: 1px solid var(--neutral3);
+        /* Always 1.5px so selected weight doesn’t shift layout */
+        border: 1.5px solid var(--neutral3);
         border-radius: var(--radius-sm);
         background: var(--neutral2);
         text-decoration: none;
@@ -820,30 +823,20 @@
       .round-row:hover {
         border-color: var(--neutral5);
       }
-      /* Selected ≠ focus. Theme green, never white - still a clear non-color cue
-         via the inset bar + weight (works for keyboard and colorblind). */
+      /* Selected: 1.5px brand border + wash + weight. No left bar (not in product). */
       .round-row[aria-checked="true"] {
-        border-color: rgba(76, 195, 138, 0.5);
-        background: rgba(76, 195, 138, 0.08);
-        box-shadow: inset 3px 0 0 var(--primary11);
+        border-color: var(--primary11);
+        background: rgba(76, 195, 138, 0.1);
       }
       .round-row[aria-checked="true"] .rid {
         font-weight: 650;
       }
-      /* Tailwind v4 equiv: outline-2 outline-offset-2 outline-[color:var(--primary11)]
-         focus-visible: only when keyboarding, not on click. */
       .round-row:focus {
         outline: none;
       }
       .round-row:focus-visible {
         outline: 2px solid var(--primary11);
         outline-offset: 2px;
-        border-color: rgba(76, 195, 138, 0.65);
-      }
-      .round-row[aria-checked="true"]:focus-visible {
-        outline-color: var(--primary11);
-        box-shadow: inset 3px 0 0 var(--primary11),
-          0 0 0 1px rgba(76, 195, 138, 0.25);
       }
       .round-row .main {
         min-width: 0;
@@ -1469,9 +1462,10 @@
                               role="tooltip"
                               id="help-delay"
                             >
-                              Rewards for round R become claimable at R+7
-                              (RewardsDelayPeriod). The median RewardMultiplier
-                              at claim time scales the payout.
+                              Work from a round can be claimed about a week
+                              later (seven rounds). The honesty score used is
+                              the one at claim time, so a short fee spike can
+                              still get cut before anyone claims.
                             </span>
                           </span>
                         </div>
@@ -1505,7 +1499,7 @@
                         <div class="step result">
                           <span class="n">3</span>
                           <span class="label"
-                            >Eligible share
+                            >Reward share
                             <span class="help">
                               <button
                                 type="button"
@@ -1521,8 +1515,7 @@
                                 id="help-min"
                               >
                                 Rewards follow the smaller of fee share and
-                                stake share. Fees in USDC are never capped by
-                                stake.
+                                stake share. USDC fees are never cut by stake.
                               </span>
                             </span></span
                           >
@@ -1531,7 +1524,7 @@
                         <div class="step muted">
                           <span class="n">4</span>
                           <span class="label"
-                            >Of that round’s node emissions pot
+                            >Of that round’s LPT pool for nodes
                             <span class="num">40,000 LPT</span></span
                           >
                           <span class="val num">920 LPT</span>
@@ -1554,9 +1547,9 @@
                                 role="tooltip"
                                 id="help-mult"
                               >
-                                Median RewardMultiplier from validators at claim
-                                time (0 to 1). Scales for dishonest behavior
-                                (not QoS). Scoring product is issue 804.
+                                A 0–1 score applied when rewards are claimed. It
+                                shrinks the pool if the node was scored as
+                                dishonest. Not a quality grade.
                               </span>
                             </span></span
                           >
@@ -1575,7 +1568,7 @@
                         <span class="num" id="split-del">90% · 786.6 LPT</span>,
                         node
                         <span class="num" id="split-node">10% · 87.4 LPT</span>.
-                        USDC fees are never stake-capped.
+                        USDC fees are never cut by stake.
                       </div>
                     </div>
                   </details>
@@ -1833,9 +1826,9 @@
             pool: "920 LPT",
             delAmt: "+16.56 LPT",
             delHint:
-              'Your <span class="num">2%</span> of the node after the cut. Same stake share as 4210; fuller honesty.',
+              'Your <span class="num">2%</span> of the node after the cut. Same stake share as 4210, with fuller honesty.',
             opAmt: "920 LPT",
-            opHint: "Full eligible amount reached the pool (honesty 1.0).",
+            opHint: "Full reward share reached the pool (honesty 1.0).",
             nextDel:
               "<strong>To grow the next one:</strong> more stake toward fee share. Today’s gap: " +
               link802 +
@@ -1990,7 +1983,7 @@
               r.work +
               '</strong> · Claimable in round <strong class="num">' +
               r.paid +
-              '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Rewards for round R become claimable at R+7 (RewardsDelayPeriod). The median RewardMultiplier at claim time scales the payout.</span></span>';
+              '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Work from a round can be claimed about a week later (seven rounds). The honesty score used is the one at claim time, so a short fee spike can still get cut before anyone claims.</span></span>';
           }
 
           var steps = story.querySelectorAll(".step");
