@@ -1022,6 +1022,18 @@
       .place-table .role {
         color: var(--neutral11);
       }
+      .page-head p a,
+      .place-table a,
+      .next a {
+        color: var(--primary11);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .page-head p a:hover,
+      .place-table a:hover,
+      .next a:hover {
+        text-decoration: underline;
+      }
       .place-table .primary-row td {
         background: rgba(76, 195, 138, 0.06);
       }
@@ -1582,7 +1594,6 @@
                       href="https://github.com/livepeer/explorer/issues/802"
                       target="_blank"
                       rel="noopener"
-                      style="color: var(--primary11)"
                       >802</a
                     >.
                   </p>
@@ -1594,7 +1605,6 @@
                       href="https://github.com/livepeer/explorer/issues/802"
                       target="_blank"
                       rel="noopener"
-                      style="color: var(--primary11)"
                       >802</a
                     >.
                   </p>
@@ -1747,7 +1757,7 @@
         }
 
         var link802 =
-          '<a href="https://github.com/livepeer/explorer/issues/802" target="_blank" rel="noopener" style="color: var(--primary11)">802</a>';
+          '<a href="https://github.com/livepeer/explorer/issues/802" target="_blank" rel="noopener">802</a>';
         var rounds = {
           4210: {
             theme: "stake",
