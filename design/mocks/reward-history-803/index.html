@@ -17,7 +17,8 @@
         --neutral4: #2a2a2a;
         --neutral5: #333333;
         --neutral6: #3d3d3d;
-        --neutral8: #6b6b6b;
+        /* #8f8f8f keeps small text ≥4.5:1 on panel / split-note backgrounds */
+        --neutral8: #8f8f8f;
         --neutral10: #8f8f8f;
         --neutral11: #a0a0a0;
         --hiContrast: #ffffff;
@@ -1508,8 +1509,9 @@
                         </svg>
                         <div>
                           Worked in round
-                          <strong class="num">4210</strong> · Claimable in round
-                          <strong class="num">4217</strong>
+                          <strong class="num" id="delay-work">4210</strong> ·
+                          Claimable in round
+                          <strong class="num" id="delay-paid">4217</strong>
                           <span class="help">
                             <button
                               type="button"
@@ -2222,15 +2224,12 @@
           var statusEl = document.getElementById("story-status");
           if (statusEl) statusEl.innerHTML = statusChipHtml(r.bind);
           document.getElementById("story-lede").innerHTML = r.lede;
-          var delay = story.querySelector(".delay-row div");
-          if (delay) {
-            delay.innerHTML =
-              'Worked in round <strong class="num">' +
-              r.work +
-              '</strong> · Claimable in round <strong class="num">' +
-              r.paid +
-              '</strong> <span class="help"><button type="button" class="tooltip-dot" aria-label="Help: seven round delay" aria-describedby="help-delay">?</button><span class="tooltip-help" role="tooltip" id="help-delay">Work from a round can be claimed about a week later (seven rounds). The honesty score used is the one at claim time, so a short fee spike can still get cut before anyone claims.</span></span>';
-          }
+          // Update round numbers only — keep .help node so Escape dismiss
+          // listeners stay attached across round changes.
+          var delayWork = document.getElementById("delay-work");
+          var delayPaid = document.getElementById("delay-paid");
+          if (delayWork) delayWork.textContent = r.work;
+          if (delayPaid) delayPaid.textContent = r.paid;
 
           var steps = story.querySelectorAll(".step");
           steps[0].querySelector(".val").textContent = r.fee;
