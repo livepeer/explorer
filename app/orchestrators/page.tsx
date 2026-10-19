@@ -4,6 +4,7 @@ import { ArrowRightLeft, ArrowUp, Info, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useEffect, useMemo, useState } from "react";
+import { isAddress } from "viem";
 
 import { Avatar, useEnsNames, useIdentity } from "@/components/identity";
 import {
@@ -200,6 +201,13 @@ function OrchestratorTable() {
   const params = useSearchParams();
   const router = useRouter();
   const moving = params.get("move") === "1";
+  // The wallet a portfolio card sent you from, so delegating acts for it
+  // rather than whichever wallet happens to be connected.
+  const fromAccount = params.get("account");
+  const account =
+    fromAccount && isAddress(fromAccount)
+      ? fromAccount.toLowerCase()
+      : undefined;
   // The query waits for the protocol, and reports isLoading: false while it
   // does, so "not loaded yet" is isPending, on the server too. A failed
   // protocol read is this page's error as well, not an endless skeleton.
@@ -373,7 +381,9 @@ function OrchestratorTable() {
                     <NameCell o={o} rank={rank} />
                     <Button
                       size="xs"
-                      onClick={() => open({ kind: "delegate", to: o.id })}
+                      onClick={() =>
+                        open({ kind: "delegate", to: o.id, account })
+                      }
                     >
                       {moving ? "Switch here" : "Delegate"}
                     </Button>
@@ -580,7 +590,9 @@ function OrchestratorTable() {
                               on a touch screen. */}
                           <Button
                             size="xs"
-                            onClick={() => open({ kind: "delegate", to: o.id })}
+                            onClick={() =>
+                              open({ kind: "delegate", to: o.id, account })
+                            }
                           >
                             {moving ? "Switch here" : "Delegate"}
                           </Button>

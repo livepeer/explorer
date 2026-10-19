@@ -215,7 +215,13 @@ function RowActions({
             <Plus /> Delegate more
           </MenuItem>
         )}
-        <MenuItem render={<Link href="/orchestrators?move=1" />}>
+        <MenuItem
+          render={
+            <Link
+              href={`/orchestrators?move=1&account=${position.account.address}`}
+            />
+          }
+        >
           <ArrowRightLeft /> Switch orchestrator
         </MenuItem>
         {canMove && (
@@ -610,7 +616,7 @@ export function DelegationCard({
           action={
             canManage ? (
               <Link
-                href="/orchestrators"
+                href={`/orchestrators?account=${account}`}
                 className="btn-primary inline-flex h-8 items-center rounded-sm px-3 text-sm font-medium"
               >
                 Browse orchestrators
@@ -705,7 +711,7 @@ export function DelegationCard({
               <Plus /> Delegate more
             </Button>
             <Link
-              href="/orchestrators?move=1"
+              href={`/orchestrators?move=1&account=${account}`}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <ArrowRightLeft /> Switch
