@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+# Actions are pinned to full commit SHAs (the tag each was at is noted), so
+# a moved tag can't swap in different code. Update them deliberately.
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -19,16 +22,18 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.33.0
           run_install: false
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: pnpm
@@ -57,9 +62,11 @@ jobs:
       contents: read
     steps:
       - name: ⬇️ Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: 🔍 Review dependency changes
-        uses: actions/dependency-review-action@v5
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: high
