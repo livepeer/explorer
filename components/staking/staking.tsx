@@ -33,6 +33,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
+import { readContract } from "wagmi/actions";
 
 import { Identity, useIdentity } from "@/components/identity";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,7 @@ import {
   shortAddress,
   toWei,
 } from "@/lib/format";
+import { resolveEnsQuorum } from "@/lib/hooks/address-input";
 import { useOrchestrators, useProtocol } from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
@@ -608,14 +610,12 @@ function StakingFlow({
   const { accounts: portfolio } = usePortfolioAccounts();
   const receivers = portfolio.filter((a) => a.address !== signer);
   const transferring = action.kind === "transfer";
-  // Where the stake goes: a portfolio wallet, or an address typed in, which
-  // has to be vouched for.
-  const [picked, setPicked] = useState<Recipient | null>(() =>
-    receivers.length === 1 ? receivers[0] : null
-  );
+  // Where the stake goes: a portfolio wallet or an address typed in. Either
+  // has to be chosen and vouched for: watching an address doesn't mean you
+  // control it, so a saved wallet is never picked for you.
+  const [picked, setPicked] = useState<Recipient | null>(null);
   const [vouched, setVouched] = useState(false);
   const receiver = picked?.address ?? null;
-  const external = Boolean(picked?.external);
   const { name: receiverName } = useIdentity(receiver);
   // Where each portfolio wallet's stake is now, for the list.
   const { data: receiverReads } = useReadContracts({
@@ -1104,7 +1104,7 @@ function StakingFlow({
       canRun =
         canRun &&
         Boolean(receiver) &&
-        (!external || vouched) &&
+        vouched &&
         amountWei > 0n &&
         Number(amount) <= max + 1e-9 &&
         simulation.isSuccess;
@@ -1125,15 +1125,22 @@ function StakingFlow({
             />
             <div className="text-ui-caption text-muted-foreground">To</div>
             {picked ? (
-              <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
-                <RecipientRow
-                  recipient={picked}
-                  status={status(picked)}
-                  onClear={() => {
-                    setPicked(null);
-                    setVouched(false);
-                  }}
-                />
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
+                  <RecipientRow
+                    recipient={picked}
+                    status={status(picked)}
+                    onClear={() => {
+                      setPicked(null);
+                      setVouched(false);
+                    }}
+                  />
+                </div>
+                {/* The whole address, checksummed: a shortened one is easy
+                    to imitate, and this is where the stake goes for good. */}
+                <div className="font-mono text-[11px] break-all text-muted-foreground">
+                  {getAddress(picked.address)}
+                </div>
               </div>
             ) : (
               <RecipientPicker
@@ -1175,7 +1182,7 @@ function StakingFlow({
               </Notice>
             )
           ) : null}
-          {external && (
+          {picked && (
             <label className="flex cursor-pointer items-start gap-2.5 text-ui-caption text-muted-foreground">
               <input
                 type="checkbox"
@@ -1192,6 +1199,19 @@ function StakingFlow({
         </>
       );
       run = async () => {
+        // A name is looked up again right before signing: if it now points
+        // somewhere else, nothing is sent.
+        if (picked?.ens) {
+          const again = await resolveEnsQuorum(picked.ens);
+          if (again.address !== picked.address) {
+            toast.error(
+              `${picked.ens} no longer resolves to the address shown. Choose the recipient again.`
+            );
+            setPicked(null);
+            setVouched(false);
+            return;
+          }
+        }
         await tx.send(simulation.data!.request);
       };
       break;
@@ -1204,11 +1224,22 @@ function StakingFlow({
       successTitle = "Fees withdrawn";
       body = <Row label="Amount">{formatETH(action.amount)}</Row>;
       run = async () => {
+        // The shown amount went through a float, which can land a few wei
+        // over the balance and revert. Withdraw the exact on-chain balance,
+        // read now, never more than was shown.
+        const exact = (await readContract(config, {
+          address: bm!,
+          abi: bondingManager,
+          functionName: "pendingFees",
+          args: [address!, BigInt(protocol?.currentRound ?? 0)],
+          chainId: L2_CHAIN.id,
+        })) as bigint;
+        const shown = toWei(action.amount.toFixed(18));
         await tx.send({
           address: bm!,
           abi: bondingManager,
           functionName: "withdrawFees",
-          args: [address!, toWei(action.amount.toFixed(18))],
+          args: [address!, shown < exact ? shown : exact],
         });
       };
       break;

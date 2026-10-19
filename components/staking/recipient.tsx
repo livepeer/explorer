@@ -19,6 +19,8 @@ export type Recipient = {
   delegate?: string | null;
   /** Typed in rather than one of the portfolio's wallets. */
   external?: boolean;
+  /** The ENS name it was resolved from, re-checked before signing. */
+  ens?: string;
 };
 
 /**
@@ -58,7 +60,12 @@ export function RecipientPicker({
     if (!typed.address || isSelf) return;
     const own = wallets.find((w) => w.address === typed.address);
     onSelect(
-      own ?? { address: typed.address, label: typed.ens, external: true }
+      own ?? {
+        address: typed.address,
+        label: typed.ens,
+        ens: typed.ens,
+        external: true,
+      }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typed.address]);
@@ -96,6 +103,11 @@ export function RecipientPicker({
       {isSelf ? (
         <p className="mt-1.5 text-ui-caption text-destructive">
           That&apos;s the wallet the stake is in.
+        </p>
+      ) : typed.disagree ? (
+        <p className="mt-1.5 text-ui-caption text-destructive">
+          Ethereum nodes gave different addresses for that name, so it
+          can&apos;t be trusted. Paste the address instead.
         </p>
       ) : typed.invalid ? (
         <p className="mt-1.5 text-ui-caption text-destructive">
