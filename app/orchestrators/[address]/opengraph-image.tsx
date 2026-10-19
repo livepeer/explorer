@@ -1,4 +1,4 @@
-import { shareCard } from "@/lib/og/card";
+import { shareImage } from "@/lib/og/card";
 import { orchestratorShare } from "@/lib/og/data";
 
 export const alt = "Orchestrator on Livepeer Explorer";
@@ -12,11 +12,5 @@ export default async function Image({
 }) {
   const { address } = await params;
   const share = await orchestratorShare(address).catch(() => null);
-  return shareCard(
-    share?.card ?? {
-      eyebrow: "Orchestrator",
-      title: "Livepeer Explorer",
-      stats: [],
-    }
-  );
+  return shareImage(share?.card, "Orchestrator");
 }

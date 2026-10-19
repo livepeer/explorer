@@ -1,4 +1,5 @@
 import { SUBGRAPH_URL } from "@/lib/config";
+import { isCid, readCapped } from "@/lib/server/memo";
 
 import { parseDocument } from "./document";
 
@@ -34,6 +35,9 @@ const github = (path: string) =>
     next: { revalidate: REVALIDATE },
     signal: AbortSignal.timeout(10_000),
   });
+
+/** A LIP document is a few kilobytes; anything past this isn't one. */
+const MAX_DOCUMENT = 256 * 1024;
 
 /** Run `fn` over `items`, at most `n` at a time. */
 async function mapLimit<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>) {
@@ -76,13 +80,25 @@ async function polledLips(): Promise<Set<string>> {
     .map((p) => p.proposal)
     .filter((h): h is string => Boolean(h));
   const lips = await mapLimit(hashes, 6, async (hash) => {
+    // Anyone with enough stake can create a poll with any proposal bytes.
+    // Content that can't be a LIP document (not an IPFS hash, oversized, not
+    // JSON) has no LIP number, so it's skipped rather than failing the whole
+    // list. A document that can't be fetched still throws: it might be a
+    // LIP, and guessing would risk a duplicate poll.
+    if (!isCid(hash)) return null;
     const doc = await fetch(`https://ipfs.livepeer.com/ipfs/${hash}`, {
       next: { revalidate: 86_400 },
       signal: AbortSignal.timeout(8_000),
     });
     if (!doc.ok) throw new Error(`IPFS returned ${doc.status} for ${hash}`);
-    const { text } = (await doc.json()) as { text?: string };
-    // Read cleanly but not a LIP document: genuinely no LIP number.
+    let text: unknown;
+    try {
+      ({ text } = JSON.parse(await readCapped(doc, MAX_DOCUMENT)) as {
+        text?: unknown;
+      });
+    } catch {
+      return null;
+    }
     return typeof text === "string"
       ? parseDocument(text).attributes.lip ?? null
       : null;

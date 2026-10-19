@@ -1,6 +1,10 @@
 import { unstable_cache } from "next/cache";
 
 import { getPollableLips } from "@/lib/governance/lips";
+import { clientKey, memoize, rateLimiter } from "@/lib/server/memo";
+
+/** Pinning is rare: a few tries a minute per client is plenty. */
+const allow = rateLimiter({ limit: 5, windowMs: 60_000 });
 
 /**
  * Pins a LIP's text once per LIPs-repo commit. The same text always gives
@@ -22,6 +26,7 @@ const pinLip = unstable_cache(
           pinataContent: { gitCommitHash: commit, text },
           pinataMetadata: { name: `LIP-${lip} poll` },
         }),
+        signal: AbortSignal.timeout(15_000),
       }
     );
     if (!pinned.ok) throw new Error(`Pinata responded ${pinned.status}`);
@@ -31,6 +36,21 @@ const pinLip = unstable_cache(
   ["lip-poll-pin"],
   { revalidate: false }
 );
+
+/** One pin in flight per commit and LIP, however many requests arrive. */
+const pinOnce = memoize(
+  (key: string) => {
+    const [commit, lip, text] = JSON.parse(key) as [string, string, string];
+    return pinLip(commit, lip, text);
+  },
+  { ttlMs: 60 * 60_000, max: 100 }
+);
+
+/** The pollable LIPs, shared for ten minutes: reading them is expensive. */
+const pollableLips = memoize(() => getPollableLips(), {
+  ttlMs: 10 * 60_000,
+  max: 1,
+});
 
 /**
  * Pins a LIP to IPFS for a new poll and returns the hash to pass to
@@ -48,6 +68,11 @@ export async function POST(request: Request) {
       },
       { status: 503 }
     );
+  if (!allow(clientKey(request)))
+    return Response.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 }
+    );
 
   let lip: unknown;
   try {
@@ -60,7 +85,7 @@ export async function POST(request: Request) {
 
   let pollable;
   try {
-    pollable = await getPollableLips();
+    pollable = await pollableLips("lips");
   } catch {
     return Response.json({ error: "Couldn't load LIPs" }, { status: 502 });
   }
@@ -72,7 +97,9 @@ export async function POST(request: Request) {
     );
 
   try {
-    const hash = await pinLip(pollable.commit, lip, found.text);
+    const hash = await pinOnce(
+      JSON.stringify([pollable.commit, lip, found.text])
+    );
     return Response.json({ hash });
   } catch {
     return Response.json({ error: "IPFS pinning failed" }, { status: 502 });

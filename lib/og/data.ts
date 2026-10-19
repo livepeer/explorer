@@ -11,6 +11,7 @@ import {
   shortAddress,
 } from "@/lib/format";
 import { parseDocument } from "@/lib/governance/document";
+import { isCid, memoize, readCapped } from "@/lib/server/memo";
 import { fetchGateway } from "@/lib/subgraph/gateways";
 import {
   fetchGovernance,
@@ -36,16 +37,44 @@ const l1 = createPublicClient({
   ),
 });
 
-const ensName = cache(async (address: string) => {
-  try {
-    return await l1.getEnsName({ address: address as `0x${string}` });
-  } catch {
-    return null;
-  }
+/*
+ * These back public URLs (titles, descriptions, share images) that anyone
+ * can request for any identifier, so their upstream work is cached across
+ * requests (memoize) as well as within a render (cache), and an identifier
+ * that can't exist is turned away before any upstream call.
+ */
+
+const ensNameMemo = memoize(
+  async (address: string) => {
+    try {
+      return await l1.getEnsName({ address: address as `0x${string}` });
+    } catch {
+      return null;
+    }
+  },
+  { ttlMs: 60 * 60_000 }
+);
+const ensName = cache((address: string) => ensNameMemo(address.toLowerCase()));
+
+const protocolMemo = memoize(() => fetchProtocol(), { ttlMs: 60_000, max: 1 });
+const protocol = cache(() => protocolMemo("protocol"));
+const governanceMemo = memoize(() => fetchGovernance(), {
+  ttlMs: 60_000,
+  max: 1,
+});
+const governance = cache(() => governanceMemo("governance"));
+
+const orchestratorMemo = memoize(
+  async (address: string) =>
+    fetchOrchestratorSummary(address, await protocol()),
+  { ttlMs: 60_000 }
+);
+const gatewayMemo = memoize((address: string) => fetchGateway(address), {
+  ttlMs: 60_000,
 });
 
-const protocol = cache(() => fetchProtocol());
-const governance = cache(() => fetchGovernance());
+/** Treasury proposal ids are uint256s in decimal. */
+const isProposalId = (id: string) => /^\d{1,78}$/.test(id);
 
 const pct = (part: number, whole: number) =>
   whole > 0 ? formatPercent((part / whole) * 100, { decimals: 1 }) : "—";
@@ -61,12 +90,10 @@ function roundEndsIn(p: Protocol, round: number) {
 export const orchestratorShare = cache(
   async (address: string): Promise<Share | null> => {
     if (!isAddress(address)) return null;
-    const p = await protocol();
-    const [o, name] = await Promise.all([
-      fetchOrchestratorSummary(address, p),
-      ensName(address),
-    ]);
+    // The name only once there's an orchestrator to name.
+    const o = await orchestratorMemo(address.toLowerCase());
     if (!o) return null;
+    const name = await ensName(address);
     const display = name ?? shortAddress(address);
     const apr = o.realizedApr != null ? `${o.realizedApr.toFixed(0)}%` : "—";
     const calls = `${o.rewardCalls}/${o.rewardWindow}`;
@@ -104,11 +131,9 @@ export const orchestratorShare = cache(
 export const gatewayShare = cache(
   async (address: string): Promise<Share | null> => {
     if (!isAddress(address)) return null;
-    const [g, name] = await Promise.all([
-      fetchGateway(address.toLowerCase()),
-      ensName(address),
-    ]);
+    const g = await gatewayMemo(address.toLowerCase());
     if (!g) return null;
+    const name = await ensName(address);
     const display = name ?? shortAddress(address);
     return {
       title: display,
@@ -136,6 +161,7 @@ export const gatewayShare = cache(
 
 export const proposalShare = cache(
   async (id: string): Promise<Share | null> => {
+    if (!isProposalId(id)) return null;
     const [{ proposals }, p] = await Promise.all([governance(), protocol()]);
     const prop = proposals.find((x) => x.id === id);
     if (!prop) return null;
@@ -178,15 +204,29 @@ export const proposalShare = cache(
   }
 );
 
+/** A LIP document is a few kilobytes; anything past this isn't one. */
+const MAX_POLL_DOCUMENT = 256 * 1024;
+
+/**
+ * A poll's LIP document. The hash is whatever the poll's creator chose, so
+ * it must look like an IPFS hash, the response must be OK and bounded, and
+ * the title is capped before it reaches a share card.
+ */
 async function pollDocument(hash: string) {
+  if (!isCid(hash)) return null;
   try {
     const res = await fetch(`https://ipfs.livepeer.com/ipfs/${hash}`, {
       signal: AbortSignal.timeout(5_000),
       next: { revalidate: 86_400 },
     });
-    const json = (await res.json()) as { text?: unknown };
+    if (!res.ok) return null;
+    const json = JSON.parse(await readCapped(res, MAX_POLL_DOCUMENT)) as {
+      text?: unknown;
+    };
     if (typeof json.text !== "string") return null;
-    return parseDocument(json.text).attributes;
+    const attributes = parseDocument(json.text).attributes;
+    if (attributes.title) attributes.title = attributes.title.slice(0, 200);
+    return attributes;
   } catch {
     return null;
   }
@@ -202,6 +242,7 @@ function l1BlockNow(p: Protocol) {
 }
 
 export const pollShare = cache(async (id: string): Promise<Share | null> => {
+  if (!isAddress(id)) return null;
   const [{ polls }, p] = await Promise.all([governance(), protocol()]);
   const poll = polls.find((x) => x.id === id.toLowerCase());
   if (!poll) return null;

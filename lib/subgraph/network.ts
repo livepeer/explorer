@@ -1513,23 +1513,16 @@ export async function fetchGovernance() {
     treasuryProposals: RawProposal[];
     polls: RawPoll[];
   }>(GOVERNANCE);
-  const counts = new Map(
-    await Promise.all(
-      polls
-        .filter((p) => (p.votes?.length ?? 0) >= NESTED_CAP)
-        .map(
-          async (p) =>
-            [
-              p.id,
-              (
-                await paginate<{ id: string }>(POLL_VOTE_IDS, "votes", {
-                  poll: p.id,
-                })
-              ).length,
-            ] as const
-        )
-    )
-  );
+  // One at a time: polls this large are rare, and a burst of them mustn't
+  // turn one request into many concurrent pagination chains.
+  const counts = new Map<string, number>();
+  for (const p of polls) {
+    if ((p.votes?.length ?? 0) < NESTED_CAP) continue;
+    const ids = await paginate<{ id: string }>(POLL_VOTE_IDS, "votes", {
+      poll: p.id,
+    });
+    counts.set(p.id, ids.length);
+  }
   return {
     proposals: treasuryProposals.map(
       (p): TreasuryProposal => ({

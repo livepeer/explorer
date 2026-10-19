@@ -1,4 +1,4 @@
-import { shareCard } from "@/lib/og/card";
+import { shareImage } from "@/lib/og/card";
 import { proposalShare } from "@/lib/og/data";
 
 export const alt = "Treasury proposal on Livepeer Explorer";
@@ -12,11 +12,5 @@ export default async function Image({
 }) {
   const { id } = await params;
   const share = await proposalShare(id).catch(() => null);
-  return shareCard(
-    share?.card ?? {
-      eyebrow: "Treasury proposal",
-      title: "Livepeer Explorer",
-      stats: [],
-    }
-  );
+  return shareImage(share?.card, "Treasury proposal");
 }

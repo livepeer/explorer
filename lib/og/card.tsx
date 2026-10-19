@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 import { LivepeerLockup } from "@/components/brand/logo";
+import { memoize } from "@/lib/server/memo";
 
 /**
  * The share card every page's image is drawn from: black, white type, the
@@ -196,3 +197,32 @@ export async function shareCard(card: Card) {
 }
 
 export const OG_COLORS = { green: GREEN, red: RED, muted: SUBTLE };
+
+/**
+ * The generic card for an identifier with nothing to show (unknown,
+ * malformed, or a failed lookup), rendered once per kind and reused, so
+ * cycling through made-up identifiers costs no rendering.
+ */
+const fallbackPng = memoize(
+  async (eyebrow: string) =>
+    new Uint8Array(
+      await (
+        await shareCard({ eyebrow, title: "Livepeer Explorer", stats: [] })
+      ).arrayBuffer()
+    ),
+  { ttlMs: Number.POSITIVE_INFINITY, max: 10 }
+);
+
+/** A share image: the card if there is one, else the kind's cached fallback. */
+export async function shareImage(
+  card: Card | undefined,
+  eyebrow: string
+): Promise<Response> {
+  if (card) return shareCard(card);
+  return new Response(await fallbackPng(eyebrow), {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=3600",
+    },
+  });
+}

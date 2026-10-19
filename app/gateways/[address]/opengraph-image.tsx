@@ -1,4 +1,4 @@
-import { shareCard } from "@/lib/og/card";
+import { shareImage } from "@/lib/og/card";
 import { gatewayShare } from "@/lib/og/data";
 
 export const alt = "Gateway on Livepeer Explorer";
@@ -12,11 +12,5 @@ export default async function Image({
 }) {
   const { address } = await params;
   const share = await gatewayShare(address).catch(() => null);
-  return shareCard(
-    share?.card ?? {
-      eyebrow: "Gateway",
-      title: "Livepeer Explorer",
-      stats: [],
-    }
-  );
+  return shareImage(share?.card, "Gateway");
 }
