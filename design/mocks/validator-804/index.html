@@ -1,0 +1,3842 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Who is judging honest work</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --panel: #141414;
+        --neutral2: #191919;
+        --neutral3: #1f1f1f;
+        --neutral4: #2a2a2a;
+        --neutral5: #333333;
+        --neutral6: #3d3d3d;
+        --neutral8: #8f8f8f;
+        --neutral10: #8f8f8f;
+        --neutral11: #a0a0a0;
+        --hiContrast: #ffffff;
+        --primary4: #113123;
+        --primary11: #4cc38a;
+        --fee3: #0c222c;
+        --fee11: #25abd0;
+        --stake3: #0f241c;
+        --stake9: #18794e;
+        --stake11: #4cc38a;
+        --radius: 12px;
+        --radius-sm: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--hiContrast);
+        padding: 40px;
+        padding-bottom: calc(48px + env(safe-area-inset-bottom));
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 8px 12px;
+        background: var(--hiContrast);
+        color: var(--bg);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        left: 0;
+      }
+
+      .page-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 16px;
+        row-gap: 0;
+        margin-bottom: 48px;
+        max-width: min(860px, 100%);
+        min-width: 0;
+      }
+      .page-head h1,
+      .page-head p {
+        flex: 1 0 100%;
+        min-width: 0;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+      }
+
+      .issue-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--primary11);
+        text-decoration: none;
+        margin-bottom: 12px;
+        min-width: 0;
+      }
+      .issue-link:hover {
+        text-decoration: underline;
+      }
+
+      .page-foot {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--neutral4);
+        max-width: 860px;
+      }
+      .page-foot .issue-link {
+        margin-right: 0;
+        margin-bottom: 0;
+      }
+
+      .page-head p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--neutral11);
+        max-width: 68ch;
+      }
+      .page-head p + p {
+        margin-top: 8px;
+      }
+      .page-head strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .page-head code,
+      .notes code,
+      .questions code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        background: var(--neutral3);
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: var(--hiContrast);
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      [role="radio"]:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      .section {
+        margin-bottom: 64px;
+        scroll-margin-top: 16px;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--neutral4);
+        flex-wrap: wrap;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        scroll-margin-top: 16px;
+      }
+
+      .section-route {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--neutral10);
+      }
+
+      .section-badge {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--primary4);
+        color: var(--primary11);
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--neutral11);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        max-width: 72ch;
+      }
+
+      .notes {
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--neutral11);
+        line-height: 1.7;
+        max-width: 72ch;
+      }
+      .notes li {
+        margin-left: 20px;
+        margin-bottom: 4px;
+      }
+      .notes li strong,
+      .questions li strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+
+      .questions {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 860px;
+      }
+      .questions li {
+        margin-left: 20px;
+        margin-bottom: 14px;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--neutral11);
+      }
+
+      .page-head p a,
+      .place-table a,
+      .notes a,
+      .questions a,
+      .prose-link {
+        color: var(--primary11);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .page-head p a:hover,
+      .place-table a:hover,
+      .notes a:hover,
+      .questions a:hover,
+      .prose-link:hover {
+        text-decoration: underline;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        padding: 2px 8px 3px;
+        border-radius: 999px;
+        white-space: nowrap;
+        border: 1.5px solid var(--neutral6);
+        background: var(--neutral3);
+        color: var(--hiContrast);
+      }
+      .chip svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+      }
+
+      .help {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 4px;
+        vertical-align: -2px;
+      }
+      .tooltip-dot {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        min-height: 24px;
+        padding: 0;
+        border-radius: 50%;
+        border: 1px solid var(--neutral6);
+        background: transparent;
+        color: var(--neutral10);
+        font: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: help;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .tooltip-dot::before {
+        content: "";
+        position: absolute;
+        inset: -10px;
+      }
+      .tooltip-help {
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 8px);
+        z-index: 30;
+        width: max-content;
+        max-width: 280px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--neutral5);
+        background: var(--neutral2);
+        color: var(--neutral11);
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.45;
+        white-space: normal;
+        text-align: left;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        transform: translateX(-50%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.12s ease, visibility 0.12s ease;
+      }
+      .tooltip-help::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 10px;
+      }
+      .help:hover .tooltip-help,
+      .help:focus-within .tooltip-help {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .help.is-tip-dismissed:hover .tooltip-help,
+      .help.is-tip-dismissed:focus-within .tooltip-help {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .pf {
+        max-width: min(1120px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        overflow: visible;
+      }
+      .pf-top {
+        padding: 18px 20px 0;
+        border-bottom: 1px solid var(--neutral4);
+      }
+      .pf-identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #243828, #1a3a32);
+        color: var(--hiContrast);
+        flex-shrink: 0;
+      }
+      .avatar[data-tone="kiln"] {
+        background: linear-gradient(135deg, #3d2a1f, #1a3a32);
+      }
+      .avatar[data-tone="harbor"] {
+        background: linear-gradient(135deg, #1a3050, #243828);
+      }
+      .avatar[data-tone="slate"] {
+        background: linear-gradient(135deg, #2a2a32, #1c2830);
+      }
+      .avatar[data-tone="cinder"] {
+        background: linear-gradient(135deg, #3a2424, #2a2018);
+      }
+      .avatar[data-tone="reed"] {
+        background: linear-gradient(135deg, #1e3330, #14241c);
+      }
+      .avatar[data-tone="quarry"] {
+        background: linear-gradient(135deg, #33301f, #241e14);
+      }
+      .avatar[data-tone="lumen"] {
+        background: linear-gradient(135deg, #2a3040, #1a2430);
+      }
+      .avatar[data-tone="mosaic"] {
+        background: linear-gradient(135deg, #2c2438, #1a2030);
+      }
+      .avatar[data-tone="pinion"] {
+        background: linear-gradient(135deg, #203028, #182028);
+      }
+      .pf-identity .name {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .pf-identity .addr {
+        font-size: 12px;
+        color: var(--neutral8);
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      .pf-tabs {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+      }
+      .pf-tabs a,
+      .pf-tabs span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 12px 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--neutral11);
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+        margin-bottom: -1px;
+      }
+      .pf-tabs a[aria-current="page"] {
+        color: var(--hiContrast);
+        border-bottom-color: var(--primary11);
+        font-weight: 600;
+      }
+
+      .pf-body {
+        padding: 20px;
+      }
+
+      .seg {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: var(--neutral3);
+        border-radius: 8px;
+        padding: 3px;
+        margin-bottom: 12px;
+        gap: 2px;
+      }
+      .seg button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--neutral11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        min-height: 44px;
+        touch-action: manipulation;
+      }
+      .seg button[aria-checked="true"] {
+        background: var(--neutral5);
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .seg button:hover {
+        color: var(--hiContrast);
+      }
+      #plot-tabs {
+        margin-top: 16px;
+      }
+
+      .filter-count {
+        font-size: 13px;
+        color: var(--neutral11);
+        margin-bottom: 12px;
+      }
+
+      .md-split {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        gap: 20px;
+        align-items: start;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .md-list,
+      .md-detail {
+        min-width: 0;
+      }
+      .md-detail {
+        position: sticky;
+        top: 16px;
+      }
+      .md-back {
+        display: none;
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--primary11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 0 0 12px;
+        min-height: 44px;
+        cursor: pointer;
+        touch-action: manipulation;
+        align-items: center;
+        gap: 6px;
+      }
+      .md-back:hover {
+        text-decoration: underline;
+      }
+
+      .v-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .v-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1.5px solid var(--neutral3);
+        border-radius: var(--radius-sm);
+        background: var(--neutral2);
+        color: inherit;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+        min-height: 52px;
+      }
+      .v-row:hover {
+        border-color: var(--neutral5);
+      }
+      .v-row[aria-checked="true"] {
+        border-color: var(--primary11);
+        background: rgba(76, 195, 138, 0.1);
+      }
+      .v-row[aria-checked="true"] .rid {
+        font-weight: 600;
+      }
+      .v-row:focus {
+        outline: none;
+      }
+      .v-row:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+      }
+      .v-row .main {
+        min-width: 0;
+        flex: 1;
+      }
+      .rid-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+      }
+      .rid {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--hiContrast);
+        line-height: 1.3;
+      }
+      .sub {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--neutral8);
+      }
+      .stake-amt {
+        flex: 0 0 auto;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--stake11);
+        white-space: nowrap;
+      }
+
+      .detail-card {
+        border: 1.5px solid var(--neutral4);
+        border-radius: var(--radius);
+        background: var(--neutral2);
+        padding: 18px;
+      }
+      .detail-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .detail-top h3 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .detail-addr {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--neutral8);
+        margin-bottom: 10px;
+      }
+      .lede {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        margin-bottom: 14px;
+        text-wrap: pretty;
+      }
+
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 16px;
+        margin: 0 0 16px;
+      }
+      .facts dt {
+        font-size: 12px;
+        color: var(--neutral8);
+        font-weight: 500;
+      }
+      .facts dd {
+        margin: 2px 0 0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .facts dd.stake {
+        color: var(--stake11);
+      }
+
+      .part-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--neutral11);
+        margin-bottom: 14px;
+      }
+      #part-detail {
+        flex: 1 1 12rem;
+        min-width: 0;
+      }
+
+      .pay-card {
+        border: 1.5px solid color-mix(in oklch, white 18%, var(--stake9));
+        border-radius: var(--radius-sm);
+        background: linear-gradient(
+            180deg,
+            rgba(24, 121, 78, 0.16) 0%,
+            rgba(24, 121, 78, 0.05) 70%
+          ),
+          var(--neutral2);
+        padding: 14px;
+        margin-bottom: 16px;
+      }
+      .kicker {
+        font-size: 12px;
+        font-weight: 600;
+        color: #c5ddd0;
+        color: color-mix(in oklch, white 72%, var(--stake11));
+        margin-bottom: 4px;
+      }
+      .pay-card .amt {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: var(--stake11);
+        line-height: 1.1;
+      }
+      .pay-card .muted {
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: #c5ddd0;
+        color: color-mix(in oklch, white 68%, var(--stake11));
+      }
+
+      .block-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 4px 0 8px;
+      }
+
+      .score-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+      .score-table th,
+      .score-table td {
+        text-align: left;
+        padding: 8px 8px 8px 0;
+        border-bottom: 1px solid var(--neutral4);
+        vertical-align: baseline;
+      }
+      .score-table th {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--neutral8);
+      }
+      .score-table td:nth-child(2),
+      .score-table th:nth-child(2) {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .score-table td:last-child,
+      .score-table th:last-child {
+        text-align: right;
+        color: var(--neutral11);
+        font-variant-numeric: tabular-nums;
+      }
+      .score-table td:nth-child(2) {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .empty-note {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral11);
+      }
+
+      .honesty {
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        margin-bottom: 16px;
+        background: var(--neutral2);
+      }
+      .honesty-why {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--neutral11);
+        max-width: 68ch;
+      }
+      .chip.honest {
+        border-color: color-mix(in oklch, var(--primary11) 55%, transparent);
+        background: rgba(76, 195, 138, 0.12);
+        color: var(--primary11);
+      }
+      .honesty .kicker {
+        color: var(--neutral11);
+      }
+      .rate {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        column-gap: 18px;
+        align-items: baseline;
+        margin-top: 10px;
+      }
+      .rate-num {
+        font-size: 44px;
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        line-height: 0.9;
+        color: var(--primary11);
+      }
+      .rate-of {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--neutral11);
+      }
+      .see-scores,
+      .sheet-close {
+        min-height: 44px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--neutral3);
+        color: var(--hiContrast);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .score-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .see-scores:hover,
+      .sheet-close:hover {
+        background: var(--neutral4);
+      }
+      .sheet-back {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        justify-content: flex-end;
+        background: rgba(0, 0, 0, 0.64);
+      }
+      .sheet {
+        width: min(560px, 100%);
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        background: var(--bg);
+        border-left: 1px solid var(--neutral4);
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+      }
+      .sheet-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .sheet-head h2 {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .sheet-kicker {
+        font-size: 12px;
+        color: var(--neutral11);
+        margin-bottom: 4px;
+      }
+      .sheet-close {
+        flex-shrink: 0;
+      }
+      .plot-note {
+        margin-top: 10px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral11);
+        max-width: 62ch;
+      }
+      .plot svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .plot text {
+        fill: #8f8f8f;
+        font-family: Inter, sans-serif;
+        font-size: 11px;
+      }
+      .plot text.median {
+        fill: var(--primary11);
+      }
+      .plot svg.is-hilite circle {
+        opacity: 0.28;
+      }
+      .plot svg.is-hilite circle.is-on {
+        opacity: 1;
+        stroke: #fff;
+        stroke-width: 2px;
+      }
+      .sheet .score-table th:first-child,
+      .sheet .score-table td:first-child {
+        padding-left: 16px;
+      }
+      .sheet .score-table th:last-child,
+      .sheet .score-table td:last-child {
+        padding-right: 16px;
+      }
+      .score-list {
+        margin-top: 16px;
+      }
+      .score-list tr {
+        cursor: pointer;
+      }
+      .score-list td {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+      .score-list tr.is-on td {
+        background: rgba(76, 195, 138, 0.12);
+      }
+      .score-list tr:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: -2px;
+      }
+      .rate-verdict {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+      .rate-meta {
+        margin-top: 0;
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--neutral11);
+      }
+      .rate-meter {
+        grid-column: 1 / -1;
+        height: 6px;
+        margin-top: 14px;
+        border-radius: 99px;
+        background: var(--neutral4);
+        overflow: hidden;
+      }
+      .rate-meter > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--primary11);
+      }
+      .rate-pay {
+        grid-column: 1 / -1;
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--neutral11);
+      }
+      .rate-pay strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .hist {
+        list-style: none;
+        margin: 4px 0 0;
+        display: grid;
+        gap: 6px;
+      }
+      .hist li {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr) 20px;
+        gap: 10px;
+        align-items: center;
+        min-height: 24px;
+        font-size: 13px;
+      }
+      .hist-track {
+        height: 8px;
+        border-radius: 99px;
+        background: var(--neutral3);
+        overflow: hidden;
+      }
+      .hist-fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--neutral11);
+      }
+      .hist-n {
+        text-align: right;
+        color: var(--hiContrast);
+      }
+      .why {
+        margin-top: 14px;
+        border-top: 1px solid var(--neutral4);
+      }
+      .why > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 44px;
+        padding: 8px 0;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        touch-action: manipulation;
+      }
+      .why > summary::-webkit-details-marker {
+        display: none;
+      }
+      .why > summary .chev {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--neutral8);
+        transition: transform 0.12s ease;
+      }
+      .why[open] > summary .chev {
+        transform: rotate(180deg);
+      }
+      .why .why-body {
+        padding: 0 0 8px;
+      }
+      .honesty .subline {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        max-width: 62ch;
+      }
+      .spread {
+        margin-top: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral11);
+      }
+      .spread strong {
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+
+      .node-note {
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--neutral11);
+        margin: 0 0 12px;
+        max-width: 68ch;
+      }
+
+      .mark-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        max-width: 520px;
+        padding: 12px 14px;
+        border: 1.5px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        background: var(--neutral2);
+        margin-bottom: 8px;
+      }
+      .mark-row .who {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+
+      .place-table {
+        width: 100%;
+        max-width: 860px;
+        border-collapse: collapse;
+        font-size: 13.5px;
+        line-height: 1.45;
+      }
+      .place-table th,
+      .place-table td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--neutral4);
+        vertical-align: top;
+      }
+      .place-table th {
+        color: var(--neutral10);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .place-table td:first-child {
+        font-weight: 600;
+        color: var(--hiContrast);
+        white-space: nowrap;
+      }
+      .place-table td:nth-child(2) {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--hiContrast);
+      }
+      .place-table .role {
+        color: var(--neutral11);
+        font-family: "Inter", sans-serif;
+        font-size: 13.5px;
+      }
+      .place-table .primary-row td {
+        background: rgba(76, 195, 138, 0.06);
+      }
+
+      /* Orchestrating tab: same frame as 802. Left grid + sticky Delegate rail. */
+      .orch {
+        max-width: min(1120px, 100%);
+        border: 1px solid var(--neutral4);
+        border-radius: 16px;
+        background: var(--bg);
+      }
+      .orch-account {
+        padding: 18px 20px 0;
+        border-bottom: 1px solid var(--neutral4);
+      }
+      .orch-id {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .orch-id .name {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .orch-id .addr {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--neutral8);
+      }
+      .orch-tabs {
+        display: flex;
+        gap: 4px;
+        margin-top: 14px;
+        overflow-x: auto;
+      }
+      .orch-tabs a,
+      .orch-tabs span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 12px 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--neutral11);
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+      }
+      .orch-tabs a[aria-current="page"] {
+        color: var(--hiContrast);
+        border-bottom-color: var(--primary11);
+        font-weight: 600;
+      }
+      .orch-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+        gap: 20px;
+        align-items: start;
+        padding: 20px;
+      }
+      .orch-main {
+        min-width: 0;
+      }
+      .orch-tag {
+        display: block;
+        margin-bottom: 8px;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--neutral8);
+      }
+      .orch-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .orch-grid > .span2 {
+        grid-column: 1 / -1;
+      }
+      .mfs {
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        background: var(--neutral2);
+      }
+      .mfs-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .mfs-head h3 {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .mfs-window {
+        font-size: 12px;
+        color: var(--neutral11);
+        margin-bottom: 12px;
+      }
+      .mfs-duo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .mfs-tile {
+        border: 1.5px solid var(--neutral5);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        background: var(--neutral2);
+        min-width: 0;
+      }
+      .mfs-tile .label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .mfs-tile .pct {
+        display: block;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+      .mfs-tile .unit {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .mfs-tile.fee {
+        border-color: color-mix(in oklch, white 28%, var(--fee11));
+        background: var(--fee3);
+      }
+      .mfs-tile.fee .label,
+      .mfs-tile.fee .pct {
+        color: var(--fee11);
+      }
+      .mfs-tile.fee .unit {
+        color: #c5e4ef;
+        color: color-mix(in oklch, white 72%, var(--fee11));
+      }
+      .mfs-tile.stake {
+        border-color: color-mix(in oklch, white 28%, var(--stake11));
+        background: var(--stake3);
+      }
+      .mfs-tile.stake .label,
+      .mfs-tile.stake .pct {
+        color: var(--stake11);
+      }
+      .mfs-tile.stake .unit {
+        color: #c5ddd0;
+        color: color-mix(in oklch, white 72%, var(--stake11));
+      }
+      .cap-tag {
+        display: inline-block;
+        margin-bottom: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--stake11);
+      }
+      .mfs-outcome {
+        margin-top: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--neutral11);
+      }
+      .mfs-outcome strong {
+        color: var(--hiContrast);
+      }
+      .delay-note {
+        margin-top: 10px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--neutral11);
+      }
+      .slot-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--neutral8);
+        margin-bottom: 8px;
+      }
+      .member-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--neutral11);
+      }
+      .pf-stat {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        min-height: 76px;
+        min-width: 0;
+      }
+      .pf-stat .label {
+        font-size: 12px;
+        color: var(--neutral8);
+        margin-bottom: 6px;
+      }
+      .pf-stat .value {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .pf-stat .value.fee {
+        color: var(--fee11);
+      }
+      .pf-stat .meta {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--neutral11);
+      }
+      .pf-more {
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--neutral8);
+      }
+      .orch-rail {
+        position: sticky;
+        top: 16px;
+        min-width: 0;
+      }
+      .dw {
+        background: var(--panel);
+        border: 1px solid var(--neutral4);
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+      .dw-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        padding: 3px;
+        margin-bottom: 14px;
+        background: var(--neutral3);
+        border-radius: 8px;
+      }
+      .dw-tabs button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--neutral11);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        min-height: 44px;
+        border-radius: 6px;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .dw-tabs button[aria-checked="true"] {
+        background: var(--neutral5);
+        color: var(--hiContrast);
+        font-weight: 600;
+      }
+      .dw-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--neutral8);
+        margin-bottom: 6px;
+      }
+      .dw-input {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1.5px solid var(--neutral5);
+        border-radius: 8px;
+        background: var(--neutral2);
+        color: var(--hiContrast);
+        font: inherit;
+        font-size: 16px;
+      }
+      .dw-input:focus-visible {
+        outline: 2px solid var(--primary11);
+        outline-offset: 2px;
+      }
+      .dw-go {
+        width: 100%;
+        margin-top: 12px;
+        min-height: 44px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--primary11);
+        color: #062214;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .dw-note {
+        margin-top: 10px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--neutral8);
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (max-width: 720px) {
+        .v-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          justify-items: stretch;
+        }
+        .stake-amt {
+          justify-self: end;
+        }
+      }
+
+      @media (max-width: 1040px) {
+        .orch-body {
+          grid-template-columns: 1fr;
+        }
+        .orch-rail {
+          position: static;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .md-split {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .md-detail {
+          position: static;
+        }
+        .md-back {
+          display: inline-flex;
+        }
+        .md-split[data-mobile-pane="list"] .md-detail {
+          display: none;
+        }
+        .md-split[data-mobile-pane="detail"] .md-list {
+          display: none;
+        }
+        .tooltip-dot::before {
+          inset: -12px;
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 20px 16px 48px;
+          padding-bottom: calc(48px + env(safe-area-inset-bottom));
+        }
+        .facts,
+        .orch-grid,
+        .mfs-duo {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tooltip-help,
+        .why > summary .chev,
+        a,
+        button {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#set">Skip to content</a>
+
+    <header class="page-head">
+      <h1>Who is judging honest work</h1>
+      <a
+        class="issue-link"
+        href="https://github.com/livepeer/explorer/issues/804"
+        target="_blank"
+        rel="noopener"
+        >Issue&nbsp;#804&nbsp;↗</a
+      >
+      <a class="issue-link" href="#set">The set ↓</a>
+      <a class="issue-link" href="#node">A node’s scores ↓</a>
+      <a class="issue-link" href="#placement">Where it lives ↓</a>
+      <a class="issue-link" href="#decisions">Design decisions ↓</a>
+      <a class="issue-link" href="#open-q">Open questions ↓</a>
+      <a class="issue-link" href="#a11y">Who can use this ↓</a>
+      <p>
+        The current validator set, who could still enter it, and the honesty
+        score sitting on a node. Scores exist to catch dishonest work:
+        self-dealing, made-up fees, wrong results. They do not grade speed,
+        region, or model coverage.
+      </p>
+      <p>
+        Read-only. Registering and submitting scores are out of this ticket.
+        Live fee versus stake stays in
+        <a
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >. What a past round already paid stays in
+        <a
+          href="https://github.com/livepeer/explorer/issues/803"
+          target="_blank"
+          rel="noopener"
+          >803</a
+        >. 2.0 is not released. Names and numbers below are a sample.
+      </p>
+    </header>
+
+    <section class="section" id="set" tabindex="-1" aria-labelledby="set-title">
+      <div class="section-header">
+        <h2 class="section-title" id="set-title">Validator set</h2>
+        <span class="section-route">/validators</span>
+        <span class="section-badge">Primary</span>
+      </div>
+      <p class="section-description">
+        The 33 registered node operators with the most stake. Wide: list and
+        detail together. Narrow: pick a row, then the detail. Arrows move the
+        highlight. Enter or Space opens it on a narrow screen.
+      </p>
+
+      <div
+        class="seg"
+        role="radiogroup"
+        aria-label="Which validators to list"
+        id="filter-seg"
+      >
+        <button
+          type="button"
+          role="radio"
+          aria-checked="true"
+          data-bucket="set"
+        >
+          In the set
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked="false"
+          data-bucket="next"
+          tabindex="-1"
+        >
+          Next in line
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked="false"
+          data-bucket="join"
+          tabindex="-1"
+        >
+          Could join
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked="false"
+          data-bucket="all"
+          tabindex="-1"
+        >
+          All
+        </button>
+      </div>
+      <p class="filter-count" id="filter-count">6 of 33 in the set shown.</p>
+
+      <div class="md-split" id="md-split" data-mobile-pane="list">
+        <div class="md-list">
+          <div
+            class="v-list"
+            role="radiogroup"
+            aria-label="Validators"
+            id="vlist"
+          >
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="true"
+              data-id="northbeam"
+              data-bucket="set"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Northbeam</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 9.2 7.4 10.6 10.2 7.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Scoring
+                  </span>
+                </span>
+                <span class="sub num">Rank 1 · 0x1a4c…9e21</span>
+              </span>
+              <span class="stake-amt num">1,840,220 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="kiln"
+              data-bucket="set"
+              tabindex="-1"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Kiln</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 9.2 7.4 10.6 10.2 7.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Scoring
+                  </span>
+                </span>
+                <span class="sub num">Rank 4 · 0x55b0…c812</span>
+              </span>
+              <span class="stake-amt num">1,284,000 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="quarry"
+              data-bucket="join"
+              tabindex="-1"
+              hidden
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Quarry</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.75"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <path
+                        d="M8 5.2v5.6M5.2 8h5.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    Could join
+                  </span>
+                </span>
+                <span class="sub num">Rank 7 · 0x0e91…44aa</span>
+              </span>
+              <span class="stake-amt num">1,102,500 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="harbor"
+              data-bucket="set"
+              tabindex="-1"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Harbor</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6.2 9h3.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    Gaps
+                  </span>
+                </span>
+                <span class="sub num">Rank 9 · 0x9c2d…b771</span>
+              </span>
+              <span class="stake-amt num">864,400 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="lumen"
+              data-bucket="join"
+              tabindex="-1"
+              hidden
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Lumen</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.75"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <path
+                        d="M8 5.2v5.6M5.2 8h5.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    Could join
+                  </span>
+                </span>
+                <span class="sub num">Rank 12 · 0x3f80…11d4</span>
+              </span>
+              <span class="stake-amt num">798,000 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="slate"
+              data-bucket="set"
+              tabindex="-1"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Slate</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Quiet
+                  </span>
+                </span>
+                <span class="sub num">Rank 18 · 0xab12…90ce</span>
+              </span>
+              <span class="stake-amt num">612,300 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="cinder"
+              data-bucket="set"
+              tabindex="-1"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Cinder</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 9.2 7.4 10.6 10.2 7.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Scoring
+                  </span>
+                </span>
+                <span class="sub num">Rank 22 · 0xc1d0…77ab</span>
+              </span>
+              <span class="stake-amt num">560,000 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="reed"
+              data-bucket="set"
+              tabindex="-1"
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Reed</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 9.2 7.4 10.6 10.2 7.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Scoring
+                  </span>
+                </span>
+                <span class="sub num">Rank 28 · 0x77e4…6b08</span>
+              </span>
+              <span class="stake-amt num">521,000 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="mosaic"
+              data-bucket="next"
+              tabindex="-1"
+              hidden
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Mosaic</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M3 8h8"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M8.5 4.5 12.5 8 8.5 11.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Next in line
+                  </span>
+                </span>
+                <span class="sub num">Rank 36 · 0x2c19…aa57</span>
+              </span>
+              <span class="stake-amt num">448,200 LPT</span>
+            </button>
+
+            <button
+              type="button"
+              class="v-row"
+              role="radio"
+              aria-checked="false"
+              data-id="pinion"
+              data-bucket="next"
+              tabindex="-1"
+              hidden
+            >
+              <span class="main">
+                <span class="rid-row">
+                  <span class="rid">Pinion</span>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M3 8h8"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M8.5 4.5 12.5 8 8.5 11.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Next in line
+                  </span>
+                </span>
+                <span class="sub num">Rank 40 · 0x8d40…f3e6</span>
+              </span>
+              <span class="stake-amt num">390,800 LPT</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="md-detail">
+          <button type="button" class="md-back" id="md-back">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path
+                d="M10 3.5 5.5 8 10 12.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Back to the set
+          </button>
+
+          <article class="detail-card" aria-labelledby="detail-title">
+            <div class="detail-top">
+              <span
+                class="avatar"
+                id="detail-avatar"
+                data-tone="northbeam"
+                aria-hidden="true"
+                >NB</span
+              >
+              <h3 id="detail-title" tabindex="-1">Northbeam</h3>
+              <span class="chip" id="detail-chip">
+                <svg data-icon="set" viewBox="0 0 16 16" aria-hidden="true">
+                  <rect
+                    x="2.25"
+                    y="2.25"
+                    width="11.5"
+                    height="11.5"
+                    rx="2.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <rect
+                    x="5"
+                    y="5"
+                    width="6"
+                    height="6"
+                    rx="1"
+                    fill="currentColor"
+                  />
+                </svg>
+                <svg
+                  data-icon="next"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                  hidden
+                >
+                  <path
+                    d="M3 8h8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M8.5 4.5 12.5 8 8.5 11.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <svg
+                  data-icon="join"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                  hidden
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="5.75"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M8 5.2v5.6M5.2 8h5.6"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span id="detail-chip-label">In the set</span>
+              </span>
+            </div>
+            <p class="detail-addr num" id="detail-addr">0x1a4c…9e21</p>
+            <p class="lede" id="detail-lede">
+              Registered and inside the 33. Scores they submit count toward
+              every node’s median.
+            </p>
+            <p class="sr-only" id="detail-live" aria-live="polite"></p>
+
+            <dl class="facts">
+              <div>
+                <dt>Stake rank</dt>
+                <dd class="num" id="fact-rank">1</dd>
+              </div>
+              <div>
+                <dt>Total stake</dt>
+                <dd class="num stake" id="fact-stake">1,840,220 LPT</dd>
+              </div>
+              <div>
+                <dt>Delegated stake</dt>
+                <dd class="num stake" id="fact-del">1,610,400 LPT</dd>
+              </div>
+              <div>
+                <dt>Registered</dt>
+                <dd id="fact-reg">Yes</dd>
+              </div>
+            </dl>
+
+            <div class="part-line" id="part-block">
+              <span class="chip" id="part-chip">
+                <svg
+                  data-icon="scoring"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M6 9.2 7.4 10.6 10.2 7.6"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <svg
+                  data-icon="gaps"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                  hidden
+                >
+                  <path
+                    d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M6.2 9h3.6"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <svg
+                  data-icon="quiet"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                  hidden
+                >
+                  <path
+                    d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span id="part-label">Scoring</span>
+              </span>
+              <span class="help">
+                <button
+                  type="button"
+                  class="tooltip-dot"
+                  aria-describedby="tip-part"
+                  aria-label="About submission cadence"
+                >
+                  ?
+                </button>
+                <span class="tooltip-help" id="tip-part" role="tooltip">
+                  How often they file scores. A proposal only. Not a health
+                  grade, and not a pay cut. The Validator Track has not defined
+                  health.
+                </span>
+              </span>
+              <span id="part-detail"
+                >Submitted scores in 7 of the last 7 rounds.</span
+              >
+            </div>
+
+            <div class="pay-card" id="pay-block">
+              <div class="kicker">
+                Share of validator pay
+                <span class="help">
+                  <button
+                    type="button"
+                    class="tooltip-dot"
+                    aria-describedby="tip-pay"
+                    aria-label="About validator pay"
+                  >
+                    ?
+                  </button>
+                  <span class="tooltip-help" id="tip-pay" role="tooltip">
+                    1% of new LPT this round, weighted by delegated stake inside
+                    the set, then this node’s usual cut. The LPT figure is
+                    illustrative. Emissions are not fixed. Green is the LPT
+                    amount, not a judgment.
+                  </span>
+                </span>
+              </div>
+              <div class="amt num" id="pay-share">8.4%</div>
+              <p class="muted num" id="pay-hint">
+                About <span class="num">12.6 LPT</span> this round, before the
+                cut passed to delegators. Illustrative.
+              </p>
+            </div>
+
+            <h4 class="block-title" id="scores-heading">Scores they filed</h4>
+            <p class="empty-note" id="scores-empty" hidden>
+              Scores count only while they are in the set.
+            </p>
+            <p class="empty-note" id="scores-quiet" hidden>
+              No scores submitted in the last 7 rounds. They remain in the set.
+              This mock still shows their pay, because missing rounds are not a
+              penalty yet.
+            </p>
+            <table class="score-table" id="scores-table">
+              <caption class="sr-only" id="scores-caption">
+                Scores Northbeam filed on other nodes
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Node</th>
+                  <th scope="col">Score</th>
+                  <th scope="col">Updated</th>
+                </tr>
+              </thead>
+              <tbody id="scores-body"></tbody>
+            </table>
+          </article>
+        </div>
+      </div>
+
+      <ul class="notes">
+        <li>
+          Deep-link <code>?validator=harbor</code> selects that row, and opens
+          it on a narrow screen.
+        </li>
+        <li>
+          Sample round is 4218. Twenty-seven other seats are not drawn. In this
+          sample the only unregistered nodes above the cutoff are Quarry and
+          Lumen, so the 33 seats run through stake rank 35. Mosaic at rank 36 is
+          the first registered node outside. The product list should virtualize
+          the full 33.
+        </li>
+      </ul>
+    </section>
+
+    <section
+      class="section"
+      id="node"
+      tabindex="-1"
+      aria-labelledby="node-title"
+    >
+      <div class="section-header">
+        <h2 class="section-title" id="node-title">On the Orchestrating tab</h2>
+        <span class="section-route">/accounts/0x9c2d…b771/orchestrating</span>
+        <span class="section-badge">Primary</span>
+      </div>
+      <p class="section-description">
+        Harbor’s account, with the pieces that will already be on this tab.
+        <a
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >
+        owns the first card (fee share versus stake share). The week-later line
+        on that card is
+        <a
+          href="https://github.com/livepeer/explorer/issues/803"
+          target="_blank"
+          rel="noopener"
+          >803</a
+        >, not a second history module. Honesty is the next card. The stat grid
+        and the Delegate rail are the current page.
+      </p>
+
+      <div class="orch" aria-label="Harbor orchestrating page">
+        <div class="orch-account">
+          <div class="orch-id">
+            <span class="avatar" data-tone="harbor" aria-hidden="true">HB</span>
+            <div>
+              <div class="name">Harbor</div>
+              <div class="addr num">0x9c2d…b771</div>
+            </div>
+          </div>
+          <nav class="orch-tabs" aria-label="Account sections">
+            <a href="#node" aria-current="page">Orchestrating</a>
+            <span>Broadcasting</span>
+            <span>Delegating</span>
+            <span>Delegators</span>
+            <span>History</span>
+          </nav>
+        </div>
+        <div class="orch-body">
+          <div class="orch-main">
+            <span class="orch-tag">Left column · same grid as today</span>
+            <div class="orch-grid">
+              <article class="mfs span2" aria-labelledby="mfs-title">
+                <div class="mfs-head">
+                  <h3 id="mfs-title">Rewards capped by stake</h3>
+                  <span class="chip">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M9.5 4.5h4v4"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Room to earn
+                  </span>
+                </div>
+                <p class="mfs-window">Last 7 settled rounds</p>
+                <div
+                  class="mfs-duo"
+                  role="img"
+                  aria-label="Fees 6.4 percent of network. Stake 3.1 percent of network. Stake caps rewards."
+                >
+                  <div class="mfs-tile fee">
+                    <span class="label">Fees</span>
+                    <span class="pct num">6.4%</span>
+                    <span class="unit">of network fees</span>
+                  </div>
+                  <div class="mfs-tile stake">
+                    <span class="cap-tag">Caps rewards</span>
+                    <span class="label">Stake</span>
+                    <span class="pct num">3.1%</span>
+                    <span class="unit">of network stake</span>
+                  </div>
+                </div>
+                <p class="mfs-outcome">
+                  New stake still earns, up to
+                  <strong class="num">+3.3%</strong>, until fees and stake meet.
+                </p>
+                <p class="delay-note">
+                  Rewards are paid about a week after the round.
+                  <a
+                    class="prose-link"
+                    href="https://github.com/livepeer/explorer/issues/803"
+                    target="_blank"
+                    rel="noopener"
+                    >Why a past round paid what it paid</a
+                  >
+                </p>
+              </article>
+
+              <article class="honesty span2" aria-labelledby="honesty-title">
+                <div class="mfs-head">
+                  <h3 id="honesty-title">Validator honesty</h3>
+                  <span class="chip honest">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M3.5 8.2 6.4 11.1 12.5 4.8"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Honest
+                  </span>
+                </div>
+                <div class="rate">
+                  <div class="rate-num num" id="honesty-score">95%</div>
+                  <p class="rate-meta">
+                    from <span class="num">18</span> of
+                    <span class="num">33</span> validators
+                  </p>
+                </div>
+                <div class="rate-meter" aria-hidden="true">
+                  <span style="width: 95%"></span>
+                </div>
+                <p class="rate-pay">
+                  You keep <strong class="num">95%</strong> of that reward.
+                </p>
+                <p class="honesty-why">
+                  Other validators scored whether this work was honest, not how
+                  good it is. A low score cuts the stake-capped LPT before it
+                  pays. Fees are not cut. Stake cannot leave for about
+                  <span class="num">21</span> days, so check this before
+                  delegating into the room above.
+                </p>
+                <div class="score-actions">
+                  <button
+                    type="button"
+                    class="see-scores"
+                    id="open-scores"
+                    aria-haspopup="dialog"
+                  >
+                    How it was scored
+                  </button>
+                  <button
+                    type="button"
+                    class="see-scores"
+                    id="open-filed"
+                    aria-haspopup="dialog"
+                  >
+                    How it scored others
+                  </button>
+                </div>
+              </article>
+
+              <div class="pf-stat">
+                <div class="label">Total delegated stake</div>
+                <div class="value num stake-amt">864,400 LPT</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Status</div>
+                <div class="value">Active</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Top transcoding regional score</div>
+                <div class="value num">98.1% · North America</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Top AI regional score</div>
+                <div class="value">N/A</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Earned fees</div>
+                <div class="value num fee">12,480 USDC</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Price / pixel</div>
+                <div class="value num">400 WEI</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Fee cut</div>
+                <div class="value num">5%</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Reward cut</div>
+                <div class="value num">10%</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Reward calls</div>
+                <div class="value num">28/30</div>
+              </div>
+              <div class="pf-stat">
+                <div class="label">Last reward round</div>
+                <div class="value num">4217</div>
+              </div>
+              <div class="pf-stat span2">
+                <div class="label">Treasury governance participation</div>
+                <div class="value num">4 / 6 proposals while active</div>
+                <p class="meta">
+                  The existing link to treasury vote history stays on this card.
+                </p>
+              </div>
+              <p class="pf-more span2">
+                Reward-cut and fee-cut history stays under this grid, as it does
+                today. Regional scores are quality of service. They are not the
+                honesty median above.
+              </p>
+            </div>
+          </div>
+          <aside class="orch-rail" aria-label="Delegate">
+            <span class="orch-tag">Right rail · Delegate box</span>
+            <div class="dw">
+              <div
+                class="dw-tabs"
+                role="radiogroup"
+                aria-label="Delegate or undelegate"
+                id="dw-tabs"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked="true"
+                  data-dw="delegate"
+                >
+                  Delegate
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked="false"
+                  tabindex="-1"
+                  data-dw="undelegate"
+                >
+                  Undelegate
+                </button>
+              </div>
+              <label class="dw-label" for="dw-amount">
+                <span id="dw-amount-label">Amount</span>
+                <span class="num">Balance 1,250 LPT</span>
+              </label>
+              <input
+                id="dw-amount"
+                class="dw-input"
+                name="amount"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="0.00"
+              />
+              <button type="button" class="dw-go" id="dw-go">Delegate</button>
+              <p class="dw-note" id="dw-note">
+                Stays in this rail. The cards on the left explain. This box is
+                where the amount is entered. Under 1200px the product opens it
+                as a bottom drawer.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="placement">
+      <div class="section-header">
+        <h2 class="section-title" id="placement">Where it lives</h2>
+      </div>
+      <p class="section-description">
+        Validators are the same people as node operators. The set is its own
+        list. On a node, honesty is one card inside the Orchestrating tab that
+        <a
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >
+        and the current stats already fill. No new account tab.
+      </p>
+      <p class="node-note">
+        <code>/orchestrators</code> is
+        <a
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >’s table (state, fees versus stake, reward cap, then yield, stake, and
+        fees). This ticket does not add a column. A chip on the name, “In the
+        set”, can link here. It is not drawn again, because redrawing that table
+        would hide it.
+      </p>
+
+      <table class="place-table">
+        <thead>
+          <tr>
+            <th>Who</th>
+            <th>Surface</th>
+            <th>What they get</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="primary-row">
+            <td>Anyone</td>
+            <td>/validators</td>
+            <td class="role">
+              <strong>Primary.</strong> The set, who is next, who could join. A
+              row shows stake, registration, pay, submission cadence, and the
+              scores that validator filed. An orchestrator page shows the score
+              others gave that node, and, if they are in the set, the scores
+              they filed.
+            </td>
+          </tr>
+          <tr class="primary-row">
+            <td>A node</td>
+            <td>/accounts/[node]/orchestrating</td>
+            <td class="role">
+              <strong>The next card in the left grid.</strong> 802’s
+              fee-versus-stake card stays first, with 803’s week-later line on
+              it. Then the median and the scores on this node. Existing stats
+              stay below. Delegate stays in the right rail.
+            </td>
+          </tr>
+          <tr>
+            <td>Delegator</td>
+            <td>/accounts/[you]/delegating</td>
+            <td class="role">
+              One line if your node is in the set, linking to
+              <code>/validators</code>. Do not repeat the score table here.
+            </td>
+          </tr>
+          <tr>
+            <td>Past payout</td>
+            <td>/accounts/…/history</td>
+            <td class="role">
+              <a
+                href="https://github.com/livepeer/explorer/issues/803"
+                target="_blank"
+                rel="noopener"
+                >803</a
+              >
+              already shows the honesty factor that was used at claim. Do not
+              paste this live board onto a receipt.
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Home · new Validating tab</td>
+            <td class="role">
+              Out. Same people as node operators. A second tab would split one
+              story.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" aria-labelledby="decisions">
+      <div class="section-header">
+        <h2 class="section-title" id="decisions">Design decisions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>Read-only.</strong> This ticket shows the set, status,
+            stake, scores, and pay. It does not include registering, leaving, or
+            filing a score. Whether those actions belong in Explorer waits on
+            the Validator Track.
+          </li>
+          <li>
+            <strong>Set rule used here.</strong> Active set = the 33
+            highest-staked node operators who have registered. A higher-staked
+            node that has not registered is “Could join”. The next registered
+            node below the cutoff is “Next in line”. Starting size is 33.
+            Governance can change it later.
+          </li>
+          <li>
+            <strong>Three facts, one chip.</strong> The chip is the situation.
+            Rank, total stake, delegated stake, and registered yes or no stay in
+            text, so eligibility, registration, and being in the set are all
+            visible.
+          </li>
+          <li>
+            <strong>Honesty is not quality of service.</strong> The card says
+            why the score exists: it cuts the stake-capped LPT if the work was
+            not honest, fees are untouched, and stake cannot leave for about 21
+            days. The Honest pill is a subtle explorer green because a high
+            score is a good signal. The 95%, the pill, and the bar use the same
+            explorer green. A low score is not painted red. The 802 card is a
+            plain panel. Its fee and stake tiles keep their colors.
+          </li>
+          <li>
+            <strong>Both directions in the ticket.</strong> “How it was scored”
+            is the scores on this node, and the 95% is the median of those. “How
+            it scored others” is what this validator gave other nodes. Copy
+            stays generic so it does not need the node’s name.
+          </li>
+          <li>
+            <strong>95%, not 9.5 out of 10.</strong> The number is the fraction
+            of the stake-capped reward a delegator keeps. A ten-point grade
+            would read as quality. The protocol’s 0 to 1 figure stays in the eng
+            appendix, not under the percent. The card tells you whether the room
+            above is still worth delegating into: at 95% the LPT survives, fees
+            are untouched, and only a score near zero strands stake for about 21
+            days.
+          </li>
+          <li>
+            <strong>The full set of scores opens in a sheet.</strong> The card
+            does not preview five of them. Five is an arbitrary sample and it
+            collapses once a node has hundreds of scores. The sheet plots every
+            score on a fixed 0 to 100 axis, and again across the week before
+            pay. Height or position is the score. The axis does not rescale to
+            the busiest value. There is no rolling cap. The median on file at
+            pay is what counts. Past rounds that already paid stay on
+            <a
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >803</a
+            >.
+          </li>
+          <li>
+            <strong>Blanks are “No score”.</strong> They are left out of the
+            median in this mock, not treated as zero. See open questions.
+          </li>
+          <li>
+            <strong>Cadence is not health.</strong> Scoring, Gaps, and Quiet
+            describe how many of the last 7 rounds they submitted. Shown only
+            inside the set. Slate is Quiet and still paid, because the draft
+            does not tie pay to participation.
+          </li>
+          <li>
+            <strong>Pay follows delegated stake.</strong> 1% of new LPT,
+            weighted by delegated stake inside the set, then the node’s usual
+            cut. The LPT amount is labeled illustrative. Emissions are not
+            fixed, so there is no dollar figure.
+          </li>
+          <li>
+            <strong>Fit the existing Orchestrating tab.</strong> Order on the
+            left: 802’s card, then this honesty card, then today’s stat grid
+            (stake, status, regional scores, fees, price, cuts, reward calls,
+            last round, treasury participation, cut history). Delegate stays in
+            the right rail. 803 stays a line on the 802 card plus the History
+            receipt. Do not add a Validating tab, and do not put the score list
+            on 802’s orchestrator table.
+          </li>
+          <li>
+            <strong>2.0 is not released.</strong> Sample operators, sample
+            stake, sample scores. Build waits on approval and on the Validator
+            Track for the items below.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="open-q">
+      <div class="section-header">
+        <h2 class="section-title" id="open-q">Open questions</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>Words for scores that are not near 1.</strong> This sample
+            is 0.95, so the card says honest. The draft has no bands.
+            <em>Recommended default:</em> say the share of the reward in words
+            (“keeps 40%”) and reserve “Honest” for a score at or very near 1.
+            Owner: Validator Track. Confirm with @ECWireless.
+          </li>
+          <li>
+            <strong>What a missing score means.</strong>
+            <em>Recommended default:</em> show “No score” and omit it from the
+            median. Do not impute zero. Owner: Validator Track. Confirm with
+            @ECWireless.
+          </li>
+          <li>
+            <strong>How the 1% is split.</strong> The parameter table weights by
+            delegated stake, then the node’s cut. Another sentence can be read
+            as an equal split across the set.
+            <em>Recommended default:</em> stake-weighted, then the usual cut.
+            Owner: Validator Track.
+          </li>
+          <li>
+            <strong>Health, and pay for quiet validators.</strong>
+            <em>Recommended default:</em> show submission cadence only. Do not
+            name it health, and do not zero pay, until the Validator Track
+            defines minimum participation. Owner: Validator Track.
+          </li>
+          <li>
+            <strong>A validator scoring their own node.</strong>
+            <em>Recommended default:</em> it counts like any other score, one of
+            33, and is labeled like the rest. Not special-cased until the
+            Validator Track says otherwise.
+          </li>
+          <li>
+            <strong>How deep score history goes.</strong>
+            <em>Recommended default:</em> current score, the round it was
+            updated, and a count of submissions in the last 7 rounds. A full
+            change log waits on the subgraph. Owner: Explorer, with the
+            Validator Track.
+          </li>
+          <li>
+            <strong>Actions in Explorer.</strong> Register, leave, submit a
+            score. <em>Recommended default:</em> not in this ticket, and not
+            designed until the Validator Track says Explorer is the right home.
+            Owner: Validator Track and @ECWireless.
+          </li>
+          <li>
+            <strong>The constitution.</strong> Expected validator behavior is
+            not written. Explorer should not invent rules of conduct in copy or
+            in a health grade. Owner: Validator Track.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="a11y">
+      <div class="section-header">
+        <h2 class="section-title" id="a11y">Who can use this</h2>
+      </div>
+      <p class="section-description">
+        These screens should work for people who cannot rely on color alone, who
+        use a keyboard or a screen reader, or who prefer less motion.
+      </p>
+      <ul class="notes">
+        <li>
+          <strong>Color is not the only cue.</strong> In the set, next in line,
+          and could join each have a word and an icon, with a real border.
+          Honest is a word on a green pill, not color alone. A low score is not
+          red. Focusing a score in the sheet marks its dot. Stake amounts say
+          LPT. Selected rows use a full brand border and a wash, not a left bar.
+        </li>
+        <li>
+          <strong>Keyboard.</strong> The filter and the validator list are
+          choice groups. Arrows move. Home and End jump ends. On a phone, Enter
+          or Space opens the detail. Back returns focus to that row. “How it was
+          scored” opens a sheet of scores on this node. “How it scored others”
+          opens scores this node filed. Escape or Close returns focus to that
+          button. Tab stays inside the sheet.
+        </li>
+        <li>
+          <strong>Screen readers.</strong> Changing the selected validator is
+          announced: name, whether they are in the set, stake rank, and, when it
+          applies, whether they are submitting scores.
+        </li>
+        <li>
+          <strong>Help without a mouse.</strong> The “?” tips open on hover and
+          when you tab to them. You can move onto the tip. Escape closes it
+          until the next hover or focus. Targets stay large enough for touch.
+        </li>
+        <li>
+          <strong>Motion.</strong> If the system asks for reduced motion, the
+          page does not smooth-scroll.
+        </li>
+        <li>
+          <strong>Skip ahead.</strong> “Skip to content” jumps to the set.
+        </li>
+      </ul>
+    </section>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#set">↑ Back to the mock</a>
+    </nav>
+
+    <div class="sheet-back" id="score-sheet" hidden>
+      <div
+        class="sheet"
+        id="score-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sheet-title"
+      >
+        <div class="sheet-head">
+          <div>
+            <p class="sheet-kicker" id="sheet-kicker">Scores on this node</p>
+            <h2 id="sheet-title">How others scored this node</h2>
+          </div>
+          <button type="button" class="sheet-close" id="close-scores">
+            Close
+          </button>
+        </div>
+        <div id="sheet-received">
+          <div
+            class="seg"
+            role="radiogroup"
+            aria-label="How to read the scores"
+            id="plot-tabs"
+          >
+            <button
+              type="button"
+              role="radio"
+              aria-checked="true"
+              tabindex="0"
+              data-plot="spread"
+            >
+              Where they sit
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              tabindex="-1"
+              data-plot="time"
+            >
+              Across the week
+            </button>
+          </div>
+          <div class="plot" id="plot-spread">
+            <svg
+              viewBox="0 0 480 210"
+              role="img"
+              aria-label="18 scores on a scale from 0 to 100 percent. Eight at 100, two at 95, six at 90, one at 80, one at 40. The median is 95."
+            >
+              <line x1="36" y1="172" x2="460" y2="172" stroke="#3a3a3a" />
+              <line
+                x1="439"
+                y1="18"
+                x2="439"
+                y2="172"
+                stroke="#ededed"
+                stroke-dasharray="3 3"
+              />
+              <text class="median" x="439" y="14" text-anchor="middle">
+                95%
+              </text>
+              <circle
+                data-id="northbeam"
+                cx="460"
+                cy="158"
+                r="5"
+                fill="#4cc38a"
+              />
+              <circle data-id="kiln" cx="460" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="alder" cx="460" cy="132" r="5" fill="#4cc38a" />
+              <circle data-id="brant" cx="460" cy="119" r="5" fill="#4cc38a" />
+              <circle data-id="dune" cx="460" cy="106" r="5" fill="#4cc38a" />
+              <circle data-id="ember" cx="460" cy="93" r="5" fill="#4cc38a" />
+              <circle data-id="flint" cx="460" cy="80" r="5" fill="#4cc38a" />
+              <circle data-id="gable" cx="460" cy="67" r="5" fill="#4cc38a" />
+              <circle data-id="reed" cx="439" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="holt" cx="439" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="iris" cx="418" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="jute" cx="418" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="keel" cx="418" cy="132" r="5" fill="#4cc38a" />
+              <circle data-id="lark" cx="418" cy="119" r="5" fill="#4cc38a" />
+              <circle data-id="mare" cx="418" cy="106" r="5" fill="#4cc38a" />
+              <circle data-id="nock" cx="418" cy="93" r="5" fill="#4cc38a" />
+              <circle data-id="oak" cx="375" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="cinder" cx="206" cy="158" r="5" fill="#4cc38a" />
+              <text x="36" y="192" text-anchor="middle">0</text>
+              <text x="142" y="192" text-anchor="middle">25</text>
+              <text x="248" y="192" text-anchor="middle">50</text>
+              <text x="354" y="192" text-anchor="middle">75</text>
+              <text x="460" y="192" text-anchor="middle">100</text>
+            </svg>
+            <p class="plot-note">
+              Each dot is one validator, plotted on 0 to 100. The stack is how
+              many landed there. The axis stays 0 to 100 if there were 999
+              scores. It does not stretch to fit the tallest stack. The dashed
+              line is the median, 95%. One dot at 40% does not move it. 15
+              validators have no score and are left off this plot.
+            </p>
+          </div>
+          <div class="plot" id="plot-time" hidden>
+            <svg
+              viewBox="0 0 480 210"
+              role="img"
+              aria-label="The same 18 scores placed on the round each validator last set them, from round 4212 to 4218. Score is vertical, from 0 to 100."
+            >
+              <line x1="56" y1="172" x2="440" y2="172" stroke="#3a3a3a" />
+              <line x1="40" y1="16" x2="40" y2="172" stroke="#3a3a3a" />
+              <text x="28" y="20" text-anchor="end">100</text>
+              <text x="28" y="96" text-anchor="end">50</text>
+              <text x="28" y="176" text-anchor="end">0</text>
+              <circle data-id="nock" cx="223" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="oak" cx="237" cy="47" r="5" fill="#4cc38a" />
+              <circle data-id="gable" cx="288" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="keel" cx="272" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="lark" cx="288" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="mare" cx="304" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="dune" cx="322" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="ember" cx="338" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="flint" cx="354" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="holt" cx="370" cy="24" r="5" fill="#4cc38a" />
+              <circle data-id="iris" cx="322" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="jute" cx="338" cy="36" r="5" fill="#4cc38a" />
+              <circle
+                data-id="northbeam"
+                cx="380"
+                cy="16"
+                r="5"
+                fill="#4cc38a"
+              />
+              <circle data-id="kiln" cx="396" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="alder" cx="412" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="brant" cx="428" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="reed" cx="404" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="cinder" cx="404" cy="110" r="5" fill="#4cc38a" />
+              <text x="56" y="192" text-anchor="middle">4212</text>
+              <text x="114" y="192" text-anchor="middle">4213</text>
+              <text x="172" y="192" text-anchor="middle">4214</text>
+              <text x="230" y="192" text-anchor="middle">4215</text>
+              <text x="288" y="192" text-anchor="middle">4216</text>
+              <text x="346" y="192" text-anchor="middle">4217</text>
+              <text x="404" y="192" text-anchor="middle">4218</text>
+            </svg>
+            <p class="plot-note">
+              Same 18 scores. Horizontal is the round they last set it, the week
+              before this reward pays. Vertical is the score. This is not an
+              average, and nothing caps how many rounds count. They can still
+              move these dots until pay. The one at 40% is Cinder, set in round
+              4218. A past round that already paid is on
+              <a
+                class="prose-link"
+                href="https://github.com/livepeer/explorer/issues/803"
+                target="_blank"
+                rel="noopener"
+                >803</a
+              >.
+            </p>
+          </div>
+          <table class="score-table score-list" id="score-list">
+            <caption class="sr-only">
+              Who scored this node. Hover or focus a row to mark that score on
+              the chart.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Validator</th>
+                <th scope="col">Score</th>
+                <th scope="col">Set</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tabindex="0" data-id="northbeam">
+                <td>
+                  <a class="prose-link" href="#set" data-jump="northbeam"
+                    >Northbeam</a
+                  >
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="kiln">
+                <td>
+                  <a class="prose-link" href="#set" data-jump="kiln">Kiln</a>
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="alder">
+                <td>Alder</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="brant">
+                <td>Brant</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="dune">
+                <td>Dune</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="ember">
+                <td>Ember</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="flint">
+                <td>Flint</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="gable">
+                <td>Gable</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="reed">
+                <td>
+                  <a class="prose-link" href="#set" data-jump="reed">Reed</a>
+                </td>
+                <td class="num">95%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="holt">
+                <td>Holt</td>
+                <td class="num">95%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="iris">
+                <td>Iris</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="jute">
+                <td>Jute</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="keel">
+                <td>Keel</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="lark">
+                <td>Lark</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="mare">
+                <td>Mare</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="nock">
+                <td>Nock</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4215</td>
+              </tr>
+              <tr tabindex="0" data-id="oak">
+                <td>Oak</td>
+                <td class="num">80%</td>
+                <td class="num">Round 4215</td>
+              </tr>
+              <tr tabindex="0" data-id="cinder">
+                <td>
+                  <a class="prose-link" href="#set" data-jump="cinder"
+                    >Cinder</a
+                  >
+                </td>
+                <td class="num">40%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="plot-note">
+            15 validators have no score. They are left out, not counted as zero.
+          </p>
+        </div>
+        <div id="sheet-filed" hidden>
+          <p class="plot-note">
+            Scores this node gave others. They do not change the 95% above. That
+            95% is what others gave this node.
+          </p>
+          <table class="score-table">
+            <caption class="sr-only">
+              Scores this node filed on other nodes
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Node</th>
+                <th scope="col">Score</th>
+                <th scope="col">Set</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a class="prose-link" href="#set" data-jump="northbeam"
+                    >Northbeam</a
+                  >
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a class="prose-link" href="#set" data-jump="kiln">Kiln</a>
+                </td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a class="prose-link" href="#set" data-jump="reed">Reed</a>
+                </td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a class="prose-link" href="#set" data-jump="cinder"
+                    >Cinder</a
+                  >
+                </td>
+                <td class="num">40%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var NODES = {
+          northbeam: {
+            name: "Northbeam",
+            initials: "NB",
+            tone: "northbeam",
+            addr: "0x1a4c…9e21",
+            rank: "1",
+            stake: "1,840,220 LPT",
+            delegated: "1,610,400 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Scoring",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "8.4%",
+            payHint:
+              "About 12.6 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [
+              ["Harbor", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Reed", "0.95", "Round 4218"],
+              ["Cinder", "0.40", "Round 4218"],
+            ],
+          },
+          kiln: {
+            name: "Kiln",
+            initials: "KN",
+            tone: "kiln",
+            addr: "0x55b0…c812",
+            rank: "4",
+            stake: "1,284,000 LPT",
+            delegated: "1,080,000 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Scoring",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "5.6%",
+            payHint:
+              "About 8.4 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [
+              ["Harbor", "1.00", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Slate", "0.80", "Round 4218"],
+              ["Reed", "1.00", "Round 4218"],
+            ],
+          },
+          quarry: {
+            name: "Quarry",
+            initials: "QY",
+            tone: "quarry",
+            addr: "0x0e91…44aa",
+            rank: "7",
+            stake: "1,102,500 LPT",
+            delegated: "970,000 LPT",
+            registered: "No",
+            bucket: "join",
+            status: "Could join",
+            lede: "Stake rank 7, not registered. Their stake is higher than nodes already in the set. Registering would give them a seat and is not designed on this page.",
+            part: null,
+          },
+          harbor: {
+            name: "Harbor",
+            initials: "HB",
+            tone: "harbor",
+            addr: "0x9c2d…b771",
+            rank: "9",
+            stake: "864,400 LPT",
+            delegated: "640,200 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. They missed some recent rounds, so the cadence says Gaps. Scores still on file keep their last values.",
+            part: "gaps",
+            partLabel: "Gaps",
+            partDetail: "Submitted scores in 4 of the last 7 rounds.",
+            pay: "3.3%",
+            payHint:
+              "About 5.0 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [
+              ["Northbeam", "1.00", "Round 4216"],
+              ["Kiln", "0.90", "Round 4216"],
+              ["Reed", "0.90", "Round 4216"],
+              ["Cinder", "0.40", "Round 4216"],
+            ],
+          },
+          lumen: {
+            name: "Lumen",
+            initials: "LN",
+            tone: "lumen",
+            addr: "0x3f80…11d4",
+            rank: "12",
+            stake: "798,000 LPT",
+            delegated: "710,000 LPT",
+            registered: "No",
+            bucket: "join",
+            status: "Could join",
+            lede: "Stake rank 12, not registered. Their stake is higher than nodes already in the set. Registering would give them a seat and is not designed on this page.",
+            part: null,
+          },
+          slate: {
+            name: "Slate",
+            initials: "SL",
+            tone: "slate",
+            addr: "0xab12…90ce",
+            rank: "18",
+            stake: "612,300 LPT",
+            delegated: "480,100 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. They have not submitted scores lately. Membership and cadence are separate.",
+            part: "quiet",
+            partLabel: "Quiet",
+            partDetail: "Submitted scores in 0 of the last 7 rounds.",
+            pay: "2.5%",
+            payHint:
+              "About 3.8 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [],
+          },
+          cinder: {
+            name: "Cinder",
+            initials: "CD",
+            tone: "cinder",
+            addr: "0xc1d0…77ab",
+            rank: "22",
+            stake: "560,000 LPT",
+            delegated: "500,000 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Scoring",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "2.6%",
+            payHint:
+              "About 3.9 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [
+              ["Harbor", "0.40", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Reed", "0.50", "Round 4218"],
+            ],
+          },
+          reed: {
+            name: "Reed",
+            initials: "RD",
+            tone: "reed",
+            addr: "0x77e4…6b08",
+            rank: "28",
+            stake: "521,000 LPT",
+            delegated: "390,400 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Scoring",
+            partDetail: "Submitted scores in 6 of the last 7 rounds.",
+            pay: "2.0%",
+            payHint:
+              "About 3.0 LPT this round, before the cut passed to delegators. Illustrative.",
+            scores: [
+              ["Harbor", "0.95", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Cinder", "0.50", "Round 4218"],
+            ],
+          },
+          mosaic: {
+            name: "Mosaic",
+            initials: "MS",
+            tone: "mosaic",
+            addr: "0x2c19…aa57",
+            rank: "36",
+            stake: "448,200 LPT",
+            delegated: "401,000 LPT",
+            registered: "Yes",
+            bucket: "next",
+            status: "Next in line",
+            lede: "Registered. Stake rank 36 sits just outside the 33 seats. They enter if someone in the set leaves or falls behind them in stake.",
+            part: null,
+          },
+          pinion: {
+            name: "Pinion",
+            initials: "PN",
+            tone: "pinion",
+            addr: "0x8d40…f3e6",
+            rank: "40",
+            stake: "390,800 LPT",
+            delegated: "350,000 LPT",
+            registered: "Yes",
+            bucket: "next",
+            status: "Next in line",
+            lede: "Registered, and further outside the cutoff than Mosaic. Same rule: a seat opens only if stake or registration above them changes.",
+            part: null,
+          },
+        };
+
+        var filterSeg = document.getElementById("filter-seg");
+        var vlist = document.getElementById("vlist");
+        var mdSplit = document.getElementById("md-split");
+        var mdBack = document.getElementById("md-back");
+        var filterCount = document.getElementById("filter-count");
+        var mqNarrow = window.matchMedia("(max-width: 860px)");
+        var preferReduced =
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var currentId = "northbeam";
+
+        function isNarrow() {
+          return mqNarrow.matches;
+        }
+
+        function setMobilePane(pane) {
+          mdSplit.setAttribute("data-mobile-pane", pane);
+        }
+
+        function syncRadioGroup(group, attr, value) {
+          var radios = group.querySelectorAll('[role="radio"]');
+          radios.forEach(function (b) {
+            var on = b.getAttribute(attr) === value && !b.hidden;
+            b.setAttribute("aria-checked", on ? "true" : "false");
+            b.tabIndex = on ? 0 : -1;
+          });
+        }
+
+        function bindRadioGroup(group, attr, onPick) {
+          function items() {
+            return Array.prototype.filter.call(
+              group.querySelectorAll('[role="radio"]'),
+              function (el) {
+                return !el.hidden;
+              }
+            );
+          }
+          group.addEventListener("click", function (e) {
+            var btn = e.target.closest('[role="radio"]');
+            if (!btn || !group.contains(btn) || btn.hidden) return;
+            syncRadioGroup(group, attr, btn.getAttribute(attr));
+            btn.focus();
+            onPick(btn.getAttribute(attr), { activate: true });
+          });
+          group.addEventListener("keydown", function (e) {
+            var list = items();
+            var i = list.indexOf(document.activeElement);
+            if (i < 0) return;
+            var next = null;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+              next = (i + 1) % list.length;
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              next = (i - 1 + list.length) % list.length;
+            } else if (e.key === "Home") {
+              next = 0;
+            } else if (e.key === "End") {
+              next = list.length - 1;
+            } else if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              syncRadioGroup(group, attr, list[i].getAttribute(attr));
+              onPick(list[i].getAttribute(attr), { activate: true });
+              return;
+            } else {
+              return;
+            }
+            e.preventDefault();
+            syncRadioGroup(group, attr, list[next].getAttribute(attr));
+            list[next].focus();
+            onPick(list[next].getAttribute(attr), { activate: false });
+          });
+        }
+
+        function setText(id, value) {
+          document.getElementById(id).textContent = value;
+        }
+
+        function showIcon(root, name) {
+          root.querySelectorAll("[data-icon]").forEach(function (svg) {
+            svg.hidden = svg.getAttribute("data-icon") !== name;
+          });
+        }
+
+        function fillScores(node) {
+          var body = document.getElementById("scores-body");
+          var table = document.getElementById("scores-table");
+          var empty = document.getElementById("scores-empty");
+          var quiet = document.getElementById("scores-quiet");
+          var heading = document.getElementById("scores-heading");
+          body.replaceChildren();
+          if (node.bucket !== "set") {
+            heading.hidden = false;
+            empty.hidden = false;
+            quiet.hidden = true;
+            table.hidden = true;
+            return;
+          }
+          empty.hidden = true;
+          if (!node.scores.length) {
+            heading.hidden = false;
+            quiet.hidden = false;
+            table.hidden = true;
+            return;
+          }
+          quiet.hidden = true;
+          heading.hidden = false;
+          table.hidden = false;
+          document.getElementById("scores-caption").textContent =
+            "Scores " + node.name + " filed on other nodes";
+          node.scores.forEach(function (row) {
+            var tr = document.createElement("tr");
+            row.forEach(function (cell, idx) {
+              var td = document.createElement("td");
+              td.textContent = cell;
+              if (idx > 0) td.className = "num";
+              tr.appendChild(td);
+            });
+            body.appendChild(tr);
+          });
+        }
+
+        var FILTER_COPY = {
+          set: "6 of 33 in the set shown.",
+          next: "2 registered nodes just outside the set.",
+          join: "2 nodes whose stake would put them in the set if they registered.",
+          all: "10 nodes shown. The full set is 33. Twenty-seven seats are not drawn.",
+        };
+
+        function applyFilter(bucket) {
+          syncRadioGroup(filterSeg, "data-bucket", bucket);
+          vlist.querySelectorAll('[role="radio"]').forEach(function (row) {
+            var show =
+              bucket === "all" || row.getAttribute("data-bucket") === bucket;
+            row.hidden = !show;
+          });
+          filterCount.textContent = FILTER_COPY[bucket] || "";
+          var selected = vlist.querySelector('[aria-checked="true"]');
+          if (!selected || selected.hidden) {
+            var first = vlist.querySelector('[role="radio"]:not([hidden])');
+            if (first)
+              selectId(first.getAttribute("data-id"), { activate: false });
+          } else {
+            syncRadioGroup(vlist, "data-id", selected.getAttribute("data-id"));
+          }
+        }
+
+        function selectId(id, meta) {
+          var node = NODES[id];
+          if (!node) return;
+          meta = meta || {};
+          currentId = id;
+          syncRadioGroup(vlist, "data-id", id);
+          setText("detail-avatar", node.initials);
+          document
+            .getElementById("detail-avatar")
+            .setAttribute("data-tone", node.tone);
+          setText("detail-title", node.name);
+          setText("detail-chip-label", node.status);
+          showIcon(document.getElementById("detail-chip"), node.bucket);
+          setText("detail-addr", node.addr);
+          setText("detail-lede", node.lede);
+          setText("fact-rank", node.rank);
+          setText("fact-stake", node.stake);
+          setText("fact-del", node.delegated);
+          setText("fact-reg", node.registered);
+
+          var inSet = node.bucket === "set";
+          document.getElementById("part-block").hidden = !inSet;
+          document.getElementById("pay-block").hidden = !inSet;
+          if (inSet) {
+            setText("part-label", node.partLabel);
+            setText("part-detail", node.partDetail);
+            showIcon(document.getElementById("part-chip"), node.part);
+            setText("pay-share", node.pay);
+            setText("pay-hint", node.payHint);
+          }
+          fillScores(node);
+
+          var live =
+            node.name +
+            ", " +
+            node.status +
+            ", stake rank " +
+            node.rank +
+            ", registered " +
+            node.registered +
+            ".";
+          if (inSet) live += " " + node.partLabel + ".";
+          if (!meta.quiet) setText("detail-live", live);
+
+          if (!meta.skipUrl) {
+            try {
+              var url = new URL(window.location.href);
+              url.searchParams.set("validator", id);
+              history.replaceState(null, "", url);
+            } catch (err) {
+              /* file:// review still works without a query update */
+            }
+          }
+
+          if (meta.activate && isNarrow()) {
+            setMobilePane("detail");
+            var title = document.getElementById("detail-title");
+            title.focus({ preventScroll: true });
+            title.scrollIntoView({
+              behavior: preferReduced ? "auto" : "smooth",
+              block: "start",
+            });
+          }
+        }
+
+        bindRadioGroup(filterSeg, "data-bucket", function (bucket) {
+          applyFilter(bucket);
+        });
+        bindRadioGroup(vlist, "data-id", function (id, meta) {
+          selectId(id, meta);
+        });
+
+        mdBack.addEventListener("click", function () {
+          setMobilePane("list");
+          var selected = vlist.querySelector('[aria-checked="true"]');
+          if (selected) selected.focus();
+        });
+
+        document.querySelectorAll("[data-jump]").forEach(function (link) {
+          link.addEventListener("click", function () {
+            var id = link.getAttribute("data-jump");
+            var node = NODES[id];
+            if (!node) return;
+            applyFilter(node.bucket);
+            selectId(id, { activate: isNarrow() });
+            if (isNarrow()) setMobilePane("detail");
+          });
+        });
+
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) help.classList.add("is-tip-dismissed");
+          });
+        });
+
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var deep = params.get("validator");
+          if (deep && NODES[deep]) {
+            applyFilter(NODES[deep].bucket);
+            selectId(deep, { activate: isNarrow(), skipUrl: true });
+            if (isNarrow()) setMobilePane("detail");
+          } else {
+            selectId("northbeam", {
+              activate: false,
+              skipUrl: true,
+              quiet: true,
+            });
+          }
+        } catch (err) {
+          selectId("northbeam", {
+            activate: false,
+            skipUrl: true,
+            quiet: true,
+          });
+        }
+
+        var dwTabs = document.getElementById("dw-tabs");
+        var dwGo = document.getElementById("dw-go");
+        var dwNote = document.getElementById("dw-note");
+        var dwLabel = document.getElementById("dw-amount-label");
+        bindRadioGroup(dwTabs, "data-dw", function (mode) {
+          var delegating = mode === "delegate";
+          if (dwGo) dwGo.textContent = delegating ? "Delegate" : "Undelegate";
+          if (dwLabel)
+            dwLabel.textContent = delegating ? "Amount" : "Amount to remove";
+          if (dwNote) {
+            dwNote.textContent = delegating
+              ? "Stays in this rail. The cards on the left explain. This box is where the amount is entered. Under 1200px the product opens it as a bottom drawer."
+              : "Undelegate uses the same rail. Moving stake still waits about 21 days before it earns anywhere else.";
+          }
+        });
+
+        var openScores = document.getElementById("open-scores");
+        var scoreSheet = document.getElementById("score-sheet");
+        var scoreDialog = document.getElementById("score-dialog");
+        var closeScores = document.getElementById("close-scores");
+        var plotTabs = document.getElementById("plot-tabs");
+        var scoresReturn = null;
+
+        function sheetFocusables() {
+          return Array.prototype.filter.call(
+            scoreDialog.querySelectorAll("button, a[href]"),
+            function (el) {
+              return !el.closest("[hidden]");
+            }
+          );
+        }
+
+        function setSheetMode(mode) {
+          var received = mode !== "filed";
+          document.getElementById("sheet-received").hidden = !received;
+          document.getElementById("sheet-filed").hidden = received;
+          document.getElementById("sheet-kicker").textContent = received
+            ? "Scores on this node"
+            : "Scores this validator gave other nodes";
+          document.getElementById("sheet-title").textContent = received
+            ? "How it was scored"
+            : "How it scored others";
+        }
+
+        function openScoreSheet(mode) {
+          setSheetMode(mode);
+          scoresReturn = document.activeElement;
+          scoreSheet.hidden = false;
+          document.body.style.overflow = "hidden";
+          closeScores.focus();
+        }
+
+        function closeScoreSheet() {
+          scoreSheet.hidden = true;
+          document.body.style.overflow = "";
+          if (scoresReturn && scoresReturn.focus) scoresReturn.focus();
+        }
+
+        openScores.addEventListener("click", function () {
+          openScoreSheet("received");
+        });
+        document
+          .getElementById("open-filed")
+          .addEventListener("click", function () {
+            openScoreSheet("filed");
+          });
+        closeScores.addEventListener("click", closeScoreSheet);
+        scoreSheet.addEventListener("click", function (e) {
+          if (e.target === scoreSheet) closeScoreSheet();
+        });
+        scoreDialog.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            closeScoreSheet();
+            return;
+          }
+          if (e.key !== "Tab") return;
+          var items = sheetFocusables();
+          if (!items.length) return;
+          var first = items[0];
+          var last = items[items.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
+        bindRadioGroup(plotTabs, "data-plot", function (mode) {
+          document.getElementById("plot-spread").hidden = mode !== "spread";
+          document.getElementById("plot-time").hidden = mode !== "time";
+        });
+
+        var scoreRows = document.querySelectorAll("#score-list tbody tr");
+        function markScore(id) {
+          scoreSheet
+            .querySelectorAll("circle[data-id]")
+            .forEach(function (dot) {
+              dot.classList.toggle(
+                "is-on",
+                !!id && dot.getAttribute("data-id") === id
+              );
+            });
+          scoreSheet.querySelectorAll(".plot svg").forEach(function (svg) {
+            svg.classList.toggle("is-hilite", !!id);
+          });
+          scoreRows.forEach(function (row) {
+            row.classList.toggle(
+              "is-on",
+              !!id && row.getAttribute("data-id") === id
+            );
+          });
+        }
+        scoreRows.forEach(function (row) {
+          var id = row.getAttribute("data-id");
+          row.addEventListener("mouseenter", function () {
+            markScore(id);
+          });
+          row.addEventListener("mouseleave", function () {
+            markScore(null);
+          });
+          row.addEventListener("focusin", function () {
+            markScore(id);
+          });
+          row.addEventListener("focusout", function (e) {
+            if (!row.contains(e.relatedTarget)) markScore(null);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
