@@ -261,7 +261,7 @@ export default function GatewaysPage() {
                       className="group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60"
                     >
                       <td className="sticky left-0 z-10 bg-surface px-3 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
-                        <GatewayName id={g.id} rank={rank} />
+                        <GatewayName id={g.id} rank={rank} copy />
                       </td>
                       <td className="px-3 py-3 text-right">
                         <div className="flex items-center justify-end gap-3">

@@ -98,6 +98,7 @@ function Payouts({
                       address={r.id}
                       size={22}
                       href={`/orchestrators/${r.id}`}
+                      copy
                     />
                     {r.id === address && (
                       <Badge tone="warning">Its own orchestrator</Badge>

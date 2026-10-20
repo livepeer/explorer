@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Sparkline } from "@/components/charts/time-series";
-import { Avatar, useIdentity } from "@/components/identity";
+import { Avatar, CopyButton, useIdentity } from "@/components/identity";
 import { formatDate, shortAddress } from "@/lib/format";
 import { dailyFees, type GatewayDay } from "@/lib/subgraph/gateways";
 
@@ -38,9 +38,18 @@ export function WeeklyTrend({ days }: { days: GatewayDay[] }) {
   return <Sparkline values={weeks} width={64} height={20} />;
 }
 
-export function GatewayName({ id, rank }: { id: string; rank?: number }) {
+export function GatewayName({
+  id,
+  rank,
+  copy = false,
+}: {
+  id: string;
+  rank?: number;
+  /** A copy button for the address, revealed on hover. */
+  copy?: boolean;
+}) {
   const { name, avatar } = useIdentity(id);
-  return (
+  const link = (
     <Link
       href={`/gateways/${id}`}
       className="flex min-w-0 items-center gap-3 outline-none"
@@ -64,5 +73,12 @@ export function GatewayName({ id, rank }: { id: string; rank?: number }) {
         )}
       </span>
     </Link>
+  );
+  if (!copy) return link;
+  return (
+    <span className="group/copy flex min-w-0 items-center gap-1">
+      {link}
+      <CopyButton value={id} reveal />
+    </span>
   );
 }

@@ -88,9 +88,17 @@ export function Avatar({
 export function CopyButton({
   value,
   label = "Copy address",
+  reveal = false,
 }: {
   value: string;
   label?: string;
+  /**
+   * Hidden until the address beside it (a `group/copy`) is hovered or it has
+   * focus, so a table of copy buttons doesn't crowd it and only the one
+   * you're pointing at shows. Always shown where there's no hover, on touch
+   * screens.
+   */
+  reveal?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -109,7 +117,12 @@ export function CopyButton({
             // clipboard blocked; nothing sensible to fall back to
           }
         }}
-        className="inline-flex size-6 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+        className={cn(
+          "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-[color,background-color,opacity] hover:bg-hover hover:text-foreground",
+          reveal &&
+            !copied &&
+            "opacity-0 group-hover/copy:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+        )}
       >
         {copied ? (
           <Check className="size-3.5 text-green-bright" />
@@ -132,6 +145,7 @@ export function Identity({
   label,
   secondary,
   className,
+  copy = false,
 }: {
   address: string;
   href?: string | null;
@@ -139,6 +153,8 @@ export function Identity({
   label?: string;
   secondary?: React.ReactNode;
   className?: string;
+  /** A copy button beside it, revealed on hover (see CopyButton). */
+  copy?: boolean;
 }) {
   const { name, avatar } = useIdentity(address);
   const primary = label ?? name ?? shortAddress(address);
@@ -164,14 +180,24 @@ export function Identity({
       </span>
     </span>
   );
-  if (href === null) return body;
+  const shown =
+    href === null ? (
+      body
+    ) : (
+      <Link
+        href={href ?? `/accounts/${address}`}
+        className="-m-1 inline-flex max-w-full min-w-0 rounded-sm p-1 transition-colors outline-none hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
+      >
+        {body}
+      </Link>
+    );
+  if (!copy) return shown;
+  // Beside the link, not inside it: a button can't sit in an <a>.
   return (
-    <Link
-      href={href ?? `/accounts/${address}`}
-      className="-m-1 inline-flex max-w-full min-w-0 rounded-sm p-1 transition-colors outline-none hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
-    >
-      {body}
-    </Link>
+    <span className="group/copy inline-flex max-w-full min-w-0 items-center gap-1">
+      {shown}
+      <CopyButton value={address} reveal />
+    </span>
   );
 }
 

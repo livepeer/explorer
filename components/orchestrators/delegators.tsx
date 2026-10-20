@@ -110,6 +110,7 @@ export function OrchestratorDelegators({
                       address={d.id}
                       size={22}
                       label={d.id === orchestrator ? "Self-stake" : undefined}
+                      copy
                     />
                     {inPortfolio(d.id) && <Badge tone="outline">You</Badge>}
                   </span>

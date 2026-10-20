@@ -6,7 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 
-import { Avatar, useEnsNames, useIdentity } from "@/components/identity";
+import {
+  Avatar,
+  CopyButton,
+  useEnsNames,
+  useIdentity,
+} from "@/components/identity";
 import {
   Card,
   EmptyState,
@@ -71,32 +76,47 @@ const SORTS: Record<SortKey, (o: Listed) => number> = {
   delegators: (o) => o.delegatorCount,
 };
 
-function NameCell({ o, rank }: { o: Orchestrator; rank: number | null }) {
+function NameCell({
+  o,
+  rank,
+  copy = false,
+}: {
+  o: Orchestrator;
+  rank: number | null;
+  /** A copy button for the address, revealed on hover, within the width. */
+  copy?: boolean;
+}) {
   const { name, avatar } = useIdentity(o.id);
   return (
-    <Link
-      href={`/orchestrators/${o.id}`}
-      // The name takes whatever width the visible columns leave (--rest is
-      // their combined width), so it's only cut short when there's no room.
-      className="flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-2 outline-none [--rest:455px] @min-[726px]:[--rest:531px] @min-[816px]:[--rest:621px] @min-[906px]:[--rest:711px] @min-[980px]:[--rest:785px]"
-    >
-      <span className="w-5 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
-        {rank}
-      </span>
-      <Avatar address={o.id} src={avatar} size={28} />
-      <span className="flex min-w-0 flex-col">
-        <span className="truncate text-ui-body text-foreground group-hover:underline group-hover:decoration-foreground/30 group-hover:underline-offset-4">
-          {name ?? (
-            <span className="font-mono text-[13px]">{shortAddress(o.id)}</span>
+    // The cell takes whatever width the visible columns leave (--rest is
+    // their combined width), so the name is only cut short when there's no
+    // room; the copy button fits inside that width, not beside it.
+    <span className="group/copy flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-1 [--rest:455px] @min-[726px]:[--rest:531px] @min-[816px]:[--rest:621px] @min-[906px]:[--rest:711px] @min-[980px]:[--rest:785px]">
+      <Link
+        href={`/orchestrators/${o.id}`}
+        className="flex min-w-0 items-center gap-2 outline-none"
+      >
+        <span className="w-5 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
+          {rank}
+        </span>
+        <Avatar address={o.id} src={avatar} size={28} />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-ui-body text-foreground group-hover:underline group-hover:decoration-foreground/30 group-hover:underline-offset-4">
+            {name ?? (
+              <span className="font-mono text-[13px]">
+                {shortAddress(o.id)}
+              </span>
+            )}
+          </span>
+          {name && (
+            <span className="font-mono text-[11px] text-subtle-foreground">
+              {shortAddress(o.id)}
+            </span>
           )}
         </span>
-        {name && (
-          <span className="font-mono text-[11px] text-subtle-foreground">
-            {shortAddress(o.id)}
-          </span>
-        )}
-      </span>
-    </Link>
+      </Link>
+      {copy && <CopyButton value={o.id} reveal />}
+    </span>
   );
 }
 
@@ -540,7 +560,7 @@ function OrchestratorTable() {
                       )}
                       <tr className="group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60">
                         <td className="sticky left-0 z-10 bg-surface px-1.5 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
-                          <NameCell o={o} rank={rank} />
+                          <NameCell o={o} rank={rank} copy />
                         </td>
                         <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
                           <AprValue o={o} />

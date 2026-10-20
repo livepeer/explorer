@@ -16,7 +16,12 @@ import { toast } from "sonner";
 import { useDisconnect } from "wagmi";
 
 import { Sparkline } from "@/components/charts/time-series";
-import { Avatar, Identity, useIdentity } from "@/components/identity";
+import {
+  Avatar,
+  CopyButton,
+  Identity,
+  useIdentity,
+} from "@/components/identity";
 import { Card, EmptyState } from "@/components/page";
 import { useStaking } from "@/components/staking/staking";
 import { Badge } from "@/components/ui/badge";
@@ -50,42 +55,50 @@ export type Position = {
 function AccountCell({
   account,
   quiet = false,
+  copy = false,
 }: {
   account: PortfolioAccount;
   /** Leave out "Not connected": cards don't need it to line up, as rows do. */
   quiet?: boolean;
+  /** A copy button, revealed on hover. */
+  copy?: boolean;
 }) {
   const { name, avatar } = useIdentity(account.address);
   return (
-    <Link
-      href={`/accounts/${account.address}`}
-      className="flex min-w-0 items-center gap-2.5 rounded-sm outline-none hover:opacity-80"
-    >
-      <Avatar address={account.address} src={avatar} size={26} />
-      <span className="flex min-w-0 flex-col">
-        <span className="flex items-center gap-1.5 truncate text-ui-body">
-          {account.label ?? name ?? (
-            <span className="font-mono text-[13px]">
-              {shortAddress(account.address)}
+    <span className="group/copy flex min-w-0 items-center gap-1">
+      <Link
+        href={`/accounts/${account.address}`}
+        className="flex min-w-0 items-center gap-2.5 rounded-sm outline-none hover:opacity-80"
+      >
+        <Avatar address={account.address} src={avatar} size={26} />
+        <span className="flex min-w-0 flex-col">
+          <span className="flex items-center gap-1.5 truncate text-ui-body">
+            {account.label ?? name ?? (
+              <span className="font-mono text-[13px]">
+                {shortAddress(account.address)}
+              </span>
+            )}
+          </span>
+          {(account.connected || account.label || name || !quiet) && (
+            <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
+              {account.connected ? (
+                <>
+                  <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
+                  Connected
+                </>
+              ) : account.label || name ? (
+                <span className="font-mono">
+                  {shortAddress(account.address)}
+                </span>
+              ) : (
+                "Not connected"
+              )}
             </span>
           )}
         </span>
-        {(account.connected || account.label || name || !quiet) && (
-          <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
-            {account.connected ? (
-              <>
-                <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
-                Connected
-              </>
-            ) : account.label || name ? (
-              <span className="font-mono">{shortAddress(account.address)}</span>
-            ) : (
-              "Not connected"
-            )}
-          </span>
-        )}
-      </span>
-    </Link>
+      </Link>
+      {copy && <CopyButton value={account.address} reveal />}
+    </span>
   );
 }
 
@@ -435,7 +448,7 @@ export function Positions({
                 >
                   {showAccount && (
                     <td className="px-3 py-3">
-                      <AccountCell account={p.account} />
+                      <AccountCell account={p.account} copy />
                     </td>
                   )}
                   <td className="px-3 py-3">
@@ -445,6 +458,7 @@ export function Positions({
                           address={p.delegate}
                           href={`/orchestrators/${p.delegate}`}
                           size={22}
+                          copy
                           secondary={
                             o
                               ? `${formatNumber(o.rewardCut, {
