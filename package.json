@@ -14,7 +14,6 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@lhci/cli": "^0.15.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

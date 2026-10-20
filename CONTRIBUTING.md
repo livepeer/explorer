@@ -42,6 +42,10 @@ Additional conventions, not yet enforced at the time of writing, include:
 
 Write JSDoc for all functions and methods in classes unless you have a good reason not to (e.g., NextJS route or page components). At minimum, include a general description of the functionality.
 
+#### Lighthouse
+
+CI runs Lighthouse CI against each Vercel preview, installed from `tools/lhci` so it stays out of the app's dependencies. To check a page yourself, use the Lighthouse tab in Chrome DevTools or `pnpm dlx lighthouse <url>`.
+
 ### Pull Requests
 
 In general, PRs should:

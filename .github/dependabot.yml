@@ -27,3 +27,11 @@ updates:
       actions:
         patterns:
           - "*"
+
+  # Lighthouse CI is locked on its own, away from the app's install.
+  - package-ecosystem: npm
+    directory: /tools/lhci
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
