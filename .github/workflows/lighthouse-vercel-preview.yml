@@ -76,18 +76,23 @@ jobs:
           version: 10.33.0
           run_install: false
 
+      # Lighthouse CI lives in its own locked project, so its dependencies
+      # are the ones in tools/lhci/pnpm-lock.yaml and the app's are not
+      # installed in this job.
+      - name: 📥 Install Lighthouse CI
+        run: pnpm --dir tools/lhci install --frozen-lockfile --ignore-workspace
+
       - name: 🔎 Run Lighthouse CI against Vercel Preview
         env:
           PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
         run: |
           echo "Running Lighthouse CI on: $PREVIEW_URL"
-          # An exact version, not whatever the registry serves today.
-          pnpm dlx @lhci/cli@0.15.1 collect --config=./.lighthouserc.json \
+          pnpm --dir tools/lhci exec lhci collect --config="$GITHUB_WORKSPACE/.lighthouserc.json" \
             --url="$PREVIEW_URL/" \
             --url="$PREVIEW_URL/orchestrators" \
             --url="$PREVIEW_URL/network" \
             --url="$PREVIEW_URL/activity" \
             --url="$PREVIEW_URL/governance" \
             --url="$PREVIEW_URL/gateways"
-          pnpm dlx @lhci/cli@0.15.1 assert  --config=./.lighthouserc.json
-          pnpm dlx @lhci/cli@0.15.1 upload  --config=./.lighthouserc.json --target=temporary-public-storage
+          pnpm --dir tools/lhci exec lhci assert --config="$GITHUB_WORKSPACE/.lighthouserc.json"
+          pnpm --dir tools/lhci exec lhci upload --config="$GITHUB_WORKSPACE/.lighthouserc.json" --target=temporary-public-storage
