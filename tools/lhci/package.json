@@ -8,7 +8,9 @@
   },
   "pnpm": {
     "overrides": {
-      "basic-ftp": "^6.2.1"
+      "basic-ftp": "^6.2.1",
+      "@puppeteer/browsers": "^3.2.5",
+      "tmp": "^0.2.6"
     }
   }
 }
