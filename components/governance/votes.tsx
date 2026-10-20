@@ -12,12 +12,7 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import {
-  Avatar,
-  CopyButton,
-  useEnsNames,
-  useIdentity,
-} from "@/components/identity";
+import { Avatar, useEnsNames, useIdentity } from "@/components/identity";
 import { Card, EmptyState, ErrorNotice } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { Input, Segmented, Skeleton } from "@/components/ui/misc";
@@ -165,25 +160,22 @@ function VoterName({
   const { name, avatar, display } = useIdentity(address);
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <span className="group/copy flex min-w-0 items-center gap-1">
-        <Link
-          href={href}
-          title={address}
-          className="-m-1 flex min-w-0 items-center gap-2.5 rounded-sm p-1 outline-none hover:underline focus-visible:ring-1 focus-visible:ring-green-bright/40"
-          style={{ textUnderlineOffset: 4 }}
+      <Link
+        href={href}
+        title={address}
+        className="-m-1 flex min-w-0 items-center gap-2.5 rounded-sm p-1 outline-none hover:underline focus-visible:ring-1 focus-visible:ring-green-bright/40"
+        style={{ textUnderlineOffset: 4 }}
+      >
+        <Avatar address={address} src={avatar} size={size} />
+        <span
+          className={cn(
+            "truncate text-ui-body text-foreground",
+            !name && "font-mono text-[13px] tracking-tight"
+          )}
         >
-          <Avatar address={address} src={avatar} size={size} />
-          <span
-            className={cn(
-              "truncate text-ui-body text-foreground",
-              !name && "font-mono text-[13px] tracking-tight"
-            )}
-          >
-            {display}
-          </span>
-        </Link>
-        <CopyButton value={address} reveal />
-      </span>
+          {display}
+        </span>
+      </Link>
       {children}
     </span>
   );

@@ -99,10 +99,12 @@ function Payouts({
                       size={22}
                       href={`/orchestrators/${r.id}`}
                       copy
+                      badge={
+                        r.id === address && (
+                          <Badge tone="warning">Its own orchestrator</Badge>
+                        )
+                      }
                     />
-                    {r.id === address && (
-                      <Badge tone="warning">Its own orchestrator</Badge>
-                    )}
                   </span>
                 </td>
                 <td className="px-4 py-2.5">

@@ -146,6 +146,7 @@ export function Identity({
   secondary,
   className,
   copy = false,
+  badge,
 }: {
   address: string;
   href?: string | null;
@@ -155,6 +156,12 @@ export function Identity({
   className?: string;
   /** A copy button beside it, revealed on hover (see CopyButton). */
   copy?: boolean;
+  /**
+   * A tag that belongs with the name ("You", "Inactive"). It sits right
+   * after the name, before the copy button, so the button's space (kept
+   * while hidden) doesn't open a gap between them.
+   */
+  badge?: React.ReactNode;
 }) {
   const { name, avatar } = useIdentity(address);
   const primary = label ?? name ?? shortAddress(address);
@@ -191,12 +198,15 @@ export function Identity({
         {body}
       </Link>
     );
-  if (!copy) return shown;
+  if (!copy && !badge) return shown;
   // Beside the link, not inside it: a button can't sit in an <a>.
   return (
     <span className="group/copy inline-flex max-w-full min-w-0 items-center gap-1">
       {shown}
-      <CopyButton value={address} reveal />
+      {badge && (
+        <span className="ml-1 flex shrink-0 items-center">{badge}</span>
+      )}
+      {copy && <CopyButton value={address} reveal />}
     </span>
   );
 }

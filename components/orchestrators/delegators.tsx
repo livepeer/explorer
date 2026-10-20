@@ -111,8 +111,10 @@ export function OrchestratorDelegators({
                       size={22}
                       label={d.id === orchestrator ? "Self-stake" : undefined}
                       copy
+                      badge={
+                        inPortfolio(d.id) && <Badge tone="outline">You</Badge>
+                      }
                     />
-                    {inPortfolio(d.id) && <Badge tone="outline">You</Badge>}
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right font-mono text-[13px] tabular-nums">

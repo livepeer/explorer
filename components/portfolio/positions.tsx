@@ -468,12 +468,10 @@ export function Positions({
                                 })}% fee share`
                               : undefined
                           }
+                          badge={
+                            !p.active && <Badge tone="warning">Inactive</Badge>
+                          }
                         />
-                        {!p.active && (
-                          <Badge tone="warning" className="ml-1">
-                            Inactive
-                          </Badge>
-                        )}
                       </div>
                     ) : (
                       <span className="text-ui-body text-muted-foreground">
