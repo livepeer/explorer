@@ -68,7 +68,7 @@ function AccountCell({
     <span className="group/copy flex min-w-0 items-center gap-1">
       <Link
         href={`/accounts/${account.address}`}
-        className="flex min-w-0 items-center gap-2.5 rounded-sm outline-none hover:opacity-80"
+        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-sm outline-none hover:opacity-80"
       >
         <Avatar address={account.address} src={avatar} size={26} />
         <span className="flex min-w-0 flex-col">

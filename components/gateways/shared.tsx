@@ -52,7 +52,7 @@ export function GatewayName({
   const link = (
     <Link
       href={`/gateways/${id}`}
-      className="flex min-w-0 items-center gap-3 outline-none"
+      className="flex min-w-0 flex-1 items-center gap-3 outline-none"
     >
       {rank != null && (
         <span className="w-6 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">

@@ -94,7 +94,8 @@ function NameCell({
     <span className="group/copy flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-1 [--rest:455px] @min-[726px]:[--rest:531px] @min-[816px]:[--rest:621px] @min-[906px]:[--rest:711px] @min-[980px]:[--rest:785px]">
       <Link
         href={`/orchestrators/${o.id}`}
-        className="flex min-w-0 items-center gap-2 outline-none"
+        // Fills the cell, so anywhere but the copy button opens the page.
+        className="flex min-w-0 flex-1 items-center gap-2 outline-none"
       >
         <span className="w-5 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
           {rank}
