@@ -21,6 +21,17 @@ const nextConfig = {
     ];
   },
 
+  async rewrites() {
+    // public/design/mocks/<slug>/index.html is the review page. A request
+    // for the directory (no index.html) otherwise falls through to the app.
+    return [
+      {
+        source: "/design/mocks/:slug",
+        destination: "/design/mocks/:slug/index.html",
+      },
+    ];
+  },
+
   async redirects() {
     return [
       {
