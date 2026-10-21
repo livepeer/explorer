@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "codegen": "graphql-codegen -r dotenv/config",
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/publish-design-mocks.mjs && next dev",
+    "build": "node scripts/publish-design-mocks.mjs && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit --incremental false",
