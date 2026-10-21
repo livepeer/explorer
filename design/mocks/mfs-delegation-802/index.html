@@ -1452,6 +1452,7 @@
           position: fixed;
           left: max(12px, env(safe-area-inset-left));
           right: max(12px, env(safe-area-inset-right));
+          top: auto;
           bottom: max(12px, env(safe-area-inset-bottom));
           z-index: 50;
           max-height: min(85vh, 560px);
@@ -1960,8 +1961,9 @@
                       class="tooltip-help"
                       role="tooltip"
                     >
-                      Share of network fees earned vs share of network stake,
-                      last 7 settled rounds. The smaller one caps rewards.
+                      Share of network fees vs share of network stake over the
+                      last 7 settled rounds. Those trailing shares compare
+                      nodes. They are not the reward cap.
                     </span>
                   </span>
                 </th>
@@ -1981,8 +1983,10 @@
                       class="tooltip-help"
                       role="tooltip"
                     >
-                      The most new LPT this node can earn each round right now:
-                      the smaller of its fee share and stake share.
+                      New LPT over those 7 rounds. Each round is capped at the
+                      smaller of that round’s fee share and stake share, then
+                      the capped rounds are added up. Not the smaller of the two
+                      trailing totals.
                     </span>
                   </span>
                 </th>
@@ -3889,7 +3893,8 @@
         <li>
           <strong>Screen readers.</strong> Choosing a filter or action is
           announced as a real choice group. Opening the amount drawer puts you
-          on the amount field; Escape closes it.
+          on the amount field. Escape closes it and returns you to the control
+          that opened it.
         </li>
         <li>
           <strong>Help without a mouse.</strong> The “?” tips open when you tab
@@ -3970,7 +3975,9 @@
           return frame.querySelector(".pf-rail input.dw-input");
         }
 
-        function setDrawerOpen(frame, open) {
+        var drawerReturn = new WeakMap();
+
+        function setDrawerOpen(frame, open, returnTo) {
           if (!frame) return;
           var drawer = frame.querySelector(".pf-drawer");
           var toggle = drawer && drawer.querySelector("[data-drawer-focus]");
@@ -3984,12 +3991,19 @@
             );
           }
           if (open) {
+            if (returnTo) drawerReturn.set(frame, returnTo);
             var input = amountInput(frame);
             if (input) input.focus({ preventScroll: true });
+          } else {
+            var back = drawerReturn.get(frame);
+            drawerReturn.delete(frame);
+            if (back && typeof back.focus === "function") {
+              back.focus({ preventScroll: true });
+            }
           }
         }
 
-        function openAmount(frame) {
+        function openAmount(frame, returnTo) {
           if (!frame) return;
           var reduce = window.matchMedia(
             "(prefers-reduced-motion: reduce)"
@@ -3997,7 +4011,7 @@
           var behavior = reduce ? "auto" : "smooth";
           var input = amountInput(frame);
           if (narrow()) {
-            setDrawerOpen(frame, true);
+            setDrawerOpen(frame, true, returnTo);
             return;
           }
           var rail = frame.querySelector(".pf-rail");
@@ -4010,7 +4024,7 @@
           .querySelectorAll("[data-focus-widget]")
           .forEach(function (btn) {
             btn.addEventListener("click", function () {
-              openAmount(btn.closest(".page-frame"));
+              openAmount(btn.closest(".page-frame"), btn);
             });
           });
 
@@ -4021,7 +4035,7 @@
               var frame = btn.closest(".page-frame");
               if (!frame) return;
               var open = !frame.classList.contains("is-drawer-open");
-              setDrawerOpen(frame, open);
+              setDrawerOpen(frame, open, open ? btn : undefined);
             });
           });
 

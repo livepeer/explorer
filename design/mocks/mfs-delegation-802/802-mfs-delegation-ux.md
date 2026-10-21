@@ -9,10 +9,11 @@ Issue: [livepeer/explorer#802](https://github.com/livepeer/explorer/issues/802).
 ## Causal model
 
 ```text
-reward % = min(fee % of network, stake % of network)
+each round: reward % = min(that round’s fee % of network, that round’s stake % of network)
+window reward = sum of those capped round rewards
 ```
 
-Fees (USDC) are never capped. Only inflationary LPT attached to that work is capped by stake (self + delegated).
+Fees (USDC) are never capped. Only inflationary LPT attached to that work is capped by stake (self + delegated). Take `min()` on each round, then add the capped rewards. Do not `min()` the seven-round totals. Trailing fee share and stake share compare nodes. They are not what the node can earn each round.
 
 ## Surfaces (product)
 
@@ -27,14 +28,14 @@ Do not add an “MFS” page.
 
 ## Data this needs
 
-Per node and network, over a 7-round settled window:
+Per node and network, per settled round, then summed across the 7-round window:
 
 - fee total in USDC
 - stake (self + delegated)
-- derived fee share, stake share, `min()`, gap
+- that round’s fee share, stake share, and `min()`
 - reward cut, fee cut (already present)
 
-Per-round series of those fields is 803’s schema. Design 802’s window as a sum over the rounds 803 will store. Validator score fields belong to 804.
+The list also shows trailing fee share and stake share over the window, for comparison only. Per-round series is 803’s schema. 802 displays the sum of per-round caps. Validator score fields belong to 804.
 
 ## Status icons (shared with 803)
 
