@@ -166,7 +166,7 @@ export function TreasuryCard() {
             <span className="text-ui-caption text-muted-foreground">
               Treasury
             </span>
-            <span className="font-mono text-[28px] leading-9 tabular-nums">
+            <span className="text-[28px] leading-9 font-light tracking-[-0.02em] tabular-nums">
               <Lpt value={t.balance} />
             </span>
             <span className="text-ui-caption text-muted-foreground">
