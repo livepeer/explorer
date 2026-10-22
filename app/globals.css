@@ -77,29 +77,30 @@
 
 /* ── Registry light theme ──────────────────────────────────────────────── */
 html[data-theme="light"] {
-  /* Lighter on top, as in dark mode: an off-white page and sidebar, with
-     white cards, panels and popovers raised on it. */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Greys carry a faint cool tint (hue 286), so white cards read crisp
+     rather than the page reading dirty. Lighter on top, as in dark mode: a soft grey page and sidebar, with
+     white cards, panels and popovers raised on it by a visible step. */
+  --background: oklch(0.967 0.002 286);
+  --foreground: oklch(0.145 0.005 286);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.145 0.005 286);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.145 0.005 286);
+  --primary: oklch(0.205 0.006 286);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.97 0.002 286);
+  --secondary-foreground: oklch(0.205 0.006 286);
+  --muted: oklch(0.97 0.002 286);
+  --muted-foreground: oklch(0.5 0.012 286);
+  --accent: oklch(0.96 0.003 286);
+  --accent-foreground: oklch(0.205 0.006 286);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --border: oklch(0.915 0.004 286);
+  --input: oklch(0.915 0.004 286);
+  --ring: oklch(0.7 0.01 286);
+  --sidebar: oklch(0.967 0.002 286);
+  --sidebar-foreground: oklch(0.145 0.005 286);
+  --sidebar-border: oklch(0.915 0.004 286);
 
   /* Legibility steps for accents and series on light surfaces */
   --green-bright: #1e9960;
@@ -113,14 +114,20 @@ html[data-theme="light"] {
   --series-7: #4a3aa7;
   --series-other: rgba(24, 24, 27, 0.3);
   --surface: oklch(1 0 0);
-  --surface-highlight: 0 1px 2px rgb(24 24 27 / 0.04);
-  --hairline: color-mix(in oklch, var(--border) 80%, transparent);
+  /* A crisp lift at the bottom edge only; soft, wide shadows are kept for
+     things that float above the page (menus, popovers, dialogs). */
+  --surface-highlight: 0 1px 2px rgb(24 24 27 / 0.06);
+  --hairline: oklch(0.25 0.02 286 / 10%);
   --hover: color-mix(in oklch, var(--foreground) 5%, transparent);
   --active: color-mix(in oklch, var(--foreground) 8%, transparent);
   --subtle-foreground: color-mix(in oklch, var(--foreground) 45%, transparent);
   --overlay: rgb(24 24 27 / 0.32);
   --shadow-popover: 0 6px 16px -6px rgb(24 24 27 / 0.14),
     0 1px 2px rgb(24 24 27 / 0.06);
+
+  /* Dark text on white reads thinner than light text on black, so the
+     light display weight steps up to regular here. */
+  --font-weight-light: 400;
 
   color-scheme: light;
 }
@@ -186,7 +193,7 @@ html[data-theme="light"] {
   --text-ui-body--line-height: 20px;
   --text-page-title: 32px;
   --text-page-title--line-height: 1.05;
-  --text-page-title--font-weight: 300;
+  --text-page-title--font-weight: var(--font-weight-light);
   --text-display-sm: 36px;
   --text-display-sm--line-height: 1;
   --text-display-md: 48px;
@@ -460,6 +467,25 @@ textarea {
   .btn-outline:hover:not(:disabled) {
     background-color: var(--accent);
     color: var(--accent-foreground);
+  }
+  /* In light mode, a white button with an edge and a small lift, so it
+     shows on the grey page and on white cards alike. */
+  html[data-theme="light"] .btn-outline {
+    border-color: oklch(0 0 0 / 12%);
+    background-color: var(--card);
+    box-shadow: 0 1px 2px rgb(24 24 27 / 0.06);
+  }
+  html[data-theme="light"] .btn-outline:hover:not(:disabled) {
+    background-color: var(--accent);
+  }
+
+  /* Tiles divided by 1px gaps showing the hairline. The hairline is
+     translucent, so it's laid over the surface colour, and only inside the
+     border: under the border too, the edge would draw twice and look darker
+     than a card's. */
+  .hairline-grid {
+    background: linear-gradient(var(--hairline), var(--hairline)) padding-box,
+      var(--surface) border-box;
   }
 
   /* The console card: set into the page, hairline edge, no shadow. */

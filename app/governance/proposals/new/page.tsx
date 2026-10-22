@@ -270,7 +270,7 @@ export default function NewProposalPage() {
                 placeholder={
                   "## Abstract\n\n## Motivation\n\n## Specification\n\n## Budget"
                 }
-                className="min-h-72 w-full resize-y rounded-sm border border-transparent bg-input/50 px-3 py-2.5 font-mono text-[13px] leading-6 outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50"
+                className="min-h-72 w-full resize-y rounded-sm border border-transparent bg-input/50 light:border-hairline light:bg-card px-3 py-2.5 font-mono text-[13px] leading-6 outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50"
               />
             ) : (
               <div className="surface min-h-72 px-5 py-4">

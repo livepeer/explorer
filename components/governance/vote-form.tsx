@@ -228,7 +228,7 @@ export function VoteForm({
             disabled={busy}
             rows={3}
             placeholder="Why you're voting this way"
-            className="min-h-20 w-full resize-y rounded-sm border border-transparent bg-input/50 px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50 md:text-sm"
+            className="min-h-20 w-full resize-y rounded-sm border border-transparent bg-input/50 light:border-hairline light:bg-card px-3 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50 md:text-sm"
           />
         </div>
       )}

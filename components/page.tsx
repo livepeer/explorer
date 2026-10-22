@@ -78,7 +78,7 @@ export function KpiStrip({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-px overflow-hidden rounded-md border border-hairline bg-hairline shadow-(--surface-highlight) [&>*]:bg-surface",
+        "hairline-grid grid grid-cols-2 gap-px overflow-hidden rounded-md border border-hairline shadow-(--surface-highlight) [&>*]:bg-surface",
         cols === 4 && "lg:grid-cols-4",
         cols === 3 && "sm:grid-cols-3",
         className

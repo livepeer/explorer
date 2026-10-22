@@ -13,7 +13,7 @@ export function Input({ className, ...props }: React.ComponentProps<"input">) {
   return (
     <InputPrimitive
       className={cn(
-        "h-9 w-full min-w-0 rounded-sm border border-transparent bg-input/50 px-3 text-base transition-[box-shadow,background-color] outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50 aria-invalid:ring-1 aria-invalid:ring-destructive/50 md:text-sm",
+        "h-9 w-full min-w-0 rounded-sm border border-transparent bg-input/50 light:border-hairline light:bg-card px-3 text-base transition-[box-shadow,background-color] outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 disabled:opacity-50 aria-invalid:ring-1 aria-invalid:ring-destructive/50 md:text-sm",
         className
       )}
       {...props}
