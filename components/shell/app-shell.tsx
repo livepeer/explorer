@@ -308,8 +308,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               you'd sign as on the right. Level with the sidebar's logo, and
               padded like Page so both ends line up with the content. Pinned
               to the panel's top edge (8px down) as the page scrolls under
-              it; the panel frame sits above it, so its corners stay round. */}
-          <header className="sticky top-2 z-20 hidden h-14 border-b border-hairline bg-(--panel) lg:block">
+              it, translucent with a blur so the content shows faintly as
+              it passes; the panel frame sits above it, so its corners stay
+              round. */}
+          <header className="sticky top-2 z-20 hidden h-14 border-b border-hairline bg-(--panel)/80 backdrop-blur-md lg:block">
             <div className="mx-auto flex h-full w-full max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6 min-[1360px]:px-10">
               <div className="flex min-w-0 items-center gap-1">
                 <Breadcrumbs />

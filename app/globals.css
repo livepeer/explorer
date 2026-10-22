@@ -534,6 +534,11 @@ textarea {
   display: none;
 }
 @media (min-width: 64rem) {
+  /* Jump links and scrolled-to items stop below the pinned header (8px
+     gap + 56px header + 8px breathing room), not underneath it. */
+  html {
+    scroll-padding-top: 72px;
+  }
   .app-frame {
     display: block;
     position: fixed;
