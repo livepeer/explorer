@@ -300,14 +300,14 @@ function PositionListRow({
       }
     : null;
   return (
-    <div className="flex items-center gap-3 py-3 pr-2 pl-4">
+    <div className="flex items-center gap-4 py-4 pr-2 pl-4">
       {lead && (
         <Link
           href={lead.href}
           className="flex min-w-0 flex-1 items-center gap-2.5 rounded-sm outline-none hover:opacity-80"
         >
-          <Avatar address={lead.address} src={lead.avatar} size={30} />
-          <span className="flex min-w-0 flex-col gap-0.5">
+          <Avatar address={lead.address} src={lead.avatar} size={32} />
+          <span className="flex min-w-0 flex-col gap-1">
             <span className="truncate text-ui-body">
               {lead.name ?? (
                 <span className="font-mono text-[13px]">
@@ -339,11 +339,15 @@ function PositionListRow({
           </span>
         </Link>
       )}
+      {/* Always three lines, so every row is the same height: stake, then
+          rewards and fees, each saying "No …" when there's none. Each line
+          has 3px of leading above and below its text, and a 2px gap between
+          lines, so the spacing reads even. */}
       <span className="flex shrink-0 flex-col items-end gap-0.5 text-right tabular-nums">
         <span className="text-ui-body font-medium whitespace-nowrap">
           <Amount value={formatLPT(p.stake)} />
         </span>
-        <span className="text-ui-caption whitespace-nowrap text-muted-foreground">
+        <span className="text-ui-caption leading-[18px] whitespace-nowrap text-muted-foreground">
           {p.rewards30d > 0 ? (
             <span className="text-green-bright">
               +{formatLPT(p.rewards30d)}
@@ -353,11 +357,15 @@ function PositionListRow({
           )}{" "}
           · 30d
         </span>
-        {p.fees >= DUST_ETH && (
-          <span className="text-ui-caption whitespace-nowrap text-muted-foreground">
-            <span className="text-foreground">{formatETH(p.fees)}</span> fees
-          </span>
-        )}
+        <span className="text-ui-caption leading-[18px] whitespace-nowrap text-muted-foreground">
+          {p.fees >= DUST_ETH ? (
+            <>
+              <span className="text-foreground">{formatETH(p.fees)}</span> fees
+            </>
+          ) : (
+            "No fees"
+          )}
+        </span>
       </span>
       <RowActions position={p} canManage={canManage} />
     </div>
