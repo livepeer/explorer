@@ -10,6 +10,7 @@ import {
   Sparkline,
   TimeSeriesChart,
 } from "@/components/charts/time-series";
+import { TreasuryStrip } from "@/components/governance/treasury";
 import { LiveStatus } from "@/components/live-status";
 import {
   Card,
@@ -671,6 +672,9 @@ export default function NetworkPage() {
               <RoundCardSkeleton />
             )}
             <NetworkKpis protocol={protocol} />
+          </div>
+          <div className="mt-4">
+            <TreasuryStrip />
           </div>
         </Section>
       )}

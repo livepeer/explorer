@@ -38,6 +38,7 @@ import {
   fetchProposalVotes,
   fetchRoundAtBlock,
 } from "@/lib/subgraph/votes";
+import type { TreasuryState } from "@/lib/treasury-model";
 
 const MINUTE = 60_000;
 
@@ -312,6 +313,19 @@ export function usePrices() {
     },
     staleTime: 5 * MINUTE,
     retry: 1,
+  });
+}
+
+/** The treasury's balance, ceiling, cut and history, from the server. */
+export function useTreasury() {
+  return useQuery({
+    queryKey: ["treasury"],
+    queryFn: async (): Promise<TreasuryState> => {
+      const res = await fetch("/api/treasury");
+      if (!res.ok) throw new Error("Treasury data is unavailable right now.");
+      return res.json();
+    },
+    staleTime: 10 * MINUTE,
   });
 }
 

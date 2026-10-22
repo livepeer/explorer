@@ -18,6 +18,7 @@ import {
   useL1Block,
 } from "@/components/governance/model";
 import { TallyKey } from "@/components/governance/tally";
+import { TreasuryCard } from "@/components/governance/treasury";
 import {
   Card,
   EmptyState,
@@ -74,6 +75,10 @@ export default function GovernancePage() {
           </>
         }
       />
+      {/* What treasury proposals spend from, first. */}
+      <div className="mb-10">
+        <TreasuryCard />
+      </div>
       <Suspense fallback={<ListSkeleton />}>
         <GovernanceLists />
       </Suspense>

@@ -18,6 +18,9 @@ import { formatDate } from "@/lib/format";
 
 export type Point = { ts: number; value: number; round?: number };
 
+/** A chart row: an actual value, a projected one, or both where they meet. */
+type Row = { ts: number; value?: number; projected?: number; round?: number };
+
 const AXIS_TICK = { fill: "var(--subtle-foreground)", fontSize: 11 };
 
 function ChartTooltip({
@@ -27,15 +30,18 @@ function ChartTooltip({
   title,
 }: {
   active?: boolean;
-  payload?: { payload: Point }[];
+  payload?: { payload: Row }[];
   format: (v: number) => string;
   title?: (p: Point) => string;
 }) {
   if (!active || !payload?.length) return null;
-  const p = payload[0].payload;
+  const row = payload[0].payload;
+  const projected = row.value == null;
+  const p: Point = { ...row, value: row.value ?? row.projected ?? 0 };
   return (
     <div className="rounded-lg border border-hairline bg-popover px-3 py-2 shadow-(--shadow-popover)">
       <div className="text-[11px] text-muted-foreground">
+        {projected && "Projected · "}
         {title
           ? title(p)
           : `${formatDate(p.ts, {
@@ -72,14 +78,24 @@ export function TimeSeriesChart({
   tooltipTitle,
   domain,
   ariaLabel,
+  projection,
+  yTicks,
 }: {
   data: Point[];
+  /**
+   * Where the series is heading, drawn dashed from the last actual point.
+   * Points after the data, oldest first.
+   */
+  projection?: Point[];
+  /** Exact y-axis ticks, when the scale should land on known values. */
+  yTicks?: number[];
   color?: string;
   kind?: "area" | "bar";
   height?: number;
   format: (v: number) => string;
   axisFormat?: (v: number) => string;
-  reference?: { value: number; label: string };
+  /** A dashed level with a label, on the right unless `side` says left. */
+  reference?: { value: number; label: string; side?: "left" | "right" };
   tooltipTitle?: (p: Point) => string;
   domain?: [
     number | "auto" | "dataMin" | "dataMax",
@@ -88,11 +104,21 @@ export function TimeSeriesChart({
   ariaLabel: string;
 }) {
   const id = useId().replace(/:/g, "");
+  const last = data[data.length - 1];
+  const rows: Row[] =
+    projection?.length && last
+      ? [
+          ...data.slice(0, -1),
+          // The last actual point starts the projection, so the lines meet.
+          { ...last, projected: last.value },
+          ...projection.map((p) => ({ ts: p.ts, projected: p.value })),
+        ]
+      : data;
   const spanDays =
-    data.length > 1 ? (data[data.length - 1].ts - data[0].ts) / 86400 : 0;
+    rows.length > 1 ? (rows[rows.length - 1].ts - rows[0].ts) / 86400 : 0;
 
   const common = {
-    data,
+    data: rows,
     margin: { top: 8, right: 4, bottom: 0, left: 0 },
     accessibilityLayer: true,
   };
@@ -122,6 +148,7 @@ export function TimeSeriesChart({
       width={56}
       domain={domain ?? (kind === "bar" ? [0, "auto"] : ["auto", "auto"])}
       tickCount={4}
+      ticks={yTicks}
     />
   );
   const tooltip = (
@@ -147,7 +174,8 @@ export function TimeSeriesChart({
       strokeDasharray="3 3"
       label={{
         value: reference.label,
-        position: "insideTopRight",
+        position:
+          reference.side === "left" ? "insideTopLeft" : "insideTopRight",
         fill: "var(--muted-foreground)",
         fontSize: 10,
       }}
@@ -191,6 +219,25 @@ export function TimeSeriesChart({
               }}
               isAnimationActive={false}
             />
+            {projection?.length ? (
+              <Area
+                type="linear"
+                dataKey="projected"
+                // Grey, not the series colour: an estimate, not a record.
+                stroke="var(--muted-foreground)"
+                strokeWidth={2}
+                strokeDasharray="4 4"
+                strokeOpacity={0.7}
+                fill="none"
+                activeDot={{
+                  r: 4,
+                  fill: "var(--muted-foreground)",
+                  stroke: "var(--surface)",
+                  strokeWidth: 2,
+                }}
+                isAnimationActive={false}
+              />
+            ) : null}
           </AreaChart>
         ) : (
           <BarChart {...common} barCategoryGap={2}>
