@@ -73,7 +73,7 @@ export function AddAddressDialog({
                 className="font-mono"
               />
               {ens && resolved && (
-                <span className="font-mono text-[11px] text-muted-foreground">
+                <span className="font-mono text-ui-caption text-muted-foreground">
                   {shortAddress(resolved, 10, 8)}
                 </span>
               )}

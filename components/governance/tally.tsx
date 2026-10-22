@@ -100,7 +100,7 @@ export function TallyLegend({
         <div key={s.key} className="flex items-center gap-2 text-ui-body">
           <Swatch color={s.color} />
           <dt className="text-muted-foreground">{s.label}</dt>
-          <dd className="ml-auto flex items-baseline gap-3 font-mono text-[13px] tabular-nums">
+          <dd className="ml-auto flex items-baseline gap-3 text-ui-body tabular-nums">
             <span>
               {formatToken(s.value)}{" "}
               <span className="text-subtle-foreground">{unit}</span>
@@ -165,7 +165,7 @@ export function QuorumMeter({
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3 text-ui-body">
         <span className="text-muted-foreground">Quorum</span>
-        <span className="font-mono text-[13px] tabular-nums">
+        <span className="text-ui-body tabular-nums">
           {formatPercent(participation, { decimals: 2 })}
           <span className="text-subtle-foreground">
             {" "}

@@ -209,7 +209,7 @@ export function CommandSearch({
           group: q ? "Orchestrators" : "Top orchestrators",
           label: <AddressLabel address={o.id} />,
           hint: (
-            <span className="font-mono tabular-nums">
+            <span className="tabular-nums">
               {formatLPT(o.totalStake, { compact: true })}
             </span>
           ),
@@ -228,7 +228,7 @@ export function CommandSearch({
           group: "Gateways",
           label: <AddressLabel address={g.id} />,
           hint: (
-            <span className="font-mono tabular-nums">
+            <span className="tabular-nums">
               {g.ninetyDayVolumeETH > 0
                 ? `${formatETH(g.ninetyDayVolumeETH)} · 90d`
                 : "No recent fees"}
@@ -330,7 +330,7 @@ export function CommandSearch({
               return (
                 <div key={item.id}>
                   {header && (
-                    <div className="px-2.5 pt-2.5 pb-1 text-[11px] font-medium text-subtle-foreground">
+                    <div className="px-2.5 pt-2.5 pb-1 text-ui-caption font-medium text-subtle-foreground">
                       {header}
                     </div>
                   )}

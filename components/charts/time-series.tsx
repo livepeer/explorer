@@ -53,7 +53,7 @@ function ChartTooltip({
   const p: Point = { ...row, value: row.value ?? row.projected ?? 0 };
   return (
     <div className="rounded-lg border border-hairline bg-popover px-3 py-2 shadow-(--shadow-popover)">
-      <div className="text-[11px] text-muted-foreground">
+      <div className="text-ui-caption text-muted-foreground">
         {projected && "Projected · "}
         {title
           ? title(p)
@@ -81,7 +81,7 @@ function ChartTooltip({
           </dd>
         </dl>
       ) : (
-        <div className="mt-0.5 font-mono text-[13px] font-medium text-foreground tabular-nums">
+        <div className="mt-0.5 text-ui-body font-medium text-foreground tabular-nums">
           {format(p.value)}
         </div>
       )}

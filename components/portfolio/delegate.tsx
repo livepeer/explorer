@@ -125,7 +125,7 @@ export function IdleLptAction({
                     to <Name address={w.delegate} />
                   </span>
                 </span>
-                <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
+                <span className="text-ui-caption text-muted-foreground tabular-nums">
                   {formatLPT(w.lpt, { compact: true })}
                 </span>
               </MenuItem>

@@ -164,7 +164,7 @@ export function ProposalVoteForm({ proposal }: { proposal: TreasuryProposal }) {
             <span className="text-muted-foreground">
               Your voting power · round {proposal.voteStart.toLocaleString()}
             </span>
-            <span className="font-mono tabular-nums">{formatLPT(weight)}</span>
+            <span className="tabular-nums">{formatLPT(weight)}</span>
           </div>
         )
       }

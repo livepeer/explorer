@@ -44,7 +44,7 @@ function Runway({ g }: { g: Gateway }) {
   return (
     <div
       className={cn(
-        "font-mono text-[11px] tabular-nums",
+        "text-ui-caption tabular-nums",
         days < 14 ? "text-warm" : "text-subtle-foreground"
       )}
     >
@@ -186,10 +186,10 @@ export default function GatewaysPage() {
                     ["Last paid", formatLastDay(g.lastActiveDay)],
                   ].map(([label, value]) => (
                     <div key={label} className="flex min-w-0 flex-col gap-0.5">
-                      <dt className="text-[11px] text-muted-foreground">
+                      <dt className="text-ui-caption text-muted-foreground">
                         {label}
                       </dt>
-                      <dd className="truncate font-mono text-[12.5px] tabular-nums">
+                      <dd className="truncate text-ui-body tabular-nums">
                         {value}
                       </dd>
                     </div>
@@ -266,26 +266,26 @@ export default function GatewaysPage() {
                       <td className="px-3 py-3 text-right">
                         <div className="flex items-center justify-end gap-3">
                           {!idle && <WeeklyTrend days={g.days} />}
-                          <span className="font-mono text-[13px] whitespace-nowrap tabular-nums">
+                          <span className="text-ui-body whitespace-nowrap tabular-nums">
                             {idle ? "—" : formatETH(g.ninetyDayVolumeETH)}
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                         {g.thirtyDayVolumeETH > 0
                           ? formatETH(g.thirtyDayVolumeETH)
                           : "—"}
                       </td>
                       <td className="px-3 py-3 text-right">
-                        <div className="font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <div className="text-ui-body whitespace-nowrap tabular-nums">
                           {formatETH(g.deposit)}
                         </div>
                         <Runway g={g} />
                       </td>
-                      <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
                         {formatETH(g.reserve)}
                       </td>
-                      <td className="px-3 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                         {formatETH(g.totalVolumeETH)}
                       </td>
                       <td className="px-3 py-3 pr-4 text-right text-[13px] whitespace-nowrap text-muted-foreground">

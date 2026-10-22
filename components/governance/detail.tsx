@@ -105,7 +105,7 @@ export function DetailItem({
         <span
           className={cn(
             "min-w-0 text-ui-body",
-            mono && "font-mono text-[13px] tabular-nums"
+            mono && "text-ui-body tabular-nums"
           )}
         >
           {children}

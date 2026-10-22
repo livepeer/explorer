@@ -55,7 +55,7 @@ function Counted({ label, n }: { label: string; n: number | undefined }) {
     <>
       {label}
       {n != null && (
-        <span className="ml-1.5 font-mono text-[11px] text-muted-foreground tabular-nums">
+        <span className="ml-1.5 text-ui-caption text-muted-foreground tabular-nums">
           {n}
         </span>
       )}
@@ -97,7 +97,7 @@ function NameCell({
         // Fills the cell, so anywhere but the copy button opens the page.
         className="flex min-w-0 flex-1 items-center gap-2 outline-none"
       >
-        <span className="w-5 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
+        <span className="w-5 shrink-0 text-right text-ui-caption text-subtle-foreground tabular-nums">
           {rank}
         </span>
         <Avatar address={o.id} src={avatar} size={28} />
@@ -110,7 +110,7 @@ function NameCell({
             )}
           </span>
           {name && (
-            <span className="font-mono text-[11px] text-subtle-foreground">
+            <span className="font-mono text-ui-caption text-subtle-foreground">
               {shortAddress(o.id)}
             </span>
           )}
@@ -134,7 +134,7 @@ function CallsMeter({ calls, window }: { calls: number; window: number }) {
       {/* The count alone: a bar beside it said the same thing twice. */}
       <span
         className={cn(
-          "cursor-default font-mono text-[13px] tabular-nums",
+          "cursor-default text-ui-body tabular-nums",
           missed > 2 && "text-warm"
         )}
       >
@@ -208,7 +208,7 @@ function AprValue({ o }: { o: Listed }) {
         <span className="cursor-default">{total.toFixed(1)}%</span>
       </Tooltip>
       {lower != null && (
-        <div className="font-sans text-[11px] text-warm">
+        <div className="font-sans text-ui-caption text-warm">
           ~{lower.toFixed(1)}% at new cut
         </div>
       )}
@@ -424,17 +424,17 @@ function OrchestratorTable() {
                         key={String(label)}
                         className="flex min-w-0 flex-col gap-0.5"
                       >
-                        <dt className="text-[11px] text-muted-foreground">
+                        <dt className="text-ui-caption text-muted-foreground">
                           {label}
                         </dt>
-                        <dd className="truncate font-mono text-[12.5px] tabular-nums">
+                        <dd className="truncate text-ui-body tabular-nums">
                           {value}
                         </dd>
                       </div>
                     ))}
                   </dl>
                   <div className="flex items-center gap-3 pl-9">
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-ui-caption text-muted-foreground">
                       Reward calls
                     </span>
                     <CallsMeter calls={o.rewardCalls} window={o.rewardWindow} />
@@ -563,10 +563,10 @@ function OrchestratorTable() {
                         <td className="sticky left-0 z-10 bg-surface px-1.5 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
                           <NameCell o={o} rank={rank} copy />
                         </td>
-                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
                           <AprValue o={o} />
                         </td>
-                        <td className="hidden @min-[726px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[726px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {expected != null && stakeAmount > 0
                             ? `+${formatNumber(stakeAmount * (expected / 100), {
                                 decimals:
@@ -580,28 +580,28 @@ function OrchestratorTable() {
                             window={o.rewardWindow}
                           />
                         </td>
-                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
                           <CutValue o={o} />
                         </td>
-                        <td className="px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
                           {o.feeShare.toFixed(o.feeShare % 1 ? 1 : 0)}%
                         </td>
-                        <td className="hidden @min-[906px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[906px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.thirtyDayVolumeETH > 0
                             ? formatETH(o.thirtyDayVolumeETH)
                             : "—"}
                         </td>
                         <td className="hidden @min-[816px]:table-cell px-1.5 py-3 text-right">
-                          <div className="font-mono text-[13px] whitespace-nowrap tabular-nums">
+                          <div className="text-ui-body whitespace-nowrap tabular-nums">
                             {formatLPT(o.totalStake, { compact: true })}
                           </div>
                           {share != null && (
-                            <div className="font-mono text-[11px] text-subtle-foreground tabular-nums">
+                            <div className="text-ui-caption text-subtle-foreground tabular-nums">
                               {share.toFixed(2)}%
                             </div>
                           )}
                         </td>
-                        <td className="hidden @min-[980px]:table-cell px-1.5 py-3 text-right font-mono text-[13px] whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[980px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.delegatorCount >= 1000
                             ? "1,000+"
                             : o.delegatorCount.toLocaleString()}
@@ -634,7 +634,7 @@ function OrchestratorTable() {
         </>
       )}
       {data && (
-        <p className="mt-3 text-[11px] text-subtle-foreground">
+        <p className="mt-3 text-ui-caption text-subtle-foreground">
           Ranked by what delegators earned: rewards over the last 30 rounds,
           adjusted down where an orchestrator has since raised its reward cut,
           plus fees over the last 90 days at today&apos;s ETH/LPT price.
@@ -653,7 +653,7 @@ function FreshHeading({ className }: { className?: string }) {
       <span className="text-ui-caption text-foreground">
         New, not ranked yet
       </span>
-      <span className="text-[11px] text-muted-foreground">
+      <span className="text-ui-caption text-muted-foreground">
         In the active set for fewer than {MIN_HISTORY} of the last 30 rounds,
         too few to judge what they pay.
       </span>

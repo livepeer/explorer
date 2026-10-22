@@ -101,7 +101,7 @@ export function SafeProposed({
         Open your Safe&apos;s queue <ExternalLink className="size-3" />
       </a>
       {!safeApp && (
-        <p className="text-[11px] text-subtle-foreground">
+        <p className="text-ui-caption text-subtle-foreground">
           Next time, use the explorer inside your Safe.{" "}
           <a
             href={safeAppUrl(safe)}

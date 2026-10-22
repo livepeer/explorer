@@ -183,7 +183,7 @@ function PortfolioSwitcher({
                 <span className="truncate text-ui-caption text-foreground">
                   {viewing ? <AccountName account={viewing} /> : "All wallets"}
                 </span>
-                <span className="truncate font-mono text-[11px] text-muted-foreground tabular-nums">
+                <span className="truncate text-ui-caption text-muted-foreground tabular-nums">
                   {lpt(viewing ? stakeOf(viewing.address) : total)}
                 </span>
               </span>
@@ -197,7 +197,7 @@ function PortfolioSwitcher({
               <AllWalletsIcon size={28} />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate">All wallets</span>
-                <span className="truncate font-mono text-[11px] text-muted-foreground tabular-nums">
+                <span className="truncate text-ui-caption text-muted-foreground tabular-nums">
                   {lpt(total)}
                 </span>
               </span>
@@ -219,8 +219,8 @@ function PortfolioSwitcher({
                   <span className="truncate">
                     <AccountName account={a} />
                   </span>
-                  <span className="truncate text-[11px] text-muted-foreground">
-                    <span className="font-mono tabular-nums">
+                  <span className="truncate text-ui-caption text-muted-foreground">
+                    <span className="tabular-nums">
                       {lpt(stakeOf(a.address))}
                     </span>
                     {a.connected && " · Connected"}

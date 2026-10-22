@@ -168,7 +168,7 @@ export function RecipientRow({
             </span>
           )}
           {title && (
-            <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+            <span className="shrink-0 font-mono text-ui-caption text-muted-foreground">
               {shortAddress(r.address)}
             </span>
           )}

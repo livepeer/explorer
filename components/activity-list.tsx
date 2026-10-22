@@ -45,7 +45,7 @@ function Name({ address }: { address?: string }) {
     <span className="font-medium text-foreground">
       {label ?? name ?? (
         // Quieter than a name: mono is denser, so a step smaller and softer.
-        <span className="font-mono text-[12.5px] tracking-tight text-foreground/75">
+        <span className="font-mono text-ui-caption tracking-tight text-foreground/75">
           {shortAddress(address)}
         </span>
       )}

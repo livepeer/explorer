@@ -121,15 +121,15 @@ function Payouts({
                         style={{ width: `${Math.max(share * 100, 1.5)}%` }}
                       />
                     </span>
-                    <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
+                    <span className="text-ui-caption text-muted-foreground tabular-nums">
                       {(share * 100).toFixed(share < 0.1 ? 1 : 0)}%
                     </span>
                   </span>
                 </td>
-                <td className="px-4 py-2.5 text-right font-mono text-[13px] tabular-nums">
+                <td className="px-4 py-2.5 text-right text-ui-body tabular-nums">
                   {formatETH(r.fees)}
                 </td>
-                <td className="px-4 py-2.5 text-right font-mono text-[13px] text-muted-foreground tabular-nums">
+                <td className="px-4 py-2.5 text-right text-ui-body text-muted-foreground tabular-nums">
                   {r.tickets.toLocaleString()}
                 </td>
                 <td className="px-4 py-2.5 text-right text-[13px] whitespace-nowrap text-muted-foreground">

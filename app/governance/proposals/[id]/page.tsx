@@ -162,7 +162,7 @@ export default function ProposalPage() {
                       nowMs
                     )}
                   </span>
-                  <span className="font-mono text-ui-caption text-muted-foreground tabular-nums">
+                  <span className="text-ui-caption text-muted-foreground tabular-nums">
                     {formatLPT(total)}
                   </span>
                 </div>

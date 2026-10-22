@@ -156,7 +156,7 @@ export default function PollPage() {
                   <span className="text-ui-caption text-muted-foreground">
                     {timing}
                   </span>
-                  <span className="font-mono text-ui-caption text-muted-foreground tabular-nums">
+                  <span className="text-ui-caption text-muted-foreground tabular-nums">
                     {formatLPT(voted)}
                   </span>
                 </div>

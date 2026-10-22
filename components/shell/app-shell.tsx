@@ -198,7 +198,9 @@ function SidebarBody({
       <div className="flex flex-col gap-3 border-t border-hairline p-3">
         <WalletButton />
         <div className="flex items-center justify-between px-1">
-          <span className="text-[11px] text-subtle-foreground">Appearance</span>
+          <span className="text-ui-caption text-subtle-foreground">
+            Appearance
+          </span>
           <ThemeSwitch />
         </div>
       </div>

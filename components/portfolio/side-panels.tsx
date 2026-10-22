@@ -44,7 +44,7 @@ export function Projections({
         <span className="text-ui-caption text-muted-foreground">
           At today&apos;s rate
         </span>
-        <span className="font-mono text-ui-caption text-foreground tabular-nums">
+        <span className="text-ui-caption text-foreground tabular-nums">
           {apr.toFixed(2)}% APR
         </span>
       </div>
@@ -55,7 +55,7 @@ export function Projections({
             className="flex items-baseline justify-between gap-4"
           >
             <dt className="text-ui-body text-muted-foreground">{r.label}</dt>
-            <dd className="flex items-baseline gap-2 font-mono text-[13px] tabular-nums">
+            <dd className="flex items-baseline gap-2 text-ui-body tabular-nums">
               <span>+{formatLPT(r.lpt)}</span>
               {lptPrice != null && (
                 <span className="w-20 text-right text-ui-caption text-subtle-foreground">
@@ -66,7 +66,7 @@ export function Projections({
           </div>
         ))}
       </dl>
-      <p className="mt-4 text-[11px] leading-4 text-subtle-foreground">
+      <p className="mt-4 text-ui-caption leading-4 text-subtle-foreground">
         Compounded from your realised rewards over the last 30 rounds.
         {commissionPerRound > 0 &&
           ` Includes ~${formatLPT(
@@ -104,7 +104,7 @@ export function PendingWithdrawals({
           <div key={l.id} className="flex flex-col gap-3 p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="font-mono text-[15px] tabular-nums">
+                <span className="text-[15px] tabular-nums">
                   {formatLPT(l.amount)}
                 </span>
                 <span className="flex items-center gap-1.5 text-ui-caption text-muted-foreground">

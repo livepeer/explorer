@@ -56,7 +56,7 @@ export function WithdrawFees({
               <span className="min-w-0 flex-1 truncate">
                 <WalletName position={p} />
               </span>
-              <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
+              <span className="text-ui-caption text-muted-foreground tabular-nums">
                 {formatETH(p.fees)}
               </span>
             </MenuItem>

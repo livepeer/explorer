@@ -273,7 +273,7 @@ export function VoteForm({
           href={txUrl(hash)}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 self-end text-[11px] text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1 self-end text-ui-caption text-muted-foreground hover:text-foreground"
         >
           Pending transaction <ExternalLink className="size-3" />
         </a>

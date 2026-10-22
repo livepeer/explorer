@@ -84,7 +84,7 @@ function AccountChip({
     >
       <Avatar address={account.address} src={avatar} size={20} />
       <span
-        className={cn(!account.label && !name && "font-mono text-[11.5px]")}
+        className={cn(!account.label && !name && "font-mono text-ui-caption")}
       >
         {account.label ?? name ?? shortAddress(account.address)}
       </span>

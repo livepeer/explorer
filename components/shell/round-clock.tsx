@@ -237,14 +237,14 @@ export function SidebarRoundClock() {
             <span
               key={data.currentRound}
               className={cn(
-                "inline-block font-mono tabular-nums",
+                "inline-block tabular-nums",
                 turn && "text-green-bright motion-safe:animate-rise"
               )}
             >
               {data.currentRound.toLocaleString()}
             </span>
           </span>
-          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+          <span className="text-ui-caption text-muted-foreground tabular-nums">
             {s.overdue
               ? "Ready to initialize"
               : `${formatDuration(s.remaining)} left`}

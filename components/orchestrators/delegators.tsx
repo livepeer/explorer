@@ -117,15 +117,15 @@ export function OrchestratorDelegators({
                     />
                   </span>
                 </td>
-                <td className="px-4 py-2.5 text-right font-mono text-[13px] tabular-nums">
+                <td className="px-4 py-2.5 text-right text-ui-body tabular-nums">
                   {formatLPT(d.bondedAmount)}
                 </td>
-                <td className="px-4 py-2.5 text-right font-mono text-[13px] text-muted-foreground tabular-nums">
+                <td className="px-4 py-2.5 text-right text-ui-body text-muted-foreground tabular-nums">
                   {totalStake > 0
                     ? `${((d.bondedAmount / totalStake) * 100).toFixed(2)}%`
                     : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right font-mono text-[13px] text-muted-foreground tabular-nums">
+                <td className="px-4 py-2.5 text-right text-ui-body text-muted-foreground tabular-nums">
                   {d.startRound.toLocaleString()}
                 </td>
               </tr>

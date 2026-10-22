@@ -61,7 +61,7 @@ function RewardStrip({
         <span className="text-ui-caption text-muted-foreground">
           Last {recent.length} rounds
         </span>
-        <span className="font-mono text-ui-caption tabular-nums">
+        <span className="text-ui-caption tabular-nums">
           {called}/{recent.length} called
         </span>
       </div>
@@ -91,7 +91,7 @@ function RewardStrip({
           );
         })}
       </div>
-      <div className="mt-3 flex items-center gap-4 text-[11px] text-muted-foreground">
+      <div className="mt-3 flex items-center gap-4 text-ui-caption text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="h-3 w-[7px] rounded-[2px] bg-foreground/35" /> Called
         </span>
@@ -170,7 +170,7 @@ function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
             <>round {pools[0].round.toLocaleString()}</>
           )}
         </p>
-        <p className="mt-1 font-mono text-[12.5px] tabular-nums">
+        <p className="mt-1 text-ui-body tabular-nums">
           {current.rewardCut.toFixed(1)}% cut · {current.feeShare.toFixed(1)}%
           fee share
         </p>
@@ -195,11 +195,11 @@ function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
                   year: "numeric",
                 })}
               </span>
-              <span className="font-mono text-[11px] text-subtle-foreground tabular-nums">
+              <span className="text-ui-caption text-subtle-foreground tabular-nums">
                 Round {c.round.toLocaleString()}
               </span>
             </div>
-            <div className="flex flex-col items-end font-mono text-[12.5px] tabular-nums">
+            <div className="flex flex-col items-end text-ui-body tabular-nums">
               {c.rewardCut !== c.prevCut && (
                 <span
                   className={c.rewardCut > c.prevCut ? "text-warm" : undefined}
@@ -438,7 +438,7 @@ export default function OrchestratorPage() {
             <div className="mb-4 flex items-center justify-between gap-4 rounded-md border border-hairline px-4 py-3">
               <span className="text-ui-body text-muted-foreground">
                 You have{" "}
-                <span className="font-mono text-foreground tabular-nums">
+                <span className="text-foreground tabular-nums">
                   {formatLPT(myStake)}
                 </span>{" "}
                 staked here
@@ -635,14 +635,14 @@ export default function OrchestratorPage() {
                           <dt className="text-ui-body text-muted-foreground">
                             {label}
                           </dt>
-                          <dd className="font-mono text-[13px] tabular-nums">
+                          <dd className="text-ui-body tabular-nums">
                             {o?.realizedApr != null ? `+${formatLPT(v)}` : "—"}
                           </dd>
                         </div>
                       );
                     })}
                   </dl>
-                  <p className="mt-4 text-[11px] leading-4 text-subtle-foreground">
+                  <p className="mt-4 text-ui-caption leading-4 text-subtle-foreground">
                     Based on this orchestrator&apos;s realised yield over the
                     last 30 rounds.
                   </p>
@@ -666,7 +666,7 @@ export default function OrchestratorPage() {
                       <span className="text-ui-body text-muted-foreground">
                         Rewards
                       </span>
-                      <span className="font-mono text-[13px] tabular-nums">
+                      <span className="text-ui-body tabular-nums">
                         {formatLPT(o.lifetimeRewardCommission)}
                       </span>
                     </div>
@@ -674,7 +674,7 @@ export default function OrchestratorPage() {
                       <span className="text-ui-body text-muted-foreground">
                         Fees
                       </span>
-                      <span className="font-mono text-[13px] tabular-nums">
+                      <span className="text-ui-body tabular-nums">
                         {formatETH(o.lifetimeFeeCommission)}
                       </span>
                     </div>

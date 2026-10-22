@@ -69,7 +69,7 @@ function Row({
         </div>
         <div className="flex w-full shrink-0 items-center gap-3 sm:w-48">
           <TallyBar series={series} className="h-1.5 flex-1" />
-          <span className="w-16 shrink-0 text-right font-mono text-ui-caption text-muted-foreground tabular-nums">
+          <span className="w-16 shrink-0 text-right text-ui-caption text-muted-foreground tabular-nums">
             {share}
           </span>
         </div>

@@ -95,10 +95,10 @@ function ChoiceLabel({
 /** "790.9K LPT  10.0%" on one line. */
 function Weight({ weight, share }: { weight: number; share?: number }) {
   return (
-    <span className="font-mono text-[13px] whitespace-nowrap tabular-nums">
+    <span className="text-ui-body whitespace-nowrap tabular-nums">
       {formatLPT(weight, { compact: true })}
       {share != null && (
-        <span className="ml-2 inline-block w-12 text-right text-[11.5px] text-muted-foreground">
+        <span className="ml-2 inline-block w-12 text-right text-ui-caption text-muted-foreground">
           {pct(share)}
         </span>
       )}
@@ -310,7 +310,7 @@ function ChildRows({
                   </span>
                 )}
               </VoterName>
-              <span className="font-mono text-[11.5px] text-muted-foreground tabular-nums sm:hidden">
+              <span className="text-ui-caption text-muted-foreground tabular-nums sm:hidden">
                 {formatLPT(v.weight, { compact: true })} ·{" "}
                 <When vote={v} nowMs={nowMs} />
               </span>
@@ -709,7 +709,7 @@ export function VotesPanel({
                         />
                       )}
                     </VoterName>
-                    <span className="font-mono text-[11.5px] text-muted-foreground tabular-nums sm:hidden">
+                    <span className="text-ui-caption text-muted-foreground tabular-nums sm:hidden">
                       {formatLPT(v.weight, { compact: true })} · {pct(share)} ·{" "}
                       <When vote={v} nowMs={nowMs} />
                     </span>

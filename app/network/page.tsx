@@ -227,7 +227,7 @@ function KpiTrend({
           </>
         )}
       </div>
-      <div className="flex justify-between text-[11px] text-subtle-foreground tabular-nums">
+      <div className="flex justify-between text-ui-caption text-subtle-foreground tabular-nums">
         {at != null ? (
           <>
             <span>{shortDate(days[at].date)}</span>

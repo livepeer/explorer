@@ -311,7 +311,7 @@ function AmountField({
             className="cursor-pointer rounded-sm px-1 hover:text-foreground"
           >
             {maxLabel}:{" "}
-            <span className="font-mono tabular-nums">
+            <span className="tabular-nums">
               {formatLPT(max).replace(" LPT", "")}
             </span>{" "}
             <span className="font-medium text-foreground">Max</span>
@@ -353,9 +353,7 @@ function Row({
   return (
     <div className="flex items-center justify-between gap-4 text-ui-body">
       <span className="text-muted-foreground">{label}</span>
-      <span className="text-right font-mono text-[13px] tabular-nums">
-        {children}
-      </span>
+      <span className="text-right text-ui-body tabular-nums">{children}</span>
     </div>
   );
 }
@@ -1138,7 +1136,7 @@ function StakingFlow({
                 </div>
                 {/* The whole address, checksummed: a shortened one is easy
                     to imitate, and this is where the stake goes for good. */}
-                <div className="font-mono text-[11px] break-all text-muted-foreground">
+                <div className="font-mono text-ui-caption break-all text-muted-foreground">
                   {getAddress(picked.address)}
                 </div>
               </div>
@@ -1416,7 +1414,7 @@ function StakingFlow({
             href={txUrl(pendingHash)}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
           >
             Pending transaction <ExternalLink className="size-3" />
           </a>

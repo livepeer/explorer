@@ -55,7 +55,7 @@ export function GatewayName({
       className="flex min-w-0 flex-1 items-center gap-3 outline-none"
     >
       {rank != null && (
-        <span className="w-6 shrink-0 text-right font-mono text-[11px] text-subtle-foreground tabular-nums">
+        <span className="w-6 shrink-0 text-right text-ui-caption text-subtle-foreground tabular-nums">
           {rank}
         </span>
       )}
@@ -67,7 +67,7 @@ export function GatewayName({
           )}
         </span>
         {name && (
-          <span className="font-mono text-[11px] text-subtle-foreground">
+          <span className="font-mono text-ui-caption text-subtle-foreground">
             {shortAddress(id)}
           </span>
         )}

@@ -60,10 +60,10 @@ function OrchestratorRow({
         </span>
       </span>
       <span className="text-right">
-        <span className="block font-mono text-[13px] tabular-nums">
+        <span className="block text-ui-body tabular-nums">
           {apr != null ? `${apr.toFixed(1)}%` : "—"}
         </span>
-        <span className="block text-[11px] text-muted-foreground">
+        <span className="block text-ui-caption text-muted-foreground">
           realised APR
         </span>
       </span>

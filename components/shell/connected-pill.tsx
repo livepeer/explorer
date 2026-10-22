@@ -78,7 +78,7 @@ function Connected({
         <ChevronDown className="size-3 text-subtle-foreground" />
       </MenuTrigger>
       <MenuContent align="end" className="w-56">
-        <div className="px-2 pt-1.5 pb-1 text-[11px] text-subtle-foreground">
+        <div className="px-2 pt-1.5 pb-1 text-ui-caption text-subtle-foreground">
           Connected · {shortAddress(address)}
         </div>
         <MenuItem onClick={() => router.push(`/accounts/${address}`)}>

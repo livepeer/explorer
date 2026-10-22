@@ -81,7 +81,7 @@ function AccountCell({
             )}
           </span>
           {(account.connected || account.label || name || !quiet) && (
-            <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
+            <span className="flex items-center gap-1 text-ui-caption whitespace-nowrap text-muted-foreground">
               {account.connected ? (
                 <>
                   <span className="size-1.5 shrink-0 rounded-full bg-green-fill" />
@@ -508,7 +508,7 @@ export function Positions({
                       {formatLPT(p.stake)}
                     </div>
                     {showAccount && (
-                      <div className="mt-0.5 text-[11px] whitespace-nowrap text-muted-foreground">
+                      <div className="mt-0.5 text-ui-caption whitespace-nowrap text-muted-foreground">
                         {weight > 0 && weight < 1
                           ? "<1%"
                           : `${formatNumber(weight, { decimals: 0 })}%`}{" "}
@@ -614,9 +614,7 @@ function Figure({
     <div className="flex min-w-0 flex-col gap-1">
       <dt className="text-ui-caption text-muted-foreground">{label}</dt>
       <dd className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="truncate font-mono text-[15px] tabular-nums">
-          {children}
-        </span>
+        <span className="truncate text-[15px] tabular-nums">{children}</span>
         {action}
       </dd>
     </div>
