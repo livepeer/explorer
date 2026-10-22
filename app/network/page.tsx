@@ -24,6 +24,7 @@ import {
 } from "@/components/page";
 import { Ring, roundState, useNow } from "@/components/shell/round-clock";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import {
   formatDate,
@@ -40,6 +41,7 @@ import {
   useProtocol,
   useRewardProgress,
 } from "@/lib/hooks/queries";
+import { settledFrom } from "@/lib/series";
 import type { Day, Protocol } from "@/lib/subgraph/network";
 
 /* ── Round ───────────────────────────────────────────────────────────────── */
@@ -63,7 +65,11 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
     <Card className="flex h-full flex-col">
       <div className="flex flex-1 flex-col gap-1.5 px-4 py-4 sm:px-5">
         <div className="flex items-center justify-between gap-3 text-ui-caption text-muted-foreground">
-          <span>Current round</span>
+          {/* The round number is a reference, so it's the heading; the time
+              left is what people come for, so it's the big figure. */}
+          <span className="tabular-nums">
+            Round {protocol.currentRound.toLocaleString()}
+          </span>
           <span className="flex items-center gap-1.5">
             <StatusDot tone={s.initialized ? "positive" : "warning"} />
             {s.initialized ? "Initialized" : "Awaiting initialization"}
@@ -81,28 +87,24 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
             </span>
             <span className="text-[11px] text-muted-foreground">elapsed</span>
           </Ring>
-          <div className="flex min-w-0 flex-col gap-1">
-            <div className="text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
-              {protocol.currentRound.toLocaleString()}
-            </div>
-            <div className="text-ui-body text-foreground tabular-nums">
-              {s.overdue
-                ? "Ready to initialize"
-                : `${formatDuration(s.remaining)} left`}
-            </div>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            {/* The block count is for the few who think in blocks: on hover,
+                not on the line. */}
+            <Tooltip
+              content={`L1 block ~${s.blocksElapsed.toLocaleString()} of ${protocol.roundLength.toLocaleString()} in this round`}
+            >
+              <div className="w-fit cursor-default text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
+                {s.overdue
+                  ? "Ready to initialize"
+                  : `${formatDuration(s.remaining)} left`}
+              </div>
+            </Tooltip>
             <div className="text-ui-caption text-muted-foreground">
               {s.overdue
                 ? `Round ${next.toLocaleString()} can be initialized now`
-                : `Round ${next.toLocaleString()} begins around ${endsAt}`}
+                : `Next round begins around ${endsAt}`}
             </div>
           </div>
-        </div>
-        <div className="flex justify-between font-mono text-[10px] text-subtle-foreground tabular-nums">
-          <span>Round length</span>
-          <span>
-            ~{s.blocksElapsed.toLocaleString()} /{" "}
-            {protocol.roundLength.toLocaleString()} L1 blocks
-          </span>
         </div>
       </div>
       <RewardCalls round={protocol.currentRound} />
@@ -123,7 +125,6 @@ function RoundCardSkeleton() {
             <Skeleton className="h-3 w-44" />
           </div>
         </div>
-        <Skeleton className="h-2.5 w-full" />
       </div>
       <div className="border-t border-hairline px-5 py-3.5 sm:px-6">
         <Skeleton className="h-3.5 w-full" />
@@ -154,6 +155,16 @@ const TREND_HEIGHT = 28;
  * caption shows that day's date and value. Fees are daily amounts, so they
  * show no change figure.
  */
+/**
+ * Average of a week of daily values: from `start`, or the last seven when
+ * negative. Daily fees swing too much for first-day-to-last-day to mean
+ * anything, so their change compares the first and last weeks.
+ */
+function weekAverage(values: number[], start: number) {
+  const week = start < 0 ? values.slice(start) : values.slice(start, start + 7);
+  return week.reduce((s, v) => s + v, 0) / (week.length || 1);
+}
+
 function KpiTrend({
   days,
   pick,
@@ -216,7 +227,7 @@ function KpiTrend({
           </>
         )}
       </div>
-      <div className="flex justify-between font-mono text-[10px] text-subtle-foreground tabular-nums">
+      <div className="flex justify-between text-[11px] text-subtle-foreground tabular-nums">
         {at != null ? (
           <>
             <span>{shortDate(days[at].date)}</span>
@@ -224,8 +235,14 @@ function KpiTrend({
           </>
         ) : (
           <>
-            <span>{fees ? "Daily · 30 days" : "30 days"}</span>
-            {change && <span>{change(values[0], values[last])}</span>}
+            <span>30 days</span>
+            {change && (
+              <span>
+                {fees
+                  ? change(weekAverage(values, 0), weekAverage(values, -7))
+                  : change(values[0], values[last])}
+              </span>
+            )}
           </>
         )}
       </div>
@@ -305,6 +322,9 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
             pick={(d) => d.volumeETH}
             format={formatETH}
             fees
+            change={(a, b) =>
+              a > 0 ? `${signed(((b - a) / a) * 100, 1)}%` : ""
+            }
           />
         }
       />
@@ -329,7 +349,7 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
 
 /* ── History charts ──────────────────────────────────────────────────────── */
 
-type Metric = "participation" | "fees" | "inflation" | "delegators";
+type Metric = "participation" | "fees" | "inflation" | "delegators" | "supply";
 type Range = "3m" | "1y" | "all";
 
 const METRICS = [
@@ -337,6 +357,7 @@ const METRICS = [
   { value: "fees", label: "Fee volume" },
   { value: "inflation", label: "Inflation" },
   { value: "delegators", label: "Delegators" },
+  { value: "supply", label: "Supply" },
 ] as const;
 
 const RANGES = [
@@ -439,6 +460,38 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           label: "Inflation per round, daily",
           bucketed: null,
         };
+      case "supply": {
+        // Supply as the outline, the staked part filled inside it; the
+        // label carries how much supply grew over the range.
+        // The first days on Arbitrum (Feb 2022) are the migration, not
+        // growth: a placeholder supply, then jumps as LPT arrived. Start once
+        // supply settles, so "All" doesn't measure growth from nothing.
+        const start = settledFrom(sliced.map((d) => d.totalSupply));
+        const settled = sliced.slice(start);
+        const data = settled.map((d) => ({ ts: d.date, value: d.totalSupply }));
+        const first = data[0]?.value ?? 0;
+        const lastValue = data[data.length - 1]?.value ?? 0;
+        const growth =
+          first > 0
+            ? `${signed(((lastValue - first) / first) * 100, 1)}%`
+            : null;
+        return {
+          data,
+          inner: {
+            values: settled.map((d) => d.totalActiveStake),
+            color: "var(--series-1)",
+            layers: { outer: "Supply", inner: "Staked" },
+          },
+          kind: "area" as const,
+          color: "var(--series-1)",
+          format: (v: number) => formatLPT(v, { compact: true }),
+          axis: (v: number) => formatNumber(v, { decimals: 0, compact: true }),
+          label: growth
+            ? `LPT supply and the part staked, daily · supply ${growth} over this range`
+            : "LPT supply and the part staked, daily",
+          bucketed: null,
+        };
+      }
       case "delegators":
         return {
           data: pts((d) => d.delegatorsCount),
@@ -497,12 +550,17 @@ function HistorySection() {
               <TimeSeriesChart
                 ariaLabel={chart.label}
                 data={chart.data}
+                inner={"inner" in chart ? chart.inner : undefined}
                 kind={chart.kind}
                 color={chart.color}
                 format={chart.format}
                 axisFormat={chart.axis}
                 height={260}
-                domain={metric === "fees" ? [0, "auto"] : ["auto", "auto"]}
+                domain={
+                  metric === "fees" || metric === "supply"
+                    ? [0, "auto"]
+                    : ["auto", "auto"]
+                }
                 tooltipTitle={
                   chart.bucketed === "month"
                     ? (p) =>
@@ -552,7 +610,7 @@ function FooterStat({
       <span className="truncate text-ui-caption text-muted-foreground">
         {label}
       </span>
-      <div className="font-mono text-[13px] leading-5 whitespace-nowrap tabular-nums">
+      <div className="text-ui-body leading-5 whitespace-nowrap tabular-nums">
         {children}
       </div>
     </div>

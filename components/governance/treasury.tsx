@@ -51,11 +51,17 @@ function FillMeter({
   balance,
   ceiling,
   share,
+  tone = "series",
   className,
 }: {
   balance: number;
   ceiling: number;
   share: number;
+  /**
+   * The series blue beside the treasury chart; green where it sits with the
+   * Network page's other progress bars (reward calls), to match them.
+   */
+  tone?: "series" | "positive";
   className?: string;
 }) {
   return (
@@ -67,12 +73,20 @@ function FillMeter({
       aria-valuenow={Math.min(balance, ceiling)}
       aria-valuetext={`${formatLPT(balance)} of ${formatLPT(ceiling)}`}
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-[2px] bg-foreground/[0.06]",
+        "h-1.5 w-full overflow-hidden",
+        tone === "positive"
+          ? "rounded-full bg-foreground/[0.08]"
+          : "rounded-[2px] bg-foreground/[0.06]",
         className
       )}
     >
       <span
-        className="block h-full rounded-[2px] bg-(--series-1)"
+        className={cn(
+          "block h-full",
+          tone === "positive"
+            ? "rounded-full bg-green-bright"
+            : "rounded-[2px] bg-(--series-1)"
+        )}
         style={{ width: `${share * 100}%` }}
       />
     </div>
@@ -239,34 +253,50 @@ export function TreasuryCard() {
 export function TreasuryStrip() {
   const { treasury, view } = useTreasuryView();
   if (treasury.error) return null;
-  if (!view) return <Skeleton className="h-[60px] w-full rounded-md" />;
+  if (!view) return <Skeleton className="h-[74px] w-full rounded-md" />;
   const { t, share, status, fullBy, pace } = view;
+  // Label over value, like the tiles above it, with the bar between.
   return (
     <Link
       href="/governance"
-      className="surface group flex flex-col gap-3 px-4 py-3.5 transition-colors outline-none hover:bg-hover/60 focus-visible:ring-1 focus-visible:ring-green-bright/40 sm:flex-row sm:items-center sm:gap-6 sm:px-5"
+      className="surface group flex flex-col gap-3 px-4 py-4 transition-colors outline-none hover:bg-hover/60 focus-visible:ring-1 focus-visible:ring-green-bright/40 sm:flex-row sm:items-end sm:gap-6 sm:px-5"
     >
-      <div className="flex shrink-0 items-baseline gap-2">
+      <div className="flex shrink-0 flex-col gap-1.5">
         <span className="text-ui-caption text-muted-foreground">Treasury</span>
-        <span className="font-mono text-ui-body tabular-nums">
+        <span className="text-ui-body tabular-nums">
           {formatToken(t.balance, { compact: true })}
           <span className="text-muted-foreground">
             {" "}
-            / {formatLPT(t.ceiling, { compact: true })}
+            of {formatLPT(t.ceiling, { compact: true })}
           </span>
         </span>
       </div>
+      {/* On the value line, level with the figures either side. */}
       <FillMeter
         balance={t.balance}
         ceiling={t.ceiling}
         share={share}
-        className="sm:flex-1"
+        tone="positive"
+        className="sm:mb-[7px] sm:flex-1"
       />
-      <div className="flex shrink-0 items-center gap-1.5 text-ui-caption text-muted-foreground">
-        <StatusDot tone={status.tone} />
-        <span className="text-foreground">{status.label}</span>
-        {!pace.full && fullBy !== "—" && <> · full by {fullBy.slice(1)}</>}
-        <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-0.5" />
+      {/* Two figures, each with its own label, then the way to the full view. */}
+      <div className="flex shrink-0 items-end gap-6">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-ui-caption text-muted-foreground">Status</span>
+          <span className="flex items-center gap-1.5 text-ui-body">
+            <StatusDot tone={status.tone} />
+            {status.label}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-ui-caption text-muted-foreground">
+            {pace.full ? "Ceiling" : "Full by"}
+          </span>
+          <span className="text-ui-body tabular-nums">
+            {pace.full ? "Reached" : fullBy.replace(/^~/, "")}
+          </span>
+        </div>
+        <ArrowRight className="mb-[3px] size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
       </div>
     </Link>
   );

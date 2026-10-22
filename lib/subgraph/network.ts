@@ -45,6 +45,7 @@ type RawDay = {
   participationRate: string;
   inflation: string;
   totalActiveStake: string;
+  totalSupply: string;
   delegatorsCount: string;
   activeTranscoderCount: string;
 };
@@ -287,6 +288,8 @@ export type Day = {
   participationRate: number;
   inflation: number;
   totalActiveStake: number;
+  /** LPT in existence that day. */
+  totalSupply: number;
   delegatorsCount: number;
   activeTranscoderCount: number;
 };
@@ -298,6 +301,7 @@ const DAY_FIELDS = /* GraphQL */ `
   participationRate
   inflation
   totalActiveStake
+  totalSupply
   delegatorsCount
   activeTranscoderCount
 `;
@@ -332,6 +336,7 @@ const SNAPSHOT_FIELDS = [
   "participationRate",
   "inflation",
   "totalActiveStake",
+  "totalSupply",
   "delegatorsCount",
   "activeTranscoderCount",
 ] as const;
@@ -382,6 +387,7 @@ export async function fetchDays(first?: number): Promise<Day[]> {
       participationRate: Number(d.participationRate) * 100,
       inflation: Number(d.inflation) / 1e7,
       totalActiveStake: Number(d.totalActiveStake),
+      totalSupply: Number(d.totalSupply),
       delegatorsCount: Number(d.delegatorsCount),
       activeTranscoderCount: Number(d.activeTranscoderCount),
     }))

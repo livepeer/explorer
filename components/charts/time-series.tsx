@@ -19,7 +19,17 @@ import { formatDate } from "@/lib/format";
 export type Point = { ts: number; value: number; round?: number };
 
 /** A chart row: an actual value, a projected one, or both where they meet. */
-type Row = { ts: number; value?: number; projected?: number; round?: number };
+type Row = {
+  ts: number;
+  value?: number;
+  projected?: number;
+  /** A second series drawn inside the first (e.g. staked within supply). */
+  inner?: number;
+  round?: number;
+};
+
+/** Names for the two series when the chart draws one inside the other. */
+type Layers = { outer: string; inner: string };
 
 const AXIS_TICK = { fill: "var(--subtle-foreground)", fontSize: 11 };
 
@@ -28,11 +38,13 @@ function ChartTooltip({
   payload,
   format,
   title,
+  layers,
 }: {
   active?: boolean;
   payload?: { payload: Row }[];
   format: (v: number) => string;
   title?: (p: Point) => string;
+  layers?: Layers;
 }) {
   if (!active || !payload?.length) return null;
   const row = payload[0].payload;
@@ -50,9 +62,28 @@ function ChartTooltip({
               year: "numeric",
             })}${p.round ? ` · Round ${p.round.toLocaleString()}` : ""}`}
       </div>
-      <div className="mt-0.5 font-mono text-[13px] font-medium text-foreground tabular-nums">
-        {format(p.value)}
-      </div>
+      {layers && row.inner != null ? (
+        <dl className="mt-1 grid grid-cols-[auto_auto] gap-x-4 gap-y-0.5 text-[12px] tabular-nums">
+          <dt className="text-muted-foreground">{layers.outer}</dt>
+          <dd className="text-right font-medium text-foreground">
+            {format(p.value)}
+          </dd>
+          <dt className="text-muted-foreground">{layers.inner}</dt>
+          <dd className="text-right font-medium text-foreground">
+            {format(row.inner)}
+            {p.value > 0 && (
+              <span className="font-normal text-muted-foreground">
+                {" "}
+                · {Math.round((row.inner / p.value) * 100)}%
+              </span>
+            )}
+          </dd>
+        </dl>
+      ) : (
+        <div className="mt-0.5 font-mono text-[13px] font-medium text-foreground tabular-nums">
+          {format(p.value)}
+        </div>
+      )}
     </div>
   );
 }
@@ -80,8 +111,15 @@ export function TimeSeriesChart({
   ariaLabel,
   projection,
   yTicks,
+  inner,
 }: {
   data: Point[];
+  /**
+   * A second series, one value per point of `data`, drawn as an area inside
+   * the first: the first becomes a quiet outline, the second the coloured
+   * fill (e.g. staked LPT within the total supply). Area charts only.
+   */
+  inner?: { values: number[]; color: string; layers: Layers };
   /**
    * Where the series is heading, drawn dashed from the last actual point.
    * Points after the data, oldest first.
@@ -104,16 +142,19 @@ export function TimeSeriesChart({
   ariaLabel: string;
 }) {
   const id = useId().replace(/:/g, "");
-  const last = data[data.length - 1];
+  const base: Row[] = inner
+    ? data.map((p, i) => ({ ...p, inner: inner.values[i] }))
+    : data;
+  const last = base[base.length - 1];
   const rows: Row[] =
     projection?.length && last
       ? [
-          ...data.slice(0, -1),
+          ...base.slice(0, -1),
           // The last actual point starts the projection, so the lines meet.
-          { ...last, projected: last.value },
+          { ...last, projected: last.value ?? 0 },
           ...projection.map((p) => ({ ts: p.ts, projected: p.value })),
         ]
-      : data;
+      : base;
   const spanDays =
     rows.length > 1 ? (rows[rows.length - 1].ts - rows[0].ts) / 86400 : 0;
 
@@ -153,7 +194,13 @@ export function TimeSeriesChart({
   );
   const tooltip = (
     <Tooltip
-      content={<ChartTooltip format={format} title={tooltipTitle} />}
+      content={
+        <ChartTooltip
+          format={format}
+          title={tooltipTitle}
+          layers={inner?.layers}
+        />
+      }
       cursor={
         kind === "area"
           ? {
@@ -206,19 +253,40 @@ export function TimeSeriesChart({
             <Area
               type="monotone"
               dataKey="value"
-              stroke={color}
-              strokeWidth={2}
+              // With an inner series, this one is the quiet outline around it.
+              stroke={inner ? "var(--muted-foreground)" : color}
+              strokeWidth={inner ? 1.5 : 2}
               strokeLinejoin="round"
               strokeLinecap="round"
-              fill={`url(#fill-${id})`}
+              fill={inner ? "var(--foreground)" : `url(#fill-${id})`}
+              fillOpacity={inner ? 0.04 : 1}
               activeDot={{
                 r: 4,
-                fill: color,
+                fill: inner ? "var(--muted-foreground)" : color,
                 stroke: "var(--surface)",
                 strokeWidth: 2,
               }}
               isAnimationActive={false}
             />
+            {inner ? (
+              <Area
+                type="monotone"
+                dataKey="inner"
+                stroke={inner.color}
+                strokeWidth={2}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                fill={inner.color}
+                fillOpacity={0.18}
+                activeDot={{
+                  r: 4,
+                  fill: inner.color,
+                  stroke: "var(--surface)",
+                  strokeWidth: 2,
+                }}
+                isAnimationActive={false}
+              />
+            ) : null}
             {projection?.length ? (
               <Area
                 type="linear"

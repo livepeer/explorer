@@ -86,7 +86,10 @@ export function Ring({
           r={r}
           fill="none"
           strokeWidth={stroke}
-          strokeLinecap="round"
+          // Round caps add half the stroke at each end, so a short arc
+          // (a round just begun) would draw as a blob: square ends until
+          // the arc is long enough for the caps to read as an arc.
+          strokeLinecap={c * progress > stroke * 2 ? "round" : "butt"}
           strokeDasharray={c}
           strokeDashoffset={c * (1 - progress)}
           className={cn(

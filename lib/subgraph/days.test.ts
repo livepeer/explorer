@@ -7,6 +7,7 @@ const day = (date: number, over: Partial<Day> = {}): Day => ({
   participationRate: 48,
   inflation: 0.0005,
   totalActiveStake: 18_000_000,
+  totalSupply: 36_000_000,
   delegatorsCount: 2000,
   activeTranscoderCount: 100,
   ...over,
