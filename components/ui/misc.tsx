@@ -59,7 +59,9 @@ export function Segmented<T extends string>({
       role="radiogroup"
       aria-label={label}
       className={cn(
-        "inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-hover p-0.5",
+        // In dark mode the track is a clear step up from a card or the page,
+        // with an edge; light mode keeps its quieter tint.
+        "inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-foreground/[0.07] p-0.5 ring-1 ring-hairline ring-inset light:bg-hover light:ring-0",
         className
       )}
     >
@@ -73,7 +75,7 @@ export function Segmented<T extends string>({
             aria-checked={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative cursor-pointer rounded-[4px] font-medium transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",
+              "relative cursor-pointer whitespace-nowrap rounded-[4px] font-medium transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",
               size === "sm" ? "h-7 px-2.5 text-xs" : "h-6 px-2 text-[11px]",
               active
                 ? "text-foreground"
@@ -83,7 +85,9 @@ export function Segmented<T extends string>({
             {active && (
               <motion.span
                 layoutId={`seg-${id}`}
-                className="absolute inset-0 rounded-[4px] bg-secondary shadow-[0_1px_2px_rgb(0_0_0/0.2)] light:bg-card"
+                // Lighter than the track by a clear step in dark mode, whether the
+                // control sits on the page or inside a card, with a faint edge.
+                className="absolute inset-0 rounded-[4px] bg-foreground/[0.13] shadow-[0_1px_2px_rgb(0_0_0/0.25)] ring-1 ring-foreground/[0.06] ring-inset light:bg-card light:ring-0"
                 transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
               />
             )}
