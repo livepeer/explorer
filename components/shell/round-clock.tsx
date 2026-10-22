@@ -95,7 +95,7 @@ export function Ring({
           className={cn(
             !instant &&
               "transition-[stroke-dashoffset] duration-1000 ease-linear",
-            tone === "positive" ? "stroke-green-bright" : "stroke-warm"
+            tone === "positive" ? "stroke-green-fill" : "stroke-warm"
           )}
         />
       </svg>

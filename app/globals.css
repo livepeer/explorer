@@ -48,6 +48,8 @@
 
   /* Explorer layer, dark steps */
   --green-bright: #40bf86;
+  /* Green for marks (bars, dots, the round ring): the same in dark mode. */
+  --green-fill: #40bf86;
   --warm: #f59e0b;
   --series-1: #3987e5;
   --series-2: #d95926;
@@ -104,6 +106,9 @@ html[data-theme="light"] {
 
   /* Legibility steps for accents and series on light surfaces */
   --green-bright: #1e9960;
+  /* Text green has to be dark to read on white; bars and dots don't, so
+     they take a lighter green, close to dark mode's. */
+  --green-fill: #38b47e;
   --warm: #b45309;
   --series-1: #2a78d6;
   --series-2: #eb6834;
@@ -166,6 +171,7 @@ html[data-theme="light"] {
      positive deltas, focus rings. Warm is reserved for "needs attention". */
   --color-green: #18794e;
   --color-green-bright: var(--green-bright);
+  --color-green-fill: var(--green-fill);
   --color-green-subtle: rgba(24, 121, 78, 0.15);
   --color-warm: var(--warm);
   --color-warm-subtle: rgba(245, 158, 11, 0.12);

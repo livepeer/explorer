@@ -193,7 +193,7 @@ export function StatusDot({
   className?: string;
 }) {
   const color = {
-    positive: "bg-green-bright",
+    positive: "bg-green-fill",
     warning: "bg-warm",
     neutral: "bg-muted-foreground",
     negative: "bg-destructive",

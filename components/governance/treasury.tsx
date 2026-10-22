@@ -51,17 +51,17 @@ function FillMeter({
   balance,
   ceiling,
   share,
-  tone = "series",
+  pill = false,
   className,
 }: {
   balance: number;
   ceiling: number;
   share: number;
   /**
-   * The series blue beside the treasury chart; green where it sits with the
-   * Network page's other progress bars (reward calls), to match them.
+   * Fully rounded, to match the Network page's other bars. Always the series
+   * blue: an amount, like its chart, where green would mean "healthy".
    */
-  tone?: "series" | "positive";
+  pill?: boolean;
   className?: string;
 }) {
   return (
@@ -74,7 +74,7 @@ function FillMeter({
       aria-valuetext={`${formatLPT(balance)} of ${formatLPT(ceiling)}`}
       className={cn(
         "h-1.5 w-full overflow-hidden",
-        tone === "positive"
+        pill
           ? "rounded-full bg-foreground/[0.08]"
           : "rounded-[2px] bg-foreground/[0.06]",
         className
@@ -83,9 +83,8 @@ function FillMeter({
       <span
         className={cn(
           "block h-full",
-          tone === "positive"
-            ? "rounded-full bg-green-bright"
-            : "rounded-[2px] bg-(--series-1)"
+          "bg-(--series-1)",
+          pill ? "rounded-full" : "rounded-[2px]"
         )}
         style={{ width: `${share * 100}%` }}
       />
@@ -276,7 +275,7 @@ export function TreasuryStrip() {
         balance={t.balance}
         ceiling={t.ceiling}
         share={share}
-        tone="positive"
+        pill
         className="sm:mb-[7px] sm:flex-1"
       />
       {/* Two figures, each with its own label, then the way to the full view. */}

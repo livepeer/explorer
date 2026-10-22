@@ -188,7 +188,7 @@ export function QuorumMeter({
           className={cn(
             "block h-full rounded-[2px]",
             reached
-              ? "bg-green-bright"
+              ? "bg-green-fill"
               : // Light mode's warm is dark enough for text; a bar can be the
                 // brighter amber dark mode shows.
                 "bg-warm light:bg-[#f59e0b]"

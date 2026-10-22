@@ -84,7 +84,7 @@ function AccountCell({
             <span className="flex items-center gap-1 text-[11px] whitespace-nowrap text-muted-foreground">
               {account.connected ? (
                 <>
-                  <span className="size-1.5 shrink-0 rounded-full bg-green-bright" />
+                  <span className="size-1.5 shrink-0 rounded-full bg-green-fill" />
                   Connected
                 </>
               ) : account.label || name ? (

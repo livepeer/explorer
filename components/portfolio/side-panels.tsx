@@ -110,7 +110,7 @@ export function PendingWithdrawals({
                 <span className="flex items-center gap-1.5 text-ui-caption text-muted-foreground">
                   {ready ? (
                     <>
-                      <span className="size-1.5 rounded-full bg-green-bright" />{" "}
+                      <span className="size-1.5 rounded-full bg-green-fill" />{" "}
                       Ready to withdraw
                     </>
                   ) : (

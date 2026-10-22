@@ -64,7 +64,7 @@ function AccountAvatar({
       {connected && (
         <span
           aria-label="Connected"
-          className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-popover bg-green-bright"
+          className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-popover bg-green-fill"
         />
       )}
     </span>

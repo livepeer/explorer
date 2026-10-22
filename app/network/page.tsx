@@ -730,7 +730,7 @@ function RewardCalls({ round }: { round: number }) {
                 className="h-1.5 min-w-8 flex-1 overflow-hidden rounded-full bg-foreground/[0.08]"
               >
                 <span
-                  className="block h-full rounded-full bg-green-bright transition-[width] duration-700 ease-out"
+                  className="block h-full rounded-full bg-green-fill transition-[width] duration-700 ease-out"
                   style={{ width: `${pct}%` }}
                 />
               </span>

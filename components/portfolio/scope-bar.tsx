@@ -91,7 +91,7 @@ function AccountChip({
       {account.connected && (
         <span
           aria-label="Connected"
-          className="size-1.5 rounded-full bg-green-bright"
+          className="size-1.5 rounded-full bg-green-fill"
         />
       )}
     </Chip>

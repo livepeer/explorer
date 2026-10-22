@@ -124,7 +124,7 @@ const rainbowTheme: Theme = {
     profileForeground: "var(--popover)",
     selectedOptionBorder: "var(--ring)",
     standby: "var(--warm)",
-    connectionIndicator: "var(--green-bright)",
+    connectionIndicator: "var(--green-fill)",
     error: "var(--destructive)",
   },
   fonts: { body: "var(--font-sans)" },

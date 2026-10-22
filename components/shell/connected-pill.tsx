@@ -65,7 +65,7 @@ function Connected({
           <Avatar address={address} src={avatar} size={20} />
           <span
             aria-hidden="true"
-            className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full border-[1.5px] border-background bg-green-bright"
+            className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full border-[1.5px] border-background bg-green-fill"
           />
         </span>
         <span className="max-w-[10rem] truncate text-foreground">
