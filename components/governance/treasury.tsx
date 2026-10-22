@@ -151,7 +151,7 @@ export function TreasuryCard() {
     return (
       <ErrorNotice error={treasury.error} onRetry={() => treasury.refetch()} />
     );
-  if (!view) return <Skeleton className="h-[280px] w-full rounded-md" />;
+  if (!view) return <Skeleton className="h-[320px] w-full rounded-md" />;
   const { t, pace, share, cutPct, status, fullBy } = view;
   const ceiling = formatLPT(t.ceiling, { compact: true });
 
@@ -222,7 +222,7 @@ export function TreasuryCard() {
           // highest balance, if one ran a little over before the cut stopped).
           yTicks={[0, 1 / 3, 2 / 3, 1].map((f) => f * t.ceiling)}
           domain={[0, Math.max(t.ceiling, ...t.history.map((h) => h.value))]}
-          height={200}
+          height={240}
           format={(v) => formatLPT(v)}
           axisFormat={(v) => formatToken(v, { compact: true })}
           ariaLabel={`Treasury balance since October 2023, now ${formatLPT(
