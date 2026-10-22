@@ -86,7 +86,7 @@ function LiveActivity({
   return (
     <>
       {waiting > 0 && (
-        <div className="pointer-events-none sticky top-16 z-20 flex justify-center lg:top-4">
+        <div className="pointer-events-none sticky top-16 z-20 flex justify-center lg:top-20">
           <button
             type="button"
             onClick={reveal}

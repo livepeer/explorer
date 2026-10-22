@@ -23,11 +23,15 @@
 
 /* ── Registry dark theme (default) ─────────────────────────────────────── */
 :root {
-  --background: oklch(0 0 0);
+  /* Charcoal, not black: three evenly spaced layers (page and sidebar,
+     the desktop content panel, cards), each visibly a step up, as in
+     Linear. Next to pure black, near-black steps can't be told apart. */
+  --background: oklch(0.13 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.21 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  /* Popovers float above cards, a step lighter again. */
+  --popover: oklch(0.235 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
@@ -59,17 +63,16 @@
   --series-6: #008300;
   --series-7: #9085e9;
   --series-other: rgba(255, 255, 255, 0.28);
-  /* Surfaces sit one clear step above the black page, with a full-strength
-     edge and a faint top highlight, so cards read as lifted rather than
-     dissolving into the background. */
-  --surface: oklch(0.19 0 0);
+  /* Cards sit a step above the panel (and, on phones, the page), with a
+     full-strength edge and a faint top highlight. */
+  --surface: oklch(0.21 0 0);
   --surface-highlight: inset 0 1px 0 oklch(1 0 0 / 5%);
   /* One line colour for every divider and outline (cards, sidebar, search),
      a touch brighter than the registry border so edges read on black. */
   --hairline: oklch(1 0 0 / 13%);
-  /* The content panel on desktop: a step up from the black sidebar, with
-     cards a step above it again. */
-  --panel: oklch(0.12 0 0);
+  /* The content panel on desktop: a step up from the sidebar, with cards a
+     step above it again. */
+  --panel: oklch(0.17 0 0);
   --hover: color-mix(in oklch, var(--foreground) 4%, transparent);
   --active: color-mix(in oklch, var(--foreground) 7%, transparent);
   --subtle-foreground: color-mix(in oklch, var(--foreground) 50%, transparent);
