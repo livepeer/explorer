@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId } from "react";
 import {
   Area,
   AreaChart,
@@ -10,6 +10,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
+  useActiveTooltipDataPoints,
   XAxis,
   YAxis,
 } from "recharts";
@@ -88,6 +89,19 @@ function ChartTooltip({
   );
 }
 
+/** Reports the hovered row's timestamp (null when nothing is) to a parent. */
+function ActiveReporter({
+  onActive,
+}: {
+  onActive: (ts: number | null) => void;
+}) {
+  const points = useActiveTooltipDataPoints<Row>();
+  const ts = points?.[0]?.ts ?? null;
+  useEffect(() => onActive(ts), [ts, onActive]);
+  useEffect(() => () => onActive(null), [onActive]);
+  return null;
+}
+
 function tickDate(spanDays: number) {
   return (ts: number) =>
     formatDate(
@@ -112,7 +126,16 @@ export function TimeSeriesChart({
   projection,
   yTicks,
   inner,
+  onActive,
+  hideTooltip,
 }: {
+  /**
+   * Called with the hovered point's timestamp, and null when the pointer
+   * leaves, for a readout outside the chart. Keep the function stable.
+   */
+  onActive?: (ts: number | null) => void;
+  /** Keep the hover line but drop the tooltip box, when a readout shows it. */
+  hideTooltip?: boolean;
   data: Point[];
   /**
    * A second series, one value per point of `data`, drawn as an area inside
@@ -195,11 +218,15 @@ export function TimeSeriesChart({
   const tooltip = (
     <Tooltip
       content={
-        <ChartTooltip
-          format={format}
-          title={tooltipTitle}
-          layers={inner?.layers}
-        />
+        hideTooltip ? (
+          () => null
+        ) : (
+          <ChartTooltip
+            format={format}
+            title={tooltipTitle}
+            layers={inner?.layers}
+          />
+        )
       }
       cursor={
         kind === "area"
@@ -249,6 +276,7 @@ export function TimeSeriesChart({
             {xAxis}
             {yAxis}
             {tooltip}
+            {onActive && <ActiveReporter onActive={onActive} />}
             {ref}
             <Area
               type="monotone"
@@ -313,6 +341,7 @@ export function TimeSeriesChart({
             {xAxis}
             {yAxis}
             {tooltip}
+            {onActive && <ActiveReporter onActive={onActive} />}
             {ref}
             <Bar
               dataKey="value"

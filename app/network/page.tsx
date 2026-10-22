@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { ActivityList } from "@/components/activity-list";
 import {
@@ -411,13 +411,32 @@ function monthly(points: Point[]): Point[] {
   return out;
 }
 
+/** "over the past year", or since the series starts for "All". */
+function rangePhrase(range: Range, firstTs: number) {
+  return range === "3m"
+    ? "over the past 3 months"
+    : range === "1y"
+    ? "over the past year"
+    : `since ${formatDate(firstTs, { month: "short", year: "numeric" })}`;
+}
+
+/** Percentage change, or nothing when it can't be worked out. */
+const pctChange = (a: number, b: number) =>
+  a > 0 ? `${signed(((b - a) / a) * 100, 1)}%` : null;
+
+const dayLabel = (p: Point) =>
+  formatDate(p.ts, { month: "short", day: "numeric", year: "numeric" });
+
+/** The figures above the chart: a value, an optional second figure, a note. */
+type Readout = { value: string; detail?: string; note: string };
+
 function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
   return useMemo(() => {
     const all = days ?? [];
     const latest = all.length ? all[all.length - 1].date : 0;
     const cutoff = latest - RANGE_DAYS[range] * 86400;
     const sliced = all.filter((d) => d.date > cutoff);
-    const pts = (pick: (d: Day) => number) =>
+    const pts = (pick: (d: Day) => number): Point[] =>
       sliced.map((d) => ({ ts: d.date, value: pick(d) }));
 
     switch (metric) {
@@ -429,7 +448,9 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => formatPercent(v, { decimals: 2 }),
           axis: (v: number) => formatPercent(v, { decimals: 0 }),
           label: "Share of LPT supply staked, daily",
+          caption: "Share of LPT staked",
           bucketed: null,
+          change: (a: number, b: number) => `${signed(b - a, 2)} pts`,
         };
       case "fees": {
         const daily = pts((d) => d.volumeETH);
@@ -447,7 +468,10 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: formatETH,
           axis: (v: number) => formatNumber(v, { decimals: v < 1 ? 2 : 0 }),
           label: `ETH fee volume per ${bucket ?? "day"}`,
+          caption: `ETH fees per ${bucket ?? "day"}`,
           bucketed: bucket,
+          // A total suits fees better than the latest (often partial) bar.
+          total: daily.reduce((s, p) => s + p.value, 0),
         };
       }
       case "inflation":
@@ -458,7 +482,9 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => formatPercent(v, { decimals: 4 }),
           axis: (v: number) => formatPercent(v, { decimals: 3 }),
           label: "Inflation per round, daily",
+          caption: "Inflation per round",
           bucketed: null,
+          change: pctChange,
         };
       case "supply": {
         // Supply as the outline, the staked part filled inside it; the
@@ -469,16 +495,11 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
         const start = settledFrom(sliced.map((d) => d.totalSupply));
         const settled = sliced.slice(start);
         const data = settled.map((d) => ({ ts: d.date, value: d.totalSupply }));
-        const first = data[0]?.value ?? 0;
-        const lastValue = data[data.length - 1]?.value ?? 0;
-        const growth =
-          first > 0
-            ? `${signed(((lastValue - first) / first) * 100, 1)}%`
-            : null;
+        const staked = settled.map((d) => d.totalActiveStake);
         return {
           data,
           inner: {
-            values: settled.map((d) => d.totalActiveStake),
+            values: staked,
             color: "var(--series-1)",
             layers: { outer: "Supply", inner: "Staked" },
           },
@@ -486,10 +507,17 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           color: "var(--series-1)",
           format: (v: number) => formatLPT(v, { compact: true }),
           axis: (v: number) => formatNumber(v, { decimals: 0, compact: true }),
-          label: growth
-            ? `LPT supply and the part staked, daily · supply ${growth} over this range`
-            : "LPT supply and the part staked, daily",
+          label: "LPT supply and the part staked, daily",
+          caption: "Total LPT supply",
           bucketed: null,
+          change: pctChange,
+          detail: (i: number) =>
+            `${formatNumber(staked[i], {
+              compact: true,
+            })} staked · ${formatPercent(
+              data[i].value > 0 ? (staked[i] / data[i].value) * 100 : 0,
+              { decimals: 1 }
+            )}`,
         };
       }
       case "delegators":
@@ -500,7 +528,9 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: (v: number) => Math.round(v).toLocaleString(),
           axis: (v: number) => formatNumber(v, { decimals: 0, compact: true }),
           label: "Delegators with stake, daily",
+          caption: "Delegators with stake",
           bucketed: null,
+          change: pctChange,
         };
     }
   }, [days, metric, range]);
@@ -511,33 +541,96 @@ function HistorySection() {
   const [range, setRange] = useState<Range>("1y");
   const { data: days, isLoading, error, refetch } = useDays();
   const chart = useChart(days, metric, range);
+  // The hovered point, by timestamp; the readout shows it while there is one.
+  const [activeTs, setActiveTs] = useState<number | null>(null);
+  const onActive = useCallback((ts: number | null) => setActiveTs(ts), []);
+
+  const when = (p: Point) =>
+    chart.bucketed === "month"
+      ? formatDate(p.ts, { month: "long", year: "numeric" })
+      : chart.bucketed === "week"
+      ? `week of ${dayLabel(p)}`
+      : dayLabel(p);
+  const data = chart.data;
+  const at = activeTs == null ? -1 : data.findIndex((p) => p.ts === activeTs);
+  let readout: Readout | null = null;
+  if (data.length >= 2) {
+    const last = data.length - 1;
+    const phrase = rangePhrase(range, data[0].ts);
+    const detail = "detail" in chart ? chart.detail : undefined;
+    if (at >= 0) {
+      readout = {
+        value: chart.format(data[at].value),
+        detail: detail?.(at),
+        note: `${chart.caption} · ${when(data[at])}`,
+      };
+    } else if ("total" in chart && chart.total != null) {
+      readout = {
+        value: chart.format(chart.total),
+        note: `${chart.caption} · total ${phrase}`,
+      };
+    } else {
+      const change = chart.change(data[0].value, data[last].value);
+      readout = {
+        value: chart.format(data[last].value),
+        detail: detail?.(last),
+        note: change ? `${chart.caption} · ${change} ${phrase}` : chart.caption,
+      };
+    }
+  }
 
   return (
     <Section>
-      <SectionHeader
-        title="History"
-        description={chart.label}
-        action={
-          <Segmented
-            label="Time range"
-            size="xs"
-            value={range}
-            onChange={setRange}
-            options={RANGES}
-          />
-        }
-      />
+      <SectionHeader title="History" />
       {error ? (
         <ErrorNotice error={error} onRetry={() => refetch()} />
       ) : (
         <Card className="overflow-hidden">
-          <div className="scrollbar-none overflow-x-auto px-4 pt-4 sm:px-5">
+          {/* What to chart and over how long, together: the metrics scroll
+              sideways on a phone, the range stays put. */}
+          <div className="flex items-center gap-3 px-4 pt-4 sm:px-5">
+            <div className="scrollbar-none min-w-0 flex-1 overflow-x-auto">
+              <Segmented
+                label="Chart metric"
+                value={metric}
+                onChange={setMetric}
+                options={METRICS}
+              />
+            </div>
             <Segmented
-              label="Chart metric"
-              value={metric}
-              onChange={setMetric}
-              options={METRICS}
+              label="Time range"
+              size="xs"
+              value={range}
+              onChange={setRange}
+              options={RANGES}
+              className="shrink-0"
             />
+          </div>
+          {/* Today's figure and its change over the range; while hovering,
+              the hovered point's. */}
+          <div className="flex min-h-[52px] flex-col gap-0.5 px-4 pt-4 sm:px-5">
+            {isLoading ? (
+              <>
+                <Skeleton className="h-6 w-28" />
+                <Skeleton className="h-3 w-40" />
+              </>
+            ) : readout ? (
+              <>
+                <div className="flex flex-wrap items-baseline gap-x-2.5">
+                  <span className="text-[22px] leading-7 font-medium tracking-[-0.01em] text-foreground tabular-nums">
+                    {readout.value}
+                  </span>
+                  {readout.detail && (
+                    <span className="text-ui-body text-muted-foreground tabular-nums">
+                      {readout.detail}
+                    </span>
+                  )}
+                </div>
+                <span className="text-ui-caption text-muted-foreground tabular-nums">
+                  {readout.note}
+                </span>
+              </>
+            ) : null}
           </div>
           <div className="px-2 pt-4 pb-3 sm:px-4">
             {isLoading ? (
@@ -556,23 +649,12 @@ function HistorySection() {
                 format={chart.format}
                 axisFormat={chart.axis}
                 height={260}
+                onActive={onActive}
+                hideTooltip
                 domain={
                   metric === "fees" || metric === "supply"
                     ? [0, "auto"]
                     : ["auto", "auto"]
-                }
-                tooltipTitle={
-                  chart.bucketed === "month"
-                    ? (p) =>
-                        formatDate(p.ts, { month: "long", year: "numeric" })
-                    : chart.bucketed === "week"
-                    ? (p) =>
-                        `Week of ${formatDate(p.ts, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}`
-                    : undefined
                 }
               />
             )}
