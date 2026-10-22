@@ -3008,15 +3008,15 @@
               <circle data-id="nock" cx="223" cy="32" r="5" fill="#4cc38a" />
               <circle data-id="oak" cx="237" cy="47" r="5" fill="#4cc38a" />
               <circle data-id="gable" cx="288" cy="16" r="5" fill="#4cc38a" />
-              <circle data-id="keel" cx="272" cy="36" r="5" fill="#4cc38a" />
-              <circle data-id="lark" cx="288" cy="36" r="5" fill="#4cc38a" />
-              <circle data-id="mare" cx="304" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="keel" cx="272" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="lark" cx="288" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="mare" cx="304" cy="32" r="5" fill="#4cc38a" />
               <circle data-id="dune" cx="322" cy="16" r="5" fill="#4cc38a" />
               <circle data-id="ember" cx="338" cy="16" r="5" fill="#4cc38a" />
               <circle data-id="flint" cx="354" cy="16" r="5" fill="#4cc38a" />
               <circle data-id="holt" cx="370" cy="24" r="5" fill="#4cc38a" />
-              <circle data-id="iris" cx="322" cy="36" r="5" fill="#4cc38a" />
-              <circle data-id="jute" cx="338" cy="36" r="5" fill="#4cc38a" />
+              <circle data-id="iris" cx="322" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="jute" cx="338" cy="32" r="5" fill="#4cc38a" />
               <circle
                 data-id="northbeam"
                 cx="380"
@@ -3027,7 +3027,7 @@
               <circle data-id="kiln" cx="396" cy="16" r="5" fill="#4cc38a" />
               <circle data-id="alder" cx="412" cy="16" r="5" fill="#4cc38a" />
               <circle data-id="brant" cx="428" cy="16" r="5" fill="#4cc38a" />
-              <circle data-id="reed" cx="404" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="reed" cx="404" cy="24" r="5" fill="#4cc38a" />
               <circle data-id="cinder" cx="404" cy="110" r="5" fill="#4cc38a" />
               <text x="56" y="192" text-anchor="middle">4212</text>
               <text x="114" y="192" text-anchor="middle">4213</text>
@@ -3502,7 +3502,9 @@
 
         function showIcon(root, name) {
           root.querySelectorAll("[data-icon]").forEach(function (svg) {
-            svg.hidden = svg.getAttribute("data-icon") !== name;
+            if (svg.getAttribute("data-icon") === name)
+              svg.removeAttribute("hidden");
+            else svg.setAttribute("hidden", "");
           });
         }
 
@@ -3551,7 +3553,8 @@
           all: "10 nodes shown. The full set is 33. Twenty-seven seats are not drawn.",
         };
 
-        function applyFilter(bucket) {
+        function applyFilter(bucket, opts) {
+          opts = opts || {};
           syncRadioGroup(filterSeg, "data-bucket", bucket);
           vlist.querySelectorAll('[role="radio"]').forEach(function (row) {
             var show =
@@ -3561,6 +3564,7 @@
           filterCount.textContent = FILTER_COPY[bucket] || "";
           var selected = vlist.querySelector('[aria-checked="true"]');
           if (!selected || selected.hidden) {
+            if (opts.deferSelection) return;
             var first = vlist.querySelector('[role="radio"]:not([hidden])');
             if (first)
               selectId(first.getAttribute("data-id"), { activate: false });
@@ -3652,6 +3656,8 @@
             var id = link.getAttribute("data-jump");
             var node = NODES[id];
             if (!node) return;
+            if (link.closest("#score-sheet"))
+              closeScoreSheet({ skipFocus: true });
             applyFilter(node.bucket);
             selectId(id, { activate: isNarrow() });
             if (isNarrow()) setMobilePane("detail");
@@ -3678,8 +3684,8 @@
           var params = new URLSearchParams(window.location.search);
           var deep = params.get("validator");
           if (deep && NODES[deep]) {
-            applyFilter(NODES[deep].bucket);
-            selectId(deep, { activate: isNarrow(), skipUrl: true });
+            applyFilter(NODES[deep].bucket, { deferSelection: true });
+            selectId(deep, { activate: isNarrow() });
             if (isNarrow()) setMobilePane("detail");
           } else {
             selectId("northbeam", {
@@ -3748,10 +3754,12 @@
           closeScores.focus();
         }
 
-        function closeScoreSheet() {
+        function closeScoreSheet(opts) {
+          opts = opts || {};
           scoreSheet.hidden = true;
           document.body.style.overflow = "";
-          if (scoresReturn && scoresReturn.focus) scoresReturn.focus();
+          if (!opts.skipFocus && scoresReturn && scoresReturn.focus)
+            scoresReturn.focus();
         }
 
         openScores.addEventListener("click", function () {
