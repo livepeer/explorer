@@ -164,7 +164,7 @@ export function IdleLptAction({
   return (
     <div className="flex items-center gap-2.5 text-ui-caption whitespace-nowrap text-muted-foreground">
       <span>
-        <span className="font-mono text-foreground tabular-nums">
+        <span className="font-medium text-foreground tabular-nums">
           {formatLPT(total)}
         </span>{" "}
         available
