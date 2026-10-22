@@ -242,9 +242,9 @@ export default function GatewaysPage() {
                   Array.from({ length: 10 }).map((_, i) => (
                     <tr
                       key={i}
-                      className="border-b border-hairline last:border-0"
+                      className="h-14 border-b border-hairline last:border-0"
                     >
-                      <td className="px-4 py-3.5" colSpan={7}>
+                      <td className="px-4 py-2" colSpan={7}>
                         <div className="flex items-center gap-3">
                           <Skeleton className="size-7 rounded-full" />
                           <Skeleton className="h-3.5 w-40" />
@@ -258,12 +258,12 @@ export default function GatewaysPage() {
                   return (
                     <tr
                       key={g.id}
-                      className="group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60"
+                      className="h-14 group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60"
                     >
-                      <td className="sticky left-0 z-10 bg-surface px-3 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
+                      <td className="sticky left-0 z-10 bg-surface px-3 py-2 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
                         <GatewayName id={g.id} rank={rank} copy />
                       </td>
-                      <td className="px-3 py-3 text-right">
+                      <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end gap-3">
                           {!idle && <WeeklyTrend days={g.days} />}
                           <span className="text-ui-body whitespace-nowrap tabular-nums">
@@ -271,24 +271,24 @@ export default function GatewaysPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                      <td className="px-3 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                         {g.thirtyDayVolumeETH > 0
                           ? formatETH(g.thirtyDayVolumeETH)
                           : "—"}
                       </td>
-                      <td className="px-3 py-3 text-right">
+                      <td className="px-3 py-2 text-right">
                         <div className="text-ui-body whitespace-nowrap tabular-nums">
                           {formatETH(g.deposit)}
                         </div>
                         <Runway g={g} />
                       </td>
-                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
+                      <td className="px-3 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                         {formatETH(g.reserve)}
                       </td>
-                      <td className="px-3 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                      <td className="px-3 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                         {formatETH(g.totalVolumeETH)}
                       </td>
-                      <td className="px-3 py-3 pr-4 text-right text-[13px] whitespace-nowrap text-muted-foreground">
+                      <td className="px-3 py-2 pr-4 text-right text-[13px] whitespace-nowrap text-muted-foreground">
                         {formatLastDay(g.lastActiveDay)}
                       </td>
                     </tr>

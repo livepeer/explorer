@@ -534,9 +534,9 @@ function OrchestratorTable() {
                   Array.from({ length: 10 }).map((_, i) => (
                     <tr
                       key={i}
-                      className="border-b border-hairline last:border-0"
+                      className="h-14 border-b border-hairline last:border-0"
                     >
-                      <td className="px-4 py-3.5" colSpan={10}>
+                      <td className="px-4 py-2" colSpan={10}>
                         <div className="flex items-center gap-3">
                           <Skeleton className="size-7 rounded-full" />
                           <Skeleton className="h-3.5 w-40" />
@@ -559,14 +559,14 @@ function OrchestratorTable() {
                           </td>
                         </tr>
                       )}
-                      <tr className="group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60">
-                        <td className="sticky left-0 z-10 bg-surface px-1.5 py-3 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
+                      <tr className="h-14 group border-b border-hairline transition-colors last:border-0 hover:bg-hover/60">
+                        <td className="sticky left-0 z-10 bg-surface px-1.5 py-2 pl-1 group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
                           <NameCell o={o} rank={rank} copy />
                         </td>
-                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                           <AprValue o={o} />
                         </td>
-                        <td className="hidden @min-[726px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[726px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {expected != null && stakeAmount > 0
                             ? `+${formatNumber(stakeAmount * (expected / 100), {
                                 decimals:
@@ -574,24 +574,24 @@ function OrchestratorTable() {
                               })} LPT`
                             : "—"}
                         </td>
-                        <td className="px-1.5 py-3 text-right">
+                        <td className="px-1.5 py-2 text-right">
                           <CallsMeter
                             calls={o.rewardCalls}
                             window={o.rewardWindow}
                           />
                         </td>
-                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                           <CutValue o={o} />
                         </td>
-                        <td className="px-1.5 py-3 text-right text-ui-body whitespace-nowrap tabular-nums">
+                        <td className="px-1.5 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                           {o.feeShare.toFixed(o.feeShare % 1 ? 1 : 0)}%
                         </td>
-                        <td className="hidden @min-[906px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[906px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.thirtyDayVolumeETH > 0
                             ? formatETH(o.thirtyDayVolumeETH)
                             : "—"}
                         </td>
-                        <td className="hidden @min-[816px]:table-cell px-1.5 py-3 text-right">
+                        <td className="hidden @min-[816px]:table-cell px-1.5 py-2 text-right">
                           <div className="text-ui-body whitespace-nowrap tabular-nums">
                             {formatLPT(o.totalStake, { compact: true })}
                           </div>
@@ -601,12 +601,12 @@ function OrchestratorTable() {
                             </div>
                           )}
                         </td>
-                        <td className="hidden @min-[980px]:table-cell px-1.5 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[980px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.delegatorCount >= 1000
                             ? "1,000+"
                             : o.delegatorCount.toLocaleString()}
                         </td>
-                        <td className="sticky right-0 z-10 bg-surface px-1.5 py-3 pr-2 text-right shadow-[-1px_0_0_var(--hairline)] group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
+                        <td className="sticky right-0 z-10 bg-surface px-1.5 py-2 pr-2 text-right shadow-[-1px_0_0_var(--hairline)] group-hover:bg-[color-mix(in_oklch,var(--surface),var(--foreground)_2.5%)]">
                           {/* Always shown: on hover alone it never appeared
                               on a touch screen. */}
                           <Button

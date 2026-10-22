@@ -52,7 +52,7 @@ function Row({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 px-4 py-4 transition-colors outline-none hover:bg-hover focus-visible:bg-hover sm:px-5"
+      className="group flex items-center gap-4 px-4 py-3.5 transition-colors outline-none hover:bg-hover focus-visible:bg-hover sm:px-5"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -93,7 +93,7 @@ export function ListSkeleton({ rows = 4 }: { rows?: number }) {
       {Array.from({ length: rows }, (_, i) => (
         <div
           key={i}
-          className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-5"
+          className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:gap-6 sm:px-5"
         >
           <div className="flex flex-1 flex-col gap-2">
             <Skeleton className="h-4 w-3/4 max-w-[420px]" />

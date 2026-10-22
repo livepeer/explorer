@@ -461,16 +461,16 @@ export function Positions({
               return (
                 <tr
                   key={p.account.address}
-                  className="border-b border-hairline last:border-0 hover:bg-hover/60"
+                  className="h-14 border-b border-hairline last:border-0 hover:bg-hover/60"
                 >
                   {showAccount && (
-                    <td className="px-2.5 @min-[48rem]:px-3 py-3">
+                    <td className="px-2.5 @min-[48rem]:px-3 py-2">
                       <div className={ACCOUNT_CELL}>
                         <AccountCell account={p.account} copy />
                       </div>
                     </td>
                   )}
-                  <td className="px-2.5 @min-[48rem]:px-3 py-3">
+                  <td className="px-2.5 @min-[48rem]:px-3 py-2">
                     {p.delegate ? (
                       <div
                         className={cn(
@@ -503,7 +503,7 @@ export function Positions({
                       </span>
                     )}
                   </td>
-                  <td className="px-2.5 @min-[48rem]:px-3 py-3 text-right">
+                  <td className="px-2.5 @min-[48rem]:px-3 py-2 text-right">
                     <div className="text-ui-body whitespace-nowrap tabular-nums">
                       {formatLPT(p.stake)}
                     </div>
@@ -516,7 +516,7 @@ export function Positions({
                       </div>
                     )}
                   </td>
-                  <td className="hidden px-2.5 @min-[48rem]:px-3 py-3 text-right text-ui-body whitespace-nowrap tabular-nums @min-[48rem]:table-cell">
+                  <td className="hidden px-2.5 @min-[48rem]:px-3 py-2 text-right text-ui-body whitespace-nowrap tabular-nums @min-[48rem]:table-cell">
                     <span
                       className={cn(
                         p.rewards30d > 0
@@ -528,7 +528,7 @@ export function Positions({
                       {formatLPT(p.rewards30d)}
                     </span>
                   </td>
-                  <td className="px-2.5 @min-[48rem]:px-3 py-3 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                  <td className="px-2.5 @min-[48rem]:px-3 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                     {p.fees >= DUST_ETH ? (
                       <span className="text-foreground">
                         {formatETH(p.fees)}
@@ -537,10 +537,10 @@ export function Positions({
                       "—"
                     )}
                   </td>
-                  <td className="hidden px-2.5 @min-[48rem]:px-3 py-3 @min-[60rem]:table-cell">
+                  <td className="hidden px-2.5 @min-[48rem]:px-3 py-2 @min-[60rem]:table-cell">
                     <Sparkline values={p.trend} color="var(--series-1)" />
                   </td>
-                  <td className="px-2 py-3 text-right">
+                  <td className="px-2 py-2 text-right">
                     <RowActions
                       position={p}
                       canManage={canManage(p.account.address)}
