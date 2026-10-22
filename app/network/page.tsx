@@ -468,7 +468,7 @@ function useChart(days: Day[] | undefined, metric: Metric, range: Range) {
           format: formatETH,
           axis: (v: number) => formatNumber(v, { decimals: v < 1 ? 2 : 0 }),
           label: `ETH fee volume per ${bucket ?? "day"}`,
-          caption: `ETH fees per ${bucket ?? "day"}`,
+          caption: "ETH fees",
           bucketed: bucket,
           // A total suits fees better than the latest (often partial) bar.
           total: daily.reduce((s, p) => s + p.value, 0),
@@ -567,7 +567,7 @@ function HistorySection() {
     } else if ("total" in chart && chart.total != null) {
       readout = {
         value: chart.format(chart.total),
-        note: `${chart.caption} · total ${phrase}`,
+        note: `Total ${chart.caption} ${phrase}`,
       };
     } else {
       const change = chart.change(data[0].value, data[last].value);
