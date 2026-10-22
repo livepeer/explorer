@@ -202,9 +202,11 @@ html[data-theme="light"] {
   --text-ui-caption--line-height: 16px;
   --text-ui-body: 14px;
   --text-ui-body--line-height: 20px;
-  --text-page-title: 32px;
-  --text-page-title--line-height: 1.05;
-  --text-page-title--font-weight: var(--font-weight-light);
+  /* App-sized, not editorial: a firm semibold a step above section
+     headings, rather than a large light title. */
+  --text-page-title: 26px;
+  --text-page-title--line-height: 32px;
+  --text-page-title--font-weight: 600;
   --text-display-sm: 36px;
   --text-display-sm--line-height: 1;
   --text-display-md: 48px;

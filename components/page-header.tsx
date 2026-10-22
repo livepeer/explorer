@@ -82,7 +82,7 @@ export function PageHeader({
               {eyebrow}
             </div>
           )}
-          <h1 className="text-page-title font-light tracking-[-0.01em] text-balance lg:sr-only">
+          <h1 className="text-page-title font-semibold tracking-[-0.02em] text-balance lg:sr-only">
             {title}
           </h1>
           {description && (

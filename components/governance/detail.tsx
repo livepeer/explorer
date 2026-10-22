@@ -40,7 +40,7 @@ export function DetailHeader({
       {loading ? (
         <Skeleton className="h-8 w-full max-w-[520px] sm:h-9" />
       ) : (
-        <h1 className="max-w-[40ch] text-[26px] leading-8 font-light tracking-[-0.01em] text-balance break-words sm:text-[28px] sm:leading-9">
+        <h1 className="max-w-[40ch] text-[24px] leading-8 font-semibold tracking-[-0.02em] text-balance break-words sm:text-[26px]">
           {title}
         </h1>
       )}

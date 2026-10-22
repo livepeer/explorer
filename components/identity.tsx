@@ -173,7 +173,9 @@ export function Identity({
         <span
           className={cn(
             "truncate text-ui-body text-foreground",
-            showMono && "font-mono text-[13px] tracking-tight"
+            // Names carry weight, as in Linear's lists; a bare address stays
+            // regular, since mono is already dense.
+            showMono ? "font-mono text-[13px] tracking-tight" : "font-medium"
           )}
           title={address}
         >

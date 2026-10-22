@@ -38,7 +38,9 @@ export function SectionHeader({
       )}
     >
       <div className="flex min-w-0 flex-col gap-0.5">
-        <h2 className="text-[15px] font-medium text-foreground">{title}</h2>
+        <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground">
+          {title}
+        </h2>
         {description && (
           <p className="text-ui-caption text-muted-foreground">{description}</p>
         )}

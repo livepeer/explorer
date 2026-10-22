@@ -350,9 +350,9 @@ export default function OrchestratorPage() {
               )}
               {delegatedHere && <Badge tone="outline">Your orchestrator</Badge>}
             </div>
-            <h1 className="truncate text-[28px] leading-8 font-light tracking-[-0.01em]">
+            <h1 className="truncate text-[24px] leading-8 font-semibold tracking-[-0.02em]">
               {name ?? (
-                <span className="font-mono text-[22px]">
+                <span className="font-mono text-[20px] font-medium tracking-normal">
                   {shortAddress(address, 8, 6)}
                 </span>
               )}

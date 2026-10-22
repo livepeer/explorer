@@ -73,7 +73,7 @@ function AccountCell({
         <Avatar address={account.address} src={avatar} size={26} />
         <span className="flex min-w-0 flex-col">
           {/* A block, not a flex row: only a block truncates with "…". */}
-          <span className="truncate text-ui-body">
+          <span className="truncate text-ui-body font-medium">
             {account.label ?? name ?? (
               <span className="font-mono text-[13px]">
                 {shortAddress(account.address)}
@@ -308,7 +308,7 @@ function PositionListRow({
         >
           <Avatar address={lead.address} src={lead.avatar} size={32} />
           <span className="flex min-w-0 flex-col gap-1">
-            <span className="truncate text-ui-body">
+            <span className="truncate text-ui-body font-medium">
               {lead.name ?? (
                 <span className="font-mono text-[13px]">
                   {shortAddress(lead.address)}

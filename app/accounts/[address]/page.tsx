@@ -74,9 +74,9 @@ export default function AccountPage() {
               {isConnected ? "Connected wallet" : "Account"}
             </div>
             <div className="flex min-w-0 items-center gap-1.5">
-              <h1 className="truncate text-[26px] leading-8 font-light tracking-[-0.01em]">
+              <h1 className="truncate text-[24px] leading-8 font-semibold tracking-[-0.02em]">
                 {label ?? name ?? (
-                  <span className="font-mono text-[22px]">
+                  <span className="font-mono text-[20px] font-medium tracking-normal">
                     {shortAddress(address, 8, 6)}
                   </span>
                 )}

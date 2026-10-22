@@ -42,7 +42,7 @@ function Name({ address }: { address?: string }) {
   const label = list.find((w) => w.address === address?.toLowerCase())?.label;
   if (!address) return null;
   return (
-    <span className="text-foreground">
+    <span className="font-medium text-foreground">
       {label ?? name ?? (
         // Quieter than a name: mono is denser, so a step smaller and softer.
         <span className="font-mono text-[12.5px] tracking-tight text-foreground/75">
