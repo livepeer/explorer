@@ -263,7 +263,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         on <body>, which makes body the sticky container and pins these to
         the top of the page instead of the screen.
       */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[244px] border-r border-hairline bg-background lg:block">
+      <aside className="app-sidebar fixed inset-y-0 left-0 z-30 hidden w-[244px] border-r border-hairline bg-background lg:block">
         <SidebarBody onSearch={() => setSearchOpen(true)} />
       </aside>
 
@@ -298,7 +298,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <WalletButton compact />
         </header>
 
-        <main id="main" className="min-w-0 flex-1">
+        {/* On desktop, the content sits in one rounded panel
+            inset from the sidebar's background (see .app-frame in globals.css). */}
+        <div aria-hidden="true" className="app-frame" />
+        <main id="main" className="app-main min-w-0 flex-1">
           {/* Desktop header, Linear-style: where you are on the left, who
               you'd sign as on the right. Level with the sidebar's logo, and
               padded like Page so both ends line up with the content. */}

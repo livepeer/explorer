@@ -67,6 +67,9 @@
   /* One line colour for every divider and outline (cards, sidebar, search),
      a touch brighter than the registry border so edges read on black. */
   --hairline: oklch(1 0 0 / 13%);
+  /* The content panel on desktop: a step up from the black sidebar, with
+     cards a step above it again. */
+  --panel: oklch(0.12 0 0);
   --hover: color-mix(in oklch, var(--foreground) 4%, transparent);
   --active: color-mix(in oklch, var(--foreground) 7%, transparent);
   --subtle-foreground: color-mix(in oklch, var(--foreground) 50%, transparent);
@@ -83,11 +86,11 @@ html[data-theme="light"] {
      rather than the page reading dirty. Lighter on top, as in dark mode: a soft grey page and sidebar, with
      white cards, panels and popovers raised on it by a visible step. */
   --background: oklch(0.967 0.002 286);
-  --foreground: oklch(0.145 0.005 286);
+  --foreground: oklch(0.235 0.006 286);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.005 286);
+  --card-foreground: oklch(0.235 0.006 286);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.005 286);
+  --popover-foreground: oklch(0.235 0.006 286);
   --primary: oklch(0.205 0.006 286);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0.002 286);
@@ -101,7 +104,7 @@ html[data-theme="light"] {
   --input: oklch(0.915 0.004 286);
   --ring: oklch(0.7 0.01 286);
   --sidebar: oklch(0.967 0.002 286);
-  --sidebar-foreground: oklch(0.145 0.005 286);
+  --sidebar-foreground: oklch(0.235 0.006 286);
   --sidebar-border: oklch(0.915 0.004 286);
 
   /* Legibility steps for accents and series on light surfaces */
@@ -131,8 +134,10 @@ html[data-theme="light"] {
     0 1px 2px rgb(24 24 27 / 0.06);
 
   /* Dark text on white reads thinner than light text on black, so the
-     light display weight steps up to regular here. */
-  --font-weight-light: 400;
+     light display weight steps up here, to a firm medium. */
+  --font-weight-light: 500;
+  /* The content panel on desktop: a step off white, on the grey page. */
+  --panel: oklch(0.993 0.001 286);
 
   color-scheme: light;
 }
@@ -510,5 +515,39 @@ textarea {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── The content panel (desktop) ──────────────────────────────────────────
+   Linear-style: the sidebar on the page background, the content in one
+   rounded panel inset by 8px, a step off the page (off-white in light mode,
+   near-black in dark). The window still scrolls (route changes and the live
+   feed rely on it), so the panel's edge is a fixed frame: a hairline ring,
+   and the page background spread outside it, which the content scrolls
+   behind. It sits under the sidebar and every popover, menu and dialog. */
+.app-frame {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .app-frame {
+    display: block;
+    position: fixed;
+    inset: 8px 8px 8px 252px;
+    z-index: 25;
+    border-radius: 12px;
+    pointer-events: none;
+    box-shadow: 0 0 0 1px var(--hairline), 0 0 0 100vmax var(--background);
+  }
+  .app-main {
+    background-color: var(--panel);
+    padding-block: 8px;
+  }
+  .app-sidebar {
+    border-right-color: transparent;
+  }
+  /* Inside the panel, light mode's cards are set flat: an edge, no lift. */
+  html[data-theme="light"] .app-main .surface,
+  html[data-theme="light"] .app-main .hairline-grid {
+    box-shadow: none;
   }
 }
