@@ -378,6 +378,39 @@ export function trailingRoundRate(series: SeriesPoint[], window = 30) {
   return stake > 0 ? Math.max(0, rewards / stake) : 0;
 }
 
+/**
+ * ETH fees per LPT staked, per round, over the trailing window: the fee
+ * counterpart of `trailingRoundRate`.
+ */
+export function trailingFeeRate(series: SeriesPoint[], window = 30) {
+  if (series.length < 2) return 0;
+  const tail = series.slice(-(window + 1));
+  let fees = 0;
+  let stake = 0;
+  for (let i = 1; i < tail.length; i++) {
+    if (tail[i - 1].stake <= 0) continue;
+    fees += tail[i].fees;
+    stake += tail[i - 1].stake;
+  }
+  return stake > 0 ? Math.max(0, fees / stake) : 0;
+}
+
+/**
+ * A per-round fee rate (ETH per LPT) as an annual % of stake, valued in LPT
+ * at today's ETH/LPT price. Fees are paid out in ETH rather than added to
+ * stake, so they don't compound: a simple rate.
+ */
+export function annualizeFees(
+  feeRoundRate: number,
+  roundSeconds: number,
+  /** LPT one ETH buys today */
+  lptPerEth: number
+) {
+  if (feeRoundRate <= 0 || roundSeconds <= 0 || lptPerEth <= 0) return 0;
+  const roundsPerYear = (365 * 86400) / roundSeconds;
+  return feeRoundRate * lptPerEth * roundsPerYear * 100;
+}
+
 /** Average reward-cut commission per round over the trailing window. */
 export function trailingCommission(series: SeriesPoint[], window = 30) {
   const tail = series.slice(-window);

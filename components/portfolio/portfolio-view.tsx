@@ -37,10 +37,12 @@ import { useSafeProposals } from "@/lib/hooks/safe";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
 import {
   annualize,
+  annualizeFees,
   averageRoundSeconds,
   projectEarnings,
   sumSince,
   trailingCommission,
+  trailingFeeRate,
   trailingRoundRate,
 } from "@/lib/portfolio/compute";
 
@@ -146,6 +148,7 @@ export function PortfolioView({
     const roundSeconds = averageRoundSeconds(data.rounds);
     const rate = trailingRoundRate(series);
     const apr = annualize(rate, roundSeconds);
+    const feeRate = trailingFeeRate(series);
     const commission = trailingCommission(series);
     const since30 = nowSec - 30 * 86400;
     const rewards30 = sumSince(series, "rewards", since30);
@@ -186,6 +189,7 @@ export function PortfolioView({
       roundSeconds,
       rate,
       apr,
+      feeRate,
       rewards30,
       fees30,
       share,
@@ -354,6 +358,29 @@ export function PortfolioView({
     <IdleLptAction idle={idle} accounts={accounts} positions={view.positions} />
   );
   const lpt = prices?.lpt;
+  // Realised APR is rewards plus fees, as on the Orchestrators page: fees
+  // valued in LPT at today's prices (left out, and said so, without them).
+  const feeApr =
+    view && lpt && prices?.eth
+      ? annualizeFees(view.feeRate, view.roundSeconds, prices.eth / lpt)
+      : null;
+  const aprSplit = view && (
+    <span className="flex flex-col gap-1">
+      <span>
+        Rewards {view.apr.toFixed(2)}%, realised over the last 30 rounds and
+        compounded to a year.
+      </span>
+      {feeApr != null ? (
+        <span>
+          Fees {feeApr.toFixed(2)}%, from the same rounds, valued at
+          today&apos;s ETH/LPT price.
+        </span>
+      ) : (
+        <span>Fees aren&apos;t counted: prices are unavailable.</span>
+      )}
+      <span>Not a promise: inflation, reward calls and cuts all move it.</span>
+    </span>
+  );
   // Problems costing the delegator rewards, lifted to the top of the page;
   // votes, Safe actions and withdrawals wait in the list below.
   const urgent = insights.filter((i) => i.tone === "warning");
@@ -483,6 +510,8 @@ export function PortfolioView({
             ? {
                 rewards30: view.rewards30,
                 apr: view.apr,
+                feeApr,
+                aprSplit,
                 year: project(365),
               }
             : undefined
@@ -574,7 +603,7 @@ export function PortfolioView({
           />
           <Kpi
             label={
-              <Tooltip content="Your realised yield over the last 30 rounds, compounded to a year. Not a promise: inflation, reward calls and cuts all move it.">
+              <Tooltip content={aprSplit}>
                 <span className="cursor-help underline decoration-dotted decoration-foreground/30 underline-offset-4">
                   Realised APR
                 </span>
@@ -584,7 +613,7 @@ export function PortfolioView({
               loading ? (
                 <Skeleton className="h-6 w-20" />
               ) : (
-                `${view!.apr.toFixed(2)}%`
+                `${(view!.apr + (feeApr ?? 0)).toFixed(2)}%`
               )
             }
             sub={

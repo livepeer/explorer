@@ -1,5 +1,6 @@
 import {
   annualize,
+  annualizeFees,
   averageRoundSeconds,
   computeAccount,
   computePortfolio,
@@ -9,6 +10,7 @@ import {
   projectEarnings,
   type RoundPoint,
   trailingCommission,
+  trailingFeeRate,
   trailingRoundRate,
 } from "./compute";
 
@@ -351,5 +353,23 @@ describe("derived metrics", () => {
     const year = projectEarnings(2, rate, 365, 86400, 1.5);
     expect(year).toBeCloseTo(2 * (Math.pow(1.002, 365) - 1) + 1.5 * 365, 6);
     expect(annualize(rate, 86400)).toBeLessThan(200);
+  });
+
+  it("annualizes fees per LPT staked as a simple rate, valued in LPT", () => {
+    // 1,000 LPT staked earning 0.01 ETH a round: 0.00001 ETH per LPT.
+    const series = Array.from({ length: 31 }, (_, i) => ({
+      round: i,
+      ts: i,
+      stake: 1000,
+      rewards: 0,
+      commission: 0,
+      fees: i === 0 ? 0 : 0.01,
+      share: null,
+    }));
+    const rate = trailingFeeRate(series);
+    expect(rate).toBeCloseTo(0.00001, 12);
+    // 365 one-day rounds at 200 LPT per ETH: 0.00001 × 200 × 365 = 73%.
+    expect(annualizeFees(rate, 86400, 200)).toBeCloseTo(73, 6);
+    expect(annualizeFees(rate, 86400, 0)).toBe(0);
   });
 });

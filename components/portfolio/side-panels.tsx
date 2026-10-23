@@ -45,7 +45,7 @@ export function Projections({
           At today&apos;s rate
         </span>
         <span className="text-ui-caption text-foreground tabular-nums">
-          {apr.toFixed(2)}% APR
+          {apr.toFixed(2)}% from rewards
         </span>
       </div>
       <dl className="flex flex-col gap-3">
