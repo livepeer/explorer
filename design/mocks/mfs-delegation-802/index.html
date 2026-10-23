@@ -17,23 +17,24 @@
         --neutral4: #2a2a2a;
         --neutral5: #333333;
         --neutral6: #3d3d3d;
-        --neutral8: #6b6b6b;
+        --neutral8: #8f8f8f;
         --neutral10: #8f8f8f;
         --neutral11: #a0a0a0;
         --hiContrast: #ffffff;
         --primary4: #113123;
         --primary11: #4cc38a;
-        /* Quantity colors from livepeer.org/brand: blue = fees, green = stake.
-         A state takes the color of whichever side is the minimum.
-         Green means stake quantity here, not “good.” Never amber for either state.
-         Accents in OKLCH; muted = white mixed with the accent hue for secondary
-         text on tinted cards (no muddy neutral grey on green/blue). */
+        --green4: hsl(154, 48.4%, 12.9%);
+        --green5: hsl(154, 49.7%, 14.9%);
+        --green6: hsl(154, 50.9%, 17.6%);
+        --green8: hsl(151, 51.7%, 28.4%);
+        --green11: hsl(151, 50%, 53.2%);
+
         --fee3: #0c222c;
         --fee9: #146a8f;
-        --fee11: oklch(0.689 0.12 222.069);
+        --fee11: #25abd0;
         --stake3: #0f241c;
         --stake9: #18794e;
-        --stake11: oklch(0.735 0.136 159.28);
+        --stake11: #4cc38a;
         --fee-muted: color-mix(in oklch, white 70%, var(--fee11) 30%);
         --stake-muted: color-mix(in oklch, white 70%, var(--stake11) 30%);
         --tomato3: #291415;
@@ -41,7 +42,7 @@
         --tomato11: #ff6b47;
         --radius: 12px;
         --radius-sm: 8px;
-        /* Shared account-page frame sizes (orchestrating + delegating) */
+
         --pf-main: 720px;
         --pf-rail: 320px;
       }
@@ -65,7 +66,86 @@
         font-variant-numeric: tabular-nums;
       }
 
-      /* ---------- page chrome (preview only, not product UI) ---------- */
+      .qty {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .token-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .token-mark svg {
+        display: block;
+      }
+      .token-mark.lpt {
+        background: var(--stake11);
+      }
+      .token-mark.lpt img {
+        width: 14px;
+        height: 14px;
+        display: block;
+      }
+      .token-mark.usdc {
+        background: #0b53bf;
+      }
+      .token-mark.usdc svg {
+        width: 24px;
+        height: 24px;
+      }
+      .m-ctx dd.qty {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .m-ctx .token-mark {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+      }
+      .m-ctx .token-mark.lpt img {
+        width: 9px;
+        height: 9px;
+      }
+      .m-ctx .token-mark.usdc svg {
+        width: 16px;
+        height: 16px;
+      }
+      .m-ctx .token-mark.yield {
+        background: var(--neutral3);
+      }
+      .m-ctx .token-mark.yield img {
+        width: 11px;
+        height: 10px;
+        display: block;
+      }
+      .m-ctx .lpt,
+      .m-ctx .fee {
+        color: var(--hiContrast);
+      }
+      /* Table qty marks: match 15px figures */
+      td .qty .token-mark {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+      }
+      td .qty .token-mark.lpt img {
+        width: 10px;
+        height: 10px;
+      }
+      td .qty .token-mark.usdc svg {
+        width: 18px;
+        height: 18px;
+      }
+      .value.qty {
+        display: inline-flex;
+      }
 
       .page-head {
         margin-bottom: 48px;
@@ -85,13 +165,13 @@
       .issue-link:hover {
         text-decoration: underline;
       }
-      .issue-link:focus-visible,
       a:focus-visible,
       button:focus-visible,
+      summary:focus-visible,
+      input:focus-visible,
       [role="radio"]:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 2px;
-        border-radius: 4px;
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
       }
 
       h1 {
@@ -245,8 +325,6 @@
         margin-bottom: 8px;
       }
 
-      /* ---------- shared atoms ---------- */
-
       .chip {
         display: inline-flex;
         align-items: center;
@@ -256,7 +334,7 @@
         padding: 3px 9px;
         border-radius: 999px;
         white-space: nowrap;
-        /* Always 1.5px so state weight doesn’t shift layout */
+
         border: 1.5px solid transparent;
       }
       .chip svg {
@@ -323,7 +401,7 @@
         min-width: 0;
       }
       .identity .name {
-        font-size: 13.5px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--hiContrast);
         white-space: nowrap;
@@ -339,7 +417,7 @@
         position: relative;
         display: inline-flex;
         align-items: center;
-        margin-left: 5px;
+        margin-left: 2px;
         vertical-align: 1px;
       }
       .tooltip-dot {
@@ -347,17 +425,17 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        min-height: 24px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
         padding: 0;
         border-radius: 50%;
         border: 1px solid var(--neutral6);
         background: transparent;
         color: var(--neutral10);
         font: inherit;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         line-height: 1;
         cursor: help;
@@ -367,16 +445,18 @@
       .tooltip-dot::before {
         content: "";
         position: absolute;
-        inset: -10px;
+        inset: -4px;
       }
       @media (max-width: 720px) {
         .tooltip-dot::before {
-          inset: -12px; /* ≥44px mobile */
+          inset: -14px;
         }
       }
       .tooltip-dot:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 2px;
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
+        color: var(--hiContrast);
+        border-color: var(--green8);
       }
       .tooltip-help {
         position: absolute;
@@ -402,13 +482,32 @@
         pointer-events: none;
         transition: opacity 0.12s ease, visibility 0.12s ease;
       }
+      .tooltip-help::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 10px;
+      }
+      .table-scroll .tooltip-help::after,
+      .table-toolbar .tooltip-help::after {
+        top: auto;
+        bottom: 100%;
+      }
       .help:hover .tooltip-help,
       .help:focus-within .tooltip-help {
         opacity: 1;
         visibility: visible;
+        pointer-events: auto;
+      }
+      .help.is-tip-dismissed:hover .tooltip-help,
+      .help.is-tip-dismissed:focus-within .tooltip-help {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
-      /* fees-vs-stake number lines (table version of the comparison) */
       .kv {
         display: flex;
         flex-direction: column;
@@ -428,23 +527,21 @@
         text-underline-offset: 3px;
       }
 
-      /* ---------- table (orchestrators list) ---------- */
-
       .table-shell {
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        /* visible so toolbar tooltips are not clipped; scroll lives on .table-scroll */
+
         overflow: visible;
       }
-      /* Contain wide tables without scrolling the whole preview */
+
       .table-scroll {
         overflow-x: auto;
         overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
         border-radius: 0 0 var(--radius) var(--radius);
       }
-      /* Open header help below so the scroller does not clip them */
+
       .table-scroll .tooltip-help {
         bottom: auto;
         top: calc(100% + 8px);
@@ -462,7 +559,7 @@
         overflow: visible;
         border-radius: var(--radius) var(--radius) 0 0;
       }
-      /* Window/sort help sits in the toolbar (outside .table-scroll): open below, right-aligned */
+
       .table-toolbar .tooltip-help {
         bottom: auto;
         top: calc(100% + 8px);
@@ -497,12 +594,14 @@
         border: 1.5px solid transparent;
         background: transparent;
         color: var(--neutral11);
-        font-size: 12px;
+        font-family: inherit;
+        font-size: 15px;
         font-weight: 600;
-        padding: 6px 12px;
+        padding: 8px 12px;
         border-radius: 6px;
         cursor: pointer;
         white-space: nowrap;
+        touch-action: manipulation;
       }
       .seg button[aria-checked="true"] {
         background: var(--neutral5);
@@ -522,11 +621,11 @@
       }
 
       thead th {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
-        color: var(--neutral10);
+        color: var(--neutral11);
         text-align: left;
-        padding: 10px 14px;
+        padding: 10px 16px;
         border-bottom: 1px solid var(--neutral3);
         white-space: nowrap;
       }
@@ -536,16 +635,15 @@
       }
 
       tbody td {
-        padding: 13px 14px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        font-size: 13px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--neutral4);
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
         vertical-align: middle;
       }
       tbody tr:last-child td {
         border-bottom: 0;
-      }
-      tbody tr:hover {
-        background: var(--neutral2);
       }
 
       td .cell-main {
@@ -566,8 +664,8 @@
       }
 
       .reward-cap {
-        font-weight: 700;
-        font-size: 14px;
+        font-weight: 600;
+        font-size: 15px;
       }
       .reward-cap.stake {
         color: var(--stake11);
@@ -579,26 +677,24 @@
         color: var(--neutral11);
       }
 
-      /* Quieter secondary metrics: hierarchy is column order, not chrome */
       thead th.ctx {
         font-weight: 500;
         color: var(--neutral10);
-      }
-      td.ctx {
-        font-size: 12.5px;
       }
       td.ctx .cell-main,
       td.ctx .ctx-val {
         font-weight: 500;
         color: var(--neutral11);
       }
+      td.ctx-stake .ctx-val,
+      td.ctx-fees .ctx-val {
+        color: var(--hiContrast);
+      }
       td.ctx .ctx-yield {
         font-weight: 600;
         color: var(--hiContrast);
       }
 
-      /* Narrower laptops: drop the quietest columns first rather than
-         letting the table scroll sideways. */
       @media (max-width: 1360px) {
         .ctx-keeps {
           display: none;
@@ -615,23 +711,40 @@
         }
       }
 
-      .delegate-btn {
-        background: var(--primary4);
-        color: var(--primary11);
-        border: 1px solid transparent;
-        font-size: 12.5px;
+      .delegate-btn,
+      .dw-submit {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 45px;
+        padding: 0 15px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--green4);
+        color: var(--green11);
+        font-family: inherit;
+        font-size: 15px;
         font-weight: 600;
-        padding: 7px 14px;
-        border-radius: var(--radius-sm);
+        line-height: 1;
         cursor: pointer;
+        user-select: none;
         white-space: nowrap;
-        transition: transform 0.08s ease, background-color 0.15s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
-      .delegate-btn:hover {
-        background: #16402c;
+      .delegate-btn:hover,
+      .dw-submit:hover {
+        background: var(--green5);
       }
-      .delegate-btn:active {
-        transform: translateY(1px);
+      .delegate-btn:active,
+      .dw-submit:active {
+        background: var(--green6);
+        translate: 0 1px;
+      }
+      .dw-submit {
+        width: 100%;
       }
 
       .table-foot {
@@ -641,7 +754,6 @@
         border-top: 1px solid var(--neutral4);
       }
 
-      /* skeleton row */
       .sk {
         height: 12px;
         border-radius: 6px;
@@ -662,23 +774,34 @@
           background-position: -200% 0;
         }
       }
-      /* ---------- mobile list (market-card pattern) ---------- */
 
       .mobile-wrap {
-        max-width: 400px;
+        max-width: 420px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        border: 1px solid var(--neutral4);
+        border-radius: 12px;
+        background: var(--panel);
       }
 
       .m-card {
-        background: var(--panel);
-        border: 1px solid var(--neutral4);
-        border-radius: var(--radius);
-        padding: 14px;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--neutral4);
+        border-radius: 0;
+        padding: 12px 16px;
         overflow: visible;
       }
-      /* Binding tint: soft top fade into panel */
+      .m-card:first-child {
+        border-top-left-radius: 11px;
+        border-top-right-radius: 11px;
+      }
+      .m-card:last-child {
+        border-bottom: 0;
+        border-bottom-left-radius: 11px;
+        border-bottom-right-radius: 11px;
+      }
+
       .m-card.theme-stake {
         background: linear-gradient(
             180deg,
@@ -733,12 +856,11 @@
         border-radius: 10px;
       }
 
-      /* Twin odds tiles: fees vs stake, like Yes / No market outcomes */
       .m-odds {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px;
-        padding-top: 10px; /* room for border-cut “caps rewards” */
+        padding-top: 10px;
         overflow: visible;
       }
       .m-odd {
@@ -749,17 +871,15 @@
         padding: 12px 12px 10px;
         border-radius: 10px;
         background: var(--neutral2);
-        /* Always 1.5px so binding weight doesn’t shift layout */
+
         border: 1.5px solid var(--neutral4);
         min-width: 0;
         overflow: visible;
       }
       .m-odd .label {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
-        color: var(--neutral10);
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
+        color: var(--neutral11);
       }
       .m-odd .pct {
         font-size: 22px;
@@ -780,7 +900,7 @@
       .m-odd.stake .unit {
         color: var(--stake-muted);
       }
-      /* Binding tile: 1.5px brand border + wash (not color alone) */
+
       .m-odd.fee.binding {
         border-color: var(--fee11);
         background: linear-gradient(
@@ -803,7 +923,7 @@
       .m-odd.stake.binding .pct {
         color: var(--stake11);
       }
-      /* Pill seated on the top border: ──[ caps rewards ]── */
+
       .m-odd .cap-tag {
         position: absolute;
         top: 0;
@@ -815,7 +935,7 @@
         font-size: 10px;
         font-weight: 600;
         line-height: 1;
-        /* Optical: lowercase sits low; less top / more bottom padding */
+
         padding: 3px 8px 5px;
         border-radius: 999px;
         white-space: nowrap;
@@ -832,7 +952,6 @@
         border-color: var(--stake11);
       }
 
-      /* Familiar numbers from today's list, quiet under the decision */
       .m-ctx {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -842,15 +961,16 @@
         border-top: 1px solid var(--neutral3);
       }
       .m-ctx dt {
-        font-size: 11px;
-        color: var(--neutral10);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .m-ctx dd {
         margin-top: 2px;
-        font-size: 12.5px;
+        font-size: 15px;
         font-weight: 500;
         color: var(--neutral11);
       }
@@ -886,23 +1006,17 @@
         flex-shrink: 0;
         width: auto;
         margin: 0;
-        padding: 10px 16px;
-        font-size: 13px;
-        border-radius: var(--radius-sm);
-        min-height: 44px;
       }
-
-      /* ---------- orchestrating page MFS block (themed per state) ---------- */
 
       .mfs-block {
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
         padding: 24px;
-        /* Match .page-frame left column */
+
         max-width: var(--pf-main);
       }
-      /* Binding tint: soft top fade into panel */
+
       .mfs-block.theme-stake {
         background: linear-gradient(
             180deg,
@@ -933,7 +1047,7 @@
       }
       .mfs-title {
         font-size: 16px;
-        font-weight: 650;
+        font-weight: 600;
         letter-spacing: -0.01em;
       }
       .mfs-head .chip {
@@ -945,8 +1059,6 @@
         margin-bottom: 16px;
       }
 
-      /* Wide-slot compare: twin tiles carry the numbers; one outcome line
-         carries what that means for new stake. No prose that restates both. */
       .mfs-duo {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -982,7 +1094,7 @@
         color: var(--hiContrast);
       }
       .mfs-outcome strong {
-        font-weight: 650;
+        font-weight: 600;
       }
       .theme-stake .mfs-outcome strong {
         color: var(--stake11);
@@ -991,7 +1103,6 @@
         color: var(--fee11);
       }
 
-      /* Balanced: one full-width level read, no fake twin race */
       .balance-summary {
         margin: 18px 0 4px;
         padding: 16px 18px;
@@ -1024,7 +1135,6 @@
         color: var(--neutral11);
       }
 
-      /* Checkout-style fee details: one shell, flat line-items inside. */
       .split-disclosure {
         margin-top: 14px;
         border: 1px solid var(--neutral4);
@@ -1064,8 +1174,6 @@
         color: var(--neutral11);
       }
       .split-disclosure > summary:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: -2px;
         border-radius: var(--radius-sm);
       }
       .split-disclosure[open] > summary {
@@ -1139,12 +1247,12 @@
       .theme-stake .lockup-note {
         background: rgba(24, 121, 78, 0.1);
         border-color: rgba(24, 121, 78, 0.22);
-        color: #c4b5fd;
+        color: var(--stake-muted);
       }
       .theme-fee .lockup-note {
         background: rgba(37, 171, 208, 0.1);
         border-color: rgba(37, 171, 208, 0.22);
-        color: #93c5fd;
+        color: var(--fee-muted);
       }
       .lockup-note .lockup-icon {
         display: flex;
@@ -1173,9 +1281,6 @@
         text-decoration: underline;
       }
 
-      /* ---------- account page frame (orchestrating + delegating) ----------
-         Live: left tab content + sticky right DelegatingWidget. Shared widths so
-         both section frames stay consistent. Below 1200px the rail is a drawer. */
       .page-frame {
         width: fit-content;
         max-width: 100%;
@@ -1198,7 +1303,7 @@
       }
       .pf-account .identity .name {
         font-size: 18px;
-        font-weight: 650;
+        font-weight: 600;
         letter-spacing: -0.01em;
       }
       .pf-account .identity .addr {
@@ -1241,7 +1346,7 @@
         font-size: 11px;
         color: var(--neutral10);
       }
-      /* Orchestrating tab: 2-up grid. The MFS card spans both columns. */
+
       .pf-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1259,15 +1364,19 @@
         min-height: 88px;
       }
       .pf-stat .label {
-        font-size: 12px;
-        color: var(--neutral10);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
         margin-bottom: 6px;
       }
       .pf-stat .value {
-        font-size: 20px;
+        font-size: 15px;
         font-weight: 600;
         letter-spacing: -0.01em;
-        color: var(--neutral11);
+        color: var(--hiContrast);
+      }
+      .pf-stat .value.lpt {
+        color: var(--stake11);
       }
       .pf-more {
         grid-column: 1 / -1;
@@ -1285,12 +1394,6 @@
         padding-top: 16px;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
-      .mfs-cta .delegate-btn {
-        min-height: 44px;
-        padding: 10px 18px;
-        font-size: 13px;
-        touch-action: manipulation;
-      }
       .mfs-cta .cta-note {
         flex: 1 1 220px;
         min-width: 0;
@@ -1299,7 +1402,6 @@
         color: var(--neutral10);
       }
 
-      /* Right rail: simplified DelegatingWidget */
       .pf-rail {
         position: sticky;
         top: 16px;
@@ -1323,13 +1425,13 @@
         border-radius: var(--radius-sm);
       }
       .dw-tabs button {
-        min-height: 40px;
+        min-height: 44px;
         border: 1.5px solid transparent;
         border-radius: 6px;
         background: transparent;
         color: var(--neutral11);
         font: inherit;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         touch-action: manipulation;
@@ -1347,8 +1449,14 @@
         justify-content: space-between;
         align-items: baseline;
         margin-bottom: 6px;
-        font-size: 12px;
-        color: var(--neutral10);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
+      }
+      .dw-label .num {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--stake11);
       }
       .dw-input-row {
         position: relative;
@@ -1356,30 +1464,27 @@
       .dw-input {
         width: 100%;
         min-height: 48px;
-        padding: 10px 64px 10px 14px;
+        padding: 10px 48px 10px 14px;
         border: 1px solid var(--neutral5);
         border-radius: var(--radius-sm);
         background: var(--bg);
         color: var(--hiContrast);
         font: inherit;
-        font-size: 16px; /* avoids iOS focus zoom */
+        font-size: 16px;
         font-variant-numeric: tabular-nums;
       }
       .dw-input::placeholder {
         color: var(--neutral8);
       }
       .dw-input:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 1px;
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
       }
       .dw-unit {
         position: absolute;
         right: 14px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--neutral10);
         pointer-events: none;
       }
       .dw-lines {
@@ -1389,56 +1494,38 @@
       .dw-line {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         gap: 12px;
         padding: 10px 0;
         border-bottom: 1px solid var(--neutral3);
         font-size: 13px;
-        color: var(--neutral10);
+        font-weight: 600;
+        color: var(--neutral11);
       }
       .dw-line .num {
-        color: var(--neutral11);
+        color: var(--hiContrast);
+        font-size: 15px;
         font-weight: 600;
       }
-      .dw-submit {
-        width: 100%;
-        min-height: 48px;
-        border: 1px solid transparent;
-        border-radius: var(--radius-sm);
-        background: var(--primary4);
-        color: var(--primary11);
-        font: inherit;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        touch-action: manipulation;
-        transition: background-color 0.15s ease, transform 0.08s ease;
+      .dw-line .num.lpt {
+        color: var(--stake11);
       }
-      .dw-submit:hover {
-        background: #16402c;
+      .dw-line .num.fee {
+        color: var(--fee11);
       }
-      .dw-submit:active {
-        transform: translateY(1px);
-      }
-      /* Under 1200px: collapsed bar; opening reveals the amount widget as a sheet */
+
       .pf-drawer {
         display: none;
         align-items: center;
         gap: 12px;
-        padding: 12px 24px;
+        padding: 12px 16px;
         border-top: 1px solid var(--neutral4);
         background: var(--panel);
-        font-size: 12.5px;
-        color: var(--neutral10);
+        font-size: 15px;
+        color: var(--neutral11);
       }
       .pf-drawer .delegate-btn {
-        min-height: 44px;
-        padding: 10px 18px;
         margin-left: auto;
-        font-size: 13px;
-      }
-      .pf-drawer.is-open {
-        outline: 2px solid var(--primary11);
-        outline-offset: -2px;
       }
       @media (max-width: 1199px) {
         .pf-body {
@@ -1446,6 +1533,13 @@
         }
         .pf-rail {
           display: none;
+        }
+        .page-frame.is-drawer-open::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.35);
+          z-index: 40;
         }
         .page-frame.is-drawer-open .pf-rail {
           display: block;
@@ -1455,14 +1549,19 @@
           top: auto;
           bottom: max(12px, env(safe-area-inset-bottom));
           z-index: 50;
-          max-height: min(85vh, 560px);
+          max-height: 85vh;
           overflow: auto;
           overscroll-behavior: contain;
           background: var(--panel);
           border: 1px solid var(--neutral4);
-          border-radius: 16px;
-          padding: 16px;
-          box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5);
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+            hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+        }
+        .page-frame.is-drawer-open .pf-drawer {
+          position: relative;
+          z-index: 51;
         }
         .pf-drawer {
           display: flex;
@@ -1490,18 +1589,16 @@
         gap: 20px;
         align-items: start;
       }
-      /* Same slot width as the framed card, stacked */
+
       .variant-grid.mfs-states {
         grid-template-columns: minmax(0, var(--pf-main));
         max-width: var(--pf-main);
       }
-      /* Bonded status cards fill one pf-grid cell, not the full left column */
+
       .variant-grid.mfs-states .stat-card {
         max-width: calc((var(--pf-main) - 12px) / 2);
         width: 100%;
       }
-
-      /* ---------- delegating page stat ---------- */
 
       .stat-card {
         background: var(--panel);
@@ -1512,18 +1609,25 @@
         display: block;
         color: inherit;
         text-decoration: none;
-        transition: border-color 0.15s ease;
       }
-      /* Inside the account page frame, fill the Delegated With slot */
+
       .pf-grid > .stat-card {
         max-width: none;
         width: 100%;
         height: 100%;
         box-sizing: border-box;
       }
-      .stat-card:hover,
+      .stat-card:hover {
+        box-shadow: inset 0 0 0 999px hsla(0, 100%, 100%, 0.06);
+        color: inherit;
+        text-decoration: none;
+      }
+      .stat-card:active {
+        box-shadow: inset 0 0 0 999px hsla(0, 100%, 100%, 0.1);
+      }
       .stat-card:focus-visible {
-        border-color: var(--neutral6);
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
         color: inherit;
         text-decoration: none;
       }
@@ -1558,7 +1662,7 @@
       }
       .stat-card .title {
         font-size: 15px;
-        font-weight: 650;
+        font-weight: 600;
         color: var(--hiContrast);
       }
       .stat-card .top .chip {
@@ -1576,8 +1680,6 @@
       .stat-card .d a:hover {
         text-decoration: underline;
       }
-
-      /* ---------- day-one / getting started ---------- */
 
       .day-one {
         position: relative;
@@ -1644,7 +1746,7 @@
       }
       .day-one .headline {
         font-size: 18px;
-        font-weight: 650;
+        font-weight: 600;
         letter-spacing: -0.02em;
         color: var(--hiContrast);
         margin-bottom: 6px;
@@ -1677,35 +1779,55 @@
       .day-one .steps {
         display: flex;
         flex-direction: column;
-        gap: 8px;
         margin-bottom: 14px;
+        border: 1px solid var(--neutral4);
+        border-radius: 12px;
+        background: var(--panel);
       }
       .day-one .step {
-        border-radius: var(--radius-sm);
-        background: rgba(0, 0, 0, 0.28);
-        border: 1px solid var(--neutral4);
-        transition: border-color 0.15s ease, background-color 0.15s ease;
+        border: 0;
+        border-bottom: 1px solid var(--neutral4);
+        border-radius: 0;
+        background: transparent;
+      }
+      .day-one .step:first-child {
+        border-top-left-radius: 11px;
+        border-top-right-radius: 11px;
+      }
+      .day-one .step:last-child {
+        border-bottom: 0;
+        border-bottom-left-radius: 11px;
+        border-bottom-right-radius: 11px;
       }
       .day-one .step > a {
         display: grid;
         grid-template-columns: 28px 1fr auto;
         gap: 12px;
         align-items: center;
-        padding: 12px 14px;
+        padding: 12px 16px;
         text-decoration: none;
         color: inherit;
         min-height: 44px;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
       }
       .day-one .step:not(:has(> a)) {
         display: grid;
         grid-template-columns: 28px 1fr auto;
         gap: 12px;
         align-items: center;
-        padding: 12px 14px;
+        padding: 12px 16px;
+        min-height: 44px;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
       }
-      .day-one .step:hover {
-        border-color: var(--neutral6);
-        background: rgba(0, 0, 0, 0.4);
+      .day-one .step:has(> a):hover {
+        background: hsla(0, 100%, 100%, 0.06);
+      }
+      .day-one .step:has(> a):active {
+        background: hsla(0, 100%, 100%, 0.1);
       }
       .day-one .step .n {
         width: 28px;
@@ -1719,8 +1841,8 @@
         color: var(--hiContrast);
       }
       .day-one .step .t {
-        font-size: 13.5px;
-        font-weight: 600;
+        font-size: 15px;
+        font-weight: 500;
         color: var(--hiContrast);
       }
       .day-one .step .s {
@@ -1740,16 +1862,12 @@
         line-height: 1.5;
       }
 
-      /* ---------- edge states ---------- */
-
       .edge-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
         gap: 20px;
         align-items: start;
       }
-
-      /* ---------- open questions ---------- */
 
       .questions {
         background: var(--panel);
@@ -1809,18 +1927,14 @@
           animation: none;
         }
         .tooltip-help,
-        button,
-        .delegate-btn,
-        .m-card,
-        .mfs-block,
-        .dw-submit,
-        .edge-card,
-        .checklist-item,
-        .disclosure summary,
-        .disclosure summary::after,
-        .chip,
-        a {
+        .split-disclosure > summary .chev,
+        a,
+        button {
           transition: none !important;
+        }
+        .delegate-btn:active,
+        .dw-submit:active {
+          translate: none;
         }
       }
     </style>
@@ -1868,8 +1982,6 @@
         move.
       </p>
     </header>
-
-    <!-- ==================== 1. ORCHESTRATORS LIST ==================== -->
     <section class="section" aria-labelledby="s1">
       <div class="section-header">
         <h2 class="section-title" id="s1">Orchestrators list</h2>
@@ -2123,12 +2235,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">918,420</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">918,420 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$241K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$241K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">8%</span>
@@ -2196,12 +2341,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">441,305</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">441,305 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$149K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$149K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">12%</span>
@@ -2269,12 +2447,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">1,362,790</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">1,362,790 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$118K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$118K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">6%</span>
@@ -2341,12 +2552,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">158,946</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">158,946 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$23.6K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$23.6K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">20%</span>
@@ -2423,12 +2667,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">1,079,512</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">1,079,512 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$57.2K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$57.2K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">9%</span>
@@ -2490,12 +2767,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">2,718,064</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">2,718,064 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$84.8K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$84.8K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">10%</span>
@@ -2556,12 +2866,45 @@
                   <div class="cell-sub">est. over 1Y</div>
                 </td>
                 <td class="num ctx ctx-stake">
-                  <span class="ctx-val num">1,841,377</span>
-                  <div class="cell-sub">LPT</div>
+                  <span class="qty">
+                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                    <span class="ctx-val num">1,841,377 LPT</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-fees">
-                  <span class="ctx-val num">$37.9K</span>
-                  <div class="cell-sub">USDC</div>
+                  <span class="qty">
+                    <span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg
+                    ></span>
+                    <span class="ctx-val num">$37.9K</span>
+                  </span>
                 </td>
                 <td class="num ctx ctx-keeps">
                   <span class="cell-main num">14%</span>
@@ -2622,16 +2965,15 @@
         </li>
         <li>
           <strong>Familiar numbers:</strong> Forecasted yield, Delegated stake,
-          and Trailing 90D fees stay after the decision columns, quieter by type
-          weight. Column order is the hierarchy; no group labels. Yield is a
-          guess from current shares, so it informs the choice but never sets the
-          order. On narrower laptops the quietest columns drop first (Node
-          keeps, then 90D fees, then Delegated stake). Yield stays.
+          and Trailing 90D fees stay after the decision columns. Stake amounts
+          use the green LPT mark. Fee amounts use the USDC mark. Column order is
+          the hierarchy. Yield is a guess from current shares, so it informs the
+          choice but never sets the order. On narrower laptops the quietest
+          columns drop first (Node keeps, then 90D fees, then Delegated stake).
+          Yield stays.
         </li>
       </ul>
     </section>
-
-    <!-- ==================== 2. MOBILE LIST CARD ==================== -->
     <section class="section" aria-labelledby="s2">
       <div class="section-header">
         <h2 class="section-title" id="s2">Mobile list</h2>
@@ -2639,12 +2981,10 @@
       </div>
       <p class="section-description">
         The same decision, sized for a phone. Fees and stake sit as twin
-        figures, the way odds read on a market board, so the limiting share
-        carries the eye. That side alone takes color, with a soft wash from the
-        top of the card so the state arrives before the words. Delegate rests in
-        the footer beside a short line about what new stake still does. A quiet
-        row of yield, stake, and recent fees keeps the numbers from today’s list
-        in reach without crowding the decision.
+        figures, so the limiting share carries the eye. That side alone takes
+        color, with a soft wash from the top of the row. The rows share one
+        panel. Delegate rests in the footer beside a short line about what new
+        stake still does. Yield, stake, and recent fees stay under the decision.
       </p>
 
       <div class="mobile-wrap">
@@ -2694,15 +3034,57 @@
           <dl class="m-ctx">
             <div>
               <dt>Forecasted yield</dt>
-              <dd class="num">12.8%</dd>
+              <dd class="num qty">
+                <span class="token-mark yield" role="img" aria-label="Yield"
+                  ><img
+                    src="../shared/yield-chart.svg"
+                    alt=""
+                    width="11"
+                    height="10"
+                    aria-hidden="true" /></span
+                ><span>12.8%</span>
+              </dd>
             </div>
             <div>
               <dt>Delegated stake</dt>
-              <dd class="num">918K LPT</dd>
+              <dd class="num qty">
+                <span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><img
+                    src="../shared/logo-icon.svg"
+                    alt=""
+                    width="14"
+                    height="14"
+                    aria-hidden="true" /></span
+                ><span class="lpt">918K LPT</span>
+              </dd>
             </div>
             <div>
               <dt>90D fees</dt>
-              <dd class="num">$241K</dd>
+              <dd class="num qty">
+                <span class="token-mark usdc" role="img" aria-label="USDC"
+                  ><svg
+                    viewBox="0 0 96 96"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                      fill="#0B53BF"
+                    />
+                    <path
+                      d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                      fill="#fff"
+                    /></svg></span
+                ><span class="fee">$241K</span>
+              </dd>
             </div>
           </dl>
           <div class="m-foot">
@@ -2754,15 +3136,57 @@
           <dl class="m-ctx">
             <div>
               <dt>Forecasted yield</dt>
-              <dd class="num">2.9%</dd>
+              <dd class="num qty">
+                <span class="token-mark yield" role="img" aria-label="Yield"
+                  ><img
+                    src="../shared/yield-chart.svg"
+                    alt=""
+                    width="11"
+                    height="10"
+                    aria-hidden="true" /></span
+                ><span>2.9%</span>
+              </dd>
             </div>
             <div>
               <dt>Delegated stake</dt>
-              <dd class="num">2.44M LPT</dd>
+              <dd class="num qty">
+                <span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><img
+                    src="../shared/logo-icon.svg"
+                    alt=""
+                    width="14"
+                    height="14"
+                    aria-hidden="true" /></span
+                ><span class="lpt">2.44M LPT</span>
+              </dd>
             </div>
             <div>
               <dt>90D fees</dt>
-              <dd class="num">$27.6K</dd>
+              <dd class="num qty">
+                <span class="token-mark usdc" role="img" aria-label="USDC"
+                  ><svg
+                    viewBox="0 0 96 96"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                      fill="#0B53BF"
+                    />
+                    <path
+                      d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                      fill="#fff"
+                    /></svg></span
+                ><span class="fee">$27.6K</span>
+              </dd>
             </div>
           </dl>
           <div class="m-foot">
@@ -2825,15 +3249,57 @@
           <dl class="m-ctx">
             <div>
               <dt>Forecasted yield</dt>
-              <dd class="num">6.6%</dd>
+              <dd class="num qty">
+                <span class="token-mark yield" role="img" aria-label="Yield"
+                  ><img
+                    src="../shared/yield-chart.svg"
+                    alt=""
+                    width="11"
+                    height="10"
+                    aria-hidden="true" /></span
+                ><span>6.6%</span>
+              </dd>
             </div>
             <div>
               <dt>Delegated stake</dt>
-              <dd class="num">1.68M LPT</dd>
+              <dd class="num qty">
+                <span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><img
+                    src="../shared/logo-icon.svg"
+                    alt=""
+                    width="14"
+                    height="14"
+                    aria-hidden="true" /></span
+                ><span class="lpt">1.68M LPT</span>
+              </dd>
             </div>
             <div>
               <dt>90D fees</dt>
-              <dd class="num">$84.1K</dd>
+              <dd class="num qty">
+                <span class="token-mark usdc" role="img" aria-label="USDC"
+                  ><svg
+                    viewBox="0 0 96 96"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                      fill="#0B53BF"
+                    />
+                    <path
+                      d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                      fill="#fff"
+                    />
+                    <path
+                      d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                      fill="#fff"
+                    /></svg></span
+                ><span class="fee">$84.1K</span>
+              </dd>
             </div>
           </dl>
           <div class="m-foot">
@@ -2843,8 +3309,6 @@
         </article>
       </div>
     </section>
-
-    <!-- ==================== 3. ORCHESTRATING PAGE BLOCK ==================== -->
     <section class="section" aria-labelledby="s3">
       <div class="section-header">
         <h2 class="section-title" id="s3">Orchestrator detail</h2>
@@ -3035,7 +3499,16 @@
               </div>
               <div class="pf-stat">
                 <div class="label">Total delegated stake</div>
-                <div class="value num">648,210 LPT</div>
+                <div class="value num lpt qty">
+                  <span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><img
+                      src="../shared/logo-icon.svg"
+                      alt=""
+                      width="14"
+                      height="14"
+                      aria-hidden="true" /></span
+                  ><span>648,210 LPT</span>
+                </div>
               </div>
               <div class="pf-stat">
                 <div class="label">Status</div>
@@ -3093,15 +3566,56 @@
                   spellcheck="false"
                   placeholder="0.0…"
                 />
-                <span class="dw-unit" aria-hidden="true">LPT</span>
+                <span class="dw-unit token-mark lpt" role="img" aria-label="LPT"
+                  ><img
+                    src="../shared/logo-icon.svg"
+                    alt=""
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                /></span>
               </div>
               <div class="dw-lines">
                 <div class="dw-line">
                   <span>Forecasted yield (1Y)</span
-                  ><span class="num">0 LPT</span>
+                  ><span class="num lpt qty"
+                    ><span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true" /></span
+                    ><span>0 LPT</span></span
+                  >
                 </div>
                 <div class="dw-line">
-                  <span>Forecasted fees (1Y)</span><span class="num">$0</span>
+                  <span>Forecasted fees (1Y)</span
+                  ><span class="num fee qty"
+                    ><span class="token-mark usdc" role="img" aria-label="USDC"
+                      ><svg
+                        viewBox="0 0 96 96"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                          fill="#0B53BF"
+                        />
+                        <path
+                          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                          fill="#fff"
+                        />
+                        <path
+                          d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                          fill="#fff"
+                        /></svg></span
+                    ><span>$0</span></span
+                  >
                 </div>
               </div>
               <button type="button" class="dw-submit" data-dw-submit>
@@ -3444,8 +3958,6 @@
         </li>
       </ul>
     </section>
-
-    <!-- ==================== 4. DELEGATING PAGE ==================== -->
     <section class="section" aria-labelledby="s4">
       <div class="section-header">
         <h2 class="section-title" id="s4">Your delegation</h2>
@@ -3517,7 +4029,16 @@
               </a>
               <div class="pf-stat">
                 <div class="label">Stake</div>
-                <div class="value num">48.08 LPT</div>
+                <div class="value num lpt qty">
+                  <span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><img
+                      src="../shared/logo-icon.svg"
+                      alt=""
+                      width="14"
+                      height="14"
+                      aria-hidden="true" /></span
+                  ><span>48.08 LPT</span>
+                </div>
               </div>
               <div class="pf-stat">
                 <div class="label">Pending fees</div>
@@ -3562,7 +4083,14 @@
                   spellcheck="false"
                   placeholder="0.0…"
                 />
-                <span class="dw-unit" aria-hidden="true">LPT</span>
+                <span class="dw-unit token-mark lpt" role="img" aria-label="LPT"
+                  ><img
+                    src="../shared/logo-icon.svg"
+                    alt=""
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                /></span>
               </div>
               <div class="dw-lines">
                 <div class="dw-line">
@@ -3570,7 +4098,16 @@
                 </div>
                 <div class="dw-line">
                   <span>Inflationary rewards</span
-                  ><span class="num">0 LPT</span>
+                  ><span class="num lpt qty"
+                    ><span class="token-mark lpt" role="img" aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true" /></span
+                    ><span>0 LPT</span></span
+                  >
                 </div>
                 <div class="dw-line">
                   <span>Fee share</span><span class="num">0 ETH</span>
@@ -3650,8 +4187,6 @@
         </li>
       </ul>
     </section>
-
-    <!-- ==================== 5. EDGE STATES ==================== -->
     <section class="section" aria-labelledby="s5">
       <div class="section-header">
         <h2 class="section-title" id="s5">Day one</h2>
@@ -3751,8 +4286,6 @@
         </li>
       </ul>
     </section>
-
-    <!-- ==================== 6. DESIGN DECISIONS ==================== -->
     <section class="section" aria-labelledby="s6">
       <div class="section-header">
         <h2 class="section-title" id="s6">Design decisions</h2>
@@ -3806,6 +4339,11 @@
             >) stay out. This review stays with where stake still earns.
           </li>
           <li>
+            <strong>Same controls as the rest of Explorer.</strong> Delegate and
+            the amount action are the product button. Focus is a green ring. The
+            phone list and the day-one steps each sit in one panel.
+          </li>
+          <li>
             <strong>History is 803.</strong> This ticket owns live fee-vs-stake
             status. Past payouts and “why that round paid that amount” live on
             account History · Rewards (
@@ -3826,8 +4364,6 @@
         </ul>
       </div>
     </section>
-
-    <!-- ==================== OPEN QUESTIONS ==================== -->
     <section class="section" aria-labelledby="open-q">
       <div class="section-header">
         <h2 class="section-title" id="open-q">Open questions</h2>
@@ -3836,9 +4372,9 @@
         <ul>
           <li>
             <strong>Moving stake (~21 days).</strong> Design assumes a delayed
-            move so stake cannot flee a penalized node. If
-            <code>transferBond</code> stays instant, delete the lockup note
-            rather than leave a lie. Flag for protocol.
+            move so stake cannot flee a penalized node. If moving stake stays
+            instant, delete the lockup note rather than leave a lie. Flag for
+            protocol.
           </li>
           <li>
             <strong>APY / dollar mint.</strong> Emissions are still a draft.
@@ -3865,8 +4401,6 @@
         </ul>
       </div>
     </section>
-
-    <!-- ==================== ACCESSIBILITY ==================== -->
     <section class="section" aria-labelledby="a11y">
       <div class="section-header">
         <h2 class="section-title" id="a11y">Who can use this</h2>
@@ -3880,29 +4414,33 @@
         <li>
           <strong>Color is not the only cue.</strong> “Room to earn,” “Full,”
           and “Balanced” each have a word label, a distinct icon, and a 1.5px
-          border, not just a green or blue tint. The tile that caps rewards uses
-          a full 1.5px brand border plus wash. Selected filters and
-          Delegate/Undelegate use a 1.5px brand border too. Fee and stake shares
-          are spoken as numbers in plain text.
+          border. The tile that caps rewards uses a full 1.5px brand border plus
+          wash. Filters and the Delegate / Undelegate choice keep that 1.5px
+          border when selected. Fee and stake shares are spoken as numbers. LPT
+          amounts wear the green mark. Fee amounts wear the USDC mark.
         </li>
         <li>
           <strong>Keyboard.</strong> Filters and Delegate / Undelegate can be
-          moved with the arrow keys. Focus rings stay visible so you always know
-          where you are.
+          moved with the arrow keys. Focus is a green ring on the control,
+          including the amount field and the help buttons.
         </li>
         <li>
           <strong>Screen readers.</strong> Choosing a filter or action is
           announced as a real choice group. Opening the amount drawer puts you
-          on the amount field. Escape closes it and returns you to the control
-          that opened it.
+          on the amount field. Escape closes an open help tip first. If the
+          drawer is open and no tip is, Escape closes it and returns you to the
+          control that opened it. The LPT and USDC marks are named.
         </li>
         <li>
           <strong>Help without a mouse.</strong> The “?” tips open when you tab
-          to them, not only on hover. Targets are large enough for touch.
+          to them, and you can move the pointer onto the tip. Escape closes that
+          tip until you point at it or tab to it again. Targets are large enough
+          for touch.
         </li>
         <li>
           <strong>Motion.</strong> If the system asks for reduced motion, the
-          page does not smooth-scroll.
+          page does not smooth-scroll, and the buttons do not shift when
+          pressed.
         </li>
         <li>
           <strong>Skip ahead.</strong> “Skip to content” jumps past the intro
@@ -4039,8 +4577,25 @@
             });
           });
 
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+
         document.addEventListener("keydown", function (e) {
           if (e.key !== "Escape") return;
+          var tipOpen = false;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (!open) return;
+            help.classList.add("is-tip-dismissed");
+            tipOpen = true;
+          });
+          if (tipOpen) return;
           document
             .querySelectorAll(".page-frame.is-drawer-open")
             .forEach(function (frame) {
