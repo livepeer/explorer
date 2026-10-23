@@ -845,10 +845,6 @@
       .paid-slab.usdc .slab-amt {
         color: var(--fee11);
       }
-      .slab-unit {
-        display: none;
-      }
-
       .next {
         margin-top: 12px;
         font-size: 13px;
@@ -1398,7 +1394,6 @@
         border: 0;
         border-radius: 0;
         background: transparent;
-        overflow: hidden;
         list-style: none;
       }
       .claim-list li {
@@ -1501,6 +1496,30 @@
         }
         .place-table td:nth-child(2) {
           overflow-wrap: anywhere;
+        }
+        .claim-list li,
+        .claim-totals {
+          grid-template-columns: 1fr 1fr;
+          row-gap: 6px;
+        }
+        .claim-list li > :first-child,
+        .claim-totals > :first-child {
+          grid-column: 1 / -1;
+        }
+        .claim-list .lpt,
+        .claim-list .usdc,
+        .claim-total,
+        .claim-total.usdc {
+          min-width: 0;
+        }
+        .claim-list .lpt,
+        .claim-total.lpt {
+          justify-self: start;
+          text-align: left;
+        }
+        .claim-list .usdc,
+        .claim-total.usdc {
+          justify-self: end;
         }
       }
 
@@ -1936,7 +1955,7 @@
                             <div class="slab-amt num" id="payout-amt-del">
                               +15.732
                             </div>
-                            <div class="slab-unit">LPT</div>
+                            <div class="sr-only">LPT</div>
                           </div>
                         </div>
                       </div>
@@ -1990,7 +2009,7 @@
                             <div class="slab-amt num" id="payout-fee-del">
                               +0.40
                             </div>
-                            <div class="slab-unit">USDC</div>
+                            <div class="sr-only">USDC</div>
                           </div>
                         </div>
                       </div>
@@ -2063,7 +2082,7 @@
                             <div class="slab-amt num" id="payout-amt-op">
                               874
                             </div>
-                            <div class="slab-unit">LPT</div>
+                            <div class="sr-only">LPT</div>
                           </div>
                         </div>
                       </div>
@@ -2117,7 +2136,7 @@
                             <div class="slab-amt num" id="payout-fee-op">
                               40.00
                             </div>
-                            <div class="slab-unit">USDC</div>
+                            <div class="sr-only">USDC</div>
                           </div>
                         </div>
                       </div>
