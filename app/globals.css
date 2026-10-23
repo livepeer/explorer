@@ -67,9 +67,12 @@
      full-strength edge and a faint top highlight. */
   --surface: oklch(0.21 0 0);
   --surface-highlight: inset 0 1px 0 oklch(1 0 0 / 5%);
-  /* One line colour for every divider and outline (cards, sidebar, search),
-     a touch brighter than the registry border so edges read on black. */
-  --hairline: oklch(1 0 0 / 13%);
+  /* One line colour for every divider and outline (cards, sidebar, search).
+     Soft: the charcoal layers already separate by shade, so the edge only
+     needs to define it, not outline it. */
+  --hairline: oklch(1 0 0 / 8%);
+  /* The desktop panel's outer edge, a touch firmer so the frame stays crisp. */
+  --frame-edge: oklch(1 0 0 / 11%);
   /* The content panel on desktop: a step up from the sidebar, with cards a
      step above it again. */
   --panel: oklch(0.17 0 0);
@@ -129,6 +132,7 @@ html[data-theme="light"] {
      things that float above the page (menus, popovers, dialogs). */
   --surface-highlight: 0 1px 2px rgb(24 24 27 / 0.06);
   --hairline: oklch(0.25 0.02 286 / 10%);
+  --frame-edge: var(--hairline);
   --hover: color-mix(in oklch, var(--foreground) 5%, transparent);
   --active: color-mix(in oklch, var(--foreground) 8%, transparent);
   --subtle-foreground: color-mix(in oklch, var(--foreground) 45%, transparent);
@@ -546,7 +550,7 @@ textarea {
     z-index: 25;
     border-radius: 12px;
     pointer-events: none;
-    box-shadow: 0 0 0 1px var(--hairline), 0 0 0 100vmax var(--background);
+    box-shadow: 0 0 0 1px var(--frame-edge), 0 0 0 100vmax var(--background);
   }
   .app-main {
     background-color: var(--panel);
