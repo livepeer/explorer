@@ -20,11 +20,7 @@ import { isAddress } from "viem";
 
 import { Avatar, CopyButton, useIdentity } from "@/components/identity";
 import { Page } from "@/components/page";
-import {
-  PAGE_ACTIONS_SLOT,
-  PAGE_INFO_SLOT,
-  useSlot,
-} from "@/components/page-header";
+import { PAGE_INFO_SLOT, useSlot } from "@/components/page-header";
 import { RenameAddressDialog } from "@/components/portfolio/addresses";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
 import { Button } from "@/components/ui/button";
@@ -66,7 +62,6 @@ export default function AccountPage() {
   );
 
   const infoSlot = useSlot(PAGE_INFO_SLOT);
-  const actionsSlot = useSlot(PAGE_ACTIONS_SLOT);
   if (!valid) notFound();
 
   const isConnected = address === walletAddress;
@@ -153,6 +148,22 @@ export default function AccountPage() {
         <ChevronDown className="size-3.5 shrink-0 text-subtle-foreground" />
       </MenuTrigger>
       <MenuContent align="start">
+        {/* Saving it to your portfolio leads, while it isn't saved. */}
+        {!isConnected && !saved && (
+          <>
+            <MenuItem
+              onClick={() => {
+                add(address, name ?? undefined);
+                toast(
+                  `Added ${name ?? shortAddress(address)} to your portfolio`
+                );
+              }}
+            >
+              <Plus /> Add to portfolio
+            </MenuItem>
+            <MenuSeparator />
+          </>
+        )}
         <MenuItem
           onClick={() => {
             navigator.clipboard?.writeText(address);
@@ -168,6 +179,17 @@ export default function AccountPage() {
         >
           <ExternalLink /> View on Arbiscan
         </MenuItem>
+        {/* The address's other roles in the network. */}
+        {isOrchestrator && (
+          <MenuItem render={<Link href={`/orchestrators/${address}`} />}>
+            <Server /> Orchestrator profile
+          </MenuItem>
+        )}
+        {gateway && (
+          <MenuItem render={<Link href={`/gateways/${address}`} />}>
+            <Waypoints /> Gateway profile
+          </MenuItem>
+        )}
         {list.some((w) => w.address === address) && (
           <MenuItem onClick={() => setRenaming(true)}>
             <Pencil /> {label ? "Rename…" : "Name this wallet…"}
@@ -184,36 +206,10 @@ export default function AccountPage() {
       </MenuContent>
     </Menu>
   );
-  // In the header: the profiles this address also has, and, until it's
-  // saved, adding it to your portfolio (once saved, that's in the menu).
-  const headerActions = (
-    <>
-      {isOrchestrator && (
-        <Button size="sm" render={<Link href={`/orchestrators/${address}`} />}>
-          <Server /> Orchestrator profile
-        </Button>
-      )}
-      {gateway && (
-        <Button size="sm" render={<Link href={`/gateways/${address}`} />}>
-          <Waypoints /> Gateway profile
-        </Button>
-      )}
-      {!isConnected && !saved && (
-        <Button
-          size="sm"
-          variant="primary"
-          onClick={() => add(address, name ?? undefined)}
-        >
-          <Plus /> Add to portfolio
-        </Button>
-      )}
-    </>
-  );
 
   return (
     <Page>
       {infoSlot && createPortal(nameMenu, infoSlot)}
-      {actionsSlot && createPortal(headerActions, actionsSlot)}
       <RenameAddressDialog
         account={renaming ? accounts[0] : null}
         onOpenChange={(o) => !o && setRenaming(false)}
