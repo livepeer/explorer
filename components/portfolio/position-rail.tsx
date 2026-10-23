@@ -52,19 +52,20 @@ function Row({
   label: React.ReactNode;
   children: React.ReactNode;
   note?: React.ReactNode;
-  /** A small link on the value's line, e.g. Withdraw. */
+  /** A small button on the line beneath the value, after its note, e.g.
+   *  Withdraw; the values above stay aligned. */
   action?: React.ReactNode;
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="shrink-0 text-ui-body text-muted-foreground">{label}</dt>
       <dd className="flex min-w-0 flex-col items-end text-right tabular-nums">
-        <span className="flex min-w-0 items-baseline gap-2">
-          {action}
-          <span className="truncate text-ui-body">{children}</span>
-        </span>
-        {note && (
-          <span className="text-ui-caption text-subtle-foreground">{note}</span>
+        <span className="truncate text-ui-body">{children}</span>
+        {(note || action) && (
+          <span className="mt-1 flex items-center gap-2 text-ui-caption text-subtle-foreground">
+            {note}
+            {action}
+          </span>
         )}
       </dd>
     </div>
@@ -308,23 +309,23 @@ export function PositionRail({
         {p.fees >= DUST_ETH && (
           <Row
             label="Unclaimed fees"
+            // An action, styled as one (green here means a gain), after the
+            // amount; its dollar value beneath helps judge whether it's
+            // worth a withdrawal's gas yet.
             action={
               canManage && (
-                <button
-                  type="button"
+                <Button
+                  size="xs"
                   onClick={() =>
                     open({ kind: "withdrawFees", amount: p.fees, account })
                   }
-                  className="cursor-pointer text-ui-caption text-green-bright underline-offset-4 hover:underline"
                 >
                   Withdraw
-                </button>
+                </Button>
               )
             }
             note={
-              !canManage && ethPrice != null
-                ? `≈ ${formatUSD(p.fees * ethPrice)}`
-                : undefined
+              ethPrice != null ? `≈ ${formatUSD(p.fees * ethPrice)}` : undefined
             }
           >
             {formatETH(p.fees)}
