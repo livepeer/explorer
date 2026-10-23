@@ -34,12 +34,10 @@ import {
   useProtocol,
 } from "@/lib/hooks/queries";
 import { useSafeProposals } from "@/lib/hooks/safe";
-import { useViewScope } from "@/lib/hooks/view-scope";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
 import {
   annualize,
   averageRoundSeconds,
-  mergeSeries,
   projectEarnings,
   sumSince,
   trailingCommission,
@@ -52,7 +50,6 @@ import { PortfolioHero } from "./hero";
 import { PositionRail } from "./position-rail";
 import { DUST_ETH, LPT_DUST, type Position, Positions } from "./positions";
 import { safeInsights } from "./safe-insights";
-import { ScopeBar } from "./scope-bar";
 import {
   type Insight,
   insightOrchestrator,
@@ -109,20 +106,16 @@ export function PortfolioView({
 }: {
   accounts: PortfolioAccount[];
   canManage: (address: string) => boolean;
+  /** The portfolio page (all your wallets), rather than one account's. */
   showScope?: boolean;
   /** The page's own header, leading the main column (so a rail beside it
    *  starts level with it). */
   header?: React.ReactNode;
 }) {
   const addresses = useMemo(() => accounts.map((a) => a.address), [accounts]);
-  // The home portfolio follows the sidebar switcher; a single-account page
-  // always shows that account.
-  const [sharedScope, setScope] = useViewScope(addresses);
-  const scope = showScope ? sharedScope : "all";
-  const scoped = useMemo(
-    () => (scope === "all" ? addresses : [scope]),
-    [scope, addresses]
-  );
+  // Every account given: the portfolio is all your wallets, and one wallet
+  // has its own page (the sidebar switcher goes to it).
+  const scoped = addresses;
 
   const { data, error, isLoading, refetch } = usePortfolio(addresses);
   const { data: protocol } = useProtocol();
@@ -147,13 +140,7 @@ export function PortfolioView({
   const view = useMemo(() => {
     if (!data) return null;
     const accts = data.accounts.filter((a) => scoped.includes(a.id));
-    const series =
-      scope === "all"
-        ? data.series
-        : mergeSeries(
-            accts.map((a) => a.series),
-            data.rounds
-          );
+    const series = data.series;
     const stake = fromWei(accts.reduce((s, a) => s + a.pendingStake, 0n));
     const fees = fromWei(accts.reduce((s, a) => s + a.pendingFees, 0n));
     const roundSeconds = averageRoundSeconds(data.rounds);
@@ -206,7 +193,7 @@ export function PortfolioView({
       positions,
       unbonding,
     };
-  }, [data, scope, scoped, accounts, nowSec]);
+  }, [data, scoped, accounts, nowSec]);
 
   const delegates = useMemo(
     () => [
@@ -388,11 +375,9 @@ export function PortfolioView({
         data && (
           <ExportEarnings
             name={
-              scope === "all"
-                ? showScope
-                  ? "portfolio"
-                  : accounts[0]?.label ?? accounts[0]?.address ?? ""
-                : accounts.find((a) => a.address === scope)?.label ?? scope
+              showScope
+                ? "portfolio"
+                : accounts[0]?.label ?? accounts[0]?.address ?? ""
             }
             accounts={data.accounts
               .filter((a) => scoped.includes(a.id))
@@ -507,11 +492,6 @@ export function PortfolioView({
     );
     return (
       <div className="flex flex-col">
-        {showScope && (
-          <div className="mb-5">
-            <ScopeBar accounts={accounts} scope={scope} onScope={setScope} />
-          </div>
-        )}
         {urgent.length > 0 && (
           <a
             href="#needs-attention"
@@ -554,11 +534,6 @@ export function PortfolioView({
   return (
     <div className="flex flex-col">
       {header}
-      {showScope && (
-        <div className="mb-5">
-          <ScopeBar accounts={accounts} scope={scope} onScope={setScope} />
-        </div>
-      )}
       {urgent.length > 0 && (
         <a
           href="#needs-attention"

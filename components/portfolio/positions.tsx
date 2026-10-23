@@ -36,7 +36,6 @@ import {
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
-import { useViewScope } from "@/lib/hooks/view-scope";
 import { type PortfolioAccount, useAddresses } from "@/lib/hooks/watchlist";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
@@ -144,7 +143,6 @@ function RowActions({
   const canMove = useCanMove(position);
   const { list, add, remove } = useAddresses();
   const { disconnect } = useDisconnect();
-  const [scope, setScope] = useViewScope(list.map((w) => w.address));
   const account = position.account;
   const saved = list.some((w) => w.address === account.address);
 
@@ -153,7 +151,6 @@ function RowActions({
   const removeAccount = () => {
     if (account.connected) disconnect();
     remove(account.address);
-    if (scope === account.address) setScope("all");
     toast(`Removed ${account.label ?? shortAddress(account.address)}`, {
       action: {
         label: "Undo",

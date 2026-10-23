@@ -4,13 +4,10 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useSyncExternalStore,
 } from "react";
 import { isAddress } from "viem";
-import { useAccount, useAccountEffect } from "wagmi";
-
-import { followActiveWallet } from "./view-scope";
+import { useAccount } from "wagmi";
 
 /**
  * The portfolio is a list of addresses, kept per browser. One of them may
@@ -152,19 +149,6 @@ export function AddressMemory() {
     if (isConnected && address) add(address);
   }, [address, isConnected]);
 
-  // A page load that quietly reconnects keeps the view you left.
-  useAccountEffect({
-    onConnect: ({ address: a, isReconnected }) => {
-      if (!isReconnected) followActiveWallet(a);
-    },
-  });
-  const previous = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    const lower = isConnected ? address?.toLowerCase() : undefined;
-    if (previous.current && lower && previous.current !== lower)
-      followActiveWallet(lower);
-    previous.current = lower;
-  }, [address, isConnected]);
   return null;
 }
 

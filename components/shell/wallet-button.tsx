@@ -13,7 +13,6 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
-  UserRound,
   Wallet,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -41,7 +40,6 @@ import { cn } from "@/lib/cn";
 import { formatLPT, fromWei, shortAddress } from "@/lib/format";
 import { useConnectWallet } from "@/lib/hooks/connect";
 import { usePortfolio } from "@/lib/hooks/queries";
-import { useViewScope } from "@/lib/hooks/view-scope";
 import {
   type PortfolioAccount,
   useAddresses,
@@ -109,7 +107,6 @@ function PortfolioSwitcher({
   const { disconnect } = useDisconnect();
   const connectWallet = useConnectWallet();
   const addresses = useMemo(() => accounts.map((a) => a.address), [accounts]);
-  const [scope, setScope] = useViewScope(addresses);
   const { data } = usePortfolio(addresses);
   const [adding, setAdding] = useState(false);
   const [renaming, setRenaming] = useState<PortfolioAccount | null>(null);
@@ -130,7 +127,6 @@ function PortfolioSwitcher({
     // Still connected, it would be added straight back.
     if (a.connected) disconnect();
     remove(a.address);
-    if (scope === a.address) setScope("all");
     toast(`Removed ${a.label ?? shortAddress(a.address)}`, {
       action: { label: "Undo", onClick: () => add(a.address, a.label) },
     });
@@ -143,15 +139,18 @@ function PortfolioSwitcher({
   };
   const total = data ? fromWei(data.pendingStake) : null;
   const multi = accounts.length > 1;
-  // One account is its own "all".
+  // Where you are, not a filter: the wallet whose page this is, else all of
+  // them (one account is its own "all").
+  const [, section, here] = pathname.split("/");
   const viewing = multi
-    ? accounts.find((a) => a.address === scope)
+    ? section === "accounts"
+      ? accounts.find((a) => a.address === here?.toLowerCase())
+      : undefined
     : accounts[0];
 
-  const view = (next: string) => {
-    setScope(next);
-    if (pathname !== "/") router.push("/");
-  };
+  // All wallets is the portfolio; one wallet is its account page.
+  const view = (next: string) =>
+    router.push(next === "all" ? "/" : `/accounts/${next}`);
 
   return (
     <>
@@ -238,11 +237,6 @@ function PortfolioSwitcher({
                   <MoreHorizontal className="size-4" />
                 </MenuSubTrigger>
                 <MenuSubContent>
-                  <MenuItem
-                    onClick={() => router.push(`/accounts/${a.address}`)}
-                  >
-                    <UserRound /> View account
-                  </MenuItem>
                   <MenuItem onClick={() => copy(a.address)}>
                     <Copy /> Copy address
                   </MenuItem>
