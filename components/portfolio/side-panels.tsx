@@ -56,7 +56,13 @@ export function Projections({
           >
             <dt className="text-ui-body text-muted-foreground">{r.label}</dt>
             <dd className="flex items-baseline gap-2 text-ui-body tabular-nums">
-              <span>+{formatLPT(r.lpt)}</span>
+              {/* Under a ten-thousandth of an LPT (a leftover stake) a
+                  projection is nothing to speak of, so it shows as a dash. */}
+              {r.lpt >= 0.00005 ? (
+                <span>+{formatLPT(r.lpt)}</span>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
               {lptPrice != null && (
                 <span className="w-20 text-right text-ui-caption text-subtle-foreground">
                   {formatUSD(r.lpt * lptPrice)}

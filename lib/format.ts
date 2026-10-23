@@ -49,6 +49,9 @@ export function formatNumber(
 /** Adaptive precision: big balances lose their cents, dust keeps its digits. */
 export function formatToken(value: number, opts: { compact?: boolean } = {}) {
   const abs = Math.abs(value);
+  // Too small for four places: say so, rather than "0.0000", which reads
+  // as nothing at all.
+  if (abs > 0 && abs < 0.00005) return `${value < 0 ? "-" : ""}<0.0001`;
   const decimals = abs === 0 ? 0 : abs >= 1000 ? 0 : abs >= 1 ? 2 : 4;
   return formatNumber(value, { decimals, compact: opts.compact });
 }

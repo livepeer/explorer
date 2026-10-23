@@ -11,7 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDisconnect } from "wagmi";
 
@@ -120,7 +120,28 @@ function Amount({ value }: { value: string }) {
  * portfolio's wallets, or to any address typed into the picker.
  */
 function useCanMove(p: Position) {
-  return Boolean(p.delegate) && p.stake > 0;
+  return Boolean(p.delegate) && p.stake >= LPT_DUST;
+}
+
+/**
+ * Below this, LPT is a rounding leftover (it shows as 0.0000): not stake
+ * worth moving, nor a balance worth delegating. It can still be
+ * undelegated, to clear it out.
+ */
+export const LPT_DUST = 0.001;
+
+/** An element's width as it changes, for layouts that depend on it. */
+function useWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
 }
 
 /** Fees below this show as 0.000000 ETH: not worth a withdrawal's gas. */
@@ -626,18 +647,112 @@ function Figure({
  * orchestrator, so a single account gets this card rather than a table:
  * the orchestrator up top, the figures beneath, actions inline.
  */
+/**
+ * The delegation card's footer: Delegate more and Undelegate, the everyday
+ * actions, in view; Switch orchestrator and Transfer stake are quiet
+ * buttons when the card is wide and in a menu when it isn't.
+ */
+function CardActions({
+  ref,
+  width,
+  staked,
+  canMove,
+  onDelegate,
+  onUndelegate,
+  onTransfer,
+  switchHref,
+}: {
+  ref: React.Ref<HTMLDivElement>;
+  width: number | null;
+  staked: boolean;
+  canMove: boolean;
+  onDelegate: () => void;
+  onUndelegate: () => void;
+  onTransfer: () => void;
+  switchHref: string;
+}) {
+  const wide = width != null && width >= 704;
+  return (
+    <div ref={ref} className="border-t border-hairline">
+      <div
+        className={cn("flex items-center gap-2 py-3", wide ? "px-5" : "px-4")}
+      >
+        <Button
+          size="sm"
+          variant="primary"
+          className={wide ? "" : "flex-1"}
+          onClick={onDelegate}
+        >
+          <Plus /> Delegate more
+        </Button>
+        {staked && (
+          <Button size="sm" onClick={onUndelegate}>
+            <Minus /> Undelegate
+          </Button>
+        )}
+        {wide ? (
+          <div className="ml-auto flex items-center gap-1">
+            <Link
+              href={switchHref}
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              <ArrowRightLeft /> Switch orchestrator
+            </Link>
+            {canMove && (
+              <Button size="sm" variant="ghost" onClick={onTransfer}>
+                <Send /> Transfer stake
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Menu>
+            <MenuTrigger
+              render={
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label="More actions"
+                  className="ml-auto"
+                />
+              }
+            >
+              <MoreHorizontal />
+            </MenuTrigger>
+            <MenuContent>
+              <MenuItem render={<Link href={switchHref} />}>
+                <ArrowRightLeft /> Switch orchestrator
+              </MenuItem>
+              {canMove && (
+                <MenuItem onClick={onTransfer}>
+                  <Send /> Transfer stake
+                </MenuItem>
+              )}
+            </MenuContent>
+          </Menu>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function DelegationCard({
   position: p,
   orchestrator: o,
   canManage,
+  freeLpt,
 }: {
   position: Position;
   orchestrator: Orchestrator | undefined;
   canManage: boolean;
+  /** Unstaked LPT in the wallet beyond dust, to prefill Delegate more. */
+  freeLpt?: number;
 }) {
   const { open } = useStaking();
   const account = p.account.address;
   const canMove = useCanMove(p);
+  // Any stake at all can be undelegated, even a leftover, to clear it out.
+  const staked = p.stake > 0;
+  const [footerRef, footerWidth] = useWidth<HTMLDivElement>();
 
   if (!p.delegate) {
     return (
@@ -691,7 +806,28 @@ export function DelegationCard({
       </div>
 
       <dl className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-hairline p-5 sm:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
-        <Figure label="Stake">{formatLPT(p.stake)}</Figure>
+        <Figure
+          label="Stake"
+          action={
+            // A leftover, usually from undelegating: named, so it doesn't
+            // read as a real (or empty) position.
+            p.stake > 0 && p.stake < LPT_DUST ? (
+              <Tooltip
+                content={
+                  canManage
+                    ? "A tiny leftover, too small to earn anything. Undelegate to clear it."
+                    : "A tiny leftover, too small to earn anything."
+                }
+              >
+                <span className="cursor-default text-ui-caption text-muted-foreground underline decoration-dotted underline-offset-4">
+                  Leftover
+                </span>
+              </Tooltip>
+            ) : undefined
+          }
+        >
+          {formatLPT(p.stake)}
+        </Figure>
         <Figure label="Rewards · 30 days">
           <span
             className={
@@ -734,112 +870,37 @@ export function DelegationCard({
       </dl>
 
       {canManage && (
-        <div className="@container border-t border-hairline">
-          <div className="flex items-center gap-2 px-4 py-3 @min-[44rem]:px-5">
-            <Button
-              size="sm"
-              variant="primary"
-              className="flex-1 @min-[44rem]:flex-none"
-              onClick={() =>
-                open({ kind: "delegate", to: p.delegate!, account })
-              }
-            >
-              <Plus /> Delegate more
-            </Button>
-            <Link
-              href={`/orchestrators?move=1&account=${account}`}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <ArrowRightLeft /> Switch
-              <span className="-ml-1 hidden @min-[44rem]:inline">
-                orchestrator
-              </span>
-            </Link>
-            {/* A wide card shows the rarer actions; a narrow one, on a phone or
-              beside the side panels, folds them into a menu so the footer
-              stays one row. */}
-            <div className="ml-auto hidden items-center gap-1 @min-[44rem]:flex">
-              {canMove && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    open({
-                      kind: "transfer",
-                      account,
-                      delegate: p.delegate!,
-                      staked: p.stake,
-                    })
-                  }
-                >
-                  <Send /> Transfer stake
-                </Button>
-              )}
-              {p.stake > 0 && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    open({
-                      kind: "undelegate",
-                      account,
-                      delegate: p.delegate!,
-                      staked: p.stake,
-                    })
-                  }
-                >
-                  <Minus /> Undelegate
-                </Button>
-              )}
-            </div>
-            {(canMove || p.stake > 0) && (
-              <Menu>
-                <MenuTrigger
-                  render={
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      aria-label="More actions"
-                      className="ml-auto @min-[44rem]:hidden"
-                    />
-                  }
-                >
-                  <MoreHorizontal />
-                </MenuTrigger>
-                <MenuContent>
-                  {canMove && (
-                    <MenuItem
-                      onClick={() =>
-                        open({
-                          kind: "transfer",
-                          account,
-                          delegate: p.delegate!,
-                          staked: p.stake,
-                        })
-                      }
-                    >
-                      <Send /> Transfer stake
-                    </MenuItem>
-                  )}
-                  {p.stake > 0 && (
-                    <MenuItem
-                      onClick={() =>
-                        open({
-                          kind: "undelegate",
-                          account,
-                          delegate: p.delegate!,
-                          staked: p.stake,
-                        })
-                      }
-                    >
-                      <Minus /> Undelegate
-                    </MenuItem>
-                  )}
-                </MenuContent>
-              </Menu>
-            )}
-          </div>
-        </div>
+        <CardActions
+          ref={footerRef}
+          width={footerWidth}
+          staked={staked}
+          canMove={canMove}
+          onDelegate={() =>
+            open({
+              kind: "delegate",
+              to: p.delegate!,
+              account,
+              amount: freeLpt,
+            })
+          }
+          onUndelegate={() =>
+            open({
+              kind: "undelegate",
+              account,
+              delegate: p.delegate!,
+              staked: p.stake,
+            })
+          }
+          onTransfer={() =>
+            open({
+              kind: "transfer",
+              account,
+              delegate: p.delegate!,
+              staked: p.stake,
+            })
+          }
+          switchHref={`/orchestrators?move=1&account=${account}`}
+        />
       )}
     </Card>
   );

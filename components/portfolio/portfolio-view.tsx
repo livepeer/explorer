@@ -52,6 +52,7 @@ import { PortfolioHero } from "./hero";
 import {
   DelegationCard,
   DUST_ETH,
+  LPT_DUST,
   type Position,
   Positions,
 } from "./positions";
@@ -80,11 +81,13 @@ function SingleDelegation({
   account,
   orchestrators,
   canManage,
+  freeLpt,
 }: {
   position: Position | undefined;
   account: PortfolioAccount | undefined;
   orchestrators: Map<string, Orchestrator>;
   canManage: (address: string) => boolean;
+  freeLpt?: number;
 }) {
   const p: Position | undefined =
     position ??
@@ -104,6 +107,7 @@ function SingleDelegation({
       position={p}
       orchestrator={p.delegate ? orchestrators.get(p.delegate) : undefined}
       canManage={canManage(p.account.address)}
+      freeLpt={freeLpt}
     />
   );
 }
@@ -237,6 +241,9 @@ export function PortfolioView({
     [scoped, canManage]
   );
   const idle = useIdleLpt(manageable);
+  // Any unstaked LPT beyond dust: what "Delegate more" can add. The prompt
+  // above uses a higher bar (a balance worth nudging about).
+  const free = useIdleLpt(manageable, LPT_DUST);
   const holdings = useMemo(
     () =>
       (view?.positions ?? []).map((p) => ({
@@ -570,6 +577,7 @@ export function PortfolioView({
                     account={accounts.find((a) => a.address === scoped[0])}
                     orchestrators={orchestrators}
                     canManage={canManage}
+                    freeLpt={free.get(scoped[0])}
                   />
                 )}
               </>

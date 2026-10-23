@@ -27,8 +27,8 @@ import type { Position } from "./positions";
 /** Below this, a balance is dust rather than something to delegate. */
 const IDLE_MIN = 1;
 
-/** Unstaked LPT per address, in LPT; only addresses holding at least 1. */
-export function useIdleLpt(addresses: string[]) {
+/** Unstaked LPT per address, in LPT; only addresses holding at least `min` (1 by default). */
+export function useIdleLpt(addresses: string[], min = IDLE_MIN) {
   const token = useProtocolContract("LivepeerToken");
   const { data } = useReadContracts({
     contracts: addresses.map((a) => ({
@@ -45,10 +45,10 @@ export function useIdleLpt(addresses: string[]) {
     data?.forEach((r, i) => {
       if (r.status !== "success") return;
       const lpt = fromWei(r.result as bigint);
-      if (lpt >= IDLE_MIN) out.set(addresses[i], lpt);
+      if (lpt >= min) out.set(addresses[i], lpt);
     });
     return out;
-  }, [data, addresses]);
+  }, [data, addresses, min]);
 }
 
 function Name({ address, label }: { address: string; label?: string }) {
