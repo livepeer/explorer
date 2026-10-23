@@ -191,19 +191,21 @@ function SidebarBody({
         <ExternalLink href="https://livepeer.org" icon={<Globe />}>
           Livepeer.org
         </ExternalLink>
-        {/* Live status, set apart from the links above; then your wallet,
-            and last your display preference, on a quiet row of its own. */}
+        {/* Live status, set apart from the links above. */}
         <div className="mt-2">
           <SidebarRoundClock />
         </div>
-        <div className="mt-3">
+        {/* A footer for what's yours, your wallet and display preference,
+            under a line inset to the column's width: the sidebar has no
+            right edge for a full-width line to meet. */}
+        <div className="mt-3 flex flex-col gap-3 border-t border-hairline pt-3">
           <WalletButton />
-        </div>
-        <div className="mt-3 flex items-center justify-between px-1">
-          <span className="text-ui-caption text-subtle-foreground">
-            Appearance
-          </span>
-          <ThemeSwitch />
+          <div className="flex items-center justify-between px-1">
+            <span className="text-ui-caption text-subtle-foreground">
+              Appearance
+            </span>
+            <ThemeSwitch />
+          </div>
         </div>
       </div>
     </div>
