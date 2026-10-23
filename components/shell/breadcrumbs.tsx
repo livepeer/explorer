@@ -5,14 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
 
-import { useIdentity } from "@/components/identity";
+import { Avatar, useIdentity } from "@/components/identity";
 import { cn } from "@/lib/cn";
 import { useAddresses } from "@/lib/hooks/watchlist";
 import { routeParam } from "@/lib/params";
 
 import { NAV } from "./nav";
 
-type Crumb = { label: React.ReactNode; href?: string; icon?: LucideIcon };
+type Crumb = {
+  label: React.ReactNode;
+  href?: string;
+  icon?: LucideIcon;
+  /** An address the crumb names, shown with its avatar. */
+  address?: string;
+};
 
 /** Sections by their path segment, with the sidebar's label and icon. */
 const SECTIONS = Object.fromEntries(
@@ -50,6 +56,11 @@ function useDocumentTitle(fallback: string) {
   return title ?? fallback;
 }
 
+function CrumbAvatar({ address }: { address: string }) {
+  const { avatar } = useIdentity(address);
+  return <Avatar address={address} src={avatar} size={18} />;
+}
+
 /** Your own label for a saved wallet, else its ENS name or short address. */
 function AddressName({ address }: { address: string }) {
   const { display } = useIdentity(address);
@@ -68,7 +79,10 @@ function crumbsFor(pathname: string): Crumb[] {
   if (section === "accounts" && a) {
     return [
       { label: "Accounts", icon: UserRound },
-      { label: <AddressName address={routeParam(a)} /> },
+      {
+        label: <AddressName address={routeParam(a)} />,
+        address: routeParam(a),
+      },
     ];
   }
   const s = SECTIONS[section];
@@ -92,7 +106,10 @@ function crumbsFor(pathname: string): Crumb[] {
   if (a && (section === "orchestrators" || section === "gateways")) {
     return [
       { label: name, icon, href: `/${section}` },
-      { label: <AddressName address={routeParam(a)} /> },
+      {
+        label: <AddressName address={routeParam(a)} />,
+        address: routeParam(a),
+      },
     ];
   }
   return [{ label: name, icon }];
@@ -130,6 +147,7 @@ export function Breadcrumbs() {
                     className="size-4 shrink-0 text-subtle-foreground"
                   />
                 )}
+                {c.address && <CrumbAvatar address={c.address} />}
                 {c.href && !last ? (
                   <Link
                     href={c.href}

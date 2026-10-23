@@ -2,7 +2,7 @@
 
 import { AlertTriangle, ArrowDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ActivityList } from "@/components/activity-list";
 import {
@@ -17,6 +17,7 @@ import { useStaking } from "@/components/staking/staking";
 import { Skeleton } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEventOnce } from "@/lib/analytics";
+import { cn } from "@/lib/cn";
 import {
   formatETH,
   formatLPT,
@@ -44,18 +45,12 @@ import {
   trailingCommission,
   trailingRoundRate,
 } from "@/lib/portfolio/compute";
-import type { Orchestrator } from "@/lib/subgraph/network";
 
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import {
-  DelegationCard,
-  DUST_ETH,
-  LPT_DUST,
-  type Position,
-  Positions,
-} from "./positions";
+import { PositionRail } from "./position-rail";
+import { DUST_ETH, LPT_DUST, type Position, Positions } from "./positions";
 import { safeInsights } from "./safe-insights";
 import { ScopeBar } from "./scope-bar";
 import {
@@ -75,40 +70,34 @@ function delegationCount(delegations: number, wallets: number) {
   return `${delegations} delegation${delegations === 1 ? "" : "s"} · ${w}`;
 }
 
-/** One account's delegation, including an account with nothing delegated. */
-function SingleDelegation({
-  position,
-  account,
-  orchestrators,
-  canManage,
-  freeLpt,
-}: {
-  position: Position | undefined;
-  account: PortfolioAccount | undefined;
-  orchestrators: Map<string, Orchestrator>;
-  canManage: (address: string) => boolean;
-  freeLpt?: number;
-}) {
-  const p: Position | undefined =
-    position ??
-    (account && {
-      account,
-      delegate: null,
-      stake: 0,
-      fees: 0,
-      rewards30d: 0,
-      delegatorRewards30d: 0,
-      trend: [],
-      active: false,
-    });
-  if (!p) return null;
+/**
+ * Pins its column under the app header (desktop) only when all of it fits
+ * on screen; taller, it scrolls with the page, so nothing is cut off.
+ */
+function StickyIfFits({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [fits, setFits] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // 72px: the pinned header and its inset, plus room below.
+    const check = () => setFits(el.offsetHeight <= window.innerHeight - 88);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    window.addEventListener("resize", check);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", check);
+    };
+  }, []);
   return (
-    <DelegationCard
-      position={p}
-      orchestrator={p.delegate ? orchestrators.get(p.delegate) : undefined}
-      canManage={canManage(p.account.address)}
-      freeLpt={freeLpt}
-    />
+    <div
+      ref={ref}
+      className={cn("flex flex-col", fits && "xl:sticky xl:top-[72px]")}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -116,10 +105,14 @@ export function PortfolioView({
   accounts,
   canManage,
   showScope = true,
+  header,
 }: {
   accounts: PortfolioAccount[];
   canManage: (address: string) => boolean;
   showScope?: boolean;
+  /** The page's own header, leading the main column (so a rail beside it
+   *  starts level with it). */
+  header?: React.ReactNode;
 }) {
   const addresses = useMemo(() => accounts.map((a) => a.address), [accounts]);
   // The home portfolio follows the sidebar switcher; a single-account page
@@ -352,23 +345,8 @@ export function PortfolioView({
         }),
       });
     }
-    const ready = view.unbonding.filter(
-      (l) => l.withdrawRound <= data.currentRound
-    );
-    if (ready.length) {
-      const total = ready.reduce((s, l) => s + l.amount, 0);
-      out.push({
-        id: "withdraw-ready",
-        tone: "positive",
-        kind: "withdraw",
-        title: (
-          <>
-            {formatLPT(total)} has unlocked and is ready to withdraw or
-            redelegate.
-          </>
-        ),
-      });
-    }
+    // Unlocked stake isn't listed here: the Pending withdrawals card on the
+    // same page shows it whenever there's any, with its Withdraw button.
     return out;
   }, [
     view,
@@ -384,6 +362,7 @@ export function PortfolioView({
   if (error) return <ErrorNotice error={error} onRetry={() => refetch()} />;
 
   const loading = isLoading || !view;
+  const single = scoped.length === 1;
   const idleAction = view && (
     <IdleLptAction idle={idle} accounts={accounts} positions={view.positions} />
   );
@@ -397,14 +376,189 @@ export function PortfolioView({
       .filter((p) => canManage(p.account.address) && p.fees >= DUST_ETH)
       .sort((a, b) => b.fees - a.fees) ?? [];
 
+  const heroEl = (
+    <PortfolioHero
+      variant={single ? "page" : "card"}
+      series={view?.series ?? []}
+      stake={view?.stake ?? 0}
+      lptPrice={lpt}
+      nowSec={nowSec}
+      loading={loading}
+      actions={
+        data && (
+          <ExportEarnings
+            name={
+              scope === "all"
+                ? showScope
+                  ? "portfolio"
+                  : accounts[0]?.label ?? accounts[0]?.address ?? ""
+                : accounts.find((a) => a.address === scope)?.label ?? scope
+            }
+            accounts={data.accounts
+              .filter((a) => scoped.includes(a.id))
+              .map((a) => ({
+                address: a.id,
+                label: accounts.find((x) => x.address === a.id)?.label,
+                series: a.series,
+              }))}
+          />
+        )
+      }
+    />
+  );
+  const insightsEl = insights.length > 0 && (
+    <Section id="needs-attention">
+      <SectionHeader
+        title="Needs attention"
+        description="Open votes, pending Safe actions, and your orchestrators' last 30 rounds"
+      />
+      <Insights items={insights} />
+    </Section>
+  );
+  const activityEl = (
+    <section>
+      <SectionHeader
+        title="Recent activity"
+        action={
+          scoped.length === 1 ? (
+            <Link
+              href={`/activity?q=${scoped[0]}`}
+              className="inline-flex items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
+            >
+              All activity <ArrowRight className="size-3" />
+            </Link>
+          ) : undefined
+        }
+      />
+      <ActivityList
+        events={events}
+        loading={eventsLoading}
+        emptyText="No staking activity for these accounts yet."
+      />
+    </section>
+  );
+  const withdrawalsEl = view && view.unbonding.length > 0 && data && (
+    <section>
+      <SectionHeader
+        title="Pending withdrawals"
+        description={`${formatLPT(
+          view.unbonding.reduce((s, l) => s + l.amount, 0)
+        )} undelegating`}
+      />
+      <PendingWithdrawals
+        locks={view.unbonding}
+        currentRound={data.currentRound}
+        roundSeconds={view.roundSeconds}
+        canManage={canManage}
+      />
+    </section>
+  );
+
+  // One wallet, brokerage-style: the main column is about time (balance
+  // history, what needs attention, activity), the rail beside it about now:
+  // the position and what you can do with it, pinned as you scroll. The
+  // page's own header leads the main column, so the rail starts level with
+  // it. Below xl the position card follows the balance instead.
+  if (single) {
+    const account = accounts.find((a) => a.address === scoped[0]);
+    // An account with nothing delegated still gets a card, to start from.
+    const position: Position | undefined =
+      view?.positions[0] ??
+      (account && {
+        account,
+        delegate: null,
+        stake: 0,
+        fees: 0,
+        rewards30d: 0,
+        delegatorRewards30d: 0,
+        trend: [],
+        active: false,
+      });
+    const project = (days: number) =>
+      view
+        ? projectEarnings(
+            view.stake,
+            view.rate,
+            days,
+            view.roundSeconds,
+            view.commission
+          )
+        : 0;
+    const rail = (
+      <PositionRail
+        loading={loading}
+        position={position}
+        orchestrator={
+          position?.delegate ? orchestrators.get(position.delegate) : undefined
+        }
+        canManage={position ? canManage(position.account.address) : false}
+        freeLpt={free.get(scoped[0])}
+        figures={
+          view
+            ? {
+                rewards30: view.rewards30,
+                apr: view.apr,
+                year: project(365),
+              }
+            : undefined
+        }
+        ethPrice={prices?.eth}
+      />
+    );
+    return (
+      <div className="flex flex-col">
+        {showScope && (
+          <div className="mb-5">
+            <ScopeBar accounts={accounts} scope={scope} onScope={setScope} />
+          </div>
+        )}
+        {urgent.length > 0 && (
+          <a
+            href="#needs-attention"
+            className="mb-5 flex items-center gap-2.5 rounded-md bg-warm-subtle px-3.5 py-2.5 text-ui-caption text-warm transition-colors hover:bg-warm-subtle/80"
+          >
+            <AlertTriangle className="size-3.5 shrink-0" />
+            <span className="min-w-0 flex-1 truncate">
+              {urgent[0].title}
+              {urgent.length > 1 && ` · and ${urgent.length - 1} more`}
+            </span>
+            <span className="flex shrink-0 items-center gap-1">
+              Review <ArrowDown className="size-3" />
+            </span>
+          </a>
+        )}
+        {/* Brokerage-style. Wide: the account and its balance history on
+            the left, then activity; on the right, from the very top, the
+            position and what needs doing, pinned as you scroll. Narrow: the
+            same order in one column, the position after the balance. */}
+        <div className="grid grid-cols-1 gap-x-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 xl:col-start-1 xl:row-start-1">{header}</div>
+          <div className="min-w-0 animate-rise xl:col-start-1 xl:row-start-2">
+            {heroEl}
+          </div>
+          <aside className="mt-6 animate-rise [animation-delay:60ms] xl:col-start-2 xl:row-span-3 xl:row-start-1 xl:mt-0">
+            <StickyIfFits>
+              {rail}
+              {insightsEl && <div className="mt-8">{insightsEl}</div>}
+              {withdrawalsEl && <div className="mt-8">{withdrawalsEl}</div>}
+            </StickyIfFits>
+          </aside>
+          <div className="mt-10 min-w-0 xl:col-start-1 xl:row-start-3">
+            {activityEl}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col">
+      {header}
       {showScope && (
         <div className="mb-5">
           <ScopeBar accounts={accounts} scope={scope} onScope={setScope} />
         </div>
       )}
-
       {urgent.length > 0 && (
         <a
           href="#needs-attention"
@@ -420,36 +574,7 @@ export function PortfolioView({
           </span>
         </a>
       )}
-
-      <div className="animate-rise">
-        <PortfolioHero
-          series={view?.series ?? []}
-          stake={view?.stake ?? 0}
-          lptPrice={lpt}
-          nowSec={nowSec}
-          loading={loading}
-          actions={
-            data && (
-              <ExportEarnings
-                name={
-                  scope === "all"
-                    ? showScope
-                      ? "portfolio"
-                      : accounts[0]?.label ?? accounts[0]?.address ?? ""
-                    : accounts.find((a) => a.address === scope)?.label ?? scope
-                }
-                accounts={data.accounts
-                  .filter((a) => scoped.includes(a.id))
-                  .map((a) => ({
-                    address: a.id,
-                    label: accounts.find((x) => x.address === a.id)?.label,
-                    series: a.series,
-                  }))}
-              />
-            )
-          }
-        />
-      </div>
+      <div className="animate-rise">{heroEl}</div>
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">
         <KpiStrip>
@@ -553,80 +678,33 @@ export function PortfolioView({
         </KpiStrip>
       </div>
 
-      {insights.length > 0 && (
-        <Section id="needs-attention" className="mt-10 scroll-mt-6">
-          <SectionHeader
-            title="Needs attention"
-            description="Open votes, pending Safe actions, and your orchestrators' last 30 rounds"
-          />
-          <Insights items={insights} />
-        </Section>
-      )}
+      {insightsEl && <div className="mt-10">{insightsEl}</div>}
 
       <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-10">
           <section>
-            {scoped.length === 1 ? (
-              <>
-                <SectionHeader title="Delegation" action={idleAction} />
-                {loading ? (
-                  <Skeleton className="h-44 w-full rounded-md" />
-                ) : (
-                  <SingleDelegation
-                    position={view!.positions[0]}
-                    account={accounts.find((a) => a.address === scoped[0])}
-                    orchestrators={orchestrators}
-                    canManage={canManage}
-                    freeLpt={free.get(scoped[0])}
-                  />
-                )}
-              </>
+            <SectionHeader
+              title="Delegations"
+              description={
+                view
+                  ? delegationCount(view.positions.length, scoped.length)
+                  : undefined
+              }
+              action={idleAction}
+            />
+            {loading ? (
+              <Skeleton className="h-40 w-full rounded-md" />
             ) : (
-              <>
-                <SectionHeader
-                  title="Delegations"
-                  description={
-                    view
-                      ? delegationCount(view.positions.length, scoped.length)
-                      : undefined
-                  }
-                  action={idleAction}
-                />
-                {loading ? (
-                  <Skeleton className="h-40 w-full rounded-md" />
-                ) : (
-                  <Positions
-                    positions={view!.positions}
-                    orchestrators={orchestrators}
-                    total={view!.stake}
-                    canManage={canManage}
-                    showAccount
-                  />
-                )}
-              </>
+              <Positions
+                positions={view!.positions}
+                orchestrators={orchestrators}
+                total={view!.stake}
+                canManage={canManage}
+                showAccount
+              />
             )}
           </section>
-
-          <section>
-            <SectionHeader
-              title="Recent activity"
-              action={
-                scoped.length === 1 ? (
-                  <Link
-                    href={`/activity?q=${scoped[0]}`}
-                    className="inline-flex items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
-                  >
-                    All activity <ArrowRight className="size-3" />
-                  </Link>
-                ) : undefined
-              }
-            />
-            <ActivityList
-              events={events}
-              loading={eventsLoading}
-              emptyText="No staking activity for these accounts yet."
-            />
-          </section>
+          {activityEl}
         </div>
 
         <aside className="flex flex-col gap-10">
@@ -684,23 +762,7 @@ export function PortfolioView({
               />
             )}
           </section>
-
-          {view && view.unbonding.length > 0 && data && (
-            <section>
-              <SectionHeader
-                title="Pending withdrawals"
-                description={`${formatLPT(
-                  view.unbonding.reduce((s, l) => s + l.amount, 0)
-                )} undelegating`}
-              />
-              <PendingWithdrawals
-                locks={view.unbonding}
-                currentRound={data.currentRound}
-                roundSeconds={view.roundSeconds}
-                canManage={canManage}
-              />
-            </section>
-          )}
+          {withdrawalsEl}
         </aside>
       </div>
     </div>
