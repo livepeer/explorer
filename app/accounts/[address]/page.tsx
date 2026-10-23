@@ -138,17 +138,19 @@ export default function AccountPage() {
   };
   const nameMenu = (
     <Menu>
+      {/* The breadcrumb's last step: the account's name, which opens what
+          you can do with the address. */}
       <MenuTrigger
-        render={
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            aria-label="Account options"
-            className="text-subtle-foreground"
-          />
-        }
+        aria-label={`${
+          label ?? name ?? shortAddress(address)
+        }: account options`}
+        className="-ml-1 flex min-w-0 cursor-pointer items-center gap-2 rounded-sm px-1 py-0.5 text-ui-body text-foreground outline-none transition-colors hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40 data-popup-open:bg-hover"
       >
-        <ChevronDown />
+        <Avatar address={address} src={avatar} size={18} />
+        <span className="truncate">
+          {label ?? name ?? shortAddress(address)}
+        </span>
+        <ChevronDown className="size-3.5 shrink-0 text-subtle-foreground" />
       </MenuTrigger>
       <MenuContent align="start">
         <MenuItem

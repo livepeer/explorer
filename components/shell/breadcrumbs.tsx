@@ -18,6 +18,9 @@ type Crumb = {
   icon?: LucideIcon;
   /** An address the crumb names, shown with its avatar. */
   address?: string;
+  /** The page draws the next crumb itself: this one isn't the current
+   *  page, and is followed by a separator. */
+  continued?: boolean;
 };
 
 /** Sections by their path segment, with the sidebar's label and icon. */
@@ -77,13 +80,9 @@ function crumbsFor(pathname: string): Crumb[] {
   const [section, a, b] = pathname.split("/").filter(Boolean);
   if (!section) return [SECTIONS[""]];
   if (section === "accounts" && a) {
-    return [
-      { label: "Accounts", icon: UserRound },
-      {
-        label: <AddressName address={routeParam(a)} />,
-        address: routeParam(a),
-      },
-    ];
+    // The account itself is drawn by its page, after these crumbs: its name
+    // is the menu for the address (copy, rename, remove), all one target.
+    return [{ label: "Accounts", icon: UserRound, continued: true }];
   }
   const s = SECTIONS[section];
   if (!s) return [];
@@ -124,7 +123,7 @@ export function Breadcrumbs() {
     <nav aria-label="Breadcrumb" className="min-w-0">
       <ol className="flex min-w-0 items-center gap-1.5 text-ui-body">
         {crumbs.map((c, i) => {
-          const last = i === crumbs.length - 1;
+          const last = i === crumbs.length - 1 && !c.continued;
           return (
             <Fragment key={i}>
               {i > 0 && (
@@ -166,6 +165,12 @@ export function Breadcrumbs() {
                   </span>
                 )}
               </li>
+              {c.continued && (
+                <ChevronRight
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0 text-subtle-foreground"
+                />
+              )}
             </Fragment>
           );
         })}
