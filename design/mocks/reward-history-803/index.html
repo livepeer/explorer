@@ -623,7 +623,17 @@
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 10px;
+        margin-bottom: 2px;
+      }
+      .claim-when {
+        margin: 0 0 14px;
+        font-size: 13px;
+        line-height: 1.4;
+        color: var(--neutral11);
+      }
+      .claim-when strong {
+        color: var(--hiContrast);
+        font-weight: 600;
       }
       .story-top .chip {
         flex-shrink: 0;
@@ -655,18 +665,16 @@
       }
 
       .delay-row {
-        display: grid;
-        grid-template-columns: 16px 1fr;
-        gap: 10px;
-        align-items: start;
-        padding: 10px 12px;
-        border-radius: var(--radius-sm);
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--neutral4);
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        padding: 0;
+        margin: 0 0 8px;
+        background: none;
+        border: 0;
         font-size: 13px;
         line-height: 1.5;
         color: var(--neutral11);
-        margin-bottom: 16px;
       }
       .delay-row svg {
         width: 16px;
@@ -682,32 +690,14 @@
       .steps {
         display: grid;
         gap: 0;
-        border: 1px solid var(--neutral4);
-        border-radius: var(--radius-sm);
-        background: rgba(0, 0, 0, 0.2);
       }
       .step {
         display: grid;
-        grid-template-columns: 28px 1fr auto;
-        gap: 10px;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
         align-items: baseline;
-        padding: 12px 14px;
-        border-top: 1px solid var(--neutral4);
+        padding: 7px 0;
         font-size: 13px;
-      }
-      .step:first-child {
-        border-top: 0;
-        border-top-left-radius: calc(var(--radius-sm) - 1px);
-        border-top-right-radius: calc(var(--radius-sm) - 1px);
-      }
-      .step:last-child {
-        border-bottom-left-radius: calc(var(--radius-sm) - 1px);
-        border-bottom-right-radius: calc(var(--radius-sm) - 1px);
-      }
-      .step .n {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--neutral8);
       }
       .step .label {
         color: var(--neutral11);
@@ -854,13 +844,11 @@
       }
 
       .next {
-        margin-top: 14px;
+        margin-top: 12px;
         font-size: 13px;
         line-height: 1.55;
         color: var(--neutral11);
-        padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        border: 1px dashed var(--neutral5);
+        padding: 0;
       }
       .next strong {
         color: var(--hiContrast);
@@ -871,7 +859,7 @@
         margin-top: 14px;
         border: 1px solid var(--neutral4);
         border-radius: var(--radius-sm);
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(0, 0, 0, 0.2);
       }
       .split-disclosure > summary {
         list-style: none;
@@ -903,7 +891,7 @@
         border-bottom: 1px solid var(--neutral4);
       }
       .split-stack {
-        padding: 4px 14px 12px;
+        padding: 8px 14px 12px;
       }
       .split-row {
         display: grid;
@@ -1410,12 +1398,11 @@
           padding: 20px 16px 48px;
         }
         .step {
-          grid-template-columns: 22px 1fr;
+          grid-template-columns: 1fr auto;
         }
         .step .val {
-          grid-column: 2;
-          text-align: left;
-          margin-top: 2px;
+          text-align: right;
+          margin-top: 0;
         }
         .claim-routes,
         .paid-split {
@@ -1758,6 +1745,24 @@
                       ></span
                     >
                   </div>
+                  <p class="claim-when">
+                    Claimable in round
+                    <strong class="num" id="delay-paid">4217</strong>
+                    <span class="help">
+                      <button
+                        type="button"
+                        class="tooltip-dot"
+                        aria-label="Help: when this round can be claimed"
+                        aria-describedby="help-delay"
+                      >
+                        ?
+                      </button>
+                      <span class="tooltip-help" role="tooltip" id="help-delay">
+                        Rewards from a round can be claimed seven rounds later,
+                        about a week.
+                      </span>
+                    </span>
+                  </p>
                   <div
                     class="sr-only"
                     id="receipt-live"
@@ -2036,7 +2041,7 @@
                     <strong class="num">11.8%</strong> of network fees,
                     <strong class="cap num">2.3%</strong> of stake. Honesty at
                     claim was <span class="num">0.95</span>, so the pool was 95%
-                    of that stake ceiling. Claimable seven rounds later.
+                    of that stake ceiling.
                   </p>
 
                   <details class="split-disclosure" id="derive-disclosure">
@@ -2058,97 +2063,11 @@
                       </svg>
                     </summary>
                     <div class="split-stack">
-                      <div class="delay-row" style="margin: 8px 0 12px">
-                        <svg
-                          viewBox="0 0 16 16"
-                          aria-hidden="true"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                        >
-                          <circle cx="8" cy="8" r="5.5" />
-                          <path d="M8 5v3.2l2 1.3" stroke-linecap="round" />
-                        </svg>
-                        <div>
-                          Worked in round
-                          <strong class="num" id="delay-work">4210</strong> ·
-                          Claimable in round
-                          <strong class="num" id="delay-paid">4217</strong>
-                          <span class="help">
-                            <button
-                              type="button"
-                              class="tooltip-dot"
-                              aria-label="Help: seven round delay"
-                              aria-describedby="help-delay"
-                            >
-                              ?
-                            </button>
-                            <span
-                              class="tooltip-help"
-                              role="tooltip"
-                              id="help-delay"
-                            >
-                              Work from a round can be claimed about a week
-                              later (seven rounds). The honesty score used is
-                              the one at claim time, so a short fee spike can
-                              still get cut before anyone claims.
-                            </span>
-                          </span>
-                        </div>
-                      </div>
                       <div
                         class="steps"
                         aria-label="How this payout was derived"
                       >
-                        <div class="step">
-                          <span class="n">1</span>
-                          <span class="label"
-                            ><span class="swatch fee"
-                              ><i aria-hidden="true"></i></span
-                            >Fee share that round</span
-                          >
-                          <span class="val num">11.8%</span>
-                        </div>
-                        <div
-                          class="step binding"
-                          aria-label="Stake share capped rewards"
-                        >
-                          <span class="n">2</span>
-                          <span class="label"
-                            ><span class="swatch stake"
-                              ><i aria-hidden="true"></i></span
-                            >Stake share that round
-                            <span class="tag stake">capped rewards</span></span
-                          >
-                          <span class="val num">2.3%</span>
-                        </div>
-                        <div class="step">
-                          <span class="n">3</span>
-                          <span class="label"
-                            >Reward share
-                            <span class="help">
-                              <button
-                                type="button"
-                                class="tooltip-dot"
-                                aria-label="Help: smaller number"
-                                aria-describedby="help-min"
-                              >
-                                ?
-                              </button>
-                              <span
-                                class="tooltip-help"
-                                role="tooltip"
-                                id="help-min"
-                              >
-                                Rewards follow the smaller of fee share and
-                                stake share. USDC fees are never cut by stake.
-                              </span>
-                            </span></span
-                          >
-                          <span class="val num">2.3%</span>
-                        </div>
                         <div class="step muted">
-                          <span class="n">4</span>
                           <span class="label"
                             >Of that round’s LPT pool for nodes
                             <span class="num">40,000 LPT</span></span
@@ -2156,7 +2075,6 @@
                           <span class="val num">920 LPT</span>
                         </div>
                         <div class="step muted">
-                          <span class="n">5</span>
                           <span class="label"
                             >Honesty score at payout
                             <span class="help">
@@ -2182,7 +2100,6 @@
                           <span class="val num">× 0.95</span>
                         </div>
                         <div class="step result">
-                          <span class="n">6</span>
                           <span class="label">Pool LPT for that round</span>
                           <span class="val num">874 LPT</span>
                         </div>
@@ -2835,7 +2752,7 @@
           4210: {
             theme: "stake",
             title: "Round 4210",
-            lede: '<strong class="num">11.8%</strong> of network fees, <strong class="cap num">2.3%</strong> of stake. Honesty at claim was <span class="num">0.95</span>, so the pool was 95% of that stake ceiling. Claimable seven rounds later.',
+            lede: '<strong class="num">11.8%</strong> of network fees, <strong class="cap num">2.3%</strong> of stake. Honesty at claim was <span class="num">0.95</span>, so the pool was 95% of that stake ceiling.',
             work: "4210",
             paid: "4217",
             fee: "11.8%",
@@ -3074,27 +2991,9 @@
           if (delayPaid) delayPaid.textContent = r.paid;
 
           var steps = story.querySelectorAll(".step");
-          steps[0].querySelector(".val").textContent = r.fee;
-          steps[1].querySelector(".val").textContent = r.stake;
-          if (r.bind === "fee") {
-            steps[0].classList.add("binding");
-            steps[1].classList.remove("binding");
-            steps[0].querySelector(".label").innerHTML =
-              '<span class="swatch fee"><i aria-hidden="true"></i></span>Fee share that round <span class="tag fee">capped rewards</span>';
-            steps[1].querySelector(".label").innerHTML =
-              '<span class="swatch stake"><i aria-hidden="true"></i></span>Stake share that round';
-          } else {
-            steps[0].classList.remove("binding");
-            steps[1].classList.add("binding");
-            steps[0].querySelector(".label").innerHTML =
-              '<span class="swatch fee"><i aria-hidden="true"></i></span>Fee share that round';
-            steps[1].querySelector(".label").innerHTML =
-              '<span class="swatch stake"><i aria-hidden="true"></i></span>Stake share that round <span class="tag stake">capped rewards</span>';
-          }
-          steps[2].querySelector(".val").textContent = r.eligible;
-          steps[3].querySelector(".val").textContent = r.pot;
-          steps[4].querySelector(".val").textContent = r.mult;
-          steps[5].querySelector(".val").textContent = r.pool;
+          if (steps[0]) steps[0].querySelector(".val").textContent = r.pot;
+          if (steps[1]) steps[1].querySelector(".val").textContent = r.mult;
+          if (steps[2]) steps[2].querySelector(".val").textContent = r.pool;
 
           function figure(value) {
             return String(value).replace(/\s*(LPT|USDC)\s*$/i, "");
