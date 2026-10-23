@@ -12,6 +12,9 @@
 /.next/
 /out/
 
+# Copied from design/mocks so preview can serve the review HTML.
+/public/design/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
