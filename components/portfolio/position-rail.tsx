@@ -32,7 +32,12 @@ import { DUST_ETH, LPT_DUST, type Position } from "./positions";
 /** The wallet-wide figures the rail lists beside its delegation. */
 export type RailFigures = {
   rewards30: number;
+  /** Realised rewards, compounded to a year (%). */
   apr: number;
+  /** Fees as a simple annual % of stake, or null without prices. */
+  feeApr: number | null;
+  /** How the APR splits, for its tooltip. */
+  aprSplit: React.ReactNode;
   /** Projected rewards over a year at today's rate. */
   year: number;
 };
@@ -66,15 +71,19 @@ function Row({
   );
 }
 
-/** The orchestrator: avatar, name with its status beside it, terms below. */
+/**
+ * Who it's with: the avatar carrying its status as a dot (green, active;
+ * amber, inactive), a caption, the name, and its terms. Inactive is also
+ * said in words, since it costs you rewards.
+ */
 function OrchestratorLine({
   address,
   terms,
-  status,
+  active,
 }: {
   address: string;
   terms: string[];
-  status: React.ReactNode;
+  active: boolean;
 }) {
   const { name, avatar, display } = useIdentity(address);
   return (
@@ -82,23 +91,40 @@ function OrchestratorLine({
       href={`/orchestrators/${address}`}
       className="group flex min-w-0 items-center gap-3 rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40"
     >
-      <Avatar address={address} src={avatar} size={40} />
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <Tooltip content={active ? "Active this round" : "Not in the active set"}>
+        <span className="relative shrink-0">
+          <Avatar address={address} src={avatar} size={40} />
+          <span
+            className={cn(
+              "absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-surface",
+              active ? "bg-green-fill" : "bg-warm"
+            )}
+          />
+        </span>
+      </Tooltip>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="text-ui-caption text-muted-foreground">
+          Delegated to
+        </span>
         <span className="flex min-w-0 items-center gap-2">
           <span
             title={address}
             className={cn(
-              "truncate text-[15px] font-medium text-foreground group-hover:underline",
+              "truncate text-[15px] leading-6 font-medium text-foreground group-hover:underline",
               !name && "font-mono text-[14px]"
             )}
             style={{ textUnderlineOffset: 4 }}
           >
             {display}
           </span>
-          <span className="shrink-0">{status}</span>
+          {!active && (
+            <Badge tone="warning" className="shrink-0">
+              Inactive
+            </Badge>
+          )}
         </span>
         {terms.length > 0 && (
-          <span className="truncate text-ui-caption text-muted-foreground">
+          <span className="truncate text-ui-caption text-subtle-foreground">
             {terms.join(" · ")}
           </span>
         )}
@@ -178,77 +204,77 @@ export function PositionRail({
     );
   }
 
+  const menu = canManage ? (
+    <Menu>
+      <MenuTrigger
+        render={
+          <Button
+            size="icon-xs"
+            variant="ghost"
+            aria-label="More actions"
+            className="-mt-1 -mr-1.5"
+          />
+        }
+      >
+        <MoreHorizontal />
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem
+          render={<Link href={`/orchestrators?move=1&account=${account}`} />}
+        >
+          <ArrowRightLeft /> Switch orchestrator
+        </MenuItem>
+        {canMove && (
+          <MenuItem
+            onClick={() =>
+              open({ kind: "transfer", account, delegate, staked: p.stake })
+            }
+          >
+            <Send /> Transfer stake
+          </MenuItem>
+        )}
+      </MenuContent>
+    </Menu>
+  ) : (
+    <Tooltip content="Add this address to your portfolio to manage it here.">
+      <span className="-mt-1 inline-flex size-6 items-center justify-center text-subtle-foreground">
+        <Eye className="size-3.5" />
+      </span>
+    </Tooltip>
+  );
+
   return (
-    <Card className="flex flex-col">
-      {/* Who it's with: the label and the rarer actions on top, then the
-          orchestrator with its status beside its name. */}
-      <div className="flex flex-col gap-3 p-5">
-        <div className="flex h-6 items-center justify-between gap-2">
-          <span className="text-ui-caption text-muted-foreground">
-            Delegated to
-          </span>
-          {canManage ? (
-            <Menu>
-              <MenuTrigger
-                render={
-                  <Button
-                    size="icon-xs"
-                    variant="ghost"
-                    aria-label="More actions"
-                    className="-mr-1.5"
-                  />
-                }
-              >
-                <MoreHorizontal />
-              </MenuTrigger>
-              <MenuContent align="end">
-                <MenuItem
-                  render={
-                    <Link href={`/orchestrators?move=1&account=${account}`} />
-                  }
-                >
-                  <ArrowRightLeft /> Switch orchestrator
-                </MenuItem>
-                {canMove && (
-                  <MenuItem
-                    onClick={() =>
-                      open({
-                        kind: "transfer",
-                        account,
-                        delegate,
-                        staked: p.stake,
-                      })
-                    }
-                  >
-                    <Send /> Transfer stake
-                  </MenuItem>
-                )}
-              </MenuContent>
-            </Menu>
-          ) : (
-            <Tooltip content="Add this address to your portfolio to manage it here.">
-              <span className="inline-flex size-6 items-center justify-center text-subtle-foreground">
-                <Eye className="size-3.5" />
-              </span>
-            </Tooltip>
-          )}
-        </div>
-        <OrchestratorLine
-          address={delegate}
-          terms={terms}
-          status={
-            <Badge tone={p.active ? "positive" : "warning"}>
-              {p.active ? "Active" : "Inactive"}
-            </Badge>
-          }
-        />
+    <Card className="flex flex-col gap-6 p-5">
+      {/* Who it's with, and the rarer actions. */}
+      <div className="flex items-start justify-between gap-3">
+        <OrchestratorLine address={delegate} terms={terms} active={p.active} />
+        {menu}
       </div>
 
-      {/* What it holds and earns. Fees and unstaked LPT only when there are
-          some. */}
-      <dl className="flex flex-col gap-3.5 border-t border-hairline p-5">
-        {/* The stake itself is the page's headline, beside this card; a
-            leftover is named here so it isn't mistaken for a position. */}
+      {/* The headline: what the delegation yields, and where it's heading.
+          (Its history is the chart beside this card.) */}
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <Tooltip content={f.aprSplit}>
+            <span className="w-fit cursor-help text-ui-caption text-muted-foreground underline decoration-dotted decoration-foreground/30 underline-offset-4">
+              Realised APR
+            </span>
+          </Tooltip>
+          <span className="text-[28px] leading-8 font-medium tracking-[-0.02em] tabular-nums">
+            {(f.apr + (f.feeApr ?? 0)).toFixed(2)}
+            <span className="text-[18px] text-muted-foreground">%</span>
+          </span>
+          {f.year >= 0.00005 && (
+            <span className="text-ui-caption text-muted-foreground tabular-nums">
+              ≈ +{formatLPT(f.year)} a year
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* The supporting figures; fees, unstaked LPT and a leftover stake
+          only when there are some. */}
+      <dl className="flex flex-col gap-3 border-t border-hairline pt-5">
         {leftover && (
           <Row
             label="Stake"
@@ -269,20 +295,6 @@ export function PositionRail({
             {formatLPT(p.stake)}
           </Row>
         )}
-        <Row
-          label={
-            <Tooltip content="Your realised yield over the last 30 rounds, compounded to a year. Not a promise: inflation, reward calls and cuts all move it.">
-              <span className="cursor-help underline decoration-dotted decoration-foreground/30 underline-offset-4">
-                Realised APR
-              </span>
-            </Tooltip>
-          }
-          note={
-            f.year >= 0.00005 ? `≈ +${formatLPT(f.year)} a year` : undefined
-          }
-        >
-          {`${f.apr.toFixed(2)}%`}
-        </Row>
         <Row label="Rewards · 30 days">
           <span
             className={
@@ -325,9 +337,8 @@ export function PositionRail({
 
       {/* The two everyday actions, side by side. */}
       {canManage && (
-        <div className="flex gap-2 border-t border-hairline p-5">
+        <div className="flex gap-2">
           <Button
-            size="sm"
             variant="primary"
             className="flex-1"
             onClick={() =>
@@ -338,7 +349,6 @@ export function PositionRail({
           </Button>
           {staked && (
             <Button
-              size="sm"
               className="flex-1"
               onClick={() =>
                 open({
