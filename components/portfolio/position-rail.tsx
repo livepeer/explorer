@@ -233,7 +233,7 @@ export function PositionRail({
       <dl className="flex flex-col gap-2.5 border-t border-hairline px-5 py-4">
         {/* What's delegated, first: a position panel states its size (a
             leftover is named so it isn't mistaken for a position). */}
-        <Row label="Staked">
+        <Row label="Delegated">
           {formatLPT(p.stake)}
           {leftover && (
             <Tooltip
