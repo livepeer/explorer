@@ -3,7 +3,8 @@
 import { ArrowLeft, ArrowRight, ExternalLink, Globe } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { isAddress } from "viem";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
@@ -18,6 +19,7 @@ import {
   Page,
   SectionHeader,
 } from "@/components/page";
+import { PAGE_ACTIONS_SLOT, useSlot } from "@/components/page-header";
 import { useStaking } from "@/components/staking/staking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -322,6 +324,23 @@ export default function OrchestratorPage() {
     : delegatedElsewhere
     ? "Switch orchestrator"
     : "Delegate";
+  const delegate = () => open({ kind: "delegate", to: address });
+
+  // Whether the header's Delegate button has scrolled up under the pinned
+  // app header (56px + its 8px inset, plus a little room).
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const actionsSlot = useSlot(PAGE_ACTIONS_SLOT);
+  const [ctaPinned, setCtaPinned] = useState(false);
+  useEffect(() => {
+    const el = actionsRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => setCtaPinned(!e.isIntersecting && e.boundingClientRect.top < 72),
+      { rootMargin: "-72px 0px 0px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <Page>
@@ -392,7 +411,7 @@ export default function OrchestratorPage() {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div ref={actionsRef} className="flex gap-2">
           {delegatedHere && (
             <Button
               onClick={() =>
@@ -402,15 +421,29 @@ export default function OrchestratorPage() {
               Undelegate
             </Button>
           )}
-          <Button
-            variant="primary"
-            disabled={!o}
-            onClick={() => open({ kind: "delegate", to: address })}
-          >
+          <Button variant="primary" disabled={!o} onClick={delegate}>
             {cta}
           </Button>
         </div>
       </header>
+      {/* Once the button above scrolls under the pinned header, a compact
+          copy joins the header's right side (desktop), so it's in reach
+          wherever the decision is made; it leaves when the original
+          returns, so it never shows twice. */}
+      {ctaPinned &&
+        actionsSlot &&
+        createPortal(
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={!o}
+            onClick={delegate}
+            className="motion-safe:animate-rise"
+          >
+            {cta}
+          </Button>,
+          actionsSlot
+        )}
 
       {error ? (
         <ErrorNotice

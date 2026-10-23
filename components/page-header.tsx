@@ -37,7 +37,8 @@ function PageInfo({ children }: { children: React.ReactNode }) {
   );
 }
 
-function useSlot(id: string) {
+/** A slot in the app header, once it's mounted (null before, and on the server). */
+export function useSlot(id: string) {
   const [node, setNode] = useState<HTMLElement | null>(null);
   useEffect(() => setNode(document.getElementById(id)), [id]);
   return node;
