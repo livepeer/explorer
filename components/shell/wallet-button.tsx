@@ -322,8 +322,11 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
         }
         if (accounts.length === 0) {
           return (
+            // Quiet in the sidebar, where a filled button outshouts the page;
+            // a wallet is asked for again wherever it's needed (delegate,
+            // vote). The phone header keeps its filled button.
             <Button
-              variant="primary"
+              variant={compact ? "primary" : "outline"}
               size={compact ? "sm" : "default"}
               onClick={openConnectModal}
               className={compact ? "" : "w-full"}

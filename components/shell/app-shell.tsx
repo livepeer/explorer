@@ -58,9 +58,11 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "group flex h-8 items-center gap-2.5 rounded-sm px-2 text-ui-body transition-colors outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40",
+                  // Labels in the text colour, icons quieter; the current page
+                  // adds a background and medium weight.
                   active
-                    ? "bg-active text-foreground"
-                    : "text-muted-foreground hover:bg-hover hover:text-foreground"
+                    ? "bg-active font-medium text-foreground"
+                    : "text-foreground/85 hover:bg-hover hover:text-foreground"
                 )}
               >
                 <Icon
@@ -142,7 +144,7 @@ function ExternalLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="flex h-7 items-center gap-2.5 rounded-sm px-2 text-ui-caption text-muted-foreground transition-colors hover:bg-hover hover:text-foreground [&>svg:first-child]:size-3.5"
+      className="flex h-7 items-center gap-2.5 rounded-sm px-2 text-ui-caption text-subtle-foreground transition-colors hover:bg-hover hover:text-foreground [&>svg:first-child]:size-3.5"
     >
       {icon}
       {children}
@@ -189,15 +191,15 @@ function SidebarBody({
         <ExternalLink href="https://livepeer.org" icon={<Globe />}>
           Livepeer.org
         </ExternalLink>
-        {/* Live status, not a link: set apart from the two above. */}
+        {/* Live status, set apart from the links above; then your wallet,
+            and last your display preference, on a quiet row of its own. */}
         <div className="mt-2">
           <SidebarRoundClock />
         </div>
-      </div>
-
-      <div className="flex flex-col gap-3 border-t border-hairline p-3">
-        <WalletButton />
-        <div className="flex items-center justify-between px-1">
+        <div className="mt-3">
+          <WalletButton />
+        </div>
+        <div className="mt-3 flex items-center justify-between px-1">
           <span className="text-ui-caption text-subtle-foreground">
             Appearance
           </span>
