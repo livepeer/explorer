@@ -13,8 +13,9 @@ import {
   formatLPT,
   formatPercent,
   formatToken,
+  formatUSD,
 } from "@/lib/format";
-import { useProtocol, useTreasury } from "@/lib/hooks/queries";
+import { usePrices, useProtocol, useTreasury } from "@/lib/hooks/queries";
 import { treasuryPace } from "@/lib/treasury-model";
 
 /** Recent rounds the pace is averaged over. */
@@ -146,6 +147,9 @@ function useTreasuryView() {
  */
 export function TreasuryCard() {
   const { treasury, view } = useTreasuryView();
+  // Proposals are talked about in dollars, so the balance shows its rough
+  // USD value at today's price; left out until (or unless) a price loads.
+  const lptUsd = usePrices().data?.lpt;
   if (treasury.error)
     return (
       <ErrorNotice error={treasury.error} onRetry={() => treasury.refetch()} />
@@ -169,6 +173,9 @@ export function TreasuryCard() {
               <Lpt value={t.balance} />
             </span>
             <span className="text-ui-caption text-muted-foreground">
+              {lptUsd != null && (
+                <>≈ {formatUSD(t.balance * lptUsd, { compact: true })} · </>
+              )}
               {formatPercent(share * 100, { decimals: 0 })} of the {ceiling}{" "}
               ceiling
             </span>
