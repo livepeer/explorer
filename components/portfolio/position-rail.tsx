@@ -24,14 +24,13 @@ import {
 } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
-import { formatETH, formatLPT, formatNumber, formatUSD } from "@/lib/format";
+import { formatLPT, formatNumber, formatToken } from "@/lib/format";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
-import { DUST_ETH, LPT_DUST, type Position } from "./positions";
+import { LPT_DUST, type Position } from "./positions";
 
 /** The wallet-wide figures the rail lists beside its delegation. */
 export type RailFigures = {
-  rewards30: number;
   /** Realised rewards, compounded to a year (%). */
   apr: number;
   /** Fees as a simple annual % of stake, or null without prices. */
@@ -41,36 +40,6 @@ export type RailFigures = {
   /** Projected rewards over a year at today's rate. */
   year: number;
 };
-
-/** One labelled figure: the label left, the value (and a quieter note) right. */
-function Row({
-  label,
-  children,
-  note,
-  action,
-}: {
-  label: React.ReactNode;
-  children: React.ReactNode;
-  note?: React.ReactNode;
-  /** A small button on the line beneath the value, after its note, e.g.
-   *  Withdraw; the values above stay aligned. */
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="shrink-0 text-ui-body text-muted-foreground">{label}</dt>
-      <dd className="flex min-w-0 flex-col items-end text-right tabular-nums">
-        <span className="truncate text-ui-body">{children}</span>
-        {(note || action) && (
-          <span className="mt-1 flex items-center gap-2 text-ui-caption text-subtle-foreground">
-            {note}
-            {action}
-          </span>
-        )}
-      </dd>
-    </div>
-  );
-}
 
 /**
  * Who it's with: the avatar carrying its status as a dot (green, active;
@@ -146,7 +115,6 @@ export function PositionRail({
   canManage,
   freeLpt,
   figures: f,
-  ethPrice,
 }: {
   loading: boolean;
   position: Position | undefined;
@@ -154,7 +122,6 @@ export function PositionRail({
   canManage: boolean;
   freeLpt: number | undefined;
   figures: RailFigures | undefined;
-  ethPrice?: number;
 }) {
   const { open } = useStaking();
   if (loading || !p || !f) {
@@ -245,116 +212,84 @@ export function PositionRail({
   );
 
   return (
-    <Card className="flex flex-col gap-6 p-5">
+    <Card className="flex flex-col gap-5 p-5">
       {/* Who it's with, and the rarer actions. */}
       <div className="flex items-start justify-between gap-3">
         <OrchestratorLine address={delegate} terms={terms} active={p.active} />
         {menu}
       </div>
 
-      {/* The headline: what the delegation yields, and where it's heading.
-          (Its history is the chart beside this card.) */}
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <Tooltip content={f.aprSplit}>
-            <span className="w-fit cursor-help text-ui-caption text-muted-foreground underline decoration-dotted decoration-foreground/30 underline-offset-4">
-              Realised APR
-            </span>
-          </Tooltip>
-          <span className="text-[28px] leading-8 font-medium tracking-[-0.02em] tabular-nums">
+      {/* Two matching figures over two matching buttons: what it yields,
+          and what that comes to a year. */}
+      <dl className="grid grid-cols-2 divide-x divide-(--hairline) border-y border-hairline py-4">
+        <div className="flex min-w-0 flex-col gap-1 pr-4">
+          <dt className="flex h-4 items-center">
+            <Tooltip content={f.aprSplit}>
+              <span className="cursor-help text-ui-caption text-muted-foreground underline decoration-dotted decoration-foreground/30 underline-offset-4">
+                Realised APR
+              </span>
+            </Tooltip>
+          </dt>
+          <dd className="truncate text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
             {(f.apr + (f.feeApr ?? 0)).toFixed(2)}
-            <span className="text-[18px] text-muted-foreground">%</span>
-          </span>
-          {f.year >= 0.00005 && (
-            <span className="text-ui-caption text-muted-foreground tabular-nums">
-              ≈ +{formatLPT(f.year)} a year
-            </span>
-          )}
+            <span className="text-[15px] text-muted-foreground">%</span>
+          </dd>
         </div>
-      </div>
-
-      {/* The supporting figures; fees, unstaked LPT and a leftover stake
-          only when there are some. */}
-      <dl className="flex flex-col gap-3 border-t border-hairline pt-5">
-        {leftover && (
-          <Row
-            label="Stake"
-            note={
-              <Tooltip
-                content={
-                  canManage
-                    ? "A tiny leftover, too small to earn anything. Undelegate to clear it."
-                    : "A tiny leftover, too small to earn anything."
-                }
-              >
-                <span className="cursor-default underline decoration-dotted underline-offset-4">
-                  Leftover
-                </span>
-              </Tooltip>
-            }
-          >
-            {formatLPT(p.stake)}
-          </Row>
-        )}
-        <Row label="Rewards · 30 days">
-          <span
-            className={
-              f.rewards30 > 0 ? "text-green-bright" : "text-muted-foreground"
-            }
-          >
-            {f.rewards30 > 0 ? "+" : ""}
-            {formatLPT(f.rewards30)}
-          </span>
-        </Row>
-        {p.fees >= DUST_ETH && (
-          <Row
-            label="Unclaimed fees"
-            // An action, styled as one (green here means a gain), after the
-            // amount; its dollar value beneath helps judge whether it's
-            // worth a withdrawal's gas yet.
-            action={
-              canManage && (
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  className="-mr-2 text-foreground"
-                  onClick={() =>
-                    open({ kind: "withdrawFees", amount: p.fees, account })
-                  }
-                >
-                  Withdraw
-                </Button>
-              )
-            }
-            note={
-              ethPrice != null ? `≈ ${formatUSD(p.fees * ethPrice)}` : undefined
-            }
-          >
-            {formatETH(p.fees)}
-          </Row>
-        )}
-        {canManage && freeLpt != null && (
-          <Row label="Unstaked">{formatLPT(freeLpt)}</Row>
-        )}
+        <div className="flex min-w-0 flex-col gap-1 pl-4">
+          <dt className="flex h-4 items-center text-ui-caption text-muted-foreground">
+            Per year
+          </dt>
+          <dd className="truncate text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
+            {f.year >= 0.00005 ? (
+              <>
+                +{formatToken(f.year, { compact: true })}
+                <span className="text-[15px] text-muted-foreground"> LPT</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </dd>
+        </div>
       </dl>
 
-      {/* The two everyday actions, side by side, sized to fit the rail. */}
+      {/* Only when there's some: LPT ready to delegate, or a leftover stake
+          to clear. (Fees are collected under Withdrawals, beside it.) */}
+      {((canManage && freeLpt != null) || leftover) && (
+        <ul className="flex flex-col gap-2 text-ui-caption text-muted-foreground">
+          {canManage && freeLpt != null && (
+            <li className="flex h-6 items-center justify-between gap-3">
+              <span className="truncate">Unstaked</span>
+              <span className="text-foreground tabular-nums">
+                {formatLPT(freeLpt)}
+              </span>
+            </li>
+          )}
+          {leftover && (
+            <li>
+              Only a leftover ({formatLPT(p.stake)}) is staked here.
+              {canManage && " Undelegate to clear it."}
+            </li>
+          )}
+        </ul>
+      )}
+
+      {/* The two everyday actions, equal halves. */}
       {canManage && (
-        <div className="flex gap-2">
+        <div
+          className={cn("grid gap-2", staked ? "grid-cols-2" : "grid-cols-1")}
+        >
           <Button
             size="sm"
             variant="primary"
-            className="min-w-0 flex-1"
             onClick={() =>
               open({ kind: "delegate", to: delegate, account, amount: freeLpt })
             }
           >
-            <Plus /> Delegate more
+            <Plus /> Delegate
           </Button>
           {staked && (
             <Button
               size="sm"
-              className="min-w-0 flex-1"
               onClick={() =>
                 open({
                   kind: "undelegate",

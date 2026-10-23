@@ -449,22 +449,44 @@ export function PortfolioView({
       />
     </section>
   );
-  const withdrawalsEl = view && view.unbonding.length > 0 && data && (
-    <section>
-      <SectionHeader
-        title="Pending withdrawals"
-        description={`${formatLPT(
-          view.unbonding.reduce((s, l) => s + l.amount, 0)
-        )} undelegating`}
-      />
-      <PendingWithdrawals
-        locks={view.unbonding}
-        currentRound={data.currentRound}
-        roundSeconds={view.roundSeconds}
-        canManage={canManage}
-      />
-    </section>
-  );
+  // On one wallet's page, unclaimed fees join unlocked stake here, so
+  // everything you can take out of the protocol is in one place (the
+  // portfolio shows fees in its tile instead).
+  const feeItems =
+    single && view
+      ? view.positions
+          .filter((p) => p.fees >= DUST_ETH)
+          .map((p) => ({ account: p.account.address, amount: p.fees }))
+      : [];
+  const unbondingLpt = view
+    ? view.unbonding.reduce((s, l) => s + l.amount, 0)
+    : 0;
+  const withdrawalsEl = view &&
+    data &&
+    (view.unbonding.length > 0 || feeItems.length > 0) && (
+      <section>
+        <SectionHeader
+          title="Withdrawals"
+          description={[
+            unbondingLpt > 0 && `${formatLPT(unbondingLpt)} undelegating`,
+            feeItems.length > 0 &&
+              `${formatETH(
+                feeItems.reduce((s, f) => s + f.amount, 0)
+              )} in fees`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        />
+        <PendingWithdrawals
+          locks={view.unbonding}
+          currentRound={data.currentRound}
+          roundSeconds={view.roundSeconds}
+          canManage={canManage}
+          fees={feeItems}
+          ethPrice={prices?.eth}
+        />
+      </section>
+    );
 
   // One wallet, brokerage-style: the main column is about time (balance
   // history, what needs attention, activity), the rail beside it about now:
@@ -508,7 +530,6 @@ export function PortfolioView({
         figures={
           view
             ? {
-                rewards30: view.rewards30,
                 apr: view.apr,
                 feeApr,
                 aprSplit,
@@ -516,7 +537,6 @@ export function PortfolioView({
               }
             : undefined
         }
-        ethPrice={prices?.eth}
       />
     );
     return (

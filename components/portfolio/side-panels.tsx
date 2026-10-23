@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import {
   formatDuration,
+  formatETH,
   formatLPT,
   formatUSD,
   shortAddress,
@@ -91,17 +92,60 @@ export function PendingWithdrawals({
   currentRound,
   roundSeconds,
   canManage,
+  fees = [],
+  ethPrice,
 }: {
   locks: UnbondingLock[];
   currentRound: number;
   roundSeconds: number;
   canManage: (address: string) => boolean;
+  /**
+   * Unclaimed ETH fees, collected here alongside unlocked stake, so
+   * everything you can take out of the protocol is in one place.
+   */
+  fees?: { account: string; amount: number }[];
+  ethPrice?: number;
 }) {
   const { open } = useStaking();
-  if (!locks.length) return null;
+  if (!locks.length && !fees.length) return null;
   const sorted = [...locks].sort((a, b) => a.withdrawRound - b.withdrawRound);
   return (
     <Card className="divide-y divide-(--hairline)">
+      {fees.map((f) => (
+        <div key={`fees-${f.account}`} className="flex flex-col gap-3 p-4">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[15px] tabular-nums">
+              {formatETH(f.amount)}
+            </span>
+            <span className="flex items-center gap-1.5 text-ui-caption text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-green-fill" /> Fees
+              ready to withdraw
+              {ethPrice != null && (
+                <span className="tabular-nums">
+                  · ≈ {formatUSD(f.amount * ethPrice)}
+                </span>
+              )}
+            </span>
+          </div>
+          {canManage(f.account) && (
+            <div className="flex gap-2">
+              <Button
+                size="xs"
+                variant="primary"
+                onClick={() =>
+                  open({
+                    kind: "withdrawFees",
+                    amount: f.amount,
+                    account: f.account,
+                  })
+                }
+              >
+                Withdraw
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
       {sorted.map((l) => {
         const ready = l.withdrawRound <= currentRound;
         const roundsLeft = l.withdrawRound - currentRound;
