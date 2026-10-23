@@ -63,10 +63,17 @@ function OrchestratorLine({
     >
       <Tooltip content={active ? "Active this round" : "Not in the active set"}>
         <span className="relative shrink-0">
-          <Avatar address={address} src={avatar} size={40} />
+          {/* A hairline ring gives generated gradients (and photos) a crisp
+              edge against the card. */}
+          <Avatar
+            address={address}
+            src={avatar}
+            size={36}
+            className="ring-1 ring-foreground/10"
+          />
           <span
             className={cn(
-              "absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-surface",
+              "absolute -right-px -bottom-px size-2.5 rounded-full ring-2 ring-(--surface)",
               active ? "bg-green-fill" : "bg-warm"
             )}
           />
@@ -180,7 +187,7 @@ export function PositionRail({
             size="icon-xs"
             variant="ghost"
             aria-label="More actions"
-            className="-mt-1 -mr-1.5"
+            className="-mr-1.5"
           />
         }
       >
@@ -205,7 +212,7 @@ export function PositionRail({
     </Menu>
   ) : (
     <Tooltip content="Add this address to your portfolio to manage it here.">
-      <span className="-mt-1 inline-flex size-6 items-center justify-center text-subtle-foreground">
+      <span className="inline-flex size-6 items-center justify-center text-subtle-foreground">
         <Eye className="size-3.5" />
       </span>
     </Tooltip>
@@ -213,8 +220,8 @@ export function PositionRail({
 
   return (
     <Card className="flex flex-col gap-5 p-5">
-      {/* Who it's with, and the rarer actions. */}
-      <div className="flex items-start justify-between gap-3">
+      {/* Who it's with, and the rarer actions, centred as one row. */}
+      <div className="flex items-center justify-between gap-3">
         <OrchestratorLine address={delegate} terms={terms} active={p.active} />
         {menu}
       </div>
