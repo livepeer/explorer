@@ -1534,12 +1534,16 @@
         .pf-rail {
           display: none;
         }
-        .page-frame.is-drawer-open::before {
-          content: "";
+        .page-frame.is-drawer-open .drawer-backdrop {
+          display: block;
           position: fixed;
           inset: 0;
           background: rgba(0, 0, 0, 0.35);
           z-index: 40;
+          border: 0;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
         }
         .page-frame.is-drawer-open .pf-rail {
           display: block;
@@ -1562,6 +1566,9 @@
         .page-frame.is-drawer-open .pf-drawer {
           position: relative;
           z-index: 51;
+        }
+        .drawer-backdrop {
+          display: none;
         }
         .pf-drawer {
           display: flex;
@@ -4426,10 +4433,12 @@
         </li>
         <li>
           <strong>Screen readers.</strong> Choosing a filter or action is
-          announced as a real choice group. Opening the amount drawer puts you
-          on the amount field. Escape closes an open help tip first. If the
-          drawer is open and no tip is, Escape closes it and returns you to the
-          control that opened it. The LPT and USDC marks are named.
+          announced as a real choice group. Opening the amount drawer on a
+          narrow screen is a modal dialog: focus stays inside, the rest of the
+          page is inert, and Escape or the backdrop closes it and returns you to
+          the control that opened it. On a wide screen the amount box stays in
+          the rail. Help tips close on Escape before the drawer does. The LPT
+          and USDC marks are named.
         </li>
         <li>
           <strong>Help without a mouse.</strong> The “?” tips open when you tab
@@ -4514,11 +4523,79 @@
         }
 
         var drawerReturn = new WeakMap();
+        var drawerTrap = null;
+
+        function focusables(root) {
+          if (!root) return [];
+          return Array.prototype.slice
+            .call(
+              root.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+              )
+            )
+            .filter(function (el) {
+              return !el.hasAttribute("disabled") && el.tabIndex !== -1;
+            });
+        }
+
+        function drawerFocusRoot(frame) {
+          var rail = frame.querySelector(".pf-rail");
+          var bar = frame.querySelector(".pf-drawer");
+          var list = focusables(rail).concat(focusables(bar));
+          return list;
+        }
+
+        function ensureBackdrop(frame) {
+          var backdrop = frame.querySelector(".drawer-backdrop");
+          if (backdrop) return backdrop;
+          backdrop = document.createElement("button");
+          backdrop.type = "button";
+          backdrop.className = "drawer-backdrop";
+          backdrop.setAttribute("aria-label", "Close amount drawer");
+          backdrop.tabIndex = -1;
+          backdrop.addEventListener("click", function () {
+            setDrawerOpen(frame, false);
+          });
+          frame.insertBefore(backdrop, frame.firstChild);
+          return backdrop;
+        }
+
+        function setBackgroundInert(frame, on) {
+          Array.prototype.forEach.call(frame.children, function (child) {
+            if (
+              child.classList.contains("pf-rail") ||
+              child.classList.contains("pf-drawer") ||
+              child.classList.contains("drawer-backdrop")
+            ) {
+              child.removeAttribute("inert");
+              return;
+            }
+            if (on) child.setAttribute("inert", "");
+            else child.removeAttribute("inert");
+          });
+          var parent = frame.parentElement;
+          if (parent) {
+            Array.prototype.forEach.call(parent.children, function (sib) {
+              if (sib === frame) return;
+              if (on) sib.setAttribute("inert", "");
+              else sib.removeAttribute("inert");
+            });
+          }
+          Array.prototype.forEach.call(document.body.children, function (el) {
+            if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
+            if (el.contains(frame)) return;
+            if (on) el.setAttribute("inert", "");
+            else el.removeAttribute("inert");
+          });
+        }
 
         function setDrawerOpen(frame, open, returnTo) {
           if (!frame) return;
           var drawer = frame.querySelector(".pf-drawer");
+          var rail = frame.querySelector(".pf-rail");
           var toggle = drawer && drawer.querySelector("[data-drawer-focus]");
+          var modal = open && narrow();
+          ensureBackdrop(frame);
           frame.classList.toggle("is-drawer-open", open);
           if (drawer) drawer.classList.toggle("is-open", open);
           if (toggle) {
@@ -4528,10 +4605,46 @@
               open ? "Close amount drawer" : "Open amount drawer"
             );
           }
+          if (rail) {
+            if (modal) {
+              rail.setAttribute("role", "dialog");
+              rail.setAttribute("aria-modal", "true");
+            } else {
+              rail.removeAttribute("role");
+              rail.removeAttribute("aria-modal");
+            }
+          }
+          setBackgroundInert(frame, modal);
+          if (drawerTrap) {
+            document.removeEventListener("keydown", drawerTrap, true);
+            drawerTrap = null;
+          }
           if (open) {
             if (returnTo) drawerReturn.set(frame, returnTo);
             var input = amountInput(frame);
             if (input) input.focus({ preventScroll: true });
+            if (modal) {
+              drawerTrap = function (e) {
+                if (
+                  e.key !== "Tab" ||
+                  !frame.classList.contains("is-drawer-open")
+                )
+                  return;
+                if (!narrow()) return;
+                var list = drawerFocusRoot(frame);
+                if (!list.length) return;
+                var first = list[0];
+                var last = list[list.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault();
+                  last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault();
+                  first.focus();
+                }
+              };
+              document.addEventListener("keydown", drawerTrap, true);
+            }
           } else {
             var back = drawerReturn.get(frame);
             drawerReturn.delete(frame);
@@ -4602,6 +4715,17 @@
               setDrawerOpen(frame, false);
             });
         });
+
+        window
+          .matchMedia("(max-width: 1199px)")
+          .addEventListener("change", function (mq) {
+            if (mq.matches) return;
+            document
+              .querySelectorAll(".page-frame.is-drawer-open")
+              .forEach(function (frame) {
+                setDrawerOpen(frame, false);
+              });
+          });
       })();
     </script>
   </body>
