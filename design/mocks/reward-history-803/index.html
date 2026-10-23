@@ -403,6 +403,10 @@
         top: 100%;
         height: 10px;
       }
+      .tooltip-help.is-below::after {
+        top: auto;
+        bottom: 100%;
+      }
       .help:hover .tooltip-help,
       .help:focus-within .tooltip-help {
         opacity: 1;
@@ -423,7 +427,7 @@
         background: var(--panel);
         border: 1px solid var(--neutral4);
         border-radius: var(--radius);
-        overflow: hidden;
+        overflow: visible;
       }
       .pf-top {
         padding: 18px 20px 0;
@@ -680,7 +684,6 @@
         border: 1px solid var(--neutral4);
         border-radius: var(--radius-sm);
         background: rgba(0, 0, 0, 0.2);
-        overflow: hidden;
       }
       .step {
         display: grid;
@@ -693,6 +696,12 @@
       }
       .step:first-child {
         border-top: 0;
+        border-top-left-radius: calc(var(--radius-sm) - 1px);
+        border-top-right-radius: calc(var(--radius-sm) - 1px);
+      }
+      .step:last-child {
+        border-bottom-left-radius: calc(var(--radius-sm) - 1px);
+        border-bottom-right-radius: calc(var(--radius-sm) - 1px);
       }
       .step .n {
         font-size: 11px;
@@ -919,7 +928,6 @@
         border: 1px solid var(--neutral4);
         border-radius: var(--radius-sm);
         overflow: hidden;
-        opacity: 0.72;
       }
       .tx-card {
         display: flex;
@@ -1035,6 +1043,13 @@
         text-decoration: underline;
       }
 
+      .place-table-wrap {
+        width: 100%;
+        max-width: 860px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
       .place-table {
         width: 100%;
         max-width: 860px;
@@ -1116,6 +1131,12 @@
           grid-column: 2;
           text-align: left;
           margin-top: 2px;
+        }
+        .place-table td:first-child {
+          white-space: normal;
+        }
+        .place-table td:nth-child(2) {
+          overflow-wrap: anywhere;
         }
       }
 
@@ -1734,70 +1755,72 @@
         </li>
       </ul>
 
-      <table class="place-table">
-        <thead>
-          <tr>
-            <th>Who</th>
-            <th>Surface</th>
-            <th>What they get</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="primary-row">
-            <td>You run the node</td>
-            <td>/accounts/[node]/history · Rewards</td>
-            <td class="role">
-              <strong>Primary for operators.</strong> Settled rounds for this
-              node → receipt for the pool that round (and what you kept).
-              Transactions stays on the same tab.
-            </td>
-          </tr>
-          <tr class="primary-row">
-            <td>You delegated</td>
-            <td>/accounts/[you]/history · Rewards</td>
-            <td class="role">
-              <strong>Primary for delegators.</strong> Settled rounds that paid
-              <em>you</em> → receipt for why that amount (node’s cap math, then
-              your share). Deep-link can open the node’s round if you want the
-              full derivation there.
-            </td>
-          </tr>
-          <tr>
-            <td>Live status</td>
-            <td>/accounts/[node]/orchestrating</td>
-            <td class="role">
-              Entry only. “Paid about a week later” → this node’s History ·
-              Rewards.
-              <a
-                href="https://github.com/livepeer/explorer/issues/802"
-                target="_blank"
-                rel="noopener"
-                >802</a
-              >
-              keeps the live fee-vs-stake card here.
-            </td>
-          </tr>
-          <tr>
-            <td>Live status</td>
-            <td>/accounts/[you]/delegating</td>
-            <td class="role">
-              Entry only. “Round N paid you · Why?” → your History · Rewards (or
-              the node’s receipt with your share). Live card stays
-              <a
-                href="https://github.com/livepeer/explorer/issues/802"
-                target="_blank"
-                rel="noopener"
-                >802</a
-              >.
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>Home · /orchestrators · Delegators · new /rewards</td>
-            <td class="role">Out.</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="place-table-wrap">
+        <table class="place-table">
+          <thead>
+            <tr>
+              <th>Who</th>
+              <th>Surface</th>
+              <th>What they get</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="primary-row">
+              <td>You run the node</td>
+              <td>/accounts/[node]/history · Rewards</td>
+              <td class="role">
+                <strong>Primary for operators.</strong> Settled rounds for this
+                node → receipt for the pool that round (and what you kept).
+                Transactions stays on the same tab.
+              </td>
+            </tr>
+            <tr class="primary-row">
+              <td>You delegated</td>
+              <td>/accounts/[you]/history · Rewards</td>
+              <td class="role">
+                <strong>Primary for delegators.</strong> Settled rounds that
+                paid <em>you</em> → receipt for why that amount (node’s cap
+                math, then your share). Deep-link can open the node’s round if
+                you want the full derivation there.
+              </td>
+            </tr>
+            <tr>
+              <td>Live status</td>
+              <td>/accounts/[node]/orchestrating</td>
+              <td class="role">
+                Entry only. “Paid about a week later” → this node’s History ·
+                Rewards.
+                <a
+                  href="https://github.com/livepeer/explorer/issues/802"
+                  target="_blank"
+                  rel="noopener"
+                  >802</a
+                >
+                keeps the live fee-vs-stake card here.
+              </td>
+            </tr>
+            <tr>
+              <td>Live status</td>
+              <td>/accounts/[you]/delegating</td>
+              <td class="role">
+                Entry only. “Round N paid you · Why?” → your History · Rewards
+                (or the node’s receipt with your share). Live card stays
+                <a
+                  href="https://github.com/livepeer/explorer/issues/802"
+                  target="_blank"
+                  rel="noopener"
+                  >802</a
+                >.
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Home · /orchestrators · Delegators · new /rewards</td>
+              <td class="role">Out.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- ==================== DESIGN DECISIONS ==================== -->
@@ -1975,6 +1998,7 @@
         var nextOp = document.getElementById("next-operator");
         var story = document.getElementById("story");
         var mdSplit = document.getElementById("md-split");
+        var mdDetail = document.getElementById("md-detail");
         var mdBack = document.getElementById("md-back");
         var currentRound = "4210";
         var currentReader = "delegator";
@@ -2286,22 +2310,68 @@
             if (isNarrow() && meta && meta.activate) {
               setMobilePane("detail");
               story.focus({ preventScroll: true });
-              story.scrollIntoView({
-                behavior: preferReduced ? "auto" : "smooth",
-                block: "start",
-              });
+              if (mdDetail) {
+                mdDetail.scrollIntoView({
+                  behavior: preferReduced ? "auto" : "smooth",
+                  block: "start",
+                });
+              }
             }
           }
         );
 
-        // Tooltips: Escape dismisses until next hover/focus (WCAG 1.4.13)
+        // Tooltips: Escape dismisses until next hover/focus (WCAG 1.4.13).
+        // Fixed + viewport clamp so .steps / .pf overflow cannot clip them.
+        function placeHelpTip(help) {
+          var tip = help.querySelector(".tooltip-help");
+          var anchor = help.querySelector(".tooltip-dot");
+          if (!tip || !anchor || help.classList.contains("is-tip-dismissed"))
+            return;
+          var margin = 16;
+          var maxW = Math.min(260, window.innerWidth - margin * 2);
+          tip.style.maxWidth = maxW + "px";
+          var tipW = tip.getBoundingClientRect().width;
+          var tipH = tip.offsetHeight;
+          var anchorRect = anchor.getBoundingClientRect();
+          var left = anchorRect.left + anchorRect.width / 2 - tipW / 2;
+          var maxLeft = window.innerWidth - margin - tipW;
+          if (left < margin) left = margin;
+          if (left > maxLeft) left = Math.max(margin, maxLeft);
+          var top = anchorRect.top - 8 - tipH;
+          var below = top < margin;
+          if (below) top = anchorRect.bottom + 8;
+          var maxTop = window.innerHeight - margin - tipH;
+          if (top > maxTop) top = Math.max(margin, maxTop);
+          tip.style.position = "fixed";
+          tip.style.right = "auto";
+          tip.style.bottom = "auto";
+          tip.style.transform = "none";
+          tip.style.width = "max-content";
+          tip.style.left = Math.round(left) + "px";
+          tip.style.top = Math.round(top) + "px";
+          tip.classList.toggle("is-below", below);
+        }
+        var placingTips = false;
+        function placeOpenTips() {
+          if (placingTips) return;
+          placingTips = true;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) placeHelpTip(help);
+          });
+          placingTips = false;
+        }
         document.querySelectorAll(".help").forEach(function (help) {
           function clearDismissed() {
             help.classList.remove("is-tip-dismissed");
+            placeHelpTip(help);
           }
           help.addEventListener("mouseenter", clearDismissed);
           help.addEventListener("focusin", clearDismissed);
         });
+        window.addEventListener("resize", placeOpenTips);
+        window.addEventListener("scroll", placeOpenTips, true);
         document.addEventListener("keydown", function (e) {
           if (e.key !== "Escape") return;
           document.querySelectorAll(".help").forEach(function (help) {
