@@ -316,6 +316,8 @@ export function PositionRail({
               canManage && (
                 <Button
                   size="xs"
+                  variant="ghost"
+                  className="-mr-2 text-foreground"
                   onClick={() =>
                     open({ kind: "withdrawFees", amount: p.fees, account })
                   }
@@ -336,12 +338,13 @@ export function PositionRail({
         )}
       </dl>
 
-      {/* The two everyday actions, side by side. */}
+      {/* The two everyday actions, side by side, sized to fit the rail. */}
       {canManage && (
         <div className="flex gap-2">
           <Button
+            size="sm"
             variant="primary"
-            className="flex-1"
+            className="min-w-0 flex-1"
             onClick={() =>
               open({ kind: "delegate", to: delegate, account, amount: freeLpt })
             }
@@ -350,7 +353,8 @@ export function PositionRail({
           </Button>
           {staked && (
             <Button
-              className="flex-1"
+              size="sm"
+              className="min-w-0 flex-1"
               onClick={() =>
                 open({
                   kind: "undelegate",
