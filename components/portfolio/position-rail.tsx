@@ -231,26 +231,24 @@ export function PositionRail({
 
       {/* The position, one figure a row. */}
       <dl className="flex flex-col gap-2.5 border-t border-hairline px-5 py-4">
-        {/* The stake is the page's headline, beside this card; a leftover
-            is listed here so it isn't mistaken for a position. */}
-        {leftover && (
-          <Row label="Staked">
-            {formatLPT(p.stake)}
-            {leftover && (
-              <Tooltip
-                content={
-                  canManage
-                    ? "A tiny leftover, too small to earn anything. Undelegate to clear it."
-                    : "A tiny leftover, too small to earn anything."
-                }
-              >
-                <span className="ml-1.5 cursor-default text-ui-caption text-muted-foreground underline decoration-dotted underline-offset-4">
-                  leftover
-                </span>
-              </Tooltip>
-            )}
-          </Row>
-        )}
+        {/* What's delegated, first: a position panel states its size (a
+            leftover is named so it isn't mistaken for a position). */}
+        <Row label="Staked">
+          {formatLPT(p.stake)}
+          {leftover && (
+            <Tooltip
+              content={
+                canManage
+                  ? "A tiny leftover, too small to earn anything. Undelegate to clear it."
+                  : "A tiny leftover, too small to earn anything."
+              }
+            >
+              <span className="ml-1.5 cursor-default text-ui-caption text-muted-foreground underline decoration-dotted underline-offset-4">
+                leftover
+              </span>
+            </Tooltip>
+          )}
+        </Row>
         <Row
           label={
             <Tooltip content={f.aprSplit}>
