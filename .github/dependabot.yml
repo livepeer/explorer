@@ -21,9 +21,20 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Same wait as npm: a hijacked action tag is the same kind of attack.
+    cooldown:
+      default-days: 7
     # One combined PR; action majors are routine tag moves and CI
     # validates the grouped PR anyway.
     groups:
       actions:
         patterns:
           - "*"
+
+  # Lighthouse CI is locked on its own, away from the app's install.
+  - package-ecosystem: npm
+    directory: /tools/lhci
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

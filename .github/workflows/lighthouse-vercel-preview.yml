@@ -14,17 +14,20 @@ jobs:
     timeout-minutes: 25
 
     steps:
+      # Actions pinned to full commit SHAs, the tag noted beside each.
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
       - name: 🔎 Wait for Vercel Deployment + grab Preview URL
         id: vercel
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -68,22 +71,28 @@ jobs:
             throw new Error("Timed out waiting for Vercel preview deployment URL.");
 
       - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10.33.0
           run_install: false
+
+      # Lighthouse CI lives in its own locked project, so its dependencies
+      # are the ones in tools/lhci/pnpm-lock.yaml and the app's are not
+      # installed in this job.
+      - name: 📥 Install Lighthouse CI
+        run: pnpm --dir tools/lhci install --frozen-lockfile --ignore-workspace
 
       - name: 🔎 Run Lighthouse CI against Vercel Preview
         env:
           PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
         run: |
           echo "Running Lighthouse CI on: $PREVIEW_URL"
-          pnpm dlx @lhci/cli collect --config=./.lighthouserc.json \
+          pnpm --dir tools/lhci exec lhci collect --config="$GITHUB_WORKSPACE/.lighthouserc.json" \
             --url="$PREVIEW_URL/" \
             --url="$PREVIEW_URL/orchestrators" \
-            --url="$PREVIEW_URL/leaderboard" \
-            --url="$PREVIEW_URL/transactions" \
-            --url="$PREVIEW_URL/voting" \
-            --url="$PREVIEW_URL/treasury"
-          pnpm dlx @lhci/cli assert  --config=./.lighthouserc.json
-          pnpm dlx @lhci/cli upload  --config=./.lighthouserc.json --target=temporary-public-storage
+            --url="$PREVIEW_URL/network" \
+            --url="$PREVIEW_URL/activity" \
+            --url="$PREVIEW_URL/governance" \
+            --url="$PREVIEW_URL/gateways"
+          pnpm --dir tools/lhci exec lhci assert --config="$GITHUB_WORKSPACE/.lighthouserc.json"
+          pnpm --dir tools/lhci exec lhci upload --config="$GITHUB_WORKSPACE/.lighthouserc.json" --target=temporary-public-storage
