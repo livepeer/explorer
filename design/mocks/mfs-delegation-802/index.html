@@ -1567,12 +1567,12 @@
           position: relative;
           z-index: 51;
         }
-        .drawer-backdrop {
-          display: none;
-        }
         .pf-drawer {
           display: flex;
         }
+      }
+      .drawer-backdrop {
+        display: none;
       }
       @media (max-width: 560px) {
         .pf-grid {
@@ -4434,11 +4434,11 @@
         <li>
           <strong>Screen readers.</strong> Choosing a filter or action is
           announced as a real choice group. Opening the amount drawer on a
-          narrow screen is a modal dialog: focus stays inside, the rest of the
-          page is inert, and Escape or the backdrop closes it and returns you to
-          the control that opened it. On a wide screen the amount box stays in
-          the rail. Help tips close on Escape before the drawer does. The LPT
-          and USDC marks are named.
+          narrow screen is a modal dialog: focus stays inside, non-sheet content
+          is inert (the rail stays interactive), and Escape or the backdrop
+          closes it and returns you to the control that opened it. On a wide
+          screen the amount box stays in the rail. Help tips close on Escape
+          before the drawer does. The LPT and USDC marks are named.
         </li>
         <li>
           <strong>Help without a mouse.</strong> The “?” tips open when you tab
@@ -4560,6 +4560,11 @@
           return backdrop;
         }
 
+        function setInertAttr(el, on) {
+          if (on) el.setAttribute("inert", "");
+          else el.removeAttribute("inert");
+        }
+
         function setBackgroundInert(frame, on) {
           Array.prototype.forEach.call(frame.children, function (child) {
             if (
@@ -4570,22 +4575,32 @@
               child.removeAttribute("inert");
               return;
             }
-            if (on) child.setAttribute("inert", "");
-            else child.removeAttribute("inert");
+            // .pf-rail nests inside .pf-body; keep the body interactive and
+            // inert only its non-rail children so the open sheet stays usable.
+            if (child.classList.contains("pf-body")) {
+              child.removeAttribute("inert");
+              Array.prototype.forEach.call(child.children, function (grand) {
+                if (grand.classList.contains("pf-rail")) {
+                  grand.removeAttribute("inert");
+                  return;
+                }
+                setInertAttr(grand, on);
+              });
+              return;
+            }
+            setInertAttr(child, on);
           });
           var parent = frame.parentElement;
           if (parent) {
             Array.prototype.forEach.call(parent.children, function (sib) {
               if (sib === frame) return;
-              if (on) sib.setAttribute("inert", "");
-              else sib.removeAttribute("inert");
+              setInertAttr(sib, on);
             });
           }
           Array.prototype.forEach.call(document.body.children, function (el) {
             if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
             if (el.contains(frame)) return;
-            if (on) el.setAttribute("inert", "");
-            else el.removeAttribute("inert");
+            setInertAttr(el, on);
           });
         }
 
