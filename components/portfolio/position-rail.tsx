@@ -2,6 +2,7 @@
 
 import {
   ArrowRightLeft,
+  ChevronRight,
   Eye,
   Minus,
   MoreHorizontal,
@@ -13,7 +14,6 @@ import Link from "next/link";
 import { Avatar, useIdentity } from "@/components/identity";
 import { Card } from "@/components/page";
 import { useStaking } from "@/components/staking/staking";
-import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Menu,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
-import { formatLPT, formatNumber, formatToken } from "@/lib/format";
+import { formatLPT, formatNumber } from "@/lib/format";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
 import { LPT_DUST, type Position } from "./positions";
@@ -42,9 +42,9 @@ export type RailFigures = {
 };
 
 /**
- * Who it's with: the avatar carrying its status as a dot (green, active;
- * amber, inactive), a caption, the name, and its terms. Inactive is also
- * said in words, since it costs you rewards.
+ * Who it's with, as one row that opens its page: the avatar, the name, its
+ * terms beneath (led by "Inactive" in amber when it's out of the active
+ * set), and a chevron.
  */
 function OrchestratorLine({
   address,
@@ -59,54 +59,49 @@ function OrchestratorLine({
   return (
     <Link
       href={`/orchestrators/${address}`}
-      className="group flex min-w-0 items-center gap-3 rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-green-bright/40"
+      className="group -mx-2 flex min-w-0 items-center gap-3 rounded-md px-2 py-1.5 outline-none transition-colors hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
     >
-      <Tooltip content={active ? "Active this round" : "Not in the active set"}>
-        <span className="relative shrink-0">
-          {/* A hairline ring gives generated gradients (and photos) a crisp
-              edge against the card. */}
-          <Avatar
-            address={address}
-            src={avatar}
-            size={36}
-            className="ring-1 ring-foreground/10"
-          />
-          <span
-            className={cn(
-              "absolute -right-px -bottom-px size-2.5 rounded-full ring-2 ring-(--surface)",
-              active ? "bg-green-fill" : "bg-warm"
-            )}
-          />
-        </span>
-      </Tooltip>
+      <Avatar
+        address={address}
+        src={avatar}
+        size={32}
+        className="shrink-0 ring-1 ring-foreground/10"
+      />
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="text-ui-caption text-muted-foreground">
-          Delegated to
-        </span>
-        <span className="flex min-w-0 items-center gap-2">
-          <span
-            title={address}
-            className={cn(
-              "truncate text-[15px] leading-6 font-medium text-foreground group-hover:underline",
-              !name && "font-mono text-[14px]"
-            )}
-            style={{ textUnderlineOffset: 4 }}
-          >
-            {display}
-          </span>
-          {!active && (
-            <Badge tone="warning" className="shrink-0">
-              Inactive
-            </Badge>
+        <span
+          title={address}
+          className={cn(
+            "truncate text-ui-body font-medium text-foreground",
+            !name && "font-mono text-[13px]"
           )}
+        >
+          {display}
         </span>
-        {terms.length > 0 && (
-          <span className="truncate text-ui-caption text-subtle-foreground">
-            {terms.join(" · ")}
-          </span>
-        )}
+        <span className="truncate text-ui-caption text-muted-foreground">
+          {!active && <span className="text-warm">Inactive · </span>}
+          {terms.join(" · ")}
+        </span>
       </span>
+      <ChevronRight className="size-4 shrink-0 text-subtle-foreground transition-transform group-hover:translate-x-0.5" />
     </Link>
+  );
+}
+
+/** One figure in the card: its label left, its value right. */
+function Row({
+  label,
+  children,
+}: {
+  label: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className="shrink-0 text-ui-body text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 truncate text-right text-ui-body tabular-nums">
+        {children}
+      </dd>
+    </div>
   );
 }
 
@@ -141,7 +136,6 @@ export function PositionRail({
   // one isn't worth a transaction.
   const staked = p.stake > 0;
   const canMove = Boolean(delegate) && p.stake >= LPT_DUST;
-  const leftover = p.stake > 0 && p.stake < LPT_DUST;
   const terms = o
     ? [
         `${formatNumber(o.rewardCut, { decimals: 0 })}% cut`,
@@ -218,72 +212,75 @@ export function PositionRail({
     </Tooltip>
   );
 
+  // A leftover stake, too small to show at four places, is named.
+  const leftover = p.stake > 0 && p.stake < LPT_DUST;
+
   return (
-    <Card className="flex flex-col gap-5 p-5">
-      {/* Who it's with, and the rarer actions, centred as one row. */}
-      <div className="flex items-center justify-between gap-3">
+    <Card className="flex flex-col">
+      {/* Titled like a broker's position panel; its menu (switch,
+          transfer) beside the title. */}
+      <div className="flex flex-col gap-2 px-5 pt-4 pb-3">
+        <div className="flex h-7 items-center justify-between">
+          <span className="text-ui-caption text-muted-foreground">
+            Your delegation
+          </span>
+          {menu}
+        </div>
         <OrchestratorLine address={delegate} terms={terms} active={p.active} />
-        {menu}
       </div>
 
-      {/* Two matching figures over two matching buttons: what it yields,
-          and what that comes to a year. */}
-      <dl className="grid grid-cols-2 divide-x divide-(--hairline) border-y border-hairline py-4">
-        <div className="flex min-w-0 flex-col gap-1 pr-4">
-          <dt className="flex h-4 items-center">
+      {/* The position, one figure a row. */}
+      <dl className="flex flex-col gap-2.5 border-t border-hairline px-5 py-4">
+        {/* The stake is the page's headline, beside this card; a leftover
+            is listed here so it isn't mistaken for a position. */}
+        {leftover && (
+          <Row label="Staked">
+            {formatLPT(p.stake)}
+            {leftover && (
+              <Tooltip
+                content={
+                  canManage
+                    ? "A tiny leftover, too small to earn anything. Undelegate to clear it."
+                    : "A tiny leftover, too small to earn anything."
+                }
+              >
+                <span className="ml-1.5 cursor-default text-ui-caption text-muted-foreground underline decoration-dotted underline-offset-4">
+                  leftover
+                </span>
+              </Tooltip>
+            )}
+          </Row>
+        )}
+        <Row
+          label={
             <Tooltip content={f.aprSplit}>
-              <span className="cursor-help text-ui-caption text-muted-foreground underline decoration-dotted decoration-foreground/30 underline-offset-4">
+              <span className="cursor-help underline decoration-dotted decoration-foreground/30 underline-offset-4">
                 Realised APR
               </span>
             </Tooltip>
-          </dt>
-          <dd className="truncate text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
-            {(f.apr + (f.feeApr ?? 0)).toFixed(2)}
-            <span className="text-[15px] text-muted-foreground">%</span>
-          </dd>
-        </div>
-        <div className="flex min-w-0 flex-col gap-1 pl-4">
-          <dt className="flex h-4 items-center text-ui-caption text-muted-foreground">
-            Per year
-          </dt>
-          <dd className="truncate text-[22px] leading-7 font-medium tracking-[-0.01em] tabular-nums">
-            {f.year >= 0.00005 ? (
-              <>
-                +{formatToken(f.year, { compact: true })}
-                <span className="text-[15px] text-muted-foreground"> LPT</span>
-              </>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            )}
-          </dd>
-        </div>
+          }
+        >
+          {(f.apr + (f.feeApr ?? 0)).toFixed(2)}%
+        </Row>
+        <Row label="Per year">
+          {f.year >= 0.00005 ? (
+            <span className="text-green-bright">+{formatLPT(f.year)}</span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </Row>
+        {canManage && freeLpt != null && (
+          <Row label="Available">{formatLPT(freeLpt)}</Row>
+        )}
       </dl>
-
-      {/* Only when there's some: LPT ready to delegate, or a leftover stake
-          to clear. (Fees are collected under Withdrawals, beside it.) */}
-      {((canManage && freeLpt != null) || leftover) && (
-        <ul className="flex flex-col gap-2 text-ui-caption text-muted-foreground">
-          {canManage && freeLpt != null && (
-            <li className="flex h-6 items-center justify-between gap-3">
-              <span className="truncate">Unstaked</span>
-              <span className="text-foreground tabular-nums">
-                {formatLPT(freeLpt)}
-              </span>
-            </li>
-          )}
-          {leftover && (
-            <li>
-              Only a leftover ({formatLPT(p.stake)}) is staked here.
-              {canManage && " Undelegate to clear it."}
-            </li>
-          )}
-        </ul>
-      )}
 
       {/* The two everyday actions, equal halves. */}
       {canManage && (
         <div
-          className={cn("grid gap-2", staked ? "grid-cols-2" : "grid-cols-1")}
+          className={cn(
+            "grid gap-2 border-t border-hairline px-5 py-4",
+            staked ? "grid-cols-2" : "grid-cols-1"
+          )}
         >
           <Button
             size="sm"
