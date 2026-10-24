@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  Check,
   ChevronDown,
+  ChevronRight,
   Copy,
   ExternalLink,
   Pencil,
@@ -18,7 +18,7 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { isAddress } from "viem";
 
-import { Avatar, CopyButton, useIdentity } from "@/components/identity";
+import { Avatar, useIdentity } from "@/components/identity";
 import { Page } from "@/components/page";
 import { PAGE_INFO_SLOT, useSlot } from "@/components/page-header";
 import { RenameAddressDialog } from "@/components/portfolio/addresses";
@@ -68,63 +68,9 @@ export default function AccountPage() {
   const saved = inPortfolio(address);
   const isOrchestrator = orchestrators?.some((o) => o.id === address);
 
-  const actions = (
-    <>
-      {isOrchestrator && (
-        <Button size="sm" render={<Link href={`/orchestrators/${address}`} />}>
-          <Server /> Orchestrator profile
-        </Button>
-      )}
-      {gateway && (
-        <Button size="sm" render={<Link href={`/gateways/${address}`} />}>
-          <Waypoints /> Gateway profile
-        </Button>
-      )}
-      {!isConnected &&
-        (saved ? (
-          <Menu>
-            <MenuTrigger
-              render={<Button size="sm" variant="ghost" />}
-              aria-label="In your portfolio: rename or remove"
-            >
-              <Check /> In your portfolio
-              <ChevronDown className="size-3.5 opacity-60" />
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem onClick={() => setRenaming(true)}>
-                <Pencil /> Rename…
-              </MenuItem>
-              <MenuSeparator />
-              <MenuItem
-                onClick={() => {
-                  remove(address);
-                  toast(`Removed ${label ?? name ?? shortAddress(address)}`, {
-                    action: {
-                      label: "Undo",
-                      onClick: () => add(address, label),
-                    },
-                  });
-                }}
-              >
-                <Trash2 /> Remove from portfolio
-              </MenuItem>
-            </MenuContent>
-          </Menu>
-        ) : (
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => add(address, name ?? undefined)}
-          >
-            <Plus /> Add to portfolio
-          </Button>
-        ))}
-    </>
-  );
-  // On desktop the app header already names the account (the breadcrumb),
-  // so the page's own header is for phones. There, the name itself opens a
-  // menu of what you can do with the address (Linear-style), and the page's
-  // buttons join the header's right side; the page opens on the balance.
+  // The account's name opens a menu of what you can do with the address
+  // (Linear-style). On desktop it's the breadcrumb's last step; on phones,
+  // which have no header breadcrumb, the page draws the same one.
   const removeFromPortfolio = () => {
     remove(address);
     toast(`Removed ${label ?? name ?? shortAddress(address)}`, {
@@ -218,52 +164,32 @@ export default function AccountPage() {
         accounts={accounts}
         canManage={inPortfolio}
         showScope={false}
-        // Phones only (see above); on desktop the page opens on the balance,
-        // level with the position rail.
+        // Phones only: desktop names the account in its breadcrumb.
         header={
-          <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between lg:hidden">
-            <div className="flex min-w-0 items-center gap-4">
-              <Avatar address={address} src={avatar} size={52} />
-              <div className="flex min-w-0 flex-col gap-1">
-                <div className="text-ui-caption text-muted-foreground">
-                  {/* Portfolio membership shows on the button beside it. */}
-                  {isConnected ? "Connected wallet" : "Account"}
-                </div>
-                <div className="flex min-w-0 items-center gap-1.5">
-                  <h1 className="truncate text-[24px] leading-8 font-semibold tracking-[-0.02em]">
-                    {label ?? name ?? (
-                      <span className="font-mono text-[20px] font-medium tracking-normal">
-                        {shortAddress(address, 8, 6)}
-                      </span>
-                    )}
-                  </h1>
-                  {/* Only saved wallets carry a label to edit. */}
-                  {list.some((w) => w.address === address) && (
-                    <Button
-                      size="icon-xs"
-                      variant="ghost"
-                      aria-label={label ? "Rename" : "Name this wallet"}
-                      onClick={() => setRenaming(true)}
-                      className="shrink-0 text-subtle-foreground"
-                    >
-                      <Pencil />
-                    </Button>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 text-ui-caption text-muted-foreground">
-                  <a
-                    href={addressUrl(address)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-mono hover:text-foreground"
-                  >
-                    {shortAddress(address, 10, 8)}
-                  </a>
-                  <CopyButton value={address} />
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">{actions} </div>
+          <header className="-mx-4 -mt-6 mb-6 flex h-11 min-w-0 items-center justify-between gap-3 border-b border-hairline px-4 sm:-mx-6 sm:px-6 lg:hidden">
+            {/* The breadcrumb desktop shows in its header, as a strip under
+                the top bar: part of the frame, not the content. */}
+            <nav
+              aria-label="Breadcrumb"
+              className="flex min-w-0 items-center gap-1.5 text-ui-body text-muted-foreground"
+            >
+              <span className="shrink-0">Accounts</span>
+              <ChevronRight className="size-3.5 shrink-0 text-subtle-foreground" />
+              {nameMenu}
+            </nav>
+            {!isConnected && !saved && (
+              <Button
+                size="xs"
+                onClick={() => {
+                  add(address, name ?? undefined);
+                  toast(
+                    `Added ${name ?? shortAddress(address)} to your portfolio`
+                  );
+                }}
+              >
+                <Plus /> Add to portfolio
+              </Button>
+            )}
           </header>
         }
       />

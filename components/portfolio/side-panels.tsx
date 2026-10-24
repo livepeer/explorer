@@ -112,7 +112,10 @@ export function PendingWithdrawals({
   return (
     <Card className="divide-y divide-(--hairline)">
       {fees.map((f) => (
-        <div key={`fees-${f.account}`} className="flex flex-col gap-3 p-4">
+        <div
+          key={`fees-${f.account}`}
+          className="flex flex-wrap items-center justify-between gap-3 p-4"
+        >
           <div className="flex flex-col gap-0.5">
             <span className="text-[15px] tabular-nums">
               {formatETH(f.amount)}
@@ -151,8 +154,11 @@ export function PendingWithdrawals({
         const roundsLeft = l.withdrawRound - currentRound;
         const manage = canManage(l.account);
         return (
-          <div key={l.id} className="flex flex-col gap-3 p-4">
-            <div className="flex items-start justify-between gap-3">
+          <div
+            key={l.id}
+            className="flex flex-wrap items-center justify-between gap-3 p-4"
+          >
+            <div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[15px] tabular-nums">
                   {formatLPT(l.amount)}

@@ -231,9 +231,9 @@ export function PortfolioHero({
   if (variant === "page") {
     return (
       <div className="flex flex-col gap-5">
-        {/* The balance and what you can do with it, side by side; on a
-            phone the actions follow the balance. */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        {/* The balance and what you can do with it, side by side once
+            there's room; narrower, the actions follow the balance. */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           {numberEl}
           {positionActions && <div className="shrink-0">{positionActions}</div>}
         </div>

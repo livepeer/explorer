@@ -2,7 +2,7 @@
 
 import { AlertTriangle, ArrowDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import { ActivityList } from "@/components/activity-list";
 import {
@@ -71,37 +71,6 @@ function delegationCount(delegations: number, wallets: number) {
   const w = `${wallets} wallet${wallets === 1 ? "" : "s"}`;
   if (delegations === wallets) return w;
   return `${delegations} delegation${delegations === 1 ? "" : "s"} · ${w}`;
-}
-
-/**
- * Pins its column under the app header (desktop) only when all of it fits
- * on screen; taller, it scrolls with the page, so nothing is cut off.
- */
-function StickyIfFits({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [fits, setFits] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // 72px: the pinned header and its inset, plus room below.
-    const check = () => setFits(el.offsetHeight <= window.innerHeight - 88);
-    check();
-    const ro = new ResizeObserver(check);
-    ro.observe(el);
-    window.addEventListener("resize", check);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", check);
-    };
-  }, []);
-  return (
-    <div
-      ref={ref}
-      className={cn("flex flex-col", fits && "xl:sticky xl:top-[72px]")}
-    >
-      {children}
-    </div>
-  );
 }
 
 export function PortfolioView({
@@ -499,11 +468,8 @@ export function PortfolioView({
       </section>
     );
 
-  // One wallet, brokerage-style: the main column is about time (balance
-  // history, what needs attention, activity), the rail beside it about now:
-  // the position and what you can do with it, pinned as you scroll. The
-  // page's own header leads the main column, so the rail starts level with
-  // it. Below xl the position card follows the balance instead.
+  // One wallet: its balance is its position, so the page reads top to
+  // bottom from it (see the layout below).
   if (single) {
     const account = accounts.find((a) => a.address === scoped[0]);
     // An account with nothing delegated still gets a card, to start from.
@@ -529,11 +495,9 @@ export function PortfolioView({
         freeLpt={freeLpt}
       />
     );
-    // What needs doing and what's coming out, beside the balance; without
-    // either, the balance and its chart take the full width.
-    const hasAside = Boolean(insightsEl || withdrawalsEl);
     return (
       <div className="flex flex-col">
+        {header}
         {urgent.length > 0 && (
           <a
             href="#needs-attention"
@@ -549,47 +513,36 @@ export function PortfolioView({
             </span>
           </a>
         )}
-        {/* Brokerage-style. Wide: the account, its balance and position,
-            and its history on the left, then activity; on the right, from
-            the very top, what needs doing, pinned as you scroll. Narrow:
-            the same order in one column. */}
-        <div
-          className={cn(
-            "grid grid-cols-1 gap-x-8",
-            hasAside && "xl:grid-cols-[minmax(0,1fr)_320px]"
-          )}
-        >
-          <div className="min-w-0 xl:col-start-1 xl:row-start-1">{header}</div>
-          <div className="min-w-0 animate-rise xl:col-start-1 xl:row-start-2">
-            {heroEl({
-              label: <PositionLabel loading={loading} position={position} />,
-              position: positionEl,
-              actions: (
-                <PositionActions
-                  loading={loading}
-                  position={position}
-                  canManage={manage}
-                  freeLpt={freeLpt}
-                />
-              ),
-            })}
-          </div>
-          {hasAside && (
-            <aside className="mt-10 flex flex-col gap-8 animate-rise [animation-delay:60ms] xl:col-start-2 xl:row-span-3 xl:row-start-1 xl:mt-0">
-              <StickyIfFits>
-                {insightsEl}
-                {withdrawalsEl && (
-                  <div className={cn(insightsEl && "mt-8")}>
-                    {withdrawalsEl}
-                  </div>
-                )}
-              </StickyIfFits>
-            </aside>
-          )}
-          <div className="mt-10 min-w-0 xl:col-start-1 xl:row-start-3">
-            {activityEl}
-          </div>
+        {/* One column, in the order you'd read it: the account, its
+            balance and position, its history; then what needs doing and
+            what's coming out, only when there's any; then activity. Side by
+            side on wide screens when there's both. */}
+        <div className="min-w-0 animate-rise">
+          {heroEl({
+            label: <PositionLabel loading={loading} position={position} />,
+            position: positionEl,
+            actions: manage && (
+              <PositionActions
+                loading={loading}
+                position={position}
+                canManage={manage}
+                freeLpt={freeLpt}
+              />
+            ),
+          })}
         </div>
+        {(insightsEl || withdrawalsEl) && (
+          <div
+            className={cn(
+              "mt-10 grid grid-cols-1 gap-x-8 gap-y-10",
+              insightsEl && withdrawalsEl && "lg:grid-cols-2"
+            )}
+          >
+            {insightsEl && <div className="min-w-0">{insightsEl}</div>}
+            {withdrawalsEl && <div className="min-w-0">{withdrawalsEl}</div>}
+          </div>
+        )}
+        <div className="mt-10 min-w-0">{activityEl}</div>
       </div>
     );
   }
