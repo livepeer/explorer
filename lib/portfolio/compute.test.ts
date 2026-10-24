@@ -2,6 +2,7 @@ import {
   annualize,
   annualizeFees,
   averageRoundSeconds,
+  averageStakeSince,
   computeAccount,
   computePortfolio,
   PoolHistory,
@@ -371,5 +372,46 @@ describe("derived metrics", () => {
     // 365 one-day rounds at 200 LPT per ETH: 0.00001 × 200 × 365 = 73%.
     expect(annualizeFees(rate, 86400, 200)).toBeCloseTo(73, 6);
     expect(annualizeFees(rate, 86400, 0)).toBe(0);
+  });
+});
+
+describe("averageStakeSince", () => {
+  const point = (ts: number, stake: number) => ({
+    round: ts,
+    ts,
+    stake,
+    rewards: 0,
+    commission: 0,
+    fees: 0,
+    share: 0,
+  });
+
+  it("averages the stake across the period's rounds", () => {
+    const series = [point(1, 100), point(2, 100), point(3, 400)];
+    expect(averageStakeSince(series, 0)).toBe(200);
+  });
+
+  it("counts a deposit from when it arrived, not from the start", () => {
+    // 20 LPT, then 25,000 added: the start stake would make 1,864 earned
+    // look like 9,000%.
+    const series = [
+      point(1, 20),
+      point(2, 25_000),
+      point(3, 25_000),
+      point(4, 25_000),
+    ];
+    const avg = averageStakeSince(series, 0);
+    expect(avg).toBe(18_755);
+    expect((1_864 / avg) * 100).toBeCloseTo(9.94, 2);
+  });
+
+  it("skips rounds before the period and rounds with no stake", () => {
+    const series = [point(1, 999), point(5, 0), point(6, 300), point(7, 500)];
+    expect(averageStakeSince(series, 5)).toBe(400);
+  });
+
+  it("is 0 when nothing was staked", () => {
+    expect(averageStakeSince([point(1, 0)], 0)).toBe(0);
+    expect(averageStakeSince([], 0)).toBe(0);
   });
 });

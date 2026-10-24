@@ -15,7 +15,7 @@ import {
   formatUSD,
 } from "@/lib/format";
 import type { SeriesPoint } from "@/lib/portfolio/compute";
-import { sumSince } from "@/lib/portfolio/compute";
+import { averageStakeSince, sumSince } from "@/lib/portfolio/compute";
 import {
   bucketFlows,
   type Period,
@@ -81,8 +81,10 @@ export function PortfolioHero({
   const since = days == null ? 0 : nowSec - days * 86400;
   const earned = sumSince(series, "rewards", since);
   const earnedFees = sumSince(series, "fees", since);
-  const startStake = sliced[0]?.stake ?? 0;
-  const earnedPct = startStake > 0 ? (earned / startStake) * 100 : null;
+  // Earned as a share of the stake it was earned on (the period's average),
+  // so stake added or removed along the way doesn't skew it.
+  const avgStake = averageStakeSince(series, since);
+  const earnedPct = avgStake > 0 ? (earned / avgStake) * 100 : null;
 
   const chart = useMemo(() => {
     switch (metric) {

@@ -451,3 +451,21 @@ export function sumSince<K extends "rewards" | "fees" | "commission">(
   for (const p of series) if (p.ts >= sinceTs) total += p[key];
   return total;
 }
+
+/**
+ * The stake a period's earnings were made on: the average over its rounds,
+ * counting only rounds with stake, so a deposit counts from when it arrived
+ * and a wallet that started partway through is measured while it earned.
+ * Dividing by the starting stake instead turns a wallet that grew from 20
+ * to 25,000 LPT into a 9,000% return. 0 when nothing was staked.
+ */
+export function averageStakeSince(series: SeriesPoint[], sinceTs: number) {
+  let total = 0;
+  let rounds = 0;
+  for (const p of series) {
+    if (p.ts < sinceTs || p.stake <= 0) continue;
+    total += p.stake;
+    rounds += 1;
+  }
+  return rounds > 0 ? total / rounds : 0;
+}
