@@ -49,7 +49,11 @@ import {
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import { PositionRail } from "./position-rail";
+import {
+  PositionActions,
+  PositionLabel,
+  PositionNote,
+} from "./position-header";
 import { DUST_ETH, LPT_DUST, type Position, Positions } from "./positions";
 import { safeInsights } from "./safe-insights";
 import {
@@ -390,9 +394,16 @@ export function PortfolioView({
       .filter((p) => canManage(p.account.address) && p.fees >= DUST_ETH)
       .sort((a, b) => b.fees - a.fees) ?? [];
 
-  const heroEl = (
+  const heroEl = (slots?: {
+    label: React.ReactNode;
+    position: React.ReactNode;
+    actions: React.ReactNode;
+  }) => (
     <PortfolioHero
       variant={single ? "page" : "card"}
+      label={slots?.label}
+      position={slots?.position}
+      positionActions={slots?.actions}
       series={view?.series ?? []}
       stake={view?.stake ?? 0}
       lptPrice={lpt}
@@ -508,37 +519,19 @@ export function PortfolioView({
         trend: [],
         active: false,
       });
-    const project = (days: number) =>
-      view
-        ? projectEarnings(
-            view.stake,
-            view.rate,
-            days,
-            view.roundSeconds,
-            view.commission
-          )
-        : 0;
-    const rail = (
-      <PositionRail
+    const manage = position ? canManage(position.account.address) : false;
+    const freeLpt = free.get(scoped[0]);
+    const positionEl = (
+      <PositionNote
         loading={loading}
         position={position}
-        orchestrator={
-          position?.delegate ? orchestrators.get(position.delegate) : undefined
-        }
-        canManage={position ? canManage(position.account.address) : false}
-        freeLpt={free.get(scoped[0])}
-        figures={
-          view
-            ? {
-                apr: view.apr,
-                feeApr,
-                aprSplit,
-                year: project(365),
-              }
-            : undefined
-        }
+        canManage={manage}
+        freeLpt={freeLpt}
       />
     );
+    // What needs doing and what's coming out, beside the balance; without
+    // either, the balance and its chart take the full width.
+    const hasAside = Boolean(insightsEl || withdrawalsEl);
     return (
       <div className="flex flex-col">
         {urgent.length > 0 && (
@@ -556,22 +549,43 @@ export function PortfolioView({
             </span>
           </a>
         )}
-        {/* Brokerage-style. Wide: the account and its balance history on
-            the left, then activity; on the right, from the very top, the
-            position and what needs doing, pinned as you scroll. Narrow: the
-            same order in one column, the position after the balance. */}
-        <div className="grid grid-cols-1 gap-x-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Brokerage-style. Wide: the account, its balance and position,
+            and its history on the left, then activity; on the right, from
+            the very top, what needs doing, pinned as you scroll. Narrow:
+            the same order in one column. */}
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-x-8",
+            hasAside && "xl:grid-cols-[minmax(0,1fr)_320px]"
+          )}
+        >
           <div className="min-w-0 xl:col-start-1 xl:row-start-1">{header}</div>
           <div className="min-w-0 animate-rise xl:col-start-1 xl:row-start-2">
-            {heroEl}
+            {heroEl({
+              label: <PositionLabel loading={loading} position={position} />,
+              position: positionEl,
+              actions: (
+                <PositionActions
+                  loading={loading}
+                  position={position}
+                  canManage={manage}
+                  freeLpt={freeLpt}
+                />
+              ),
+            })}
           </div>
-          <aside className="mt-6 animate-rise [animation-delay:60ms] xl:col-start-2 xl:row-span-3 xl:row-start-1 xl:mt-0">
-            <StickyIfFits>
-              {rail}
-              {insightsEl && <div className="mt-8">{insightsEl}</div>}
-              {withdrawalsEl && <div className="mt-8">{withdrawalsEl}</div>}
-            </StickyIfFits>
-          </aside>
+          {hasAside && (
+            <aside className="mt-10 flex flex-col gap-8 animate-rise [animation-delay:60ms] xl:col-start-2 xl:row-span-3 xl:row-start-1 xl:mt-0">
+              <StickyIfFits>
+                {insightsEl}
+                {withdrawalsEl && (
+                  <div className={cn(insightsEl && "mt-8")}>
+                    {withdrawalsEl}
+                  </div>
+                )}
+              </StickyIfFits>
+            </aside>
+          )}
           <div className="mt-10 min-w-0 xl:col-start-1 xl:row-start-3">
             {activityEl}
           </div>
@@ -598,7 +612,7 @@ export function PortfolioView({
           </span>
         </a>
       )}
-      <div className="animate-rise">{heroEl}</div>
+      <div className="animate-rise">{heroEl()}</div>
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">
         <KpiStrip>

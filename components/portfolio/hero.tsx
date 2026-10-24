@@ -45,6 +45,9 @@ export function PortfolioHero({
   nowSec,
   loading,
   actions,
+  label,
+  position,
+  positionActions,
   variant = "card",
 }: {
   series: SeriesPoint[];
@@ -54,6 +57,12 @@ export function PortfolioHero({
   loading?: boolean;
   /** Beside the time range, e.g. an export. */
   actions?: React.ReactNode;
+  /** Over the balance in place of "Total stake": who it's delegated to. */
+  label?: React.ReactNode;
+  /** Under the balance on a single wallet's page: what it earns. */
+  position?: React.ReactNode;
+  /** Beside the balance on a single wallet's page: Delegate, Undelegate. */
+  positionActions?: React.ReactNode;
   /**
    * "page": the balance as the page's headline, on the page itself, with the
    * chart's controls on one line above the chart in its own card (a single
@@ -132,7 +141,9 @@ export function PortfolioHero({
 
   const numberEl = (
     <div className="flex min-w-0 flex-col gap-2">
-      <div className="text-ui-caption text-muted-foreground">Total stake</div>
+      {label ?? (
+        <div className="text-ui-caption text-muted-foreground">Total stake</div>
+      )}
       {loading ? (
         <Skeleton className="h-12 w-72" />
       ) : (
@@ -145,29 +156,33 @@ export function PortfolioHero({
           </span>
         </div>
       )}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
-        {lptPrice != null && !loading && (
-          <span className="text-muted-foreground">
-            {formatUSD(stake * lptPrice)}
-          </span>
-        )}
-        {!loading && (
-          <span className="text-green-bright">
-            +{formatToken(earned)} LPT
-            {earnedPct != null && period !== "all" && (
-              <span className="text-green-bright/80">
-                {" "}
-                ({formatPercent(earnedPct, { decimals: 2 })})
-              </span>
-            )}
-          </span>
-        )}
-        {!loading && (
-          <span className="text-muted-foreground">
-            earned {periodLabel(period)}
-          </span>
-        )}
-      </div>
+      {/* Nothing staked and nothing earned: no line of zeros. */}
+      {(loading || stake > 0 || earned > 0) && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+          {lptPrice != null && !loading && (
+            <span className="text-muted-foreground">
+              {formatUSD(stake * lptPrice)}
+            </span>
+          )}
+          {!loading && (
+            <span className="text-green-bright">
+              +{formatToken(earned)} LPT
+              {earnedPct != null && period !== "all" && (
+                <span className="text-green-bright/80">
+                  {" "}
+                  ({formatPercent(earnedPct, { decimals: 2 })})
+                </span>
+              )}
+            </span>
+          )}
+          {!loading && (
+            <span className="text-muted-foreground">
+              earned {periodLabel(period)}
+            </span>
+          )}
+        </div>
+      )}
+      {position}
     </div>
   );
   const chartEl = (
@@ -216,7 +231,12 @@ export function PortfolioHero({
   if (variant === "page") {
     return (
       <div className="flex flex-col gap-5">
-        {numberEl}
+        {/* The balance and what you can do with it, side by side; on a
+            phone the actions follow the balance. */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          {numberEl}
+          {positionActions && <div className="shrink-0">{positionActions}</div>}
+        </div>
         {/* What to chart and over how long, on one line above the chart. */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Segmented
