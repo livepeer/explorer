@@ -36,6 +36,7 @@ import {
 import { readContract } from "wagmi/actions";
 
 import { Identity, useIdentity } from "@/components/identity";
+import { roundState, useNow } from "@/components/shell/round-clock";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -599,6 +600,20 @@ function StakingFlow({
     query: { enabled: Boolean(bm && address && protocol) },
   });
 
+  // Read from the chain, not the subgraph: right after a switch the new
+  // start round isn't indexed yet, and the protocol refuses to undelegate
+  // until it begins (status 0 is Pending).
+  const { data: delegatorStatus, refetch: refetchStatus } = useReadContract({
+    address: bm,
+    abi: bondingManager,
+    functionName: "delegatorStatus",
+    args: [address!],
+    chainId: L2_CHAIN.id,
+    query: { enabled: Boolean(bm && address && action.kind === "undelegate") },
+  });
+  const pendingDelegator = delegatorStatus === 0;
+  const nowMs = useNow(60_000);
+
   const currentDelegate = (
     delegatorInfo as readonly unknown[] | undefined
   )?.[2] as string | undefined;
@@ -665,6 +680,7 @@ function StakingFlow({
   const refresh = () => {
     refetchBalance();
     refetchAllowance();
+    refetchStatus();
   };
 
   const isSafe = useIsSafe(signer);
@@ -949,8 +965,15 @@ function StakingFlow({
       description = `Undelegated LPT stops earning immediately and unlocks after ${unbondingTime}. You can redelegate it any time before withdrawing.`;
       cta = "Undelegate";
       const max = bonded || action.staked;
-      canRun = canRun && amountWei > 0n && Number(amount) <= max + 1e-9;
+      canRun =
+        canRun &&
+        !pendingDelegator &&
+        amountWei > 0n &&
+        Number(amount) <= max + 1e-9;
       successTitle = "Undelegation started";
+      const nextRoundIn = protocol
+        ? roundState(protocol, nowMs).remaining
+        : null;
       body = (
         <>
           <div className="rounded-lg border border-hairline p-3">
@@ -974,6 +997,16 @@ function StakingFlow({
                 ).toLocaleString()}`
               : "—"}
           </Row>
+          {pendingDelegator && (
+            <Notice tone="warning">
+              This stake was delegated this round, so it&apos;s pending until
+              the next round starts
+              {nextRoundIn != null && nextRoundIn > 60
+                ? `, in about ${formatDuration(nextRoundIn)}`
+                : ""}
+              . You can undelegate then.
+            </Notice>
+          )}
         </>
       );
       run = async () => {
