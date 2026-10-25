@@ -228,7 +228,9 @@ export function TreasuryCard() {
           // highest balance, if one ran a little over before the cut stopped).
           yTicks={[0, 1 / 3, 2 / 3, 1].map((f) => f * t.ceiling)}
           domain={[0, Math.max(t.ceiling, ...t.history.map((h) => h.value))]}
-          height={240}
+          // As tall as the numbers beside it, so they meet its top and
+          // baseline without a gap opening between them.
+          height={206}
           format={(v) => formatLPT(v)}
           axisFormat={(v) => formatToken(v, { compact: true })}
           ariaLabel={`Treasury balance since October 2023, now ${formatLPT(
