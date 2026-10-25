@@ -287,6 +287,7 @@ function AmountField({
   maxLabel,
   unit = "LPT",
   autoFocus = true,
+  label = "Amount",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -294,6 +295,8 @@ function AmountField({
   maxLabel: string;
   unit?: string;
   autoFocus?: boolean;
+  /** What the amount is, when "Amount" alone would be ambiguous. */
+  label?: string;
 }) {
   const invalid = max != null && Number(value) > max;
   return (
@@ -304,7 +307,7 @@ function AmountField({
       )}
     >
       <div className="flex items-center justify-between text-ui-caption text-muted-foreground">
-        <span>Amount</span>
+        <span>{label}</span>
         {max != null && (
           <button
             type="button"
@@ -325,7 +328,7 @@ function AmountField({
           inputMode="decimal"
           placeholder="0"
           value={value}
-          aria-label={`Amount in ${unit}`}
+          aria-label={`${label} in ${unit}`}
           aria-invalid={invalid}
           onChange={(e) => {
             const v = e.target.value.replace(/,/g, ".");
@@ -805,7 +808,11 @@ function StakingFlow({
         ? "Delegate more"
         : "Delegate";
       description = moving
-        ? "Switching moves your entire stake to the new orchestrator. Add LPT to delegate more in the same transaction."
+        ? `Switching moves your entire stake to the new orchestrator.${
+            balance > 0
+              ? " You can also add LPT from your wallet in the same transaction."
+              : ""
+          }`
         : "Delegated LPT earns inflationary rewards and a share of fees each round. You can undelegate any time; it takes " +
           unbondingTime +
           " to unlock.";
@@ -877,13 +884,34 @@ function StakingFlow({
               />
             </div>
           )}
-          <AmountField
-            value={amount}
-            onChange={setAmount}
-            max={balance}
-            maxLabel="Wallet"
-          />
+          {/* Switching moves the whole stake on its own; the field is only
+              for LPT added on top, so it says so, and it isn't shown when
+              the wallet has none to add. */}
+          {moving ? (
+            balance > 0 && (
+              <AmountField
+                label="Add from wallet (optional)"
+                value={amount}
+                onChange={setAmount}
+                max={balance}
+                maxLabel="Wallet"
+                autoFocus={false}
+              />
+            )
+          ) : (
+            <AmountField
+              value={amount}
+              onChange={setAmount}
+              max={balance}
+              maxLabel="Wallet"
+            />
+          )}
           <div className="flex flex-col gap-2">
+            {moving && (
+              <Row label="Total after switch">
+                {formatLPT(bonded + Number(amount || 0))}
+              </Row>
+            )}
             {orch?.realizedApr != null && (
               <Row label="Realised yield, 30 rounds">
                 {orch.realizedApr.toFixed(1)}% APR
