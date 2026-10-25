@@ -11,7 +11,11 @@
       "basic-ftp": "^6.2.1",
       "@puppeteer/browsers": "^3.2.5",
       "tmp": "^0.2.6",
-      "body-parser@1": "^1.20.9"
+      "body-parser@1": "^1.20.9",
+      "zod": "^4.6.6"
+    },
+    "patchedDependencies": {
+      "chromium-bidi@14.0.0": "patches/chromium-bidi@14.0.0.patch"
     }
   }
 }
