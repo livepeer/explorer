@@ -20,7 +20,13 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { encodeFunctionData, getAddress, type Hex, maxUint256 } from "viem";
+import {
+  encodeFunctionData,
+  formatUnits,
+  getAddress,
+  type Hex,
+  maxUint256,
+} from "viem";
 import {
   useAccount,
   useConfig,
@@ -288,6 +294,7 @@ function AmountField({
   unit = "LPT",
   autoFocus = true,
   label = "Amount",
+  maxExact,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -297,6 +304,12 @@ function AmountField({
   autoFocus?: boolean;
   /** What the amount is, when "Amount" alone would be ambiguous. */
   label?: string;
+  /**
+   * The exact maximum, from the wei on-chain, for Max to fill in. Without
+   * it Max rounds down, which turns a leftover into 0 and leaves a sliver
+   * behind on a full undelegate.
+   */
+  maxExact?: string;
 }) {
   const invalid = max != null && Number(value) > max;
   return (
@@ -311,7 +324,9 @@ function AmountField({
         {max != null && (
           <button
             type="button"
-            onClick={() => onChange(String(Math.floor(max * 1e6) / 1e6))}
+            onClick={() =>
+              onChange(maxExact ?? String(Math.floor(max * 1e6) / 1e6))
+            }
             className="cursor-pointer rounded-sm px-1 hover:text-foreground"
           >
             {maxLabel}:{" "}
@@ -677,6 +692,13 @@ function StakingFlow({
   const bonded =
     pendingStakeWei != null ? fromWei(pendingStakeWei as bigint) : 0;
   const balance = balanceWei != null ? fromWei(balanceWei as bigint) : 0;
+  // Exact amounts for Max, so it fills what's really there.
+  const balanceExact =
+    balanceWei != null ? formatUnits(balanceWei as bigint, 18) : undefined;
+  const bondedExact =
+    pendingStakeWei != null
+      ? formatUnits(pendingStakeWei as bigint, 18)
+      : undefined;
 
   // On-chain reads refresh straight away; subgraph data waits for indexing
   // (see the confirmation effect below).
@@ -894,6 +916,7 @@ function StakingFlow({
                 value={amount}
                 onChange={setAmount}
                 max={balance}
+                maxExact={balanceExact}
                 maxLabel="Wallet"
                 autoFocus={false}
               />
@@ -903,6 +926,7 @@ function StakingFlow({
               value={amount}
               onChange={setAmount}
               max={balance}
+              maxExact={balanceExact}
               maxLabel="Wallet"
             />
           )}
@@ -1016,6 +1040,7 @@ function StakingFlow({
             value={amount}
             onChange={setAmount}
             max={max}
+            maxExact={bonded ? bondedExact : undefined}
             maxLabel="Delegated"
           />
           {/* When, as a date people can plan around (an estimate: rounds
@@ -1237,6 +1262,7 @@ function StakingFlow({
             value={amount}
             onChange={setAmount}
             max={max}
+            maxExact={bonded ? bondedExact : undefined}
             maxLabel="Delegated"
             autoFocus={false}
           />
