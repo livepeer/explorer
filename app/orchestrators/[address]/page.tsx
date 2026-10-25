@@ -474,7 +474,7 @@ export default function OrchestratorPage() {
                 <span className="text-foreground tabular-nums">
                   {formatLPT(myStake)}
                 </span>{" "}
-                staked here
+                delegated here
               </span>
               <Link
                 href="/"

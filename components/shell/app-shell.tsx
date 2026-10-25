@@ -186,7 +186,7 @@ function SidebarBody({
           href="https://docs.livepeer.org/network/tutorials/delegate-your-first-lpt"
           icon={<BookOpen />}
         >
-          Staking guide
+          Delegation guide
         </ExternalLink>
         <ExternalLink href="https://livepeer.org" icon={<Globe />}>
           Livepeer.org
