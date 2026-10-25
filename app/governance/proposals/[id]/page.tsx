@@ -31,6 +31,7 @@ import {
   useProposalState,
   useProposalThresholds,
 } from "@/components/governance/proposal-vote";
+import { ProposalActions } from "@/components/governance/request";
 import {
   proposalSeries,
   QuorumMeter,
@@ -43,9 +44,16 @@ import { Card, EmptyState, ErrorNotice, Page } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { Badge } from "@/components/ui/badge";
 import { StatusDot } from "@/components/ui/misc";
-import { formatLPT, formatPercent, shortAddress } from "@/lib/format";
+import {
+  formatLPT,
+  formatPercent,
+  formatUSD,
+  shortAddress,
+} from "@/lib/format";
+import { requestedLpt } from "@/lib/governance/actions";
 import {
   useGovernance,
+  useLptPriceWhenProposed,
   useProposalVotes,
   useProtocol,
 } from "@/lib/hooks/queries";
@@ -69,6 +77,10 @@ export default function ProposalPage() {
   const protocol = useProtocol();
   const nowMs = useNow(30_000);
   const proposal = governance.data?.proposals.find((p) => p.id === id);
+  const { data: priceWhenProposed } = useLptPriceWhenProposed(
+    proposal?.voteStart,
+    protocol.data?.roundSeconds
+  );
   const chainState = useProposalState(proposal);
   const thresholds = useProposalThresholds(
     proposal,
@@ -132,6 +144,7 @@ export default function ProposalPage() {
       ? { label: "Pending", tone: "neutral" }
       : proposalMajority(proposal));
 
+  const request = requestedLpt(proposal.actions);
   const snapshot = roundTime(p, proposal.voteStart + 1);
   const end = roundTime(p, proposal.voteEnd + 1);
 
@@ -147,6 +160,24 @@ export default function ProposalPage() {
           </Badge>
         }
         title={title}
+        summary={
+          request && (
+            <>
+              <span>
+                Requests{" "}
+                <span className="font-medium text-foreground tabular-nums">
+                  {formatLPT(request.amount)}
+                </span>
+              </span>
+              {request.recipients.length === 1 && (
+                <span className="flex min-w-0 items-center gap-1.5">
+                  to
+                  <Identity address={request.recipients[0]} size={18} />
+                </span>
+              )}
+            </>
+          )
+        }
       />
 
       <DetailLayout
@@ -197,6 +228,34 @@ export default function ProposalPage() {
             <RailSection title="Details">
               <Card>
                 <DetailList>
+                  {/* What it asks for leads: on-chain, like the rest. */}
+                  {request && (
+                    <>
+                      <DetailItem
+                        label="Requested"
+                        sub={
+                          // Valued when proposed: proposers budget in USD and
+                          // convert on the day, so that's the figure to check
+                          // against the description.
+                          priceWhenProposed != null &&
+                          `≈ ${formatUSD(
+                            request.amount * priceWhenProposed
+                          )} when proposed`
+                        }
+                      >
+                        {formatLPT(request.amount)}
+                      </DetailItem>
+                      {request.recipients.map((to, i) => (
+                        <DetailItem
+                          key={to}
+                          label={i === 0 ? "Recipient" : ""}
+                          mono={false}
+                        >
+                          <Identity address={to} size={18} />
+                        </DetailItem>
+                      ))}
+                    </>
+                  )}
                   <DetailItem label="Proposer" mono={false}>
                     <Identity address={proposal.proposer} size={18} />
                   </DetailItem>
@@ -257,6 +316,11 @@ export default function ProposalPage() {
                 </DetailList>
               </Card>
             </RailSection>
+            {!request && proposal.actions.length > 0 && (
+              <RailSection title="If it passes">
+                <ProposalActions actions={proposal.actions} />
+              </RailSection>
+            )}
           </>
         }
         main={

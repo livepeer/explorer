@@ -7,7 +7,8 @@ import { Identity } from "@/components/identity";
 import { Card } from "@/components/page";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton, StatusDot } from "@/components/ui/misc";
-import { formatPercent } from "@/lib/format";
+import { formatLPT, formatPercent } from "@/lib/format";
+import { requestedLpt } from "@/lib/governance/actions";
 import type { Poll, Protocol, TreasuryProposal } from "@/lib/subgraph/network";
 
 import {
@@ -122,6 +123,7 @@ export function ProposalRow({
   const outcome = proposalMajority(proposal);
   const series = proposalSeries(proposal);
   const { title } = proposalDocument(proposal.description);
+  const request = requestedLpt(proposal.actions);
 
   const badge =
     phase === "active" ? (
@@ -148,6 +150,11 @@ export function ProposalRow({
               className="[&_span]:text-ui-caption"
             />
           </span>
+          {request && (
+            <span className="text-foreground tabular-nums">
+              {formatLPT(request.amount)}
+            </span>
+          )}
           <span>
             {timeCopy(phase, phase === "pending" ? opensAt : closesAt, nowMs)}
           </span>

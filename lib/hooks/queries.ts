@@ -28,6 +28,7 @@ import {
   fetchOrchestratorUpdates,
   fetchProtocol,
   fetchRewardProgress,
+  fetchRoundStart,
   fetchTransactionEvents,
 } from "@/lib/subgraph/network";
 import { type Cursor, FIRST_CURSOR } from "@/lib/subgraph/paging";
@@ -292,6 +293,34 @@ export function useElectorate(at: { round?: number; block?: number } | null) {
     },
     enabled: at != null,
     staleTime: 60 * MINUTE,
+  });
+}
+
+/**
+ * LPT's USD price when a treasury proposal was submitted: during the round
+ * before its snapshot round (the governor's voting delay is one round),
+ * priced at that round's midpoint since the exact moment isn't indexed.
+ * Non-critical, like usePrices.
+ */
+export function useLptPriceWhenProposed(
+  voteStart: number | undefined,
+  roundSeconds: number | undefined
+) {
+  const round = voteStart != null ? voteStart - 1 : undefined;
+  return useQuery({
+    queryKey: ["lpt-price-when-proposed", round, roundSeconds],
+    enabled: round != null && roundSeconds != null,
+    staleTime: Infinity,
+    retry: 1,
+    queryFn: async () => {
+      const start = await fetchRoundStart(round!);
+      if (start == null) return null;
+      const at = Math.round(start + roundSeconds! / 2);
+      const res = await fetch(`/api/prices/history?times=${at}`);
+      if (!res.ok) return null;
+      const json = (await res.json()) as { lpt?: (number | null)[] };
+      return json.lpt?.[0] ?? null;
+    },
   });
 }
 

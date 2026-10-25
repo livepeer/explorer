@@ -24,11 +24,14 @@ export function DetailHeader({
   eyebrow,
   status,
   title,
+  summary,
   loading = false,
 }: {
   eyebrow: React.ReactNode;
   status: React.ReactNode;
   title: React.ReactNode;
+  /** One line under the title: what's being decided (a request's amount). */
+  summary?: React.ReactNode;
   loading?: boolean;
 }) {
   return (
@@ -43,6 +46,11 @@ export function DetailHeader({
         <h1 className="max-w-[40ch] text-[24px] leading-8 font-semibold tracking-[-0.02em] text-balance break-words sm:text-[26px]">
           {title}
         </h1>
+      )}
+      {summary && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ui-body text-muted-foreground">
+          {summary}
+        </div>
       )}
     </header>
   );
@@ -101,10 +109,12 @@ export function DetailItem({
   return (
     <div className="flex items-start justify-between gap-4 px-4 py-3 first:pt-4 last:pb-4">
       <dt className="shrink-0 text-ui-body text-muted-foreground">{label}</dt>
-      <dd className="flex min-w-0 flex-col items-end gap-0.5 text-right">
+      <dd className="flex min-w-0 flex-1 flex-col items-end gap-0.5 text-right">
         <span
           className={cn(
-            "min-w-0 text-ui-body",
+            // Stretched and right-aligned, so a name (an Identity link)
+            // gets the row's free width rather than truncating early.
+            "flex min-w-0 justify-end self-stretch text-ui-body",
             mono && "text-ui-body tabular-nums"
           )}
         >

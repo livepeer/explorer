@@ -1,5 +1,9 @@
 import { getAddress } from "viem";
 
+import {
+  decodeProposalActions,
+  type ProposalAction,
+} from "@/lib/governance/actions";
 import { PoolHistory, PRECISE } from "@/lib/portfolio/compute";
 
 import { isActiveInRound } from "./active";
@@ -135,6 +139,9 @@ type RawProposal = {
   abstainVotes: string;
   totalVotes: string;
   proposer: { id: string };
+  targets: string[];
+  values: string[];
+  calldatas: string[];
 };
 
 type RawPoll = {
@@ -1439,6 +1446,8 @@ export type TreasuryProposal = {
   againstVotes: number;
   abstainVotes: number;
   totalVotes: number;
+  /** What it does if it passes: for a funding request, an LPT transfer. */
+  actions: ProposalAction[];
 };
 
 export type Poll = {
@@ -1466,6 +1475,9 @@ const GOVERNANCE = /* GraphQL */ `
       proposer {
         id
       }
+      targets
+      values
+      calldatas
     }
     polls(first: 100, orderBy: endBlock, orderDirection: desc) {
       id
@@ -1483,6 +1495,22 @@ const GOVERNANCE = /* GraphQL */ `
     }
   }
 `;
+
+const ROUND_START = /* GraphQL */ `
+  query RoundStart($id: ID!) {
+    round(id: $id) {
+      startTimestamp
+    }
+  }
+`;
+
+/** When a round started (unix seconds), or null if it isn't indexed. */
+export async function fetchRoundStart(round: number): Promise<number | null> {
+  const { round: r } = await querySubgraph<{
+    round: { startTimestamp: string } | null;
+  }>(ROUND_START, { id: String(round) });
+  return r ? Number(r.startTimestamp) : null;
+}
 
 /**
  * Title of a proposal description: the front-matter `title` when present,
@@ -1542,6 +1570,11 @@ export async function fetchGovernance() {
         againstVotes: Number(p.againstVotes),
         abstainVotes: Number(p.abstainVotes),
         totalVotes: Number(p.totalVotes),
+        actions: decodeProposalActions(
+          p.targets ?? [],
+          p.values ?? [],
+          p.calldatas ?? []
+        ),
       })
     ),
     polls: polls.map(
