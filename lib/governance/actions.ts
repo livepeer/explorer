@@ -1,6 +1,10 @@
 import { decodeFunctionData, type Hex, isAddressEqual, slice } from "viem";
 
+import { bondingManager } from "@/lib/abis/BondingManager";
+import { bondingVotes } from "@/lib/abis/BondingVotes";
+import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
+import { roundsManager } from "@/lib/abis/RoundsManager";
 import { PROTOCOL_CONTRACTS } from "@/lib/config";
 import { fromWei } from "@/lib/format";
 
@@ -14,12 +18,60 @@ export type ProposalAction =
   | { kind: "lptTransfer"; to: string; amount: number }
   | {
       kind: "call";
+      /** The full address called. */
       target: string;
       /** ETH sent with the call, in ETH. */
       value: number;
       /** The 4-byte function selector, or null without calldata. */
       selector: string | null;
+      /** The full calldata, so the call can be checked exactly. */
+      data: string;
+      /** The protocol contract it calls, when it's one we know. */
+      contract: string | null;
+      /** The function and its arguments, when the contract's ABI reads it. */
+      decoded: { functionName: string; args: string[] } | null;
     };
+
+/** Protocol contracts whose calls we can read, by address. */
+const KNOWN = [
+  { name: "LivepeerToken", abi: livepeerToken },
+  { name: "BondingManager", abi: bondingManager },
+  { name: "RoundsManager", abi: roundsManager },
+  { name: "LivepeerGovernor", abi: livepeerGovernor },
+  { name: "BondingVotes", abi: bondingVotes },
+] as const;
+
+/** An argument as text: full numbers and addresses, nothing rounded. */
+function argText(v: unknown): string {
+  if (typeof v === "bigint") return v.toString();
+  if (Array.isArray(v)) return `[${v.map(argText).join(", ")}]`;
+  return String(v);
+}
+
+/** Which protocol contract a call targets, and what it calls there. */
+function readCall(target: string, data: Hex) {
+  const known = KNOWN.find((k) =>
+    isAddressEqual(target as Hex, PROTOCOL_CONTRACTS[k.name])
+  );
+  const name =
+    known?.name ??
+    (isAddressEqual(target as Hex, PROTOCOL_CONTRACTS.Treasury)
+      ? "Treasury"
+      : null);
+  if (!known || data.length < 10) return { contract: name, decoded: null };
+  try {
+    const { functionName, args } = decodeFunctionData({
+      abi: known.abi,
+      data,
+    });
+    return {
+      contract: name,
+      decoded: { functionName, args: (args ?? []).map(argText) },
+    };
+  } catch {
+    return { contract: name, decoded: null };
+  }
+}
 
 export function decodeProposalActions(
   targets: readonly string[],
@@ -62,8 +114,22 @@ export function decodeProposalActions(
       target: target.toLowerCase(),
       value: fromWei(value),
       selector: data.length >= 10 ? slice(data, 0, 4) : null,
+      data,
+      ...readCall(target, data),
     };
   });
+}
+
+/**
+ * The LPT a proposal's transfers send, counted transfer by transfer even
+ * when it makes other calls too: for totals (what the treasury has paid
+ * out, what's up for vote), where a mixed proposal's transfers are still
+ * real spending.
+ */
+export function transferredLpt(actions: readonly ProposalAction[]) {
+  let amount = 0;
+  for (const a of actions) if (a.kind === "lptTransfer") amount += a.amount;
+  return amount;
 }
 
 /**

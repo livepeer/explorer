@@ -1,4 +1,4 @@
-import { type ProposalAction, requestedLpt } from "./actions";
+import { type ProposalAction, transferredLpt } from "./actions";
 
 /**
  * OpenZeppelin Governor states, as `LivepeerGovernor.state()` returns them:
@@ -43,7 +43,9 @@ export function treasuryStats(
   };
   for (const { actions, state } of proposals) {
     if (state == null) continue;
-    const amount = requestedLpt(actions)?.amount ?? 0;
+    // Every LPT transfer counts, even in a proposal that also makes
+    // other calls: it's still LPT leaving (or asked of) the treasury.
+    const amount = transferredLpt(actions);
     if (state === EXECUTED) stats.paidOut += amount;
     if (PASSED.has(state)) {
       stats.passed += 1;

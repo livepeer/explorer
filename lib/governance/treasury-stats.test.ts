@@ -4,6 +4,15 @@ import { treasuryStats } from "./treasury-stats";
 const ask = (amount: number): ProposalAction[] => [
   { kind: "lptTransfer", to: "0xabc", amount },
 ];
+const call: ProposalAction = {
+  kind: "call",
+  target: "0x1",
+  value: 0,
+  selector: null,
+  data: "0x",
+  contract: null,
+  decoded: null,
+};
 
 describe("treasuryStats", () => {
   it("pays out executed proposals and counts the approval rate", () => {
@@ -39,10 +48,19 @@ describe("treasuryStats", () => {
   it("counts a passed proposal that isn't a plain LPT request, at 0 LPT", () => {
     const s = treasuryStats([
       {
-        actions: [{ kind: "call", target: "0x1", value: 0, selector: null }],
+        actions: [call],
         state: 7,
       },
     ]);
     expect(s).toMatchObject({ paidOut: 0, passed: 1, decided: 1 });
+  });
+
+  it("counts the transfers of a proposal that also makes other calls", () => {
+    const s = treasuryStats([
+      { actions: [...ask(100), call], state: 7 }, // executed, mixed
+      { actions: [call, ...ask(40)], state: 1 }, // active, mixed
+    ]);
+    expect(s.paidOut).toBe(100);
+    expect(s.upForVote).toBe(40);
   });
 });

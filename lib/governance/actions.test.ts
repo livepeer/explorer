@@ -1,4 +1,4 @@
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, getAddress } from "viem";
 
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
 import { PROTOCOL_CONTRACTS } from "@/lib/config";
@@ -34,12 +34,16 @@ describe("decodeProposalActions", () => {
       ["0"],
       [transfer(RECIPIENT, 10n ** 18n)]
     );
-    expect(action).toEqual({
+    expect(action).toMatchObject({
       kind: "call",
       target: OTHER,
       value: 0,
       selector: "0xa9059cbb",
+      // An unknown contract: the full calldata, not a guess at its meaning.
+      contract: null,
+      decoded: null,
     });
+    if (action.kind === "call") expect(action.data.length).toBe(138);
   });
 
   it("keeps a token call that sends ETH, or isn't a transfer, as a plain call", () => {
@@ -67,6 +71,25 @@ describe("decodeProposalActions", () => {
     );
     expect(a.kind).toBe("call");
     expect(b).toMatchObject({ kind: "call", selector: null });
+  });
+});
+
+describe("decoded calls", () => {
+  it("reads a protocol contract's call in full: function and exact arguments", () => {
+    const approve = encodeFunctionData({
+      abi: livepeerToken,
+      functionName: "approve",
+      args: [RECIPIENT as `0x${string}`, 123456789012345678901n],
+    });
+    const [action] = decodeProposalActions([TOKEN], ["0"], [approve]);
+    expect(action).toMatchObject({
+      kind: "call",
+      contract: "LivepeerToken",
+      decoded: {
+        functionName: "approve",
+        args: [getAddress(RECIPIENT), "123456789012345678901"],
+      },
+    });
   });
 });
 
