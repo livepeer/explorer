@@ -239,17 +239,19 @@ export async function siteCard() {
           <div
             style={{
               display: "flex",
-              // A dark fill so it reads against the green art, and a
-              // brighter green than the site's for the same reason.
-              border: "3px solid #5ee3a5",
-              background: "rgba(0, 0, 0, 0.55)",
-              color: "#7ff0bb",
+              // Glass over the art: a light tint you can see through, a
+              // layered glow (wide bloom, tight halo, inner rim light) and
+              // a soft glow on the letters.
+              border: "2.5px solid rgba(127, 240, 187, 0.9)",
+              background: "rgba(4, 24, 16, 0.28)",
+              color: "#8ff5c6",
               borderRadius: 999,
               padding: "8px 28px",
               fontSize: 30,
               letterSpacing: 5,
               fontWeight: 500,
-              boxShadow: "0 0 36px rgba(94, 227, 165, 0.55)",
+              boxShadow:
+                "0 0 64px rgba(94, 227, 165, 0.28), 0 0 22px rgba(94, 227, 165, 0.55), inset 0 0 18px rgba(94, 227, 165, 0.35)",
             }}
           >
             EXPLORER
