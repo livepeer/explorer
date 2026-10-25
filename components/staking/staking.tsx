@@ -990,12 +990,36 @@ function StakingFlow({
             max={max}
             maxLabel="Delegated"
           />
+          {/* When, in a date people can plan around; the round it's
+              measured in sits under it. An estimate: rounds run on L1
+              blocks, so the time can drift a little. */}
           <Row label="Available to withdraw">
-            {protocol
-              ? `Round ${(
-                  protocol.currentRound + protocol.unbondingPeriod
-                ).toLocaleString()}`
-              : "—"}
+            {protocol ? (
+              <span className="flex flex-col items-end">
+                <span>
+                  ~
+                  {new Date(
+                    (protocol.roundStartTs +
+                      protocol.unbondingPeriod * protocol.roundSeconds) *
+                      1000
+                  ).toLocaleString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <span className="text-ui-caption text-muted-foreground">
+                  Round{" "}
+                  {(
+                    protocol.currentRound + protocol.unbondingPeriod
+                  ).toLocaleString()}
+                </span>
+              </span>
+            ) : (
+              "—"
+            )}
           </Row>
           {pendingDelegator && (
             <Notice tone="warning">
