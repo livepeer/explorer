@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   fetchGateway,
@@ -23,6 +23,7 @@ import {
   fetchFeedSince,
   fetchGatewayEvents,
   fetchGovernance,
+  fetchMintedSince,
   fetchOrchestrator,
   fetchOrchestrators,
   fetchOrchestratorUpdates,
@@ -127,6 +128,18 @@ export function useDays(first?: number) {
   return useQuery({
     queryKey: ["days", first ?? "all"],
     queryFn: () => fetchDays(first),
+    staleTime: 30 * MINUTE,
+  });
+}
+
+/** LPT minted over the last `days` days, counted from the start of today. */
+export function useMintedSince(days: number) {
+  // Read the clock once, at mount, and key by day: one request a day.
+  const [today] = useState(() => Math.floor(Date.now() / 86_400_000) * 86_400);
+  const since = today - days * 86_400;
+  return useQuery({
+    queryKey: ["minted-since", since],
+    queryFn: () => fetchMintedSince(since),
     staleTime: 30 * MINUTE,
   });
 }

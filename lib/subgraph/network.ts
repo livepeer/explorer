@@ -286,6 +286,22 @@ export async function fetchProtocol(): Promise<Protocol> {
   };
 }
 
+const MINTED_SINCE = /* GraphQL */ `
+  query MintedSince($since: Int!) {
+    rounds(first: 200, where: { startTimestamp_gte: $since }) {
+      mintableTokens
+    }
+  }
+`;
+
+/** LPT minted as rewards in rounds that started since a time (unix s). */
+export async function fetchMintedSince(since: number): Promise<number> {
+  const { rounds } = await querySubgraph<{
+    rounds: { mintableTokens: string }[];
+  }>(MINTED_SINCE, { since });
+  return rounds.reduce((s, r) => s + Number(r.mintableTokens), 0);
+}
+
 /* ── Daily network history ───────────────────────────────────────────────── */
 
 export type Day = {

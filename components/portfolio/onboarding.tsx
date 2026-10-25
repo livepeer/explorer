@@ -17,8 +17,21 @@ import { Card, Kpi, KpiStrip, SectionHeader } from "@/components/page";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/misc";
 import { trackEvent } from "@/lib/analytics";
-import { formatLPT, formatPercent, shortAddress } from "@/lib/format";
-import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
+import {
+  formatETH,
+  formatLPT,
+  formatPercent,
+  formatUSD,
+  shortAddress,
+} from "@/lib/format";
+import {
+  useDays,
+  useMintedSince,
+  useOrchestrators,
+  usePrices,
+  useProtocol,
+  useTreasury,
+} from "@/lib/hooks/queries";
 import { feeApr, rankByYield } from "@/lib/orchestrators/ranking";
 
 import { AddAddressDialog } from "./addresses";
@@ -77,6 +90,24 @@ export function Onboarding() {
   const { data: protocol } = useProtocol();
   const { data: orchestrators } = useOrchestrators();
   const { data: prices } = usePrices();
+  // Rewards over the same 30 days: what was minted, less the treasury's
+  // share (at today's cut; it only changes by governance vote).
+  const { data: minted30 } = useMintedSince(30);
+  const treasuryCut = useTreasury().data?.nextCut;
+  const rewards30 =
+    minted30 != null && treasuryCut != null
+      ? minted30 * (1 - treasuryCut)
+      : null;
+  // The last 30 days of fees, valued in USD on the day each was paid.
+  const { data: days } = useDays(30);
+  const fees30 = useMemo(
+    () =>
+      (days ?? []).reduce(
+        (t, d) => ({ eth: t.eth + d.volumeETH, usd: t.usd + d.volumeUSD }),
+        { eth: 0, usd: 0 }
+      ),
+    [days]
+  );
 
   // The Orchestrators list with "Reliable only" on: ranked by expected yield,
   // ties to the smaller orchestrator, and reward called in every round.
@@ -185,10 +216,7 @@ export function Onboarding() {
               protocol
                 ? `${formatLPT(protocol.totalActiveStake, {
                     compact: true,
-                  })} staked · target ${formatPercent(
-                    protocol.targetBondingRate,
-                    { decimals: 0 }
-                  )}`
+                  })} staked by ${protocol.delegatorsCount.toLocaleString()} delegators`
                 : undefined
             }
           />
@@ -203,34 +231,34 @@ export function Onboarding() {
             }
             sub="Reliable orchestrators, last 30 rounds"
           />
+          {/* What delegating pays out: new LPT each round, less the
+              treasury's share. */}
           <Kpi
-            label="Delegators"
+            label="Rewards · 30 days"
             value={
-              protocol ? (
-                protocol.delegatorsCount.toLocaleString()
+              rewards30 != null ? (
+                formatLPT(rewards30, { compact: true })
               ) : (
-                <Skeleton className="h-6 w-16" />
+                <Skeleton className="h-6 w-24" />
               )
             }
             sub={
-              protocol
-                ? `${protocol.activeTranscoderCount} active orchestrators`
+              rewards30 != null && prices?.lpt != null
+                ? `≈ ${formatUSD(rewards30 * prices.lpt, {
+                    compact: true,
+                  })} at today's price`
                 : undefined
             }
           />
+          {/* What the network is used for, in what's paid to use it: the
+              round number is already in the sidebar. */}
           <Kpi
-            label="Current round"
+            label="Fees · 30 days"
             value={
-              protocol ? (
-                protocol.currentRound.toLocaleString()
-              ) : (
-                <Skeleton className="h-6 w-16" />
-              )
+              days ? formatETH(fees30.eth) : <Skeleton className="h-6 w-24" />
             }
             sub={
-              protocol
-                ? `Inflation ${(protocol.inflation / 1e7).toFixed(4)}% / round`
-                : undefined
+              days ? `≈ ${formatUSD(fees30.usd, { compact: true })}` : undefined
             }
           />
         </KpiStrip>

@@ -79,12 +79,19 @@ export function formatETH(value: number) {
 
 export function formatUSD(value: number, opts: { compact?: boolean } = {}) {
   if (!Number.isFinite(value)) return "—";
+  const compact = opts.compact && Math.abs(value) >= 100_000;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    notation:
-      opts.compact && Math.abs(value) >= 100_000 ? "compact" : "standard",
-    maximumFractionDigits: Math.abs(value) >= 1000 ? 0 : 2,
+    notation: compact ? "compact" : "standard",
+    // Compact millions keep a decimal ($1.4M, not $1M); thousands don't
+    // need one ($621K).
+    maximumFractionDigits:
+      compact && Math.abs(value) >= 1_000_000
+        ? 1
+        : Math.abs(value) >= 1000
+        ? 0
+        : 2,
   }).format(value);
 }
 
