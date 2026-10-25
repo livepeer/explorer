@@ -2,12 +2,15 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useReadContracts } from "wagmi";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { Card, ErrorNotice } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { Skeleton, StatusDot } from "@/components/ui/misc";
+import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
 import { cn } from "@/lib/cn";
+import { L2_CHAIN } from "@/lib/config";
 import {
   formatDate,
   formatLPT,
@@ -15,7 +18,14 @@ import {
   formatToken,
   formatUSD,
 } from "@/lib/format";
-import { usePrices, useProtocol, useTreasury } from "@/lib/hooks/queries";
+import { treasuryStats } from "@/lib/governance/treasury-stats";
+import {
+  useGovernance,
+  usePrices,
+  useProtocol,
+  useTreasury,
+} from "@/lib/hooks/queries";
+import { useProtocolContract } from "@/lib/staking/contracts";
 import { treasuryPace } from "@/lib/treasury-model";
 
 /** Recent rounds the pace is averaged over. */
@@ -140,6 +150,37 @@ function useTreasuryView() {
 }
 
 /**
+ * The treasury's record: what its proposals have paid out, how often they
+ * pass, and what's being asked for now. Each proposal's state is read from
+ * the governor in one batch (the subgraph doesn't index it); null until
+ * that loads.
+ */
+function useTreasuryRecord() {
+  const governor = useProtocolContract("LivepeerGovernor");
+  const proposals = useGovernance().data?.proposals;
+  const states = useReadContracts({
+    contracts: (proposals ?? []).map((p) => ({
+      address: governor,
+      abi: livepeerGovernor,
+      functionName: "state",
+      args: [BigInt(p.id)],
+      chainId: L2_CHAIN.id,
+    })),
+    query: { enabled: Boolean(governor && proposals?.length) },
+  });
+  if (!proposals || !states.data) return null;
+  return treasuryStats(
+    proposals.map((p, i) => ({
+      actions: p.actions,
+      state:
+        states.data[i]?.status === "success"
+          ? Number(states.data[i].result)
+          : undefined,
+    }))
+  );
+}
+
+/**
  * The treasury against its ceiling: how much it holds, its history, and at
  * the current reward cut how fast it's filling and when it will be full.
  * Once full, the cut switches off and it stops filling until governance
@@ -150,6 +191,7 @@ export function TreasuryCard() {
   // Proposals are talked about in dollars, so the balance shows its rough
   // USD value at today's price; left out until (or unless) a price loads.
   const lptUsd = usePrices().data?.lpt;
+  const record = useTreasuryRecord();
   if (treasury.error)
     return (
       <ErrorNotice error={treasury.error} onRetry={() => treasury.refetch()} />
@@ -167,7 +209,7 @@ export function TreasuryCard() {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <span className="text-ui-caption text-muted-foreground">
-              Treasury
+              Treasury balance
             </span>
             <span className="text-[28px] leading-9 font-light tracking-[-0.02em] tabular-nums">
               <Lpt value={t.balance} />
@@ -178,6 +220,13 @@ export function TreasuryCard() {
               )}
               {formatPercent(share * 100, { decimals: 0 })} of the {ceiling}{" "}
               ceiling
+              {/* What open votes would take out, while there are any. */}
+              {record && record.upForVote > 0 && (
+                <span className="text-foreground">
+                  {" "}
+                  · {formatLPT(record.upForVote, { compact: true })} up for vote
+                </span>
+              )}
             </span>
           </div>
           <FillMeter balance={t.balance} ceiling={t.ceiling} share={share} />
@@ -206,6 +255,30 @@ export function TreasuryCard() {
           <Fact label={pace.full ? "Ceiling" : "Full by"}>
             {pace.full ? "Reached" : fullBy.replace(/^~/, "")}
           </Fact>
+          {/* Its record: what passed proposals have taken out, and how
+              often proposals pass. */}
+          <Fact label="Paid out">
+            {record ? (
+              <Lpt value={record.paidOut} compact />
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </Fact>
+          <Fact label="Approval rate">
+            {record && record.decided > 0 ? (
+              <>
+                {formatPercent((record.passed / record.decided) * 100, {
+                  decimals: 0,
+                })}
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {record.passed} of {record.decided}
+                </span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </Fact>
         </dl>
       </div>
 
@@ -230,7 +303,7 @@ export function TreasuryCard() {
           domain={[0, Math.max(t.ceiling, ...t.history.map((h) => h.value))]}
           // As tall as the numbers beside it, so they meet its top and
           // baseline without a gap opening between them.
-          height={206}
+          height={256}
           format={(v) => formatLPT(v)}
           axisFormat={(v) => formatToken(v, { compact: true })}
           ariaLabel={`Treasury balance since October 2023, now ${formatLPT(
