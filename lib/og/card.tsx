@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { ImageResponse } from "next/og";
 
-import { LivepeerLockup } from "@/components/brand/logo";
+import { LivepeerLockup, LivepeerWordmark } from "@/components/brand/logo";
 import { memoize } from "@/lib/server/memo";
 
 /**
@@ -192,6 +192,74 @@ export async function shareCard(card: Card) {
         { name: "Inter", data: medium, weight: 500, style: "normal" },
         { name: "Geist Mono", data: mono, weight: 400, style: "normal" },
       ],
+    }
+  );
+}
+
+/**
+ * The site's own share card, for pages without one of their own: just the
+ * wordmark and its EXPLORER tag over Livepeer stock art (from the brand's
+ * marketing library, recoloured to the explorer's green). The link
+ * preview's title and description do the explaining.
+ */
+export async function siteCard() {
+  const [, , medium] = await fonts;
+  const art = await readFile(join(process.cwd(), "assets/og/home-bg.jpg"));
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          position: "relative",
+          background: "#000",
+          fontFamily: "Inter",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`data:image/jpeg;base64,${art.toString("base64")}`}
+          width={OG_SIZE.width}
+          height={OG_SIZE.height}
+          alt=""
+          style={{ position: "absolute", inset: 0 }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 30,
+            padding: "0 88px",
+          }}
+        >
+          <LivepeerWordmark
+            style={{ width: 400, height: 60, color: "#fafafa" }}
+          />
+          <div
+            style={{
+              display: "flex",
+              // A dark fill so it reads against the green art, and a
+              // brighter green than the site's for the same reason.
+              border: "3px solid #5ee3a5",
+              background: "rgba(0, 0, 0, 0.55)",
+              color: "#7ff0bb",
+              borderRadius: 999,
+              padding: "8px 28px",
+              fontSize: 30,
+              letterSpacing: 5,
+              fontWeight: 500,
+              boxShadow: "0 0 36px rgba(94, 227, 165, 0.55)",
+            }}
+          >
+            EXPLORER
+          </div>
+        </div>
+      </div>
+    ),
+    {
+      ...OG_SIZE,
+      fonts: [{ name: "Inter", data: medium, weight: 500, style: "normal" }],
     }
   );
 }
