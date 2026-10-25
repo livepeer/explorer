@@ -91,7 +91,7 @@ function NameCell({
     // The cell takes whatever width the visible columns leave (--rest is
     // their combined width), so the name is only cut short when there's no
     // room; the copy button fits inside that width, not beside it.
-    <span className="group/copy flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-1 [--rest:455px] @min-[726px]:[--rest:531px] @min-[816px]:[--rest:621px] @min-[906px]:[--rest:711px] @min-[980px]:[--rest:785px]">
+    <span className="group/copy flex max-w-[clamp(10.5rem,calc(100cqw_-_var(--rest)),16rem)] min-w-0 items-center gap-1 [--rest:455px] @min-[726px]:[--rest:545px] @min-[816px]:[--rest:635px] @min-[906px]:[--rest:709px]">
       <Link
         href={`/orchestrators/${o.id}`}
         // Fills the cell, so anywhere but the copy button opens the page.
@@ -169,9 +169,13 @@ function CutValue({ o }: { o: Orchestrator }) {
   );
 }
 
+/** The stake the APR hover turns into tokens a year. */
+const ESTIMATE_LPT = 1000;
+
 /**
- * Realised rewards plus fees, with the split on hover, and what a new
- * delegator can expect when a raised cut makes that lower.
+ * Realised rewards plus fees, with the split and a yearly estimate on
+ * hover, and what a new delegator can expect when a raised cut makes that
+ * lower.
  */
 function AprValue({ o }: { o: Listed }) {
   if (o.realizedApr == null) return <>—</>;
@@ -200,6 +204,16 @@ function AprValue({ o }: { o: Listed }) {
               <span>
                 Leaves out {formatETH(o.selfPaidFees90)} it paid itself as a
                 gateway.
+              </span>
+            )}
+            {/* What it means in tokens, at the rate it's ranked on. */}
+            {(expected ?? total) > 0 && (
+              <span className="font-medium">
+                About +
+                {formatNumber(ESTIMATE_LPT * ((expected ?? total) / 100), {
+                  decimals: 0,
+                })}{" "}
+                LPT a year on {ESTIMATE_LPT.toLocaleString()} LPT.
               </span>
             )}
           </span>
@@ -259,7 +273,6 @@ function OrchestratorTable() {
   const [sort, setSort] = useState<SortKey>("apr");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
   const [filter, setFilter] = useState<"all" | "reliable">("all");
-  const [amount, setAmount] = useState("1000");
   const ids = useMemo(() => (data ?? []).map((o) => o.id), [data]);
   // The rows resolve these names anyway; the filter reads the same cache.
   const names = useEnsNames(ids, true);
@@ -302,7 +315,6 @@ function OrchestratorTable() {
     }
   };
 
-  const stakeAmount = Number(amount) || 0;
   const totalStake = protocol?.totalActiveStake;
 
   return (
@@ -337,20 +349,6 @@ function OrchestratorTable() {
           />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          {/* Built like the filter beside it: same height, inset and type. */}
-          <label className="inline-flex h-8 items-center gap-2 rounded-sm bg-hover p-0.5 px-2.5 pr-2.5 text-xs font-medium text-muted-foreground">
-            Estimate for
-            <input
-              value={amount}
-              inputMode="decimal"
-              onChange={(e) =>
-                /^\d*\.?\d*$/.test(e.target.value) && setAmount(e.target.value)
-              }
-              aria-label="Stake amount for yearly estimate"
-              className="h-7 w-20 rounded-[4px] bg-input/50 px-2 text-right font-mono text-[13px] text-foreground tabular-nums ring-1 ring-foreground/10 outline-none ring-inset focus-visible:ring-green-bright/40 light:bg-card"
-            />
-            LPT
-          </label>
           <Segmented
             label="Filter"
             value={filter}
@@ -467,9 +465,6 @@ function OrchestratorTable() {
                     onSort={onSort}
                     hint="What delegators actually earned, annualised: inflation rewards over the last 30 rounds plus ETH fees over the last 90 days, valued at today's ETH/LPT price. Fees an orchestrator paid itself as a gateway are left out. Hover a figure for the split."
                   />
-                  <th className="hidden @min-[726px]:table-cell px-1.5 py-2.5 text-right font-normal whitespace-nowrap text-muted-foreground">
-                    Est. yearly
-                  </th>
                   <SortHeader
                     className="px-1.5"
                     label="Reward calls"
@@ -498,7 +493,7 @@ function OrchestratorTable() {
                     hint="Share of ETH fees passed on to delegators."
                   />
                   <SortHeader
-                    className="hidden @min-[906px]:table-cell px-1.5"
+                    className="hidden @min-[816px]:table-cell px-1.5"
                     label="30d fees"
                     k="fees"
                     sort={sort}
@@ -506,7 +501,7 @@ function OrchestratorTable() {
                     onSort={onSort}
                   />
                   <SortHeader
-                    className="hidden @min-[816px]:table-cell px-1.5"
+                    className="hidden @min-[726px]:table-cell px-1.5"
                     label="Total stake"
                     k="stake"
                     sort={sort}
@@ -514,7 +509,7 @@ function OrchestratorTable() {
                     onSort={onSort}
                   />
                   <SortHeader
-                    className="hidden @min-[980px]:table-cell px-1.5"
+                    className="hidden @min-[906px]:table-cell px-1.5"
                     label="Delegators"
                     k="delegators"
                     sort={sort}
@@ -536,7 +531,7 @@ function OrchestratorTable() {
                       key={i}
                       className="h-14 border-b border-hairline last:border-0"
                     >
-                      <td className="px-4 py-2" colSpan={10}>
+                      <td className="px-4 py-2" colSpan={9}>
                         <div className="flex items-center gap-3">
                           <Skeleton className="size-7 rounded-full" />
                           <Skeleton className="h-3.5 w-40" />
@@ -549,12 +544,11 @@ function OrchestratorTable() {
                   const share = totalStake
                     ? (o.totalStake / totalStake) * 100
                     : null;
-                  const expected = expectedApr(o) ?? o.realizedApr;
                   return (
                     <Fragment key={o.id}>
                       {i === firstFresh && (
                         <tr className="border-b border-hairline">
-                          <td colSpan={10} className="px-4 py-3">
+                          <td colSpan={9} className="px-4 py-3">
                             <FreshHeading />
                           </td>
                         </tr>
@@ -565,14 +559,6 @@ function OrchestratorTable() {
                         </td>
                         <td className="px-1.5 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                           <AprValue o={o} />
-                        </td>
-                        <td className="hidden @min-[726px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
-                          {expected != null && stakeAmount > 0
-                            ? `+${formatNumber(stakeAmount * (expected / 100), {
-                                decimals:
-                                  stakeAmount * (expected / 100) >= 100 ? 0 : 1,
-                              })} LPT`
-                            : "—"}
                         </td>
                         <td className="px-1.5 py-2 text-right">
                           <CallsMeter
@@ -586,12 +572,12 @@ function OrchestratorTable() {
                         <td className="px-1.5 py-2 text-right text-ui-body whitespace-nowrap tabular-nums">
                           {o.feeShare.toFixed(o.feeShare % 1 ? 1 : 0)}%
                         </td>
-                        <td className="hidden @min-[906px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[816px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.thirtyDayVolumeETH > 0
                             ? formatETH(o.thirtyDayVolumeETH)
                             : "—"}
                         </td>
-                        <td className="hidden @min-[816px]:table-cell px-1.5 py-2 text-right">
+                        <td className="hidden @min-[726px]:table-cell px-1.5 py-2 text-right">
                           <div className="text-ui-body whitespace-nowrap tabular-nums">
                             {formatLPT(o.totalStake, { compact: true })}
                           </div>
@@ -601,7 +587,7 @@ function OrchestratorTable() {
                             </div>
                           )}
                         </td>
-                        <td className="hidden @min-[980px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
+                        <td className="hidden @min-[906px]:table-cell px-1.5 py-2 text-right text-ui-body whitespace-nowrap text-muted-foreground tabular-nums">
                           {o.delegatorCount >= 1000
                             ? "1,000+"
                             : o.delegatorCount.toLocaleString()}
