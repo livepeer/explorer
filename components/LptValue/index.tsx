@@ -33,7 +33,7 @@ export default function LptValue({ value, options = {} }: Props) {
           font: "inherit",
           color: "inherit",
           textAlign: "inherit",
-          cursor: "help",
+          cursor: "default",
           borderRadius: "$1",
           "&:focus-visible": {
             outline: "2px solid $primary9",
