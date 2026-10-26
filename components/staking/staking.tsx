@@ -26,6 +26,7 @@ import {
   getAddress,
   type Hex,
   maxUint256,
+  zeroAddress,
 } from "viem";
 import {
   useAccount,
@@ -42,7 +43,12 @@ import {
 import { readContract } from "wagmi/actions";
 
 import { Identity, useIdentity } from "@/components/identity";
+import { ClaimTrust } from "@/components/migration/claim-trust";
 import { roundState, useNow } from "@/components/shell/round-clock";
+import {
+  OrchestratorPicker,
+  recommendedOrchestrator,
+} from "@/components/staking/orchestrator-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,6 +62,7 @@ import {
 import { Skeleton } from "@/components/ui/misc";
 import { SafeProposed } from "@/components/wallet/safe-proposed";
 import { bondingManager } from "@/lib/abis/BondingManager";
+import { l2Migrator } from "@/lib/abis/L2Migrator";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
 import {
   DELEGATION_EVENTS,
@@ -65,19 +72,21 @@ import {
   UNBONDING_EVENTS,
 } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
-import { L2_CHAIN, txUrl } from "@/lib/config";
+import { L2_CHAIN, L2_MIGRATOR, txUrl } from "@/lib/config";
 import {
   formatDuration,
   formatETH,
   formatLPT,
+  formatUSD,
   fromWei,
   shortAddress,
   toWei,
 } from "@/lib/format";
 import { resolveEnsQuorum } from "@/lib/hooks/address-input";
-import { useOrchestrators, useProtocol } from "@/lib/hooks/queries";
+import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
+import { useMigrationClaim } from "@/lib/migration/claim";
 import { useProtocolContract } from "@/lib/staking/contracts";
 import {
   bondHints,
@@ -85,6 +94,7 @@ import {
   simulateHint,
   transferHints,
 } from "@/lib/staking/hints";
+import type { Orchestrator } from "@/lib/subgraph/network";
 import { refreshWhenIndexed } from "@/lib/subgraph/sync";
 import { REVERTED } from "@/lib/tx";
 
@@ -114,6 +124,8 @@ export type StakingAction = (
   | { kind: "withdrawFees"; amount: number }
   /** Move delegated stake to another portfolio wallet, without unbonding. */
   | { kind: "transfer"; delegate: string; staked: number }
+  /** Claim stake and fees held since the move to Arbitrum (LIP-73). */
+  | { kind: "claimMigrated" }
 ) & {
   /**
    * The account this action is for. When it isn't the account active in
@@ -471,6 +483,7 @@ const VERB: Record<StakingAction["kind"], string> = {
   rebond: "redelegate",
   withdrawFees: "withdraw its fees",
   transfer: "transfer its stake",
+  claimMigrated: "claim its stake",
 };
 
 /**
@@ -572,6 +585,13 @@ function StakingFlow({
   const token = useProtocolContract("LivepeerToken");
   const { data: protocol } = useProtocol();
   const { data: orchestrators } = useOrchestrators();
+  const { data: claim } = useMigrationClaim(
+    action.kind === "claimMigrated" ? signer : null
+  );
+  // For a claim whose orchestrator never migrated: where the stake goes,
+  // chosen in the dialog (preselected: the best reliable orchestrator).
+  const [claimTo, setClaimTo] = useState<string>();
+  const { data: prices } = usePrices();
   const [amount, setAmount] = useState(() =>
     action.kind === "delegate" && action.amount
       ? String(Math.floor(action.amount * 1e4) / 1e4)
@@ -1321,6 +1341,144 @@ function StakingFlow({
       };
       break;
     }
+    case "claimMigrated": {
+      // Where the stake goes: with the old orchestrator when it migrated
+      // (its pool's stake moves to this wallet), otherwise one chosen here.
+      const pooled = Boolean(claim?.pool);
+      const hasStake = (claim?.stake ?? 0) > 0;
+      const destination = pooled
+        ? claim!.poolDelegate ?? undefined
+        : claimTo ?? recommendedOrchestrator(orchestrators)?.id;
+      const destOrch = orchestrators?.find((o) => o.id === destination);
+      title =
+        hasStake || !claim
+          ? "Claim stake from Ethereum"
+          : "Claim fees from Ethereum";
+      description = !claim
+        ? undefined
+        : pooled
+        ? "Your orchestrator moved to Arbitrum too, and your stake has kept earning with them. Claiming adds it to this wallet and sends you the fees."
+        : hasStake
+        ? "Your orchestrator on Ethereum never moved to Arbitrum. Choose a new one to delegate this stake to."
+        : "Fees you earned on Ethereum before Livepeer moved to Arbitrum, held for you since.";
+      cta = !claim
+        ? "Claim"
+        : hasStake
+        ? `Claim ${formatLPT(claim.stake)}`
+        : `Claim ${formatETH(claim.fees)}`;
+      successTitle = "Claimed";
+      canRun =
+        canRun &&
+        claim?.status === "claimable" &&
+        (!hasStake || Boolean(destination));
+      const terms = (o: Orchestrator) =>
+        [
+          o.realizedApr != null && `${o.realizedApr.toFixed(1)}% APR`,
+          `${o.rewardCut.toFixed(0)}% cut`,
+          `${o.feeShare.toFixed(0)}% fee share`,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+      body = !claim ? (
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-9 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+      ) : claim.status !== "claimable" ? (
+        <Notice>
+          {claim.status === "claimed"
+            ? "This wallet has already claimed its stake from Ethereum."
+            : "Claiming is switched off on the migration contract right now."}
+        </Notice>
+      ) : (
+        <>
+          {/* What you get, first. */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[28px] leading-9 font-light tracking-[-0.02em] tabular-nums">
+              {hasStake ? formatLPT(claim.stake) : formatETH(claim.fees)}
+            </span>
+            <span className="text-ui-caption text-muted-foreground tabular-nums">
+              {[
+                hasStake &&
+                  prices?.lpt != null &&
+                  `≈ ${formatUSD(claim.stake * prices.lpt)}`,
+                hasStake &&
+                  claim.fees > 0 &&
+                  `plus ${formatETH(claim.fees)} in fees`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
+            {pooled && claim.stake > claim.snapshotStake && (
+              <span className="text-ui-caption text-muted-foreground">
+                {formatLPT(claim.snapshotStake)} at the move in 2022, plus what
+                it&apos;s earned since
+              </span>
+            )}
+          </div>
+
+          {/* Where it goes. */}
+          {hasStake && pooled && destination && (
+            <div className="flex flex-col gap-2">
+              <span className="text-ui-caption text-muted-foreground">
+                Stays delegated to
+              </span>
+              <div className="rounded-lg border border-hairline p-3">
+                <Identity
+                  address={destination}
+                  href={null}
+                  size={26}
+                  secondary={destOrch ? terms(destOrch) : "Not active now"}
+                />
+              </div>
+              {destOrch ? (
+                <span className="text-ui-caption text-muted-foreground">
+                  You can switch orchestrator any time after claiming.
+                </span>
+              ) : (
+                <Notice tone="warning">
+                  This orchestrator isn&apos;t active now, so the stake
+                  won&apos;t earn rewards until you switch. Claim first, then
+                  switch from your account page.
+                </Notice>
+              )}
+            </div>
+          )}
+          {hasStake && !pooled && (
+            <div className="flex flex-col gap-2">
+              <span className="text-ui-caption text-muted-foreground">
+                Delegate to
+              </span>
+              <OrchestratorPicker
+                orchestrators={orchestrators ?? []}
+                value={destination}
+                onChange={setClaimTo}
+              />
+            </div>
+          )}
+          <ClaimTrust />
+        </>
+      );
+      run = async () => {
+        const c = claim!;
+        await tx.send({
+          address: L2_MIGRATOR,
+          abi: l2Migrator,
+          functionName: "claimStake",
+          args: [
+            c.args.delegate,
+            c.args.stake,
+            c.args.fees,
+            c.args.proof,
+            // Only used without a pool: a pool's stake stays where it is.
+            (!pooled && hasStake && destination
+              ? destination
+              : zeroAddress) as Hex,
+          ],
+        });
+      };
+      break;
+    }
     case "withdrawFees": {
       title = "Withdraw fees";
       description =
@@ -1377,6 +1535,8 @@ function StakingFlow({
     };
     // One toast for the whole lifecycle: confirmed on-chain, then updated
     // once the subgraph has indexed the block and the views have refetched.
+    // A claim is read on-chain, so it can refresh now.
+    queryClient.invalidateQueries({ queryKey: ["migration-claim"] });
     const id = toast.loading(`${successTitle} · updating your portfolio…`, {
       action: view,
     });

@@ -35,6 +35,7 @@ import {
 } from "@/lib/hooks/queries";
 import { useSafeProposals } from "@/lib/hooks/safe";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
+import { useMigrationClaim } from "@/lib/migration/claim";
 import {
   annualize,
   annualizeFees,
@@ -49,6 +50,7 @@ import {
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
+import { ClaimHero, MigrationClaimNotice } from "./migration-claim";
 import {
   PositionActions,
   PositionLabel,
@@ -93,6 +95,11 @@ export function PortfolioView({
   const scoped = addresses;
 
   const { data, error, isLoading, refetch } = usePortfolio(addresses);
+  // A single wallet's stake still waiting from Ethereum (shared with the
+  // claim headline, so no extra request).
+  const { data: migrationClaim } = useMigrationClaim(
+    addresses.length === 1 ? addresses[0] : null
+  );
   const { data: protocol } = useProtocol();
   const { data: prices } = usePrices();
   const { data: orchestratorList } = useOrchestrators();
@@ -486,6 +493,10 @@ export function PortfolioView({
         active: false,
       });
     const manage = position ? canManage(position.account.address) : false;
+    // Nothing delegated on Arbitrum (or only a leftover): a claim waiting
+    // from Ethereum is then this wallet's position.
+    const undelegated =
+      !loading && (!position?.delegate || position.stake < LPT_DUST);
     const freeLpt = free.get(scoped[0]);
     const positionEl = (
       <PositionNote
@@ -498,6 +509,16 @@ export function PortfolioView({
     return (
       <div className="flex flex-col">
         {header}
+        {/* Stake still waiting from before the move to Arbitrum: here,
+            unless it's the wallet's only position, when it's the headline. */}
+        {scoped.map((a) => (
+          <MigrationClaimNotice
+            key={a}
+            account={a}
+            canManage={canManage(a)}
+            headlined={undelegated}
+          />
+        ))}
         {urgent.length > 0 && (
           <a
             href="#needs-attention"
@@ -518,18 +539,22 @@ export function PortfolioView({
             what's coming out, only when there's any; then activity. Side by
             side on wide screens when there's both. */}
         <div className="min-w-0 animate-rise">
-          {heroEl({
-            label: <PositionLabel loading={loading} position={position} />,
-            position: positionEl,
-            actions: manage && (
-              <PositionActions
-                loading={loading}
-                position={position}
-                canManage={manage}
-                freeLpt={freeLpt}
-              />
-            ),
-          })}
+          <ClaimHero
+            account={scoped[0]}
+            canManage={manage}
+            fallback={heroEl({
+              label: <PositionLabel loading={loading} position={position} />,
+              position: positionEl,
+              actions: manage && (
+                <PositionActions
+                  loading={loading}
+                  position={position}
+                  canManage={manage}
+                  freeLpt={freeLpt}
+                />
+              ),
+            })}
+          />
         </div>
         {(insightsEl || withdrawalsEl) && (
           <div
@@ -542,7 +567,15 @@ export function PortfolioView({
             {withdrawalsEl && <div className="min-w-0">{withdrawalsEl}</div>}
           </div>
         )}
-        <div className="mt-10 min-w-0">{activityEl}</div>
+        {/* While the claim is the headline, an empty history says nothing:
+            show activity once there is some (after claiming, there is). */}
+        {!(
+          undelegated &&
+          migrationClaim?.status === "claimable" &&
+          migrationClaim.stake > 0 &&
+          !eventsLoading &&
+          !events?.length
+        ) && <div className="mt-10 min-w-0">{activityEl}</div>}
       </div>
     );
   }
@@ -550,6 +583,14 @@ export function PortfolioView({
   return (
     <div className="flex flex-col">
       {header}
+      {scoped.map((a) => (
+        <MigrationClaimNotice
+          key={a}
+          account={a}
+          canManage={canManage(a)}
+          label={scoped.length > 1}
+        />
+      ))}
       {urgent.length > 0 && (
         <a
           href="#needs-attention"

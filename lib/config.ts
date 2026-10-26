@@ -82,6 +82,13 @@ export const PROTOCOL_CONTRACTS = {
 
 export type ProtocolContractName = keyof typeof PROTOCOL_CONTRACTS;
 
+/**
+ * Livepeer's L2Migrator on Arbitrum, which holds stake and fees delegated on
+ * Ethereum before the move to Arbitrum (LIP-73) until each delegator claims
+ * them. Not registered in the Controller, so it's pinned here.
+ */
+export const L2_MIGRATOR = "0x148D5b6B4df9530c7C76A810bd1Cdf69EC4c2085";
+
 export const BLOCK_EXPLORER = "https://arbiscan.io";
 
 export const txUrl = (hash: string) => `${BLOCK_EXPLORER}/tx/${hash}`;
