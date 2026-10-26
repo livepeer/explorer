@@ -53,7 +53,7 @@
         font-family: "Inter", -apple-system, system-ui, sans-serif;
         background: var(--bg);
         color: var(--hiContrast);
-        padding: 40px;
+        padding: 20px 16px 48px;
         padding-bottom: calc(48px + env(safe-area-inset-bottom));
         min-height: 100vh;
         -webkit-font-smoothing: antialiased;
@@ -252,6 +252,8 @@
       }
 
       .page-head p a,
+      .section-description a,
+      .node-note a,
       .place-table a,
       .notes a,
       .questions a,
@@ -260,7 +262,18 @@
         font-weight: 600;
         text-decoration: none;
       }
+      .page-head p a:visited,
+      .section-description a:visited,
+      .node-note a:visited,
+      .place-table a:visited,
+      .notes a:visited,
+      .questions a:visited,
+      .prose-link:visited {
+        color: var(--primary11);
+      }
       .page-head p a:hover,
+      .section-description a:hover,
+      .node-note a:hover,
       .place-table a:hover,
       .notes a:hover,
       .questions a:hover,
@@ -272,10 +285,10 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 600;
         line-height: 1.2;
-        padding: 2px 8px 3px;
+        padding: 3px 9px;
         border-radius: 999px;
         white-space: nowrap;
         border: 1.5px solid var(--neutral6);
@@ -288,17 +301,36 @@
         height: 12px;
         flex-shrink: 0;
       }
-      #part-chip {
-        border: 0;
-        background: transparent;
-        border-radius: 0;
-        padding: 0;
-        font-weight: 500;
-        color: var(--neutral11);
-        gap: 4px;
+      .chip.stake {
+        background: var(--stake3);
+        color: var(--stake11);
+        border-color: color-mix(in oklch, var(--stake11) 45%, transparent);
       }
-      #part-chip svg {
+      .chip.fee {
+        background: var(--fee3);
+        color: var(--fee11);
+        border-color: color-mix(in oklch, var(--fee11) 50%, transparent);
+      }
+      .chip.balanced {
+        background: var(--neutral3);
+        color: var(--neutral11);
+        border-color: var(--neutral6);
+      }
+      /* Filing cadence / orch Status: same chip anatomy as 803. */
+      .chip.active {
+        background: var(--neutral4);
+        color: var(--hiContrast);
+        border-color: var(--neutral6);
+      }
+      .chip.occasional {
+        background: var(--neutral3);
+        color: var(--neutral11);
+        border-color: var(--neutral6);
+      }
+      .chip.inactive {
+        background: var(--neutral2);
         color: var(--neutral8);
+        border-color: var(--neutral5);
       }
 
       .help {
@@ -333,7 +365,7 @@
       .tooltip-dot::before {
         content: "";
         position: absolute;
-        inset: -4px;
+        inset: -14px;
       }
       .tooltip-dot:focus-visible {
         outline: none;
@@ -478,8 +510,8 @@
 
       .md-split {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-        gap: 20px;
+        grid-template-columns: 1fr;
+        gap: 0;
         align-items: start;
         min-width: 0;
         max-width: 100%;
@@ -489,11 +521,16 @@
         min-width: 0;
       }
       .md-detail {
-        position: sticky;
-        top: 16px;
+        position: static;
+      }
+      .md-split[data-mobile-pane="list"] .md-detail {
+        display: none;
+      }
+      .md-split[data-mobile-pane="detail"] .md-list {
+        display: none;
       }
       .md-back {
-        display: none;
+        display: inline-flex;
         appearance: none;
         border: 0;
         background: transparent;
@@ -522,10 +559,10 @@
       }
       .v-row {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
-        padding: 12px 16px;
+        padding: 12px 14px;
         border: 0;
         border-radius: 0;
         background: transparent;
@@ -613,6 +650,7 @@
         align-items: center;
         gap: 4px;
         flex: 0 0 auto;
+        margin-top: 1px;
         font-weight: 600;
         font-size: 15px;
         color: var(--stake11);
@@ -664,8 +702,8 @@
       .facts {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px 16px;
-        margin: 0 0 16px;
+        gap: 12px 14px;
+        margin: 0 0 14px;
       }
       .facts dt {
         font-size: 13px;
@@ -700,6 +738,16 @@
       }
 
       .pay-card {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "kicker"
+          "amt"
+          "hint";
+        column-gap: 16px;
+        row-gap: 6px;
+        align-items: start;
+        width: 100%;
         border: 1.5px solid color-mix(in oklch, white 18%, var(--stake9));
         border-radius: var(--radius-sm);
         background: linear-gradient(
@@ -708,29 +756,33 @@
             rgba(24, 121, 78, 0.05) 70%
           ),
           var(--neutral2);
-        padding: 14px;
+        padding: 12px 14px;
         margin-bottom: 16px;
       }
       .kicker {
+        grid-area: kicker;
         font-size: 12px;
         font-weight: 600;
         color: #c5ddd0;
         color: color-mix(in oklch, white 72%, var(--stake11));
-        margin-bottom: 4px;
+        margin-bottom: 0;
       }
       .pay-card .amt {
+        grid-area: amt;
         font-size: 28px;
         font-weight: 600;
         letter-spacing: -0.03em;
         color: var(--stake11);
-        line-height: 1.1;
+        line-height: 1;
       }
       .pay-card .muted {
-        margin-top: 6px;
+        grid-area: hint;
+        margin-top: 0;
         font-size: 13px;
-        line-height: 1.45;
+        line-height: 1.35;
         color: #c5ddd0;
         color: color-mix(in oklch, white 68%, var(--stake11));
+        text-wrap: pretty;
       }
 
       .block-title {
@@ -743,11 +795,12 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 13.5px;
+        table-layout: fixed;
       }
       .score-table th,
       .score-table td {
         text-align: left;
-        padding: 8px 8px 8px 0;
+        padding: 8px 12px 8px 0;
         border-bottom: 1px solid var(--neutral4);
         vertical-align: baseline;
       }
@@ -758,20 +811,30 @@
         text-transform: uppercase;
         color: var(--neutral8);
       }
-      .score-table td:nth-child(2),
-      .score-table th:nth-child(2) {
+      .score-table th:nth-child(1),
+      .score-table td:nth-child(1) {
+        width: 42%;
+      }
+      .score-table th:nth-child(2),
+      .score-table td:nth-child(2) {
+        width: 22%;
         text-align: right;
         font-variant-numeric: tabular-nums;
+        color: var(--hiContrast);
+        font-weight: 600;
+        padding-right: 16px;
+      }
+      .score-table th:nth-child(2) {
+        font-weight: 600;
+        color: var(--neutral8);
       }
       .score-table td:last-child,
       .score-table th:last-child {
+        width: 36%;
         text-align: right;
         color: var(--neutral11);
         font-variant-numeric: tabular-nums;
-      }
-      .score-table td:nth-child(2) {
-        color: var(--hiContrast);
-        font-weight: 600;
+        padding-right: 0;
       }
       .empty-note {
         font-size: 13px;
@@ -794,14 +857,9 @@
         max-width: 68ch;
       }
       .chip.honest {
-        border: 1.5px solid
-          color-mix(in oklch, var(--primary11) 55%, transparent);
+        border-color: color-mix(in oklch, var(--primary11) 55%, transparent);
         background: rgba(76, 195, 138, 0.12);
         color: var(--primary11);
-        padding: 2px 8px 3px;
-        border-radius: 999px;
-        font-weight: 600;
-        pointer-events: none;
       }
       .honesty .kicker {
         color: var(--neutral11);
@@ -1077,7 +1135,7 @@
       }
       .orch-body {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+        grid-template-columns: 1fr;
         gap: 20px;
         align-items: start;
         padding: 20px;
@@ -1093,7 +1151,7 @@
       }
       .orch-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 12px;
       }
       .orch-grid > .span2 {
@@ -1123,7 +1181,7 @@
       }
       .mfs-duo {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 10px;
       }
       .mfs-tile {
@@ -1233,8 +1291,7 @@
         color: var(--neutral8);
       }
       .orch-rail {
-        position: sticky;
-        top: 16px;
+        position: static;
         min-width: 0;
       }
       .dw {
@@ -1323,57 +1380,62 @@
         display: none !important;
       }
 
-      @media (max-width: 720px) {
-        .v-row {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr);
-          justify-items: stretch;
-        }
-        .stake-amt {
-          justify-self: end;
-        }
-      }
-
-      @media (max-width: 1040px) {
-        .orch-body {
-          grid-template-columns: 1fr;
-        }
-        .orch-rail {
-          position: static;
-        }
-      }
-
-      @media (max-width: 860px) {
-        .md-split {
-          grid-template-columns: 1fr;
-          gap: 0;
-        }
-        .md-detail {
-          position: static;
-        }
-        .md-back {
-          display: inline-flex;
-        }
-        .md-split[data-mobile-pane="list"] .md-detail {
-          display: none;
-        }
-        .md-split[data-mobile-pane="detail"] .md-list {
-          display: none;
-        }
-      }
-
-      @media (max-width: 720px) {
+      @media (min-width: 721px) {
         body {
-          padding: 20px 16px 48px;
+          padding: 40px;
           padding-bottom: calc(48px + env(safe-area-inset-bottom));
         }
-        .facts,
+        .v-row {
+          padding: 12px 16px;
+          align-items: center;
+        }
+        .stake-amt {
+          margin-top: 0;
+        }
+        .facts {
+          grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+        }
+        .pay-card {
+          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-areas:
+            "kicker kicker"
+            "amt hint";
+          align-items: center;
+        }
         .orch-grid,
         .mfs-duo {
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr 1fr;
         }
         .tooltip-dot::before {
-          inset: -14px;
+          inset: -4px;
+        }
+      }
+
+      @media (min-width: 861px) {
+        .md-split {
+          grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+          gap: 20px;
+        }
+        .md-detail {
+          position: sticky;
+          top: 16px;
+        }
+        .md-back {
+          display: none;
+        }
+        .md-split[data-mobile-pane="list"] .md-detail,
+        .md-split[data-mobile-pane="detail"] .md-list {
+          display: block;
+        }
+      }
+
+      @media (min-width: 1041px) {
+        .orch-body {
+          grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+        }
+        .orch-rail {
+          position: sticky;
+          top: 16px;
         }
       }
 
@@ -2016,7 +2078,7 @@
             </dl>
 
             <div class="part-line" id="part-block">
-              <span class="chip" id="part-chip">
+              <span class="chip active" id="part-chip">
                 <svg
                   data-icon="scoring"
                   viewBox="0 0 16 16"
@@ -2107,16 +2169,15 @@
                   </button>
                   <span class="tooltip-help" id="tip-pay" role="tooltip">
                     1% of new LPT this round, weighted by delegated stake inside
-                    the set, then this node’s usual cut. The LPT figure is
-                    illustrative. Emissions are not fixed. Green is the LPT
-                    amount, not a judgment.
+                    the set, then this node’s usual cut. Emissions are not
+                    fixed. Green is the LPT amount, not a judgment.
                   </span>
                 </span>
               </div>
               <div class="amt num" id="pay-share">8.4%</div>
               <p class="muted num" id="pay-hint">
                 About <span class="num">12.6 LPT</span> this round, before the
-                cut passed to delegators. Illustrative.
+                cut passed to delegators.
               </p>
             </div>
 
@@ -2217,7 +2278,7 @@
               <article class="mfs span2" aria-labelledby="mfs-title">
                 <div class="mfs-head">
                   <h3 id="mfs-title">Rewards capped by stake</h3>
-                  <span class="chip">
+                  <span class="chip stake">
                     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path
                         d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
@@ -2345,7 +2406,26 @@
               </div>
               <div class="pf-stat">
                 <div class="label">Status</div>
-                <div class="value">Active</div>
+                <div class="value">
+                  <span class="chip active">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M6 9.2 7.4 10.6 10.2 7.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Active
+                  </span>
+                </div>
               </div>
               <div class="pf-stat">
                 <div class="label">Top transcoding regional score</div>
@@ -2673,8 +2753,7 @@
           <li>
             <strong>Pay follows delegated stake.</strong> 1% of new LPT,
             weighted by delegated stake inside the set, then the node’s usual
-            cut. The LPT amount is labeled illustrative. Emissions are not
-            fixed, so there is no dollar figure.
+            cut. Emissions are not fixed, so there is no dollar figure.
           </li>
           <li>
             <strong>Fit the existing Orchestrating tab.</strong> Order on the
@@ -2753,7 +2832,8 @@
             and orchestrator tables, and that dual chips felt busy.
             <em>Recommended default:</em> keep the split list/detail; no
             membership chips on rows (tabs + detail carry it); cadence as muted
-            row meta inside the set. Confirm with @ECWireless.
+            row meta inside the set; detail uses the same icon+label chip as 803
+            (membership + cadence). Confirm with @ECWireless.
           </li>
           <li>
             <strong>The constitution.</strong> Expected validator behavior is
@@ -3158,7 +3238,7 @@
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "8.4%",
             payHint:
-              "About 12.6 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 12.6 LPT this round, before the cut passed to delegators.",
             scores: [
               ["Harbor", "1.00", "Round 4218"],
               ["Kiln", "1.00", "Round 4218"],
@@ -3183,7 +3263,7 @@
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "5.6%",
             payHint:
-              "About 8.4 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 8.4 LPT this round, before the cut passed to delegators.",
             scores: [
               ["Harbor", "1.00", "Round 4218"],
               ["Northbeam", "1.00", "Round 4218"],
@@ -3222,7 +3302,7 @@
             partDetail: "Submitted scores in 4 of the last 7 rounds.",
             pay: "3.3%",
             payHint:
-              "About 5.0 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 5.0 LPT this round, before the cut passed to delegators.",
             scores: [
               ["Northbeam", "1.00", "Round 4216"],
               ["Kiln", "0.90", "Round 4216"],
@@ -3261,7 +3341,7 @@
             partDetail: "Submitted scores in 0 of the last 7 rounds.",
             pay: "2.5%",
             payHint:
-              "About 3.8 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 3.8 LPT this round, before the cut passed to delegators.",
             scores: [],
           },
           cinder: {
@@ -3281,7 +3361,7 @@
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "2.6%",
             payHint:
-              "About 3.9 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 3.9 LPT this round, before the cut passed to delegators.",
             scores: [
               ["Harbor", "0.40", "Round 4218"],
               ["Northbeam", "1.00", "Round 4218"],
@@ -3306,7 +3386,7 @@
             partDetail: "Submitted scores in 6 of the last 7 rounds.",
             pay: "2.0%",
             payHint:
-              "About 3.0 LPT this round, before the cut passed to delegators. Illustrative.",
+              "About 3.0 LPT this round, before the cut passed to delegators.",
             scores: [
               ["Harbor", "0.95", "Round 4218"],
               ["Northbeam", "1.00", "Round 4218"],
@@ -3557,9 +3637,20 @@
           document.getElementById("part-block").hidden = !inSet;
           document.getElementById("pay-block").hidden = !inSet;
           if (inSet) {
+            var partChip = document.getElementById("part-chip");
             setText("part-label", node.partLabel);
             setText("part-detail", node.partDetail);
-            showIcon(document.getElementById("part-chip"), node.part);
+            showIcon(partChip, node.part);
+            partChip.classList.remove("active", "occasional", "inactive");
+            var partTone =
+              node.part === "scoring"
+                ? "active"
+                : node.part === "gaps"
+                ? "occasional"
+                : node.part === "quiet"
+                ? "inactive"
+                : "occasional";
+            partChip.classList.add(partTone);
             setText("pay-share", node.pay);
             setText("pay-hint", node.payHint);
           }

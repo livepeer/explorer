@@ -60,7 +60,7 @@ Mock rule for blanks: omit from the median. Do not impute 0. Open question for t
 
 Even count: median is the mean of the 9th and 10th (both 0.95). 15 of 33 have no score.
 
-## Pay (illustrative)
+## Pay
 
 Parameter table: `ValidatorEmissionShare` is 1% of round LPT emissions, distributed proportional to each validator’s delegated stake, then that node’s reward cut to delegators.
 
