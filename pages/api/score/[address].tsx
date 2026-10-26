@@ -1,21 +1,29 @@
 import { getCacheControlHeader } from "@lib/api";
 import {
-  badRequest,
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateExternalResponse,
+  validateInput,
+  validateOutput,
 } from "@lib/api/errors";
+import {
+  AddressSchema,
+  MetricsResponseSchema,
+  PerformanceMetricsSchema,
+  PriceResponseSchema,
+  ScoreResponseSchema,
+} from "@lib/api/schemas";
 import {
   PerformanceMetrics,
   RegionalValues,
-  Score,
 } from "@lib/api/types/get-performance";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg } from "@lib/utils";
 import { checkAddressEquality } from "@utils/web3";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isAddress } from "viem";
+import { z } from "zod";
 
 type Metric = {
   success_rate: number;
@@ -51,7 +59,10 @@ export type PriceResponse = {
  * @returns The parsed JSON, or null if the fetch fails. Never rejects, so one
  * failed upstream cannot reject a Promise.all.
  */
-const fetchJson = async <T,>(url: string): Promise<T | null> => {
+const fetchJson = async <T,>(
+  url: string,
+  schema: z.ZodType<T>
+): Promise<T | null> => {
   try {
     const response = await fetchWithRetry(url);
 
@@ -64,7 +75,11 @@ const fetchJson = async <T,>(url: string): Promise<T | null> => {
       return null;
     }
 
-    return await response.json();
+    return validateExternalResponse(
+      schema.safeParse(await response.json()),
+      "api/score/[address]",
+      `URL: ${url}`
+    );
   } catch (err) {
     console.error(
       `Fetch error: ${url}`,
@@ -84,17 +99,18 @@ const handler = async (
     if (method === "GET") {
       const { address } = req.query;
 
-      if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const transcoderId = address.toLowerCase();
+      const addressResult = AddressSchema.safeParse(address);
+      if (addressResult.success) {
+        const transcoderId = addressResult.data.toLowerCase();
 
         const topScoreUrl = `${process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL}/api/top_ai_score?orchestrator=${transcoderId}`;
         const metricsUrl = `${process.env.NEXT_PUBLIC_METRICS_SERVER_URL}/api/aggregated_stats?orchestrator=${transcoderId}`;
         const pricingUrl = `${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}?excludeUnavailable=False`;
 
         const [topAIScore, metrics, transcodersWithPrice] = await Promise.all([
-          fetchJson<Score>(topScoreUrl),
-          fetchJson<MetricsResponse>(metricsUrl),
-          fetchJson<PriceResponse>(pricingUrl),
+          fetchJson(topScoreUrl, ScoreResponseSchema),
+          fetchJson(metricsUrl, MetricsResponseSchema),
+          fetchJson(pricingUrl, PriceResponseSchema),
         ]);
 
         // Every upstream being down is never a legitimate empty state, so fail
@@ -169,9 +185,17 @@ const handler = async (
           topAIScore,
         };
 
+        const outputResult = PerformanceMetricsSchema.safeParse(combined);
+        const outputValidationError = validateOutput(
+          outputResult,
+          res,
+          "api/score"
+        );
+        if (outputValidationError) return outputValidationError;
+
         return res.status(200).json(combined);
       } else {
-        return badRequest(res, "Invalid address format");
+        return validateInput(addressResult, res, "Invalid address format");
       }
     }
 
