@@ -18,6 +18,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   RewardEvent: "Reward",
   RewardCallerSetEvent: "Reward Caller Set",
   TranscoderUpdateEvent: "Transcoder Update",
+  TransferBondEvent: "Transfer Bond",
   WithdrawStakeEvent: "Withdraw Stake",
   WithdrawFeesEvent: "Withdraw Fees",
   WinningTicketRedeemedEvent: "Winning Ticket Redeemed",
