@@ -89,17 +89,17 @@ Sample only, emissions are still a draft:
 | Cinder    | 500,000   | 2.6%  | 3.9 LPT  |
 | Reed      | 390,400   | 2.0%  | 3.0 LPT  |
 
-Shares are rounded for the screen. Quiet Slate still receives a gross share. The draft does not tie pay to submission.
+Shares are rounded for the screen. Inactive Slate still receives a gross share. The draft does not tie pay to submission.
 
 ## Participation chip (proposed, not protocol)
 
 Last 7 rounds with at least one score submission:
 
-| Chip    | Rounds |
-| ------- | ------ |
-| Scoring | 6–7    |
-| Gaps    | 1–5    |
-| Quiet   | 0      |
+| Label      | Rounds |
+| ---------- | ------ |
+| Active     | 6–7    |
+| Occasional | 1–5    |
+| Inactive   | 0      |
 
 Shown only for nodes in the set. Not a health grade. Icons are validator-only. Do not reuse the MFS stake/fee icons in `../shared/mfs-status-icons.md`.
 

@@ -23,6 +23,17 @@
         --hiContrast: #ffffff;
         --primary4: #113123;
         --primary11: #4cc38a;
+        --green3: hsl(155, 46.7%, 10.9%);
+        --green4: hsl(154, 48.4%, 12.9%);
+        --green5: hsl(154, 49.7%, 14.9%);
+        --green6: hsl(154, 50.9%, 17.6%);
+        --green8: hsl(151, 51.7%, 28.4%);
+        --green11: hsl(151, 50%, 53.2%);
+        --sage3: hsl(150, 6.7%, 13.1%);
+        --sage4: hsl(150, 6.4%, 15.3%);
+        --sage5: hsl(150, 6.1%, 17.4%);
+        --sage6: hsl(150, 5.8%, 19.9%);
+        --sage11: hsl(155, 5%, 61.8%);
         --fee3: #0c222c;
         --fee11: #25abd0;
         --stake3: #0f241c;
@@ -145,7 +156,6 @@
       .page-head code,
       .notes code,
       .questions code {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12.5px;
         background: var(--neutral3);
         padding: 2px 6px;
@@ -155,10 +165,10 @@
 
       a:focus-visible,
       button:focus-visible,
-      [role="radio"]:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 2px;
-        border-radius: 4px;
+      [role="radio"]:focus-visible,
+      .dw-input:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
       }
 
       .section {
@@ -186,7 +196,6 @@
       }
 
       .section-route {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--neutral10);
       }
@@ -272,29 +281,42 @@
         border: 1.5px solid var(--neutral6);
         background: var(--neutral3);
         color: var(--hiContrast);
+        pointer-events: none;
       }
       .chip svg {
         width: 12px;
         height: 12px;
         flex-shrink: 0;
       }
+      #part-chip {
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        font-weight: 500;
+        color: var(--neutral11);
+        gap: 4px;
+      }
+      #part-chip svg {
+        color: var(--neutral8);
+      }
 
       .help {
         position: relative;
         display: inline-flex;
         align-items: center;
-        margin-left: 4px;
-        vertical-align: -2px;
+        margin-left: 2px;
+        vertical-align: 1px;
       }
       .tooltip-dot {
         position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        min-height: 24px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
         padding: 0;
         border-radius: 50%;
         border: 1px solid var(--neutral6);
@@ -311,7 +333,13 @@
       .tooltip-dot::before {
         content: "";
         position: absolute;
-        inset: -10px;
+        inset: -4px;
+      }
+      .tooltip-dot:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
+        color: var(--hiContrast);
+        border-color: var(--green8);
       }
       .tooltip-help {
         position: absolute;
@@ -319,7 +347,7 @@
         bottom: calc(100% + 8px);
         z-index: 30;
         width: max-content;
-        max-width: 280px;
+        max-width: 260px;
         padding: 8px 10px;
         border-radius: 8px;
         border: 1px solid var(--neutral5);
@@ -358,23 +386,6 @@
         pointer-events: none;
       }
 
-      .pf {
-        max-width: min(1120px, 100%);
-        background: var(--panel);
-        border: 1px solid var(--neutral4);
-        border-radius: var(--radius);
-        overflow: visible;
-      }
-      .pf-top {
-        padding: 18px 20px 0;
-        border-bottom: 1px solid var(--neutral4);
-      }
-      .pf-identity {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
       .avatar {
         width: 36px;
         height: 36px;
@@ -415,44 +426,6 @@
       .avatar[data-tone="pinion"] {
         background: linear-gradient(135deg, #203028, #182028);
       }
-      .pf-identity .name {
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .pf-identity .addr {
-        font-size: 12px;
-        color: var(--neutral8);
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-      }
-      .pf-tabs {
-        display: flex;
-        gap: 4px;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-      }
-      .pf-tabs a,
-      .pf-tabs span {
-        display: inline-flex;
-        align-items: center;
-        min-height: 36px;
-        padding: 0 12px 10px;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--neutral11);
-        text-decoration: none;
-        border-bottom: 3px solid transparent;
-        white-space: nowrap;
-        margin-bottom: -1px;
-      }
-      .pf-tabs a[aria-current="page"] {
-        color: var(--hiContrast);
-        border-bottom-color: var(--primary11);
-        font-weight: 600;
-      }
-
-      .pf-body {
-        padding: 20px;
-      }
 
       .seg {
         display: inline-flex;
@@ -476,6 +449,14 @@
         cursor: pointer;
         min-height: 44px;
         touch-action: manipulation;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .seg button svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
       }
       .seg button[aria-checked="true"] {
         background: var(--neutral5);
@@ -534,33 +515,45 @@
       .v-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 0;
+        border: 1px solid var(--neutral4);
+        border-radius: 12px;
+        background: var(--panel);
       }
       .v-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 12px 14px;
-        border: 1.5px solid var(--neutral3);
-        border-radius: var(--radius-sm);
-        background: var(--neutral2);
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
         color: inherit;
         width: 100%;
         max-width: 100%;
         min-width: 0;
         font: inherit;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
         text-align: left;
         cursor: pointer;
         touch-action: manipulation;
-        min-height: 52px;
+        min-height: 44px;
+      }
+      .v-row:first-child {
+        border-radius: 11px 11px 0 0;
+      }
+      .v-row:last-child {
+        border-radius: 0 0 11px 11px;
       }
       .v-row:hover {
-        border-color: var(--neutral5);
+        background: hsla(0, 100%, 100%, 0.06);
       }
       .v-row[aria-checked="true"] {
-        border-color: var(--primary11);
         background: rgba(76, 195, 138, 0.1);
+        box-shadow: inset 0 0 0 1px var(--primary11);
       }
       .v-row[aria-checked="true"] .rid {
         font-weight: 600;
@@ -568,38 +561,74 @@
       .v-row:focus {
         outline: none;
       }
-      .v-row:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 2px;
-      }
       .v-row .main {
         min-width: 0;
         flex: 1;
       }
-      .rid-row {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 6px;
-      }
       .rid {
         font-weight: 500;
-        font-size: 14px;
+        font-size: 15px;
         color: var(--hiContrast);
         line-height: 1.3;
       }
       .sub {
         display: block;
         margin-top: 4px;
-        font-size: 12px;
+        font-size: 13px;
         color: var(--neutral8);
       }
+      .token-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .token-mark svg {
+        display: block;
+      }
+      .token-mark.lpt {
+        width: 16px;
+        height: 16px;
+        background: var(--stake11);
+        color: #062214;
+      }
+      .token-mark.lpt svg {
+        width: 11px;
+        height: 11px;
+      }
+      .token-mark.usdc {
+        width: 16px;
+        height: 16px;
+        background: #0b53bf;
+        border-radius: 50%;
+      }
+      .token-mark.usdc svg {
+        width: 16px;
+        height: 16px;
+      }
       .stake-amt {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         flex: 0 0 auto;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 15px;
         color: var(--stake11);
         white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .fee-amt {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+      .dw-bal {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
       }
 
       .detail-card {
@@ -620,7 +649,6 @@
         letter-spacing: -0.01em;
       }
       .detail-addr {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--neutral8);
         margin-bottom: 10px;
@@ -640,16 +668,19 @@
         margin: 0 0 16px;
       }
       .facts dt {
-        font-size: 12px;
-        color: var(--neutral8);
-        font-weight: 500;
+        font-size: 13px;
+        color: var(--neutral11);
+        font-weight: 600;
       }
       .facts dd {
         margin: 2px 0 0;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
       }
       .facts dd.stake {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         color: var(--stake11);
       }
 
@@ -763,9 +794,14 @@
         max-width: 68ch;
       }
       .chip.honest {
-        border-color: color-mix(in oklch, var(--primary11) 55%, transparent);
+        border: 1.5px solid
+          color-mix(in oklch, var(--primary11) 55%, transparent);
         background: rgba(76, 195, 138, 0.12);
         color: var(--primary11);
+        padding: 2px 8px 3px;
+        border-radius: 999px;
+        font-weight: 600;
+        pointer-events: none;
       }
       .honesty .kicker {
         color: var(--neutral11);
@@ -784,22 +820,17 @@
         line-height: 0.9;
         color: var(--primary11);
       }
-      .rate-of {
-        display: block;
-        margin-top: 6px;
-        font-size: 12px;
-        color: var(--neutral11);
-      }
       .see-scores,
       .sheet-close {
-        min-height: 44px;
-        padding: 12px 16px;
+        height: 45px;
+        min-height: 45px;
+        padding: 0 15px;
         border: 0;
         border-radius: 8px;
-        background: var(--neutral3);
-        color: var(--hiContrast);
+        background: var(--sage4);
+        color: var(--sage11);
         font: inherit;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         touch-action: manipulation;
@@ -812,7 +843,12 @@
       }
       .see-scores:hover,
       .sheet-close:hover {
-        background: var(--neutral4);
+        background: var(--sage5);
+      }
+      .see-scores:active,
+      .sheet-close:active {
+        background: var(--sage6);
+        translate: 0 1px;
       }
       .sheet-back {
         position: fixed;
@@ -899,15 +935,8 @@
         background: rgba(76, 195, 138, 0.12);
       }
       .score-list tr:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: -2px;
-      }
-      .rate-verdict {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
+        outline: none;
+        box-shadow: inset 0 0 0 1px var(--green8), 0 0 0 1px var(--green8);
       }
       .rate-meta {
         margin-top: 0;
@@ -940,75 +969,6 @@
         color: var(--hiContrast);
         font-weight: 600;
       }
-      .hist {
-        list-style: none;
-        margin: 4px 0 0;
-        display: grid;
-        gap: 6px;
-      }
-      .hist li {
-        display: grid;
-        grid-template-columns: 36px minmax(0, 1fr) 20px;
-        gap: 10px;
-        align-items: center;
-        min-height: 24px;
-        font-size: 13px;
-      }
-      .hist-track {
-        height: 8px;
-        border-radius: 99px;
-        background: var(--neutral3);
-        overflow: hidden;
-      }
-      .hist-fill {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-        background: var(--neutral11);
-      }
-      .hist-n {
-        text-align: right;
-        color: var(--hiContrast);
-      }
-      .why {
-        margin-top: 14px;
-        border-top: 1px solid var(--neutral4);
-      }
-      .why > summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 44px;
-        padding: 8px 0;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        list-style: none;
-        touch-action: manipulation;
-      }
-      .why > summary::-webkit-details-marker {
-        display: none;
-      }
-      .why > summary .chev {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-        color: var(--neutral8);
-        transition: transform 0.12s ease;
-      }
-      .why[open] > summary .chev {
-        transform: rotate(180deg);
-      }
-      .why .why-body {
-        padding: 0 0 8px;
-      }
-      .honesty .subline {
-        font-size: 14px;
-        line-height: 1.55;
-        color: var(--neutral11);
-        max-width: 62ch;
-      }
       .spread {
         margin-top: 12px;
         font-size: 13px;
@@ -1026,26 +986,6 @@
         color: var(--neutral11);
         margin: 0 0 12px;
         max-width: 68ch;
-      }
-
-      .mark-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        max-width: 520px;
-        padding: 12px 14px;
-        border: 1.5px solid var(--neutral4);
-        border-radius: var(--radius-sm);
-        background: var(--neutral2);
-        margin-bottom: 8px;
-      }
-      .mark-row .who {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
       }
 
       .place-table {
@@ -1075,7 +1015,6 @@
         white-space: nowrap;
       }
       .place-table td:nth-child(2) {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--hiContrast);
       }
@@ -1109,7 +1048,6 @@
         font-weight: 600;
       }
       .orch-id .addr {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--neutral8);
       }
@@ -1150,7 +1088,6 @@
       .orch-tag {
         display: block;
         margin-bottom: 8px;
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 11px;
         color: var(--neutral8);
       }
@@ -1263,24 +1200,6 @@
         line-height: 1.5;
         color: var(--neutral11);
       }
-      .slot-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--neutral8);
-        margin-bottom: 8px;
-      }
-      .member-line {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        margin: 12px 0;
-        font-size: 13px;
-        line-height: 1.45;
-        color: var(--neutral11);
-      }
       .pf-stat {
         background: var(--panel);
         border: 1px solid var(--neutral4);
@@ -1290,8 +1209,9 @@
         min-width: 0;
       }
       .pf-stat .label {
-        font-size: 12px;
-        color: var(--neutral8);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--neutral11);
         margin-bottom: 6px;
       }
       .pf-stat .value {
@@ -1369,23 +1289,28 @@
         font: inherit;
         font-size: 16px;
       }
-      .dw-input:focus-visible {
-        outline: 2px solid var(--primary11);
-        outline-offset: 2px;
-      }
       .dw-go {
         width: 100%;
         margin-top: 12px;
-        min-height: 44px;
+        height: 45px;
+        min-height: 45px;
+        padding: 0 15px;
         border: 0;
         border-radius: 8px;
-        background: var(--primary11);
-        color: #062214;
+        background: var(--green4);
+        color: var(--green11);
         font: inherit;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         touch-action: manipulation;
+      }
+      .dw-go:hover {
+        background: var(--green5);
+      }
+      .dw-go:active {
+        background: var(--green6);
+        translate: 0 1px;
       }
       .dw-note {
         margin-top: 10px;
@@ -1435,9 +1360,6 @@
         .md-split[data-mobile-pane="detail"] .md-list {
           display: none;
         }
-        .tooltip-dot::before {
-          inset: -12px;
-        }
       }
 
       @media (max-width: 720px) {
@@ -1450,14 +1372,21 @@
         .mfs-duo {
           grid-template-columns: 1fr;
         }
+        .tooltip-dot::before {
+          inset: -14px;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
         .tooltip-help,
-        .why > summary .chev,
         a,
         button {
           transition: none !important;
+        }
+        .dw-go:active,
+        .see-scores:active,
+        .sheet-close:active {
+          translate: none;
         }
       }
     </style>
@@ -1511,9 +1440,12 @@
         <span class="section-badge">Primary</span>
       </div>
       <p class="section-description">
-        The 33 registered node operators with the most stake. Wide: list and
-        detail together. Narrow: pick a row, then the detail. Arrows move the
-        highlight. Enter or Space opens it on a narrow screen.
+        The 33 registered node operators with the most stake. Tabs filter who
+        appears. Rows stay light: name, rank, address, and one muted fact
+        (Active / Occasional / Inactive inside the set, or why they are
+        outside). Membership and the full cadence sentence live in the detail.
+        Wide: list and detail together. Narrow: pick a row, then the detail.
+        Arrows move the highlight. Enter or Space opens it on a narrow screen.
       </p>
 
       <div
@@ -1528,6 +1460,19 @@
           aria-checked="true"
           data-bucket="set"
         >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect
+              x="2.25"
+              y="2.25"
+              width="11.5"
+              height="11.5"
+              rx="2.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect x="5" y="5" width="6" height="6" rx="1" fill="currentColor" />
+          </svg>
           In the set
         </button>
         <button
@@ -1537,6 +1482,21 @@
           data-bucket="next"
           tabindex="-1"
         >
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8.5 4.5 12.5 8 8.5 11.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
           Next in line
         </button>
         <button
@@ -1546,6 +1506,21 @@
           data-bucket="join"
           tabindex="-1"
         >
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle
+              cx="8"
+              cy="8"
+              r="5.75"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M8 5.2v5.6M5.2 8h5.6"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
           Could join
         </button>
         <button
@@ -1555,6 +1530,44 @@
           data-bucket="all"
           tabindex="-1"
         >
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect
+              x="2.5"
+              y="2.5"
+              width="4.5"
+              height="4.5"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="9"
+              y="2.5"
+              width="4.5"
+              height="4.5"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="2.5"
+              y="9"
+              width="4.5"
+              height="4.5"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="9"
+              y="9"
+              width="4.5"
+              height="4.5"
+              rx="1"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
           All
         </button>
       </div>
@@ -1577,53 +1590,22 @@
               data-bucket="set"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Northbeam</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6 9.2 7.4 10.6 10.2 7.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Scoring
-                  </span>
-                </span>
-                <span class="sub num">Rank 1 · 0x1a4c…9e21</span>
+                <span class="rid">Northbeam</span>
+                <span class="sub num">Rank 1 · 0x1a4c…9e21 · Active</span>
               </span>
-              <span class="stake-amt num">1,840,220 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>1,840,220</span></span
+              >
             </button>
 
             <button
@@ -1636,53 +1618,22 @@
               tabindex="-1"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Kiln</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6 9.2 7.4 10.6 10.2 7.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Scoring
-                  </span>
-                </span>
-                <span class="sub num">Rank 4 · 0x55b0…c812</span>
+                <span class="rid">Kiln</span>
+                <span class="sub num">Rank 4 · 0x55b0…c812 · Active</span>
               </span>
-              <span class="stake-amt num">1,284,000 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>1,284,000</span></span
+              >
             </button>
 
             <button
@@ -1696,30 +1647,24 @@
               hidden
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Quarry</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="5.75"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <path
-                        d="M8 5.2v5.6M5.2 8h5.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                    Could join
-                  </span>
-                </span>
-                <span class="sub num">Rank 7 · 0x0e91…44aa</span>
+                <span class="rid">Quarry</span>
+                <span class="sub num"
+                  >Rank 7 · 0x0e91…44aa · Not registered</span
+                >
               </span>
-              <span class="stake-amt num">1,102,500 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>1,102,500</span></span
+              >
             </button>
 
             <button
@@ -1732,52 +1677,22 @@
               tabindex="-1"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Harbor</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6.2 9h3.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                    Gaps
-                  </span>
-                </span>
-                <span class="sub num">Rank 9 · 0x9c2d…b771</span>
+                <span class="rid">Harbor</span>
+                <span class="sub num">Rank 9 · 0x9c2d…b771 · Occasional</span>
               </span>
-              <span class="stake-amt num">864,400 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>864,400</span></span
+              >
             </button>
 
             <button
@@ -1791,30 +1706,24 @@
               hidden
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Lumen</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="5.75"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <path
-                        d="M8 5.2v5.6M5.2 8h5.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                    Could join
-                  </span>
-                </span>
-                <span class="sub num">Rank 12 · 0x3f80…11d4</span>
+                <span class="rid">Lumen</span>
+                <span class="sub num"
+                  >Rank 12 · 0x3f80…11d4 · Not registered</span
+                >
               </span>
-              <span class="stake-amt num">798,000 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>798,000</span></span
+              >
             </button>
 
             <button
@@ -1827,46 +1736,22 @@
               tabindex="-1"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Slate</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Quiet
-                  </span>
-                </span>
-                <span class="sub num">Rank 18 · 0xab12…90ce</span>
+                <span class="rid">Slate</span>
+                <span class="sub num">Rank 18 · 0xab12…90ce · Inactive</span>
               </span>
-              <span class="stake-amt num">612,300 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>612,300</span></span
+              >
             </button>
 
             <button
@@ -1879,53 +1764,22 @@
               tabindex="-1"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Cinder</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6 9.2 7.4 10.6 10.2 7.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Scoring
-                  </span>
-                </span>
-                <span class="sub num">Rank 22 · 0xc1d0…77ab</span>
+                <span class="rid">Cinder</span>
+                <span class="sub num">Rank 22 · 0xc1d0…77ab · Active</span>
               </span>
-              <span class="stake-amt num">560,000 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>560,000</span></span
+              >
             </button>
 
             <button
@@ -1938,53 +1792,22 @@
               tabindex="-1"
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Reed</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <rect
-                        x="2.25"
-                        y="2.25"
-                        width="11.5"
-                        height="11.5"
-                        rx="2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      />
-                      <rect
-                        x="5"
-                        y="5"
-                        width="6"
-                        height="6"
-                        rx="1"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    In the set
-                  </span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6 9.2 7.4 10.6 10.2 7.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Scoring
-                  </span>
-                </span>
-                <span class="sub num">Rank 28 · 0x77e4…6b08</span>
+                <span class="rid">Reed</span>
+                <span class="sub num">Rank 28 · 0x77e4…6b08 · Active</span>
               </span>
-              <span class="stake-amt num">521,000 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>521,000</span></span
+              >
             </button>
 
             <button
@@ -1998,30 +1821,24 @@
               hidden
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Mosaic</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M3 8h8"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M8.5 4.5 12.5 8 8.5 11.5"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Next in line
-                  </span>
-                </span>
-                <span class="sub num">Rank 36 · 0x2c19…aa57</span>
+                <span class="rid">Mosaic</span>
+                <span class="sub num"
+                  >Rank 36 · 0x2c19…aa57 · Outside the set</span
+                >
               </span>
-              <span class="stake-amt num">448,200 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>448,200</span></span
+              >
             </button>
 
             <button
@@ -2035,30 +1852,24 @@
               hidden
             >
               <span class="main">
-                <span class="rid-row">
-                  <span class="rid">Pinion</span>
-                  <span class="chip">
-                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M3 8h8"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M8.5 4.5 12.5 8 8.5 11.5"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Next in line
-                  </span>
-                </span>
-                <span class="sub num">Rank 40 · 0x8d40…f3e6</span>
+                <span class="rid">Pinion</span>
+                <span class="sub num"
+                  >Rank 40 · 0x8d40…f3e6 · Outside the set</span
+                >
               </span>
-              <span class="stake-amt num">390,800 LPT</span>
+              <span class="stake-amt num"
+                ><span class="token-mark lpt" role="img" aria-label="LPT"
+                  ><svg
+                    viewBox="0 0 29 30"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                    /></svg></span
+                ><span data-lpt-amt>390,800</span></span
+              >
             </button>
           </div>
         </div>
@@ -2168,11 +1979,35 @@
               </div>
               <div>
                 <dt>Total stake</dt>
-                <dd class="num stake" id="fact-stake">1,840,220 LPT</dd>
+                <dd class="num stake" id="fact-stake">
+                  <span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><svg
+                      viewBox="0 0 29 30"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                      /></svg></span
+                  ><span data-lpt-amt>1,840,220</span>
+                </dd>
               </div>
               <div>
                 <dt>Delegated stake</dt>
-                <dd class="num stake" id="fact-del">1,610,400 LPT</dd>
+                <dd class="num stake" id="fact-del">
+                  <span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><svg
+                      viewBox="0 0 29 30"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                      /></svg></span
+                  ><span data-lpt-amt>1,610,400</span>
+                </dd>
               </div>
               <div>
                 <dt>Registered</dt>
@@ -2236,21 +2071,21 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span id="part-label">Scoring</span>
+                <span id="part-label">Active</span>
               </span>
               <span class="help">
                 <button
                   type="button"
                   class="tooltip-dot"
                   aria-describedby="tip-part"
-                  aria-label="About submission cadence"
+                  aria-label="About how often they file scores"
                 >
                   ?
                 </button>
                 <span class="tooltip-help" id="tip-part" role="tooltip">
-                  How often they file scores. A proposal only. Not a health
-                  grade, and not a pay cut. The Validator Track has not defined
-                  health.
+                  How often they filed scores in the last 7 rounds. Active is
+                  most rounds, Occasional is some, Inactive is none. A proposal
+                  only. Not a health grade, and not a pay cut.
                 </span>
               </span>
               <span id="part-detail"
@@ -2314,8 +2149,10 @@
       <ul class="notes">
         <li>
           Deep-link <code>?validator=harbor</code> selects that row, and opens
-          it on a narrow screen.
+          it on a narrow screen. Without a deep link, the top visible row is
+          selected so the detail pane is filled on wide screens.
         </li>
+        <li>Names under “Scores they filed” link to that node’s detail.</li>
         <li>
           Sample round is 4218. Twenty-seven other seats are not drawn. In this
           sample the only unregistered nodes above the cutoff are Quarry and
@@ -2492,7 +2329,19 @@
 
               <div class="pf-stat">
                 <div class="label">Total delegated stake</div>
-                <div class="value num stake-amt">864,400 LPT</div>
+                <div class="value num stake-amt">
+                  <span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><svg
+                      viewBox="0 0 29 30"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                      /></svg></span
+                  ><span data-lpt-amt>864,400</span>
+                </div>
               </div>
               <div class="pf-stat">
                 <div class="label">Status</div>
@@ -2508,7 +2357,31 @@
               </div>
               <div class="pf-stat">
                 <div class="label">Earned fees</div>
-                <div class="value num fee">12,480 USDC</div>
+                <div class="value num fee fee-amt">
+                  <span class="token-mark usdc" role="img" aria-label="USDC"
+                    ><svg
+                      viewBox="0 0 96 96"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                        fill="#0B53BF"
+                      />
+                      <path
+                        d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                        fill="#fff"
+                      /></svg></span
+                  ><span>12,480</span>
+                </div>
               </div>
               <div class="pf-stat">
                 <div class="label">Price / pixel</div>
@@ -2573,7 +2446,19 @@
               </div>
               <label class="dw-label" for="dw-amount">
                 <span id="dw-amount-label">Amount</span>
-                <span class="num">Balance 1,250 LPT</span>
+                <span class="num dw-bal"
+                  ><span class="token-mark lpt" role="img" aria-label="LPT"
+                    ><svg
+                      viewBox="0 0 29 30"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+                      /></svg></span
+                  ><span>Balance 1,250</span></span
+                >
               </label>
               <input
                 id="dw-amount"
@@ -2709,10 +2594,31 @@
             Governance can change it later.
           </li>
           <li>
-            <strong>Three facts, one chip.</strong> The chip is the situation.
-            Rank, total stake, delegated stake, and registered yes or no stay in
-            text, so eligibility, registration, and being in the set are all
-            visible.
+            <strong>Don’t repeat status three times.</strong> Filter tabs own
+            membership. List rows stay light: name, rank, address, and one muted
+            fact (Active / Occasional / Inactive inside the set, or why they are
+            outside). The detail keeps one membership pill and the full cadence
+            sentence with a help tip. Same idea as tabbed member lists and
+            staking product tables: scope in the control, light meta in the row,
+            full story in the pane.
+          </li>
+          <li>
+            <strong>Wide opens with the top visible validator selected.</strong>
+            List and detail share the page. The first row in the current filter
+            is selected on load and when the filter changes, so the detail pane
+            is never empty on a wide screen. A deep link still wins when
+            present.
+          </li>
+          <li>
+            <strong>Filed scores link to that node.</strong> Each name under
+            “Scores they filed” jumps to that validator’s detail (and switches
+            the filter if needed).
+          </li>
+          <li>
+            <strong>List is one panel.</strong> Validator rows share a single
+            bordered sheet with a green wash and 1px ring on the selected row.
+            Different from gateway and orchestrator tables on purpose for
+            Livepeer 2.0, same selected-row language.
           </li>
           <li>
             <strong>Honesty is not quality of service.</strong> The card says
@@ -2758,10 +2664,11 @@
             median in this mock, not treated as zero. See open questions.
           </li>
           <li>
-            <strong>Cadence is not health.</strong> Scoring, Gaps, and Quiet
-            describe how many of the last 7 rounds they submitted. Shown only
-            inside the set. Slate is Quiet and still paid, because the draft
-            does not tie pay to participation.
+            <strong>Filing habit is not health.</strong> Active, Occasional, and
+            Inactive say how often they filed scores in the last 7 rounds. Same
+            everyday words as the tip. They appear as muted row meta and again
+            as the detail sentence. Slate is Inactive and still paid, because
+            the draft does not tie pay to participation.
           </li>
           <li>
             <strong>Pay follows delegated stake.</strong> 1% of new LPT,
@@ -2839,6 +2746,16 @@
             Owner: Validator Track and @ECWireless.
           </li>
           <li>
+            <strong
+              >How far this table may diverge from other persona tables.</strong
+            >
+            @ECWireless flagged that the set list looks different from gateway
+            and orchestrator tables, and that dual chips felt busy.
+            <em>Recommended default:</em> keep the split list/detail; no
+            membership chips on rows (tabs + detail carry it); cadence as muted
+            row meta inside the set. Confirm with @ECWireless.
+          </li>
+          <li>
             <strong>The constitution.</strong> Expected validator behavior is
             not written. Explorer should not invent rules of conduct in copy or
             in a health grade. Owner: Validator Track.
@@ -2857,11 +2774,13 @@
       </p>
       <ul class="notes">
         <li>
-          <strong>Color is not the only cue.</strong> In the set, next in line,
-          and could join each have a word and an icon, with a real border.
-          Honest is a word on a green pill, not color alone. A low score is not
-          red. Focusing a score in the sheet marks its dot. Stake amounts say
-          LPT. Selected rows use a full brand border and a wash, not a left bar.
+          <strong>Color is not the only cue.</strong> Filter tabs name the
+          membership bucket. The selected detail repeats membership as a
+          bordered pill with an icon. Cadence in the detail is icon plus words,
+          not a second pill. Honest is a word on a green pill, not color alone.
+          A low score is not red. Focusing a score in the sheet marks its dot.
+          Stake amounts use the LPT mark beside the figure. Selected rows use a
+          green wash and a 1px ring, not a left bar.
         </li>
         <li>
           <strong>Keyboard.</strong> The filter and the validator list are
@@ -2879,7 +2798,8 @@
         <li>
           <strong>Help without a mouse.</strong> The “?” tips open on hover and
           when you tab to them. You can move onto the tip. Escape closes it
-          until the next hover or focus. Targets stay large enough for touch.
+          until the next hover or focus. The painted mark is small; the hit area
+          around it stays large enough for touch.
         </li>
         <li>
           <strong>Motion.</strong> If the system asks for reduced motion, the
@@ -3234,7 +3154,7 @@
             status: "In the set",
             lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
             part: "scoring",
-            partLabel: "Scoring",
+            partLabel: "Active",
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "8.4%",
             payHint:
@@ -3259,7 +3179,7 @@
             status: "In the set",
             lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
             part: "scoring",
-            partLabel: "Scoring",
+            partLabel: "Active",
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "5.6%",
             payHint:
@@ -3296,9 +3216,9 @@
             registered: "Yes",
             bucket: "set",
             status: "In the set",
-            lede: "Registered and inside the 33. They missed some recent rounds, so the cadence says Gaps. Scores still on file keep their last values.",
+            lede: "Registered and inside the 33. They missed some recent rounds, so the label says Occasional. Scores still on file keep their last values.",
             part: "gaps",
-            partLabel: "Gaps",
+            partLabel: "Occasional",
             partDetail: "Submitted scores in 4 of the last 7 rounds.",
             pay: "3.3%",
             payHint:
@@ -3337,7 +3257,7 @@
             status: "In the set",
             lede: "Registered and inside the 33. They have not submitted scores lately. Membership and cadence are separate.",
             part: "quiet",
-            partLabel: "Quiet",
+            partLabel: "Inactive",
             partDetail: "Submitted scores in 0 of the last 7 rounds.",
             pay: "2.5%",
             payHint:
@@ -3357,7 +3277,7 @@
             status: "In the set",
             lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
             part: "scoring",
-            partLabel: "Scoring",
+            partLabel: "Active",
             partDetail: "Submitted scores in 7 of the last 7 rounds.",
             pay: "2.6%",
             payHint:
@@ -3382,7 +3302,7 @@
             status: "In the set",
             lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
             part: "scoring",
-            partLabel: "Scoring",
+            partLabel: "Active",
             partDetail: "Submitted scores in 6 of the last 7 rounds.",
             pay: "2.0%",
             payHint:
@@ -3500,6 +3420,17 @@
           document.getElementById(id).textContent = value;
         }
 
+        function setLpt(id, value) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var amt = String(value)
+            .replace(/\s*LPT\s*$/i, "")
+            .trim();
+          var slot = el.querySelector("[data-lpt-amt]");
+          if (slot) slot.textContent = amt;
+          else el.textContent = value;
+        }
+
         function showIcon(root, name) {
           root.querySelectorAll("[data-icon]").forEach(function (svg) {
             if (svg.getAttribute("data-icon") === name)
@@ -3507,6 +3438,11 @@
             else svg.setAttribute("hidden", "");
           });
         }
+
+        var NAME_TO_ID = {};
+        Object.keys(NODES).forEach(function (id) {
+          NAME_TO_ID[NODES[id].name] = id;
+        });
 
         function fillScores(node) {
           var body = document.getElementById("scores-body");
@@ -3538,12 +3474,36 @@
             var tr = document.createElement("tr");
             row.forEach(function (cell, idx) {
               var td = document.createElement("td");
-              td.textContent = cell;
-              if (idx > 0) td.className = "num";
+              if (idx === 0) {
+                var sid = NAME_TO_ID[cell];
+                if (sid) {
+                  var a = document.createElement("a");
+                  a.href = "#set";
+                  a.className = "prose-link";
+                  a.setAttribute("data-jump", sid);
+                  a.textContent = cell;
+                  td.appendChild(a);
+                } else {
+                  td.textContent = cell;
+                }
+              } else {
+                td.textContent = cell;
+                td.className = "num";
+              }
               tr.appendChild(td);
             });
             body.appendChild(tr);
           });
+        }
+
+        function jumpToValidator(id, opts) {
+          var node = NODES[id];
+          if (!node) return;
+          opts = opts || {};
+          applyFilter(node.bucket);
+          selectId(id, { activate: isNarrow() });
+          if (isNarrow()) setMobilePane("detail");
+          if (opts.closeSheet) closeScoreSheet({ skipFocus: true });
         }
 
         var FILTER_COPY = {
@@ -3589,8 +3549,8 @@
           setText("detail-addr", node.addr);
           setText("detail-lede", node.lede);
           setText("fact-rank", node.rank);
-          setText("fact-stake", node.stake);
-          setText("fact-del", node.delegated);
+          setLpt("fact-stake", node.stake);
+          setLpt("fact-del", node.delegated);
           setText("fact-reg", node.registered);
 
           var inSet = node.bucket === "set";
@@ -3651,16 +3611,14 @@
           if (selected) selected.focus();
         });
 
-        document.querySelectorAll("[data-jump]").forEach(function (link) {
-          link.addEventListener("click", function () {
-            var id = link.getAttribute("data-jump");
-            var node = NODES[id];
-            if (!node) return;
-            if (link.closest("#score-sheet"))
-              closeScoreSheet({ skipFocus: true });
-            applyFilter(node.bucket);
-            selectId(id, { activate: isNarrow() });
-            if (isNarrow()) setMobilePane("detail");
+        document.addEventListener("click", function (e) {
+          var link = e.target.closest("[data-jump]");
+          if (!link) return;
+          var id = link.getAttribute("data-jump");
+          if (!NODES[id]) return;
+          e.preventDefault();
+          jumpToValidator(id, {
+            closeSheet: !!link.closest("#score-sheet"),
           });
         });
 
