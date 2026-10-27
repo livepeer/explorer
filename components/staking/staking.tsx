@@ -297,7 +297,10 @@ function errorMessage(e: unknown) {
   if (/ILLEGAL_CLAIM_EARNINGS/.test(e instanceof Error ? e.message : msg)) {
     return "The orchestrator hasn't called reward yet this round, and the protocol holds this until it does so nobody misses this round's rewards. Try again later this round.";
   }
-  return msg.split("\n")[0];
+  // "…reverted with the following reason:" puts the reason on the next line.
+  const [first, ...rest] = msg.split("\n").map((l) => l.trim());
+  const next = rest.find(Boolean);
+  return /:$/.test(first) && next ? `${first} ${next}` : first;
 }
 
 /* ── UI pieces ───────────────────────────────────────────────────────────── */
@@ -465,10 +468,37 @@ function transferBlocked(e: unknown, toName: string) {
   if (/ILLEGAL_CLAIM_EARNINGS/.test(msg)) {
     return `${toName}'s orchestrator hasn't called reward yet this round. The protocol holds transfers into ${toName} until it does, so it doesn't miss this round's rewards. Try again later this round.`;
   }
+  if (/caller must be bonded/.test(msg)) {
+    return "This stake is still pending: it becomes active when the next round starts, and can be transferred then.";
+  }
   if (/INVALID_DELEGATOR/.test(msg)) {
     return `${toName} is this stake's orchestrator, and an orchestrator can't be given stake delegated to itself this way.`;
   }
   return errorMessage(e);
+}
+
+/**
+ * Stake delegated for the first time (or moved to a new orchestrator) is
+ * pending until the next round; the protocol won't undelegate or transfer
+ * it before then.
+ */
+function PendingNotice({
+  nextRoundIn,
+  verb,
+}: {
+  nextRoundIn: number | null;
+  verb: string;
+}) {
+  return (
+    <Notice tone="warning">
+      This stake was delegated this round, so it&apos;s pending until the next
+      round starts
+      {nextRoundIn != null && nextRoundIn > 60
+        ? `, in about ${formatDuration(nextRoundIn)}`
+        : ""}
+      . You can {verb} then.
+    </Notice>
+  );
 }
 
 function OrchestratorName({ address }: { address: string }) {
@@ -651,10 +681,17 @@ function StakingFlow({
     functionName: "delegatorStatus",
     args: [address!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(bm && address && action.kind === "undelegate") },
+    query: {
+      enabled: Boolean(
+        bm &&
+          address &&
+          (action.kind === "undelegate" || action.kind === "transfer")
+      ),
+    },
   });
   const pendingDelegator = delegatorStatus === 0;
   const nowMs = useNow(60_000);
+  const nextRoundIn = protocol ? roundState(protocol, nowMs).remaining : null;
 
   const currentDelegate = (
     delegatorInfo as readonly unknown[] | undefined
@@ -1047,9 +1084,6 @@ function StakingFlow({
         amountWei > 0n &&
         Number(amount) <= max + 1e-9;
       successTitle = "Undelegation started";
-      const nextRoundIn = protocol
-        ? roundState(protocol, nowMs).remaining
-        : null;
       body = (
         <>
           <div className="rounded-lg border border-hairline p-3">
@@ -1095,14 +1129,7 @@ function StakingFlow({
             )}
           </Row>
           {pendingDelegator && (
-            <Notice tone="warning">
-              This stake was delegated this round, so it&apos;s pending until
-              the next round starts
-              {nextRoundIn != null && nextRoundIn > 60
-                ? `, in about ${formatDuration(nextRoundIn)}`
-                : ""}
-              . You can undelegate then.
-            </Notice>
+            <PendingNotice nextRoundIn={nextRoundIn} verb="undelegate" />
           )}
         </>
       );
@@ -1201,9 +1228,11 @@ function StakingFlow({
         picked?.label ??
         receiverName ??
         (receiver ? shortAddress(receiver) : "");
-      const blocked = simulation.error
-        ? transferBlocked(simulation.error, toName)
-        : null;
+      // Pending stake can't move yet; say so instead of the revert.
+      const blocked =
+        simulation.error && !pendingDelegator
+          ? transferBlocked(simulation.error, toName)
+          : null;
       const stakeWith = (stake: number, delegate: string) => (
         <>
           {formatLPT(stake)} with <OrchestratorName address={delegate} />
@@ -1235,10 +1264,14 @@ function StakingFlow({
         vouched &&
         amountWei > 0n &&
         Number(amount) <= max + 1e-9 &&
+        !pendingDelegator &&
         simulation.isSuccess;
       const sender = portfolio.find((a) => a.address === signer);
       body = (
         <>
+          {pendingDelegator && (
+            <PendingNotice nextRoundIn={nextRoundIn} verb="transfer it" />
+          )}
           <div className="flex flex-col gap-1.5">
             <div className="text-ui-caption text-muted-foreground">From</div>
             <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
