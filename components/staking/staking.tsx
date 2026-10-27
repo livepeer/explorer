@@ -293,6 +293,10 @@ function errorMessage(e: unknown) {
       ? (e as { shortMessage?: string }).shortMessage ?? e.message
       : String(e);
   if (/user rejected|denied/i.test(msg)) return "Request rejected in wallet";
+  // The revert reason is on a later line, so check the full message.
+  if (/ILLEGAL_CLAIM_EARNINGS/.test(e instanceof Error ? e.message : msg)) {
+    return "The orchestrator hasn't called reward yet this round, and the protocol holds this until it does so nobody misses this round's rewards. Try again later this round.";
+  }
   return msg.split("\n")[0];
 }
 
@@ -1431,7 +1435,18 @@ function StakingFlow({
                   secondary={destOrch ? terms(destOrch) : "Not active now"}
                 />
               </div>
-              {destOrch ? (
+              {destOrch &&
+              protocol &&
+              destOrch.lastRewardRound !== protocol.currentRound ? (
+                // The pool's stake can't move until its orchestrator has
+                // called reward this round (ILLEGAL_CLAIM_EARNINGS).
+                <Notice tone="warning">
+                  This orchestrator hasn&apos;t called reward yet this round.
+                  The protocol holds claims from their pool until they do, so
+                  the pool doesn&apos;t miss this round&apos;s rewards. If
+                  claiming fails, try again later this round.
+                </Notice>
+              ) : destOrch ? (
                 <span className="text-ui-caption text-muted-foreground">
                   You can switch orchestrator any time after claiming.
                 </span>
