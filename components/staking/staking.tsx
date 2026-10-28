@@ -136,8 +136,13 @@ export type StakingAction = (
   account?: string;
 };
 
-const StakingContext = createContext<{ open: (a: StakingAction) => void }>({
+const StakingContext = createContext<{
+  open: (a: StakingAction) => void;
+  /** A dialog is open, or waiting on a wallet to connect to resume one. */
+  busy: boolean;
+}>({
   open: () => {},
+  busy: false,
 });
 
 export const useStaking = () => useContext(StakingContext);
@@ -187,7 +192,9 @@ export function StakingProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <StakingContext.Provider value={{ open: start }}>
+    <StakingContext.Provider
+      value={{ open: start, busy: open || Boolean(resume) }}
+    >
       {children}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

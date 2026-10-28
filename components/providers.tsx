@@ -27,6 +27,7 @@ import { createConnector, WagmiProvider } from "wagmi";
 import { safe } from "wagmi/connectors";
 
 import { Analytics } from "@/components/analytics";
+import { FollowWallet } from "@/components/shell/follow-wallet";
 import { StakingProvider } from "@/components/staking/staking";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
@@ -172,6 +173,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <TooltipProvider>
               <StakingProvider>
                 <AddressMemory />
+                <FollowWallet />
                 <Analytics />
                 {children}
               </StakingProvider>
