@@ -9,6 +9,7 @@ import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
 import { L2_CHAIN } from "@/lib/config";
 import { formatLPT, fromWei } from "@/lib/format";
 import { proposalThresholds } from "@/lib/governance/thresholds";
+import { refetchUntil } from "@/lib/hooks/live-read";
 import type { TreasuryProposal } from "@/lib/subgraph/network";
 
 import { toProposalId, useControllerContract } from "./model";
@@ -108,7 +109,11 @@ export function ProposalVoteForm({ proposal }: { proposal: TreasuryProposal }) {
     functionName: "hasVoted",
     args: [id ?? 0n, address!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(governor && address && id != null) },
+    // Picks up a vote cast in another app when you come back to the tab.
+    query: {
+      enabled: Boolean(governor && address && id != null),
+      refetchOnWindowFocus: true,
+    },
   });
   const power = useReadContract({
     address: votes,
@@ -157,7 +162,7 @@ export function ProposalVoteForm({ proposal }: { proposal: TreasuryProposal }) {
           chainId: L2_CHAIN.id,
         });
       }}
-      onConfirmed={() => hasVoted.refetch()}
+      onConfirmed={() => refetchUntil(hasVoted.refetch, (v) => v === true)}
       note={
         weight != null && (
           <div className="flex items-baseline justify-between gap-3 text-ui-caption">

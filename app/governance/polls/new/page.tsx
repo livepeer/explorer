@@ -94,7 +94,7 @@ export default function NewPollPage() {
     // round, and PollCreator.createPoll passes 0 too.
     args: [address!, 0n],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(bm && address) },
+    query: { enabled: Boolean(bm && address), refetchOnWindowFocus: true },
   });
   const { data: orchestratorStake } = useReadContract({
     address: bm,
@@ -102,7 +102,7 @@ export default function NewPollPage() {
     functionName: "transcoderTotalStake",
     args: [address!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(bm && address) },
+    query: { enabled: Boolean(bm && address), refetchOnWindowFocus: true },
   });
 
   const required = cost as bigint | undefined;

@@ -83,6 +83,7 @@ import {
   toWei,
 } from "@/lib/format";
 import { resolveEnsQuorum } from "@/lib/hooks/address-input";
+import { LIVE_READ, refetchUntil } from "@/lib/hooks/live-read";
 import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
@@ -287,6 +288,10 @@ function useTx(
   };
 }
 
+const NOT_ENOUGH_LPT = "Your wallet no longer has enough LPT for this amount.";
+const APPROVAL_REMOVED =
+  "Your LPT approval was removed. Approve again to continue.";
+
 function errorMessage(e: unknown) {
   const msg =
     e instanceof Error
@@ -294,7 +299,14 @@ function errorMessage(e: unknown) {
       : String(e);
   if (/user rejected|denied/i.test(msg)) return "Request rejected in wallet";
   // The revert reason is on a later line, so check the full message.
-  if (/ILLEGAL_CLAIM_EARNINGS/.test(e instanceof Error ? e.message : msg)) {
+  const full = e instanceof Error ? e.message : msg;
+  if (/insufficient allowance|exceeds allowance/i.test(full)) {
+    return APPROVAL_REMOVED;
+  }
+  if (/exceeds balance|insufficient balance/i.test(full)) {
+    return NOT_ENOUGH_LPT;
+  }
+  if (/ILLEGAL_CLAIM_EARNINGS/.test(full)) {
     return "The orchestrator hasn't called reward yet this round, and the protocol holds this until it does so nobody misses this round's rewards. Try again later this round.";
   }
   // "…reverted with the following reason:" puts the reason on the next line.
@@ -645,7 +657,7 @@ function StakingFlow({
     functionName: "balanceOf",
     args: [address!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(token && address) },
+    query: { ...LIVE_READ, enabled: Boolean(token && address) },
   });
   const { data: allowanceWei, refetch: refetchAllowance } = useReadContract({
     address: token,
@@ -653,7 +665,7 @@ function StakingFlow({
     functionName: "allowance",
     args: [address!, bm!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(token && address && bm) },
+    query: { ...LIVE_READ, enabled: Boolean(token && address && bm) },
   });
   const { data: delegatorInfo } = useReadContract({
     address: bm,
@@ -661,7 +673,7 @@ function StakingFlow({
     functionName: "getDelegator",
     args: [address!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(bm && address) },
+    query: { ...LIVE_READ, enabled: Boolean(bm && address) },
   });
   const { data: pendingStakeWei } = useReadContract({
     address: bm,
@@ -669,7 +681,7 @@ function StakingFlow({
     functionName: "pendingStake",
     args: [address!, BigInt(protocol?.currentRound ?? 0)],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(bm && address && protocol) },
+    query: { ...LIVE_READ, enabled: Boolean(bm && address && protocol) },
   });
 
   // Read from the chain, not the subgraph: right after a switch the new
@@ -682,6 +694,7 @@ function StakingFlow({
     args: [address!],
     chainId: L2_CHAIN.id,
     query: {
+      ...LIVE_READ,
       enabled: Boolean(
         bm &&
           address &&
@@ -727,7 +740,7 @@ function StakingFlow({
         chainId: L2_CHAIN.id,
       },
     ]),
-    query: { enabled: Boolean(transferring && bm && protocol) },
+    query: { ...LIVE_READ, enabled: Boolean(transferring && bm && protocol) },
   });
   const receiverPositions = receivers.map((r, i) => {
     const info = receiverReads?.[i * 2]?.result as
@@ -748,7 +761,7 @@ function StakingFlow({
     functionName: "getDelegator",
     args: [receiver as `0x${string}`],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(transferring && bm && receiver) },
+    query: { ...LIVE_READ, enabled: Boolean(transferring && bm && receiver) },
   });
   const bonded =
     pendingStakeWei != null ? fromWei(pendingStakeWei as bigint) : 0;
@@ -770,9 +783,17 @@ function StakingFlow({
   };
 
   const isSafe = useIsSafe(signer);
+  // After the approval confirms, keep re-reading until the allowance shows
+  // it: a lagging node can still report the old one, which would ask for
+  // the approval again.
+  const [syncingApproval, setSyncingApproval] = useState(false);
   const approveTx = useTx(
     () => {
-      refetchAllowance();
+      setSyncingApproval(true);
+      refetchUntil(
+        refetchAllowance,
+        (a) => ((a as bigint | undefined) ?? 0n) >= amountWei
+      ).finally(() => setSyncingApproval(false));
     },
     signer,
     isSafe
@@ -871,6 +892,7 @@ function StakingFlow({
   const needsApproval =
     action.kind === "delegate" &&
     amountWei > 0n &&
+    !syncingApproval &&
     ((allowanceWei as bigint | undefined) ?? 0n) < amountWei;
   const approvalFlow = needsApproval || approveTx.confirmed;
   // Inside Safe{Wallet} the approval rides along with the delegation.
@@ -914,7 +936,9 @@ function StakingFlow({
             { key: "bond", label: moving ? "Switch" : "Delegate" },
           ]
         : [{ key: "bond", label: moving ? "Switch" : "Delegate" }];
-      cta = batchApproval
+      cta = syncingApproval
+        ? "Finishing approval…"
+        : batchApproval
         ? moving
           ? "Approve and switch"
           : "Approve and delegate"
@@ -928,6 +952,7 @@ function StakingFlow({
       canRun =
         canRun &&
         Boolean(token) &&
+        !syncingApproval &&
         (amountWei > 0n || Boolean(moving)) &&
         Number(amount || 0) <= balance;
       successTitle = moving ? "Orchestrator switched" : "Delegated";
@@ -1065,6 +1090,20 @@ function StakingFlow({
             args: [bm!, maxUint256],
           });
           return;
+        }
+        if (amountWei > 0n) {
+          // Fresh reads first: another app may have spent the LPT or
+          // revoked the approval since these were last read.
+          const [{ data: bal }, { data: allow }] = await Promise.all([
+            refetchBalance(),
+            refetchAllowance(),
+          ]);
+          if (((bal as bigint | undefined) ?? 0n) < amountWei) {
+            throw new Error(NOT_ENOUGH_LPT);
+          }
+          if (((allow as bigint | undefined) ?? 0n) < amountWei) {
+            throw new Error(APPROVAL_REMOVED);
+          }
         }
         track(
           moving ? REDELEGATION_EVENTS : DELEGATION_EVENTS,
@@ -1714,7 +1753,7 @@ function StakingFlow({
               }
             }}
           >
-            {busy && <Loader2 className="animate-spin" />}
+            {(busy || syncingApproval) && <Loader2 className="animate-spin" />}
             {stage === "sign"
               ? "Confirm in wallet…"
               : stage === "confirm"

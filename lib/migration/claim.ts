@@ -59,7 +59,9 @@ export function useMigrationClaim(address: string | null | undefined) {
   return useQuery({
     queryKey: ["migration-claim", account],
     enabled: Boolean(account && isAddress(account)),
-    staleTime: 5 * 60_000,
+    // Short, and re-read on focus, so a claim made in another app clears.
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<MigrationClaim | null> => {
       const { entry, proof } = await fetchEntry(account!);
       if (!entry || !proof) return null;

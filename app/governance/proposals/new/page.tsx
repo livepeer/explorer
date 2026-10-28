@@ -49,7 +49,7 @@ export default function NewProposalPage() {
     functionName: "balanceOf",
     args: [treasury!],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(token && treasury) },
+    query: { enabled: Boolean(token && treasury), refetchOnWindowFocus: true },
   });
   const { data: threshold } = useReadContract({
     address: governor,
@@ -72,7 +72,10 @@ export default function NewProposalPage() {
     functionName: "getVotes",
     args: [address!, BigInt(Number(clock ?? 1) - 1)],
     chainId: L2_CHAIN.id,
-    query: { enabled: Boolean(governor && address && clock != null) },
+    query: {
+      enabled: Boolean(governor && address && clock != null),
+      refetchOnWindowFocus: true,
+    },
   });
 
   // Receiver: an address, or an ENS name. The treasury pays on Arbitrum,
