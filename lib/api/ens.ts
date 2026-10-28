@@ -1,9 +1,8 @@
 import { cacheControlValues } from "@lib/api/api";
 import { l1PublicClient } from "@lib/chains";
+import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
 import { Redis } from "@upstash/redis";
 import { formatAddress } from "@utils/web3";
-import { parseArweaveTxId, parseCid } from "livepeer/utils";
-import sanitizeHtml from "sanitize-html";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
@@ -34,124 +33,12 @@ if (!redis && typeof window === "undefined") {
 const ENS_CACHE_TTL_SECONDS = cacheControlValues[ENS_CACHE_TTL].maxAge;
 const ENS_LOCK_TTL_SECONDS = 20;
 
-const sanitizeOptions: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "b",
-    "i",
-    "em",
-    "strong",
-    "a",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "hr",
-    "li",
-    "ol",
-    "p",
-    "pre",
-    "ul",
-    "br",
-    "code",
-    "span",
-  ],
-  disallowedTagsMode: "discard",
-  allowedAttributes: {
-    a: ["href"],
-  },
-  // Lots of these won't come up by default because we don't allow them
-  selfClosing: [
-    "img",
-    "br",
-    "hr",
-    "area",
-    "base",
-    "basefont",
-    "input",
-    "link",
-    "meta",
-  ],
-  // URL schemes we permit
-  allowedSchemes: ["https", "mailto", "tel"],
-  allowedSchemesByTag: {},
-  allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
-  allowProtocolRelative: false,
-  enforceHtmlBoundary: true,
-};
-
 export class LockBusyError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "LockBusyError";
   }
 }
-
-export const getAvatarUrlCached = async (
-  address: string,
-  name: string
-): Promise<string | null> => {
-  if (!redis) {
-    return resolveAvatarUrl(name);
-  }
-
-  let normalizedName: string;
-  try {
-    normalizedName = normalize(name);
-  } catch (err) {
-    console.error("ENS name normalization failed:", err);
-    return resolveAvatarUrl(name);
-  }
-
-  const key = `avatar-url:${address.toLowerCase()}:${normalizedName}`;
-
-  try {
-    const cached = await redis.get<string>(key);
-    if (cached) {
-      return cached;
-    }
-  } catch (err) {
-    console.error("Avatar URL cache read failed:", err);
-    return resolveAvatarUrl(name);
-  }
-
-  const imageUrl = await resolveAvatarUrl(name);
-
-  if (!imageUrl) {
-    return null;
-  }
-
-  try {
-    await redis.set(key, imageUrl, { ex: ENS_CACHE_TTL_SECONDS });
-  } catch (err) {
-    console.error("Avatar URL cache write failed:", err);
-    return imageUrl;
-  }
-  return imageUrl;
-};
-
-const resolveAvatarUrl = async (name: string): Promise<string | null> => {
-  const avatar = await l1PublicClient.getEnsAvatar({ name: normalize(name) });
-
-  const cid = parseCid(avatar);
-  const arweaveId = parseArweaveTxId(avatar);
-
-  const hasAvatarRecord = Boolean(avatar);
-
-  const result = cid?.id
-    ? `https://dweb.link/ipfs/${cid.id}`
-    : arweaveId?.id
-    ? arweaveId?.url
-    : avatar?.startsWith("https://")
-    ? avatar
-    : hasAvatarRecord
-    ? `https://metadata.ens.domains/mainnet/avatar/${name}`
-    : null;
-
-  return result;
-};
 
 export const getEnsForAddressCached = async (
   address: string | null | undefined
@@ -270,7 +157,7 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       id: address,
       idShort: idShort,
       name: name ?? null,
-      description: sanitizeHtml(nl2br(description), sanitizeOptions),
+      description: sanitizeHtml(nl2br(description), ensDescriptionSchema),
       url,
       twitter,
       github,

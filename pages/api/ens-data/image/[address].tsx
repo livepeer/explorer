@@ -1,8 +1,7 @@
-import { getCacheControlHeader } from "@lib/api";
+import { getCacheControlHeader } from "@lib/api/api";
 import {
   ENS_BLACKLISTED_ADDRESSES,
   ENS_CACHE_TTL,
-  getAvatarUrlCached,
   getEnsForAddressCached,
   LockBusyError,
 } from "@lib/api/ens";
@@ -18,6 +17,8 @@ import { Address, isAddress } from "viem";
 import { normalize } from "viem/ens";
 
 const blacklist = ENS_BLACKLISTED_ADDRESSES;
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+const AVATAR_TIMEOUT_MS = 10_000;
 
 const handler = async (
   req: NextApiRequest,
@@ -59,27 +60,63 @@ const handler = async (
         try {
           const identity = await getEnsForAddressCached(address as Address);
 
-          if (!identity.name) {
-            return notFound(res, "No ENS name for this address");
-          }
-
-          const imageUrl = await getAvatarUrlCached(address, identity.name);
-
-          if (!imageUrl) {
+          if (!identity.name || !identity.avatar) {
             return notFound(res, "ENS avatar not found");
           }
 
-          const response = await fetch(imageUrl);
+          // Fetch only from the ENS metadata service, never owner-set URLs.
+          const avatarUrl = new URL(
+            `/mainnet/avatar/${encodeURIComponent(normalize(identity.name))}`,
+            "https://metadata.ens.domains"
+          );
+          const response = await fetch(avatarUrl, {
+            redirect: "error",
+            signal: AbortSignal.timeout(AVATAR_TIMEOUT_MS),
+          });
 
-          if (!response.ok) {
+          const contentType = response.headers
+            .get("content-type")
+            ?.split(";")[0]
+            .trim()
+            .toLowerCase();
+          const contentLength = Number(response.headers.get("content-length"));
+          if (
+            !response.ok ||
+            !contentType?.startsWith("image/") ||
+            contentLength > MAX_AVATAR_BYTES ||
+            !response.body
+          ) {
             return notFound(res, "ENS avatar not found");
           }
 
-          const arrayBuffer = await response.arrayBuffer();
+          const reader = response.body.getReader();
+          const chunks: Buffer[] = [];
+          let totalBytes = 0;
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
+              totalBytes += value.byteLength;
+              if (totalBytes > MAX_AVATAR_BYTES) {
+                await reader.cancel();
+                return notFound(res, "ENS avatar not found");
+              }
+              chunks.push(Buffer.from(value));
+            }
+          } finally {
+            reader.releaseLock();
+          }
+
+          res.setHeader("Content-Type", contentType);
+          res.setHeader("X-Content-Type-Options", "nosniff");
+          res.setHeader(
+            "Content-Security-Policy",
+            "default-src 'none'; sandbox"
+          );
           res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
 
-          return res.end(Buffer.from(arrayBuffer));
+          return res.end(Buffer.concat(chunks, totalBytes));
         } catch (e) {
           if (e instanceof LockBusyError) {
             console.warn(

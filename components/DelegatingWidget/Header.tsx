@@ -42,6 +42,7 @@ const Header = ({
               height: 40,
             }}
             src={delegateProfile.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas

@@ -1,3 +1,4 @@
+import { safe } from "@lib/api/abis/safe/Safe";
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   DEFAULT_CHAIN_ID,
@@ -6,7 +7,8 @@ import {
 import { Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
-import { useAccount, useDisconnect } from "wagmi";
+import { BaseError, ContractFunctionZeroDataError } from "viem";
+import { useAccount, useDisconnect, useReadContract } from "wagmi";
 
 const useIsChainSupported = () => {
   const activeChain = useActiveChain();
@@ -28,6 +30,37 @@ export const useAccountAddress = () => {
   const isChainSupported = useIsChainSupported();
 
   return isChainSupported && account?.address ? account.address : null;
+};
+
+export const isNonSafeError = (error: unknown) =>
+  error instanceof BaseError &&
+  Boolean(
+    error.walk((cause) => cause instanceof ContractFunctionZeroDataError)
+  );
+
+/**
+ * Whether the connected account is a Safe. Undefined means the contract read
+ * has not settled yet, so callers must not treat it as an EOA.
+ */
+export const useIsSafe = () => {
+  const address = useAccountAddress();
+
+  const { data, isPending } = useReadContract({
+    address: address ?? undefined,
+    abi: safe,
+    functionName: "getThreshold",
+    query: {
+      enabled: Boolean(address),
+      retry: false,
+      // An EOA returns no contract data. Don't restart that completed probe
+      // when the receipt header mounts; preserve retries for all other errors.
+      retryOnMount: ({ state: { error } }) => !isNonSafeError(error),
+      staleTime: Infinity,
+    },
+  });
+
+  if (!address || isPending) return undefined;
+  return data !== undefined;
 };
 
 export const useAccountSigner = () => {

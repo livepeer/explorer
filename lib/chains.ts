@@ -106,13 +106,13 @@ export const ALL_SUPPORTED_CHAIN_IDS = [
  */
 export const NETWORK_RPC_URLS = {
   [chain.mainnet.id]: [
-    `https://mainnet.infura.io/v3/${INFURA_KEY}`,
     process.env.NEXT_PUBLIC_L1_RPC_URL,
+    `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   ].filter(Boolean) as string[],
 
   [chain.arbitrum.id]: [
-    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
     process.env.NEXT_PUBLIC_L2_RPC_URL,
+    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
   ].filter(Boolean) as string[],
 };
 
@@ -126,6 +126,7 @@ export const CHAIN_INFO = {
     networkType: NetworkType.L1,
     l1: chain.mainnet,
     explorer: "https://etherscan.io/",
+    safePrefix: "eth",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Ethereum Mainnet",
     logoUrl: ethereumLogoUrl,
@@ -144,6 +145,7 @@ export const CHAIN_INFO = {
     bridge: "https://bridge.arbitrum.io/",
     docs: "https://offchainlabs.com/",
     explorer: "https://arbiscan.io/",
+    safePrefix: "arb1",
     pricingUrl: "https://nyc.livepeer.com/orchestratorStats",
     label: "Arbitrum",
     logoUrl: arbitrumLogoUrl,
