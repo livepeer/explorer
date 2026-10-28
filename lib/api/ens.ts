@@ -1,18 +1,147 @@
+import { cacheControlValues } from "@lib/api/api";
 import { l1PublicClient } from "@lib/chains";
 import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
+import { Redis } from "@upstash/redis";
 import { formatAddress } from "@utils/web3";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
 import { EnsIdentity } from "./types/get-ens";
 
-export const getEnsForAddress = async (address: string | null | undefined) => {
-  const idShort = address?.replace(address?.slice(6, 38), "…");
+export const ENS_BLACKLISTED_ADDRESSES = [
+  "0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44",
+].map((a) => a.toLowerCase());
 
-  const name =
-    address && isAddress(address)
-      ? await l1PublicClient.getEnsName({ address })
-      : null;
+export const ENS_CACHE_TTL = "week";
+
+const redis =
+  typeof window === "undefined" &&
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN
+    ? new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      })
+    : null;
+
+if (!redis && typeof window === "undefined") {
+  console.warn(
+    "ENS cache: UPSTASH_REDIS_REST_URL/TOKEN not set, running without caching (every request will hit L1 directly)."
+  );
+}
+
+const ENS_CACHE_TTL_SECONDS = cacheControlValues[ENS_CACHE_TTL].maxAge;
+const ENS_LOCK_TTL_SECONDS = 20;
+
+export class LockBusyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "LockBusyError";
+  }
+}
+
+export const getEnsForAddressCached = async (
+  address: string | null | undefined
+): Promise<EnsIdentity> => {
+  const key = (address ?? "").toLowerCase();
+
+  if (!redis) {
+    const ens = await getEnsForAddress(address);
+    return { ...ens, computedAt: Date.now() };
+  }
+
+  try {
+    const cached = await redis.get<EnsIdentity>(key);
+
+    if (cached) {
+      return cached;
+    }
+  } catch (err) {
+    console.error("ENS cache read failed:", err);
+    const ens = await getEnsForAddress(address);
+    const stampedEns = { ...ens, computedAt: Date.now() };
+    return stampedEns;
+  }
+
+  const lockKey = `lock:${key}`;
+  const lockToken = crypto.randomUUID();
+  let lockAcquired = true;
+
+  try {
+    const lockResult = await redis.set(lockKey, lockToken, {
+      nx: true,
+      ex: ENS_LOCK_TTL_SECONDS,
+    });
+    lockAcquired = lockResult !== null;
+  } catch (err) {
+    console.error("ENS lock acquisition failed, proceeding unlocked:", err);
+    lockAcquired = true;
+  }
+
+  if (!lockAcquired) {
+    throw new LockBusyError(
+      "Another request is already resolving this address"
+    );
+  }
+
+  const RELEASE_LOCK_SCRIPT = `
+    if redis.call("GET", KEYS[1]) == ARGV[1] then
+      return redis.call("DEL", KEYS[1])
+    else
+      return 0
+    end
+  `;
+
+  try {
+    try {
+      const recheck = await redis.get<EnsIdentity>(key);
+      if (recheck) {
+        return recheck;
+      }
+    } catch (err) {
+      console.error("ENS cache recheck failed, proceeding to resolve:", err);
+    }
+
+    let stampedEns: EnsIdentity;
+
+    try {
+      const ens = await getEnsForAddress(address);
+      stampedEns = { ...ens, computedAt: Date.now() };
+    } catch (err) {
+      console.error("ENS resolution failed:", err);
+      throw err;
+    }
+
+    try {
+      await redis.set(key, stampedEns, { ex: ENS_CACHE_TTL_SECONDS });
+    } catch (err) {
+      console.error("ENS cache write failed:", err);
+    }
+
+    return stampedEns;
+  } finally {
+    try {
+      await redis.eval(RELEASE_LOCK_SCRIPT, [lockKey], [lockToken]);
+    } catch (err) {
+      console.error("ENS lock release failed:", err);
+    }
+  }
+};
+
+export const getEnsForAddress = async (address: string | null | undefined) => {
+  if (!address) {
+    return {
+      id: "",
+      idShort: "",
+      name: null,
+    } as EnsIdentity;
+  }
+
+  const idShort = address.replace(address.slice(6, 38), "…");
+
+  const name = isAddress(address)
+    ? await l1PublicClient.getEnsName({ address })
+    : null;
 
   if (name) {
     const normalizedName = normalize(name);
@@ -25,15 +154,15 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
     ]);
 
     const ens: EnsIdentity = {
-      id: address ?? "",
-      idShort: idShort ?? "",
+      id: address,
+      idShort: idShort,
       name: name ?? null,
       description: sanitizeHtml(nl2br(description), ensDescriptionSchema),
       url,
       twitter,
       github,
       avatar: avatar
-        ? `/api/ens-data/image/${encodeURIComponent(normalizedName)}`
+        ? `/api/ens-data/image/${encodeURIComponent(address)}`
         : null,
     };
 
@@ -41,8 +170,8 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
   }
 
   const ens: EnsIdentity = {
-    id: address ?? "",
-    idShort: idShort ?? "",
+    id: address,
+    idShort: idShort,
     name: null,
   };
 

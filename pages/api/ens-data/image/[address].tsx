@@ -1,14 +1,22 @@
 import { getCacheControlHeader } from "@lib/api/api";
 import {
+  ENS_BLACKLISTED_ADDRESSES,
+  ENS_CACHE_TTL,
+  getEnsForAddressCached,
+  LockBusyError,
+} from "@lib/api/ens";
+import {
   badRequest,
   internalError,
   methodNotAllowed,
   notFound,
 } from "@lib/api/errors";
+import { l1PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Address, isAddress } from "viem";
 import { normalize } from "viem/ens";
 
-const blacklist = ["salty-minning.eth"];
+const blacklist = ENS_BLACKLISTED_ADDRESSES;
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 const AVATAR_TIMEOUT_MS = 10_000;
 
@@ -20,19 +28,45 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { name } = req.query;
+      const { address: rawParam } = req.query;
+
+      if (!rawParam || Array.isArray(rawParam)) {
+        return badRequest(res, "Invalid address format");
+      }
+
+      let address: string;
+
+      if (isAddress(rawParam)) {
+        address = rawParam;
+      } else {
+        try {
+          const resolved = await l1PublicClient.getEnsAddress({
+            name: normalize(rawParam),
+          });
+          if (!resolved)
+            return notFound(res, "No address found for this ENS name");
+          address = resolved;
+        } catch {
+          return badRequest(res, "Invalid address format");
+        }
+      }
 
       if (
-        name &&
-        typeof name === "string" &&
-        name.length > 0 &&
-        !blacklist.includes(name)
+        !!address &&
+        !Array.isArray(address) &&
+        isAddress(address) &&
+        !blacklist.includes(address.toLowerCase())
       ) {
         try {
-          const normalizedName = normalize(name);
-          // getEnsAvatar fetches owner-set URLs before returning them.
+          const identity = await getEnsForAddressCached(address as Address);
+
+          if (!identity.name || !identity.avatar) {
+            return notFound(res, "ENS avatar not found");
+          }
+
+          // Fetch only from the ENS metadata service, never owner-set URLs.
           const avatarUrl = new URL(
-            `/mainnet/avatar/${encodeURIComponent(normalizedName)}`,
+            `/mainnet/avatar/${encodeURIComponent(normalize(identity.name))}`,
             "https://metadata.ens.domains"
           );
           const response = await fetch(avatarUrl, {
@@ -80,15 +114,26 @@ const handler = async (
             "Content-Security-Policy",
             "default-src 'none'; sandbox"
           );
-          res.setHeader("Cache-Control", getCacheControlHeader("week"));
+          res.setHeader("Cache-Control", getCacheControlHeader(ENS_CACHE_TTL));
 
           return res.end(Buffer.concat(chunks, totalBytes));
         } catch (e) {
-          console.error(e);
+          if (e instanceof LockBusyError) {
+            console.warn(
+              "Avatar route: cache-lock busy, address in-flight:",
+              address
+            );
+          } else {
+            console.error(
+              "Avatar fetch error:",
+              e instanceof Error ? e.message : e,
+              e instanceof Error ? e.stack : ""
+            );
+          }
           return notFound(res, "ENS avatar not found");
         }
       } else {
-        return badRequest(res, "Invalid ENS name");
+        return badRequest(res, "Invalid address format");
       }
     }
 

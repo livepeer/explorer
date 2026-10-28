@@ -2,6 +2,7 @@ import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import SafeHtml from "@components/SafeHtml";
 import ShowMoreRichText from "@components/ShowMoreRichText";
 import { EnsIdentity } from "@lib/api/types/get-ens";
+import dayjs from "@lib/dayjs";
 import { ensDescriptionSchema } from "@lib/sanitize";
 import { sanitizeExternalUrl } from "@lib/utils";
 import {
@@ -278,6 +279,11 @@ const Index = ({
               </Box>
             )}
           </Flex>
+          {identity?.computedAt && identity?.name && (
+            <Text variant="neutral" size="1" css={{ marginTop: "$2" }}>
+              ENS last verified {dayjs(identity.computedAt).fromNow()}
+            </Text>
+          )}
           <Flex align="center" css={{ flexWrap: "wrap" }}>
             {safeIdentityUrl && (
               <A
