@@ -29,10 +29,16 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: "/design/mocks/",
+        destination: "/design/mocks/index.html",
+        permanent: false,
+      },
+      {
         // Serve the review HTML at its real path. A rewrite would leave the
         // address bar on /design/mocks/<slug>, and ../shared/inter.css would
-        // resolve one directory too high.
-        source: "/design/mocks/:slug",
+        // resolve one directory too high. Exclude dotted names so the hub
+        // destination /design/mocks/index.html is not treated as a slug.
+        source: "/design/mocks/:slug([^/.]+)",
         destination: "/design/mocks/:slug/index.html",
         permanent: false,
       },
