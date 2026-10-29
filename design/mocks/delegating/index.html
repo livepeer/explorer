@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>See what your stake is earning</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      style="position: absolute; width: 0; height: 0; overflow: hidden"
+      aria-hidden="true"
+    >
+      <symbol id="mark-lpt" viewBox="0 0 29 30">
+        <path
+          fill="currentColor"
+          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+        />
+      </symbol>
+      <symbol id="mark-usdc" viewBox="0 0 96 96">
+        <path
+          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+          fill="#0B53BF"
+        />
+        <path
+          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
+          fill="white"
+        />
+      </symbol>
+    </svg>
+
+    <header class="page-head">
+      <h1>See what your stake is earning</h1>
+
+      <a
+        class="issue-chip"
+        data-issue="802"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+        >802</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="803"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+        >803</a
+      >
+
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        Your bonded stake on Delegating, with a handoff into past-round
+        receipts.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+      <a class="issue-link" href="../index.html">← Review hub</a>
+    </div>
+
+    <main id="surface">
+      <section class="section" aria-labelledby="surface-title">
+        <div class="section-header">
+          <h2 class="section-title" id="surface-title">Delegating</h2>
+          <span class="section-route">/accounts/you/delegating</span>
+        </div>
+        <div class="callout-target" id="m-del-1" data-issue="802">
+          <div class="section-header">
+            <h2 class="section-title" id="s4">Your delegation</h2>
+            <span class="section-route">/accounts/[account]/delegating</span>
+          </div>
+          <p class="section-description">
+            For anyone already bonded: replace the top-left
+            <strong>Delegated with</strong> slot on this page. Same two-column
+            layout and right-rail Delegate box; Stake, Pending fees, and Network
+            equity stay. The card says whether you are earning on this node or
+            sitting idle. “Room to earn” stays on the compare list for people
+            still choosing.
+          </p>
+
+          <div class="variant-label">Page frame · You’re earning</div>
+          <figure
+            class="page-frame"
+            aria-label="Illustration of the delegating page: the status card replaces Delegated with in the top-left slot; the Delegate box stays in the right rail"
+            style="margin: 0"
+          >
+            <div class="pf-account" aria-hidden="true">
+              <div class="identity">
+                <span class="avatar" style="background: #3a2e4a">BE</span>
+                <span
+                  ><span class="name">beyondr.eth</span><br /><span class="addr"
+                    >0x7f3d…a91c</span
+                  ></span
+                >
+              </div>
+              <div class="pf-tabs">
+                <span aria-current="page">Delegating</span>
+                <span>History</span>
+              </div>
+            </div>
+            <div class="pf-body">
+              <div>
+                <span class="pf-tag" aria-hidden="true"
+                  >Delegating tab · replaces Delegated with</span
+                >
+                <div class="pf-grid">
+                  <a class="stat-card theme-stake" href="#">
+                    <div class="top">
+                      <span class="title">Titan Node</span>
+                      <span class="chip stake"
+                        ><svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                            stroke="currentColor"
+                            stroke-width="1.6"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M9.5 4.5h4v4"
+                            stroke="currentColor"
+                            stroke-width="1.6"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        You’re earning</span
+                      >
+                    </div>
+                    <div class="d">
+                      You’re earning rewards on this node right now. Moving
+                      takes about 21&nbsp;days.
+                      <span style="color: var(--primary11)">View node →</span>
+                    </div>
+                  </a>
+                  <div class="pf-stat">
+                    <div class="label">Stake</div>
+                    <div class="value num lpt qty">
+                      <span class="token-mark lpt" role="img" aria-label="LPT"
+                        ><img
+                          src="../shared/logo-icon.svg"
+                          alt=""
+                          width="14"
+                          height="14"
+                          aria-hidden="true" /></span
+                      ><span>48.08 LPT</span>
+                    </div>
+                  </div>
+                  <div class="pf-stat">
+                    <div class="label">Pending fees</div>
+                    <div class="value num">&lt; 0.001 ETH</div>
+                  </div>
+                  <div class="pf-stat">
+                    <div class="label">Network equity</div>
+                    <div class="value num">0.000%</div>
+                  </div>
+                </div>
+              </div>
+              <aside class="pf-rail" aria-label="Delegate">
+                <span class="pf-tag" aria-hidden="true"
+                  >Delegate box · sticky right rail</span
+                >
+                <div class="dw">
+                  <div
+                    class="dw-tabs"
+                    role="radiogroup"
+                    aria-label="Bond action"
+                  >
+                    <button type="button" role="radio" aria-checked="true">
+                      Delegate
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                    >
+                      Undelegate
+                    </button>
+                  </div>
+                  <label class="dw-label" for="delegating-amount"
+                    ><span>Amount</span
+                    ><span class="num">Balance 23.9 LPT</span></label
+                  >
+                  <div class="dw-input-row">
+                    <input
+                      id="delegating-amount"
+                      class="dw-input"
+                      name="amount"
+                      type="text"
+                      inputmode="decimal"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="0.0…"
+                    />
+                    <span
+                      class="dw-unit token-mark lpt"
+                      role="img"
+                      aria-label="LPT"
+                      ><img
+                        src="../shared/logo-icon.svg"
+                        alt=""
+                        width="14"
+                        height="14"
+                        aria-hidden="true"
+                    /></span>
+                  </div>
+                  <div class="dw-lines">
+                    <div class="dw-line">
+                      <span>Forecasted yield (1Y)</span
+                      ><span class="num">0%</span>
+                    </div>
+                    <div class="dw-line">
+                      <span>Inflationary rewards</span
+                      ><span class="num lpt qty"
+                        ><span
+                          class="token-mark lpt"
+                          role="img"
+                          aria-label="LPT"
+                          ><img
+                            src="../shared/logo-icon.svg"
+                            alt=""
+                            width="14"
+                            height="14"
+                            aria-hidden="true" /></span
+                        ><span>0 LPT</span></span
+                      >
+                    </div>
+                    <div class="dw-line">
+                      <span>Fee share</span><span class="num">0 ETH</span>
+                    </div>
+                  </div>
+                  <button type="button" class="dw-submit">
+                    Enter an amount
+                  </button>
+                </div>
+              </aside>
+            </div>
+            <div class="pf-drawer">
+              <span
+                >Under 1200px the Delegate box opens from a bottom drawer.</span
+              >
+              <button
+                type="button"
+                class="delegate-btn"
+                data-drawer-focus
+                aria-expanded="false"
+                aria-controls="delegating-amount"
+                aria-label="Open amount drawer"
+              >
+                Delegate
+              </button>
+            </div>
+          </figure>
+
+          <p class="variant-sub">
+            Same Delegated with slot, other state. Stake, fees, equity, and the
+            right rail stay put.
+          </p>
+          <div class="variant-grid mfs-states">
+            <div>
+              <div class="variant-label">Full · not lifting rewards</div>
+              <a class="stat-card theme-fee" href="#">
+                <div class="top">
+                  <span class="title">Everstake</span>
+                  <span class="chip fee"
+                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.2"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                      />
+                    </svg>
+                    Full</span
+                  >
+                </div>
+                <div class="d">
+                  This node has more stake than work, so your stake is not
+                  lifting rewards right now.
+                  <span style="color: var(--primary11)"
+                    >See nodes with room to earn →</span
+                  >
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <ul class="notes">
+            <li>
+              <strong>Where it sits:</strong> replaces the top-left
+              <strong>Delegated with</strong> card on
+              <code>/accounts/[account]/delegating</code>. Stake, Pending fees,
+              and Network equity stay. The Delegate / Undelegate box stays in
+              the right rail (or the bottom drawer under 1200px).
+            </li>
+            <li>
+              <strong>Bonded language:</strong> use “You’re earning” / “Full”
+              here, not “Room to earn.” That phrase is for the compare list when
+              someone is still choosing a node.
+            </li>
+            <li>
+              <strong>Still a link:</strong> the card keeps linking to the
+              node’s orchestrating page (and to the compare list when full), so
+              the market stays one click away.
+            </li>
+          </ul>
+          <a
+            class="callout"
+            href="#n-del-1"
+            data-issue="802"
+            aria-label="Note 1, issue 802: You&#x27;re earning card"
+            >1</a
+          >
+        </div>
+
+        <div class="callout-target" id="m-del-2" data-issue="803">
+          <p class="section-description" style="margin: 12px 0">
+            From your bonded account, History is one click away when a round has
+            paid.
+            <a class="prose-link" href="../history/">Round N paid you · Why?</a>
+          </p>
+          <a
+            class="callout"
+            href="#n-del-2"
+            data-issue="803"
+            aria-label="Note 2, issue 803: History entry from Delegating"
+            >2</a
+          >
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this route">
+          <button
+            type="button"
+            role="tab"
+            id="tab-802"
+            aria-controls="panel-del-802"
+            aria-selected="true"
+            tabindex="0"
+          >
+            802 Fee vs stake
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-803"
+            aria-controls="panel-del-803"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            803 Reward history
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-del-802"
+          aria-labelledby="tab-802"
+        >
+          <article class="note-card" id="n-del-1" tabindex="-1">
+            <h3>1. You&#x27;re earning <span class="issue-tag">#802</span></h3>
+            <div>
+              <p>
+                Same stake-capped state as Room to earn, but the viewer already
+                bonded. Copy is about their stake, not leftover room.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-del-1">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this route
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Room to earn / Full / Balanced.</strong> Those names
+                speak to the stake choice on the compare list. Under 2.0 the old
+                “Active” label loses its meaning with the capped set. On
+                <code>/delegating</code>, the same stake-capped state reads
+                “You’re earning” instead: the user already bonded, so the copy
+                is about their stake, not leftover room for new stake.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Shared accessibility and color rules live on the
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >Issue #802 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-del-803"
+          aria-labelledby="tab-803"
+        >
+          <article class="note-card" id="n-del-2" tabindex="-1">
+            <h3>2. Entry into History <span class="issue-tag">#803</span></h3>
+            <div>
+              <p>
+                Delegating does not retell the receipt. It links into History ·
+                Rewards.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-del-2">↑ Show in mock</a>
+          </article>
+
+          <p class="section-description">
+            Shared accessibility and color rules live on the
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >Issue #803 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <script src="../shared/mock.js"></script>
+    <script>
+      (function () {
+        function bindRadioGroup(group) {
+          if (!group) return;
+          var radios = function () {
+            return Array.prototype.slice.call(
+              group.querySelectorAll('[role="radio"]')
+            );
+          };
+          function selectSafe(btn) {
+            radios().forEach(function (r) {
+              var on = r === btn;
+              r.setAttribute("aria-checked", on ? "true" : "false");
+              r.tabIndex = on ? 0 : -1;
+            });
+            if (btn.hasAttribute("data-dw-tab")) {
+              var root = btn.closest(".dw");
+              var submit = root && root.querySelector("[data-dw-submit]");
+              if (submit) submit.textContent = btn.getAttribute("data-dw-tab");
+            }
+          }
+          group.addEventListener("click", function (e) {
+            var btn = e.target.closest('[role="radio"]');
+            if (!btn || !group.contains(btn)) return;
+            selectSafe(btn);
+          });
+          group.addEventListener("keydown", function (e) {
+            var items = radios();
+            var i = items.indexOf(document.activeElement);
+            if (i < 0) return;
+            var next = i;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown")
+              next = (i + 1) % items.length;
+            else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+              next = (i - 1 + items.length) % items.length;
+            else if (e.key === "Home") next = 0;
+            else if (e.key === "End") next = items.length - 1;
+            else if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              selectSafe(items[i]);
+              return;
+            } else return;
+            e.preventDefault();
+            items[next].focus();
+            selectSafe(items[next]);
+          });
+        }
+
+        document
+          .querySelectorAll('[role="radiogroup"]')
+          .forEach(bindRadioGroup);
+
+        function narrow() {
+          return window.matchMedia("(max-width: 1199px)").matches;
+        }
+
+        function amountInput(frame) {
+          return frame.querySelector(".pf-rail input.dw-input");
+        }
+
+        var drawerReturn = new WeakMap();
+        var drawerTrap = null;
+
+        function focusables(root) {
+          if (!root) return [];
+          return Array.prototype.slice
+            .call(
+              root.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+              )
+            )
+            .filter(function (el) {
+              return !el.hasAttribute("disabled") && el.tabIndex !== -1;
+            });
+        }
+
+        function drawerFocusRoot(frame) {
+          var rail = frame.querySelector(".pf-rail");
+          var bar = frame.querySelector(".pf-drawer");
+          var list = focusables(rail).concat(focusables(bar));
+          return list;
+        }
+
+        function ensureBackdrop(frame) {
+          var backdrop = frame.querySelector(".drawer-backdrop");
+          if (backdrop) return backdrop;
+          backdrop = document.createElement("button");
+          backdrop.type = "button";
+          backdrop.className = "drawer-backdrop";
+          backdrop.setAttribute("aria-label", "Close amount drawer");
+          backdrop.tabIndex = -1;
+          backdrop.addEventListener("click", function () {
+            setDrawerOpen(frame, false);
+          });
+          frame.insertBefore(backdrop, frame.firstChild);
+          return backdrop;
+        }
+
+        function setInertAttr(el, on) {
+          if (on) el.setAttribute("inert", "");
+          else el.removeAttribute("inert");
+        }
+
+        function setBackgroundInert(frame, on) {
+          Array.prototype.forEach.call(frame.children, function (child) {
+            if (
+              child.classList.contains("pf-rail") ||
+              child.classList.contains("pf-drawer") ||
+              child.classList.contains("drawer-backdrop")
+            ) {
+              child.removeAttribute("inert");
+              return;
+            }
+            // .pf-rail nests inside .pf-body; keep the body interactive and
+            // inert only its non-rail children so the open sheet stays usable.
+            if (child.classList.contains("pf-body")) {
+              child.removeAttribute("inert");
+              Array.prototype.forEach.call(child.children, function (grand) {
+                if (grand.classList.contains("pf-rail")) {
+                  grand.removeAttribute("inert");
+                  return;
+                }
+                setInertAttr(grand, on);
+              });
+              return;
+            }
+            setInertAttr(child, on);
+          });
+          var parent = frame.parentElement;
+          if (parent) {
+            Array.prototype.forEach.call(parent.children, function (sib) {
+              if (sib === frame) return;
+              setInertAttr(sib, on);
+            });
+          }
+          Array.prototype.forEach.call(document.body.children, function (el) {
+            if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
+            if (el.contains(frame)) return;
+            setInertAttr(el, on);
+          });
+        }
+
+        function setDrawerOpen(frame, open, returnTo) {
+          if (!frame) return;
+          var drawer = frame.querySelector(".pf-drawer");
+          var rail = frame.querySelector(".pf-rail");
+          var toggle = drawer && drawer.querySelector("[data-drawer-focus]");
+          var modal = open && narrow();
+          ensureBackdrop(frame);
+          frame.classList.toggle("is-drawer-open", open);
+          if (drawer) drawer.classList.toggle("is-open", open);
+          if (toggle) {
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            toggle.setAttribute(
+              "aria-label",
+              open ? "Close amount drawer" : "Open amount drawer"
+            );
+          }
+          if (rail) {
+            if (modal) {
+              rail.setAttribute("role", "dialog");
+              rail.setAttribute("aria-modal", "true");
+            } else {
+              rail.removeAttribute("role");
+              rail.removeAttribute("aria-modal");
+            }
+          }
+          setBackgroundInert(frame, modal);
+          if (drawerTrap) {
+            document.removeEventListener("keydown", drawerTrap, true);
+            drawerTrap = null;
+          }
+          if (open) {
+            if (returnTo) drawerReturn.set(frame, returnTo);
+            var input = amountInput(frame);
+            if (input) input.focus({ preventScroll: true });
+            if (modal) {
+              drawerTrap = function (e) {
+                if (
+                  e.key !== "Tab" ||
+                  !frame.classList.contains("is-drawer-open")
+                )
+                  return;
+                if (!narrow()) return;
+                var list = drawerFocusRoot(frame);
+                if (!list.length) return;
+                var first = list[0];
+                var last = list[list.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault();
+                  last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault();
+                  first.focus();
+                }
+              };
+              document.addEventListener("keydown", drawerTrap, true);
+            }
+          } else {
+            var back = drawerReturn.get(frame);
+            drawerReturn.delete(frame);
+            if (back && typeof back.focus === "function") {
+              back.focus({ preventScroll: true });
+            }
+          }
+        }
+
+        function openAmount(frame, returnTo) {
+          if (!frame) return;
+          var reduce = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+          ).matches;
+          var behavior = reduce ? "auto" : "smooth";
+          var input = amountInput(frame);
+          if (narrow()) {
+            setDrawerOpen(frame, true, returnTo);
+            return;
+          }
+          var rail = frame.querySelector(".pf-rail");
+          if (rail)
+            rail.scrollIntoView({ block: "nearest", behavior: behavior });
+          if (input) input.focus({ preventScroll: true });
+        }
+
+        document
+          .querySelectorAll("[data-focus-widget]")
+          .forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              openAmount(btn.closest(".page-frame"), btn);
+            });
+          });
+
+        document
+          .querySelectorAll("[data-drawer-focus]")
+          .forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var frame = btn.closest(".page-frame");
+              if (!frame) return;
+              var open = !frame.classList.contains("is-drawer-open");
+              setDrawerOpen(frame, open, open ? btn : undefined);
+            });
+          });
+
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          var tipOpen = false;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (!open) return;
+            help.classList.add("is-tip-dismissed");
+            tipOpen = true;
+          });
+          if (tipOpen) return;
+          document
+            .querySelectorAll(".page-frame.is-drawer-open")
+            .forEach(function (frame) {
+              setDrawerOpen(frame, false);
+            });
+        });
+
+        window
+          .matchMedia("(max-width: 1199px)")
+          .addEventListener("change", function (mq) {
+            if (mq.matches) return;
+            document
+              .querySelectorAll(".page-frame.is-drawer-open")
+              .forEach(function (frame) {
+                setDrawerOpen(frame, false);
+              });
+          });
+      })();
+
+      MockReview.bindHelpTips();
+      MockReview.bindIssueTabs();
+      MockReview.bindCallouts();
+      MockReview.bindHideMarkers();
+    </script>
+  </body>
+</html>
