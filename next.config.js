@@ -24,6 +24,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/design/mocks",
+        destination: "/design/mocks/index.html",
+        permanent: false,
+      },
+      {
         // Serve the review HTML at its real path. A rewrite would leave the
         // address bar on /design/mocks/<slug>, and ../shared/inter.css would
         // resolve one directory too high.
