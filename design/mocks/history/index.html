@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Why a past round paid what it paid</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      style="position: absolute; width: 0; height: 0; overflow: hidden"
+      aria-hidden="true"
+    >
+      <symbol id="mark-lpt" viewBox="0 0 29 30">
+        <path
+          fill="currentColor"
+          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
+        />
+      </symbol>
+      <symbol id="mark-usdc" viewBox="0 0 96 96">
+        <path
+          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+          fill="#0B53BF"
+        />
+        <path
+          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
+          fill="white"
+        />
+      </symbol>
+    </svg>
+
+    <header class="page-head">
+      <h1>Why a past round paid what it paid</h1>
+
+      <a
+        class="issue-chip"
+        data-issue="803"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+        >803</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="804"
+        href="https://github.com/livepeer/explorer/issues/804"
+        target="_blank"
+        rel="noopener"
+        >804</a
+      >
+
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        Settled rounds on History · Rewards, with a receipt for why that round
+        paid that amount.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+      <a class="issue-link" href="../index.html">← Review hub</a>
+    </div>
+
+    <main id="surface">
+      <section class="section" aria-labelledby="surface-title">
+        <div class="section-header">
+          <h2 class="section-title" id="surface-title">History · Rewards</h2>
+          <span class="section-route">/accounts/…/history</span>
+        </div>
+        <div class="callout-target" id="m-hist-1" data-issue="803">
+          <div class="section-header">
+            <h2 class="section-title" id="primary">Node History · Rewards</h2>
+            <span class="section-route"
+              >/accounts/[node]/history?mode=rewards&amp;round=4210</span
+            >
+            <span class="section-badge">Primary</span>
+          </div>
+          <p class="section-description">
+            Wide: list left, receipt right. Narrow: list → drill-in. Both
+            amounts, then why. LPT math under “How the LPT was derived.” USDC is
+            one line, not those steps.
+          </p>
+
+          <div class="pf" aria-label="Account page mock">
+            <div class="pf-top">
+              <div class="pf-identity">
+                <span class="avatar" aria-hidden="true">TN</span>
+                <div>
+                  <div class="name">Titan Node</div>
+                  <div class="addr">0x7a1b…c4e2</div>
+                </div>
+              </div>
+              <nav class="pf-tabs" aria-label="Account sections">
+                <span>Orchestrating</span>
+                <span>Delegating</span>
+                <a href="#primary" aria-current="page">History</a>
+                <span>Delegators</span>
+              </nav>
+            </div>
+            <div class="pf-body">
+              <div
+                class="mode-seg"
+                role="radiogroup"
+                aria-label="History mode"
+                id="mode-seg"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked="true"
+                  data-mode="rewards"
+                >
+                  Rewards
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked="false"
+                  data-mode="tx"
+                  tabindex="-1"
+                >
+                  Transactions
+                </button>
+              </div>
+
+              <div id="panel-rewards">
+                <p class="anti">
+                  Review only. In product, the node page defaults to Node
+                  operator and your account defaults to Your payouts.
+                </p>
+                <div
+                  class="reader-seg"
+                  role="radiogroup"
+                  aria-label="Last mile in this mock"
+                  id="reader-seg"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="true"
+                    data-reader="delegator"
+                  >
+                    Your payouts
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-reader="operator"
+                    tabindex="-1"
+                  >
+                    Node operator
+                  </button>
+                </div>
+
+                <div class="md-split" id="md-split" data-mobile-pane="list">
+                  <div class="md-list">
+                    <div
+                      class="round-list"
+                      role="radiogroup"
+                      aria-label="Past reward rounds"
+                      id="round-list"
+                    >
+                      <button
+                        type="button"
+                        class="round-row"
+                        role="radio"
+                        aria-checked="true"
+                        data-round="4210"
+                        id="round-4210"
+                      >
+                        <span class="main">
+                          <span class="rid-row">
+                            <span
+                              ><span class="claim-round">Round</span
+                              ><span class="rid num">4210</span></span
+                            >
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                                <path
+                                  d="M9.5 4.5h4v4"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                              Stake capped</span
+                            >
+                          </span>
+                        </span>
+                        <span class="pay">
+                          <span class="num lpt" id="row-pay-4210"
+                            >+15.732 LPT</span
+                          >
+                          <span class="pay-usdc num" id="row-fee-4210"
+                            >+0.40 USDC</span
+                          >
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        class="round-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-round="4209"
+                        id="round-4209"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid-row">
+                            <span
+                              ><span class="claim-round">Round</span
+                              ><span class="rid num">4209</span></span
+                            >
+                            <span class="chip fee"
+                              ><svg
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <circle
+                                  cx="8"
+                                  cy="8"
+                                  r="5.2"
+                                  fill="currentColor"
+                                />
+                                <circle
+                                  cx="8"
+                                  cy="8"
+                                  r="5.2"
+                                  stroke="currentColor"
+                                  stroke-width="1.4"
+                                />
+                              </svg>
+                              Fees capped</span
+                            >
+                          </span>
+                        </span>
+                        <span class="pay">
+                          <span class="num lpt" id="row-pay-4209"
+                            >+30.24 LPT</span
+                          >
+                          <span class="pay-usdc num" id="row-fee-4209"
+                            >+0.80 USDC</span
+                          >
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        class="round-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-round="4208"
+                        id="round-4208"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid-row">
+                            <span
+                              ><span class="claim-round">Round</span
+                              ><span class="rid num">4208</span></span
+                            >
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                                <path
+                                  d="M9.5 4.5h4v4"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                              Stake capped</span
+                            >
+                          </span>
+                        </span>
+                        <span class="pay">
+                          <span class="num lpt" id="row-pay-4208"
+                            >+16.56 LPT</span
+                          >
+                          <span class="pay-usdc num" id="row-fee-4208"
+                            >+0.36 USDC</span
+                          >
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="md-detail" id="md-detail">
+                    <button
+                      type="button"
+                      class="md-back"
+                      id="md-back"
+                      aria-label="Back to all reward rounds"
+                    >
+                      <svg
+                        viewBox="0 0 16 16"
+                        aria-hidden="true"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                      >
+                        <path
+                          d="M10 3 5 8l5 5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      All rounds
+                    </button>
+                    <article
+                      class="story receipt theme-stake"
+                      id="story"
+                      aria-labelledby="story-title"
+                      tabindex="-1"
+                    >
+                      <div class="story-top">
+                        <h3 id="story-title">
+                          <span class="claim-round">Round</span
+                          ><span class="num" id="story-num">4210</span>
+                        </h3>
+                        <span id="story-status"
+                          ><span class="chip stake"
+                            ><svg
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="M9.5 4.5h4v4"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            Stake capped</span
+                          ></span
+                        >
+                      </div>
+                      <p class="claim-when">
+                        Claimable in round
+                        <strong class="num" id="delay-paid">4217</strong>
+                        <span class="help">
+                          <button
+                            type="button"
+                            class="tooltip-dot"
+                            aria-label="Help: when this round can be claimed"
+                            aria-describedby="help-delay"
+                          >
+                            ?
+                          </button>
+                          <span
+                            class="tooltip-help"
+                            role="tooltip"
+                            id="help-delay"
+                          >
+                            Rewards from a round can be claimed seven rounds
+                            later, about a week.
+                          </span>
+                        </span>
+                      </p>
+                      <div
+                        class="sr-only"
+                        id="receipt-live"
+                        aria-live="polite"
+                        aria-atomic="true"
+                      ></div>
+
+                      <div class="payout" id="payout-delegator">
+                        <div class="paid-split">
+                          <div class="paid-slab lpt">
+                            <div class="slab-body">
+                              <span class="token-mark lpt">
+                                <svg
+                                  viewBox="8.2 6.6 12.6 12.6"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <g
+                                    fill="#141414"
+                                    transform="translate(1.147965 1.147965)"
+                                  >
+                                    <g transform="translate(8.138101 6.658446)">
+                                      <polygon
+                                        points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
+                                      />
+                                      <g
+                                        transform="translate(4.143033 2.071517)"
+                                      >
+                                        <polygon
+                                          points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
+                                        />
+                                        <polygon
+                                          points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
+                                        />
+                                      </g>
+                                    </g>
+                                  </g>
+                                </svg>
+                              </span>
+                              <div class="slab-kicker">
+                                <span class="slab-name">LPT rewarded</span>
+                                <span class="help">
+                                  <button
+                                    type="button"
+                                    class="tooltip-dot"
+                                    aria-label="Help: your LPT share"
+                                    aria-describedby="help-stake-del"
+                                  >
+                                    ?
+                                  </button>
+                                  <span
+                                    class="tooltip-help"
+                                    role="tooltip"
+                                    id="help-stake-del"
+                                  >
+                                    <span id="payout-hint-del"
+                                      >Your <span class="num">2%</span> of the
+                                      node’s stake, after the node kept its
+                                      <span class="num">10%</span> cut.</span
+                                    >
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="slab-line">
+                                <div class="slab-amt num" id="payout-amt-del">
+                                  +15.732
+                                </div>
+                                <div class="sr-only">LPT</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="paid-slab usdc">
+                            <div class="slab-body">
+                              <span class="token-mark usdc">
+                                <svg
+                                  viewBox="0 0 96 96"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <path
+                                    d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                                    fill="#0B53BF"
+                                  />
+                                  <path
+                                    d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                                    fill="#fff"
+                                  />
+                                  <path
+                                    d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                                    fill="#fff"
+                                  />
+                                  <path
+                                    d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                                    fill="#fff"
+                                  />
+                                </svg>
+                              </span>
+                              <div class="slab-kicker">
+                                <span class="slab-name">Fees rewarded</span>
+                                <span class="help">
+                                  <button
+                                    type="button"
+                                    class="tooltip-dot"
+                                    aria-label="Help: fees are not reduced by stake"
+                                    aria-describedby="help-fee-del"
+                                  >
+                                    ?
+                                  </button>
+                                  <span
+                                    class="tooltip-help"
+                                    role="tooltip"
+                                    id="help-fee-del"
+                                  >
+                                    Fees are not reduced by stake.
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="slab-line">
+                                <div class="slab-amt num" id="payout-fee-del">
+                                  +0.40
+                                </div>
+                                <div class="sr-only">USDC</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="payout" id="payout-operator" hidden>
+                        <div class="paid-split">
+                          <div class="paid-slab lpt">
+                            <div class="slab-body">
+                              <span class="token-mark lpt">
+                                <svg
+                                  viewBox="8.2 6.6 12.6 12.6"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <g
+                                    fill="#141414"
+                                    transform="translate(1.147965 1.147965)"
+                                  >
+                                    <g transform="translate(8.138101 6.658446)">
+                                      <polygon
+                                        points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
+                                      />
+                                      <polygon
+                                        points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
+                                      />
+                                      <g
+                                        transform="translate(4.143033 2.071517)"
+                                      >
+                                        <polygon
+                                          points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
+                                        />
+                                        <polygon
+                                          points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
+                                        />
+                                      </g>
+                                    </g>
+                                  </g>
+                                </svg>
+                              </span>
+                              <div class="slab-kicker">
+                                <span class="slab-name">LPT rewarded</span>
+                                <span class="help">
+                                  <button
+                                    type="button"
+                                    class="tooltip-dot"
+                                    aria-label="Help: this node’s LPT pool"
+                                    aria-describedby="help-stake-op"
+                                  >
+                                    ?
+                                  </button>
+                                  <span
+                                    class="tooltip-help"
+                                    role="tooltip"
+                                    id="help-stake-op"
+                                  >
+                                    <span id="payout-hint-op"
+                                      >You kept
+                                      <span class="num">87.4 LPT</span>;
+                                      delegators shared the rest pro-rata.</span
+                                    >
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="slab-line">
+                                <div class="slab-amt num" id="payout-amt-op">
+                                  874
+                                </div>
+                                <div class="sr-only">LPT</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="paid-slab usdc">
+                            <div class="slab-body">
+                              <span class="token-mark usdc">
+                                <svg
+                                  viewBox="0 0 96 96"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <path
+                                    d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                                    fill="#0B53BF"
+                                  />
+                                  <path
+                                    d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                                    fill="#fff"
+                                  />
+                                  <path
+                                    d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                                    fill="#fff"
+                                  />
+                                  <path
+                                    d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                                    fill="#fff"
+                                  />
+                                </svg>
+                              </span>
+                              <div class="slab-kicker">
+                                <span class="slab-name">Fees rewarded</span>
+                                <span class="help">
+                                  <button
+                                    type="button"
+                                    class="tooltip-dot"
+                                    aria-label="Help: fees are not reduced by stake"
+                                    aria-describedby="help-fee-op"
+                                  >
+                                    ?
+                                  </button>
+                                  <span
+                                    class="tooltip-help"
+                                    role="tooltip"
+                                    id="help-fee-op"
+                                  >
+                                    Fees are not reduced by stake.
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="slab-line">
+                                <div class="slab-amt num" id="payout-fee-op">
+                                  40.00
+                                </div>
+                                <div class="sr-only">USDC</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p class="story-lede" id="story-lede">
+                        <strong class="num">11.8%</strong> of network fees,
+                        <strong class="cap num">2.3%</strong> of stake. Honesty
+                        at claim was <span class="num">0.95</span>, so the pool
+                        was 95% of that stake ceiling.
+                      </p>
+
+                      <details class="split-disclosure" id="derive-disclosure">
+                        <summary>
+                          How the LPT was derived
+                          <svg
+                            class="chev"
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.6"
+                          >
+                            <path
+                              d="M4 6l4 4 4-4"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </summary>
+                        <div class="split-stack">
+                          <div
+                            class="steps"
+                            aria-label="How this payout was derived"
+                          >
+                            <div class="step muted">
+                              <span class="label"
+                                >Of that round’s LPT pool for nodes
+                                <span class="num">40,000 LPT</span></span
+                              >
+                              <span class="val num">920 LPT</span>
+                            </div>
+                            <div class="step muted">
+                              <span class="label"
+                                >Honesty score at payout
+                                <span class="help">
+                                  <button
+                                    type="button"
+                                    class="tooltip-dot"
+                                    aria-label="Help: honesty factor"
+                                    aria-describedby="help-mult"
+                                  >
+                                    ?
+                                  </button>
+                                  <span
+                                    class="tooltip-help"
+                                    role="tooltip"
+                                    id="help-mult"
+                                  >
+                                    A 0–1 score applied when rewards are
+                                    claimed. It shrinks the pool if the node was
+                                    scored as dishonest. Not a quality grade.
+                                  </span>
+                                </span></span
+                              >
+                              <span class="val num">× 0.95</span>
+                            </div>
+                            <div class="step result">
+                              <span class="label">Pool LPT for that round</span>
+                              <span class="val num">874 LPT</span>
+                            </div>
+                          </div>
+                          <div class="split-note" style="padding-top: 10px">
+                            Fees: the node kept
+                            <span class="num" id="fee-kept-del"
+                              >20.00 USDC</span
+                            >
+                            of
+                            <span class="num" id="fee-pot-del">40.00 USDC</span
+                            >. Not reduced by stake. Of
+                            <span class="num" id="split-pool">874 LPT</span>:
+                            delegators
+                            <span class="num" id="split-del"
+                              >90% · 786.6 LPT</span
+                            >, node
+                            <span class="num" id="split-node"
+                              >10% · 87.4 LPT</span
+                            >. USDC fees are never cut by stake.
+                          </div>
+                        </div>
+                      </details>
+
+                      <p class="next" id="next-delegator">
+                        <strong>To grow the next one:</strong> more stake before
+                        the round (ceiling still headed toward
+                        <span class="num">11.8%</span>), or honesty nearer
+                        <span class="num">1.0</span> at claim.
+                      </p>
+                      <p class="next" id="next-operator" hidden>
+                        <strong>To grow the next one:</strong> close the
+                        <span class="num">9.5%</span> stake gap, or keep honesty
+                        at <span class="num">1.0</span> through claim.
+                      </p>
+                    </article>
+                  </div>
+                </div>
+              </div>
+
+              <div id="panel-tx" hidden>
+                <p class="anti">
+                  Transactions: bonds, votes, claims. Not why a reward was that
+                  size.
+                </p>
+                <div class="tx-demo" aria-label="Transaction feed anti-pattern">
+                  <div class="tx-card">
+                    <div>
+                      <div class="t">Claimed inflationary token reward</div>
+                      <div class="s">10/08/2026 2:14 pm · Round 4217</div>
+                    </div>
+                    <div class="a num">+15.73 LPT</div>
+                  </div>
+                  <div class="tx-card">
+                    <div>
+                      <div class="t">Bonded to 0x7a1b…c4e2</div>
+                      <div class="s">09/22/2026 11:02 am · Round 4191</div>
+                    </div>
+                    <div class="a num">+2,000 LPT</div>
+                  </div>
+                  <div class="tx-card">
+                    <div>
+                      <div class="t">Called reward for 0x7a1b…c4e2</div>
+                      <div class="s">10/08/2026 2:14 pm · Round 4217</div>
+                    </div>
+                    <div class="a" style="color: var(--neutral8)">·</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="claim-explore" id="claim-explore">
+            <p class="claim-kicker">Exploration, not the receipt</p>
+            <h3>Claim is not decided</h3>
+            <p class="blurb">
+              History stays the archive. The receipt explains why a round paid
+              what it paid. A settled round can still need an action about seven
+              rounds later. Two options are below. Neither puts a claim button
+              inside the derivation.
+            </p>
+            <div class="claim-routes">
+              <div>
+                <div class="route-label">
+                  Route A
+                  <span class="tag rec">Recommended</span>
+                </div>
+                <p class="route-copy">
+                  A card above the round list. It opens a sheet of the rounds
+                  that are ready, with one action to claim them together. The
+                  list under the card stays the archive.
+                </p>
+                <button
+                  type="button"
+                  class="claim-card"
+                  id="claim-open"
+                  aria-haspopup="dialog"
+                  aria-controls="claim-dialog"
+                >
+                  <span class="claim-mark" aria-hidden="true">
+                    <svg viewBox="0 0 29 30" focusable="false">
+                      <path
+                        fill="currentColor"
+                        d="M0.0714111,5.35714 L0.0714111,0 L5.42855,0 L5.42855,5.35714 L0.0714111,5.35714 Z M0.0714111,12.1429 L0.0714111,17.5 L5.42855,17.5 L5.42855,12.1429 L0.0714111,12.1429 Z M22.9286,12.1429 L22.9286,17.5 L28.2857,17.5 L28.2857,12.1429 L22.9286,12.1429 Z M0.0714111,24.6429 L0.0714111,30 L5.42855,30 L5.42855,24.6429 L0.0714111,24.6429 Z M11.5,11.4286 L11.5,6.07143 L16.8571,6.07143 L16.8571,11.4286 L11.5,11.4286 Z M11.5,18.5714 L11.5,23.9286 L16.8571,23.9286 L16.8571,18.5714 L11.5,18.5714 Z"
+                      />
+                    </svg>
+                  </span>
+                  <span class="claim-card-copy">
+                    <span class="t">3 rounds of rewards ready</span>
+                    <span class="sums">
+                      <span class="num lpt">+62.532 LPT</span>
+                      <span class="num usdc">+1.56 USDC</span>
+                    </span>
+                    <span class="s">Claim them together…</span>
+                  </span>
+                  <svg
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                  >
+                    <path
+                      d="M6 4l4 4-4 4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div>
+                <div class="route-label">Route B</div>
+                <p class="route-copy">
+                  A status on the round row, for a round past the delay and not
+                  yet claimed. No claim button in the derivation. These rows are
+                  examples, shown as your payouts.
+                </p>
+                <div
+                  class="round-list"
+                  role="group"
+                  aria-label="Route B example rows, not buttons"
+                >
+                  <div class="round-row is-static">
+                    <span class="main">
+                      <span class="rid-row">
+                        <span
+                          ><span class="claim-round">Round</span
+                          ><span class="rid num">4210</span></span
+                        >
+                        <span class="chip stake"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                              stroke="currentColor"
+                              stroke-width="1.6"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M9.5 4.5h4v4"
+                              stroke="currentColor"
+                              stroke-width="1.6"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          Stake capped</span
+                        >
+                        <span class="chip ready"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <path
+                              d="M8 5v3.2l2 1.3"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          Ready to claim</span
+                        >
+                      </span>
+                    </span>
+                    <span class="pay">
+                      <span class="num lpt">+15.732 LPT</span>
+                      <span class="pay-usdc num">+0.40 USDC</span>
+                    </span>
+                  </div>
+                  <div class="round-row is-static">
+                    <span class="main">
+                      <span class="rid-row">
+                        <span
+                          ><span class="claim-round">Round</span
+                          ><span class="rid num">4209</span></span
+                        >
+                        <span class="chip fee"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle cx="8" cy="8" r="5.2" fill="currentColor" />
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.2"
+                              stroke="currentColor"
+                              stroke-width="1.4"
+                            />
+                          </svg>
+                          Fees capped</span
+                        >
+                        <span class="chip ready"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <path
+                              d="M8 5v3.2l2 1.3"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          Ready to claim</span
+                        >
+                      </span>
+                    </span>
+                    <span class="pay">
+                      <span class="num lpt">+30.24 LPT</span>
+                      <span class="pay-usdc num">+0.80 USDC</span>
+                    </span>
+                  </div>
+                  <div class="round-row is-static">
+                    <span class="main">
+                      <span class="rid-row">
+                        <span
+                          ><span class="claim-round">Round</span
+                          ><span class="rid num">4208</span></span
+                        >
+                        <span class="chip stake"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                              stroke="currentColor"
+                              stroke-width="1.6"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M9.5 4.5h4v4"
+                              stroke="currentColor"
+                              stroke-width="1.6"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          Stake capped</span
+                        >
+                        <span class="chip ready"
+                          ><svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <path
+                              d="M8 5v3.2l2 1.3"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          Ready to claim</span
+                        >
+                      </span>
+                    </span>
+                    <span class="pay">
+                      <span class="num lpt">+16.56 LPT</span>
+                      <span class="pay-usdc num">+0.36 USDC</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <dialog
+            class="claim-dialog"
+            id="claim-dialog"
+            aria-labelledby="claim-dialog-title"
+          >
+            <h3 id="claim-dialog-title" tabindex="-1">
+              3 rounds of rewards ready
+            </h3>
+            <p class="lead">Past the delay, not yet claimed.</p>
+            <div class="claim-sheet">
+              <ul class="claim-list">
+                <li>
+                  <span
+                    ><span class="claim-round">Round</span
+                    ><span class="num">4210</span></span
+                  >
+                  <span class="num lpt">+15.732 LPT</span>
+                  <span class="num usdc">+0.40 USDC</span>
+                </li>
+                <li>
+                  <span
+                    ><span class="claim-round">Round</span
+                    ><span class="num">4209</span></span
+                  >
+                  <span class="num lpt">+30.24 LPT</span>
+                  <span class="num usdc">+0.80 USDC</span>
+                </li>
+                <li>
+                  <span
+                    ><span class="claim-round">Round</span
+                    ><span class="num">4208</span></span
+                  >
+                  <span class="num lpt">+16.56 LPT</span>
+                  <span class="num usdc">+0.36 USDC</span>
+                </li>
+              </ul>
+              <div class="claim-totals">
+                <span class="claim-total-label">Total</span>
+                <div class="claim-total lpt">
+                  <span class="token-mark lpt" role="img" aria-label="LPT">
+                    <svg
+                      viewBox="8.2 6.6 12.6 12.6"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <g
+                        fill="#141414"
+                        transform="translate(1.147965 1.147965)"
+                      >
+                        <g transform="translate(8.138101 6.658446)">
+                          <polygon
+                            points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
+                          />
+                          <polygon
+                            points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
+                          />
+                          <polygon
+                            points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
+                          />
+                          <polygon
+                            points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
+                          />
+                          <g transform="translate(4.143033 2.071517)">
+                            <polygon
+                              points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
+                            />
+                            <polygon
+                              points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
+                            />
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                  </span>
+                  <span class="n num">+62.532 LPT</span>
+                </div>
+                <div class="claim-total usdc">
+                  <span class="token-mark usdc" role="img" aria-label="USDC">
+                    <svg
+                      viewBox="0 0 96 96"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
+                        fill="#0B53BF"
+                      />
+                      <path
+                        d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
+                        fill="#fff"
+                      />
+                    </svg>
+                  </span>
+                  <span class="n num">+1.56 USDC</span>
+                </div>
+              </div>
+            </div>
+            <div class="claim-actions">
+              <button type="button" class="primary" id="claim-submit">
+                Claim these rewards
+              </button>
+              <button type="button" id="claim-close">Close</button>
+            </div>
+          </dialog>
+
+          <ul class="notes">
+            <li>
+              Deep-link
+              <code>?mode=rewards&amp;round=4210&amp;as=0x…</code> opens that
+              receipt. On a narrow screen it opens the drill-in.
+            </li>
+            <li>
+              Claim stays under this mock. The receipt has no claim button. The
+              rewards card opens a dialog: the rounds, then the LPT and USDC
+              total, then Claim these rewards.
+            </li>
+          </ul>
+          <a
+            class="callout"
+            href="#n-hist-1"
+            data-issue="803"
+            aria-label="Note 1, issue 803: rewards master-detail and receipt"
+            >1</a
+          >
+        </div>
+
+        <div class="callout-target" id="m-hist-2" data-issue="804">
+          <p class="section-description">
+            The receipt can show the honesty factor that already applied to a
+            paid round. The live score board does not replace that factor, and
+            it does not live on History.
+          </p>
+          <a
+            class="callout"
+            href="#n-hist-2"
+            data-issue="804"
+            aria-label="Note 2, issue 804: honesty factor on receipt"
+            >2</a
+          >
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this route">
+          <button
+            type="button"
+            role="tab"
+            id="tab-803"
+            aria-controls="panel-hist-803"
+            aria-selected="true"
+            tabindex="0"
+          >
+            803 Reward history
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-804"
+            aria-controls="panel-hist-804"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            804 Validator honesty
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-hist-803"
+          aria-labelledby="tab-803"
+        >
+          <article class="note-card" id="n-hist-1" tabindex="-1">
+            <h3>1. Receipt and claim <span class="issue-tag">#803</span></h3>
+            <div>
+              <p>
+                Master-detail settled rounds. The receipt is not a claim form.
+                Claim sits under the mock as “rewards ready.”
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-hist-1">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this route
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>History is past; Orchestrating is now.</strong>
+                <a
+                  href="https://github.com/livepeer/explorer/issues/802"
+                  target="_blank"
+                  rel="noopener"
+                  >802</a
+                >
+                owns the live fee-vs-stake card. This ticket owns settled rounds
+                and a receipt for why a chosen round paid that amount. Do not
+                move the live card onto History.
+              </li>
+              <li>
+                <strong>Receipt title is the round number.</strong> “Round” is
+                the quiet label. The number is the title. Cap status is the chip
+                (Stake capped, Fees capped) and the wash on the receipt. “Room
+                to earn”, “Full”, and “Balanced” stay on live status.
+              </li>
+              <li>
+                <strong>One shell, two homes.</strong> Node account History for
+                operators (pool + kept cut). Your account History for delegators
+                (your share). Same math; different last mile. The mock toggle is
+                review-only.
+              </li>
+              <li>
+                <strong>Master-detail, not stacked.</strong> Wide: list left,
+                receipt right. Narrow: list → drill-in with Back. Rejected: full
+                receipt above a list when two columns fit.
+              </li>
+              <li>
+                <strong>Do not reprint 802.</strong> Entry sketches stay in the
+                802 mock. Link only. “What would grow the next one” may point at
+                live room; it must not impersonate the live status card.
+              </li>
+              <li>
+                <strong>Out of scope here.</strong> Validator / honesty product
+                (<a
+                  href="https://github.com/livepeer/explorer/issues/804"
+                  target="_blank"
+                  rel="noopener"
+                  >804</a
+                >) stays out, except showing the historical honesty factor that
+                already applied to a paid round. Emissions schedule / network
+                mint size is unfinished; sample pot is illustrative. No new
+                top-level Rewards page; Rewards is a mode inside History.
+                Transactions stays as a demoted feed, not deleted.
+              </li>
+              <li>
+                <strong>Rejected alternatives.</strong> Full causal UI on
+                Orchestrating or Delegating (collapses decide-now with
+                archaeology, or retells the node story on every bonded account).
+                Gluing the 802 card onto History. Replacing the tx feed
+                entirely. Home / orchestrators list as the home for past
+                payouts.
+              </li>
+              <li>
+                <strong>Copy and color.</strong> Lead with both amounts (LPT and
+                USDC), then why, then the LPT derivation under a disclosure.
+                USDC does not use those steps. Brand blue = fees, brand green =
+                stake (quantity, not “good”). Never amber for neutral protocol
+                states. Tabular numbers. Ellipsis character …. No em dashes. No
+                dollar APY until emissions are fixed.
+              </li>
+              <li>
+                <strong>Shared status icons with 802.</strong> Stake-capped past
+                = trend-up (live “Room to earn”). Fees-capped past = filled
+                circle (live “Full”). Same SVGs; do not invent per-ticket icons.
+              </li>
+              <li>
+                <strong>Two settled pots.</strong> The receipt leads with LPT
+                and USDC for the same round. Fee share is only an input to the
+                LPT cap (the smaller of fee share and stake share). USDC is work
+                fees, then the split between the node and delegators. It is not
+                reduced by stake and does not appear in the LPT steps.
+              </li>
+              <li>
+                <strong>The receipt is not a claim form.</strong> History is the
+                past record. Claim is the card under the mock, “3 rounds of
+                rewards ready”. It opens a dialog that lists the rounds, then a
+                total line for LPT and USDC, then Claim these rewards and Close.
+                A “Ready to claim” status on sample rows is the other option.
+              </li>
+              <li>
+                <strong>Round 4210 math.</strong> LPT: fee 11.8%, stake 2.3% →
+                stake caps. Pot 40,000 LPT → 920 eligible → honesty 0.95 → pool
+                874 LPT → 10% cut → a 2% delegator gets 15.732 LPT. USDC,
+                separate pot: 40.00 USDC, node kept 20.00, delegators shared
+                20.00, this delegator +0.40 (that same 2% of the delegators’
+                half, not the network stake cap). Claimable in round 4217, seven
+                rounds later. Secondary rows use the same kind of half split
+                (80.00 → +0.80, and 36.00 → +0.36) plus the fee-capped and
+                honesty 1.0 LPT variants.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this route
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>APY / realized return %.</strong> Ticket asked for
+                delegator APY. Emissions are still a draft.
+                <em>Recommended default:</em> show LPT amounts and share math
+                only; do not ship APY until emissions are fixed. Flag for
+                @ECWireless.
+              </li>
+              <li>
+                <strong>Claim vs auto-distribute.</strong> History stays the
+                archive. A round can still need a claim about seven rounds after
+                it settles. Two options are mocked
+                <a href="#claim-explore">under the primary view</a>. Route A
+                (recommended): “3 rounds of rewards ready” opens a dialog to
+                claim the LPT and USDC together (+62.532 LPT and +1.56 USDC
+                across the three sample rounds). Route B: a “Ready to claim”
+                status on the round row. <em>Recommended default:</em> Route A.
+                Flag for @ECWireless. If product later auto-distributes, the
+                list can say paid and claim leaves this surface.
+              </li>
+              <li>
+                <strong>Two pots on one receipt.</strong> The receipt shows USDC
+                and LPT for the same round (4210: +15.732 LPT and +0.40 USDC for
+                the delegator; 874 LPT and 40.00 USDC for the node, of which the
+                node kept 20.00 USDC). Confirm with @ECWireless that both belong
+                on this receipt, and that USDC is not run through the stake cap.
+              </li>
+              <li>
+                <strong>History default mode.</strong>
+                <em>Recommended default:</em>
+                <code>Rewards</code> when the account is an orchestrator (or
+                <code>?mode=rewards</code>); <code>Transactions</code> when
+                there is no node history. Confirm with people who still live in
+                the tx feed.
+              </li>
+              <li>
+                <strong>Moving stake (~21 days).</strong> Stays an 802 copy
+                concern, not a column on this surface.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Shared accessibility and color rules live on the
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >Issue #803 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-hist-804"
+          aria-labelledby="tab-804"
+        >
+          <article class="note-card" id="n-hist-2" tabindex="-1">
+            <h3>
+              2. Honesty on the receipt <span class="issue-tag">#804</span>
+            </h3>
+            <div>
+              <p>
+                Historical honesty factor only. Live scores stay on
+                Orchestrating and Validators.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-hist-2">↑ Show in mock</a>
+          </article>
+
+          <p class="section-description">
+            Shared accessibility and color rules live on the
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >Issue #804 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <script src="../shared/mock.js"></script>
+    <script>
+      (function () {
+        var modeSeg = document.getElementById("mode-seg");
+        var panelRewards = document.getElementById("panel-rewards");
+        var panelTx = document.getElementById("panel-tx");
+        var payDel = document.getElementById("payout-delegator");
+        var payOp = document.getElementById("payout-operator");
+        var nextDel = document.getElementById("next-delegator");
+        var nextOp = document.getElementById("next-operator");
+        var story = document.getElementById("story");
+        var mdSplit = document.getElementById("md-split");
+        var mdDetail = document.getElementById("md-detail");
+        var mdBack = document.getElementById("md-back");
+        var currentRound = "4210";
+        var currentReader = "delegator";
+        var mqNarrow = window.matchMedia("(max-width: 860px)");
+
+        function isNarrow() {
+          return mqNarrow.matches;
+        }
+
+        function setMobilePane(pane) {
+          if (!mdSplit) return;
+          mdSplit.setAttribute("data-mobile-pane", pane);
+        }
+
+        var rounds = {
+          4210: {
+            theme: "stake",
+            title: "Round 4210",
+            lede: '<strong class="num">11.8%</strong> of network fees, <strong class="cap num">2.3%</strong> of stake. Honesty at claim was <span class="num">0.95</span>, so the pool was 95% of that stake ceiling.',
+            work: "4210",
+            paid: "4217",
+            fee: "11.8%",
+            stake: "2.3%",
+            bind: "stake",
+            eligible: "2.3%",
+            pot: "920 LPT",
+            mult: "× 0.95",
+            pool: "874 LPT",
+            delFee: "+0.40 USDC",
+            opFee: "40.00 USDC",
+            feePot: "40.00 USDC",
+            feeKept: "20.00 USDC",
+            delAmt: "+15.732 LPT",
+            delHint:
+              'Your <span class="num">2%</span> of the node’s stake, after the node kept its <span class="num">10%</span> cut.',
+            opAmt: "874 LPT",
+            opHint:
+              'You kept <span class="num">87.4 LPT</span>; delegators shared the rest pro-rata.',
+            nextDel:
+              '<strong>To grow the next one:</strong> more stake before the round (ceiling still headed toward <span class="num">11.8%</span>), or honesty nearer <span class="num">1.0</span> at claim.',
+            nextOp:
+              '<strong>To grow the next one:</strong> close the <span class="num">9.5%</span> stake gap, or keep honesty at <span class="num">1.0</span> through claim.',
+            splitDel: "90% · 786.6 LPT",
+            splitNode: "10% · 87.4 LPT",
+            splitPool: "874 LPT",
+          },
+          4209: {
+            theme: "fee",
+            title: "Round 4209",
+            lede: '<strong class="num">6.8%</strong> of stake, <strong class="cap num">4.2%</strong> of fees. Honesty at claim was <span class="num">1.00</span>. Extra stake that round would not have raised the pool.',
+            work: "4209",
+            paid: "4216",
+            fee: "4.2%",
+            stake: "6.8%",
+            bind: "fee",
+            eligible: "4.2%",
+            pot: "1,680 LPT",
+            mult: "× 1.00",
+            pool: "1,680 LPT",
+            delFee: "+0.80 USDC",
+            opFee: "80.00 USDC",
+            feePot: "80.00 USDC",
+            feeKept: "40.00 USDC",
+            delAmt: "+30.24 LPT",
+            delHint:
+              'Same <span class="num">2%</span> of the node’s stake after the <span class="num">10%</span> cut.',
+            opAmt: "1,680 LPT",
+            opHint:
+              'You kept <span class="num">168 LPT</span>. Extra stake would not have raised that pool until fee share caught up.',
+            nextDel:
+              "<strong>To grow the next one:</strong> more fee share here, or stake where fees still lead.",
+            nextOp:
+              "<strong>To grow the next one:</strong> more fee share. Extra stake alone does not lift a fee-capped receipt.",
+            splitDel: "90% · 1,512 LPT",
+            splitNode: "10% · 168 LPT",
+            splitPool: "1,680 LPT",
+          },
+          4208: {
+            theme: "stake",
+            title: "Round 4208",
+            lede: '<strong class="num">11.8%</strong> fees, <strong class="cap num">2.3%</strong> stake. Honesty at claim was <span class="num">1.00</span>, so the full stake ceiling reached the pool.',
+            work: "4208",
+            paid: "4215",
+            fee: "11.8%",
+            stake: "2.3%",
+            bind: "stake",
+            eligible: "2.3%",
+            pot: "920 LPT",
+            mult: "× 1.00",
+            pool: "920 LPT",
+            delFee: "+0.36 USDC",
+            opFee: "36.00 USDC",
+            feePot: "36.00 USDC",
+            feeKept: "18.00 USDC",
+            delAmt: "+16.56 LPT",
+            delHint:
+              'Your <span class="num">2%</span> of the node after the cut. Same stake share as 4210, with fuller honesty.',
+            opAmt: "920 LPT",
+            opHint: "Full reward share reached the pool (honesty 1.0).",
+            nextDel:
+              "<strong>To grow the next one:</strong> more stake toward fee share.",
+            nextOp:
+              "<strong>To grow the next one:</strong> close the stake gap while fees stay ahead.",
+            splitDel: "90% · 828 LPT",
+            splitNode: "10% · 92 LPT",
+            splitPool: "920 LPT",
+          },
+        };
+
+        var ICON_STAKE =
+          '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 4.5h4v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var ICON_FEE =
+          '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.2" fill="currentColor"/><circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.4"/></svg>';
+        var preferReduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        function syncRadioGroup(group, attr, value) {
+          if (!group) return;
+          var radios = group.querySelectorAll('[role="radio"]');
+          radios.forEach(function (b) {
+            var on = b.getAttribute(attr) === value;
+            b.setAttribute("aria-checked", on ? "true" : "false");
+            b.tabIndex = on ? 0 : -1;
+          });
+        }
+
+        function bindRadioGroup(group, attr, onPick) {
+          if (!group) return;
+          var radios = function () {
+            return Array.prototype.slice.call(
+              group.querySelectorAll('[role="radio"]')
+            );
+          };
+          group.addEventListener("click", function (e) {
+            var btn = e.target.closest('[role="radio"]');
+            if (!btn || !group.contains(btn)) return;
+            onPick(btn.getAttribute(attr), btn, { activate: true });
+          });
+          group.addEventListener("keydown", function (e) {
+            var items = radios();
+            var i = items.indexOf(document.activeElement);
+            if (i < 0) return;
+            var next;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+              next = (i + 1) % items.length;
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              next = (i - 1 + items.length) % items.length;
+            } else if (e.key === "Home") {
+              next = 0;
+            } else if (e.key === "End") {
+              next = items.length - 1;
+            } else if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              onPick(items[i].getAttribute(attr), items[i], {
+                activate: true,
+              });
+              return;
+            } else {
+              return;
+            }
+            e.preventDefault();
+            items[next].focus();
+            onPick(items[next].getAttribute(attr), items[next], {
+              activate: false,
+            });
+          });
+        }
+
+        function setMode(mode) {
+          syncRadioGroup(modeSeg, "data-mode", mode);
+          panelRewards.hidden = mode !== "rewards";
+          panelTx.hidden = mode !== "tx";
+        }
+
+        bindRadioGroup(modeSeg, "data-mode", function (mode) {
+          setMode(mode);
+        });
+
+        function refreshRowAmounts() {
+          Object.keys(rounds).forEach(function (id) {
+            var lpt = document.getElementById("row-pay-" + id);
+            var usdc = document.getElementById("row-fee-" + id);
+            var isDel = currentReader === "delegator";
+            if (lpt)
+              lpt.textContent = isDel ? rounds[id].delAmt : rounds[id].opAmt;
+            if (usdc)
+              usdc.textContent = isDel ? rounds[id].delFee : rounds[id].opFee;
+          });
+        }
+
+        function setReader(reader) {
+          currentReader = reader;
+          syncRadioGroup(
+            document.getElementById("reader-seg"),
+            "data-reader",
+            reader
+          );
+          var isDel = reader === "delegator";
+          payDel.hidden = !isDel;
+          nextDel.hidden = !isDel;
+          payOp.hidden = isDel;
+          nextOp.hidden = isDel;
+          refreshRowAmounts();
+          announceReceipt();
+        }
+
+        bindRadioGroup(
+          document.getElementById("reader-seg"),
+          "data-reader",
+          function (reader) {
+            setReader(reader);
+          }
+        );
+
+        function statusChipHtml(bind) {
+          if (bind === "fee") {
+            return '<span class="chip fee">' + ICON_FEE + " Fees capped</span>";
+          }
+          return (
+            '<span class="chip stake">' + ICON_STAKE + " Stake capped</span>"
+          );
+        }
+
+        function announceReceipt() {
+          var live = document.getElementById("receipt-live");
+          var r = rounds[currentRound];
+          if (!live || !r) return;
+          var amt = currentReader === "delegator" ? r.delAmt : r.opAmt;
+          var fee = currentReader === "delegator" ? r.delFee : r.opFee;
+          var cap = r.bind === "fee" ? "Fees capped" : "Stake capped";
+          var who =
+            currentReader === "delegator"
+              ? "You received " + amt + " and " + fee
+              : "Node pool " + amt + " and " + fee;
+          live.textContent = r.title + ". " + cap + ". " + who + ".";
+        }
+
+        function applyRound(id) {
+          var r = rounds[id];
+          if (!r) return;
+          currentRound = id;
+          story.classList.remove("theme-stake", "theme-fee");
+          story.classList.add("theme-" + r.theme);
+          document.getElementById("story-num").textContent = id;
+          var statusEl = document.getElementById("story-status");
+          statusEl.innerHTML = statusChipHtml(r.bind);
+          document.getElementById("story-lede").innerHTML = r.lede;
+          var delayPaid = document.getElementById("delay-paid");
+          if (delayPaid) delayPaid.textContent = r.paid;
+
+          var steps = story.querySelectorAll(".step");
+          if (steps[0]) steps[0].querySelector(".val").textContent = r.pot;
+          if (steps[1]) steps[1].querySelector(".val").textContent = r.mult;
+          if (steps[2]) steps[2].querySelector(".val").textContent = r.pool;
+
+          function figure(value) {
+            return String(value).replace(/\s*(LPT|USDC)\s*$/i, "");
+          }
+          var amtDel = document.getElementById("payout-amt-del");
+          var amtOp = document.getElementById("payout-amt-op");
+          var feeDel = document.getElementById("payout-fee-del");
+          var feeOp = document.getElementById("payout-fee-op");
+          var hintDel = document.getElementById("payout-hint-del");
+          var hintOp = document.getElementById("payout-hint-op");
+          if (amtDel) amtDel.textContent = figure(r.delAmt);
+          if (amtOp) amtOp.textContent = figure(r.opAmt);
+          if (feeDel) feeDel.textContent = figure(r.delFee);
+          if (feeOp) feeOp.textContent = figure(r.opFee);
+          if (hintDel) hintDel.innerHTML = r.delHint;
+          if (hintOp) hintOp.innerHTML = r.opHint;
+          function setText(id, value) {
+            var node = document.getElementById(id);
+            if (node) node.textContent = value;
+          }
+          setText("fee-pot-del", r.feePot);
+          setText("fee-kept-del", r.feeKept);
+          nextDel.innerHTML = r.nextDel;
+          nextOp.innerHTML = r.nextOp;
+
+          var splitPool = document.getElementById("split-pool");
+          var splitDel = document.getElementById("split-del");
+          var splitNode = document.getElementById("split-node");
+          if (splitPool) splitPool.textContent = r.splitPool;
+          if (splitDel) splitDel.textContent = r.splitDel;
+          if (splitNode) splitNode.textContent = r.splitNode;
+
+          syncRadioGroup(
+            document.getElementById("round-list"),
+            "data-round",
+            id
+          );
+          announceReceipt();
+        }
+
+        bindRadioGroup(
+          document.getElementById("round-list"),
+          "data-round",
+          function (id, _btn, meta) {
+            applyRound(id);
+            setMode("rewards");
+            if (isNarrow() && meta && meta.activate) {
+              setMobilePane("detail");
+              story.focus({ preventScroll: true });
+              if (mdDetail) {
+                mdDetail.scrollIntoView({
+                  behavior: preferReduced ? "auto" : "smooth",
+                  block: "start",
+                });
+              }
+            }
+          }
+        );
+
+        function placeHelpTip(help) {
+          var tip = help.querySelector(".tooltip-help");
+          var anchor = help.querySelector(".tooltip-dot");
+          if (!tip || !anchor || help.classList.contains("is-tip-dismissed"))
+            return;
+          var margin = 16;
+          var maxW = Math.min(260, window.innerWidth - margin * 2);
+          tip.style.maxWidth = maxW + "px";
+          var tipW = tip.getBoundingClientRect().width;
+          var tipH = tip.offsetHeight;
+          var anchorRect = anchor.getBoundingClientRect();
+          var left = anchorRect.left + anchorRect.width / 2 - tipW / 2;
+          var maxLeft = window.innerWidth - margin - tipW;
+          if (left < margin) left = margin;
+          if (left > maxLeft) left = Math.max(margin, maxLeft);
+          var top = anchorRect.top - 8 - tipH;
+          var below = top < margin;
+          if (below) top = anchorRect.bottom + 8;
+          var maxTop = window.innerHeight - margin - tipH;
+          if (top > maxTop) top = Math.max(margin, maxTop);
+          tip.style.position = "fixed";
+          tip.style.right = "auto";
+          tip.style.bottom = "auto";
+          tip.style.transform = "none";
+          tip.style.width = "max-content";
+          tip.style.left = Math.round(left) + "px";
+          tip.style.top = Math.round(top) + "px";
+          tip.classList.toggle("is-below", below);
+        }
+        var placingTips = false;
+        function placeOpenTips() {
+          if (placingTips) return;
+          placingTips = true;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) placeHelpTip(help);
+          });
+          placingTips = false;
+        }
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+            placeHelpTip(help);
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+        window.addEventListener("resize", placeOpenTips);
+        window.addEventListener("scroll", placeOpenTips, true);
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) help.classList.add("is-tip-dismissed");
+          });
+        });
+
+        if (mdBack) {
+          mdBack.addEventListener("click", function () {
+            setMobilePane("list");
+            var selected = document.querySelector(
+              '.round-row[aria-checked="true"]'
+            );
+            if (selected) selected.focus();
+          });
+        }
+
+        var params = new URLSearchParams(window.location.search);
+        var deepRound = params.get("round");
+        if (deepRound && rounds[deepRound]) {
+          applyRound(deepRound);
+          if (isNarrow()) setMobilePane("detail");
+        }
+
+        var claimOpen = document.getElementById("claim-open");
+        var claimDialog = document.getElementById("claim-dialog");
+        var claimClose = document.getElementById("claim-close");
+        var claimSubmit = document.getElementById("claim-submit");
+        if (claimOpen && claimDialog) {
+          claimOpen.addEventListener("click", function () {
+            if (typeof claimDialog.showModal === "function") {
+              claimDialog.showModal();
+              var claimTitle = document.getElementById("claim-dialog-title");
+              if (claimTitle) claimTitle.focus();
+            }
+          });
+          claimDialog.addEventListener("close", function () {
+            claimOpen.focus();
+          });
+        }
+        if (claimClose && claimDialog) {
+          claimClose.addEventListener("click", function () {
+            claimDialog.close();
+          });
+        }
+        if (claimSubmit && claimDialog) {
+          claimSubmit.addEventListener("click", function () {
+            claimDialog.close();
+          });
+        }
+
+        refreshRowAmounts();
+      })();
+
+      MockReview.bindHelpTips();
+      MockReview.bindIssueTabs();
+      MockReview.bindCallouts();
+      MockReview.bindHideMarkers();
+    </script>
+  </body>
+</html>
