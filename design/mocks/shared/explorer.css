@@ -815,14 +815,12 @@ summary:focus-visible,
   text-align: left;
 }
 .token-mark {
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 0 0 0 1px color-mix(in srgb, white 16%, transparent);
@@ -832,15 +830,31 @@ summary:focus-visible,
 }
 .token-mark.lpt {
   background: var(--stake11);
+  color: #062214;
 }
 .token-mark.lpt svg {
-  width: 26px;
-  height: 26px;
+  width: 11px;
+  height: 11px;
 }
 .token-mark.usdc {
   background: #0b53bf;
 }
 .token-mark.usdc svg {
+  width: 16px;
+  height: 16px;
+}
+.paid-slab .token-mark {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+.paid-slab .token-mark.lpt svg {
+  width: 26px;
+  height: 26px;
+}
+.paid-slab .token-mark.usdc svg {
   width: 40px;
   height: 40px;
 }
@@ -1550,9 +1564,13 @@ summary:focus-visible,
   gap: 4px;
 }
 .token-mark.lpt img {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
+.paid-slab .token-mark.lpt img {
   width: 14px;
   height: 14px;
-  display: block;
 }
 .m-ctx dd.qty {
   display: inline-flex;
@@ -2426,7 +2444,7 @@ td.ctx .ctx-yield {
   color: var(--neutral8);
   text-align: center;
 }
-.pf-grid .mfs-cta {
+.mfs-cta {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -3559,8 +3577,14 @@ button:focus-visible,
   grid-template-columns: 1fr;
   gap: 12px;
 }
-.orch-grid > .span2 {
+.orch-grid > .span2,
+.orch-grid > .mfs-block.span2,
+.orch-grid > .honesty.span2,
+.orch-grid > .callout-target:has(.span2) {
   grid-column: 1 / -1;
+}
+.orch-grid .mfs-block {
+  max-width: none;
 }
 .mfs {
   border: 1px solid var(--neutral4);
