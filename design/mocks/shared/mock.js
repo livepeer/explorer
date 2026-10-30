@@ -443,10 +443,19 @@
             .forEach(function (el) {
               el.classList.remove("is-lit");
             });
-          var wrap = marker.closest(".callout-target") || marker;
+          var wrap = marker.classList.contains("callout-target")
+            ? marker
+            : marker.closest(".callout-target") || marker;
           wrap.classList.add("is-lit");
           smoothScrollTo(wrap);
-          var calloutEl = wrap.querySelector("a.callout") || marker;
+          var noteCard = back.closest(".note-card");
+          var noteId = noteCard && noteCard.id;
+          var calloutEl =
+            (noteId &&
+              document.querySelector('a.callout[href="#' + noteId + '"]')) ||
+            wrap.querySelector(":scope > a.callout") ||
+            wrap.querySelector("a.callout") ||
+            marker;
           if (calloutEl && calloutEl.focus)
             calloutEl.focus({ preventScroll: true });
           if (history.replaceState) history.replaceState(null, "", "#" + id);
@@ -534,6 +543,7 @@
     bindIssueTabs: bindIssueTabs,
     showNote: showNote,
     bindCallouts: bindCallouts,
+    bindHideMarkers: bindHideMarkers,
     initReviewChrome: initReviewChrome,
   };
 })(typeof window !== "undefined" ? window : globalThis);

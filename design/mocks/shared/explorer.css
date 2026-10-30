@@ -538,7 +538,14 @@ summary:focus-visible,
   font-weight: 600;
 }
 .pf-body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--pf-main)) minmax(260px, var(--pf-rail));
+  gap: 20px;
+  align-items: start;
   padding: 20px;
+}
+.pf-body > :first-child {
+  min-width: 0;
 }
 .mode-seg,
 .reader-seg {
@@ -1598,8 +1605,9 @@ summary:focus-visible,
   height: 10px;
   display: block;
 }
-.m-ctx .lpt,
-.m-ctx .fee {
+/* Amount text only — not .token-mark.lpt (same class name, needs dark ink). */
+.m-ctx .qty > .lpt:not(.token-mark),
+.m-ctx .fee:not(.token-mark) {
   color: var(--hiContrast);
 }
 td .qty .token-mark {
@@ -3762,7 +3770,8 @@ button:focus-visible,
 /* === review callouts === */
 
 /* Review callouts + issue tabs */
-.issue-chip {
+.issue-chip,
+.issue-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -3774,21 +3783,43 @@ button:focus-visible,
   color: var(--neutral11);
   text-decoration: none;
   vertical-align: middle;
+  box-sizing: border-box;
 }
 .issue-chip:hover {
   color: var(--hiContrast);
   border-color: var(--neutral8);
 }
-.issue-chip[data-issue="802"] {
+.issue-chip[data-issue="802"],
+.issue-tag[data-issue="802"],
+.tablist [role="tab"][data-issue="802"] {
   border-color: color-mix(in oklch, var(--issue-802) 55%, var(--neutral6));
   color: var(--issue-802);
 }
-.issue-chip[data-issue="803"] {
+.issue-chip[data-issue="803"],
+.issue-tag[data-issue="803"],
+.tablist [role="tab"][data-issue="803"] {
   border-color: color-mix(in oklch, var(--issue-803) 55%, var(--neutral6));
   color: var(--issue-803);
 }
-.issue-chip[data-issue="804"] {
+.issue-chip[data-issue="804"],
+.issue-tag[data-issue="804"],
+.tablist [role="tab"][data-issue="804"] {
   border-color: color-mix(in oklch, var(--issue-804) 55%, var(--neutral6));
+  color: var(--issue-804);
+}
+.tablist [role="tab"][data-issue="802"][aria-selected="true"] {
+  background: color-mix(in oklch, var(--issue-802) 16%, transparent);
+  border-color: color-mix(in oklch, var(--issue-802) 65%, var(--neutral6));
+  color: var(--issue-802);
+}
+.tablist [role="tab"][data-issue="803"][aria-selected="true"] {
+  background: color-mix(in oklch, var(--issue-803) 16%, transparent);
+  border-color: color-mix(in oklch, var(--issue-803) 65%, var(--neutral6));
+  color: var(--issue-803);
+}
+.tablist [role="tab"][data-issue="804"][aria-selected="true"] {
+  background: color-mix(in oklch, var(--issue-804) 16%, transparent);
+  border-color: color-mix(in oklch, var(--issue-804) 65%, var(--neutral6));
   color: var(--issue-804);
 }
 .review-toolbar {
@@ -3798,7 +3829,20 @@ button:focus-visible,
   align-items: center;
   margin: 12px 0 20px;
 }
+.review-toolbar .issue-link {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 2px;
+  font-size: 14px;
+  line-height: 1;
+  box-sizing: border-box;
+}
 .review-toolbar .hide-markers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 36px;
   padding: 0 12px;
   border-radius: var(--radius-sm);
@@ -3807,6 +3851,7 @@ button:focus-visible,
   color: var(--sage11);
   font: 600 14px/1 Inter, system-ui, sans-serif;
   cursor: pointer;
+  box-sizing: border-box;
 }
 .review-toolbar .hide-markers:hover {
   background: var(--sage5);
@@ -3901,7 +3946,7 @@ body.hide-markers .callout {
   font: 600 14px/1 Inter, system-ui, sans-serif;
   cursor: pointer;
 }
-.tablist [role="tab"][aria-selected="true"] {
+.tablist [role="tab"][aria-selected="true"]:not([data-issue]) {
   background: var(--sage4);
   color: var(--hiContrast);
   border-color: var(--sage6);
@@ -3941,9 +3986,6 @@ body.hide-markers .callout {
   text-decoration: underline;
 }
 .note-card .issue-tag {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--neutral11);
   margin-left: 6px;
 }
 .hub-grid {
