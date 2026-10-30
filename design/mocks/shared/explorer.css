@@ -538,13 +538,16 @@ summary:focus-visible,
   font-weight: 600;
 }
 .pf-body {
+  padding: 20px;
+}
+/* Two-column only when the Delegate rail is present (delegating page frame). */
+.pf-body:has(> .pf-rail) {
   display: grid;
   grid-template-columns: minmax(0, var(--pf-main)) minmax(260px, var(--pf-rail));
   gap: 20px;
   align-items: start;
-  padding: 20px;
 }
-.pf-body > :first-child {
+.pf-body:has(> .pf-rail) > :first-child {
   min-width: 0;
 }
 .mode-seg,
@@ -2369,14 +2372,23 @@ td.ctx .ctx-yield {
 .page-frame {
   width: fit-content;
   max-width: 100%;
+  margin: 0;
   border: 1px solid var(--neutral4);
   border-radius: 16px;
   background: var(--bg);
   overflow: clip;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.3);
 }
+.callout-target:has(> .page-frame) {
+  padding: 8px;
+  margin: 0 -8px;
+  border-radius: 20px;
+}
 .pf-account {
-  padding: 20px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 28px 0;
   border-bottom: 1px solid var(--neutral3);
   background: rgba(255, 255, 255, 0.015);
 }
@@ -2394,14 +2406,20 @@ td.ctx .ctx-yield {
 .pf-account .identity .addr {
   font-size: 12px;
 }
-.pf-tabs span {
-  padding-bottom: 8px;
+.pf-account .pf-tabs {
+  margin-top: 0;
+}
+.pf-account .pf-tabs span {
+  padding: 0 12px 10px;
   margin-bottom: -1px;
   font-size: 13px;
   font-weight: 600;
   color: var(--neutral10);
   border-bottom: 3px solid transparent;
   white-space: nowrap;
+}
+.pf-account .pf-tabs span:first-child {
+  padding-left: 0;
 }
 .pf-tabs span[aria-current="page"] {
   color: var(--hiContrast);
@@ -2595,7 +2613,7 @@ td.ctx .ctx-yield {
 @media (max-width: 1199px) {
   /* from 802 */
 
-  .pf-body {
+  .pf-body:has(> .pf-rail) {
     grid-template-columns: minmax(0, 1fr);
   }
   .pf-rail {
@@ -2649,8 +2667,8 @@ td.ctx .ctx-yield {
   }
   .pf-body,
   .pf-account {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 .variant-sub {
