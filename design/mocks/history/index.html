@@ -804,10 +804,10 @@
             <p class="claim-kicker">Claim exploration</p>
             <h3>Claim entry still open</h3>
             <p class="blurb">
-              History stays the archive. The receipt explains why a round paid
-              what it paid. A settled round can still need an action about seven
-              rounds later. Two options are below. Neither puts a claim button
-              inside the derivation.
+              The round list and receipt explain why a round paid what it paid.
+              Claiming is separate: a settled round can still need an action
+              about seven rounds later. Two options are below. Neither puts a
+              claim button inside the derivation.
             </p>
             <div class="claim-routes">
               <div>
@@ -818,7 +818,7 @@
                 <p class="route-copy">
                   A card above the round list. It opens a sheet of the rounds
                   that are ready, with one action to claim them together. The
-                  list under the card stays the archive.
+                  list under the card stays for reading.
                 </p>
                 <button
                   type="button"
@@ -1234,8 +1234,8 @@
             </h3>
             <div>
               <p>
-                Master-detail settled rounds. Claim is the card under the mock.
-                Claim sits under the mock as “rewards ready.”
+                Settled rounds in a list with a receipt beside them. Claim sits
+                under the mock as the “rewards ready” card.
               </p>
             </div>
             <a class="show-in-mock" href="#m-hist-1">↑ Show in mock</a>
@@ -1247,7 +1247,7 @@
             <ul>
               <li>
                 <strong>History covers settled rounds.</strong> Live
-                fee-vs-stake lives under
+                fee-vs-stake is
                 <a
                   class="issue-chip"
                   data-issue="802"
@@ -1255,21 +1255,20 @@
                   target="_blank"
                   rel="noopener"
                   >802</a
-                >. Settled rounds and a receipt for why a chosen round paid that
-                amount live here.
+                >. This page is the receipt for why a chosen round paid that
+                amount.
               </li>
               <li>
-                <strong>Receipt title is the round number.</strong> “Round” is
-                the quiet label. The number is the title. Cap status is the chip
-                (Stake capped, Fees capped) and the wash on the receipt. Live
-                status keeps “Room to earn”, “Full”, and “Balanced”.
+                <strong>Receipt title is the round number.</strong> Small
+                “Round” label, big number. Cap status is the chip (Stake capped,
+                Fees capped) and the wash on the receipt. Live status still uses
+                “Room to earn”, “Full”, and “Balanced”.
               </li>
               <li>
-                <strong>One shell, two homes.</strong> Node account History for
-                operators (pool + kept cut). Your account History for delegators
-                (your share). Same math; different last mile. The review toggle
-                is labeled Node operator and stays off the product, as clarified
-                on #841.
+                <strong>Same layout, two audiences.</strong> Node account
+                History for operators (pool + kept cut). Your account History
+                for delegators (your share). Same math; different last mile. The
+                Node operator toggle is review-only, as clarified on #841.
               </li>
               <li>
                 <strong>Master-detail.</strong> Wide: list left, receipt right.
@@ -1289,19 +1288,17 @@
                   target="_blank"
                   rel="noopener"
                   >804</a
-                >) stays out, except showing the historical honesty factor that
-                already applied to a paid round. Emissions schedule / network
-                mint size is unfinished; sample pot is illustrative. No new
-                top-level Rewards page; Rewards is a mode inside History.
-                Transactions stays as a demoted feed.
+                >) is out of scope here, except the honesty factor that already
+                applied to a paid round. Emissions schedule / network mint size
+                is unfinished; sample pot is illustrative. No new top-level
+                Rewards page; Rewards is a mode inside History. Transactions is
+                a secondary feed.
               </li>
               <li>
                 <strong>Rejected alternatives.</strong> Full causal UI on
-                Orchestrating or Delegating (collapses decide-now with
-                archaeology, or retells the node story on every bonded account).
-                Gluing the 802 card onto History. Replacing the tx feed
-                entirely. Home / orchestrators list as the home for past
-                payouts.
+                Orchestrating or Delegating. Putting the 802 card on History.
+                Replacing the tx feed entirely. Home or the orchestrators list
+                as the place for past payouts.
               </li>
               <li>
                 <strong>Copy and color.</strong> Lead with both amounts (LPT and
@@ -1331,12 +1328,12 @@
                 (USDC added to the receipt with icons).
               </li>
               <li>
-                <strong>Claim is a separate card.</strong> History stays the
-                past record. Claim entry is the “3 rounds of rewards ready” card
+                <strong>Claim is a separate card.</strong> The round list is for
+                reading. Claim entry is the “3 rounds of rewards ready” card
                 (Route A): it opens a dialog that lists the rounds, then a total
                 line for LPT and USDC, then Claim these rewards and Close. Route
-                B (row “Ready to claim” status) stays as the alternate mocked
-                below. Working default is Route A, as replied on
+                B (row “Ready to claim” status) is the alternate below. Working
+                default is Route A, as replied on
                 <a
                   class="prose-link"
                   href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
