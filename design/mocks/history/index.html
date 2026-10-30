@@ -63,10 +63,10 @@
       </p>
     </header>
     <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
       <button type="button" class="hide-markers" aria-pressed="false">
         Hide markers
       </button>
-      <a class="issue-link" href="../index.html">← Review hub</a>
     </div>
 
     <main id="surface">
@@ -86,7 +86,7 @@
           <p class="section-description">
             Wide: list left, receipt right. Narrow: list → drill-in. Both
             amounts, then why. LPT math under “How the LPT was derived.” USDC is
-            one line, not those steps.
+            one line.
           </p>
 
           <div class="pf" aria-label="Account page mock">
@@ -510,7 +510,7 @@
                                   <button
                                     type="button"
                                     class="tooltip-dot"
-                                    aria-label="Help: fees are not reduced by stake"
+                                    aria-label="Help: fee share alone sets this line"
                                     aria-describedby="help-fee-del"
                                   >
                                     ?
@@ -520,7 +520,7 @@
                                     role="tooltip"
                                     id="help-fee-del"
                                   >
-                                    Fees are not reduced by stake.
+                                    Fee share alone sets this line.
                                   </span>
                                 </span>
                               </div>
@@ -640,7 +640,7 @@
                                   <button
                                     type="button"
                                     class="tooltip-dot"
-                                    aria-label="Help: fees are not reduced by stake"
+                                    aria-label="Help: fee share alone sets this line"
                                     aria-describedby="help-fee-op"
                                   >
                                     ?
@@ -650,7 +650,7 @@
                                     role="tooltip"
                                     id="help-fee-op"
                                   >
-                                    Fees are not reduced by stake.
+                                    Fee share alone sets this line.
                                   </span>
                                 </span>
                               </div>
@@ -801,8 +801,8 @@
           </div>
 
           <div class="claim-explore" id="claim-explore">
-            <p class="claim-kicker">Exploration, not the receipt</p>
-            <h3>Claim is not decided</h3>
+            <p class="claim-kicker">Claim exploration</p>
+            <h3>Claim entry still open</h3>
             <p class="blurb">
               History stays the archive. The receipt explains why a round paid
               what it paid. A settled round can still need an action about seven
@@ -861,14 +861,14 @@
               <div>
                 <div class="route-label">Route B</div>
                 <p class="route-copy">
-                  A status on the round row, for a round past the delay and not
-                  yet claimed. No claim button in the derivation. These rows are
-                  examples, shown as your payouts.
+                  A status on the round row, for a round past the delay still
+                  waiting on claim. No claim button in the derivation. These
+                  rows are examples, shown as your payouts.
                 </p>
                 <div
                   class="round-list"
                   role="group"
-                  aria-label="Route B example rows, not buttons"
+                  aria-label="Route B example rows"
                 >
                   <div class="round-row is-static">
                     <span class="main">
@@ -1054,7 +1054,7 @@
             <h3 id="claim-dialog-title" tabindex="-1">
               3 rounds of rewards ready
             </h3>
-            <p class="lead">Past the delay, not yet claimed.</p>
+            <p class="lead">Past the delay, ready to claim.</p>
             <div class="claim-sheet">
               <ul class="claim-list">
                 <li>
@@ -1183,8 +1183,8 @@
         <div class="callout-target" id="m-hist-2" data-issue="804">
           <p class="section-description">
             The receipt can show the honesty factor that already applied to a
-            paid round. The live score board does not replace that factor, and
-            it does not live on History.
+            paid round. The live score board stays on Orchestrating and
+            /validators.
           </p>
           <a
             class="callout"
@@ -1202,6 +1202,7 @@
             type="button"
             role="tab"
             id="tab-803"
+            data-issue="803"
             aria-controls="panel-hist-803"
             aria-selected="true"
             tabindex="0"
@@ -1212,6 +1213,7 @@
             type="button"
             role="tab"
             id="tab-804"
+            data-issue="804"
             aria-controls="panel-hist-804"
             aria-selected="false"
             tabindex="-1"
@@ -1226,10 +1228,13 @@
           aria-labelledby="tab-803"
         >
           <article class="note-card" id="n-hist-1" tabindex="-1">
-            <h3>1. Receipt and claim <span class="issue-tag">#803</span></h3>
+            <h3>
+              1. Receipt and claim
+              <span class="issue-tag" data-issue="803">#803</span>
+            </h3>
             <div>
               <p>
-                Master-detail settled rounds. The receipt is not a claim form.
+                Master-detail settled rounds. Claim is the card under the mock.
                 Claim sits under the mock as “rewards ready.”
               </p>
             </div>
@@ -1241,42 +1246,45 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>History is past; Orchestrating is now.</strong>
+                <strong>History covers settled rounds.</strong> Live
+                fee-vs-stake lives under
                 <a
+                  class="issue-chip"
+                  data-issue="802"
                   href="https://github.com/livepeer/explorer/issues/802"
                   target="_blank"
                   rel="noopener"
                   >802</a
-                >
-                owns the live fee-vs-stake card. This ticket owns settled rounds
-                and a receipt for why a chosen round paid that amount. Do not
-                move the live card onto History.
+                >. Settled rounds and a receipt for why a chosen round paid that
+                amount live here.
               </li>
               <li>
                 <strong>Receipt title is the round number.</strong> “Round” is
                 the quiet label. The number is the title. Cap status is the chip
-                (Stake capped, Fees capped) and the wash on the receipt. “Room
-                to earn”, “Full”, and “Balanced” stay on live status.
+                (Stake capped, Fees capped) and the wash on the receipt. Live
+                status keeps “Room to earn”, “Full”, and “Balanced”.
               </li>
               <li>
                 <strong>One shell, two homes.</strong> Node account History for
                 operators (pool + kept cut). Your account History for delegators
-                (your share). Same math; different last mile. The mock toggle is
-                review-only.
+                (your share). Same math; different last mile. The review toggle
+                is labeled Node operator and stays off the product, as clarified
+                on #841.
               </li>
               <li>
-                <strong>Master-detail, not stacked.</strong> Wide: list left,
-                receipt right. Narrow: list → drill-in with Back. Rejected: full
-                receipt above a list when two columns fit.
+                <strong>Master-detail.</strong> Wide: list left, receipt right.
+                Narrow: list → drill-in with Back.
               </li>
               <li>
-                <strong>Do not reprint 802.</strong> Entry sketches stay in the
-                802 mock. Link only. “What would grow the next one” may point at
-                live room; it must not impersonate the live status card.
+                <strong>Link to 802.</strong> Entry sketches stay in the 802
+                mock. “What would grow the next one” may point at live room on
+                that card.
               </li>
               <li>
                 <strong>Out of scope here.</strong> Validator / honesty product
                 (<a
+                  class="issue-chip"
+                  data-issue="804"
                   href="https://github.com/livepeer/explorer/issues/804"
                   target="_blank"
                   rel="noopener"
@@ -1285,7 +1293,7 @@
                 already applied to a paid round. Emissions schedule / network
                 mint size is unfinished; sample pot is illustrative. No new
                 top-level Rewards page; Rewards is a mode inside History.
-                Transactions stays as a demoted feed, not deleted.
+                Transactions stays as a demoted feed.
               </li>
               <li>
                 <strong>Rejected alternatives.</strong> Full causal UI on
@@ -1298,29 +1306,45 @@
               <li>
                 <strong>Copy and color.</strong> Lead with both amounts (LPT and
                 USDC), then why, then the LPT derivation under a disclosure.
-                USDC does not use those steps. Brand blue = fees, brand green =
-                stake (quantity, not “good”). Never amber for neutral protocol
-                states. Tabular numbers. Ellipsis character …. No em dashes. No
-                dollar APY until emissions are fixed.
+                Brand blue = fees, brand green = stake quantity. Tabular
+                numbers. Ellipsis character …. No em dashes. No dollar APY until
+                emissions are fixed.
               </li>
               <li>
                 <strong>Shared status icons with 802.</strong> Stake-capped past
                 = trend-up (live “Room to earn”). Fees-capped past = filled
-                circle (live “Full”). Same SVGs; do not invent per-ticket icons.
+                circle (live “Full”). Same SVGs across tickets.
               </li>
               <li>
                 <strong>Two settled pots.</strong> The receipt leads with LPT
                 and USDC for the same round. Fee share is only an input to the
                 LPT cap (the smaller of fee share and stake share). USDC is work
-                fees, then the split between the node and delegators. It is not
-                reduced by stake and does not appear in the LPT steps.
+                fees, then the split between the node and delegators. Affirmed
+                with @ECWireless on
+                <a
+                  class="prose-link"
+                  href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
+                  target="_blank"
+                  rel="noopener"
+                  >#841</a
+                >
+                (USDC added to the receipt with icons).
               </li>
               <li>
-                <strong>The receipt is not a claim form.</strong> History is the
-                past record. Claim is the card under the mock, “3 rounds of
-                rewards ready”. It opens a dialog that lists the rounds, then a
-                total line for LPT and USDC, then Claim these rewards and Close.
-                A “Ready to claim” status on sample rows is the other option.
+                <strong>Claim is a separate card.</strong> History stays the
+                past record. Claim entry is the “3 rounds of rewards ready” card
+                (Route A): it opens a dialog that lists the rounds, then a total
+                line for LPT and USDC, then Claim these rewards and Close. Route
+                B (row “Ready to claim” status) stays as the alternate mocked
+                below. Working default is Route A, as replied on
+                <a
+                  class="prose-link"
+                  href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
+                  target="_blank"
+                  rel="noopener"
+                  >#841</a
+                >. If product later auto-distributes, the list can say paid and
+                claim leaves this surface.
               </li>
               <li>
                 <strong>Round 4210 math.</strong> LPT: fee 11.8%, stake 2.3% →
@@ -1328,10 +1352,9 @@
                 874 LPT → 10% cut → a 2% delegator gets 15.732 LPT. USDC,
                 separate pot: 40.00 USDC, node kept 20.00, delegators shared
                 20.00, this delegator +0.40 (that same 2% of the delegators’
-                half, not the network stake cap). Claimable in round 4217, seven
-                rounds later. Secondary rows use the same kind of half split
-                (80.00 → +0.80, and 36.00 → +0.36) plus the fee-capped and
-                honesty 1.0 LPT variants.
+                half). Claimable in round 4217, seven rounds later. Secondary
+                rows use the same kind of half split (80.00 → +0.80, and 36.00 →
+                +0.36) plus the fee-capped and honesty 1.0 LPT variants.
               </li>
             </ul>
           </div>
@@ -1344,27 +1367,8 @@
                 <strong>APY / realized return %.</strong> Ticket asked for
                 delegator APY. Emissions are still a draft.
                 <em>Recommended default:</em> show LPT amounts and share math
-                only; do not ship APY until emissions are fixed. Flag for
-                @ECWireless.
-              </li>
-              <li>
-                <strong>Claim vs auto-distribute.</strong> History stays the
-                archive. A round can still need a claim about seven rounds after
-                it settles. Two options are mocked
-                <a href="#claim-explore">under the primary view</a>. Route A
-                (recommended): “3 rounds of rewards ready” opens a dialog to
-                claim the LPT and USDC together (+62.532 LPT and +1.56 USDC
-                across the three sample rounds). Route B: a “Ready to claim”
-                status on the round row. <em>Recommended default:</em> Route A.
-                Flag for @ECWireless. If product later auto-distributes, the
-                list can say paid and claim leaves this surface.
-              </li>
-              <li>
-                <strong>Two pots on one receipt.</strong> The receipt shows USDC
-                and LPT for the same round (4210: +15.732 LPT and +0.40 USDC for
-                the delegator; 874 LPT and 40.00 USDC for the node, of which the
-                node kept 20.00 USDC). Confirm with @ECWireless that both belong
-                on this receipt, and that USDC is not run through the stake cap.
+                only; hold APY until emissions are fixed. Owner: emissions /
+                protocol.
               </li>
               <li>
                 <strong>History default mode.</strong>
@@ -1373,22 +1377,6 @@
                 <code>?mode=rewards</code>); <code>Transactions</code> when
                 there is no node history. Confirm with people who still live in
                 the tx feed.
-              </li>
-              <li>
-                <strong>Moving stake (~21 days).</strong> Stays an 802 copy
-                concern, not a column on this surface.
-              </li>
-            </ul>
-          </div>
-
-          <p class="section-description"></p>
-          <div class="questions">
-            <ul>
-              <li>
-                <strong>Claim sheet.</strong> “3 rounds of rewards ready” opens
-                a dialog. The LPT and USDC marks are named. Escape or Close
-                dismisses it and returns focus to that card. The actions use the
-                design-system buttons and are 45px tall.
               </li>
             </ul>
           </div>
@@ -1399,7 +1387,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="803"
               href="https://github.com/livepeer/explorer/issues/803"
               target="_blank"
               rel="noopener"
@@ -1415,7 +1404,8 @@
         >
           <article class="note-card" id="n-hist-2" tabindex="-1">
             <h3>
-              2. Honesty on the receipt <span class="issue-tag">#804</span>
+              2. Honesty on the receipt
+              <span class="issue-tag" data-issue="804">#804</span>
             </h3>
             <div>
               <p>
@@ -1433,7 +1423,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="804"
               href="https://github.com/livepeer/explorer/issues/804"
               target="_blank"
               rel="noopener"
@@ -1509,7 +1500,7 @@
           4209: {
             theme: "fee",
             title: "Round 4209",
-            lede: '<strong class="num">6.8%</strong> of stake, <strong class="cap num">4.2%</strong> of fees. Honesty at claim was <span class="num">1.00</span>. Extra stake that round would not have raised the pool.',
+            lede: '<strong class="num">6.8%</strong> of stake, <strong class="cap num">4.2%</strong> of fees. Honesty at claim was <span class="num">1.00</span>. Extra stake that round left the pool unchanged.',
             work: "4209",
             paid: "4216",
             fee: "4.2%",
@@ -1528,11 +1519,11 @@
               'Same <span class="num">2%</span> of the node’s stake after the <span class="num">10%</span> cut.',
             opAmt: "1,680 LPT",
             opHint:
-              'You kept <span class="num">168 LPT</span>. Extra stake would not have raised that pool until fee share caught up.',
+              'You kept <span class="num">168 LPT</span>. Extra stake left that pool unchanged until fee share caught up.',
             nextDel:
               "<strong>To grow the next one:</strong> more fee share here, or stake where fees still lead.",
             nextOp:
-              "<strong>To grow the next one:</strong> more fee share. Extra stake alone does not lift a fee-capped receipt.",
+              "<strong>To grow the next one:</strong> more fee share. A fee-capped receipt grows with fees.",
             splitDel: "90% · 1,512 LPT",
             splitNode: "10% · 168 LPT",
             splitPool: "1,680 LPT",

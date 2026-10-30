@@ -1,6 +1,6 @@
-# 802: Eng appendix (not the review surface)
+# 802: Eng appendix
 
-**Reviewers:** open [`index.html`](./index.html). Surfaces, design decisions, open questions, and accessibility live in that page. Do not review this markdown as the rationale.
+**Reviewers:** open [`index.html`](./index.html). Surfaces, design decisions, open questions, and accessibility live in that page.
 
 This file is for implementers after approval: formula, subgraph gaps, and schema notes.
 
@@ -13,7 +13,7 @@ each round: reward % = min(that round’s fee % of network, that round’s stake
 window reward = sum of those capped round rewards
 ```
 
-Fees (USDC) are never capped. Only inflationary LPT attached to that work is capped by stake (self + delegated). Take `min()` on each round, then add the capped rewards. Do not `min()` the seven-round totals. Trailing fee share and stake share compare nodes. They are not what the node can earn each round.
+Fees (USDC) stay uncapped. Only inflationary LPT for that work is capped by stake (self + delegated). Take `min()` on each round, then sum those capped rewards. The window total is that sum. Trailing fee share and stake share compare nodes; per-round `min()` sets what that node earns.
 
 ## Surfaces (product)
 
@@ -24,7 +24,7 @@ Fees (USDC) are never capped. Only inflationary LPT attached to that work is cap
 | `/accounts/[account]/delegating`    | Secondary card for bonded users       |
 | Home, leaderboard, History          | Out of 802 (History is 803)           |
 
-Do not add an “MFS” page.
+No separate “MFS” page.
 
 ## Data this needs
 

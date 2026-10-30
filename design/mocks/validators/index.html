@@ -53,10 +53,10 @@
       </p>
     </header>
     <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
       <button type="button" class="hide-markers" aria-pressed="false">
         Hide markers
       </button>
-      <a class="issue-link" href="../index.html">← Review hub</a>
     </div>
 
     <main id="surface">
@@ -736,7 +736,7 @@
                     <span class="tooltip-help" id="tip-part" role="tooltip">
                       How often they filed scores in the last 7 rounds. Active
                       is most rounds, Occasional is some, Inactive is none. A
-                      proposal only. Not a health grade, and not a pay cut.
+                      proposal only.
                     </span>
                   </span>
                   <span id="part-detail"
@@ -759,7 +759,7 @@
                       <span class="tooltip-help" id="tip-pay" role="tooltip">
                         1% of new LPT this round, weighted by delegated stake
                         inside the set, then this node’s usual cut. Emissions
-                        are not fixed. Green is the LPT amount, not a judgment.
+                        stay unsettled. Green marks the LPT amount.
                       </span>
                     </span>
                   </div>
@@ -779,7 +779,7 @@
                 <p class="empty-note" id="scores-quiet" hidden>
                   No scores submitted in the last 7 rounds. They remain in the
                   set. This mock still shows their pay, because missing rounds
-                  are not a penalty yet.
+                  wait on Validator Track rules.
                 </p>
                 <table class="score-table" id="scores-table">
                   <caption class="sr-only" id="scores-caption">
@@ -806,11 +806,11 @@
             </li>
             <li>Names under “Scores they filed” link to that node’s detail.</li>
             <li>
-              Sample round is 4218. Twenty-seven other seats are not drawn. In
-              this sample the only unregistered nodes above the cutoff are
-              Quarry and Lumen, so the 33 seats run through stake rank 35.
-              Mosaic at rank 36 is the first registered node outside. The
-              product list should virtualize the full 33.
+              Sample round is 4218. Sample shows a slice of the 33. In this
+              sample the only unregistered nodes above the cutoff are Quarry and
+              Lumen, so the 33 seats run through stake rank 35. Mosaic at rank
+              36 is the first registered node outside. The product list should
+              virtualize the full 33.
             </li>
           </ul>
           <a
@@ -829,6 +829,7 @@
             type="button"
             role="tab"
             id="tab-804"
+            data-issue="804"
             aria-controls="panel-val-804"
             aria-selected="true"
             tabindex="0"
@@ -843,7 +844,10 @@
           aria-labelledby="tab-804"
         >
           <article class="note-card" id="n-val-1" tabindex="-1">
-            <h3>1. Validator set <span class="issue-tag">#804</span></h3>
+            <h3>
+              1. Validator set
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
             <div>
               <p>
                 Filter tabs own membership. Rows stay light. Detail carries the
@@ -858,10 +862,10 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Read-only.</strong> This ticket shows the set, status,
-                stake, scores, and pay. It does not include registering,
-                leaving, or filing a score. Whether those actions belong in
-                Explorer waits on the Validator Track.
+                <strong>Read-only.</strong> This mock shows the set, status,
+                stake, scores, and pay. Registering, leaving, and filing a score
+                stay off this ticket. Whether those actions belong in Explorer
+                waits on the Validator Track.
               </li>
               <li>
                 <strong>Set rule used here.</strong> Active set = the 33
@@ -896,30 +900,39 @@
               <li>
                 <strong>List is one panel.</strong> Validator rows share a
                 single bordered sheet with a green wash and 1px ring on the
-                selected row. Different from gateway and orchestrator tables on
-                purpose for Livepeer 2.0, same selected-row language.
+                selected row. It looks different from gateway and orchestrator
+                tables on purpose for Livepeer 2.0. @ECWireless flagged the
+                divergence and the busy dual chips; we kept the split
+                list/detail, dropped membership chips from rows (tabs + detail
+                carry membership; cadence is muted row meta), and closed that
+                thread on
+                <a
+                  class="prose-link"
+                  href="https://github.com/livepeer/explorer/pull/844#issuecomment-6428113927"
+                  target="_blank"
+                  rel="noopener"
+                  >#844</a
+                >.
               </li>
               <li>
                 <strong>Blanks are “No score”.</strong> They are left out of the
-                median in this mock, not treated as zero. See open questions.
+                median in this mock. See open questions.
               </li>
               <li>
-                <strong>Filing habit is not health.</strong> Active, Occasional,
-                and Inactive say how often they filed scores in the last 7
-                rounds. Same everyday words as the tip. They appear as muted row
-                meta and again as the detail sentence. Slate is Inactive and
-                still paid, because the draft does not tie pay to participation.
+                <strong>Filing habit.</strong> Active, Occasional, and Inactive
+                say how often they filed scores in the last 7 rounds. Same
+                everyday words as the tip. They appear as muted row meta and
+                again as the detail sentence. Slate is Inactive and still paid.
               </li>
               <li>
                 <strong>Pay follows delegated stake.</strong> 1% of new LPT,
                 weighted by delegated stake inside the set, then the node’s
-                usual cut. Emissions are not fixed, so there is no dollar
-                figure.
+                usual cut. Emissions stay unsettled, so skip a dollar figure.
               </li>
               <li>
-                <strong>2.0 is not released.</strong> Sample operators, sample
-                stake, sample scores. Build waits on approval and on the
-                Validator Track for the items below.
+                <strong>Sample data.</strong> Sample operators, stake, and
+                scores. Build waits on approval and on the Validator Track for
+                the items below.
               </li>
             </ul>
           </div>
@@ -929,17 +942,16 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Words for scores that are not near 1.</strong> This
-                sample is 0.95, so the card says honest. The draft has no bands.
+                <strong>Words for mid-range scores.</strong> This sample is
+                0.95, so the card says honest. The draft has no bands.
                 <em>Recommended default:</em> say the share of the reward in
                 words (“keeps 40%”) and reserve “Honest” for a score at or very
-                near 1. Owner: Validator Track. Confirm with @ECWireless.
+                near 1. Owner: Validator Track.
               </li>
               <li>
                 <strong>What a missing score means.</strong>
                 <em>Recommended default:</em> show “No score” and omit it from
-                the median. Do not impute zero. Owner: Validator Track. Confirm
-                with @ECWireless.
+                the median. Owner: Validator Track.
               </li>
               <li>
                 <strong>How the 1% is split.</strong> The parameter table
@@ -951,14 +963,14 @@
               <li>
                 <strong>Health, and pay for quiet validators.</strong>
                 <em>Recommended default:</em> show submission cadence only. Do
-                not name it health, and do not zero pay, until the Validator
-                Track defines minimum participation. Owner: Validator Track.
+                keep pay as drawn until the Validator Track defines minimum
+                participation. Owner: Validator Track.
               </li>
               <li>
                 <strong>A validator scoring their own node.</strong>
                 <em>Recommended default:</em> it counts like any other score,
-                one of 33, and is labeled like the rest. Not special-cased until
-                the Validator Track says otherwise.
+                one of 33, and is labeled like the rest until the Validator
+                Track says otherwise.
               </li>
               <li>
                 <strong>How deep score history goes.</strong>
@@ -969,26 +981,13 @@
               </li>
               <li>
                 <strong>Actions in Explorer.</strong> Register, leave, submit a
-                score. <em>Recommended default:</em> not in this ticket, and not
-                designed until the Validator Track says Explorer is the right
-                home. Owner: Validator Track and @ECWireless.
-              </li>
-              <li>
-                <strong
-                  >How far this table may diverge from other persona
-                  tables.</strong
-                >
-                @ECWireless flagged that the set list looks different from
-                gateway and orchestrator tables, and that dual chips felt busy.
-                <em>Recommended default:</em> keep the split list/detail; no
-                membership chips on rows (tabs + detail carry it); cadence as
-                muted row meta inside the set; detail uses the same icon+label
-                chip as 803 (membership + cadence). Confirm with @ECWireless.
+                score. <em>Recommended default:</em> leave for a later ticket
+                once the Validator Track says Explorer is the right home. Owner:
+                Validator Track and @ECWireless.
               </li>
               <li>
                 <strong>The constitution.</strong> Expected validator behavior
-                is not written. Explorer should not invent rules of conduct in
-                copy or in a health grade. Owner: Validator Track.
+                is still being written. Owner: Validator Track.
               </li>
             </ul>
           </div>
@@ -1000,7 +999,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="804"
               href="https://github.com/livepeer/explorer/issues/804"
               target="_blank"
               rel="noopener"
@@ -1079,7 +1079,7 @@
             registered: "No",
             bucket: "join",
             status: "Could join",
-            lede: "Stake rank 7, not registered. Their stake is higher than nodes already in the set. Registering would give them a seat and is not designed on this page.",
+            lede: "Stake rank 7. Unregistered. Their stake is higher than nodes already in the set. Registering would give them a seat.",
             part: null,
           },
           harbor: {
@@ -1118,7 +1118,7 @@
             registered: "No",
             bucket: "join",
             status: "Could join",
-            lede: "Stake rank 12, not registered. Their stake is higher than nodes already in the set. Registering would give them a seat and is not designed on this page.",
+            lede: "Stake rank 12. Unregistered. Their stake is higher than nodes already in the set. Registering would give them a seat.",
             part: null,
           },
           slate: {
@@ -1132,7 +1132,7 @@
             registered: "Yes",
             bucket: "set",
             status: "In the set",
-            lede: "Registered and inside the 33. They have not submitted scores lately. Membership and cadence are separate.",
+            lede: "Registered and inside the 33. Quiet on scores lately. Membership and cadence are separate.",
             part: "quiet",
             partLabel: "Inactive",
             partDetail: "Submitted scores in 0 of the last 7 rounds.",
@@ -1387,7 +1387,7 @@
           set: "6 of 33 in the set shown.",
           next: "2 registered nodes just outside the set.",
           join: "2 nodes whose stake would put them in the set if they registered.",
-          all: "10 nodes shown. The full set is 33. Twenty-seven seats are not drawn.",
+          all: "10 nodes shown. The full set is 33.",
         };
 
         function applyFilter(bucket, opts) {

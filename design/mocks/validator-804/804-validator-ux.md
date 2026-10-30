@@ -1,8 +1,8 @@
-# 804: Eng appendix (not the review surface)
+# 804: Eng appendix
 
-**Reviewers:** open [`index.html`](./index.html). Placement, design decisions, open questions, and accessibility live in that page. Do not review this markdown as the rationale.
+**Reviewers:** open [`index.html`](./index.html). Placement, design decisions, open questions, and accessibility live in that page.
 
-This file is for implementers after approval: set rule, median, pay split, sample numbers, subgraph fields. 2.0 is not released. Source is the September 2026 litepaper draft. Do not counter it. Do not link or embed that draft in the review page.
+This file is for implementers after approval: set rule, median, pay split, sample numbers, subgraph fields. 2.0 is still draft. Source is the September 2026 litepaper. Treat that draft as authoritative; keep it off the review page.
 
 Issue: [livepeer/explorer#804](https://github.com/livepeer/explorer/issues/804). Boundaries: [802](https://github.com/livepeer/explorer/issues/802) (live fee vs stake), [803](https://github.com/livepeer/explorer/issues/803) (honesty factor already used on a paid round).
 
@@ -15,7 +15,7 @@ total stake   = self-staked + delegated
 ValidatorSetSize starts at 33 (governance-adjustable)
 ```
 
-A node in the top stake that has not registered is not in the set. The next-highest registered node fills that seat.
+Unregistered nodes stay outside the set even with top stake. The next-highest registered node fills that seat.
 
 | Mock status  | Rule                                       |
 | ------------ | ------------------------------------------ |
@@ -25,26 +25,26 @@ A node in the top stake that has not registered is not in the set. The next-high
 Sample ranks: the only unregistered nodes above the cutoff are Quarry (7) and Lumen (12). The other 27 seats occupy the undrawn ranks through 35. Mosaic (36) is the first registered node outside. That is why rank 36 can sit outside a set of 33.
 | Could join | Not registered, stake above the current cutoff (registering would enter) |
 
-Participation is not membership. A quiet validator stays in the set in this mock.
+Cadence and membership are separate. A quiet validator stays in the set in this mock.
 
 ## Honesty score
 
-Visible chrome says “honesty score”, never the contract name.
+Visible chrome says “honesty score”.
 
 ```text
 each active validator submits a score in [0.0, 1.0] per node
 median = median of scores actually submitted
-applied at claim time (work round + 7), not at work time
+applied at claim time (work round + 7); work-time median can still move until then
 1.0 = full MFS-eligible reward, 0.0 = none, else proportional
 ```
 
-Not an average over N rounds. The draft does not cap the score at a round count. The 7 rounds are the delay before pay, so validators can still change the median until claim.
+Median of scores actually submitted. The draft leaves the score uncapped by round count. The 7 rounds are the delay before pay, so validators can still change the median until claim.
 
-On the Orchestrating card the blurb says other validators scored whether this node’s work was honest. The hero is 95%. The 0 to 1 protocol figure is not shown on the card. “How it was scored” is the scores on this node. “How it scored others” is what this validator gave other nodes. Copy does not use the node name. Hovering or focusing a row marks that dot. 803 keeps factors already paid.
+On the Orchestrating card the blurb says other validators scored whether this node’s work was honest. The hero is 95%. The card shows the share; the 0–1 protocol figure stays in help. “How it was scored” is the scores on this node. “How it scored others” is what this validator gave other nodes. Copy skips the node name. Hovering or focusing a row marks that dot. 803 keeps factors already paid.
 
-Purpose: dishonest work (self-dealing, fabricated fees, incorrect results). Not quality of service.
+Purpose: dishonest work (self-dealing, fabricated fees, incorrect results).
 
-Mock rule for blanks: omit from the median. Do not impute 0. Open question for the Validator Track.
+Mock rule for blanks: omit from the median. Skip imputing 0. Open question for the Validator Track.
 
 ### Harbor sample (median 0.95)
 
@@ -89,9 +89,9 @@ Sample only, emissions are still a draft:
 | Cinder    | 500,000   | 2.6%  | 3.9 LPT  |
 | Reed      | 390,400   | 2.0%  | 3.0 LPT  |
 
-Shares are rounded for the screen. Inactive Slate still receives a gross share. The draft does not tie pay to submission.
+Shares are rounded for the screen. Inactive Slate still receives a gross share. The draft leaves pay untied to submission.
 
-## Participation chip (proposed, not protocol)
+## Participation chip (proposed)
 
 Last 7 rounds with at least one score submission:
 
@@ -101,7 +101,7 @@ Last 7 rounds with at least one score submission:
 | Occasional | 1–5    |
 | Inactive   | 0      |
 
-Shown only for nodes in the set. Not a health grade. Icons are validator-only. Do not reuse the MFS stake/fee icons in `../shared/mfs-status-icons.md`.
+Shown only for nodes in the set. Icons are validator-only. Keep the MFS stake/fee icons in `../shared/mfs-status-icons.md` for 802/803.
 
 ## Subgraph / Explorer data
 
@@ -115,7 +115,7 @@ Not in today’s subgraph. Needs, once 2.0 lands:
 - round mint or validator pot, once emissions are fixed
 - reward cut used on the validator’s delegated stake
 
-802’s live compare and 803’s per-round series stay their own fields. 803 reads the median that was current at claim, not this live board.
+802’s live compare and 803’s per-round series stay their own fields. 803 reads the median that was current at claim.
 
 ## Where it sits on Orchestrating
 
@@ -123,7 +123,7 @@ Product today: left masonry of stats (total stake, status, regional transcoding 
 
 802 puts its fee-vs-stake card first in that left grid, full width, and leaves the stats and the rail. 803 adds only the “paid about a week later” line on that card.
 
-804’s honesty card is the next full-width item, still in the left grid, before those stats. Incoming scores live there. Scores this node has filed stay on `/validators`. Do not add a column to 802’s orchestrator table.
+804’s honesty card is the next full-width item, still in the left grid, before those stats. Incoming scores live there. Scores this node has filed stay on `/validators`. Honesty stays off the 802 orchestrator table.
 
 ## Validator Track dependencies
 
@@ -132,7 +132,7 @@ Product today: left masonry of stats (total stake, status, regional transcoding 
 - Equal split vs stake-weighted pot (mock uses stake-weighted)
 - Whether pay depends on submission cadence
 - Whether a validator’s score on their own node counts like any other
-- Constitution / expected behavior (unwritten; Explorer must not invent conduct rules)
+- Constitution / expected behavior (unwritten; Explorer leaves conduct rules alone)
 - Whether register / submit-score flows belong in Explorer at all
 
 ## Acceptance

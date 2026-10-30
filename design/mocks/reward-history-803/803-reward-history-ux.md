@@ -1,6 +1,6 @@
-# 803: Eng appendix (not the review surface)
+# 803: Eng appendix
 
-**Reviewers:** open [`index.html`](./index.html). Placement, design decisions, open questions, and accessibility live in that page. Do not review this markdown as the rationale.
+**Reviewers:** open [`index.html`](./index.html). Placement, design decisions, open questions, and accessibility live in that page.
 
 This file is for implementers after approval: causal formula, subgraph gaps, and the reconciliable sample numbers.
 

@@ -63,10 +63,10 @@
       </p>
     </header>
     <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
       <button type="button" class="hide-markers" aria-pressed="false">
         Hide markers
       </button>
-      <a class="issue-link" href="../index.html">← Review hub</a>
     </div>
 
     <main id="surface">
@@ -276,7 +276,7 @@
           </p>
           <div class="variant-grid mfs-states">
             <div>
-              <div class="variant-label">Full · not lifting rewards</div>
+              <div class="variant-label">Full · rewards held</div>
               <a class="stat-card theme-fee" href="#">
                 <div class="top">
                   <span class="title">Everstake</span>
@@ -295,8 +295,8 @@
                   >
                 </div>
                 <div class="d">
-                  This node has more stake than work, so your stake is not
-                  lifting rewards right now.
+                  This node has more stake than work, so extra stake here leaves
+                  rewards flat right now.
                   <span style="color: var(--primary11)"
                     >See nodes with room to earn →</span
                   >
@@ -314,8 +314,8 @@
               the right rail (or the bottom drawer under 1200px).
             </li>
             <li>
-              <strong>Bonded language:</strong> use “You’re earning” / “Full”
-              here, not “Room to earn.” That phrase is for the compare list when
+              <strong>Bonded language:</strong> “You’re earning” / “Full” on
+              this card. “Room to earn” belongs on the compare list while
               someone is still choosing a node.
             </li>
             <li>
@@ -355,6 +355,7 @@
             type="button"
             role="tab"
             id="tab-802"
+            data-issue="802"
             aria-controls="panel-del-802"
             aria-selected="true"
             tabindex="0"
@@ -365,6 +366,7 @@
             type="button"
             role="tab"
             id="tab-803"
+            data-issue="803"
             aria-controls="panel-del-803"
             aria-selected="false"
             tabindex="-1"
@@ -379,11 +381,14 @@
           aria-labelledby="tab-802"
         >
           <article class="note-card" id="n-del-1" tabindex="-1">
-            <h3>1. You&#x27;re earning <span class="issue-tag">#802</span></h3>
+            <h3>
+              1. You&#x27;re earning
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
             <div>
               <p>
                 Same stake-capped state as Room to earn, but the viewer already
-                bonded. Copy is about their stake, not leftover room.
+                bonded. Copy is about their stake.
               </p>
             </div>
             <a class="show-in-mock" href="#m-del-1">↑ Show in mock</a>
@@ -399,7 +404,7 @@
                 “Active” label loses its meaning with the capped set. On
                 <code>/delegating</code>, the same stake-capped state reads
                 “You’re earning” instead: the user already bonded, so the copy
-                is about their stake, not leftover room for new stake.
+                is about their stake.
               </li>
             </ul>
           </div>
@@ -411,7 +416,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="802"
               href="https://github.com/livepeer/explorer/issues/802"
               target="_blank"
               rel="noopener"
@@ -426,12 +432,12 @@
           aria-labelledby="tab-803"
         >
           <article class="note-card" id="n-del-2" tabindex="-1">
-            <h3>2. Entry into History <span class="issue-tag">#803</span></h3>
+            <h3>
+              2. Entry into History
+              <span class="issue-tag" data-issue="803">#803</span>
+            </h3>
             <div>
-              <p>
-                Delegating does not retell the receipt. It links into History ·
-                Rewards.
-              </p>
+              <p>Delegating links into History · Rewards for the receipt.</p>
             </div>
             <a class="show-in-mock" href="#m-del-2">↑ Show in mock</a>
           </article>
@@ -443,7 +449,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="803"
               href="https://github.com/livepeer/explorer/issues/803"
               target="_blank"
               rel="noopener"

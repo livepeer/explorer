@@ -69,10 +69,10 @@
       </p>
     </header>
     <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
       <button type="button" class="hide-markers" aria-pressed="false">
         Hide markers
       </button>
-      <a class="issue-link" href="../index.html">← Review hub</a>
     </div>
 
     <main id="surface">
@@ -136,9 +136,9 @@
                   </button>
                   <span id="help-window" class="tooltip-help" role="tooltip">
                     Sorted by where new stake earns the most. Forecasted yield
-                    is an estimate, so it does not set the order. The seven
-                    settled rounds are harder to fake than one, and match when
-                    rewards are paid.
+                    is an estimate; sort stays on trailing fee vs stake. The
+                    seven settled rounds are harder to fake than one, and match
+                    when rewards are paid.
                   </span>
                 </span>
               </span>
@@ -187,7 +187,7 @@
                         >
                           Share of network fees vs share of network stake over
                           the last 7 settled rounds. Those trailing shares
-                          compare nodes. They are not the reward cap.
+                          compare nodes.
                         </span>
                       </span>
                     </th>
@@ -232,8 +232,8 @@
                         >
                           A rough estimate of what 150&nbsp;LPT would earn over
                           one year, using today’s numbers. It can differ from
-                          what you actually earn, and it does not set the order
-                          of this list.
+                          what you actually earn. Sort stays on trailing fee vs
+                          stake.
                         </span>
                       </span>
                     </th>
@@ -1163,6 +1163,19 @@
             >1</a
           >
         </div>
+        <div class="callout-target" id="m-orchlist-3" data-issue="804">
+          <p class="node-note">
+            Scores live on the node’s Orchestrating card and on
+            <a class="prose-link" href="../validators/">/validators</a>.
+          </p>
+          <a
+            class="callout"
+            href="#n-orchlist-3"
+            data-issue="804"
+            aria-label="Note 3, issue 804: no honesty column on this list"
+            >3</a
+          >
+        </div>
         <div class="callout-target" id="m-orchlist-2" data-issue="802">
           <div class="section-header">
             <h2 class="section-title" id="s2">Mobile list</h2>
@@ -1517,6 +1530,7 @@
             type="button"
             role="tab"
             id="tab-802"
+            data-issue="802"
             aria-controls="panel-orchlist-802"
             aria-selected="true"
             tabindex="0"
@@ -1527,6 +1541,7 @@
             type="button"
             role="tab"
             id="tab-804"
+            data-issue="804"
             aria-controls="panel-orchlist-804"
             aria-selected="false"
             tabindex="-1"
@@ -1541,7 +1556,10 @@
           aria-labelledby="tab-802"
         >
           <article class="note-card" id="n-orchlist-1" tabindex="-1">
-            <h3>1. Desktop table <span class="issue-tag">#802</span></h3>
+            <h3>
+              1. Desktop table
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
             <div>
               <p>
                 Seven-round fee versus stake compare on the orchestrators list.
@@ -1552,11 +1570,14 @@
           </article>
 
           <article class="note-card" id="n-orchlist-2" tabindex="-1">
-            <h3>2. Mobile cards <span class="issue-tag">#802</span></h3>
+            <h3>
+              2. Mobile cards
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
             <div>
               <p>
-                Same compare as cards under 768px. One panel, not a stack of
-                separate cards for the list chrome.
+                Same compare as cards under 768px. One shared panel for the
+                list.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orchlist-2">↑ Show in mock</a>
@@ -1578,6 +1599,8 @@
                 last week of settled work. That window is harder to game, and it
                 lines up with when rewards are paid. Per-round receipts are
                 <a
+                  class="issue-chip"
+                  data-issue="803"
                   href="https://github.com/livepeer/explorer/issues/803"
                   target="_blank"
                   rel="noopener"
@@ -1591,12 +1614,14 @@
                 “Active” label loses its meaning with the capped set. On
                 <code>/delegating</code>, the same stake-capped state reads
                 “You’re earning” instead: the user already bonded, so the copy
-                is about their stake, not leftover room for new stake.
+                is about their stake.
               </li>
               <li>
                 <strong>Fee and stake only.</strong> Honesty scores and
                 validator set design (
                 <a
+                  class="issue-chip"
+                  data-issue="804"
                   href="https://github.com/livepeer/explorer/issues/804"
                   target="_blank"
                   rel="noopener"
@@ -1608,6 +1633,21 @@
                 and the amount action are the product button. Focus is a green
                 ring. The phone list and the day-one steps each sit in one
                 panel.
+              </li>
+              <li>
+                <strong>Fit the Explorer list you already know.</strong>
+                Forecasted Yield, Delegated Stake, and Trailing 90 Day Fees stay
+                in the compare table; fee-versus-stake is an added read.
+                Tooltips work on the column headers. Orchestrating detail and
+                Your delegation are framed on the real account layout. Closed
+                with @ECWireless on
+                <a
+                  class="prose-link"
+                  href="https://github.com/livepeer/explorer/pull/837#issuecomment-6158179207"
+                  target="_blank"
+                  rel="noopener"
+                  >#837</a
+                >.
               </li>
               <li>
                 <strong>One vocabulary.</strong> List, mobile, and detail all
@@ -1644,7 +1684,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="802"
               href="https://github.com/livepeer/explorer/issues/802"
               target="_blank"
               rel="noopener"
@@ -1660,16 +1701,16 @@
         >
           <article class="note-card" id="n-orchlist-3" tabindex="-1">
             <h3>
-              3. No honesty column here <span class="issue-tag">#804</span>
+              3. Honesty lives elsewhere
+              <span class="issue-tag" data-issue="804">#804</span>
             </h3>
             <div>
               <p>
-                Validator honesty does not add a column on the orchestrators
-                list. Placement stays on the orchestrating card and the
-                validators mockup.
+                Placement stays on the orchestrating card and the validators
+                mockup.
               </p>
             </div>
-            <a class="show-in-mock" href="#m-orchlist-1">↑ Show in mock</a>
+            <a class="show-in-mock" href="#m-orchlist-3">↑ Show in mock</a>
           </article>
           <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
             Design decisions on this mockup
@@ -1677,8 +1718,8 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Fit the existing Orchestrating tab.</strong> Do not put
-                the score list on 802’s orchestrator table.
+                <strong>Fit the existing Orchestrating tab.</strong> Scores live
+                on Orchestrating and /validators.
               </li>
             </ul>
           </div>
@@ -1690,7 +1731,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="804"
               href="https://github.com/livepeer/explorer/issues/804"
               target="_blank"
               rel="noopener"

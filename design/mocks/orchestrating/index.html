@@ -72,10 +72,10 @@
       </p>
     </header>
     <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
       <button type="button" class="hide-markers" aria-pressed="false">
         Hide markers
       </button>
-      <a class="issue-link" href="../index.html">← Review hub</a>
     </div>
 
     <main id="surface">
@@ -85,8 +85,8 @@
           <span class="section-route">/accounts/…/orchestrating</span>
         </div>
         <p class="section-description">
-          802’s live card, 803’s week-later line, 804’s honesty card and score
-          sheet, then today’s stats and Delegate rail.
+          Live fee-versus-stake card, week-later History line, honesty card and
+          score sheet, then today’s stats and Delegate rail.
         </p>
         <div class="section-header">
           <h2 class="section-title" id="node-title">
@@ -96,22 +96,31 @@
           <span class="section-badge">Primary</span>
         </div>
         <p class="section-description">
-          Harbor’s account, with the pieces that will already be on this tab.
+          Harbor’s account. Fee-versus-stake card first (
           <a
+            class="issue-chip"
+            data-issue="802"
             href="https://github.com/livepeer/explorer/issues/802"
             target="_blank"
             rel="noopener"
             >802</a
-          >
-          owns the first card (fee share versus stake share). The week-later
-          line on that card is
+          >), with a week-later History line on it (
           <a
+            class="issue-chip"
+            data-issue="803"
             href="https://github.com/livepeer/explorer/issues/803"
             target="_blank"
             rel="noopener"
             >803</a
-          >, not a second history module. Honesty is the next card. The stat
-          grid and the Delegate rail are the current page.
+          >). Honesty card next (
+          <a
+            class="issue-chip"
+            data-issue="804"
+            href="https://github.com/livepeer/explorer/issues/804"
+            target="_blank"
+            rel="noopener"
+            >804</a
+          >). Then the existing stat grid and Delegate rail.
         </p>
 
         <div class="orch" aria-label="Harbor orchestrating page">
@@ -352,10 +361,9 @@
                       You keep <strong class="num">95%</strong> of that reward.
                     </p>
                     <p class="honesty-why">
-                      Other validators scored whether this work was honest, not
-                      how good it is. A low score cuts the stake-capped LPT
-                      before it pays. Fees are not cut. Stake cannot leave for
-                      about
+                      Other validators scored whether this work was honest. A
+                      low score cuts the stake-capped LPT before it pays. Fees
+                      stay whole. Stake stays put for about
                       <span class="num">21</span> days, so check this before
                       delegating into the room above.
                     </p>
@@ -485,8 +493,7 @@
                 </div>
                 <p class="pf-more span2">
                   Reward-cut and fee-cut history stays under this grid, as it
-                  does today. Regional scores are quality of service. They are
-                  not the honesty median above.
+                  does today. Regional scores measure quality of service.
                 </p>
               </div>
             </div>
@@ -950,6 +957,7 @@
             type="button"
             role="tab"
             id="tab-802"
+            data-issue="802"
             aria-controls="panel-orch-802"
             aria-selected="true"
             tabindex="0"
@@ -960,6 +968,7 @@
             type="button"
             role="tab"
             id="tab-803"
+            data-issue="803"
             aria-controls="panel-orch-803"
             aria-selected="false"
             tabindex="-1"
@@ -970,6 +979,7 @@
             type="button"
             role="tab"
             id="tab-804"
+            data-issue="804"
             aria-controls="panel-orch-804"
             aria-selected="false"
             tabindex="-1"
@@ -984,7 +994,10 @@
           aria-labelledby="tab-802"
         >
           <article class="note-card" id="n-orch-1" tabindex="-1">
-            <h3>1. Room to earn card <span class="issue-tag">#802</span></h3>
+            <h3>
+              1. Room to earn card
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
             <div>
               <p>
                 Full and Balanced variants live in the 802 mock variants on this
@@ -996,7 +1009,10 @@
           </article>
 
           <article class="note-card" id="n-orch-4" tabindex="-1">
-            <h3>4. Day one checklist <span class="issue-tag">#802</span></h3>
+            <h3>
+              4. Day one checklist
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
             <div>
               <p>
                 Gateways, then fees, then stake. Brand green with the Livepeer
@@ -1016,7 +1032,7 @@
                 “Active” label loses its meaning with the capped set. On
                 <code>/delegating</code>, the same stake-capped state reads
                 “You’re earning” instead: the user already bonded, so the copy
-                is about their stake, not leftover room for new stake.
+                is about their stake.
               </li>
               <li>
                 <strong>Day one is a checklist.</strong> The launch card names
@@ -1024,21 +1040,21 @@
                 brand green and the Livepeer mark as the backdrop.
               </li>
               <li>
-                <strong>About 21 days to move.</strong> That is the working
-                assumption here. If the protocol keeps instant transfers, the
-                note comes out before ship. The wording is ready to follow the
-                rule.
+                <strong>Moving stake takes about 21 days.</strong> Unbonding is
+                always on. The lockup note stays.
               </li>
               <li>
-                <strong>History is 803.</strong> This ticket owns live
-                fee-vs-stake status. Past payouts and “why that round paid that
-                amount” live on account History · Rewards (
+                <strong>History is 803.</strong> Live fee-vs-stake status lives
+                here. Past payouts and “why that round paid that amount” live on
+                account History · Rewards (
                 <a
+                  class="issue-chip"
+                  data-issue="803"
                   href="https://github.com/livepeer/explorer/issues/803"
                   target="_blank"
                   rel="noopener"
                   >803</a
-                >). Orchestrating only carries a week-later handoff line.
+                >). Orchestrating carries a week-later handoff line.
               </li>
             </ul>
           </div>
@@ -1048,22 +1064,10 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Moving stake (~21 days).</strong> Design assumes a
-                delayed move so stake cannot flee a penalized node. If moving
-                stake stays instant, delete the lockup note rather than leave a
-                lie. Flag for protocol.
-              </li>
-              <li>
                 <strong>APY / dollar mint.</strong> Emissions are still a draft.
                 <em>Recommended default:</em> show share math and ceiling
-                movement (for example 2.3% toward 11.8%). Do not ship APY, “5×
-                daily rewards,” or a dollar mint until emissions are fixed.
-              </li>
-              <li>
-                <strong>Collapsed cut breakdown.</strong> Whether stake still
-                earns is the open question on Orchestrating. How the cut divides
-                waits until someone is ready to commit. Confirm that
-                collapsed-by-default is the right default for stakeholders.
+                movement (for example 2.3% toward 11.8%). Hold APY and dollar
+                mint until emissions are fixed.
               </li>
             </ul>
           </div>
@@ -1075,7 +1079,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="802"
               href="https://github.com/livepeer/explorer/issues/802"
               target="_blank"
               rel="noopener"
@@ -1090,11 +1095,14 @@
           aria-labelledby="tab-803"
         >
           <article class="note-card" id="n-orch-2" tabindex="-1">
-            <h3>2. Week-later handoff <span class="issue-tag">#803</span></h3>
+            <h3>
+              2. Week-later handoff
+              <span class="issue-tag" data-issue="803">#803</span>
+            </h3>
             <div>
               <p>
                 Orchestrating carries a paid-about-a-week-later line into
-                History. The live card stays 802. The receipt stays on History.
+                History.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-2">↑ Show in mock</a>
@@ -1105,21 +1113,22 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>History is past; Orchestrating is now.</strong>
+                <strong>History covers settled rounds.</strong> Live
+                fee-vs-stake lives under
                 <a
+                  class="issue-chip"
+                  data-issue="802"
                   href="https://github.com/livepeer/explorer/issues/802"
                   target="_blank"
                   rel="noopener"
                   >802</a
-                >
-                owns the live fee-vs-stake card. This ticket owns settled rounds
-                and a receipt for why a chosen round paid that amount. Do not
-                move the live card onto History.
+                >. Settled rounds and a receipt for why a chosen round paid that
+                amount live here.
               </li>
               <li>
-                <strong>Do not reprint 802.</strong> Entry sketches stay in the
-                802 mock. Link only. “What would grow the next one” may point at
-                live room; it must not impersonate the live status card.
+                <strong>Link to 802.</strong> Entry sketches stay in the 802
+                mock. “What would grow the next one” may point at live room on
+                that card.
               </li>
             </ul>
           </div>
@@ -1131,7 +1140,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="803"
               href="https://github.com/livepeer/explorer/issues/803"
               target="_blank"
               rel="noopener"
@@ -1146,23 +1156,26 @@
           aria-labelledby="tab-804"
         >
           <article class="note-card" id="n-orch-3" tabindex="-1">
-            <h3>3. Honesty card <span class="issue-tag">#804</span></h3>
+            <h3>
+              3. Honesty card
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
             <div>
               <p>
-                Ordered after the 802 card. Honesty cuts stake-capped LPT if
-                work was not honest; fees untouched. Not quality of service.
+                Ordered after the 802 card. Honesty cuts stake-capped LPT when
+                work was dishonest; fees stay whole.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-3">↑ Show in mock</a>
           </article>
 
           <article class="note-card" id="n-orch-5" tabindex="-1">
-            <h3>5. Score sheet <span class="issue-tag">#804</span></h3>
+            <h3>
+              5. Score sheet
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
             <div>
-              <p>
-                Full set of scores opens in a sheet. No arbitrary five-score
-                preview on the card.
-              </p>
+              <p>Full set of scores opens in a sheet.</p>
             </div>
             <a class="show-in-mock" href="#m-orch-5">↑ Show in mock</a>
           </article>
@@ -1172,40 +1185,35 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Honesty is not quality of service.</strong> The card
-                says why the score exists: it cuts the stake-capped LPT if the
-                work was not honest, fees are untouched, and stake cannot leave
-                for about 21 days. The Honest pill is a subtle explorer green
-                because a high score is a good signal. The 95%, the pill, and
-                the bar use the same explorer green. A low score is not painted
-                red. The 802 card is a plain panel. Its fee and stake tiles keep
-                their colors.
+                <strong>Honesty scores honesty.</strong> The card says why the
+                score exists: it cuts the stake-capped LPT when work was
+                dishonest, fees stay whole, and stake stays put for about 21
+                days. The Honest pill, the 95%, and the bar share explorer
+                green. The 802 card is a plain panel; its fee and stake tiles
+                keep their colors.
               </li>
               <li>
                 <strong>Both directions in the ticket.</strong> “How it was
                 scored” is the scores on this node, and the 95% is the median of
                 those. “How it scored others” is what this validator gave other
-                nodes. Copy stays generic so it does not need the node’s name.
+                nodes. Copy stays generic across nodes.
               </li>
               <li>
-                <strong>95%, not 9.5 out of 10.</strong> The number is the
-                fraction of the stake-capped reward a delegator keeps. A
-                ten-point grade would read as quality. The protocol’s 0 to 1
-                figure stays in the eng appendix, not under the percent. The
-                card tells you whether the room above is still worth delegating
-                into: at 95% the LPT survives, fees are untouched, and only a
-                score near zero strands stake for about 21 days.
+                <strong>Show a percent.</strong> The number is the fraction of
+                the stake-capped reward a delegator keeps. The protocol’s 0 to 1
+                figure stays in the eng appendix. At 95% the LPT survives and
+                fees stay whole; a score near zero strands stake for about 21
+                days.
               </li>
               <li>
                 <strong>The full set of scores opens in a sheet.</strong> The
-                card does not preview five of them. Five is an arbitrary sample
-                and it collapses once a node has hundreds of scores. The sheet
-                plots every score on a fixed 0 to 100 axis, and again across the
-                week before pay. Height or position is the score. The axis does
-                not rescale to the busiest value. There is no rolling cap. The
+                sheet plots every score on a fixed 0 to 100 axis, and again
+                across the week before pay. Height or position is the score. The
                 median on file at pay is what counts. Past rounds that already
                 paid stay on
                 <a
+                  class="issue-chip"
+                  data-issue="803"
                   href="https://github.com/livepeer/explorer/issues/803"
                   target="_blank"
                   rel="noopener"
@@ -1218,8 +1226,7 @@
                 grid (stake, status, regional scores, fees, price, cuts, reward
                 calls, last round, treasury participation, cut history).
                 Delegate stays in the right rail. 803 stays a line on the 802
-                card plus the History receipt. Do not add a Validating tab, and
-                do not put the score list on 802’s orchestrator table.
+                card plus the History receipt. Scores also live on /validators.
               </li>
             </ul>
           </div>
@@ -1229,17 +1236,16 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Words for scores that are not near 1.</strong> This
-                sample is 0.95, so the card says honest. The draft has no bands.
+                <strong>Words for mid-range scores.</strong> This sample is
+                0.95, so the card says honest. The draft has no bands.
                 <em>Recommended default:</em> say the share of the reward in
                 words (“keeps 40%”) and reserve “Honest” for a score at or very
-                near 1. Owner: Validator Track. Confirm with @ECWireless.
+                near 1. Owner: Validator Track.
               </li>
               <li>
                 <strong>What a missing score means.</strong>
                 <em>Recommended default:</em> show “No score” and omit it from
-                the median. Do not impute zero. Owner: Validator Track. Confirm
-                with @ECWireless.
+                the median. Owner: Validator Track.
               </li>
             </ul>
           </div>
@@ -1251,7 +1257,8 @@
           </p>
           <p>
             <a
-              class="issue-link"
+              class="issue-chip"
+              data-issue="804"
               href="https://github.com/livepeer/explorer/issues/804"
               target="_blank"
               rel="noopener"
@@ -1359,9 +1366,9 @@
             <p class="plot-note">
               Each dot is one validator, plotted on 0 to 100. The stack is how
               many landed there. The axis stays 0 to 100 if there were 999
-              scores. It does not stretch to fit the tallest stack. The dashed
-              line is the median, 95%. One dot at 40% does not move it. 15
-              validators have no score and are left off this plot.
+              scores on a fixed 0–100 axis. The dashed line is the median, 95%.
+              One low dot leaves the median where it is. 15 validators have no
+              score and are left off this plot.
             </p>
           </div>
           <div class="plot" id="plot-time" hidden>
@@ -1530,13 +1537,13 @@
             </tbody>
           </table>
           <p class="plot-note">
-            15 validators have no score. They are left out, not counted as zero.
+            15 validators have no score. They are left out of the median.
           </p>
         </div>
         <div id="sheet-filed" hidden>
           <p class="plot-note">
-            Scores this node gave others. They do not change the 95% above. That
-            95% is what others gave this node.
+            Scores this node gave others. The 95% above is the median of scores
+            on this node. That 95% is what others gave this node.
           </p>
           <table class="score-table">
             <caption class="sr-only">

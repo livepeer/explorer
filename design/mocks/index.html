@@ -17,21 +17,24 @@
       <p>
         One review for
         <a
-          class="issue-link"
+          class="issue-chip"
+          data-issue="802"
           href="https://github.com/livepeer/explorer/issues/802"
           target="_blank"
           rel="noopener"
           >802</a
         >,
         <a
-          class="issue-link"
+          class="issue-chip"
+          data-issue="803"
           href="https://github.com/livepeer/explorer/issues/803"
           target="_blank"
           rel="noopener"
           >803</a
         >, and
         <a
-          class="issue-link"
+          class="issue-chip"
+          data-issue="804"
           href="https://github.com/livepeer/explorer/issues/804"
           target="_blank"
           rel="noopener"
@@ -99,18 +102,16 @@
           <span class="swatch stake" title="Stake"
             ><i aria-hidden="true"></i>Stake</span
           >
-          Brand green (<code>#4cc38a</code>) means stake or LPT quantity. Green
-          is not “good.”
+          Brand green (<code>#4cc38a</code>) means stake or LPT quantity.
         </li>
         <li>
-          Chips use an icon, a label, and a 1.5px border. Never color alone. LPT
-          and USDC marks share one canon. Cap status icons are shared across 802
-          and 803.
+          Chips use an icon, a label, and a 1.5px border. LPT and USDC marks
+          share one canon. Cap status icons are shared across 802 and 803.
         </li>
         <li>
-          Issue markers use violet / magenta / orange accents so they are not
-          confused with fee blue or stake green. Issue color is never the only
-          cue; each marker’s accessible name includes the issue number.
+          Issue markers use violet / magenta / orange accents so fee blue and
+          stake green stay free. Each marker’s accessible name includes the
+          issue number.
         </li>
       </ul>
     </section>
@@ -126,10 +127,9 @@
 
       <ul class="notes">
         <li>
-          <strong>Color is not the only cue.</strong> Chips use an icon, a
-          label, and a 1.5px border. Fee and stake shares are also written as
-          numbers. LPT and USDC marks are named. Selected list rows use a wash
-          plus a 1px green ring, not a left bar.
+          <strong>Chips carry more than color.</strong> Icon, label, and a 1.5px
+          border. Fee and stake shares are also written as numbers. LPT and USDC
+          marks are named. Selected list rows use a wash plus a 1px green ring.
         </li>
         <li>
           <strong>Keyboard.</strong> Filters, modes, and lists are real choice
@@ -151,8 +151,8 @@
           area around it is larger.
         </li>
         <li>
-          <strong>Motion.</strong> If the system asks for reduced motion, the
-          page does not smooth-scroll, and pressed buttons do not shift.
+          <strong>Motion.</strong> If the system asks for reduced motion,
+          smooth-scroll is off and pressed buttons stay put.
         </li>
         <li>
           <strong>Skip ahead.</strong> “Skip to content” jumps past the intro
@@ -167,17 +167,20 @@
       </div>
       <ul class="notes">
         <li>
-          <strong>802</strong> is live fee-versus-stake. It lives on
-          Orchestrators, Orchestrating, and Delegating.
+          <span class="issue-tag" data-issue="802">802</span> is live
+          fee-versus-stake. It lives on Orchestrators, Orchestrating, and
+          Delegating.
         </li>
         <li>
-          <strong>803</strong> is past. It lives on History · Rewards, with
-          entry lines from Orchestrating and Delegating.
+          <span class="issue-tag" data-issue="803">803</span> is past. It lives
+          on History · Rewards, with entry lines from Orchestrating and
+          Delegating.
         </li>
         <li>
-          <strong>804</strong> is honesty, not service quality. It lives on
-          Validators and the Orchestrating honesty card. History may show the
-          honesty factor that already applied; it does not host the live board.
+          <span class="issue-tag" data-issue="804">804</span> is honesty. It
+          lives on Validators and the Orchestrating honesty card. History may
+          show the honesty factor that already applied; the live board stays
+          elsewhere.
         </li>
       </ul>
     </section>
@@ -235,9 +238,15 @@
       </ul>
       <p class="section-description" style="margin-top: 16px">
         By issue (old preview URLs stay alive):
-        <a class="issue-link" href="./mfs-delegation-802/">802</a> ·
-        <a class="issue-link" href="./reward-history-803/">803</a> ·
-        <a class="issue-link" href="./validator-804/">804</a>
+        <a class="issue-chip" data-issue="802" href="./mfs-delegation-802/"
+          >802</a
+        >
+        ·
+        <a class="issue-chip" data-issue="803" href="./reward-history-803/"
+          >803</a
+        >
+        ·
+        <a class="issue-chip" data-issue="804" href="./validator-804/">804</a>
       </p>
     </section>
   </body>
