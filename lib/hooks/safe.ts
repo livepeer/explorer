@@ -49,13 +49,16 @@ export function useIsSafe(address?: string): boolean | undefined {
   return data !== undefined;
 }
 
-/** The Safe's queue of transactions awaiting signatures, on Arbitrum. */
-export const safeQueueUrl = (safe: string) =>
-  `https://app.safe.global/transactions/queue?safe=arb1:${safe}`;
+/** Safe{Wallet}'s short name for a network: Arbitrum unless told. */
+export type SafeChain = "arb1" | "eth";
+
+/** The Safe's queue of transactions awaiting signatures. */
+export const safeQueueUrl = (safe: string, chain: SafeChain = "arb1") =>
+  `https://app.safe.global/transactions/queue?safe=${chain}:${safe}`;
 
 /** Opens the explorer inside Safe{Wallet} as a Safe App. */
-export const safeAppUrl = (safe: string) =>
-  `https://app.safe.global/apps/open?safe=arb1:${safe}&appUrl=${encodeURIComponent(
+export const safeAppUrl = (safe: string, chain: SafeChain = "arb1") =>
+  `https://app.safe.global/apps/open?safe=${chain}:${safe}&appUrl=${encodeURIComponent(
     window.location.origin
   )}`;
 

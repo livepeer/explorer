@@ -324,7 +324,7 @@ function errorMessage(e: unknown) {
 
 /* ── UI pieces ───────────────────────────────────────────────────────────── */
 
-function AmountField({
+export function AmountField({
   value,
   onChange,
   max,
@@ -400,7 +400,7 @@ function AmountField({
   );
 }
 
-function Row({
+export function Row({
   label,
   children,
 }: {
@@ -415,7 +415,7 @@ function Row({
   );
 }
 
-function Steps({
+export function Steps({
   steps,
   current,
   done,
@@ -458,7 +458,7 @@ function Steps({
   );
 }
 
-function Notice({
+export function Notice({
   children,
   tone = "neutral",
 }: {
