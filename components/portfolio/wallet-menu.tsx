@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftRight, ChevronDown, Plus, Search } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, ChevronDown, Plus } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useReadContract } from "wagmi";
@@ -121,10 +121,12 @@ export function WalletMenu({
                   <Plus /> Delegate
                 </MenuItem>
               ) : (
+                // No orchestrator yet: the same move, by way of choosing one.
                 <MenuItem
                   render={<Link href={`/orchestrators?account=${account}`} />}
                 >
-                  <Search /> Choose an orchestrator
+                  <Plus /> Delegate
+                  <ArrowRight className="ml-auto text-muted-foreground" />
                 </MenuItem>
               ))}
             {canManage && (
