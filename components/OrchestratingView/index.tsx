@@ -287,7 +287,7 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
       </Masonry>
       <A
         as={Link}
-        href={`/accounts/${transcoder?.id}/history`}
+        href={`/accounts/${transcoder?.id}/history?eventTypes=TreasuryVoteEvent`}
         passHref
         css={{
           display: "block",
