@@ -4,7 +4,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAccount, useAccountEffect } from "wagmi";
 
-import { useBridge } from "@/components/bridge/context";
 import { useStaking } from "@/components/staking/staking";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 
@@ -12,8 +11,7 @@ import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
  * Shows the wallet you just connected, like watching an address does, but
  * only on the portfolio pages: elsewhere you connected to do something
  * there (delegate, vote), so the page stays. Not on a reconnect at page
- * load, and not while a staking or bridge dialog is open (switching
- * accounts to sign there stays there) or a staking one waits to resume.
+ * load, and not while a staking dialog is open or waiting to resume.
  *
  * Switching accounts in the wallet while on the old account's page moves to
  * the new one, so the page matches the account that can sign.
@@ -24,7 +22,6 @@ export function FollowWallet() {
   const { address, isConnected } = useAccount();
   const { accounts } = usePortfolioAccounts();
   const { busy } = useStaking();
-  const { open: bridging } = useBridge();
 
   // Set by a connect you made just now, not by a reconnect.
   const fresh = useRef(false);
@@ -41,7 +38,7 @@ export function FollowWallet() {
     prev.current = now;
     const justConnected = fresh.current;
     fresh.current = false;
-    if (!now || busy || bridging) return;
+    if (!now || busy) return;
 
     const [, section, here] = pathname.split("/");
     const viewing = section === "accounts" ? here?.toLowerCase() : undefined;

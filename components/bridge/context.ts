@@ -14,11 +14,6 @@ export const BridgeContext = createContext<{
    * wallet's LPT is: Ethereum → Arbitrum if it holds any on Ethereum.
    */
   bridge: (wallet: string, direction?: Direction) => void;
-  /**
-   * A bridge or claim dialog is open: switching accounts then is to sign
-   * in it, so the page shouldn't follow the wallet elsewhere.
-   */
-  open: boolean;
-}>({ claim: () => {}, bridge: () => {}, open: false });
+}>({ claim: () => {}, bridge: () => {} });
 
 export const useBridge = () => useContext(BridgeContext);

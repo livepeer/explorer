@@ -36,7 +36,7 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     setOpen(true);
   }, []);
   return (
-    <BridgeContext.Provider value={{ claim, bridge, open }}>
+    <BridgeContext.Provider value={{ claim, bridge }}>
       {children}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

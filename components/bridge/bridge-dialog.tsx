@@ -14,7 +14,6 @@ import {
 import {
   useAccount,
   useBalance,
-  useDisconnect,
   usePublicClient,
   useReadContract,
   useSendCalls,
@@ -67,7 +66,7 @@ import { usePrices } from "@/lib/hooks/queries";
 import { safeAppUrl } from "@/lib/hooks/safe";
 import { useAddresses } from "@/lib/hooks/watchlist";
 
-import { type Direction, useBridge } from "./context";
+import type { Direction } from "./context";
 import { useDestination } from "./destination";
 import { errorText } from "./error-text";
 import { Transfers } from "./transfers";
@@ -123,8 +122,6 @@ export function BridgeFlow({
   const account = wallet as `0x${string}`;
   const { address, chainId, isConnected, connector } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect();
-  const { bridge } = useBridge();
   const { switchChainAsync, isPending: switching } = useSwitchChain();
   const queryClient = useQueryClient();
   const l1 = usePublicClient({ chainId: L1_CHAIN.id });
@@ -139,53 +136,6 @@ export function BridgeFlow({
   const [chosen, setDirection] = useState<Direction | undefined>(
     initialDirection
   );
-
-  /*
-   * Switching to the account that holds this LPT, without leaving the
-   * dialog. A browser wallet can open its own account picker
-   * (wallet_requestPermissions); a wallet over WalletConnect, or a Safe,
-   * can't be asked to, so there the way out is connecting another wallet.
-   * The dialog updates itself when the right account arrives.
-   */
-  const [askingAccount, setAskingAccount] = useState(false);
-  const [askedAccount, setAskedAccount] = useState(false);
-  const [noPicker, setNoPicker] = useState(false);
-  const canPick =
-    !noPicker &&
-    Boolean(connector) &&
-    connector?.type !== "walletConnect" &&
-    connector?.id !== "safe";
-  const switchAccount = async () => {
-    setAskedAccount(false);
-    setAskingAccount(true);
-    try {
-      const provider = (await connector!.getProvider()) as {
-        request: (a: {
-          method: string;
-          params?: unknown[];
-        }) => Promise<unknown>;
-      };
-      await provider.request({
-        method: "wallet_requestPermissions",
-        params: [{ eth_accounts: {} }],
-      });
-      setAskedAccount(true);
-    } catch (e) {
-      // Declined in the wallet: nothing changes. Anything else means this
-      // wallet can't open its account picker from here.
-      if (!/rejected|denied/i.test(errorText(e))) setNoPicker(true);
-    } finally {
-      setAskingAccount(false);
-    }
-  };
-  // "Use a different wallet": disconnect, then offer the connect dialog.
-  const [reconnect, setReconnect] = useState(false);
-  useEffect(() => {
-    if (reconnect && !isConnected && openConnectModal) {
-      setReconnect(false);
-      openConnectModal();
-    }
-  }, [reconnect, isConnected, openConnectModal]);
 
   // The wallet's LPT on each network, and its approval on the source.
   const { data: l1Wei } = useReadContract({
@@ -204,30 +154,6 @@ export function BridgeFlow({
     chainId: L2_CHAIN.id,
     query: LIVE_READ,
   });
-  // The connected wallet's LPT, when it isn't the one this dialog is for:
-  // if it holds some, bridging from it instead may be what was meant.
-  const connected = address as `0x${string}` | undefined;
-  const otherOpen = Boolean(connected) && connected?.toLowerCase() !== wallet;
-  const { data: otherL1 } = useReadContract({
-    address: L1_LPT,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: connected ? [connected] : undefined,
-    chainId: L1_CHAIN.id,
-    query: { enabled: otherOpen, staleTime: 60_000 },
-  });
-  const { data: otherL2 } = useReadContract({
-    address: L2_LPT,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: connected ? [connected] : undefined,
-    chainId: L2_CHAIN.id,
-    query: { enabled: otherOpen, staleTime: 60_000 },
-  });
-  const otherHasLpt =
-    otherOpen &&
-    fromWei((otherL1 ?? 0n) as bigint) + fromWei((otherL2 ?? 0n) as bigint) >=
-      0.01;
   // Without a direction given, start where the LPT is: bringing it to
   // Arbitrum to delegate is the common move.
   const auto: Direction =
@@ -555,8 +481,6 @@ export function BridgeFlow({
   };
 
   const signer = address?.toLowerCase() === wallet;
-  // Connected, but as another account than the one holding this LPT.
-  const otherAccount = isConnected && !signer ? address : undefined;
   const onSource = chainId === sourceChain;
   const destination = toArbitrum ? "Arbitrum" : "Ethereum";
   // A Safe can't switch networks: Safe{Wallet} opens it on one.
@@ -586,25 +510,14 @@ export function BridgeFlow({
         {/* The title, and whether the wallet whose LPT this is can sign. */}
         <div className="flex items-center gap-3 pr-8">
           <DialogTitle>Bridge LPT</DialogTitle>
-          <span
-            className="ml-auto flex shrink-0 items-center gap-1.5 text-ui-caption text-muted-foreground"
-            title={otherAccount}
-          >
+          <span className="ml-auto flex shrink-0 items-center gap-1.5 text-ui-caption text-muted-foreground">
             <span
               className={cn(
                 "size-1.5 rounded-full",
-                signer
-                  ? "bg-green-fill"
-                  : otherAccount
-                  ? "bg-warm"
-                  : "bg-muted-foreground/50"
+                signer ? "bg-green-fill" : "bg-muted-foreground/50"
               )}
             />
-            {signer
-              ? "Connected"
-              : otherAccount
-              ? `${shortAddress(otherAccount)} connected`
-              : "Not connected"}
+            {signer ? "Connected" : "Not connected"}
           </span>
         </div>
       </DialogHeader>
@@ -804,45 +717,15 @@ export function BridgeFlow({
                 , where you choose an address you control as the destination.
               </Notice>
             )}
-            {/* On the wrong account, switching comes first. */}
-            {!dest.unsupported && otherAccount && (
-              <Notice>
-                This LPT is in {walletName}, and you&apos;re connected as{" "}
-                {shortAddress(otherAccount)}.{" "}
-                {canPick
-                  ? `Switch to ${walletName} to bridge it.`
-                  : `Switch to ${walletName} in your wallet app, or connect it as a different wallet.`}
-                {otherHasLpt && (
-                  <>
-                    {" "}
-                    <button
-                      type="button"
-                      onClick={() => bridge(otherAccount)}
-                      className="font-medium underline-offset-4 hover:underline"
-                    >
-                      Bridge from {shortAddress(otherAccount)} instead
-                    </button>
-                  </>
-                )}
-              </Notice>
-            )}
-            {askedAccount && otherAccount && (
-              <p className="text-ui-caption text-warm">
-                {shortAddress(otherAccount)} isn&apos;t {walletName}. Choose{" "}
-                {walletName} in your wallet&apos;s account list.
-              </p>
-            )}
-            {/* Fees are this wallet's to cover: the main blocker once it's
-                the one connected, a heads-up before then. */}
             {!dest.unsupported && shortForDeposit && (
-              <Notice tone={otherAccount ? "neutral" : "warning"}>
+              <Notice tone="warning">
                 {dest.isSafe
                   ? `${walletName} needs a little ETH on Ethereum to pay Arbitrum's side of the deposit.`
                   : `${walletName} doesn't have enough ETH on Ethereum for the network fees.`}
               </Notice>
             )}
             {!dest.unsupported && shortForWithdrawal && (
-              <Notice tone={otherAccount ? "neutral" : "warning"}>
+              <Notice tone="warning">
                 {walletName} doesn&apos;t have ETH on Arbitrum for the network
                 fee, a fraction of a cent.
               </Notice>
@@ -851,12 +734,18 @@ export function BridgeFlow({
               !dest.isSafe &&
               !shortForWithdrawal &&
               lowForClaim && (
-                <Notice tone={otherAccount ? "neutral" : "warning"}>
+                <Notice tone="warning">
                   Claiming needs ETH on Ethereum, which {walletName}{" "}
                   doesn&apos;t have yet. Any wallet can claim it for you; the
                   LPT still goes to {walletName}.
                 </Notice>
               )}
+            {!dest.unsupported && isConnected && !signer && (
+              <Notice>
+                Only the wallet holding this LPT can bridge it. Switch to{" "}
+                {walletName} in your wallet to continue.
+              </Notice>
+            )}
             {(error ?? problem) && (
               <p className="text-ui-caption text-destructive">
                 {error ?? problem}
@@ -878,32 +767,9 @@ export function BridgeFlow({
               Connect wallet
             </Button>
           ) : !signer ? (
-            canPick ? (
-              <Button
-                variant="primary"
-                className="w-full sm:w-auto"
-                disabled={askingAccount || dest.unsupported}
-                onClick={switchAccount}
-              >
-                {askingAccount && <Loader2 className="animate-spin" />}
-                {askingAccount ? "Waiting for your wallet…" : "Switch account"}
-              </Button>
-            ) : (
-              <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
-                <Button
-                  className="w-full sm:w-auto"
-                  onClick={() => {
-                    setReconnect(true);
-                    disconnect();
-                  }}
-                >
-                  Use a different wallet
-                </Button>
-                <Button variant="primary" className="w-full sm:w-auto" disabled>
-                  Switch to {walletName} in your wallet app
-                </Button>
-              </div>
-            )
+            <Button variant="primary" className="w-full sm:w-auto" disabled>
+              Switch to {walletName} in your wallet
+            </Button>
           ) : (
             <Button
               variant="primary"
