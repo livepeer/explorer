@@ -77,6 +77,7 @@ import {
   formatDuration,
   formatETH,
   formatLPT,
+  formatRelativeTime,
   formatUSD,
   fromWei,
   shortAddress,
@@ -84,11 +85,21 @@ import {
 } from "@/lib/format";
 import { resolveEnsQuorum } from "@/lib/hooks/address-input";
 import { LIVE_READ, refetchUntil } from "@/lib/hooks/live-read";
-import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
+import {
+  useOrchestrators,
+  useOrchestratorUpdates,
+  usePrices,
+  useProtocol,
+} from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
 import { useMigrationClaim } from "@/lib/migration/claim";
 import { useProtocolContract } from "@/lib/staking/contracts";
+import {
+  findCutSpike,
+  RECENT_DAYS,
+  WINDOW_DAYS,
+} from "@/lib/staking/cut-spike";
 import {
   bondHints,
   EMPTY_HINT,
@@ -717,6 +728,25 @@ function StakingFlow({
     delegatorInfo as readonly unknown[] | undefined
   )?.[2] as string | undefined;
 
+  // Delegating: the orchestrator's recent cut changes, for a sharp rise.
+  // A window's span further back, for the cut in force when it opened.
+  const [cutSince] = useState(
+    () => Math.floor(Date.now() / 1000) - (RECENT_DAYS + WINDOW_DAYS) * 86_400
+  );
+  const { data: cutChanges } = useOrchestratorUpdates(
+    action.kind === "delegate" ? [action.to] : [],
+    cutSince
+  );
+  const cutSpike = useMemo(
+    () =>
+      findCutSpike(
+        (cutChanges ?? [])
+          .filter((e) => e.rewardCut != null)
+          .map((e) => ({ timestamp: e.timestamp, rewardCut: e.rewardCut! }))
+      ),
+    [cutChanges]
+  );
+
   // Moving stake: the other portfolio wallets it can go to, and where the
   // chosen one's stake is now, which decides where the moved stake lands.
   const { accounts: portfolio } = usePortfolioAccounts();
@@ -999,6 +1029,16 @@ function StakingFlow({
               />
             </div>
           )}
+          {/* A cut lifted sharply soon after attracting stake keeps the
+              delegators' rewards (#682): say so before they join. */}
+          {cutSpike && (
+            <Notice tone="warning">
+              This orchestrator raised its reward cut from{" "}
+              {cutSpike.from.toFixed(0)}% to {cutSpike.to.toFixed(0)}% within a
+              week, {formatRelativeTime(cutSpike.at)}. A higher cut keeps more
+              of your rewards. Check its history before delegating.
+            </Notice>
+          )}
           {/* Switching moves the whole stake on its own; the field is only
               for LPT added on top, so it says so, and it isn't shown when
               the wallet has none to add. */}
@@ -1120,9 +1160,18 @@ function StakingFlow({
       break;
     }
     case "undelegate": {
+      // An orchestrator undelegating all its own stake resigns: it leaves
+      // the active set and stops earning (#451). Say so before, not after.
+      const ownOrchestrator =
+        action.delegate.toLowerCase() === signer.toLowerCase();
+      const deactivates =
+        ownOrchestrator &&
+        pendingStakeWei != null &&
+        amountWei > 0n &&
+        amountWei >= (pendingStakeWei as bigint);
       title = "Undelegate";
       description = `Undelegated LPT stops earning immediately and unlocks after ${unbondingTime}. You can redelegate it any time before withdrawing.`;
-      cta = "Undelegate";
+      cta = deactivates ? "Undelegate all and deactivate" : "Undelegate";
       const max = bonded || action.staked;
       canRun =
         canRun &&
@@ -1147,6 +1196,13 @@ function StakingFlow({
             maxExact={bonded ? bondedExact : undefined}
             maxLabel="Delegated"
           />
+          {deactivates && (
+            <Notice tone="warning">
+              This is all of your orchestrator&apos;s own stake. Undelegating it
+              deactivates your orchestrator: it leaves the active set and stops
+              earning rewards and fees until you stake again.
+            </Notice>
+          )}
           {/* When, as a date people can plan around (an estimate: rounds
               run on L1 blocks, so it can drift a little). The round it's
               measured in is on hover. */}
