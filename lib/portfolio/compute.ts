@@ -199,7 +199,10 @@ export function computeAccount({
   // Any bond, unbond or claim settles earnings; the round's last one wins.
   const claimAt = new Map(own.map((s) => [s.round, s]));
 
-  const crf = (d: string, r: number) => pools.get(d)?.at(r)?.crf ?? 0n;
+  // Before an orchestrator's first pool its factor is the base, 1.0 (as
+  // the subgraph's latestCumulativeRewardFactor starts), not 0: otherwise
+  // its first active round would count the whole stake as rewards.
+  const crf = (d: string, r: number) => pools.get(d)?.at(r)?.crf ?? PRECISE;
   const cff = (d: string, r: number) => pools.get(d)?.at(r)?.cff ?? 0n;
 
   const series: SeriesPoint[] = [];
@@ -274,13 +277,17 @@ export function computeAccount({
   let pendingFees = account.fees;
   const d = account.delegate?.toLowerCase() ?? null;
   const history = d ? pools.get(d) : undefined;
-  if (d && history && account.shares > 0n) {
-    const latest = history.latest();
+  if (d && account.shares > 0n) {
+    const latest = history?.latest();
     if (latest) {
       pendingStake = (account.shares * latest.crf) / PRECISE;
-      const claimed = history.at(account.lastClaimRound)?.cff ?? 0n;
+      const claimed = history!.at(account.lastClaimRound)?.cff ?? 0n;
       const dCff = latest.cff - claimed;
       if (dCff > 0n) pendingFees += (account.shares * dCff) / PRECISE;
+    } else {
+      // Delegated to an orchestrator that's never been active: no pools,
+      // so nothing earned yet and the stake is just its shares.
+      pendingStake = account.shares;
     }
   }
   if (d === id) {
