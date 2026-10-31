@@ -44,6 +44,49 @@ export function depositTiming(sentAt: number, nowSec: number) {
   };
 }
 
+/** A withdrawal sent from this browser, until the index has it. */
+export type SentWithdrawal = {
+  tx: string;
+  from: string;
+  to: string;
+  /** In wei. */
+  amount: string;
+  /** Unix seconds. */
+  timestamp: number;
+};
+
+/** Arbitrum's withdrawal period, as the app estimates it until indexed. */
+const WITHDRAWAL_SECONDS = 7 * 86_400;
+
+/**
+ * Indexed withdrawals plus ones just sent from this browser that the index
+ * hasn't picked up yet, so a withdrawal shows everywhere the moment it's
+ * sent. Once indexed, the index speaks for it; a local copy the index
+ * never shows is dropped after a day.
+ */
+export function mergeWithdrawals(
+  indexed: BridgeWithdrawal[],
+  sent: SentWithdrawal[],
+  nowSec: number
+): BridgeWithdrawal[] {
+  const known = new Set(indexed.map((w) => w.tx.toLowerCase()));
+  const fresh: BridgeWithdrawal[] = sent
+    .filter((s) => !known.has(s.tx.toLowerCase()))
+    .filter((s) => nowSec - s.timestamp < 86_400)
+    .map((s) => ({
+      id: `sent-${s.tx}`,
+      from: s.from,
+      to: s.to,
+      amount: s.amount,
+      block: "0",
+      timestamp: s.timestamp,
+      tx: s.tx,
+      status: "waiting",
+      readyAt: s.timestamp + WITHDRAWAL_SECONDS,
+    }));
+  return [...fresh, ...indexed];
+}
+
 /** A deposit sent from here that Ethereum never showed is dropped after this. */
 const LOCAL_SECONDS = 24 * 3600;
 

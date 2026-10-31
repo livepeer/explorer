@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import { useMemo } from "react";
 
 import { useNow } from "@/components/shell/round-clock";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import {
   waitText,
   withdrawalProgress,
 } from "@/lib/bridge/progress";
-import type { BridgeWithdrawal } from "@/lib/bridge/types";
 import { useBridgeWithdrawals } from "@/lib/bridge/withdrawals";
 import { txUrl } from "@/lib/config";
 import { formatDate, formatLPT, fromWei } from "@/lib/format";
@@ -59,34 +59,11 @@ function Leg({
  * withdrawal "Claim in" (it needs a claim), with the action once there is
  * one.
  */
-export function Transfers({
-  wallet,
-  justSent,
-}: {
-  wallet: string;
-  /** A withdrawal sent from the dialog, shown until the index has it. */
-  justSent?: { tx: string; amount: string; timestamp: number };
-}) {
-  const { data: indexed = [] } = useBridgeWithdrawals([wallet]);
-  const withdrawals: BridgeWithdrawal[] =
-    justSent &&
-    !indexed.some((w) => w.tx.toLowerCase() === justSent.tx.toLowerCase())
-      ? [
-          {
-            id: `sent-${justSent.tx}`,
-            from: wallet,
-            to: wallet,
-            amount: justSent.amount,
-            block: "0",
-            timestamp: justSent.timestamp,
-            tx: justSent.tx,
-            status: "waiting",
-            readyAt: justSent.timestamp + 7 * 86_400,
-          },
-          ...indexed,
-        ]
-      : indexed;
-  const deposits = usePendingDeposits([wallet]);
+export function Transfers({ wallet }: { wallet: string }) {
+  const addresses = useMemo(() => [wallet], [wallet]);
+  // Includes withdrawals just sent from this browser, before they're indexed.
+  const { data: withdrawals = [] } = useBridgeWithdrawals(addresses);
+  const deposits = usePendingDeposits(addresses);
   const { claim } = useBridge();
   const nowSec = Math.floor(useNow(30_000) / 1000);
   if (!withdrawals.length && !deposits.length) return null;

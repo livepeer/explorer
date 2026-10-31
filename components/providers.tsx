@@ -174,9 +174,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <TooltipProvider>
               <StakingProvider>
                 <AddressMemory />
-                <FollowWallet />
                 <Analytics />
-                <BridgeProvider>{children}</BridgeProvider>
+                <BridgeProvider>
+                  {/* Inside the bridge, so it knows when that dialog's open. */}
+                  <FollowWallet />
+                  {children}
+                </BridgeProvider>
               </StakingProvider>
             </TooltipProvider>
             <Toaster

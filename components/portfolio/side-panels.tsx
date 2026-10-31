@@ -311,6 +311,7 @@ export function PendingWithdrawals({
               Fees ready to withdraw
               {ethPrice != null && (
                 <span className="tabular-nums">
+                  {" "}
                   · ≈ {formatUSD(f.amount * ethPrice)}
                 </span>
               )}
