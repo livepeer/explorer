@@ -26,6 +26,7 @@ import {
   roundStartsAt,
   timeCopy,
 } from "@/components/governance/model";
+import { ProposalNextStep } from "@/components/governance/proposal-next-step";
 import {
   ProposalVoteForm,
   useProposalState,
@@ -212,6 +213,12 @@ export default function ProposalPage() {
                 {phase === "active" && (
                   <div className="-mx-4 border-t border-hairline px-4 pt-4">
                     <ProposalVoteForm proposal={proposal} />
+                  </div>
+                )}
+                {/* Passed: queue it, then execute it after the timelock. */}
+                {(chainState === 4 || chainState === 5) && (
+                  <div className="-mx-4 border-t border-hairline px-4 pt-4">
+                    <ProposalNextStep proposal={proposal} state={chainState} />
                   </div>
                 )}
                 {phase === "pending" && (

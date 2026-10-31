@@ -1469,6 +1469,11 @@ export type TreasuryProposal = {
   totalVotes: number;
   /** What it does if it passes: for a funding request, an LPT transfer. */
   actions: ProposalAction[];
+  /**
+   * The proposal's calls exactly as proposed, which queueing and executing
+   * it pass back to the governor (values as decimal strings).
+   */
+  calls: { targets: string[]; values: string[]; calldatas: string[] };
 };
 
 export type Poll = {
@@ -1602,6 +1607,11 @@ export async function fetchGovernance() {
             p.values ?? [],
             p.calldatas ?? []
           ),
+          calls: {
+            targets: p.targets ?? [],
+            values: p.values ?? [],
+            calldatas: p.calldatas ?? [],
+          },
         })
       ),
       totals
