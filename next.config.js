@@ -63,6 +63,11 @@ const nextConfig = {
         destination: "/governance/polls/:poll",
         permanent: true,
       },
+      // The previous explorer's migration tool: the portfolio shows what
+      // each wallet has left from before the move to Arbitrum, with its
+      // Claim and Migrate buttons, so its links land there.
+      { source: "/migrate", destination: "/", permanent: true },
+      { source: "/migrate/:path+", destination: "/", permanent: true },
       { source: "/treasury", destination: "/governance", permanent: true },
       {
         source: "/treasury/:proposal",

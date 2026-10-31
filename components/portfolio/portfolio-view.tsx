@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useMemo } from "react";
 
 import { ActivityList } from "@/components/activity-list";
+import { FromEthereumCard } from "@/components/migration/leftovers";
+import { useL1Leftovers } from "@/components/migration/migrate";
 import {
   ErrorNotice,
   Kpi,
@@ -38,6 +40,7 @@ import {
 import { useSafeProposals } from "@/lib/hooks/safe";
 import type { PortfolioAccount } from "@/lib/hooks/watchlist";
 import { useMigrationClaim } from "@/lib/migration/claim";
+import { hasLeftovers } from "@/lib/migration/l1";
 import {
   annualize,
   annualizeFees,
@@ -53,7 +56,6 @@ import { useBridgeInsights } from "./bridge-insights";
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import { ClaimHero, MigrationClaimNotice } from "./migration-claim";
 import {
   PositionActions,
   PositionLabel,
@@ -99,9 +101,12 @@ export function PortfolioView({
   const scoped = addresses;
 
   const { data, error, isLoading, refetch } = usePortfolio(addresses);
-  // A single wallet's stake still waiting from Ethereum (shared with the
-  // claim headline, so no extra request).
+  // A single wallet's stake still waiting from Ethereum, to claim or
+  // migrate (shared with the card that shows it, so no extra requests).
   const { data: migrationClaim } = useMigrationClaim(
+    addresses.length === 1 ? addresses[0] : null
+  );
+  const { data: l1Leftovers } = useL1Leftovers(
     addresses.length === 1 ? addresses[0] : null
   );
   const { data: protocol } = useProtocol();
@@ -502,6 +507,13 @@ export function PortfolioView({
     // from Ethereum is then this wallet's position.
     const undelegated =
       !loading && (!position?.delegate || position.stake < LPT_DUST);
+    // Something waiting from Ethereum while nothing's on Arbitrum yet: that
+    // is this wallet's position, so it leads the page.
+    const fromEthereumLeads =
+      undelegated &&
+      ((migrationClaim?.status === "claimable" &&
+        (migrationClaim.stake > 0 || migrationClaim.fees > 0)) ||
+        hasLeftovers(l1Leftovers));
     const freeLpt = free.get(scoped[0]);
     const positionEl = (
       <>
@@ -520,16 +532,10 @@ export function PortfolioView({
     return (
       <div className="flex flex-col">
         {header}
-        {/* Stake still waiting from before the move to Arbitrum: here,
-            unless it's the wallet's only position, when it's the headline. */}
-        {scoped.map((a) => (
-          <MigrationClaimNotice
-            key={a}
-            account={a}
-            canManage={canManage(a)}
-            headlined={undelegated}
-          />
-        ))}
+        {/* Everything waiting from before the move to Arbitrum: a claim and
+            anything to migrate. Here, unless it's all this wallet has, when
+            it's the headline below instead. */}
+        {!fromEthereumLeads && <FromEthereumCard accounts={scoped} />}
         {urgent.length > 0 && (
           <a
             href="#needs-attention"
@@ -550,10 +556,12 @@ export function PortfolioView({
             what's coming out, only when there's any; then activity. Side by
             side on wide screens when there's both. */}
         <div className="min-w-0 animate-rise">
-          <ClaimHero
-            account={scoped[0]}
-            canManage={manage}
-            fallback={heroEl({
+          {fromEthereumLeads ? (
+            // Nothing on Arbitrum yet: what's waiting is the position, not
+            // "0 LPT, not delegated", which would contradict it.
+            <FromEthereumCard accounts={scoped} headline className="mb-0" />
+          ) : (
+            heroEl({
               label: <PositionLabel loading={loading} position={position} />,
               position: positionEl,
               actions: manage && (
@@ -564,8 +572,8 @@ export function PortfolioView({
                   freeLpt={freeLpt}
                 />
               ),
-            })}
-          />
+            })
+          )}
         </div>
         {(insightsEl || withdrawalsEl) && (
           <div
@@ -578,15 +586,12 @@ export function PortfolioView({
             {withdrawalsEl && <div className="min-w-0">{withdrawalsEl}</div>}
           </div>
         )}
-        {/* While the claim is the headline, an empty history says nothing:
-            show activity once there is some (after claiming, there is). */}
-        {!(
-          undelegated &&
-          migrationClaim?.status === "claimable" &&
-          migrationClaim.stake > 0 &&
-          !eventsLoading &&
-          !events?.length
-        ) && <div className="mt-10 min-w-0">{activityEl}</div>}
+        {/* While what's waiting is the headline, an empty history says
+            nothing: show activity once there is some (after claiming or
+            migrating, there is). */}
+        {!(fromEthereumLeads && !eventsLoading && !events?.length) && (
+          <div className="mt-10 min-w-0">{activityEl}</div>
+        )}
       </div>
     );
   }
@@ -594,14 +599,8 @@ export function PortfolioView({
   return (
     <div className="flex flex-col">
       {header}
-      {scoped.map((a) => (
-        <MigrationClaimNotice
-          key={a}
-          account={a}
-          canManage={canManage(a)}
-          label={scoped.length > 1}
-        />
-      ))}
+      {/* Everything waiting from Ethereum, for every wallet, in one card. */}
+      <FromEthereumCard accounts={scoped} />
       {urgent.length > 0 && (
         <a
           href="#needs-attention"
