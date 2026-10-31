@@ -4,6 +4,12 @@ import {
   decodeProposalActions,
   type ProposalAction,
 } from "@/lib/governance/actions";
+import {
+  readVoteTotals,
+  type VoteTotals,
+  withVoteTotals,
+} from "@/lib/governance/chain-votes";
+import type { GovernanceHistory } from "@/lib/governance/participation";
 import { PoolHistory, PRECISE } from "@/lib/portfolio/compute";
 
 import { isActiveInRound } from "./active";
@@ -1405,6 +1411,57 @@ export async function fetchOrchestratorUpdates(ids: string[], sinceTs: number) {
   return transcoderUpdateEvents.map(toEvent);
 }
 
+const GOVERNANCE_PARTICIPATION = /* GraphQL */ `
+  query GovernanceParticipation($delegate: String!) {
+    transcoderActivatedEvents(first: 1000, where: { delegate: $delegate }) {
+      id
+      activationRound
+      transaction {
+        blockNumber
+      }
+    }
+    transcoderDeactivatedEvents(first: 1000, where: { delegate: $delegate }) {
+      id
+      deactivationRound
+      transaction {
+        blockNumber
+      }
+    }
+    treasuryProposals(first: 1000) {
+      id
+      voteStart
+    }
+    treasuryVotes(first: 1000, where: { voter: $delegate }) {
+      id
+      proposal {
+        id
+      }
+    }
+  }
+`;
+
+/**
+ * What an orchestrator's treasury participation is counted from: when it
+ * was active, every proposal, and its votes. One page of each is plenty:
+ * there are a few dozen proposals, and activations are rare.
+ */
+export async function fetchGovernanceHistory(
+  delegate: string
+): Promise<GovernanceHistory> {
+  const data = await querySubgraph<{
+    transcoderActivatedEvents: GovernanceHistory["activations"];
+    transcoderDeactivatedEvents: GovernanceHistory["deactivations"];
+    treasuryProposals: GovernanceHistory["proposals"];
+    treasuryVotes: GovernanceHistory["votes"];
+  }>(GOVERNANCE_PARTICIPATION, { delegate: delegate.toLowerCase() });
+  return {
+    activations: data.transcoderActivatedEvents,
+    deactivations: data.transcoderDeactivatedEvents,
+    proposals: data.treasuryProposals,
+    votes: data.treasuryVotes,
+  };
+}
+
 /* ── Reward calls this round ─────────────────────────────────────────────── */
 
 const REWARD_PROGRESS = /* GraphQL */ `
@@ -1464,6 +1521,11 @@ export type TreasuryProposal = {
   totalVotes: number;
   /** What it does if it passes: for a funding request, an LPT transfer. */
   actions: ProposalAction[];
+  /**
+   * The proposal's calls exactly as proposed, which queueing and executing
+   * it pass back to the governor (values as decimal strings).
+   */
+  calls: { targets: string[]; values: string[]; calldatas: string[] };
 };
 
 export type Poll = {
@@ -1573,25 +1635,38 @@ export async function fetchGovernance() {
     });
     counts.set(p.id, ids.length);
   }
+  // The governor's own totals: the subgraph double-counts a delegator who
+  // votes alongside their orchestrator. Unreadable, the subgraph's stand.
+  const totals = await readVoteTotals(treasuryProposals.map((p) => p.id)).catch(
+    () => new Map<string, VoteTotals>()
+  );
   return {
-    proposals: treasuryProposals.map(
-      (p): TreasuryProposal => ({
-        id: p.id,
-        title: proposalTitle(p.description),
-        description: p.description,
-        proposer: p.proposer.id,
-        voteStart: Number(p.voteStart),
-        voteEnd: Number(p.voteEnd),
-        forVotes: Number(p.forVotes),
-        againstVotes: Number(p.againstVotes),
-        abstainVotes: Number(p.abstainVotes),
-        totalVotes: Number(p.totalVotes),
-        actions: decodeProposalActions(
-          p.targets ?? [],
-          p.values ?? [],
-          p.calldatas ?? []
-        ),
-      })
+    proposals: withVoteTotals(
+      treasuryProposals.map(
+        (p): TreasuryProposal => ({
+          id: p.id,
+          title: proposalTitle(p.description),
+          description: p.description,
+          proposer: p.proposer.id,
+          voteStart: Number(p.voteStart),
+          voteEnd: Number(p.voteEnd),
+          forVotes: Number(p.forVotes),
+          againstVotes: Number(p.againstVotes),
+          abstainVotes: Number(p.abstainVotes),
+          totalVotes: Number(p.totalVotes),
+          actions: decodeProposalActions(
+            p.targets ?? [],
+            p.values ?? [],
+            p.calldatas ?? []
+          ),
+          calls: {
+            targets: p.targets ?? [],
+            values: p.values ?? [],
+            calldatas: p.calldatas ?? [],
+          },
+        })
+      ),
+      totals
     ),
     polls: polls.map(
       (p): Poll => ({

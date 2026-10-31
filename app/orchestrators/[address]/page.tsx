@@ -24,6 +24,7 @@ import { useStaking } from "@/components/staking/staking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
+import { Term } from "@/components/ui/term";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEventOnce } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
@@ -38,11 +39,13 @@ import {
   shortAddress,
 } from "@/lib/format";
 import {
+  useGovernanceParticipation,
   useOrchestrator,
   usePortfolio,
   useProtocol,
 } from "@/lib/hooks/queries";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
+import { TERMS } from "@/lib/orchestrators/terms";
 import { routeParam } from "@/lib/params";
 import type { OrchestratorDetail } from "@/lib/subgraph/network";
 
@@ -122,6 +125,68 @@ function CutUpdated({ o }: { o: OrchestratorDetail }) {
       Unchanged since {formatDate(since, { month: "short", year: "numeric" })}
     </>
   ) : null;
+}
+
+/**
+ * How often it votes on treasury proposals (#538): its vote carries its
+ * delegators' stake, so delegators choosing one may care.
+ */
+function TreasuryVotes({
+  orchestrator,
+  currentRound,
+}: {
+  orchestrator: string;
+  currentRound: number | undefined;
+}) {
+  const { data, isLoading, error } = useGovernanceParticipation(
+    orchestrator,
+    currentRound
+  );
+  if (isLoading || (!data && !error)) {
+    return <Skeleton className="h-24 w-full rounded-md" />;
+  }
+  if (error || !data) {
+    return (
+      <Card className="p-5 text-ui-caption text-muted-foreground">
+        Couldn&apos;t load its votes just now.
+      </Card>
+    );
+  }
+  const { voted, total } = data;
+  const share = total > 0 ? voted / total : null;
+  return (
+    <Card className="flex flex-col gap-3 p-5">
+      {share == null ? (
+        <p className="text-ui-body text-muted-foreground">
+          No treasury proposals have opened while it was active.
+        </p>
+      ) : (
+        <>
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-[22px] leading-7 font-medium tabular-nums">
+              {Math.round(share * 100)}%
+            </span>
+            <span className="text-ui-caption text-muted-foreground tabular-nums">
+              {voted} of {total} proposals
+            </span>
+          </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full bg-foreground/[0.08]"
+            role="img"
+            aria-label={`Voted on ${voted} of ${total} treasury proposals`}
+          >
+            <div
+              className="h-full rounded-full bg-green-bright"
+              style={{ width: `${share * 100}%` }}
+            />
+          </div>
+          <p className="text-ui-caption text-muted-foreground">
+            Of the proposals that opened for voting while it was active.
+          </p>
+        </>
+      )}
+    </Card>
+  );
 }
 
 function CutHistory({ pools }: { pools: OrchestratorDetail["pools"] }) {
@@ -487,7 +552,7 @@ export default function OrchestratorPage() {
 
           <KpiStrip>
             <Kpi
-              label="Total stake"
+              label={<Term hint={TERMS.totalStake}>Total stake</Term>}
               value={
                 o ? (
                   formatLPT(o.totalStake, { compact: true })
@@ -504,7 +569,7 @@ export default function OrchestratorPage() {
               }
             />
             <Kpi
-              label="Realised APR"
+              label={<Term hint={TERMS.realisedApr}>Realised APR</Term>}
               value={
                 o ? (
                   o.realizedApr != null ? (
@@ -523,7 +588,12 @@ export default function OrchestratorPage() {
               }
             />
             <Kpi
-              label="Reward cut · Fee share"
+              label={
+                <>
+                  <Term hint={TERMS.rewardCut}>Reward cut</Term> ·{" "}
+                  <Term hint={TERMS.feeShare}>Fee share</Term>
+                </>
+              }
               value={
                 o ? (
                   `${o.rewardCut.toFixed(1)}% · ${o.feeShare.toFixed(1)}%`
@@ -534,7 +604,7 @@ export default function OrchestratorPage() {
               sub={o ? <CutUpdated o={o} /> : undefined}
             />
             <Kpi
-              label="Fees · 30 days"
+              label={<Term hint={TERMS.fees30d}>Fees · 30 days</Term>}
               value={
                 o ? (
                   formatETH(o.thirtyDayVolumeETH)
@@ -593,7 +663,7 @@ export default function OrchestratorPage() {
 
               <section>
                 <SectionHeader
-                  title="Reward calls"
+                  title={<Term hint={TERMS.rewardCalls}>Reward calls</Term>}
                   description="Each missed round is inflation its delegators don't receive"
                 />
                 {o && protocol ? (
@@ -690,6 +760,20 @@ export default function OrchestratorPage() {
                   <Skeleton className="h-40 w-full rounded-md" />
                 )}
               </section>
+
+              {o && (
+                <section>
+                  <SectionHeader
+                    title={
+                      <Term hint={TERMS.treasuryVotes}>Treasury votes</Term>
+                    }
+                  />
+                  <TreasuryVotes
+                    orchestrator={address}
+                    currentRound={protocol?.currentRound}
+                  />
+                </section>
+              )}
 
               {o && (
                 <section>

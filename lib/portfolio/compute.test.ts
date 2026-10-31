@@ -80,6 +80,47 @@ describe("computeAccount", () => {
     expect(result.pendingStake).toBe(lpt(102.01));
   });
 
+  it("counts only the growth in an orchestrator's first active round as reward", () => {
+    // Bonded in round 4000 to an orchestrator whose first pool is 4001.
+    const pools = new Map([[D, new PoolHistory([pool(4001, 1.0003)])]]);
+    const result = computeAccount({
+      account: {
+        id: A,
+        delegate: D,
+        shares: lpt(10_000),
+        fees: 0n,
+        lastClaimRound: 4000,
+      },
+      snapshots: [
+        { account: A, delegate: D, round: 4000, shares: lpt(10_000) },
+      ],
+      pools,
+      rounds: rounds(4000, 4001),
+    });
+    const last = result.series[result.series.length - 1];
+    expect(+last.stake.toFixed(6)).toBe(10_003);
+    expect(+last.rewards.toFixed(6)).toBe(3);
+    // Before the first pool, the stake is the shares, not 0.
+    expect(result.series[0].stake).toBe(10_000);
+  });
+
+  it("shows the stake of a wallet delegated to an orchestrator that's never been active", () => {
+    const result = computeAccount({
+      account: {
+        id: A,
+        delegate: D,
+        shares: lpt(250),
+        fees: 0n,
+        lastClaimRound: 10,
+      },
+      snapshots: [{ account: A, delegate: D, round: 10, shares: lpt(250) }],
+      pools: new Map(),
+      rounds: rounds(10, 12),
+    });
+    expect(result.pendingStake).toBe(lpt(250));
+    expect(result.series.map((p) => p.rewards)).toEqual([0, 0, 0]);
+  });
+
   it("follows stake moved to another orchestrator without counting it as reward", () => {
     const pools = new Map([
       [

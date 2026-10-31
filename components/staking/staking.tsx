@@ -79,6 +79,7 @@ import {
   formatDuration,
   formatETH,
   formatLPT,
+  formatRelativeTime,
   formatUSD,
   fromWei,
   shortAddress,
@@ -86,11 +87,21 @@ import {
 } from "@/lib/format";
 import { resolveEnsQuorum } from "@/lib/hooks/address-input";
 import { LIVE_READ, refetchUntil } from "@/lib/hooks/live-read";
-import { useOrchestrators, usePrices, useProtocol } from "@/lib/hooks/queries";
+import {
+  useOrchestrators,
+  useOrchestratorUpdates,
+  usePrices,
+  useProtocol,
+} from "@/lib/hooks/queries";
 import { useIsSafe } from "@/lib/hooks/safe";
 import { useAddresses, usePortfolioAccounts } from "@/lib/hooks/watchlist";
 import { useMigrationClaim } from "@/lib/migration/claim";
 import { useProtocolContract } from "@/lib/staking/contracts";
+import {
+  findCutSpike,
+  RECENT_DAYS,
+  WINDOW_DAYS,
+} from "@/lib/staking/cut-spike";
 import {
   bondHints,
   EMPTY_HINT,
@@ -758,6 +769,25 @@ function StakingFlow({
     delegatorInfo as readonly unknown[] | undefined
   )?.[2] as string | undefined;
 
+  // Delegating: the orchestrator's recent cut changes, for a sharp rise.
+  // A window's span further back, for the cut in force when it opened.
+  const [cutSince] = useState(
+    () => Math.floor(Date.now() / 1000) - (RECENT_DAYS + WINDOW_DAYS) * 86_400
+  );
+  const { data: cutChanges } = useOrchestratorUpdates(
+    action.kind === "delegate" ? [action.to] : [],
+    cutSince
+  );
+  const cutSpike = useMemo(
+    () =>
+      findCutSpike(
+        (cutChanges ?? [])
+          .filter((e) => e.rewardCut != null)
+          .map((e) => ({ timestamp: e.timestamp, rewardCut: e.rewardCut! }))
+      ),
+    [cutChanges]
+  );
+
   // Moving stake: the other portfolio wallets it can go to, and where the
   // chosen one's stake is now, which decides where the moved stake lands.
   const { accounts: portfolio } = usePortfolioAccounts();
@@ -1053,6 +1083,16 @@ function StakingFlow({
               />
             </div>
           )}
+          {/* A cut lifted sharply soon after attracting stake keeps the
+              delegators' rewards (#682): say so before they join. */}
+          {cutSpike && (
+            <Notice tone="warning">
+              This orchestrator raised its reward cut from{" "}
+              {cutSpike.from.toFixed(0)}% to {cutSpike.to.toFixed(0)}% within a
+              week, {formatRelativeTime(cutSpike.at)}. A higher cut keeps more
+              of your rewards. Check its history before delegating.
+            </Notice>
+          )}
           {/* Switching moves the whole stake on its own; the field is only
               for LPT added on top, so it says so, and it isn't shown when
               the wallet has none to add. */}
@@ -1185,9 +1225,18 @@ function StakingFlow({
       break;
     }
     case "undelegate": {
+      // An orchestrator undelegating all its own stake resigns: it leaves
+      // the active set and stops earning (#451). Say so before, not after.
+      const ownOrchestrator =
+        action.delegate.toLowerCase() === signer.toLowerCase();
+      const deactivates =
+        ownOrchestrator &&
+        pendingStakeWei != null &&
+        amountWei > 0n &&
+        amountWei >= (pendingStakeWei as bigint);
       title = "Undelegate";
       description = `Undelegated LPT stops earning immediately and unlocks after ${unbondingTime}. You can redelegate it any time before withdrawing.`;
-      cta = "Undelegate";
+      cta = deactivates ? "Undelegate all and deactivate" : "Undelegate";
       const max = bonded || action.staked;
       canRun =
         canRun &&
@@ -1212,6 +1261,13 @@ function StakingFlow({
             maxExact={bonded ? bondedExact : undefined}
             maxLabel="Delegated"
           />
+          {deactivates && (
+            <Notice tone="warning">
+              This is all of your orchestrator&apos;s own stake. Undelegating it
+              deactivates your orchestrator: it leaves the active set and stops
+              earning rewards and fees until you stake again.
+            </Notice>
+          )}
           {/* When, as a date people can plan around (an estimate: rounds
               run on L1 blocks, so it can drift a little). The round it's
               measured in is on hover. */}
@@ -1282,16 +1338,23 @@ function StakingFlow({
     }
     case "rebond": {
       const unbondedNow = !currentDelegate || /^0x0+$/.test(currentDelegate);
+      // With stake still delegated, the protocol rebonds to wherever that
+      // stake is now, which may not be the orchestrator this LPT left.
+      const target = unbondedNow
+        ? action.delegate.toLowerCase()
+        : currentDelegate!.toLowerCase();
+      const elsewhere = target !== action.delegate.toLowerCase();
       title = "Redelegate";
-      description =
-        "Put undelegating LPT back to work with the orchestrator it came from. It starts earning again next round.";
+      description = elsewhere
+        ? "Put undelegating LPT back to work. It joins the stake you have delegated now, so it goes to your current orchestrator, not the one it came from. It starts earning again next round."
+        : "Put undelegating LPT back to work with the orchestrator it came from. It starts earning again next round.";
       cta = `Redelegate ${formatLPT(action.amount)}`;
       successTitle = "Redelegated";
       body = (
         <>
           <div className="rounded-lg border border-hairline p-3">
             <Identity
-              address={action.delegate}
+              address={target}
               href={null}
               size={26}
               secondary={formatLPT(action.amount)}
@@ -1300,9 +1363,6 @@ function StakingFlow({
         </>
       );
       run = async () => {
-        const target = unbondedNow
-          ? action.delegate
-          : currentDelegate!.toLowerCase();
         const hint = simulateHint(activeSet, target, {
           [target]: action.amount,
         });
@@ -1494,9 +1554,22 @@ function StakingFlow({
       // (its pool's stake moves to this wallet), otherwise one chosen here.
       const pooled = Boolean(claim?.pool);
       const hasStake = (claim?.stake ?? 0) > 0;
+      // Already delegating on Arbitrum: claiming bonds to the chosen
+      // orchestrator, and bonding elsewhere moves the wallet's whole stake,
+      // so start from where it is.
+      const delegatedTo =
+        currentDelegate && !/^0x0+$/.test(currentDelegate) && bonded > 0
+          ? currentDelegate.toLowerCase()
+          : null;
       const destination = pooled
         ? claim!.poolDelegate ?? undefined
-        : claimTo ?? recommendedOrchestrator(orchestrators)?.id;
+        : claimTo ?? delegatedTo ?? recommendedOrchestrator(orchestrators)?.id;
+      const movesWholeStake =
+        !pooled &&
+        hasStake &&
+        delegatedTo != null &&
+        destination != null &&
+        destination.toLowerCase() !== delegatedTo;
       const destOrch = orchestrators?.find((o) => o.id === destination);
       title =
         hasStake || !claim
@@ -1507,7 +1580,9 @@ function StakingFlow({
         : pooled
         ? "Your orchestrator moved to Arbitrum too, and your stake has kept earning with them. Claiming adds it to this wallet and sends you the fees."
         : hasStake
-        ? "Your orchestrator on Ethereum never moved to Arbitrum. Choose a new one to delegate this stake to."
+        ? delegatedTo
+          ? "Your orchestrator on Ethereum never moved to Arbitrum, so this stake joins your current orchestrator unless you choose another."
+          : "Your orchestrator on Ethereum never moved to Arbitrum. Choose a new one to delegate this stake to."
         : "Fees you earned on Ethereum before Livepeer moved to Arbitrum, held for you since.";
       cta = !claim
         ? "Claim"
@@ -1613,6 +1688,14 @@ function StakingFlow({
                 value={destination}
                 onChange={setClaimTo}
               />
+              {movesWholeStake && (
+                <Notice tone="warning">
+                  This wallet already has {formatLPT(bonded)} delegated to{" "}
+                  <OrchestratorName address={delegatedTo!} />. Claiming to a
+                  different orchestrator moves all of it there too, not just the
+                  claimed stake.
+                </Notice>
+              )}
             </div>
           )}
           <ClaimTrust />

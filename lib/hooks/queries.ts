@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
+import { calculateParticipation } from "@/lib/governance/participation";
 import {
   fetchGateway,
   fetchGatewayPayouts,
@@ -23,6 +24,7 @@ import {
   fetchFeedSince,
   fetchGatewayEvents,
   fetchGovernance,
+  fetchGovernanceHistory,
   fetchMintedSince,
   fetchOrchestrator,
   fetchOrchestrators,
@@ -260,6 +262,27 @@ export function useOrchestratorUpdates(ids: string[], sinceTs: number) {
     queryKey: ["orchestrator-updates", key, Math.floor(sinceTs / 3600)],
     queryFn: () => fetchOrchestratorUpdates(key, sinceTs),
     enabled: key.length > 0,
+    staleTime: 10 * MINUTE,
+  });
+}
+
+/**
+ * An orchestrator's treasury participation: of the proposals that opened
+ * while it was active, how many it voted on.
+ */
+export function useGovernanceParticipation(
+  orchestrator: string | null | undefined,
+  currentRound: number | undefined
+) {
+  const id = orchestrator?.toLowerCase();
+  return useQuery({
+    queryKey: ["governance-participation", id, currentRound],
+    queryFn: async () =>
+      calculateParticipation(
+        await fetchGovernanceHistory(id!),
+        String(currentRound)
+      ),
+    enabled: Boolean(id && currentRound != null),
     staleTime: 10 * MINUTE,
   });
 }
