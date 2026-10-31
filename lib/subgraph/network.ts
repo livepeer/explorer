@@ -4,6 +4,11 @@ import {
   decodeProposalActions,
   type ProposalAction,
 } from "@/lib/governance/actions";
+import {
+  readVoteTotals,
+  type VoteTotals,
+  withVoteTotals,
+} from "@/lib/governance/chain-votes";
 import { PoolHistory, PRECISE } from "@/lib/portfolio/compute";
 
 import { isActiveInRound } from "./active";
@@ -1573,25 +1578,33 @@ export async function fetchGovernance() {
     });
     counts.set(p.id, ids.length);
   }
+  // The governor's own totals: the subgraph double-counts a delegator who
+  // votes alongside their orchestrator. Unreadable, the subgraph's stand.
+  const totals = await readVoteTotals(treasuryProposals.map((p) => p.id)).catch(
+    () => new Map<string, VoteTotals>()
+  );
   return {
-    proposals: treasuryProposals.map(
-      (p): TreasuryProposal => ({
-        id: p.id,
-        title: proposalTitle(p.description),
-        description: p.description,
-        proposer: p.proposer.id,
-        voteStart: Number(p.voteStart),
-        voteEnd: Number(p.voteEnd),
-        forVotes: Number(p.forVotes),
-        againstVotes: Number(p.againstVotes),
-        abstainVotes: Number(p.abstainVotes),
-        totalVotes: Number(p.totalVotes),
-        actions: decodeProposalActions(
-          p.targets ?? [],
-          p.values ?? [],
-          p.calldatas ?? []
-        ),
-      })
+    proposals: withVoteTotals(
+      treasuryProposals.map(
+        (p): TreasuryProposal => ({
+          id: p.id,
+          title: proposalTitle(p.description),
+          description: p.description,
+          proposer: p.proposer.id,
+          voteStart: Number(p.voteStart),
+          voteEnd: Number(p.voteEnd),
+          forVotes: Number(p.forVotes),
+          againstVotes: Number(p.againstVotes),
+          abstainVotes: Number(p.abstainVotes),
+          totalVotes: Number(p.totalVotes),
+          actions: decodeProposalActions(
+            p.targets ?? [],
+            p.values ?? [],
+            p.calldatas ?? []
+          ),
+        })
+      ),
+      totals
     ),
     polls: polls.map(
       (p): Poll => ({
