@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 import { useNow } from "@/components/shell/round-clock";
 
+import { inBatches } from "./batch";
 import {
   type PendingDeposit,
   readPendingDeposits,
@@ -51,20 +52,28 @@ export function usePendingDeposits(addresses: string[]) {
 
   const { data: tracked } = useQuery({
     queryKey: ["bridge-deposits", key],
-    enabled: key.length > 0 && key.length <= 20,
+    enabled: key.length > 0,
     staleTime: 15_000,
     refetchOnWindowFocus: true,
     refetchInterval: (q) => {
       const list = q.state.data as TrackedDeposit[] | undefined;
+      // A failed one won't change: no need to keep checking for it.
       const moving =
-        local.length > 0 || list?.some((d) => d.status !== "arrived");
+        local.length > 0 ||
+        list?.some((d) => d.status === "processing" || d.status === "retry");
       return moving ? 20_000 : 5 * 60_000;
     },
-    queryFn: async () => {
-      const res = await fetch(`/api/bridge/deposits?address=${key}`);
-      if (!res.ok) throw new Error("Couldn't check deposits");
-      return (await res.json()).deposits as TrackedDeposit[];
-    },
+    // Any size of portfolio: the API takes 20 addresses a request.
+    queryFn: () =>
+      inBatches(
+        key,
+        async (batch) => {
+          const res = await fetch(`/api/bridge/deposits?address=${batch}`);
+          if (!res.ok) throw new Error("Couldn't check deposits");
+          return (await res.json()).deposits as TrackedDeposit[];
+        },
+        (d) => `${d.l1Tx.toLowerCase()}:${d.seq ?? ""}`
+      ).then((list) => list.sort((a, b) => b.sentAt - a.sentAt)),
   });
 
   // The chain has them now: this browser's copies aren't needed.

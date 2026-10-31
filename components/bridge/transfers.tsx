@@ -111,6 +111,29 @@ export function Transfers({ wallet }: { wallet: string }) {
             </div>
           );
         }
+        if (d.status === "failed") {
+          return (
+            <div
+              key={`${d.l1Tx}-${d.seq ?? ""}`}
+              className="flex flex-col gap-1"
+            >
+              <div className="flex items-center justify-between gap-3 text-ui-body">
+                <Leg amount={amount} to="Arbitrum" href={l1TxUrl(d.l1Tx)} />
+                <a
+                  href={retryableUrl(d.l1Tx)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1 text-ui-caption text-muted-foreground hover:text-foreground"
+                >
+                  Details <ExternalLink className="size-3" />
+                </a>
+              </div>
+              <span className="text-ui-caption text-destructive">
+                Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
+              </span>
+            </div>
+          );
+        }
         const { minutesLeft, progress } = depositTiming(d.sentAt, nowSec);
         return (
           <div

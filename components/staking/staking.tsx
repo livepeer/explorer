@@ -335,9 +335,12 @@ export function AmountField({
   autoFocus = true,
   label = "Amount",
   maxExact,
+  disabled = false,
 }: {
   value: string;
   onChange: (v: string) => void;
+  /** Fixed, for while a transaction for this amount is in flight. */
+  disabled?: boolean;
   max?: number;
   maxLabel: string;
   unit?: string;
@@ -364,10 +367,11 @@ export function AmountField({
         {max != null && (
           <button
             type="button"
+            disabled={disabled}
             onClick={() =>
               onChange(maxExact ?? String(Math.floor(max * 1e6) / 1e6))
             }
-            className="cursor-pointer rounded-sm px-1 hover:text-foreground"
+            className="cursor-pointer rounded-sm px-1 hover:text-foreground disabled:cursor-default disabled:hover:text-muted-foreground"
           >
             {maxLabel}:{" "}
             <span className="tabular-nums">
@@ -380,6 +384,7 @@ export function AmountField({
       <div className="mt-1 flex items-baseline gap-2">
         <input
           autoFocus={autoFocus}
+          disabled={disabled}
           inputMode="decimal"
           placeholder="0"
           value={value}

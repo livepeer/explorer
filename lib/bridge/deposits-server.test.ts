@@ -49,6 +49,16 @@ describe("ticketStatus", () => {
     expect(l2.getTransactionReceipt).not.toHaveBeenCalled();
   });
 
+  it("failed when the ticket's creation reverted, never arrived", async () => {
+    l2.getTransactionReceipt.mockResolvedValueOnce({ status: "reverted" });
+    await expect(ticketStatus("0x05")).resolves.toEqual({
+      status: "failed",
+    });
+    expect(l2.readContract).not.toHaveBeenCalledWith(
+      expect.objectContaining({ args: ["0x05"] })
+    );
+  });
+
   it("doesn't mistake another failure for arrival", async () => {
     l2.getTransactionReceipt.mockResolvedValueOnce({ status: "success" });
     l2.readContract.mockRejectedValueOnce(new Error("RPC down"));

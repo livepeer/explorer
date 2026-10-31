@@ -9,6 +9,7 @@ import { livepeerToken } from "@/lib/abis/LivepeerToken";
 import { L1_CHAIN } from "@/lib/config";
 import { fromWei } from "@/lib/format";
 
+import { inBatches } from "./batch";
 import { L1_LPT } from "./config";
 import { mergeWithdrawals, type SentWithdrawal } from "./progress";
 import type { BridgeWithdrawal } from "./types";
@@ -63,7 +64,8 @@ function snapshot() {
  * Unclaimed LPT withdrawals to Ethereum sent from or to these addresses,
  * including ones just sent from this browser that the index hasn't picked
  * up yet. While any of those are waiting, it checks every 15s, skipping
- * the browser's cache, and drops each local copy once indexed.
+ * the browser's cache, and drops each local copy once indexed. Indexed
+ * ones still waiting keep being checked, so they turn claimable in place.
  */
 export function useBridgeWithdrawals(addresses: string[]) {
   const key = useMemo(
@@ -81,21 +83,38 @@ export function useBridgeWithdrawals(addresses: string[]) {
   );
   const query = useQuery({
     queryKey: ["bridge-withdrawals", key],
-    enabled: key.length > 0 && key.length <= 20,
+    enabled: key.length > 0,
     staleTime: 60_000,
     refetchOnWindowFocus: true,
-    refetchInterval: sent.length ? 15_000 : false,
-    queryFn: async () => {
-      // A withdrawal just sent: skip the browser's cached answer.
-      const res = await fetch(`/api/bridge/withdrawals?address=${key}`, {
-        cache: sent.length ? "no-store" : "default",
-      });
-      if (!res.ok) throw new Error("Couldn't check bridge withdrawals");
-      const { withdrawals } = (await res.json()) as {
-        withdrawals: BridgeWithdrawal[];
-      };
-      return withdrawals;
+    refetchInterval: (q) => {
+      // Just sent from here: until the index has it.
+      if (sent.length) return 15_000;
+      // Waiting ones turn claimable on their own: check every minute once
+      // one is due, every 10 otherwise, so Claim shows without a reload.
+      const waiting = (q.state.data as BridgeWithdrawal[] | undefined)
+        ?.filter((w) => w.status === "waiting")
+        .map((w) => w.readyAt ?? 0);
+      if (!waiting?.length) return false;
+      const soonest = Math.min(...waiting) - Date.now() / 1000;
+      return soonest < 15 * 60 ? 60_000 : 10 * 60_000;
     },
+    // Any size of portfolio: the API takes 20 addresses a request.
+    queryFn: () =>
+      inBatches(
+        key,
+        async (batch) => {
+          // A withdrawal just sent: skip the browser's cached answer.
+          const res = await fetch(`/api/bridge/withdrawals?address=${batch}`, {
+            cache: sent.length ? "no-store" : "default",
+          });
+          if (!res.ok) throw new Error("Couldn't check bridge withdrawals");
+          const { withdrawals } = (await res.json()) as {
+            withdrawals: BridgeWithdrawal[];
+          };
+          return withdrawals;
+        },
+        (w) => w.id
+      ),
   });
 
   // The index has them now: this browser's copies aren't needed.

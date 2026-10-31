@@ -5,11 +5,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { formatEther } from "viem";
+import { encodeFunctionData, formatEther } from "viem";
 import {
   useAccount,
   useBalance,
+  useBytecode,
   usePublicClient,
+  useSendCalls,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -25,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SafeProposed } from "@/components/wallet/safe-proposed";
 import { checkClaim, fetchClaim } from "@/lib/bridge/claim";
 import {
   ARB_OUTBOX,
@@ -32,6 +35,7 @@ import {
   l1TxUrl,
 } from "@/lib/bridge/config";
 import { checkOutbox } from "@/lib/bridge/guards";
+import { isSafeProxy } from "@/lib/bridge/safe";
 import type { BridgeWithdrawal } from "@/lib/bridge/types";
 import { L1_CHAIN, txUrl } from "@/lib/config";
 import { formatLPT, fromWei } from "@/lib/format";
@@ -54,7 +58,7 @@ export function ClaimFlow({
   /** Opened from the bridge dialog: back returns there. */
   onBack?: () => void;
 }) {
-  const { address, chainId, isConnected } = useAccount();
+  const { address, chainId, isConnected, connector } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { switchChainAsync, isPending: switching } = useSwitchChain();
   const queryClient = useQueryClient();
@@ -102,10 +106,25 @@ export function ClaimFlow({
     chainId: L1_CHAIN.id,
     query: { enabled: Boolean(address) },
   });
-  const short = fee.data != null && eth != null && eth.value < fee.data;
+  // A Safe on Ethereum claims by proposal: its owners sign, and whoever
+  // executes it pays the gas, so its own ETH doesn't matter.
+  const { data: code } = useBytecode({
+    address,
+    chainId: L1_CHAIN.id,
+    query: { enabled: Boolean(address), staleTime: 5 * 60_000 },
+  });
+  const safeApp = connector?.id === "safe";
+  const isSafe = safeApp || isSafeProxy(code ?? undefined);
+  const short =
+    !isSafe && fee.data != null && eth != null && eth.value < fee.data;
 
-  const { writeContractAsync, isPending: signing } = useWriteContract();
+  const { writeContractAsync, isPending: writing } = useWriteContract();
+  const { sendCallsAsync, isPending: batching } = useSendCalls();
+  const signing = writing || batching;
   const [hash, setHash] = useState<`0x${string}`>();
+  // A Safe's proposal: its id inside Safe{Wallet}, or its hash elsewhere.
+  // Neither is a transaction, so there's no receipt to wait for.
+  const [proposal, setProposal] = useState<string | null>(null);
   const receipt = useWaitForTransactionReceipt({ hash, chainId: L1_CHAIN.id });
   const done = receipt.isSuccess && receipt.data?.status === "success";
   const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
@@ -132,16 +151,36 @@ export function ClaimFlow({
   const send = async () => {
     setError(null);
     try {
-      if (!call) return;
+      if (!call || !address) return;
       await checkOutbox(l1!);
+      if (safeApp) {
+        const { id } = await sendCallsAsync({
+          account: address,
+          chainId: L1_CHAIN.id,
+          calls: [
+            {
+              to: ARB_OUTBOX,
+              data: encodeFunctionData({
+                abi: executeTransactionAbi,
+                functionName: "executeTransaction",
+                args: call,
+              }),
+            },
+          ],
+        });
+        setProposal(id);
+        return;
+      }
       const h = await writeContractAsync({
+        account: address,
         address: ARB_OUTBOX,
         abi: executeTransactionAbi,
         functionName: "executeTransaction",
         args: call,
         chainId: L1_CHAIN.id,
       });
-      setHash(h);
+      if (isSafe) setProposal(h);
+      else setHash(h);
     } catch (e) {
       setError(errorText(e));
     }
@@ -158,7 +197,7 @@ export function ClaimFlow({
         <DialogTitle>
           {done ? "LPT claimed" : "Claim LPT on Ethereum"}
         </DialogTitle>
-        {!done && (
+        {!done && !proposal && (
           <DialogDescription>
             Arbitrum&apos;s withdrawal period is over. Claiming releases the LPT
             on Ethereum, in one transaction there.
@@ -166,7 +205,21 @@ export function ClaimFlow({
         )}
       </DialogHeader>
       <DialogBody>
-        {done ? (
+        {proposal && address ? (
+          <SafeProposed
+            safe={address}
+            chain="eth"
+            id={safeApp ? proposal : undefined}
+            onExecuted={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["bridge-withdrawals"],
+              })
+            }
+          >
+            Once your Safe&apos;s owners sign and execute it, {amount} is
+            released on Ethereum.
+          </SafeProposed>
+        ) : done ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
             <span className="flex size-12 items-center justify-center rounded-full bg-green-subtle text-green-bright">
               <Check className="size-6" />
@@ -237,7 +290,7 @@ export function ClaimFlow({
         )}
       </DialogBody>
       <DialogFooter>
-        {onBack && !done && (
+        {onBack && !done && !proposal && (
           <Button
             variant="ghost"
             className="w-full sm:w-auto"
@@ -247,7 +300,7 @@ export function ClaimFlow({
             Back
           </Button>
         )}
-        {done ? (
+        {done || proposal ? (
           <Button
             variant="primary"
             onClick={onDone}

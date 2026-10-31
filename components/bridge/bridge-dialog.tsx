@@ -14,6 +14,7 @@ import {
 import {
   useAccount,
   useBalance,
+  useConfig,
   useDisconnect,
   usePublicClient,
   useReadContract,
@@ -23,6 +24,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
+import { getAccount } from "wagmi/actions";
 
 import { Avatar, useIdentity } from "@/components/identity";
 import { useNow } from "@/components/shell/round-clock";
@@ -93,6 +95,13 @@ const arbitrumBridgeUrl = (direction: Direction) => {
       : ["arbitrum-one", "ethereum"];
   return `https://bridge.arbitrum.io/?sourceChain=${from}&destinationChain=${to}&token=${L1_LPT}`;
 };
+
+/**
+ * What a bridge was started with, fixed when the button is pressed: every
+ * transaction after that, and the record of it, uses these rather than
+ * whatever the form shows by then.
+ */
+type Flight = { direction: Direction; to: `0x${string}`; amount: bigint };
 
 const day = (ms: number) =>
   new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -232,12 +241,44 @@ export function BridgeFlow({
     id: string;
     kind: "approval" | "bridge";
   } | null>(null);
+
+  // Approve, then bridge: one click, two transactions.
+  const config = useConfig();
+  const { writeContractAsync, isPending: writing } = useWriteContract();
+  const { sendCallsAsync, isPending: batching } = useSendCalls();
+  const { sendTransactionAsync, isPending: proposing } = useSendTransaction();
+  const signing = writing || batching || proposing;
+  const [approveTx, setApproveTx] = useState<`0x${string}`>();
+  const [sendTx, setSendTx] = useState<`0x${string}`>();
+  const [txChain, setTxChain] = useState<number>(sourceChain);
+  const [syncing, setSyncing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const continueAfterApproval = useRef(false);
+  const approval = useWaitForTransactionReceipt({
+    hash: approveTx,
+    chainId: txChain,
+  });
+  const sent = useWaitForTransactionReceipt({ hash: sendTx, chainId: txChain });
+  // Set the moment the button is pressed, before any check is awaited, so
+  // a second press can't start a second bridge.
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
+  const flightRef = useRef<Flight | null>(null);
+  const [flight, setFlight] = useState<Flight | null>(null);
+  const busy =
+    submitting ||
+    signing ||
+    syncing ||
+    (Boolean(approveTx) && approval.isLoading) ||
+    (Boolean(sendTx) && sent.isLoading);
+
   const dest = useDestination({
     wallet,
     sourceChain,
     destChain: toArbitrum ? L2_CHAIN.id : L1_CHAIN.id,
     destNetwork: toArbitrum ? "Arbitrum" : "Ethereum",
-    locked: Boolean(proposal),
+    // Fixed from the press until it's sent or fails, and while proposed.
+    locked: busy || Boolean(proposal),
   });
   const to = (dest.to ?? undefined) as `0x${string}` | undefined;
   const { data: l1Eth } = useBalance({
@@ -330,57 +371,74 @@ export function BridgeFlow({
     l1Eth != null &&
     l1Eth.value < claimCost;
 
-  // Approve, then bridge: one click, two transactions.
-  const { writeContractAsync, isPending: writing } = useWriteContract();
-  const { sendCallsAsync, isPending: batching } = useSendCalls();
-  const { sendTransactionAsync, isPending: proposing } = useSendTransaction();
-  const signing = writing || batching || proposing;
-  const [approveTx, setApproveTx] = useState<`0x${string}`>();
-  const [sendTx, setSendTx] = useState<`0x${string}`>();
-  const [txChain, setTxChain] = useState<number>(sourceChain);
-  const [syncing, setSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const continueAfterApproval = useRef(false);
-  const approval = useWaitForTransactionReceipt({
-    hash: approveTx,
-    chainId: txChain,
-  });
-  const sent = useWaitForTransactionReceipt({ hash: sendTx, chainId: txChain });
   const done = sent.isSuccess && sent.data?.status === "success";
   const needsApproval = !syncing && (allowance ?? 0n) < amountWei;
 
+  /** The bridge being sent: fixed at the press, cleared on start over. */
+  const inFlight = () => {
+    if (!flightRef.current) throw new Error("Nothing to bridge. Try again.");
+    return flightRef.current;
+  };
+
   // Before anything is signed: the bridge still runs the way this app does.
-  const guard = () =>
-    checkRoute(
-      toArbitrum ? l1! : l2!,
-      toArbitrum ? "toArbitrum" : "toEthereum"
-    );
+  const guard = (f: Flight) =>
+    checkRoute(f.direction === "toArbitrum" ? l1! : l2!, f.direction);
+
+  // Never sign from a wallet other than the one bridging: accounts can
+  // switch while an approval confirms. Read fresh, not from this render.
+  const checkSigner = () => {
+    if (getAccount(config).address?.toLowerCase() !== wallet.toLowerCase()) {
+      throw new Error(`Switch to ${walletName} in your wallet to continue.`);
+    }
+  };
+
+  /** Runs one press of the button at a time, start to finish. */
+  const run = async (fn: () => Promise<void>) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
+    try {
+      await fn();
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
+  };
 
   const send = async () => {
-    await guard();
-    setTxChain(sourceChain);
-    if (toArbitrum) {
-      const { data: p } = await price.refetch();
-      if (!p) throw new Error("Couldn't price Arbitrum's fee. Try again.");
+    const f = inFlight();
+    await guard(f);
+    const deposit = f.direction === "toArbitrum";
+    setTxChain(deposit ? L1_CHAIN.id : L2_CHAIN.id);
+    if (deposit) {
+      const p = await priceDeposit(l1!, l2!, {
+        from: account,
+        to: f.to,
+        amount: f.amount,
+      });
       if (p.value > MAX_DEPOSIT_VALUE) throw new Error("Fees look too high.");
+      checkSigner();
       setSendTx(
         await writeContractAsync({
+          account,
           address: L1_GATEWAY_ROUTER,
           abi: outboundTransferAbi,
           functionName: "outboundTransfer",
-          args: [L1_LPT, to!, amountWei, p.maxGas, p.gasPriceBid, p.data],
+          args: [L1_LPT, f.to, f.amount, p.maxGas, p.gasPriceBid, p.data],
           value: p.value,
           chainId: L1_CHAIN.id,
         })
       );
     } else {
+      checkSigner();
       setSendTx(
         await writeContractAsync({
+          account,
           address: L2_GATEWAY_ROUTER,
           abi: l2OutboundTransferAbi,
           functionName: "outboundTransfer",
           // The router takes the Ethereum token's address.
-          args: [L1_LPT, to!, amountWei, "0x"],
+          args: [L1_LPT, f.to, f.amount, "0x"],
           chainId: L2_CHAIN.id,
         })
       );
@@ -392,26 +450,31 @@ export function BridgeFlow({
   // each is its own proposal, and the bridge waits for the approval to run.
   const safeApp = connector?.id === "safe";
   const proposeAsSafe = async () => {
-    await guard();
+    const f = inFlight();
+    const deposit = f.direction === "toArbitrum";
+    await guard(f);
     const approveCall = {
-      to: (toArbitrum ? L1_LPT : L2_LPT) as `0x${string}`,
+      to: (deposit ? L1_LPT : L2_LPT) as `0x${string}`,
       data: encodeFunctionData({
         abi: erc20Abi,
         functionName: "approve",
-        args: [toArbitrum ? L1_LPT_GATEWAY : L2_LPT_GATEWAY, amountWei],
+        args: [deposit ? L1_LPT_GATEWAY : L2_LPT_GATEWAY, f.amount],
       }),
     };
     let bridgeCall: { to: `0x${string}`; data: Hex; value?: bigint };
-    if (toArbitrum) {
-      const { data: p } = await price.refetch();
-      if (!p) throw new Error("Couldn't price Arbitrum's fee. Try again.");
+    if (deposit) {
+      const p = await priceDeposit(l1!, l2!, {
+        from: account,
+        to: f.to,
+        amount: f.amount,
+      });
       if (p.value > MAX_DEPOSIT_VALUE) throw new Error("Fees look too high.");
       bridgeCall = {
         to: L1_GATEWAY_ROUTER,
         data: encodeFunctionData({
           abi: outboundTransferAbi,
           functionName: "outboundTransfer",
-          args: [L1_LPT, to!, amountWei, p.maxGas, p.gasPriceBid, p.data],
+          args: [L1_LPT, f.to, f.amount, p.maxGas, p.gasPriceBid, p.data],
         }),
         value: p.value,
       };
@@ -421,10 +484,11 @@ export function BridgeFlow({
         data: encodeFunctionData({
           abi: l2OutboundTransferAbi,
           functionName: "outboundTransfer",
-          args: [L1_LPT, to!, amountWei, "0x"],
+          args: [L1_LPT, f.to, f.amount, "0x"],
         }),
       };
     }
+    checkSigner();
     if (safeApp) {
       const { id } = await sendCallsAsync({
         account,
@@ -447,16 +511,20 @@ export function BridgeFlow({
     setProposal({ id, kind: needsApproval ? "approval" : "bridge" });
   };
   const approve = async () => {
-    await guard();
+    const f = inFlight();
+    const deposit = f.direction === "toArbitrum";
+    await guard(f);
     setTxChain(sourceChain);
     continueAfterApproval.current = true;
+    checkSigner();
     setApproveTx(
       await writeContractAsync({
-        address: toArbitrum ? L1_LPT : L2_LPT,
+        account,
+        address: deposit ? L1_LPT : L2_LPT,
         abi: erc20Abi,
         functionName: "approve",
         // Exactly this amount, as Arbitrum's bridge does.
-        args: [toArbitrum ? L1_LPT_GATEWAY : L2_LPT_GATEWAY, amountWei],
+        args: [deposit ? L1_LPT_GATEWAY : L2_LPT_GATEWAY, f.amount],
         chainId: sourceChain,
       })
     );
@@ -469,13 +537,14 @@ export function BridgeFlow({
       setError("The approval reverted, so nothing changed.");
       return;
     }
+    const amountApproved = flightRef.current?.amount ?? amountWei;
     setSyncing(true);
-    refetchUntil(refetchAllowance, (a) => (a ?? 0n) >= amountWei)
+    refetchUntil(refetchAllowance, (a) => (a ?? 0n) >= amountApproved)
       .then((ok) => {
         setSyncing(false);
         if (ok && continueAfterApproval.current) {
           continueAfterApproval.current = false;
-          send().catch((e) => setError(errorText(e)));
+          run(send).catch((e) => setError(errorText(e)));
         }
       })
       .catch(() => setSyncing(false));
@@ -488,12 +557,14 @@ export function BridgeFlow({
       setError("The transaction reverted, so your LPT didn't move.");
       return;
     }
-    if (toArbitrum) {
+    const f = flightRef.current;
+    if (!f) return;
+    if (f.direction === "toArbitrum") {
       addPendingDeposit({
         l1Tx: sendTx,
         from: wallet,
-        to: wallet,
-        amount: amountWei.toString(),
+        to: f.to,
+        amount: f.amount.toString(),
         sentAt: Math.floor(Date.now() / 1000),
       });
     } else {
@@ -501,8 +572,8 @@ export function BridgeFlow({
       addSentWithdrawal({
         tx: sendTx,
         from: wallet,
-        to: to ?? wallet,
-        amount: amountWei.toString(),
+        to: f.to,
+        amount: f.amount.toString(),
         timestamp: Math.floor(Date.now() / 1000),
       });
     }
@@ -511,18 +582,17 @@ export function BridgeFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sent.isSuccess]);
 
-  const busy =
-    signing ||
-    syncing ||
-    (Boolean(approveTx) && approval.isLoading) ||
-    (Boolean(sendTx) && sent.isLoading);
-
+  const clearFlight = () => {
+    flightRef.current = null;
+    setFlight(null);
+  };
   const swap = () => {
     if (busy) return;
     setDirection(toArbitrum ? "toEthereum" : "toArbitrum");
     filled.current = null;
     setApproveTx(undefined);
     setSendTx(undefined);
+    clearFlight();
     setError(null);
   };
   const startOver = () => {
@@ -530,6 +600,7 @@ export function BridgeFlow({
     setApproveTx(undefined);
     setSendTx(undefined);
     setProposal(null);
+    clearFlight();
     setError(null);
   };
 
@@ -553,6 +624,9 @@ export function BridgeFlow({
     !busy;
   const step = needsApproval ? "1 of 2" : approveTx ? "2 of 2" : null;
   const problem = price.error ? errorText(price.error) : null;
+
+  // What was sent, for the messages after: not what the form shows now.
+  const sentAmount = flight?.amount ?? amountWei;
 
   const balanceOn = (wei?: bigint) =>
     wei == null ? "…" : `${formatLPT(fromWei(wei))}`;
@@ -581,21 +655,22 @@ export function BridgeFlow({
             chain={toArbitrum ? "eth" : "arb1"}
             id={safeApp ? proposal.id : undefined}
             onExecuted={(_, tx) => {
-              if (proposal.kind === "bridge" && tx && to) {
-                if (toArbitrum) {
+              const f = flightRef.current;
+              if (proposal.kind === "bridge" && tx && f) {
+                if (f.direction === "toArbitrum") {
                   addPendingDeposit({
                     l1Tx: tx,
                     from: wallet,
-                    to,
-                    amount: amountWei.toString(),
+                    to: f.to,
+                    amount: f.amount.toString(),
                     sentAt: Math.floor(Date.now() / 1000),
                   });
                 } else {
                   addSentWithdrawal({
                     tx,
                     from: wallet,
-                    to,
-                    amount: amountWei.toString(),
+                    to: f.to,
+                    amount: f.amount.toString(),
                     timestamp: Math.floor(Date.now() / 1000),
                   });
                 }
@@ -610,10 +685,10 @@ export function BridgeFlow({
               ? "Once your Safe's owners sign and execute the approval, open this again to bridge."
               : toArbitrum
               ? `Once your Safe's owners sign and execute it, ${formatLPT(
-                  fromWei(amountWei)
+                  fromWei(sentAmount)
                 )} lands on Arbitrum about 15 minutes later.`
               : `Once your Safe's owners sign and execute it, ${formatLPT(
-                  fromWei(amountWei)
+                  fromWei(sentAmount)
                 )} can be claimed on Ethereum about 7 days later.`}
           </SafeProposed>
         ) : done ? (
@@ -621,7 +696,7 @@ export function BridgeFlow({
             <Check className="mt-0.5 size-4 shrink-0 text-green-bright" />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <span>
-                {formatLPT(fromWei(amountWei))} is on its way to{" "}
+                {formatLPT(fromWei(sentAmount))} is on its way to{" "}
                 {toArbitrum ? "Arbitrum" : "Ethereum"}.{" "}
                 {toArbitrum
                   ? "It usually lands in 10–15 minutes, ready to delegate."
@@ -698,6 +773,7 @@ export function BridgeFlow({
               }
               maxLabel={`On ${NETWORK[direction]}`}
               autoFocus={false}
+              disabled={busy}
             />
             <div className="flex flex-col gap-2">
               <span className="text-ui-caption text-muted-foreground">
@@ -839,9 +915,14 @@ export function BridgeFlow({
               variant="primary"
               className="w-full sm:w-auto"
               disabled={!canRun}
-              onClick={async () => {
+              onClick={() => {
+                if (!to) return;
                 setError(null);
-                try {
+                // What's sent is fixed here, whatever the form shows later.
+                const f: Flight = { direction, to, amount: amountWei };
+                flightRef.current = f;
+                setFlight(f);
+                run(async () => {
                   if (dest.isSafe) {
                     await proposeAsSafe();
                     return;
@@ -852,10 +933,10 @@ export function BridgeFlow({
                     await switchChainAsync({ chainId: sourceChain });
                   }
                   await (needsApproval ? approve() : send());
-                } catch (e) {
+                }).catch((e) => {
                   continueAfterApproval.current = false;
                   setError(errorText(e));
-                }
+                });
               }}
             >
               {(busy || switching) && <Loader2 className="animate-spin" />}

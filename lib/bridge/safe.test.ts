@@ -1,6 +1,7 @@
 import {
   isDelegatedWallet,
   isOfficialSafe,
+  isSafeProxy,
   ownersOnly,
   sameSigners,
 } from "./safe";
@@ -47,6 +48,22 @@ describe("isOfficialSafe", () => {
     ).toBe(false);
     expect(isOfficialSafe(undefined)).toBe(false);
     expect(isOfficialSafe("0x")).toBe(false);
+  });
+});
+
+describe("isSafeProxy", () => {
+  // Safe 1.3.0's proxy, from its factory's proxyRuntimeCode().
+  const proxy130 =
+    "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e0000000000000000000000000000000000000000000000000000000060003514156050578060005260206000f35b3660008037600080366000845af43d6000803e60008114156070573d6000fd5b3d6000f3fea2646970667358221220d1429297349653a4918076d650332de1a1068c5f3e07c5c82360c277770b955264736f6c63430007060033";
+
+  it("accepts an official Safe proxy's code", () => {
+    expect(isSafeProxy(proxy130)).toBe(true);
+  });
+
+  it("refuses other code, even one byte off, or none", () => {
+    expect(isSafeProxy(`0x${proxy130.slice(2, -2)}34`)).toBe(false);
+    expect(isSafeProxy("0x6080")).toBe(false);
+    expect(isSafeProxy(undefined)).toBe(false);
   });
 });
 

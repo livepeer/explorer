@@ -14,6 +14,7 @@ import { Notice } from "@/components/staking/staking";
 import {
   isDelegatedWallet,
   isOfficialSafe,
+  isSafeProxy,
   ownersOnly,
   SAFE_SENTINEL,
   safeModulesAbi,
@@ -38,22 +39,36 @@ type Kind =
        */
       genuine: boolean;
     }
-  | { kind: "contract" };
+  | { kind: "contract" }
+  /** Couldn't be read: nothing about it is assumed, and nothing is signed. */
+  | { kind: "error"; retry: () => void };
 
 /**
  * What's at an address on a network: a regular wallet (no code), a Safe
- * (with its signers), or some other contract. Undefined while reading.
+ * (with its signers), or some other contract. Undefined while reading; an
+ * error when a read failed, since a failed code read looks just like an
+ * address with no code.
  */
 function useAccountKind(address: string | null, chainId: number) {
   const a = (address ?? undefined) as `0x${string}` | undefined;
-  const { data: code, isLoading: loadingCode } = useBytecode({
+  const {
+    data: code,
+    isLoading: loadingCode,
+    isError: codeFailed,
+    refetch: refetchCode,
+  } = useBytecode({
     address: a,
     chainId,
     query: { enabled: Boolean(a), staleTime: 5 * 60_000 },
   });
   // A 7702-delegated wallet has code, but its key still controls it.
   const isContract = Boolean(code && code !== "0x" && !isDelegatedWallet(code));
-  const { data, isLoading } = useReadContracts({
+  const {
+    data,
+    isLoading,
+    isError: readsFailed,
+    refetch: refetchReads,
+  } = useReadContracts({
     allowFailure: true,
     contracts: [
       { address: a, abi: safeSignersAbi, functionName: "getOwners", chainId },
@@ -73,14 +88,29 @@ function useAccountKind(address: string | null, chainId: number) {
     ],
     query: { enabled: Boolean(a) && isContract, staleTime: 5 * 60_000 },
   });
-  const { data: slot0, isLoading: loadingSlot } = useStorageAt({
+  const {
+    data: slot0,
+    isLoading: loadingSlot,
+    isError: slotFailed,
+    refetch: refetchSlot,
+  } = useStorageAt({
     address: a,
     slot: "0x0",
     chainId,
     query: { enabled: Boolean(a) && isContract, staleTime: 5 * 60_000 },
   });
-  if (!a || loadingCode) return undefined;
+  const retry = () => {
+    refetchCode();
+    if (isContract) {
+      refetchReads();
+      refetchSlot();
+    }
+  };
+  if (!a) return undefined;
+  if (codeFailed) return { kind: "error", retry } as Kind;
+  if (loadingCode) return undefined;
   if (!isContract) return { kind: "wallet" } as Kind;
+  if (readsFailed || slotFailed) return { kind: "error", retry } as Kind;
   if (isLoading || loadingSlot || !data) return undefined;
   const [owners, threshold, modules] = data;
   if (owners.status !== "success" || threshold.status !== "success") {
@@ -94,6 +124,8 @@ function useAccountKind(address: string | null, chainId: number) {
   // which Safe's indexer often lacks (4337-created Safes show "0x"), so
   // it's left open as a targeted, unlikely attack.
   const genuine =
+    // Safe's own proxy code, pointing at Safe's own implementation.
+    isSafeProxy(code ?? undefined) &&
     isOfficialSafe(slot0) &&
     modules.status === "success" &&
     // A full page could hide more; only a short, complete list is judged.
@@ -154,8 +186,20 @@ export function useDestination({
     source?.kind === "safe" ? wallet : null,
     destChain
   );
-  const [picked, setPicked] = useState<Recipient | null>(null);
-  const [vouched, setVouched] = useState(false);
+  // The address chosen, and the promise to control it, hold only for the
+  // network they were made for: swapping direction starts over.
+  const [choice, setChoice] = useState<{
+    chain: number;
+    picked: Recipient | null;
+    vouched: boolean;
+  }>({ chain: destChain, picked: null, vouched: false });
+  const current = choice.chain === destChain;
+  const picked = current ? choice.picked : null;
+  const vouched = current && choice.vouched;
+  const setPicked = (r: Recipient | null) =>
+    setChoice({ chain: destChain, picked: r, vouched: false });
+  const setVouched = (v: boolean) =>
+    setChoice((c) => ({ ...c, vouched: c.chain === destChain && v }));
   // After Change, the field comes back focused, ready for another address.
   const [changed, setChanged] = useState(false);
   const pickedKind = useAccountKind(picked?.address ?? null, destChain);
@@ -176,8 +220,21 @@ export function useDestination({
     choosing: false,
     focus,
   };
+  const sourceNetwork = destNetwork === "Arbitrum" ? "Ethereum" : "Arbitrum";
   if (source === undefined) {
     return { ...settled, to: null, loading: true, ui: null };
+  }
+  if (source.kind === "error") {
+    return {
+      ...settled,
+      to: null,
+      ui: (
+        <ReadFailed retry={source.retry}>
+          Couldn&apos;t check this wallet on {sourceNetwork}, so it can&apos;t
+          bridge yet.
+        </ReadFailed>
+      ),
+    };
   }
   if (source.kind === "wallet") {
     return {
@@ -192,6 +249,19 @@ export function useDestination({
   }
   if (mirror === undefined) {
     return { ...settled, isSafe: true, to: null, loading: true, ui: null };
+  }
+  if (mirror.kind === "error") {
+    return {
+      ...settled,
+      isSafe: true,
+      to: null,
+      ui: (
+        <ReadFailed retry={mirror.retry}>
+          Couldn&apos;t check this Safe&apos;s address on {destNetwork}, so
+          there&apos;s no telling yet where its LPT would land.
+        </ReadFailed>
+      ),
+    };
   }
 
   // The same Safe on both networks: bridge to itself.
@@ -218,6 +288,7 @@ export function useDestination({
     picked?.label ?? pickedName ?? (picked ? shortAddress(picked.address) : "");
   // Another contract there can't be shown to be yours.
   const pickedBlocked = pickedKind?.kind === "contract";
+  const pickedFailed = pickedKind?.kind === "error" ? pickedKind : null;
   const kindLabel =
     pickedKind?.kind === "safe"
       ? "Safe"
@@ -235,7 +306,9 @@ export function useDestination({
     setVouched(false);
     setChanged(true);
   };
-  const confirmed = Boolean(picked && vouched && !pickedBlocked);
+  const confirmed = Boolean(
+    picked && vouched && !pickedBlocked && !pickedFailed
+  );
 
   // One panel for the whole choice: why it's needed, the address, and the
   // confirmation, right under the To card it fills in.
@@ -293,6 +366,11 @@ export function useDestination({
           there&apos;s no telling who controls it. Choose another address.
         </Notice>
       )}
+      {pickedFailed && (
+        <ReadFailed retry={pickedFailed.retry}>
+          Couldn&apos;t check {toName} on {destNetwork} yet.
+        </ReadFailed>
+      )}
       {picked && !pickedBlocked && (
         <label className="flex cursor-pointer items-start gap-2.5 border-t border-hairline pt-3 text-ui-caption text-muted-foreground">
           <input
@@ -316,11 +394,37 @@ export function useDestination({
     choosing: true,
     chosen: picked?.address ?? null,
     to:
-      picked && vouched && pickedKind !== undefined && !pickedBlocked
+      picked &&
+      vouched &&
+      pickedKind !== undefined &&
+      !pickedBlocked &&
+      !pickedFailed
         ? picked.address
         : null,
     ui,
   };
+}
+
+/** A read that failed: nothing is signed until it's read again. */
+function ReadFailed({
+  retry,
+  children,
+}: {
+  retry: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Notice tone="warning">
+      {children}{" "}
+      <button
+        type="button"
+        onClick={retry}
+        className="cursor-pointer font-medium underline-offset-4 hover:underline"
+      >
+        Try again
+      </button>
+    </Notice>
+  );
 }
 
 /**

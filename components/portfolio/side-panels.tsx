@@ -374,6 +374,37 @@ export function PendingWithdrawals({
             />
           );
         }
+        if (d.status === "failed") {
+          return (
+            <PendingRow
+              key={`deposit-${d.l1Tx}-${d.seq ?? ""}`}
+              amount={amount}
+              account={account}
+              accounts={accounts}
+              status={
+                <span className="text-destructive">
+                  <AlertTriangle className={lead} />
+                  Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
+                </span>
+              }
+              aside={
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  render={
+                    <a
+                      href={retryableUrl(d.l1Tx)}
+                      target="_blank"
+                      rel="noreferrer"
+                    />
+                  }
+                >
+                  Details <ArrowUpRight className="size-3" />
+                </Button>
+              }
+            />
+          );
+        }
         return (
           <PendingRow
             key={`deposit-${d.l1Tx}-${d.seq ?? ""}`}

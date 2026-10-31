@@ -17,11 +17,15 @@ import { l1, l2 } from "./withdrawals-server";
  */
 
 /**
- * How far back to look. A ticket lasts 7 days from creation, so anything
- * older has either arrived or expired; past that, "no ticket" can't tell
- * the two apart, and there's nothing left to act on anyway.
+ * How far back to look. A ticket lasts 7 days from its creation on
+ * Arbitrum, which comes minutes (rarely hours) after Ethereum's send; the
+ * extra day covers that delay, so a deposit waiting for a retry stays
+ * listed until its ticket's own deadline (`retryBy`, read from Arbitrum)
+ * rather than 7 days from the send. Anything older has either arrived or
+ * expired: "no ticket" can't tell the two apart, and there's nothing left
+ * to act on anyway.
  */
-const WINDOW_SECONDS = 7 * 86_400;
+const WINDOW_SECONDS = 8 * 86_400;
 /** Ethereum makes a block every 12s; a few extra cover any slow ones. */
 const WINDOW_BLOCKS = BigInt(WINDOW_SECONDS / 12 + 600);
 /** Keyed RPCs search logs at most 10k blocks at a time. */
@@ -102,8 +106,9 @@ function ticketOf(l1Tx: Hex, seq: string) {
   return t;
 }
 
-/** Tickets known to be redeemed: that never changes back. */
+/** Tickets known to be redeemed, or never created: neither changes back. */
 const redeemed = new Set<string>();
+const failed = new Set<string>();
 
 function noTicket(e: unknown) {
   if (!(e instanceof BaseError)) return false;
@@ -115,19 +120,25 @@ function noTicket(e: unknown) {
 }
 
 /**
- * Where a ticket stands. Not on Arbitrum yet: processing. On Arbitrum and
- * still holding a timeout: its automatic redeem failed and it waits for a
- * retry. On Arbitrum with no ticket left: redeemed (within the window, it
- * can't have expired).
+ * Where a ticket stands. Not on Arbitrum yet: processing. Its creation
+ * reverted: failed, since no ticket was made (and "no ticket" below would
+ * otherwise read as arrived). On Arbitrum and still holding a timeout: its
+ * automatic redeem failed and it waits for a retry. On Arbitrum with no
+ * ticket left: redeemed (within the window, it can't have expired).
  */
 export async function ticketStatus(
   ticket: Hex
 ): Promise<Pick<TrackedDeposit, "status" | "retryBy">> {
   if (redeemed.has(ticket)) return { status: "arrived" };
+  if (failed.has(ticket)) return { status: "failed" };
   const created = await l2
     .getTransactionReceipt({ hash: ticket })
     .catch(() => null);
   if (!created) return { status: "processing" };
+  if (created.status !== "success") {
+    failed.add(ticket);
+    return { status: "failed" };
+  }
   try {
     const timeout = await l2.readContract({
       address: ARB_RETRYABLE_TX,

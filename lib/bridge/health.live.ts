@@ -7,7 +7,7 @@
  *
  * When it fails, read the upgrade that caused it (Arbitrum DAO proposals,
  * ArbOS release notes, Livepeer governance), check the bridge still works
- * the way this app assumes, then update the code or the pins below.
+ * the way this app assumes, then update the code or the pins (guards.ts).
  */
 import { createPublicClient, http, type PublicClient } from "viem";
 import { arbitrum, mainnet } from "viem/chains";
@@ -21,15 +21,13 @@ import {
   ARB_OUTBOX,
   ARB_PUBLIC_RPC,
   executeTransactionAbi,
-  L1_GATEWAY_ROUTER,
   L1_LPT,
   L1_LPT_GATEWAY,
-  L2_GATEWAY_ROUTER,
   L2_LPT,
   L2_LPT_GATEWAY,
 } from "./config";
 import { MAX_DEPOSIT_VALUE, priceDeposit } from "./deposit";
-import { checkOutbox, checkRoute } from "./guards";
+import { checkOutbox, checkRoute, PINS, readPin } from "./guards";
 import { claimArgs, ClaimError } from "./withdrawals-server";
 
 jest.setTimeout(180_000);
@@ -46,55 +44,14 @@ const l2 = createPublicClient({
   transport: http(ARB_PUBLIC_RPC, { retryCount: 3 }),
 }) as PublicClient;
 
-// EIP-1967 slots: where an upgradeable proxy keeps its code and its admin.
-const IMPL_SLOT =
-  "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
-const ADMIN_SLOT =
-  "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103";
-
-/**
- * The code and admin behind each upgradeable contract the bridge uses, as
- * read on 2026-10-30. A change means an upgrade: review it, then update.
- * Livepeer's tokens and gateways aren't proxies; their wiring is checked
- * below instead.
- */
-const PINS = [
-  {
-    name: "Ethereum gateway router",
-    client: l1,
-    address: L1_GATEWAY_ROUTER,
-    impl: "0x52595021fa01b3e14ec6c88953afc8e35dff423c",
-    admin: "0x9ad46fac0cf7f790e5be05a0f15223935a0c0ada",
-  },
-  {
-    name: "Arbitrum Inbox",
-    client: l1,
-    address: ARB_INBOX,
-    impl: "0x7c058ad1d0ee415f7e7f30e62db1bcf568470a10",
-    admin: "0x554723262467f125ac9e1cdfa9ce15cc53822dbd",
-  },
-  {
-    name: "Arbitrum Bridge",
-    client: l1,
-    address: ARB_BRIDGE,
-    impl: "0xfe4749061fb052c354aac65b9fb0ccd7e20d2418",
-    admin: "0x554723262467f125ac9e1cdfa9ce15cc53822dbd",
-  },
-  {
-    name: "Arbitrum Outbox",
-    client: l1,
-    address: ARB_OUTBOX,
-    impl: "0x3fff9bdc3ce99d3d587b0d06aa7c4a10075193b4",
-    admin: "0x554723262467f125ac9e1cdfa9ce15cc53822dbd",
-  },
-  {
-    name: "Arbitrum gateway router",
-    client: l2,
-    address: L2_GATEWAY_ROUTER,
-    impl: "0xe80eb0238029333e368e0bddb7acdf1b9cb28278",
-    admin: "0xd570ace65c43af47101fc6250fd6fc63d1c22a86",
-  },
-] as const;
+/** Each pinned proxy, with the network it's on. */
+const PINNED = [
+  { ...PINS.l1Router, client: l1 },
+  { ...PINS.inbox, client: l1 },
+  { ...PINS.bridge, client: l1 },
+  { ...PINS.outbox, client: l1 },
+  { ...PINS.l2Router, client: l2 },
+];
 
 const gatewayAbi = [
   {
@@ -131,8 +88,6 @@ const bridgeOfAbi = [
 ] as const;
 
 const lower = (a: string) => a.toLowerCase();
-const slotAddress = (v: string | undefined) =>
-  `0x${(v ?? "").slice(-40)}`.toLowerCase();
 
 describe("bridge contracts", () => {
   it.each([
@@ -145,15 +100,13 @@ describe("bridge contracts", () => {
     expect(code && code.length > 2).toBe(true);
   });
 
-  it.each(PINS.map((p) => [p.name, p] as const))(
+  // The same pins pause signing in the app (guards.ts): update them there.
+  it.each(PINNED.map((p) => [p.name, p] as const))(
     "%s runs the reviewed code, under the reviewed admin",
     async (_, p) => {
-      const [impl, admin] = await Promise.all([
-        p.client.getStorageAt({ address: p.address, slot: IMPL_SLOT }),
-        p.client.getStorageAt({ address: p.address, slot: ADMIN_SLOT }),
-      ]);
-      expect(slotAddress(impl)).toBe(p.impl);
-      expect(slotAddress(admin)).toBe(p.admin);
+      const { impl, admin } = await readPin(p.client, p);
+      expect(impl).toBe(p.impl);
+      expect(admin).toBe(p.admin);
     }
   );
 });

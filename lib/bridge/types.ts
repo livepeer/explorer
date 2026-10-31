@@ -44,6 +44,11 @@ export type DepositStatus =
   | "processing"
   /** The automatic redeem failed: it needs a manual retry before `retryBy`. */
   | "retry"
+  /**
+   * Arbitrum's transaction creating the ticket reverted: no ticket, so no
+   * retry, and the LPT didn't arrive. Rare; shown so it isn't lost.
+   */
+  | "failed"
   /** Redeemed: the LPT is on Arbitrum. */
   | "arrived";
 
