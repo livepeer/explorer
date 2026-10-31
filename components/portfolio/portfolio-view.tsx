@@ -455,21 +455,6 @@ export function PortfolioView({
           .filter((p) => p.fees >= DUST_ETH)
           .map((p) => ({ account: p.account.address, amount: p.fees }))
       : [];
-  const unbondingLpt = view
-    ? view.unbonding.reduce((s, l) => s + l.amount, 0)
-    : 0;
-  const bridgeLpt = (status: "ready" | "waiting") =>
-    bridged
-      .filter((w) => w.status === status)
-      .reduce((s, w) => s + fromWei(BigInt(w.amount)), 0);
-  const bridgeReady = bridgeLpt("ready");
-  const bridgeWaiting = bridgeLpt("waiting");
-  const depositLpt = (status: "processing" | "retry") =>
-    arriving
-      .filter((d) => d.status === status)
-      .reduce((s, d) => s + fromWei(BigInt(d.amount)), 0);
-  const arrivingLpt = depositLpt("processing");
-  const retryLpt = depositLpt("retry");
   // Everything on its way or waiting to be taken: unlocking stake, fees,
   // and LPT crossing the bridge in either direction.
   const withdrawalsEl = view &&
@@ -479,23 +464,8 @@ export function PortfolioView({
       bridged.length > 0 ||
       arriving.length > 0) && (
       <section>
-        <SectionHeader
-          title="Pending"
-          description={[
-            unbondingLpt > 0 && `${formatLPT(unbondingLpt)} undelegating`,
-            feeItems.length > 0 &&
-              `${formatETH(
-                feeItems.reduce((s, f) => s + f.amount, 0)
-              )} in fees`,
-            bridgeReady > 0 && `${formatLPT(bridgeReady)} ready on Ethereum`,
-            bridgeWaiting > 0 &&
-              `${formatLPT(bridgeWaiting)} bridging to Ethereum`,
-            arrivingLpt > 0 && `${formatLPT(arrivingLpt)} bridging to Arbitrum`,
-            retryLpt > 0 && `${formatLPT(retryLpt)} to retry on Arbitrum`,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        />
+        {/* Each row says its own amount and status; no summary needed. */}
+        <SectionHeader title="Pending" />
         <PendingWithdrawals
           locks={view.unbonding}
           currentRound={data.currentRound}

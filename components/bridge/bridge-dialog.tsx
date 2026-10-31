@@ -14,6 +14,7 @@ import {
 import {
   useAccount,
   useBalance,
+  useDisconnect,
   usePublicClient,
   useReadContract,
   useSendCalls,
@@ -122,6 +123,58 @@ export function BridgeFlow({
   const account = wallet as `0x${string}`;
   const { address, chainId, isConnected, connector } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
+
+  /*
+   * Connecting the wallet that holds this LPT when another is connected.
+   * Switching accounts in the wallet isn't enough: a wallet only shows a
+   * site the accounts connected to it. A browser wallet can be asked to
+   * connect more (wallet_requestPermissions opens its account picker);
+   * WalletConnect fixes accounts when pairing and a Safe is the Safe, so
+   * there it's disconnect and connect again. The dialog updates itself
+   * once the right account arrives.
+   */
+  const [connectingWallet, setConnectingWallet] = useState(false);
+  const [reconnect, setReconnect] = useState(false);
+  useEffect(() => {
+    if (reconnect && !isConnected && openConnectModal) {
+      setReconnect(false);
+      openConnectModal();
+    }
+  }, [reconnect, isConnected, openConnectModal]);
+  const connectAgain = () => {
+    setReconnect(true);
+    disconnect();
+  };
+  const connectWallet = async () => {
+    if (
+      !connector ||
+      connector.type === "walletConnect" ||
+      connector.id === "safe"
+    ) {
+      connectAgain();
+      return;
+    }
+    setConnectingWallet(true);
+    try {
+      const provider = (await connector.getProvider()) as {
+        request: (a: {
+          method: string;
+          params?: unknown[];
+        }) => Promise<unknown>;
+      };
+      await provider.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch (e) {
+      // Declined in the wallet: leave it. A wallet that can't do this
+      // gets the connect dialog instead.
+      if (!/rejected|denied/i.test(errorText(e))) connectAgain();
+    } finally {
+      setConnectingWallet(false);
+    }
+  };
   const { switchChainAsync, isPending: switching } = useSwitchChain();
   const queryClient = useQueryClient();
   const l1 = usePublicClient({ chainId: L1_CHAIN.id });
@@ -742,8 +795,8 @@ export function BridgeFlow({
               )}
             {!dest.unsupported && isConnected && !signer && (
               <Notice>
-                Only the wallet holding this LPT can bridge it. Switch to{" "}
-                {walletName} in your wallet to continue.
+                Only the wallet holding this LPT can bridge it. Connect{" "}
+                {walletName} to continue.
               </Notice>
             )}
             {(error ?? problem) && (
@@ -767,8 +820,16 @@ export function BridgeFlow({
               Connect wallet
             </Button>
           ) : !signer ? (
-            <Button variant="primary" className="w-full sm:w-auto" disabled>
-              Switch to {walletName} in your wallet
+            <Button
+              variant="primary"
+              className="w-full sm:w-auto"
+              disabled={connectingWallet || dest.unsupported}
+              onClick={connectWallet}
+            >
+              {connectingWallet && <Loader2 className="animate-spin" />}
+              {connectingWallet
+                ? "Waiting for your wallet…"
+                : `Connect ${walletName}`}
             </Button>
           ) : (
             <Button
