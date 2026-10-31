@@ -653,7 +653,7 @@ export function BridgeFlow({
         ) : (
           <>
             {/* The pair: where it's coming from, where it's going. */}
-            <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2">
               <NetworkCard
                 role="From"
                 network={NETWORK[direction]}
@@ -667,14 +667,14 @@ export function BridgeFlow({
                 onClick={swap}
                 disabled={busy}
                 aria-label="Swap direction"
-                className="flex size-8 items-center justify-center rounded-full border border-hairline text-muted-foreground transition-colors hover:bg-hover hover:text-foreground disabled:opacity-50"
+                className="flex size-8 self-center items-center justify-center rounded-full border border-hairline text-muted-foreground transition-colors hover:bg-hover hover:text-foreground disabled:opacity-50"
               >
                 <ArrowLeftRight className="size-3.5" />
               </button>
               <NetworkCard
                 role="To"
                 network={toArbitrum ? "Arbitrum" : "Ethereum"}
-                address={to ?? null}
+                address={to ?? dest.chosen}
                 safe={dest.isSafe && to === wallet}
                 // The wallet's own balance there; another address's isn't read.
                 balance={
@@ -682,9 +682,13 @@ export function BridgeFlow({
                     ? balanceOn(toArbitrum ? l2Wei : l1Wei)
                     : undefined
                 }
-                pending={dest.isSafe && !to ? "Choose below" : undefined}
+                pending={dest.choosing ? "Choose an address" : undefined}
+                note={dest.chosen && !to ? "Confirm below" : undefined}
+                onClick={dest.choosing && !proposal ? dest.focus : undefined}
               />
             </div>
+            {/* Where it lands, right under the card it fills in. */}
+            {dest.ui}
             <AmountField
               value={amount}
               onChange={setAmount}
@@ -736,7 +740,6 @@ export function BridgeFlow({
                 ))}
               </ol>
             </div>
-            {dest.ui}
             {safeElsewhere && (
               <Notice tone="warning">
                 Your Safe is connected on {toArbitrum ? "Arbitrum" : "Ethereum"}
@@ -882,6 +885,8 @@ function NetworkCard({
   safe = false,
   balance,
   pending,
+  note,
+  onClick,
   active = false,
 }: {
   role: string;
@@ -892,29 +897,57 @@ function NetworkCard({
   balance?: string;
   /** Shown in place of the address while it's being chosen. */
   pending?: string;
+  /** A line under the address, like a step still to do. */
+  note?: string;
+  /** For a side still being chosen: takes you to the choice. */
+  onClick?: () => void;
   active?: boolean;
 }) {
-  return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-col gap-0.5 rounded-lg border px-3 py-2.5",
-        active ? "border-foreground/25" : "border-hairline"
-      )}
-    >
+  const body = (
+    <>
       <span className="text-ui-caption text-muted-foreground">{role}</span>
       <span className="text-ui-body font-medium">{network}</span>
       {address ? (
         <CardAddress address={address} safe={safe} />
       ) : (
-        <span className="text-ui-caption text-muted-foreground">
+        <span
+          className={cn(
+            "mt-1 text-ui-caption",
+            onClick ? "text-foreground" : "text-muted-foreground"
+          )}
+        >
           {pending ?? "…"}
         </span>
       )}
-      {balance != null && (
+      {(note ?? balance) != null && (
         <span className="truncate text-ui-caption text-muted-foreground tabular-nums">
-          {balance}
+          {note ?? balance}
         </span>
       )}
+    </>
+  );
+  const frame = "flex min-w-0 flex-col gap-0.5 rounded-lg border px-3 py-2.5";
+  if (onClick) {
+    // An empty slot to fill: dashed, and it takes you to the choice.
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          frame,
+          "cursor-pointer text-left transition-colors hover:bg-hover",
+          address ? "border-hairline" : "border-dashed border-foreground/30"
+        )}
+      >
+        {body}
+      </button>
+    );
+  }
+  return (
+    <div
+      className={cn(frame, active ? "border-foreground/25" : "border-hairline")}
+    >
+      {body}
     </div>
   );
 }

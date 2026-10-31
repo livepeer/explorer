@@ -1,15 +1,14 @@
 "use client";
 
 import { ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getAddress } from "viem";
 import { useBytecode, useReadContracts, useStorageAt } from "wagmi";
 
-import { useIdentity } from "@/components/identity";
+import { Avatar, useIdentity } from "@/components/identity";
 import {
   type Recipient,
   RecipientPicker,
-  RecipientRow,
 } from "@/components/staking/recipient";
 import { Notice } from "@/components/staking/staking";
 import {
@@ -22,6 +21,7 @@ import {
   safeSignersAbi,
   sameSigners,
 } from "@/lib/bridge/safe";
+import { cn } from "@/lib/cn";
 import { shortAddress } from "@/lib/format";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 
@@ -109,6 +109,12 @@ function useAccountKind(address: string | null, chainId: number) {
 export type Destination = {
   /** Where the LPT lands, once settled (null until chosen and confirmed). */
   to: string | null;
+  /** The address chosen so far, confirmed or not, for the To card. */
+  chosen: string | null;
+  /** The Safe has to choose where its LPT goes. */
+  choosing: boolean;
+  /** Brings the choice into view and, with nothing chosen, focuses it. */
+  focus: () => void;
   /** The source wallet is a Safe: it signs by proposal. */
   isSafe: boolean;
   /** A contract that isn't a Safe: not bridged from here. */
@@ -150,11 +156,26 @@ export function useDestination({
   );
   const [picked, setPicked] = useState<Recipient | null>(null);
   const [vouched, setVouched] = useState(false);
+  // After Change, the field comes back focused, ready for another address.
+  const [changed, setChanged] = useState(false);
   const pickedKind = useAccountKind(picked?.address ?? null, destChain);
   const { name: pickedName } = useIdentity(picked?.address ?? null);
   const { accounts } = usePortfolioAccounts();
+  const panel = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const focus = () => {
+    panel.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    input.current?.focus({ preventScroll: true });
+  };
 
-  const settled = { isSafe: false, unsupported: false, loading: false };
+  const settled = {
+    isSafe: false,
+    unsupported: false,
+    loading: false,
+    chosen: null,
+    choosing: false,
+    focus,
+  };
   if (source === undefined) {
     return { ...settled, to: null, loading: true, ui: null };
   }
@@ -184,9 +205,9 @@ export function useDestination({
       isSafe: true,
       to: wallet,
       ui: (
-        <span className="flex items-center gap-1.5 text-ui-caption text-subtle-foreground">
+        <span className="-mt-1 flex items-center gap-1.5 text-ui-caption text-subtle-foreground">
           <ShieldCheck className="size-3.5 shrink-0 text-green-bright" />
-          To the same Safe on {destNetwork}: same owners, same threshold.
+          The same Safe on {destNetwork}: same owners, same threshold.
         </span>
       ),
     };
@@ -197,61 +218,74 @@ export function useDestination({
     picked?.label ?? pickedName ?? (picked ? shortAddress(picked.address) : "");
   // Another contract there can't be shown to be yours.
   const pickedBlocked = pickedKind?.kind === "contract";
-  const status = (r: Recipient) =>
-    r.address === picked?.address
-      ? pickedKind?.kind === "safe"
-        ? `Safe on ${destNetwork}`
-        : pickedKind?.kind === "wallet"
-        ? "Wallet"
-        : ""
-      : "";
+  const kindLabel =
+    pickedKind?.kind === "safe"
+      ? "Safe"
+      : pickedKind?.kind === "wallet"
+      ? "Wallet"
+      : null;
+  const why =
+    mirror.kind === "wallet"
+      ? `This Safe doesn't exist on ${destNetwork}.`
+      : mirror.kind === "safe" && sameSigners(source.signers, mirror.signers)
+      ? `The Safe at this address on ${destNetwork} has modules or non-standard code, so its owners may not be the only ones in control.`
+      : `This address on ${destNetwork} isn't this Safe with the same owners.`;
+  const clear = () => {
+    setPicked(null);
+    setVouched(false);
+    setChanged(true);
+  };
+  const confirmed = Boolean(picked && vouched && !pickedBlocked);
+
+  // One panel for the whole choice: why it's needed, the address, and the
+  // confirmation, right under the To card it fills in.
   const ui = (
-    <div className="flex flex-col gap-2">
-      <Notice>
-        {mirror.kind === "wallet"
-          ? `This Safe doesn't exist on ${destNetwork}, so choose where the LPT goes there.`
-          : mirror.kind === "safe" &&
-            sameSigners(source.signers, mirror.signers)
-          ? `The Safe at this address on ${destNetwork} has modules or non-standard code, so its owners may not be the only ones in control. Choose where the LPT goes.`
-          : `The address on ${destNetwork} isn't this Safe with the same owners, so choose where the LPT goes.`}
-      </Notice>
-      <div className="text-ui-caption text-muted-foreground">
-        To, on {destNetwork}
+    <div
+      ref={panel}
+      className={cn(
+        "flex scroll-mt-4 flex-col gap-3 rounded-lg border p-3.5 transition-colors",
+        confirmed ? "border-hairline" : "border-foreground/25"
+      )}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-ui-body font-medium">
+          Where it lands on {destNetwork}
+        </span>
+        {picked && !locked && (
+          <button
+            type="button"
+            onClick={clear}
+            className="shrink-0 cursor-pointer text-ui-caption text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Change
+          </button>
+        )}
       </div>
       {picked ? (
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2.5 rounded-lg border border-hairline px-3 py-2.5">
-            <RecipientRow
-              recipient={picked}
-              status={status(picked)}
-              onClear={
-                locked
-                  ? undefined
-                  : () => {
-                      setPicked(null);
-                      setVouched(false);
-                    }
-              }
-            />
-          </div>
-          {/* The whole address, checksummed: a shortened one is easy to
-              imitate, and this is where the LPT lands for good. */}
-          <div className="font-mono text-ui-caption break-all text-muted-foreground">
-            {getAddress(picked.address)}
-          </div>
-        </div>
-      ) : (
-        <RecipientPicker
-          wallets={accounts
-            .filter((a) => a.address !== wallet)
-            .map((a) => ({ address: a.address, label: a.label }))}
-          exclude={wallet}
-          status={() => ""}
-          onSelect={(r) => {
-            setPicked(r);
-            setVouched(false);
-          }}
+        <PickedAddress
+          address={picked.address}
+          title={picked.label ?? pickedName ?? undefined}
+          kind={kindLabel}
         />
+      ) : (
+        <>
+          <p className="-mt-2 text-ui-caption text-muted-foreground">
+            {why} Choose an address you control there.
+          </p>
+          <RecipientPicker
+            inputRef={input}
+            autoFocus={changed}
+            wallets={accounts
+              .filter((a) => a.address !== wallet)
+              .map((a) => ({ address: a.address, label: a.label }))}
+            exclude={wallet}
+            status={() => ""}
+            onSelect={(r) => {
+              setPicked(r);
+              setVouched(false);
+            }}
+          />
+        </>
       )}
       {pickedBlocked && (
         <Notice tone="warning">
@@ -260,7 +294,7 @@ export function useDestination({
         </Notice>
       )}
       {picked && !pickedBlocked && (
-        <label className="flex cursor-pointer items-start gap-2.5 text-ui-caption text-muted-foreground">
+        <label className="flex cursor-pointer items-start gap-2.5 border-t border-hairline pt-3 text-ui-caption text-muted-foreground">
           <input
             type="checkbox"
             checked={vouched}
@@ -269,8 +303,8 @@ export function useDestination({
             className="mt-0.5 size-4 shrink-0 cursor-pointer accent-(--primary)"
           />
           <span>
-            I control {toName} on {destNetwork}. LPT bridged there can only be
-            moved from it, and this can&apos;t be undone.
+            I control this address on {destNetwork}. LPT bridged there can only
+            be moved from it, and this can&apos;t be undone.
           </span>
         </label>
       )}
@@ -279,10 +313,46 @@ export function useDestination({
   return {
     ...settled,
     isSafe: true,
+    choosing: true,
+    chosen: picked?.address ?? null,
     to:
       picked && vouched && pickedKind !== undefined && !pickedBlocked
         ? picked.address
         : null,
     ui,
   };
+}
+
+/**
+ * The chosen address, written out in full and checksummed: a shortened one
+ * is easy to imitate, and this is where the LPT lands for good.
+ */
+function PickedAddress({
+  address,
+  title,
+  kind,
+}: {
+  address: string;
+  title?: string;
+  kind: string | null;
+}) {
+  const { avatar } = useIdentity(address);
+  return (
+    <div className="flex items-start gap-3">
+      <Avatar address={address} src={avatar} size={28} className="shrink-0" />
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="flex min-w-0 items-center gap-2 text-ui-body">
+          <span className="truncate">{title ?? shortAddress(address)}</span>
+          {kind && (
+            <span className="shrink-0 rounded-full bg-hover px-1.5 py-px text-[11px] text-muted-foreground">
+              {kind}
+            </span>
+          )}
+        </span>
+        <span className="font-mono text-ui-caption break-all text-muted-foreground">
+          {getAddress(address)}
+        </span>
+      </div>
+    </div>
+  );
 }

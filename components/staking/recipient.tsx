@@ -33,7 +33,13 @@ export function RecipientPicker({
   exclude,
   onSelect,
   status,
+  inputRef,
+  autoFocus,
 }: {
+  /** Focus the field when it appears. */
+  autoFocus?: boolean;
+  /** The text field, for focusing it from elsewhere. */
+  inputRef?: React.Ref<HTMLInputElement>;
   wallets: Recipient[];
   /** The sending wallet, which can't be picked. */
   exclude: string;
@@ -88,6 +94,8 @@ export function RecipientPicker({
       </label>
       <Combobox.InputGroup className="relative flex h-10 items-center rounded-lg border border-hairline bg-background/40 transition-colors focus-within:border-ring light:bg-muted">
         <Combobox.Input
+          ref={inputRef}
+          autoFocus={autoFocus}
           id={id}
           placeholder="Choose a wallet, or paste an address or ENS name"
           aria-invalid={typed.invalid || isSelf}
