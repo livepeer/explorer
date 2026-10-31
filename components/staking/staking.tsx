@@ -1217,16 +1217,23 @@ function StakingFlow({
     }
     case "rebond": {
       const unbondedNow = !currentDelegate || /^0x0+$/.test(currentDelegate);
+      // With stake still delegated, the protocol rebonds to wherever that
+      // stake is now, which may not be the orchestrator this LPT left.
+      const target = unbondedNow
+        ? action.delegate.toLowerCase()
+        : currentDelegate!.toLowerCase();
+      const elsewhere = target !== action.delegate.toLowerCase();
       title = "Redelegate";
-      description =
-        "Put undelegating LPT back to work with the orchestrator it came from. It starts earning again next round.";
+      description = elsewhere
+        ? "Put undelegating LPT back to work. It joins the stake you have delegated now, so it goes to your current orchestrator, not the one it came from. It starts earning again next round."
+        : "Put undelegating LPT back to work with the orchestrator it came from. It starts earning again next round.";
       cta = `Redelegate ${formatLPT(action.amount)}`;
       successTitle = "Redelegated";
       body = (
         <>
           <div className="rounded-lg border border-hairline p-3">
             <Identity
-              address={action.delegate}
+              address={target}
               href={null}
               size={26}
               secondary={formatLPT(action.amount)}
@@ -1235,9 +1242,6 @@ function StakingFlow({
         </>
       );
       run = async () => {
-        const target = unbondedNow
-          ? action.delegate
-          : currentDelegate!.toLowerCase();
         const hint = simulateHint(activeSet, target, {
           [target]: action.amount,
         });
@@ -1429,9 +1433,22 @@ function StakingFlow({
       // (its pool's stake moves to this wallet), otherwise one chosen here.
       const pooled = Boolean(claim?.pool);
       const hasStake = (claim?.stake ?? 0) > 0;
+      // Already delegating on Arbitrum: claiming bonds to the chosen
+      // orchestrator, and bonding elsewhere moves the wallet's whole stake,
+      // so start from where it is.
+      const delegatedTo =
+        currentDelegate && !/^0x0+$/.test(currentDelegate) && bonded > 0
+          ? currentDelegate.toLowerCase()
+          : null;
       const destination = pooled
         ? claim!.poolDelegate ?? undefined
-        : claimTo ?? recommendedOrchestrator(orchestrators)?.id;
+        : claimTo ?? delegatedTo ?? recommendedOrchestrator(orchestrators)?.id;
+      const movesWholeStake =
+        !pooled &&
+        hasStake &&
+        delegatedTo != null &&
+        destination != null &&
+        destination.toLowerCase() !== delegatedTo;
       const destOrch = orchestrators?.find((o) => o.id === destination);
       title =
         hasStake || !claim
@@ -1442,7 +1459,9 @@ function StakingFlow({
         : pooled
         ? "Your orchestrator moved to Arbitrum too, and your stake has kept earning with them. Claiming adds it to this wallet and sends you the fees."
         : hasStake
-        ? "Your orchestrator on Ethereum never moved to Arbitrum. Choose a new one to delegate this stake to."
+        ? delegatedTo
+          ? "Your orchestrator on Ethereum never moved to Arbitrum, so this stake joins your current orchestrator unless you choose another."
+          : "Your orchestrator on Ethereum never moved to Arbitrum. Choose a new one to delegate this stake to."
         : "Fees you earned on Ethereum before Livepeer moved to Arbitrum, held for you since.";
       cta = !claim
         ? "Claim"
@@ -1548,6 +1567,14 @@ function StakingFlow({
                 value={destination}
                 onChange={setClaimTo}
               />
+              {movesWholeStake && (
+                <Notice tone="warning">
+                  This wallet already has {formatLPT(bonded)} delegated to{" "}
+                  <OrchestratorName address={delegatedTo!} />. Claiming to a
+                  different orchestrator moves all of it there too, not just the
+                  claimed stake.
+                </Notice>
+              )}
             </div>
           )}
           <ClaimTrust />
