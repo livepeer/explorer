@@ -67,6 +67,15 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
         }
         amount
       }
+      ... on TransferBondEvent {
+        amount
+        oldDelegator {
+          id
+        }
+        newDelegator {
+          id
+        }
+      }
       ... on TreasuryVoteEvent {
         id
         reason
@@ -132,6 +141,30 @@ query transactions($account: String!, $first: Int!, $skip: Int!) {
       id
     }
     recipient {
+      id
+    }
+  }
+  transferBondEvents(
+    orderBy: timestamp
+    orderDirection: desc
+    where: { newDelegator: $account }
+    first: $first
+    skip: $skip
+  ) {
+    __typename
+    id
+    round {
+      id
+    }
+    transaction {
+      id
+      timestamp
+    }
+    amount
+    oldDelegator {
+      id
+    }
+    newDelegator {
       id
     }
   }

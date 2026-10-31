@@ -83,14 +83,22 @@ export async function getOrchestrators(client = getApollo()) {
     query: CurrentRoundDocument,
   });
 
+  const currentRound = protocolResponse?.data?.protocol?.currentRound?.id;
+
+  if (!currentRound) {
+    throw new Error(
+      "Cannot fetch orchestrators: the subgraph returned no current round"
+    );
+  }
+
   const orchestrators = await client.query<
     OrchestratorsQuery,
     OrchestratorsQueryVariables
   >({
     query: OrchestratorsDocument,
     variables: {
-      currentRound: protocolResponse?.data?.protocol?.currentRound?.id,
-      currentRoundString: protocolResponse?.data?.protocol?.currentRound?.id,
+      currentRound,
+      currentRoundString: currentRound,
     },
   });
 
