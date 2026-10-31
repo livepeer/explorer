@@ -400,7 +400,7 @@ function AmountField({
   );
 }
 
-function Row({
+export function Row({
   label,
   children,
 }: {
@@ -458,7 +458,7 @@ function Steps({
   );
 }
 
-function Notice({
+export function Notice({
   children,
   tone = "neutral",
 }: {
