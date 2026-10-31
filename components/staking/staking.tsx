@@ -42,6 +42,7 @@ import {
 } from "wagmi";
 import { readContract } from "wagmi/actions";
 
+import { useBridge } from "@/components/bridge/context";
 import { Identity, useIdentity } from "@/components/identity";
 import { ClaimTrust } from "@/components/migration/claim-trust";
 import { roundState, useNow } from "@/components/shell/round-clock";
@@ -71,6 +72,7 @@ import {
   trackTransaction,
   UNBONDING_EVENTS,
 } from "@/lib/analytics";
+import { useL1Lpt } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import { L2_CHAIN, L2_MIGRATOR, txUrl } from "@/lib/config";
 import {
@@ -480,6 +482,40 @@ export function Notice({
   );
 }
 
+/**
+ * LPT the wallet holds on Ethereum, which has to be bridged to Arbitrum
+ * before it can be delegated. When it's the LPT the form needs, the notice
+ * says that's why; otherwise it's offered as extra.
+ */
+function OnEthereum({
+  lpt,
+  needed,
+  onBridge,
+}: {
+  lpt: number;
+  needed: boolean;
+  onBridge: () => void;
+}) {
+  const bridgeButton = (
+    <button
+      type="button"
+      onClick={onBridge}
+      className="cursor-pointer font-medium text-foreground underline-offset-2 hover:underline"
+    >
+      Bridge it
+    </button>
+  );
+  return (
+    <Notice>
+      <span className="text-foreground tabular-nums">{formatLPT(lpt)}</span>{" "}
+      {needed
+        ? "in this wallet is on Ethereum. Bridge it to Arbitrum to delegate it"
+        : "more in this wallet is on Ethereum. Bridge it to Arbitrum to delegate it too"}{" "}
+      (about 15 minutes). {bridgeButton}
+    </Notice>
+  );
+}
+
 /** Why the protocol would refuse a transfer, in plain words, if it's a known reason. */
 function transferBlocked(e: unknown, toName: string) {
   // The revert reason is on a later line of viem's message.
@@ -770,6 +806,19 @@ function StakingFlow({
     chainId: L2_CHAIN.id,
     query: { ...LIVE_READ, enabled: Boolean(transferring && bm && receiver) },
   });
+  // LPT this wallet holds on Ethereum can't be delegated until it's bridged,
+  // so the delegate form points to the bridge when there's some.
+  const { bridge } = useBridge();
+  const l1Wallets = useMemo(
+    () => (action.kind === "delegate" ? [signer] : []),
+    [action.kind, signer]
+  );
+  const onEthereum = useL1Lpt(l1Wallets).get(signer) ?? 0;
+  const bridgeIt = () => {
+    onDone();
+    bridge(signer, "toArbitrum");
+  };
+
   const bonded =
     pendingStakeWei != null ? fromWei(pendingStakeWei as bigint) : 0;
   const balance = balanceWei != null ? fromWei(balanceWei as bigint) : 0;
@@ -1021,6 +1070,17 @@ function StakingFlow({
               max={balance}
               maxExact={balanceExact}
               maxLabel="Wallet"
+            />
+          )}
+          {onEthereum > 0 && (
+            <OnEthereum
+              lpt={onEthereum}
+              // Needed when there's none here, or more is typed than this
+              // wallet holds on Arbitrum.
+              needed={
+                (!moving && balance < 0.01) || Number(amount || 0) > balance
+              }
+              onBridge={bridgeIt}
             />
           )}
           <div className="flex flex-col gap-2">

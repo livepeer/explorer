@@ -172,12 +172,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
             }}
           >
             <TooltipProvider>
-              <StakingProvider>
-                <AddressMemory />
-                <FollowWallet />
-                <Analytics />
-                <BridgeProvider>{children}</BridgeProvider>
-              </StakingProvider>
+              {/* Outside staking, so the delegate dialog can open the bridge. */}
+              <BridgeProvider>
+                <StakingProvider>
+                  <AddressMemory />
+                  <FollowWallet />
+                  <Analytics />
+                  {children}
+                </StakingProvider>
+              </BridgeProvider>
             </TooltipProvider>
             <Toaster
               position="bottom-center"
