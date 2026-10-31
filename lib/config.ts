@@ -91,6 +91,13 @@ export const L2_MIGRATOR = "0x148D5b6B4df9530c7C76A810bd1Cdf69EC4c2085";
 
 export const BLOCK_EXPLORER = "https://arbiscan.io";
 
+/**
+ * Livepeer's Discord, by the one URL livepeer.org owns for it: it redirects
+ * to the server's live invite (livepeer/website lib/discord.ts). Never an
+ * invite by hand: discord.gg/livepeer was taken over (#768).
+ */
+export const DISCORD_URL = "https://livepeer.org/discord";
+
 export const txUrl = (hash: string) => `${BLOCK_EXPLORER}/tx/${hash}`;
 export const addressUrl = (address: string) =>
   `${BLOCK_EXPLORER}/address/${address}`;

@@ -40,7 +40,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input, Segmented } from "@/components/ui/misc";
-import { L1_CHAIN, L2_CHAIN } from "@/lib/config";
+import { DISCORD_URL, L1_CHAIN, L2_CHAIN } from "@/lib/config";
 import {
   formatETH,
   formatLPT,
@@ -414,8 +414,16 @@ function MigrateFlow({
               <Notice tone="warning">
                 {display} is a contract on Ethereum. Migrating always lands at
                 the same address on Arbitrum, where whoever controls it may be
-                different, so it can&apos;t be migrated here. Ask in
-                Livepeer&apos;s Discord for help.
+                different, so it can&apos;t be migrated here. Ask in{" "}
+                <a
+                  href={DISCORD_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  Livepeer&apos;s Discord
+                </a>{" "}
+                for help.
               </Notice>
             )}
             {fee.error && (

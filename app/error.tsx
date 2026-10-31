@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { Page } from "@/components/page";
+import { DISCORD_URL } from "@/lib/config";
 
 export default function RouteError({
   error,
@@ -38,8 +39,11 @@ export default function RouteError({
         >
           Try again
         </button>
+        {/* Never an invite by hand: the old discord.gg/livepeer was taken
+            over (#768). livepeer.org/discord redirects to the server's
+            live invite (livepeer/website lib/discord.ts). */}
         <a
-          href="https://discord.gg/livepeer"
+          href={DISCORD_URL}
           target="_blank"
           rel="noreferrer"
           className="btn-outline inline-flex h-9 items-center rounded-sm px-3.5 text-sm font-medium"
