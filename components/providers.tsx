@@ -27,6 +27,7 @@ import { createConnector, WagmiProvider } from "wagmi";
 import { safe } from "wagmi/connectors";
 
 import { Analytics } from "@/components/analytics";
+import { BridgeProvider } from "@/components/bridge/provider";
 import { MigrateProvider } from "@/components/migration/migrate";
 import { FollowWallet } from "@/components/shell/follow-wallet";
 import { StakingProvider } from "@/components/staking/staking";
@@ -172,12 +173,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
             }}
           >
             <TooltipProvider>
-              <StakingProvider>
-                <AddressMemory />
-                <FollowWallet />
-                <Analytics />
-                <MigrateProvider>{children}</MigrateProvider>
-              </StakingProvider>
+              {/* Outside staking, so the delegate dialog can open the bridge. */}
+              <BridgeProvider>
+                <StakingProvider>
+                  <AddressMemory />
+                  <FollowWallet />
+                  <Analytics />
+                  <MigrateProvider>{children}</MigrateProvider>
+                </StakingProvider>
+              </BridgeProvider>
             </TooltipProvider>
             <Toaster
               position="bottom-center"

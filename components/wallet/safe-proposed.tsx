@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useCallsStatus } from "wagmi";
 
 import { cn } from "@/lib/cn";
-import { safeAppUrl, safeQueueUrl } from "@/lib/hooks/safe";
+import { safeAppUrl, type SafeChain, safeQueueUrl } from "@/lib/hooks/safe";
 
 /**
  * Follows a proposal inside Safe{Wallet}, whose provider reports its status
@@ -16,7 +16,7 @@ function ProposalStatus({
   onExecuted,
 }: {
   id: string;
-  onExecuted: (block?: bigint) => void;
+  onExecuted: (block?: bigint, tx?: `0x${string}`) => void;
 }) {
   const { data } = useCallsStatus({
     id,
@@ -27,9 +27,10 @@ function ProposalStatus({
   });
   const status = data?.status;
   const block = data?.receipts?.[0]?.blockNumber;
+  const tx = data?.receipts?.[0]?.transactionHash;
 
   useEffect(() => {
-    if (status === "success") onExecuted(block);
+    if (status === "success") onExecuted(block, tx);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
@@ -61,12 +62,15 @@ export function SafeProposed({
   safe,
   id,
   onExecuted,
+  chain = "arb1",
   children,
 }: {
   safe: string;
   /** The proposal's hash, to follow it when connected as a Safe App. */
   id?: string;
-  onExecuted?: (block?: bigint) => void;
+  onExecuted?: (block?: bigint, tx?: `0x${string}`) => void;
+  /** The Safe's network; Arbitrum unless told. */
+  chain?: SafeChain;
   children?: React.ReactNode;
 }) {
   const { connector } = useAccount();
@@ -86,14 +90,14 @@ export function SafeProposed({
       {safeApp && id && (
         <ProposalStatus
           id={id}
-          onExecuted={(block) => {
+          onExecuted={(block, tx) => {
             setExecuted(true);
-            onExecuted?.(block);
+            onExecuted?.(block, tx);
           }}
         />
       )}
       <a
-        href={safeQueueUrl(safe)}
+        href={safeQueueUrl(safe, chain)}
         target="_blank"
         rel="noreferrer"
         className="inline-flex items-center gap-1 text-ui-caption text-foreground underline-offset-4 hover:underline"
@@ -104,7 +108,7 @@ export function SafeProposed({
         <p className="text-ui-caption text-subtle-foreground">
           Next time, use the explorer inside your Safe.{" "}
           <a
-            href={safeAppUrl(safe)}
+            href={safeAppUrl(safe, chain)}
             target="_blank"
             rel="noreferrer"
             className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"

@@ -19,6 +19,8 @@ import { useStaking } from "@/components/staking/staking";
 import { Skeleton } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEventOnce } from "@/lib/analytics";
+import { usePendingDeposits } from "@/lib/bridge/pending";
+import { useBridgeWithdrawals } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import {
   formatETH,
@@ -50,6 +52,7 @@ import {
   trailingRoundRate,
 } from "@/lib/portfolio/compute";
 
+import { useBridgeInsights } from "./bridge-insights";
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
@@ -68,6 +71,7 @@ import {
   Projections,
 } from "./side-panels";
 import { useVoteInsights } from "./vote-insights";
+import { WalletMenu } from "./wallet-menu";
 import { WithdrawFees } from "./withdraw-fees";
 
 /** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
@@ -223,10 +227,15 @@ export function PortfolioView({
     [view]
   );
   const votes = useVoteInsights(holdings);
+  const bridge = useBridgeInsights(scoped, accounts);
+  const { data: bridged = [] } = useBridgeWithdrawals(scoped);
+  const arriving = usePendingDeposits(scoped);
   const insights = useMemo<Insight[]>(() => {
     if (!view || !data) return [];
     // Actions waiting on a Safe's signers come first: they're blocked on you.
     const out: Insight[] = safeInsights(proposals, accounts);
+    // Then a deposit to Arbitrum that's late.
+    out.push(...bridge);
     // Then open votes, soonest to close first.
     out.push(...votes);
     for (const d of delegates) {
@@ -333,6 +342,7 @@ export function PortfolioView({
     proposals,
     accounts,
     votes,
+    bridge,
   ]);
 
   if (error) return <ErrorNotice error={error} onRetry={() => refetch()} />;
@@ -414,7 +424,7 @@ export function PortfolioView({
     <Section id="needs-attention">
       <SectionHeader
         title="Needs attention"
-        description="Open votes, pending Safe actions, and your orchestrators' last 30 rounds"
+        description="Open votes, pending Safe actions, bridge deposits to retry, and your orchestrators' last 30 rounds"
       />
       <Insights items={insights} />
     </Section>
@@ -450,32 +460,27 @@ export function PortfolioView({
           .filter((p) => p.fees >= DUST_ETH)
           .map((p) => ({ account: p.account.address, amount: p.fees }))
       : [];
-  const unbondingLpt = view
-    ? view.unbonding.reduce((s, l) => s + l.amount, 0)
-    : 0;
+  // Everything on its way or waiting to be taken: unlocking stake, fees,
+  // and LPT crossing the bridge in either direction.
   const withdrawalsEl = view &&
     data &&
-    (view.unbonding.length > 0 || feeItems.length > 0) && (
+    (view.unbonding.length > 0 ||
+      feeItems.length > 0 ||
+      bridged.length > 0 ||
+      arriving.length > 0) && (
       <section>
-        <SectionHeader
-          title="Withdrawals"
-          description={[
-            unbondingLpt > 0 && `${formatLPT(unbondingLpt)} undelegating`,
-            feeItems.length > 0 &&
-              `${formatETH(
-                feeItems.reduce((s, f) => s + f.amount, 0)
-              )} in fees`,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        />
+        {/* Each row says its own amount and status; no summary needed. */}
+        <SectionHeader title="Pending" />
         <PendingWithdrawals
           locks={view.unbonding}
           currentRound={data.currentRound}
           roundSeconds={view.roundSeconds}
           canManage={canManage}
           fees={feeItems}
+          bridge={bridged}
+          deposits={arriving}
           ethPrice={prices?.eth}
+          accounts={single ? undefined : accounts}
         />
       </section>
     );
@@ -514,12 +519,18 @@ export function PortfolioView({
         hasLeftovers(l1Leftovers));
     const freeLpt = free.get(scoped[0]);
     const positionEl = (
-      <PositionNote
-        loading={loading}
-        position={position}
-        canManage={manage}
-        freeLpt={freeLpt}
-      />
+      <>
+        <PositionNote
+          loading={loading}
+          position={position}
+          canManage={manage}
+          freeLpt={freeLpt}
+        />
+        {/* What else the wallet holds: a quiet line, a step down. */}
+        <div className="mt-0.5">
+          <WalletMenu account={scoped[0]} canManage={manage} />
+        </div>
+      </>
     );
     return (
       <div className="flex flex-col">

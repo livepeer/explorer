@@ -57,7 +57,7 @@ export function PortfolioHero({
   loading?: boolean;
   /** Beside the time range, e.g. an export. */
   actions?: React.ReactNode;
-  /** Over the balance in place of "Total stake": who it's delegated to. */
+  /** Over the balance in place of "Total delegated": who it's delegated to. */
   label?: React.ReactNode;
   /** Under the balance on a single wallet's page: what it earns. */
   position?: React.ReactNode;
@@ -97,7 +97,7 @@ export function PortfolioHero({
           ),
           format: (v: number) => formatLPT(v),
           axis: axisLpt,
-          label: "Total stake over time",
+          label: "Delegated stake over time",
         };
       case "rewards":
         return {
@@ -144,7 +144,9 @@ export function PortfolioHero({
   const numberEl = (
     <div className="flex min-w-0 flex-col gap-2">
       {label ?? (
-        <div className="text-ui-caption text-muted-foreground">Total stake</div>
+        <div className="text-ui-caption text-muted-foreground">
+          Total delegated
+        </div>
       )}
       {loading ? (
         <Skeleton className="h-12 w-72" />
@@ -158,10 +160,10 @@ export function PortfolioHero({
           </span>
         </div>
       )}
-      {/* Nothing staked and nothing earned: no line of zeros. */}
-      {(loading || stake > 0 || earned > 0) && (
+      {/* Nothing staked: no line of zeros, nor dust left from before. */}
+      {(loading || stake > 0 || earned >= 0.01) && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
-          {lptPrice != null && !loading && (
+          {lptPrice != null && !loading && stake * lptPrice >= 0.005 && (
             <span className="text-muted-foreground">
               {formatUSD(stake * lptPrice)}
             </span>
