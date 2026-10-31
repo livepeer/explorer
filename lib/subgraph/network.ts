@@ -9,6 +9,7 @@ import {
   type VoteTotals,
   withVoteTotals,
 } from "@/lib/governance/chain-votes";
+import type { GovernanceHistory } from "@/lib/governance/participation";
 import { PoolHistory, PRECISE } from "@/lib/portfolio/compute";
 
 import { isActiveInRound } from "./active";
@@ -1408,6 +1409,57 @@ export async function fetchOrchestratorUpdates(ids: string[], sinceTs: number) {
     since: sinceTs,
   });
   return transcoderUpdateEvents.map(toEvent);
+}
+
+const GOVERNANCE_PARTICIPATION = /* GraphQL */ `
+  query GovernanceParticipation($delegate: String!) {
+    transcoderActivatedEvents(first: 1000, where: { delegate: $delegate }) {
+      id
+      activationRound
+      transaction {
+        blockNumber
+      }
+    }
+    transcoderDeactivatedEvents(first: 1000, where: { delegate: $delegate }) {
+      id
+      deactivationRound
+      transaction {
+        blockNumber
+      }
+    }
+    treasuryProposals(first: 1000) {
+      id
+      voteStart
+    }
+    treasuryVotes(first: 1000, where: { voter: $delegate }) {
+      id
+      proposal {
+        id
+      }
+    }
+  }
+`;
+
+/**
+ * What an orchestrator's treasury participation is counted from: when it
+ * was active, every proposal, and its votes. One page of each is plenty:
+ * there are a few dozen proposals, and activations are rare.
+ */
+export async function fetchGovernanceHistory(
+  delegate: string
+): Promise<GovernanceHistory> {
+  const data = await querySubgraph<{
+    transcoderActivatedEvents: GovernanceHistory["activations"];
+    transcoderDeactivatedEvents: GovernanceHistory["deactivations"];
+    treasuryProposals: GovernanceHistory["proposals"];
+    treasuryVotes: GovernanceHistory["votes"];
+  }>(GOVERNANCE_PARTICIPATION, { delegate: delegate.toLowerCase() });
+  return {
+    activations: data.transcoderActivatedEvents,
+    deactivations: data.transcoderDeactivatedEvents,
+    proposals: data.treasuryProposals,
+    votes: data.treasuryVotes,
+  };
 }
 
 /* ── Reward calls this round ─────────────────────────────────────────────── */

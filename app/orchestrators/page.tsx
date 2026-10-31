@@ -34,6 +34,7 @@ import {
   MIN_HISTORY,
   rankByYield,
 } from "@/lib/orchestrators/ranking";
+import { TERMS } from "@/lib/orchestrators/terms";
 import { searchRank } from "@/lib/search";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
@@ -463,7 +464,7 @@ function OrchestratorTable() {
                     sort={sort}
                     dir={dir}
                     onSort={onSort}
-                    hint="What delegators actually earned, annualised: inflation rewards over the last 30 rounds plus ETH fees over the last 90 days, valued at today's ETH/LPT price. Fees an orchestrator paid itself as a gateway are left out. Hover a figure for the split."
+                    hint={`${TERMS.realisedApr} Hover a figure for the split.`}
                   />
                   <SortHeader
                     className="px-1.5"
@@ -472,7 +473,7 @@ function OrchestratorTable() {
                     sort={sort}
                     dir={dir}
                     onSort={onSort}
-                    hint="Completed rounds in which the orchestrator called reward, out of the last 30 it was active. A missed call means its delegators earn no rewards that round."
+                    hint={TERMS.rewardCalls}
                   />
                   <SortHeader
                     className="px-1.5"
@@ -481,7 +482,7 @@ function OrchestratorTable() {
                     sort={sort}
                     dir={dir}
                     onSort={onSort}
-                    hint="Share of inflationary rewards the orchestrator keeps."
+                    hint={TERMS.rewardCut}
                   />
                   <SortHeader
                     className="px-1.5"
@@ -490,7 +491,7 @@ function OrchestratorTable() {
                     sort={sort}
                     dir={dir}
                     onSort={onSort}
-                    hint="Share of ETH fees passed on to delegators."
+                    hint={TERMS.feeShare}
                   />
                   <SortHeader
                     className="hidden @min-[816px]:table-cell px-1.5"
