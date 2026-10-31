@@ -1,0 +1,79 @@
+name: Bridge health
+
+# Weekly, run the LPT bridge's health check (lib/bridge/health.live.ts)
+# against mainnet: it catches an Arbitrum or Livepeer upgrade that changes
+# how the bridge works before people hit it. On failure it opens an issue
+# (or comments on the open one) so someone reviews the change.
+on:
+  schedule:
+    - cron: "0 14 * * 1" # Mondays, 14:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Actions are pinned to full commit SHAs, as in ci.yml.
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 10.33.0
+          run_install: false
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Public RPC endpoints only: no secrets needed.
+      - name: 🌉 Check the bridge against mainnet
+        run: pnpm bridge:health
+
+  report:
+    needs: check
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: 📣 Open or update the bridge-health issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create bridge-health --repo "$REPO" --color D93F0B \
+            --description "The LPT bridge health check failed" --force
+          open=$(gh issue list --repo "$REPO" --label bridge-health \
+            --state open --json number --jq '.[0].number')
+          body="The weekly bridge health check failed: $RUN_URL
+
+          Read the failing check. Usually either:
+          - Something the LPT bridge relies on changed on Ethereum or Arbitrum
+            (an upgrade, a new gateway, or fees). Review the change, then
+            update lib/bridge (and the pins in lib/bridge/health.live.ts).
+            Until then, the app's pre-send checks stop deposits, withdrawals
+            or claims that no longer match.
+          - The committed withdrawals snapshot is over a year old. Builds
+            refresh it themselves, so check build logs for \"keeping the
+            committed snapshot\", then run node scripts/bridge-withdrawals.mjs
+            and commit the result."
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --repo "$REPO" --body "Still failing: $RUN_URL"
+          else
+            gh issue create --repo "$REPO" --label bridge-health \
+              --title "LPT bridge health check failed" --body "$body"
+          fi
