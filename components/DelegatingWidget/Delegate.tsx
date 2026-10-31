@@ -8,14 +8,14 @@ import {
   InfoCircledIcon,
 } from "@radix-ui/react-icons";
 import { formatPercent } from "@utils/numberFormatters";
+import { parseAmountToWei } from "@utils/web3";
 import {
   useBondingManagerAddress,
   useLivepeerTokenAddress,
 } from "hooks/useContracts";
-import { useHandleTransaction } from "hooks/useHandleTransaction";
 import { useOrchestratorRewardCutSpike } from "hooks/useOrchestratorRewardCutSpike";
+import { useSubmitTransaction } from "hooks/useSubmitTransaction";
 import { useMemo, useState } from "react";
-import { parseEther } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
 import ProgressSteps from "../ProgressSteps";
@@ -104,29 +104,26 @@ const Delegate = ({
     functionName: "approve",
     args: [bondingManagerAddress ?? "0x", BigInt(MAXIMUM_VALUE_UINT256)],
   });
-  const {
-    data: approveData,
-    isPending: approveIsLoading,
-    writeContract: approveWrite,
-    error: approveError,
-    isSuccess: approveIsSuccess,
-  } = useWriteContract();
+  const { writeContractAsync: approveWrite } = useWriteContract();
+  const submitApproval = useSubmitTransaction("approve");
 
-  useHandleTransaction(
-    "approve",
-    approveData,
-    approveError,
-    approveIsLoading,
-    approveIsSuccess,
-    {
-      type: "bond",
-      amount: BigInt(MAXIMUM_VALUE_UINT256),
-    }
+  // null when the amount is absent or not yet a valid number.
+  const amountWei = useMemo(() => parseAmountToWei(amount), [amount]);
+  const bondAmountWei = amountWei ?? 0n;
+  // `tokenBalance` and `transferAllowance` are wei, so compare in wei.
+  const sufficientBalance = useMemo(
+    () => bondAmountWei > 0n && BigInt(tokenBalance ?? 0) >= bondAmountWei,
+    [bondAmountWei, tokenBalance]
+  );
+  const sufficientTransferAllowance = useMemo(
+    () => bondAmountWei > 0n && BigInt(transferAllowance ?? 0) >= bondAmountWei,
+    [bondAmountWei, transferAllowance]
   );
 
   const bondWithHintArgs = {
-    amount: amount?.toString() ? parseEther(amount) : BigInt(0),
+    amount: bondAmountWei,
     to,
+    isTransferStake,
     oldDelegateNewPosPrev,
     oldDelegateNewPosNext,
     currDelegateNewPosPrev,
@@ -134,12 +131,17 @@ const Delegate = ({
   };
 
   const { data: bondWithHintConfig } = useSimulateContract({
-    query: { enabled: Boolean(to) },
+    // A reverted simulation is cached and never re-run, so only simulate once
+    // it can succeed. A zero amount moves no tokens, so it needs no allowance.
+    query: {
+      enabled:
+        Boolean(to) && (bondAmountWei === 0n || sufficientTransferAllowance),
+    },
     address: bondingManagerAddress,
     abi: bondingManager,
     functionName: "bondWithHint",
     args: [
-      BigInt(bondWithHintArgs.amount?.toString()),
+      bondWithHintArgs.amount,
       to,
       oldDelegateNewPosPrev,
       oldDelegateNewPosNext,
@@ -147,47 +149,17 @@ const Delegate = ({
       currDelegateNewPosNext,
     ],
   });
-  const {
-    data: bondData,
-    isPending: bondIsLoading,
-    writeContract: bondWrite,
-    isSuccess: bondIsSuccess,
-    error: bondError,
-  } = useWriteContract();
-
-  useHandleTransaction(
-    "bond",
-    bondData,
-    bondError,
-    bondIsLoading,
-    bondIsSuccess,
-    bondWithHintArgs
-  );
+  const { writeContractAsync: bondWrite } = useWriteContract();
+  const submitBond = useSubmitTransaction("bond");
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false);
-
-  const amountIsNonEmpty = useMemo(() => amount, [amount]);
-  const sufficientBalance = useMemo(
-    () =>
-      amountIsNonEmpty &&
-      parseFloat(amount) > 0 &&
-      Number(tokenBalance) >= amount,
-    [amount, amountIsNonEmpty, tokenBalance]
-  );
-  const sufficientTransferAllowance = useMemo(
-    () =>
-      amountIsNonEmpty &&
-      Number(transferAllowance) > 0 &&
-      Number(transferAllowance) >= amount,
-    [amount, amountIsNonEmpty, transferAllowance]
-  );
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   const showApproveFlow = useMemo(
     () =>
-      (amountIsNonEmpty && +amount >= 0 && !sufficientTransferAllowance) ||
+      (amountWei !== null && !sufficientTransferAllowance) ||
       (approvalSubmitted && sufficientTransferAllowance),
-    [amount, amountIsNonEmpty, sufficientTransferAllowance, approvalSubmitted]
+    [amountWei, sufficientTransferAllowance, approvalSubmitted]
   );
 
   const onApprove = async () => {
@@ -197,7 +169,10 @@ const Delegate = ({
       }
       setApprovalSubmitted(true);
 
-      approveWrite(config.request);
+      void submitApproval(() => approveWrite(config.request), {
+        type: "bond",
+        amount: BigInt(MAXIMUM_VALUE_UINT256),
+      });
     } catch (e) {
       console.log(e);
     }
@@ -208,7 +183,11 @@ const Delegate = ({
       if (!bondWithHintConfig) {
         throw new Error("No config for bond with hint");
       }
-      bondWrite(bondWithHintConfig.request);
+      // Capture the args before reset clears the amount or a resize unmounts us.
+      void submitBond(
+        () => bondWrite(bondWithHintConfig.request),
+        bondWithHintArgs
+      );
     } catch (e) {
       console.error(e);
     }
@@ -217,7 +196,8 @@ const Delegate = ({
     reset();
   };
 
-  if (!amountIsNonEmpty && !isTransferStake) {
+  // A stake transfer may bond nothing, but only from an empty field.
+  if (amountWei === null && (amount || !isTransferStake)) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Enter an Amount
@@ -225,7 +205,7 @@ const Delegate = ({
     );
   }
 
-  if (amountIsNonEmpty && +amount >= 0 && !sufficientBalance) {
+  if (amountWei !== null && !sufficientBalance) {
     return (
       <Button size="4" disabled variant="neutral" css={{ width: "100%" }}>
         Insufficient Balance
@@ -260,7 +240,7 @@ const Delegate = ({
             </Button>
             <Button
               size="4"
-              disabled={!sufficientTransferAllowance}
+              disabled={!sufficientTransferAllowance || !bondWithHintConfig}
               variant="primary"
               onClick={onDelegate}
               css={{ width: "100%" }}
@@ -282,6 +262,7 @@ const Delegate = ({
       {cutChangeNotice}
       <Button
         size="4"
+        disabled={!bondWithHintConfig}
         onClick={onDelegate}
         variant="primary"
         css={{ width: "100%" }}

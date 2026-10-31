@@ -1,58 +1,10 @@
 import { l1PublicClient } from "@lib/chains";
+import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
 import { formatAddress } from "@utils/web3";
-import sanitizeHtml from "sanitize-html";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
 import { EnsIdentity } from "./types/get-ens";
-
-const sanitizeOptions: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "b",
-    "i",
-    "em",
-    "strong",
-    "a",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "hr",
-    "li",
-    "ol",
-    "p",
-    "pre",
-    "ul",
-    "br",
-    "code",
-    "span",
-  ],
-  disallowedTagsMode: "discard",
-  allowedAttributes: {
-    a: ["href"],
-  },
-  // Lots of these won't come up by default because we don't allow them
-  selfClosing: [
-    "img",
-    "br",
-    "hr",
-    "area",
-    "base",
-    "basefont",
-    "input",
-    "link",
-    "meta",
-  ],
-  // URL schemes we permit
-  allowedSchemes: ["https", "mailto", "tel"],
-  allowedSchemesByTag: {},
-  allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
-  allowProtocolRelative: false,
-  enforceHtmlBoundary: true,
-};
 
 export const getEnsForAddress = async (address: string | null | undefined) => {
   const idShort = address?.replace(address?.slice(6, 38), "…");
@@ -76,7 +28,7 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
       id: address ?? "",
       idShort: idShort ?? "",
       name: name ?? null,
-      description: sanitizeHtml(nl2br(description), sanitizeOptions),
+      description: sanitizeHtml(nl2br(description), ensDescriptionSchema),
       url,
       twitter,
       github,

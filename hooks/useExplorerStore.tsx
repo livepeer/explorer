@@ -35,6 +35,7 @@ export type InputData = {
   delegate?: Address;
   fees?: bigint;
   isOrchestrator?: boolean;
+  isTransferStake?: boolean;
   newDelegate?: Address;
   newPosNext?: string;
   newPosPrev?: string;
@@ -53,6 +54,7 @@ export type InputData = {
 export type TransactionStep = "summary" | "started" | "confirmed";
 export type TransactionIdentifier = keyof typeof txMessages;
 export type TransactionStatus = {
+  submissionId?: symbol;
   hash?: string;
   name?: TransactionIdentifier;
   inputData?: InputData | null;
@@ -88,7 +90,7 @@ export type ExplorerState = {
     inputData?: InputData
   ) => void;
   setLatestTransactionConfirmed: () => void;
-  setLatestTransactionSummary: () => void;
+  setLatestTransactionSummary: () => symbol;
   setLatestTransactionError: (v: string) => void;
   clearLatestTransaction: () => void;
 };
@@ -195,10 +197,11 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
     set(({ latestTransaction }) => ({
       latestTransaction: { ...latestTransaction, step: "confirmed" },
     })),
-  setLatestTransactionSummary: () =>
-    set(({ latestTransaction }) => ({
-      latestTransaction: { ...latestTransaction, step: "summary" },
-    })),
+  setLatestTransactionSummary: () => {
+    const submissionId = Symbol();
+    set(() => ({ latestTransaction: { step: "summary", submissionId } }));
+    return submissionId;
+  },
   setLatestTransactionError: (v: string) =>
     set(({ latestTransaction }) => ({
       latestTransaction: { ...latestTransaction, error: v } as {
