@@ -131,6 +131,7 @@ const Index = ({
                 }}
               >
                 <QRCodeCanvas
+                  aria-hidden
                   fgColor={`#${account.substr(2, 6)}`}
                   size={60}
                   value={account}

@@ -54,6 +54,7 @@ const Index = ({ active, address }) => {
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 24,
