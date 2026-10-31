@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeftRight,
   ArrowRightLeft,
   ChevronRight,
   Minus,
@@ -9,7 +10,9 @@ import {
   Send,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 
+import { useBridge } from "@/components/bridge/context";
 import { Avatar, useIdentity } from "@/components/identity";
 import { useStaking } from "@/components/staking/staking";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -20,8 +23,8 @@ import {
   MenuTrigger,
   Skeleton,
 } from "@/components/ui/misc";
+import { useL1Lpt } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
-import { formatLPT } from "@/lib/format";
 
 import { LPT_DUST, type Position } from "./positions";
 
@@ -36,6 +39,7 @@ function DelegationActions({
   freeLpt: number | undefined;
 }) {
   const { open } = useStaking();
+  const { bridge } = useBridge();
   const account = p.account.address;
   // Any stake can be undelegated or transferred, even a leftover, to clear
   // it out.
@@ -86,9 +90,33 @@ function DelegationActions({
               <Send /> Transfer stake
             </MenuItem>
           )}
+          <MenuItem onClick={() => bridge(account)}>
+            <ArrowLeftRight /> Bridge LPT
+          </MenuItem>
         </MenuContent>
       </Menu>
     </div>
+  );
+}
+
+/** Without a delegation, the one other move: bridging LPT. */
+function BridgeMenu({ account }: { account: string }) {
+  const { bridge } = useBridge();
+  return (
+    <Menu>
+      <MenuTrigger
+        render={
+          <Button size="icon-sm" variant="ghost" aria-label="More actions" />
+        }
+      >
+        <MoreHorizontal />
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem onClick={() => bridge(account)}>
+          <ArrowLeftRight /> Bridge LPT
+        </MenuItem>
+      </MenuContent>
+    </Menu>
   );
 }
 
@@ -106,6 +134,20 @@ type Props = {
  * and without one a note under it says how to start.
  */
 
+/**
+ * LPT a wallet holds on Ethereum, when it has nothing delegated and none
+ * spare on Arbitrum: bringing it over is then the next step. 0 otherwise,
+ * so delegators keeping LPT on Ethereum aren't nudged.
+ */
+function useOnlyOnEthereum(p: Position | undefined, freeLpt?: number) {
+  const address = p?.account.address;
+  const addresses = useMemo(() => (address ? [address] : []), [address]);
+  const l1 = useL1Lpt(addresses);
+  if (!p || p.delegate || (freeLpt ?? 0) >= LPT_DUST) return 0;
+  const lpt = l1.get(p.account.address) ?? 0;
+  return lpt >= 1 ? lpt : 0;
+}
+
 /** Beside the balance: the actions, or a way to start without a delegation. */
 export function PositionActions({
   loading,
@@ -113,16 +155,36 @@ export function PositionActions({
   canManage,
   freeLpt,
 }: Props) {
+  const { bridge } = useBridge();
+  const onlyOnEthereum = useOnlyOnEthereum(p, freeLpt);
   if (!canManage) return null;
   if (loading || !p) return <Skeleton className="h-8 w-56 rounded-md" />;
   if (!p.delegate) {
+    const account = p.account.address;
     return (
-      <Link
-        href={`/orchestrators?account=${p.account.address}`}
-        className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
-      >
-        Browse orchestrators
-      </Link>
+      <div className="flex items-center gap-2">
+        {onlyOnEthereum > 0 && (
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => bridge(account, "toArbitrum")}
+          >
+            <ArrowLeftRight /> Bridge to Arbitrum
+          </Button>
+        )}
+        <Link
+          href={`/orchestrators?account=${account}`}
+          className={cn(
+            buttonVariants({
+              variant: onlyOnEthereum > 0 ? "outline" : "primary",
+              size: "sm",
+            })
+          )}
+        >
+          Browse orchestrators
+        </Link>
+        {onlyOnEthereum === 0 && <BridgeMenu account={account} />}
+      </div>
     );
   }
   return (
@@ -131,7 +193,7 @@ export function PositionActions({
 }
 
 /**
- * Over the balance, in place of "Total stake": who it's delegated to, so the
+ * Over the balance, in place of "Delegated stake": who it's delegated to, so the
  * number and the actions beside it plainly belong to that orchestrator.
  * Opens its page.
  */
@@ -142,7 +204,9 @@ export function PositionLabel({
   const { name, avatar, display } = useIdentity(p?.delegate ?? null);
   if (loading || !p?.delegate) {
     return (
-      <div className="text-ui-caption text-muted-foreground">Total stake</div>
+      <div className="text-ui-caption text-muted-foreground">
+        Delegated stake
+      </div>
     );
   }
   return (
@@ -185,15 +249,21 @@ export function PositionNote({
   canManage,
   freeLpt,
 }: Props) {
+  const onlyOnEthereum = useOnlyOnEthereum(p, freeLpt);
   if (loading || !p || p.delegate) return null;
+  // The action beside the balance is the bridge; this says why.
+  if (canManage && onlyOnEthereum > 0) {
+    return (
+      <p className="text-ui-body text-muted-foreground">
+        Not delegated. Your LPT is on Ethereum; bridge it to Arbitrum to
+        delegate it.
+      </p>
+    );
+  }
   return (
     <p className="text-ui-body text-muted-foreground">
       {canManage
-        ? freeLpt != null && freeLpt >= LPT_DUST
-          ? `Not delegated. ${formatLPT(
-              freeLpt
-            )} ready to delegate: choose an orchestrator to start earning.`
-          : "Not delegated. Choose an orchestrator to start earning rewards and fees."
+        ? "Not delegated. Choose an orchestrator to start earning rewards and fees."
         : "Not delegated to an orchestrator right now."}
     </p>
   );
