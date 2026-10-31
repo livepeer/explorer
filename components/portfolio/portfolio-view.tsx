@@ -498,10 +498,13 @@ export function PortfolioView({
         active: false,
       });
     const manage = position ? canManage(position.account.address) : false;
-    // Nothing delegated on Arbitrum (or only a leftover): a claim waiting
-    // from Ethereum is then this wallet's position.
+    // Nothing on Arbitrum to show: no delegation, or only a leftover with no
+    // stake history. A wallet that has delegated there keeps its balance,
+    // delegate and chart, with what's waiting from Ethereum above them.
+    const hasHistory = (view?.series ?? []).some((p) => p.stake >= LPT_DUST);
     const undelegated =
-      !loading && (!position?.delegate || position.stake < LPT_DUST);
+      !loading &&
+      (!position?.delegate || (position.stake < LPT_DUST && !hasHistory));
     // Something waiting from Ethereum while nothing's on Arbitrum yet: that
     // is this wallet's position, so it leads the page.
     const fromEthereumLeads =
