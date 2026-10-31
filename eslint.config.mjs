@@ -16,6 +16,11 @@ const eslintConfig = defineConfig([
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
       "react-hooks/set-state-in-effect": "off",
+      // Allow `const { node, ...rest } = props` to drop a prop before spreading.
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { ignoreRestSiblings: true },
+      ],
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
