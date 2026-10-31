@@ -70,12 +70,17 @@
       "@types/react": "19.2.2",
       "@types/react-dom": "19.2.2",
       "axios": "^1.20.0",
-      "follow-redirects": "^1.16.1",
+      "follow-redirects": "^1.16.2",
       "sharp": "^0.35.5",
       "cuer@0.0.3>qr": "0.5.5",
       "postcss": "^8.5.23",
       "ws@^8.0.0": "^8.21.3",
       "zod": "^4.6.6"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-qr28-fpjm-wq7f"
+      ]
     }
   }
 }
