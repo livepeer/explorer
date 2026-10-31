@@ -60,15 +60,23 @@ export async function readVoteTotals(
 }
 
 /**
- * The governor's totals in place of the subgraph's, where read. A proposal
- * whose read failed keeps the subgraph's figures rather than showing none.
+ * The governor's totals in place of the subgraph's, where read, and the
+ * total votes cast as their sum (the subgraph's double-counts the same
+ * way). A proposal whose read failed keeps the subgraph's figures rather
+ * than showing none.
  */
-export function withVoteTotals<T extends VoteTotals & { id: string }>(
-  proposals: T[],
-  totals: Map<string, VoteTotals>
-): T[] {
+export function withVoteTotals<
+  T extends VoteTotals & { id: string; totalVotes?: number }
+>(proposals: T[], totals: Map<string, VoteTotals>): T[] {
   return proposals.map((p) => {
     const t = totals.get(p.id);
-    return t ? { ...p, ...t } : p;
+    if (!t) return p;
+    return {
+      ...p,
+      ...t,
+      ...("totalVotes" in p
+        ? { totalVotes: t.forVotes + t.againstVotes + t.abstainVotes }
+        : {}),
+    };
   });
 }

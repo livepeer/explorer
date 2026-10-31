@@ -20,6 +20,14 @@ describe("withVoteTotals", () => {
     expect(out[0].title).toBe("p1");
   });
 
+  it("recounts the total votes cast from the governor's totals", () => {
+    const out = withVoteTotals(
+      [{ ...proposal("3", 1_100), totalVotes: 1_150 }],
+      new Map([["3", { forVotes: 1_000, againstVotes: 20, abstainVotes: 30 }]])
+    );
+    expect(out[0].totalVotes).toBe(1_050);
+  });
+
   it("keeps the subgraph's figures for a proposal whose read failed", () => {
     const out = withVoteTotals([proposal("2", 500)], new Map());
     expect(out[0].forVotes).toBe(500);
