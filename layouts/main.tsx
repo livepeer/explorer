@@ -121,6 +121,9 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  // Reserve the disconnected "Connect Wallet" button's footprint while the
+  // client-only chunk loads, so the header does not shift when it appears.
+  loading: () => <Skeleton css={{ width: 146, height: 40, borderRadius: 8 }} />,
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
