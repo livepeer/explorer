@@ -21,7 +21,7 @@ import {
 } from "@/components/page";
 import { PAGE_ACTIONS_SLOT, useSlot } from "@/components/page-header";
 import { useStaking } from "@/components/staking/staking";
-import { Badge } from "@/components/ui/badge";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
 import { Term } from "@/components/ui/term";
@@ -118,7 +118,8 @@ function CutUpdated({ o }: { o: OrchestratorDetail }) {
     o.rewardCutUpdateTimestamp,
     o.feeShareUpdateTimestamp
   );
-  if (changed > 0) return <>Updated {formatRelativeTime(changed)}</>;
+  // "Set", not "Updated": a cut left alone for years is settled, not stale.
+  if (changed > 0) return <>Set {formatRelativeTime(changed)}</>;
   const since = o.pools[0]?.ts;
   return since ? (
     <>
@@ -432,7 +433,19 @@ export default function OrchestratorPage() {
               ) : (
                 <Skeleton className="h-5 w-14" />
               )}
-              {delegatedHere && <Badge tone="outline">Your orchestrator</Badge>}
+              {/* That you delegate to it, and how much, opening your
+                  account; the header's buttons are what to do about it. */}
+              {delegatedHere && walletAddress && (
+                <Link
+                  href={`/accounts/${walletAddress}`}
+                  className={cn(
+                    badgeVariants({ tone: "outline" }),
+                    "tabular-nums transition-colors hover:bg-hover"
+                  )}
+                >
+                  Your delegate · {formatLPT(myStake)}
+                </Link>
+              )}
             </div>
             <h1 className="truncate text-[24px] leading-8 font-semibold tracking-[-0.02em]">
               {name ?? (
@@ -532,24 +545,6 @@ export default function OrchestratorPage() {
         </Card>
       ) : (
         <>
-          {delegatedHere && (
-            <div className="mb-4 flex items-center justify-between gap-4 rounded-md border border-hairline px-4 py-3">
-              <span className="text-ui-body text-muted-foreground">
-                You have{" "}
-                <span className="text-foreground tabular-nums">
-                  {formatLPT(myStake)}
-                </span>{" "}
-                delegated here
-              </span>
-              <Link
-                href="/"
-                className="text-ui-caption text-foreground underline-offset-4 hover:underline"
-              >
-                View portfolio
-              </Link>
-            </div>
-          )}
-
           <KpiStrip>
             <Kpi
               label={<Term hint={TERMS.totalStake}>Total stake</Term>}
@@ -703,7 +698,7 @@ export default function OrchestratorPage() {
                 <Card className="p-5">
                   <label className="flex flex-col gap-1.5">
                     <span className="text-ui-caption text-muted-foreground">
-                      If you delegate
+                      {delegatedHere ? "If you delegate more" : "If you delegate"}
                     </span>
                     <span className="flex items-baseline gap-2 border-b border-hairline pb-2 focus-within:border-ring">
                       <input
