@@ -56,11 +56,7 @@ import { useBridgeInsights } from "./bridge-insights";
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import {
-  PositionActions,
-  PositionLabel,
-  PositionNote,
-} from "./position-header";
+import { AccountHeadline, type HeadlineSlots } from "./position-header";
 import { DUST_ETH, LPT_DUST, type Position, Positions } from "./positions";
 import { safeInsights } from "./safe-insights";
 import {
@@ -71,7 +67,6 @@ import {
   Projections,
 } from "./side-panels";
 import { useVoteInsights } from "./vote-insights";
-import { WalletMenu } from "./wallet-menu";
 import { WithdrawFees } from "./withdraw-fees";
 
 /** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
@@ -385,16 +380,14 @@ export function PortfolioView({
       .filter((p) => canManage(p.account.address) && p.fees >= DUST_ETH)
       .sort((a, b) => b.fees - a.fees) ?? [];
 
-  const heroEl = (slots?: {
-    label: React.ReactNode;
-    position: React.ReactNode;
-    actions: React.ReactNode;
-  }) => (
+  const heroEl = (slots?: HeadlineSlots) => (
     <PortfolioHero
       variant={single ? "page" : "card"}
       label={slots?.label}
+      headline={slots?.headline}
       position={slots?.position}
       positionActions={slots?.actions}
+      balances={slots?.balances}
       series={view?.series ?? []}
       stake={view?.stake ?? 0}
       lptPrice={lpt}
@@ -518,20 +511,6 @@ export function PortfolioView({
         (migrationClaim.stake > 0 || migrationClaim.fees > 0)) ||
         hasLeftovers(l1Leftovers));
     const freeLpt = free.get(scoped[0]);
-    const positionEl = (
-      <>
-        <PositionNote
-          loading={loading}
-          position={position}
-          canManage={manage}
-          freeLpt={freeLpt}
-        />
-        {/* What else the wallet holds: a quiet line, a step down. */}
-        <div className="mt-0.5">
-          <WalletMenu account={scoped[0]} canManage={manage} />
-        </div>
-      </>
-    );
     return (
       <div className="flex flex-col">
         {header}
@@ -564,18 +543,13 @@ export function PortfolioView({
             // "0 LPT, not delegated", which would contradict it.
             <FromEthereumCard accounts={scoped} headline className="mb-0" />
           ) : (
-            heroEl({
-              label: <PositionLabel loading={loading} position={position} />,
-              position: positionEl,
-              actions: manage && (
-                <PositionActions
-                  loading={loading}
-                  position={position}
-                  canManage={manage}
-                  freeLpt={freeLpt}
-                />
-              ),
-            })
+            <AccountHeadline
+              loading={loading}
+              position={position}
+              canManage={manage}
+              freeLpt={freeLpt}
+              render={heroEl}
+            />
           )}
         </div>
         {(insightsEl || withdrawalsEl) && (

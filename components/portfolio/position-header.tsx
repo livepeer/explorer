@@ -2,7 +2,9 @@
 
 import {
   ArrowLeftRight,
+  ArrowRight,
   ArrowRightLeft,
+  ChevronDown,
   ChevronRight,
   Minus,
   MoreHorizontal,
@@ -10,7 +12,8 @@ import {
   Send,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
+import { useReadContract } from "wagmi";
 
 import { useBridge } from "@/components/bridge/context";
 import { Avatar, useIdentity } from "@/components/identity";
@@ -20,13 +23,42 @@ import {
   Menu,
   MenuContent,
   MenuItem,
+  MenuSeparator,
   MenuTrigger,
   Skeleton,
 } from "@/components/ui/misc";
+import { livepeerToken } from "@/lib/abis/LivepeerToken";
 import { useL1Lpt } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
+import { L2_CHAIN } from "@/lib/config";
+import { formatToken, fromWei } from "@/lib/format";
+import { useProtocolContract } from "@/lib/staking/contracts";
 
-import { LPT_DUST, type Position } from "./positions";
+import type { Position } from "./positions";
+
+/** Below this, a balance is dust left over, not LPT to do something with. */
+const SHOWN_LPT = 0.01;
+
+/** LPT the wallet holds, not delegated, on each network; 0 under SHOWN_LPT. */
+function useHeld(account: string | undefined) {
+  const token = useProtocolContract("LivepeerToken");
+  const { data: l2Wei } = useReadContract({
+    address: token,
+    abi: livepeerToken,
+    functionName: "balanceOf",
+    args: [account as `0x${string}`],
+    chainId: L2_CHAIN.id,
+    query: { enabled: Boolean(token && account), staleTime: 60_000 },
+  });
+  const addresses = useMemo(() => (account ? [account] : []), [account]);
+  const l1 = useL1Lpt(addresses);
+  const arbitrum = l2Wei != null ? fromWei(l2Wei as bigint) : 0;
+  const ethereum = account ? l1.get(account) ?? 0 : 0;
+  return {
+    arbitrum: arbitrum >= SHOWN_LPT ? arbitrum : 0,
+    ethereum: ethereum >= SHOWN_LPT ? ethereum : 0,
+  };
+}
 
 /** Delegate and Undelegate, with the rarer moves in a menu beside them. */
 function DelegationActions({
@@ -39,7 +71,6 @@ function DelegationActions({
   freeLpt: number | undefined;
 }) {
   const { open } = useStaking();
-  const { bridge } = useBridge();
   const account = p.account.address;
   // Any stake can be undelegated or transferred, even a leftover, to clear
   // it out.
@@ -90,122 +121,31 @@ function DelegationActions({
               <Send /> Transfer stake
             </MenuItem>
           )}
-          <MenuItem onClick={() => bridge(account)}>
-            <ArrowLeftRight /> Bridge LPT
-          </MenuItem>
         </MenuContent>
       </Menu>
     </div>
   );
 }
 
-/** Without a delegation, the one other move: bridging LPT. */
-function BridgeMenu({ account }: { account: string }) {
-  const { bridge } = useBridge();
-  return (
-    <Menu>
-      <MenuTrigger
-        render={
-          <Button size="icon-sm" variant="ghost" aria-label="More actions" />
-        }
-      >
-        <MoreHorizontal />
-      </MenuTrigger>
-      <MenuContent align="end">
-        <MenuItem onClick={() => bridge(account)}>
-          <ArrowLeftRight /> Bridge LPT
-        </MenuItem>
-      </MenuContent>
-    </Menu>
-  );
-}
-
-type Props = {
-  loading: boolean;
-  position: Position | undefined;
-  canManage: boolean;
-  freeLpt: number | undefined;
-};
-
-/**
- * A wallet delegates to one orchestrator, so its balance is its position. On
- * a single wallet's page the balance headline carries the delegation: the
- * label over the number names the orchestrator, the actions sit beside it,
- * and without one a note under it says how to start.
- */
-
-/**
- * LPT a wallet holds on Ethereum, when it has nothing delegated and none
- * spare on Arbitrum: bringing it over is then the next step. 0 otherwise,
- * so delegators keeping LPT on Ethereum aren't nudged.
- */
-function useOnlyOnEthereum(p: Position | undefined, freeLpt?: number) {
-  const address = p?.account.address;
-  const addresses = useMemo(() => (address ? [address] : []), [address]);
-  const l1 = useL1Lpt(addresses);
-  if (!p || p.delegate || (freeLpt ?? 0) >= LPT_DUST) return 0;
-  const lpt = l1.get(p.account.address) ?? 0;
-  return lpt >= 1 ? lpt : 0;
-}
-
-/** Beside the balance: the actions, or a way to start without a delegation. */
-export function PositionActions({
-  loading,
-  position: p,
-  canManage,
-  freeLpt,
-}: Props) {
-  const { bridge } = useBridge();
-  const onlyOnEthereum = useOnlyOnEthereum(p, freeLpt);
-  if (!canManage) return null;
-  if (loading || !p) return <Skeleton className="h-8 w-56 rounded-md" />;
-  if (!p.delegate) {
-    const account = p.account.address;
+/** Over the balance: who it's delegated to, opening its page. */
+function DelegatedTo({ position: p }: { position: Position }) {
+  const { name, avatar, display } = useIdentity(p.delegate);
+  // An orchestrator's own stake: its name is already the page's.
+  if (p.delegate?.toLowerCase() === p.account.address.toLowerCase()) {
     return (
-      <div className="flex items-center gap-2">
-        {onlyOnEthereum > 0 && (
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => bridge(account, "toArbitrum")}
-          >
-            <ArrowLeftRight /> Bridge to Arbitrum
-          </Button>
-        )}
+      <div className="flex min-w-0 items-center gap-1 text-ui-body text-muted-foreground">
+        <span className="shrink-0">Self-delegated</span>
+        <span aria-hidden className="text-subtle-foreground">
+          ·
+        </span>
         <Link
-          href={`/orchestrators?account=${account}`}
-          className={cn(
-            buttonVariants({
-              variant: onlyOnEthereum > 0 ? "outline" : "primary",
-              size: "sm",
-            })
-          )}
+          href={`/orchestrators/${p.delegate}`}
+          className="group -my-1 flex items-center gap-1 rounded-md px-1.5 py-1 font-medium text-foreground outline-none transition-colors hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
         >
-          Browse orchestrators
+          Orchestrator page
+          <ChevronRight className="size-3.5 shrink-0 text-subtle-foreground transition-transform group-hover:translate-x-0.5" />
         </Link>
-        {onlyOnEthereum === 0 && <BridgeMenu account={account} />}
-      </div>
-    );
-  }
-  return (
-    <DelegationActions position={p} delegate={p.delegate} freeLpt={freeLpt} />
-  );
-}
-
-/**
- * Over the balance, in place of "Delegated stake": who it's delegated to, so the
- * number and the actions beside it plainly belong to that orchestrator.
- * Opens its page.
- */
-export function PositionLabel({
-  loading,
-  position: p,
-}: Pick<Props, "loading" | "position">) {
-  const { name, avatar, display } = useIdentity(p?.delegate ?? null);
-  if (loading || !p?.delegate) {
-    return (
-      <div className="text-ui-caption text-muted-foreground">
-        Delegated stake
+        {!p.active && <span className="shrink-0 text-warm">Inactive</span>}
       </div>
     );
   }
@@ -214,11 +154,11 @@ export function PositionLabel({
       <span className="shrink-0">Delegated to</span>
       <Link
         href={`/orchestrators/${p.delegate}`}
-        title={p.delegate}
+        title={p.delegate ?? undefined}
         className="group -my-1 flex min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1 text-foreground outline-none transition-colors hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
       >
         <Avatar
-          address={p.delegate}
+          address={p.delegate!}
           src={avatar}
           size={20}
           className="shrink-0 ring-1 ring-foreground/10"
@@ -238,33 +178,293 @@ export function PositionLabel({
   );
 }
 
+type Balance = {
+  key: "arbitrum" | "ethereum";
+  network: string;
+  lpt: number;
+  actions: {
+    label: string;
+    icon: React.ReactNode;
+    onClick?: () => void;
+    href?: string;
+  }[];
+};
+
 /**
- * Under the balance, only without a delegation: says so, and how to start.
- * With one, the label above already says where the stake is, and what it's
- * earned is beside the balance.
+ * The LPT a wallet holds but hasn't delegated, as a quiet chip under the
+ * headline. It opens a menu with each balance and what it can do: on
+ * Arbitrum delegate it or bridge it to Ethereum (to sell, say), on Ethereum
+ * bridge it over. For an account you can't act for, the balances alone.
  */
-export function PositionNote({
+function BalanceChip({
+  balances,
+  total,
+}: {
+  balances: Balance[];
+  /** Label it with the total, when the headline is something else. */
+  total?: boolean;
+}) {
+  // A few words, the split in the menu: under a stake, the total ("65.00 LPT
+  // in wallet"); under the headline's own total, "By network".
+  const label = total ? (
+    <span>
+      <span className="text-foreground tabular-nums">
+        {formatToken(balances.reduce((sum, b) => sum + b.lpt, 0))} LPT
+      </span>{" "}
+      in wallet
+    </span>
+  ) : (
+    <span>By network</span>
+  );
+  // Nothing to do, only where it is: a short list, no groups.
+  const readOnly = !balances.some((b) => b.actions.length);
+  // Nothing to do and one place it can be: no menu, the label says where.
+  if (readOnly && balances.length === 1) {
+    return (
+      <div className="w-fit rounded-full bg-foreground/[0.06] px-2.5 py-1 text-ui-caption text-muted-foreground">
+        <span className="text-foreground tabular-nums">
+          {formatToken(balances[0].lpt)} LPT
+        </span>{" "}
+        in wallet on {balances[0].network}
+      </div>
+    );
+  }
+  return (
+    <Menu>
+      <MenuTrigger className="flex w-fit cursor-pointer items-center gap-1 whitespace-nowrap rounded-full bg-foreground/[0.06] py-1 pr-2 pl-2.5 text-ui-caption text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.1] hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40 data-popup-open:bg-foreground/[0.1] data-popup-open:text-foreground">
+        {label}
+        <ChevronDown className="size-3 self-center opacity-80" />
+      </MenuTrigger>
+      <MenuContent align="start" className={readOnly ? "w-56" : "w-72"}>
+        {balances.map((b, i) => (
+          <Fragment key={b.key}>
+            {i > 0 && !readOnly && <MenuSeparator />}
+            <div
+              className={cn(
+                "flex items-baseline justify-between gap-3 px-2",
+                readOnly ? "py-1.5" : "pt-2 pb-1"
+              )}
+            >
+              <span className="text-ui-caption text-muted-foreground">
+                On {b.network}
+              </span>
+              <span className="text-ui-body tabular-nums">
+                {formatToken(b.lpt)} LPT
+              </span>
+            </div>
+            {b.actions.map((a) =>
+              a.href ? (
+                <MenuItem key={a.label} render={<Link href={a.href} />}>
+                  {a.icon} {a.label}
+                  <ArrowRight className="ml-auto text-muted-foreground" />
+                </MenuItem>
+              ) : (
+                <MenuItem key={a.label} onClick={a.onClick}>
+                  {a.icon} {a.label}
+                </MenuItem>
+              )
+            )}
+          </Fragment>
+        ))}
+      </MenuContent>
+    </Menu>
+  );
+}
+
+export type HeadlineSlots = {
+  label: React.ReactNode;
+  /** The big number when it isn't delegated stake. */
+  headline?: number;
+  position: React.ReactNode;
+  actions: React.ReactNode;
+  balances: React.ReactNode;
+};
+
+/**
+ * A single wallet's headline. The big number is the LPT that matters now:
+ * its delegated stake when it has one; otherwise what it holds, labelled by
+ * where ("On Ethereum"), or "In wallet" when it's on both networks. What
+ * it holds besides its stake sits under it, in a chip by network.
+ */
+export function AccountHeadline({
   loading,
   position: p,
   canManage,
   freeLpt,
-}: Props) {
-  const onlyOnEthereum = useOnlyOnEthereum(p, freeLpt);
-  if (loading || !p || p.delegate) return null;
-  // The action beside the balance is the bridge; this says why.
-  if (canManage && onlyOnEthereum > 0) {
-    return (
-      <p className="text-ui-body text-muted-foreground">
-        Not delegated. Your LPT is on Ethereum; bridge it to Arbitrum to
-        delegate it.
-      </p>
-    );
-  }
-  return (
-    <p className="text-ui-body text-muted-foreground">
-      {canManage
-        ? "Not delegated. Choose an orchestrator to start earning rewards and fees."
-        : "Not delegated to an orchestrator right now."}
-    </p>
+  render,
+}: {
+  loading: boolean;
+  position: Position | undefined;
+  canManage: boolean;
+  freeLpt: number | undefined;
+  render: (slots: HeadlineSlots) => React.ReactNode;
+}) {
+  const { open } = useStaking();
+  const { bridge } = useBridge();
+  const account = p?.account.address;
+  const held = useHeld(account);
+  const caption = (text: string) => (
+    <div className="text-ui-caption text-muted-foreground">{text}</div>
   );
+  if (loading || !p || !account) {
+    return render({
+      label: caption("Delegated stake"),
+      position: null,
+      actions: canManage && <Skeleton className="h-8 w-56 rounded-md" />,
+      balances: null,
+    });
+  }
+
+  const browse = `/orchestrators?account=${account}`;
+  const arbitrumBalance: Balance = {
+    key: "arbitrum",
+    network: "Arbitrum",
+    lpt: held.arbitrum,
+    actions: canManage
+      ? [
+          p.delegate
+            ? {
+                label: "Delegate",
+                icon: <Plus />,
+                onClick: () =>
+                  open({
+                    kind: "delegate",
+                    to: p.delegate!,
+                    account,
+                    amount: freeLpt ?? held.arbitrum,
+                  }),
+              }
+            : // No orchestrator yet: the same move, by way of choosing one.
+              { label: "Delegate", icon: <Plus />, href: browse },
+          {
+            label: "Bridge to Ethereum",
+            icon: <ArrowLeftRight />,
+            onClick: () => bridge(account, "toEthereum"),
+          },
+        ]
+      : [],
+  };
+  const ethereumBalance: Balance = {
+    key: "ethereum",
+    network: "Ethereum",
+    lpt: held.ethereum,
+    actions: canManage
+      ? [
+          {
+            label: "Bridge to Arbitrum",
+            icon: <ArrowLeftRight />,
+            onClick: () => bridge(account, "toArbitrum"),
+          },
+        ]
+      : [],
+  };
+  const chip = (balances: Balance[], total?: boolean) =>
+    balances.length ? (
+      <BalanceChip balances={balances} total={total} />
+    ) : null;
+  const note = (text: string) => (
+    <p className="text-ui-body text-muted-foreground">{text}</p>
+  );
+  const browseButton = (primary: boolean) => (
+    <Link
+      href={browse}
+      className={cn(
+        buttonVariants({ variant: primary ? "primary" : "outline", size: "sm" })
+      )}
+    >
+      Browse orchestrators
+    </Link>
+  );
+
+  // Delegated: the stake leads; what isn't delegated sits under it.
+  if (p.delegate) {
+    return render({
+      label: <DelegatedTo position={p} />,
+      position: null,
+      actions: canManage && (
+        <DelegationActions
+          position={p}
+          delegate={p.delegate}
+          freeLpt={freeLpt}
+        />
+      ),
+      balances: chip(
+        [
+          ...(held.arbitrum ? [arbitrumBalance] : []),
+          ...(held.ethereum ? [ethereumBalance] : []),
+        ],
+        true
+      ),
+    });
+  }
+
+  // Nothing delegated, LPT on both networks: the total leads, split below.
+  if (held.arbitrum && held.ethereum) {
+    return render({
+      label: caption("In wallet"),
+      headline: held.arbitrum + held.ethereum,
+      position: null,
+      actions: canManage && browseButton(true),
+      balances: chip([arbitrumBalance, ethereumBalance]),
+    });
+  }
+
+  // Nothing delegated, LPT on one network: that balance leads, and its next
+  // step is the main button.
+  if (held.ethereum) {
+    return render({
+      label: caption("On Ethereum"),
+      headline: held.ethereum,
+      position: note(
+        canManage
+          ? "Not delegated. Bridge it to Arbitrum to delegate it."
+          : "Not delegated."
+      ),
+      actions: canManage && (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => bridge(account, "toArbitrum")}
+          >
+            <ArrowLeftRight /> Bridge to Arbitrum
+          </Button>
+          {browseButton(false)}
+        </div>
+      ),
+      balances: null,
+    });
+  }
+  if (held.arbitrum) {
+    return render({
+      label: caption("On Arbitrum"),
+      headline: held.arbitrum,
+      position: note(
+        canManage
+          ? "Not delegated. Choose an orchestrator to start earning rewards and fees."
+          : "Not delegated."
+      ),
+      actions: canManage && (
+        <div className="flex items-center gap-2">
+          {browseButton(true)}
+          <Button size="sm" onClick={() => bridge(account, "toEthereum")}>
+            <ArrowLeftRight /> Bridge to Ethereum
+          </Button>
+        </div>
+      ),
+      balances: null,
+    });
+  }
+
+  // Nothing at all.
+  return render({
+    label: caption("Delegated stake"),
+    position: note(
+      canManage
+        ? "Not delegated. Choose an orchestrator to start earning rewards and fees."
+        : "Not delegated to an orchestrator right now."
+    ),
+    actions: canManage && browseButton(true),
+    balances: null,
+  });
 }
