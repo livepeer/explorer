@@ -1,5 +1,5 @@
 import { Box, Link as A } from "@livepeer/design-system";
-import { ChevronRightIcon } from "@modulz/radix-icons";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 
 const PopoverLink = ({ href, children, newWindow = false }) => {

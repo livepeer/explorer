@@ -1,0 +1,12 @@
+query gatewaySelfRedeem($account: String!) {
+  winningTicketRedeemedEvents(
+    first: 1
+    orderBy: timestamp
+    orderDirection: desc
+    where: { sender: $account, recipient: $account }
+  ) {
+    transaction {
+      timestamp
+    }
+  }
+}

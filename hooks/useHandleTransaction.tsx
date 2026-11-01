@@ -1,12 +1,16 @@
+import { trackTransaction } from "@lib/analytics";
 import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { capitalCase } from "change-case";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { isHash } from "viem";
+import { useConfig } from "wagmi";
 
 import {
   InputData,
   TransactionIdentifier,
   useExplorerStore,
 } from "./useExplorerStore";
+import { useIsSafe } from "./wallet";
 
 export const useHandleTransaction = (
   id: TransactionIdentifier,
@@ -24,6 +28,9 @@ export const useHandleTransaction = (
     setLatestTransactionDetails,
   } = useExplorerStore();
   const addRecentTransaction = useAddRecentTransaction();
+  const config = useConfig();
+  const isSafe = useIsSafe();
+  const trackedHash = useRef<string | null>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -32,15 +39,26 @@ export const useHandleTransaction = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
+  // Safes return a Safe tx hash (or a non-hash value) instead of an on-chain
+  // tx hash, which RainbowKit would track forever or throw on, and whose
+  // receipt would never arrive. Funnel events wait for a settled on-chain
+  // hash for the same reason.
   useEffect(() => {
-    if (data) {
+    if (
+      data &&
+      isHash(data) &&
+      isSafe === false &&
+      trackedHash.current !== data
+    ) {
       addRecentTransaction({
         hash: data,
         description: capitalCase(id),
       });
+      trackTransaction(config, id, args, data);
+      trackedHash.current = data;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, isSafe, addRecentTransaction, id]);
 
   useEffect(() => {
     if (data) {

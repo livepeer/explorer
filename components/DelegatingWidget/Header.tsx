@@ -1,6 +1,6 @@
 import { EnsIdentity } from "@lib/api/types/get-ens";
-import { formatAddress } from "@lib/utils";
 import { Box, Flex, Heading } from "@livepeer/design-system";
+import { formatAddress } from "@utils/web3";
 import { QRCodeCanvas } from "qrcode.react";
 
 import { TranscoderOrDelegateType } from ".";
@@ -42,9 +42,11 @@ const Header = ({
               height: 40,
             }}
             src={delegateProfile.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 40,

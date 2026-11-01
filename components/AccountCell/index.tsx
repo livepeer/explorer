@@ -1,5 +1,6 @@
-import { formatAddress, textTruncate } from "@lib/utils";
+import { textTruncate } from "@lib/utils";
 import { Box, Flex } from "@livepeer/design-system";
+import { formatAddress } from "@utils/web3";
 import { useEnsData } from "hooks";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -49,9 +50,11 @@ const Index = ({ active, address }) => {
               borderColor: "$neutral5",
             }}
             src={identity.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 24,

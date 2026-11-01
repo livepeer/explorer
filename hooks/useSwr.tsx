@@ -3,7 +3,6 @@ import {
   AvailablePipelines,
   Pipeline,
 } from "@lib/api/types/get-available-pipelines";
-import { GetChangefeed } from "@lib/api/types/get-changefeed";
 import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
@@ -14,6 +13,7 @@ import {
   AllPerformanceMetrics,
   PerformanceMetrics,
 } from "@lib/api/types/get-performance";
+import { ProtocolDayData } from "@lib/api/types/get-protocol-day-data";
 import { Regions } from "@lib/api/types/get-regions";
 import { SupplyChangeData } from "@lib/api/types/get-supply-change";
 import {
@@ -22,7 +22,7 @@ import {
   RegisteredToVote,
   VotingPower,
 } from "@lib/api/types/get-treasury-proposal";
-import { formatAddress } from "@lib/utils";
+import { formatAddress } from "@utils/web3";
 import useSWR from "swr";
 import { Address } from "viem";
 
@@ -63,19 +63,22 @@ export const useChartData = () => {
   return data ?? null;
 };
 
-export const useChangefeedData = () => {
-  const { data } = useSWR<GetChangefeed>(`/changefeed`);
+export const useProtocolDayData = () => {
+  const { data } = useSWR<ProtocolDayData>(`/protocol-day-data`);
 
   return data ?? null;
 };
 
 export const useSupplyChangeData = () => {
-  const { data, error, isValidating } =
-    useSWR<SupplyChangeData>(`/supply-change`);
+  // Round-keyed cache: only refetch when the round changes.
+  const round = useCurrentRoundData();
+  const { data, error, isValidating } = useSWR<SupplyChangeData>(
+    round?.id ? `/supply-change?round=${round.id}` : null
+  );
 
   return {
     data: data ?? null,
-    isLoading: Boolean(!data && isValidating && !error),
+    isLoading: Boolean(round?.id && !data && isValidating && !error),
     error,
   };
 };

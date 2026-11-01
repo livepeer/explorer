@@ -8,8 +8,12 @@ out
 node_modules
 
 # misc
+.claude
+.playwright-mcp
+.pnpm-store
 .github
 .vscode
+.playwright-mcp
 @types
 apollo
 codegen.yml

@@ -1,6 +1,6 @@
-import { formatTransactionHash } from "@lib/utils";
 import { Badge, Box, Link as A } from "@livepeer/design-system";
-import { ArrowTopRightIcon } from "@modulz/radix-icons";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
+import { formatTransactionHash } from "@utils/web3";
 
 interface TransactionBadgeProps {
   id: string | undefined;
@@ -11,7 +11,6 @@ const TransactionBadge = ({ id }: TransactionBadgeProps) => {
     <A
       target="_blank"
       rel="noopener noreferrer"
-      variant="primary"
       href={id ? `https://arbiscan.io/tx/${id}` : "https://arbiscan.io"}
       css={{
         display: "inline-flex",

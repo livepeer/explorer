@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: true,
+
   turbopack: {
     rules: {
       "*.svg": {
@@ -9,8 +11,23 @@ const nextConfig = {
     },
   },
 
+  // Safe{Wallet} fetches the manifest cross-origin to add the explorer as a Safe App.
+  async headers() {
+    return [
+      {
+        source: "/manifest.json",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+    ];
+  },
+
   async redirects() {
     return [
+      {
+        source: "/whats-new",
+        destination: "https://livepeer.org/changelog",
+        permanent: false,
+      },
       {
         source: "/accounts/:slug",
         destination: "/accounts/:slug/delegating",

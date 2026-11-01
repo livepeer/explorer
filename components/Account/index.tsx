@@ -1,5 +1,5 @@
-import { formatAddress } from "@lib/utils";
 import { Box, Flex, Link as A } from "@livepeer/design-system";
+import { formatAddress } from "@utils/web3";
 import { useAccountAddress, useEnsData } from "hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";

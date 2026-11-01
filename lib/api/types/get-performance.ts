@@ -9,15 +9,16 @@ export type Score = {
   orchestrator: string;
 };
 
+// Null means the upstream could not be reached; empty or zero means no data.
 export type PerformanceMetrics = {
-  successRates: RegionalValues;
-  roundTripScores: RegionalValues;
+  successRates: RegionalValues | null;
+  roundTripScores: RegionalValues | null;
 
-  scores: RegionalValues;
+  scores: RegionalValues | null;
 
-  pricePerPixel: number;
+  pricePerPixel: number | null;
 
-  topAIScore: Score;
+  topAIScore: Score | null;
 };
 
 export type AllPerformanceMetrics = {

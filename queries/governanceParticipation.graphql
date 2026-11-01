@@ -1,0 +1,67 @@
+query governanceParticipation(
+  $delegate: String!
+  $first: Int!
+  $block: Block_height
+  $activationCursor: ID!
+  $deactivationCursor: ID!
+  $proposalCursor: ID!
+  $voteCursor: ID!
+  $includeActivations: Boolean!
+  $includeDeactivations: Boolean!
+  $includeProposals: Boolean!
+  $includeVotes: Boolean!
+) {
+  _meta(block: $block) {
+    block {
+      number
+    }
+  }
+  transcoderActivatedEvents(
+    first: $first
+    block: $block
+    where: { delegate: $delegate, id_gt: $activationCursor }
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeActivations) {
+    id
+    activationRound
+    transaction {
+      blockNumber
+    }
+  }
+  transcoderDeactivatedEvents(
+    first: $first
+    block: $block
+    where: { delegate: $delegate, id_gt: $deactivationCursor }
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeDeactivations) {
+    id
+    deactivationRound
+    transaction {
+      blockNumber
+    }
+  }
+  treasuryProposals(
+    first: $first
+    block: $block
+    where: { id_gt: $proposalCursor }
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeProposals) {
+    id
+    voteStart
+  }
+  treasuryVotes(
+    first: $first
+    block: $block
+    where: { voter: $delegate, id_gt: $voteCursor }
+    orderBy: id
+    orderDirection: asc
+  ) @include(if: $includeVotes) {
+    id
+    proposal {
+      id
+    }
+  }
+}

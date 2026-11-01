@@ -11,12 +11,64 @@ type HorizontalScrollContainerProps = {
   children: ReactNode;
   ariaLabel?: string;
   role?: "navigation";
+  activeItemKey?: string | number;
+};
+
+const getTabs = (container: HTMLDivElement) =>
+  Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[role="tab"], [data-tab], button, a, [data-active="true"]'
+    )
+  ).filter((node) => container.contains(node));
+
+const scrollActiveTabIntoView = (container: HTMLDivElement) => {
+  const activeTab = container.querySelector(
+    '[data-active="true"]'
+  ) as HTMLElement | null;
+
+  if (!activeTab) return;
+
+  const tabs = getTabs(container);
+
+  if (tabs.length === 0) return;
+
+  const lastTab = tabs[tabs.length - 1];
+  const isLastActive = lastTab === activeTab;
+
+  if (isLastActive) {
+    const end = container.scrollWidth - container.clientWidth;
+    container.scrollLeft = Math.max(0, end);
+    return;
+  }
+
+  const activeLeft = activeTab.offsetLeft;
+  const activeRight = activeLeft + activeTab.offsetWidth;
+  const visibleLeft = container.scrollLeft;
+  const visibleRight = visibleLeft + container.clientWidth;
+
+  let nextScrollLeft = container.scrollLeft;
+
+  if (activeLeft < visibleLeft) {
+    nextScrollLeft = activeLeft;
+  } else if (activeRight > visibleRight) {
+    nextScrollLeft = activeRight - container.clientWidth;
+  }
+
+  const maxScrollLeft = container.scrollWidth - container.clientWidth;
+  const clampedScrollLeft = Math.max(
+    0,
+    Math.min(nextScrollLeft, maxScrollLeft)
+  );
+
+  if (Math.abs(clampedScrollLeft - container.scrollLeft) > 1) {
+    container.scrollLeft = clampedScrollLeft;
+  }
 };
 
 const HorizontalScrollContainer = forwardRef<
   HTMLDivElement,
   HorizontalScrollContainerProps
->(({ children, ariaLabel, role }, ref) => {
+>(({ children, ariaLabel, role, activeItemKey }, ref) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -52,37 +104,24 @@ const HorizontalScrollContainer = forwardRef<
     const el = innerRef.current;
     if (!el) return;
 
-    const raf = requestAnimationFrame(() => {
-      const activeTab = el.querySelector(
-        '[data-active="true"]'
-      ) as HTMLElement | null;
+    const syncActiveTab = () => scrollActiveTabIntoView(el);
 
-      if (!activeTab) return;
+    const raf = requestAnimationFrame(syncActiveTab);
+    const observer = new ResizeObserver(syncActiveTab);
+    observer.observe(el);
 
-      const tabs = Array.from(
-        el.querySelectorAll<HTMLElement>(
-          '[role="tab"], [data-tab], button, a, [data-active="true"]'
-        )
-      ).filter((node) => el.contains(node));
+    const activeTab = el.querySelector(
+      '[data-active="true"]'
+    ) as HTMLElement | null;
+    if (activeTab) {
+      observer.observe(activeTab);
+    }
 
-      if (tabs.length === 0) {
-        activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
-        return;
-      }
-
-      const lastTab = tabs[tabs.length - 1];
-      const isLastActive = lastTab === activeTab;
-
-      if (isLastActive) {
-        const end = el.scrollWidth - el.clientWidth;
-        el.scrollLeft = Math.max(0, end);
-      } else {
-        activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
-      }
-    });
-
-    return () => cancelAnimationFrame(raf);
-  }, [children]);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [activeItemKey]);
 
   const setRefs = (node: HTMLDivElement | null) => {
     innerRef.current = node;

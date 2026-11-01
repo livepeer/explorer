@@ -1,6 +1,6 @@
 import Spinner from "@components/Spinner";
-import { lptFormatter } from "@lib/utils";
 import { Flex, Text } from "@livepeer/design-system";
+import { formatLPT, formatPercent } from "@utils/numberFormatters";
 import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
 import React, { useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
@@ -88,9 +88,11 @@ const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
 
   const formatWeight = useMemo(
     () => (w: string) =>
-      `${lptFormatter.format(parseFloat(w))} LPT (${
-        totalWeight > 0 ? ((parseFloat(w) / totalWeight) * 100).toFixed(2) : "0"
-      }%)`,
+      `${formatLPT(parseFloat(w), { abbreviate: false })} (${
+        totalWeight > 0
+          ? formatPercent(parseFloat(w) / totalWeight)
+          : formatPercent(0)
+      })`,
     [totalWeight]
   );
 

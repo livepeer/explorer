@@ -5,7 +5,7 @@ import { roundsManager } from "@lib/api/abis/main/RoundsManager";
 import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
 import { CHAIN_INFO, L1_CHAIN_ID, l1PublicClient } from "@lib/chains";
-import { EMPTY_ADDRESS } from "@lib/utils";
+import { EMPTY_ADDRESS } from "@utils/web3";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address, isAddress } from "viem";

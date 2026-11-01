@@ -4,17 +4,25 @@ import Table from "@components/Table";
 import { Pipeline } from "@lib/api/types/get-available-pipelines";
 import { AllPerformanceMetrics } from "@lib/api/types/get-performance";
 import { Region } from "@lib/api/types/get-regions";
-import { formatAddress, textTruncate } from "@lib/utils";
+import { textTruncate } from "@lib/utils";
 import { Badge, Box, Flex, Link as A, Skeleton } from "@livepeer/design-system";
-import { QuestionMarkCircledIcon } from "@modulz/radix-icons";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { formatNumber, formatPercent } from "@utils/numberFormatters";
+import { formatAddress } from "@utils/web3";
 import { OrchestratorsQueryResult } from "apollo";
-import { useEnsData } from "hooks";
+import { useEnsData, usePersistedExplorerListState } from "hooks";
 import Link from "next/link";
-import numbro from "numbro";
 import { useMemo } from "react";
 import { Column } from "react-table";
 
 const EmptyData = () => <Skeleton css={{ height: 20, width: 100 }} />;
+
+const DEFAULT_SORT_BY = [
+  {
+    id: "scores",
+    desc: true,
+  },
+];
 
 const PerformanceList = ({
   orchestratorIds,
@@ -40,15 +48,28 @@ const PerformanceList = ({
   const scoreAccessor = `scores.${region}`; //total score
   const successRateAccessor = `successRates.${region}`; //success rate
   const roundTripScoreAccessor = `roundTripScores.${region}`; //latency score
+  const listKey = useMemo(
+    () =>
+      [
+        "leaderboard-performance",
+        region,
+        pipeline ?? "transcoding",
+        model ?? "default",
+      ].join(":"),
+    [model, pipeline, region]
+  );
+  const { handleTableStateChange, persistedState, saveCurrentScroll } =
+    usePersistedExplorerListState({
+      listKey,
+      routePath: "/leaderboard",
+    });
 
   const initialState = {
+    pageIndex: persistedState.pageIndex,
     pageSize: pageSize,
-    sortBy: [
-      {
-        id: "scores",
-        desc: true,
-      },
-    ],
+    sortBy: persistedState.sortBy.length
+      ? persistedState.sortBy
+      : DEFAULT_SORT_BY,
     hiddenColumns: [
       "activationRound",
       "deactivationRound",
@@ -149,7 +170,7 @@ const PerformanceList = ({
                         },
                       }}
                     >
-                      {row.values.id.substring(0, 6)}
+                      {formatAddress(row.values.id.substring(0, 6))}
                     </Badge>
                   </Flex>
                 ) : (
@@ -170,8 +191,8 @@ const PerformanceList = ({
                       },
                     }}
                   >
-                    {numbro(row.values.scores).divide(10).format({
-                      mantissa: 2,
+                    {formatNumber(row.values.scores / 10, {
+                      precision: 2,
                     })}
                   </Badge>
                 ) : null}
@@ -230,9 +251,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(10).format({
-                    mantissa: 2,
-                  })}
+                : formatNumber(Number(value) / 10, { precision: 2 })}
             </Box>
           );
         },
@@ -268,10 +287,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(100).format({
-                    output: "percent",
-                    mantissa: 0,
-                  })}
+                : formatPercent(Number(value) / 100, { precision: 0 })}
             </Box>
           );
         },
@@ -308,9 +324,7 @@ const PerformanceList = ({
             <Box>
               {typeof value === "undefined" || value === null
                 ? "---"
-                : numbro(value).divide(10).format({
-                    mantissa: 2,
-                  })}
+                : formatNumber(Number(value) / 10, { precision: 2 })}
             </Box>
           );
         },
@@ -326,7 +340,17 @@ const PerformanceList = ({
     ]
   );
   return (
-    <Table data={mergedData} columns={columns} initialState={initialState} />
+    <Box onClickCapture={saveCurrentScroll}>
+      <Table
+        key={listKey}
+        data={mergedData}
+        columns={columns}
+        autoResetPage={false}
+        autoResetSortBy={false}
+        onStateChange={handleTableStateChange}
+        initialState={initialState}
+      />
+    </Box>
   );
 };
 

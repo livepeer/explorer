@@ -53,6 +53,12 @@ query events($first: Int) {
         }
         rewardTokens
       }
+      ... on RewardCallerSetEvent {
+        delegate {
+          id
+        }
+        rewardCaller
+      }
       ... on WithdrawStakeEvent {
         delegator {
           id
@@ -129,9 +135,15 @@ query events($first: Int) {
           from
         }
       }
-      # ... on ReserveClaimedEvent {
-      # TODO implement
-      # }
+      ... on ReserveClaimedEvent {
+        claimant {
+          id
+        }
+        reserveHolder {
+          id
+        }
+        amount
+      }
       ... on WithdrawalEvent {
         sender {
           id
