@@ -368,6 +368,7 @@ describe("derived metrics", () => {
       rewards: i === 0 ? 0 : stake - stake / 1.01,
       commission: 0,
       fees: 0,
+      feeCommission: 0,
       share: null,
     }));
     const rate = trailingRoundRate(series);
@@ -386,6 +387,7 @@ describe("derived metrics", () => {
       rewards: i === 0 ? 0 : 0.004 + 1.5,
       commission: i === 0 ? 0 : 1.5,
       fees: 0,
+      feeCommission: 0,
       share: null,
     }));
     const rate = trailingRoundRate(series);
@@ -406,6 +408,7 @@ describe("derived metrics", () => {
       rewards: 0,
       commission: 0,
       fees: i === 0 ? 0 : 0.01,
+      feeCommission: 0,
       share: null,
     }));
     const rate = trailingFeeRate(series);
@@ -413,6 +416,25 @@ describe("derived metrics", () => {
     // 365 one-day rounds at 200 LPT per ETH: 0.00001 × 200 × 365 = 73%.
     expect(annualizeFees(rate, 86400, 200)).toBeCloseTo(73, 6);
     expect(annualizeFees(rate, 86400, 0)).toBe(0);
+  });
+
+  it("keeps an orchestrator's fee cut out of its fee yield", () => {
+    // A 100 LPT self-bond: 0.001 ETH a round on its own stake, plus a 0.05
+    // ETH fee cut from every job its pool did. Counted against its own bond,
+    // the cut alone would read as 18,250% at 200 LPT per ETH.
+    const series = Array.from({ length: 31 }, (_, i) => ({
+      round: i,
+      ts: i,
+      stake: 100,
+      rewards: 0,
+      commission: 0,
+      fees: i === 0 ? 0 : 0.001 + 0.05,
+      feeCommission: i === 0 ? 0 : 0.05,
+      share: null,
+    }));
+    const rate = trailingFeeRate(series);
+    expect(rate).toBeCloseTo(0.00001, 12);
+    expect(annualizeFees(rate, 86400, 200)).toBeCloseTo(73, 6);
   });
 });
 
@@ -424,6 +446,7 @@ describe("averageStakeSince", () => {
     rewards: 0,
     commission: 0,
     fees: 0,
+    feeCommission: 0,
     share: 0,
   });
 
