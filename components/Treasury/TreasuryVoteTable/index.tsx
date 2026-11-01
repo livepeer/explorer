@@ -39,20 +39,24 @@ const useVotes = (proposalId: string) => {
     },
   });
 
-  const votes = useMemo(() => {
-    const votesList = treasuryVotesData?.treasuryVotes;
-    const eventsList = treasuryVoteEventsData?.treasuryVoteEvents;
+  const votesList = treasuryVotesData?.treasuryVotes;
+  const eventsList = treasuryVoteEventsData?.treasuryVoteEvents;
 
+  const votes = useMemo(() => {
     if (!votesList || !eventsList) {
       return [];
     }
 
-    return votesList.map((vote) => {
-      const events = eventsList
-        .filter((event) => event.voter.id === vote.voter.id)
-        .sort((a, b) => b.timestamp - a.timestamp);
+    const latestEventByVoter = new Map<string, (typeof eventsList)[number]>();
+    for (const event of eventsList) {
+      const current = latestEventByVoter.get(event.voter.id);
+      if (!current || event.timestamp > current.timestamp) {
+        latestEventByVoter.set(event.voter.id, event);
+      }
+    }
 
-      const latestEvent = events[0];
+    return votesList.map((vote) => {
+      const latestEvent = latestEventByVoter.get(vote.voter.id);
 
       return {
         ...vote,
@@ -61,7 +65,7 @@ const useVotes = (proposalId: string) => {
         timestamp: latestEvent?.timestamp,
       };
     }) as Vote[];
-  }, [treasuryVotesData, treasuryVoteEventsData]);
+  }, [votesList, eventsList]);
 
   return {
     votes,
