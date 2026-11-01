@@ -7,13 +7,16 @@ import {
   ChevronDown,
   Copy,
   LogOut,
+  RefreshCw,
   UserRound,
   Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { toast } from "sonner";
-import { useDisconnect } from "wagmi";
+import { useBalance, useDisconnect, useReadContract } from "wagmi";
 
+import { useBridge } from "@/components/bridge/context";
 import { Avatar, useIdentity } from "@/components/identity";
 import {
   Menu,
@@ -21,10 +24,16 @@ import {
   MenuItem,
   MenuSeparator,
   MenuTrigger,
+  Skeleton,
 } from "@/components/ui/misc";
-import { shortAddress } from "@/lib/format";
+import { livepeerToken } from "@/lib/abis/LivepeerToken";
+import { useL1Lpt } from "@/lib/bridge/withdrawals";
+import { cn } from "@/lib/cn";
+import { L2_CHAIN } from "@/lib/config";
+import { formatToken, fromWei, shortAddress } from "@/lib/format";
 import { useConnectWallet } from "@/lib/hooks/connect";
 import { useAddresses } from "@/lib/hooks/watchlist";
+import { useProtocolContract } from "@/lib/staking/contracts";
 
 /**
  * A ghost button, like "New poll": same height, radius and type as the
@@ -32,6 +41,116 @@ import { useAddresses } from "@/lib/hooks/watchlist";
  */
 const PILL =
   "inline-flex h-8 cursor-pointer items-center gap-2 rounded-sm pr-2.5 pl-1.5 text-sm font-medium transition-colors outline-none hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40 aria-expanded:bg-hover";
+
+/** Under this, ETH on Arbitrum may not cover a transaction's gas. */
+const LOW_GAS_ETH = 0.0002;
+
+/**
+ * What the wallet holds, wherever you are in the app: LPT to delegate, and
+ * ETH on Arbitrum for gas, which nothing works without. LPT on Ethereum is
+ * named on the Bridge item, the one thing to do with it.
+ */
+function WalletBalances({ address }: { address: string }) {
+  const token = useProtocolContract("LivepeerToken");
+  const addr = address as `0x${string}`;
+  const { data: lptWei } = useReadContract({
+    address: token,
+    abi: livepeerToken,
+    functionName: "balanceOf",
+    args: [addr],
+    chainId: L2_CHAIN.id,
+    query: { enabled: Boolean(token), staleTime: 60_000 },
+  });
+  const { data: eth } = useBalance({
+    address: addr,
+    chainId: L2_CHAIN.id,
+    query: { staleTime: 60_000 },
+  });
+  const lpt = lptWei != null ? fromWei(lptWei as bigint) : null;
+  const ethAmount = eth ? fromWei(eth.value) : null;
+  const lowGas = ethAmount != null && ethAmount < LOW_GAS_ETH;
+  // One figure per token, the network under it.
+  const figure = (
+    unit: string,
+    value: number | null,
+    note: React.ReactNode,
+    warn = false
+  ) => (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      {value == null ? (
+        <Skeleton className="my-0.5 h-5 w-20" />
+      ) : (
+        <span
+          className={cn(
+            "truncate text-[18px] leading-6 font-medium tracking-[-0.01em] tabular-nums",
+            warn && "text-warm"
+          )}
+          title={warn ? "Low: may not cover gas on Arbitrum" : undefined}
+        >
+          {formatToken(value)}{" "}
+          <span className="text-ui-caption font-normal text-muted-foreground">
+            {unit}
+          </span>
+        </span>
+      )}
+      <span className="text-ui-caption text-subtle-foreground">{note}</span>
+    </div>
+  );
+  return (
+    <div className="grid grid-cols-2 gap-3 px-2 pt-1 pb-2">
+      {figure("LPT", lpt, "On Arbitrum")}
+      {figure("ETH", ethAmount, "For gas", lowGas)}
+    </div>
+  );
+}
+
+/** The wallet at the top of its menu: who, and its address. */
+function Identity({
+  address,
+  name,
+  avatar,
+  onCopy,
+}: {
+  address: string;
+  name: string | null | undefined;
+  avatar: string | null;
+  onCopy: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 px-2 pt-2 pb-2">
+      {/* Sized to the lines beside it: two with a name, one without. */}
+      <Avatar address={address} src={avatar} size={name ? 32 : 28} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Without a name, the address once, not twice. */}
+        {name && (
+          <span className="truncate text-ui-body font-medium text-foreground">
+            {name}
+          </span>
+        )}
+        <span
+          className={cn(
+            "font-mono",
+            // Without a name, the address is its name: named size.
+            name
+              ? "text-[12px] text-subtle-foreground"
+              : "text-[13px] font-medium text-foreground"
+          )}
+        >
+          {shortAddress(address)}
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={onCopy}
+        aria-label="Copy address"
+        title="Copy address"
+        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-subtle-foreground outline-none transition-colors hover:bg-hover hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40"
+      >
+        <Copy className="size-3.5" />
+      </button>
+    </div>
+  );
+}
 
 function Connected({
   address,
@@ -42,6 +161,9 @@ function Connected({
 }) {
   const router = useRouter();
   const { disconnect } = useDisconnect();
+  const { bridge } = useBridge();
+  const addresses = useMemo(() => [address], [address]);
+  const onEthereum = useL1Lpt(addresses).get(address);
   const { name, avatar } = useIdentity(address);
   const { list } = useAddresses();
   const label = list.find((w) => w.address === address.toLowerCase())?.label;
@@ -77,19 +199,32 @@ function Connected({
         </span>
         <ChevronDown className="size-3 text-subtle-foreground" />
       </MenuTrigger>
-      <MenuContent align="end" className="w-56">
-        <div className="px-2 pt-1.5 pb-1 text-ui-caption text-subtle-foreground">
-          Connected · {shortAddress(address)}
-        </div>
+      <MenuContent align="end" className="w-72">
+        {/* The wallet itself; what to do with it, under a divider. */}
+        <Identity
+          address={address}
+          name={label ?? name}
+          avatar={avatar}
+          onCopy={copy}
+        />
+        <WalletBalances address={address} />
+        <MenuSeparator />
+        {/* Starts where the LPT is: from Ethereum if there's some there,
+            which it names, since that's what it would bridge. */}
+        <MenuItem onClick={() => bridge(address)}>
+          <ArrowLeftRight /> Bridge LPT
+          {onEthereum != null && (
+            <span className="ml-auto text-ui-caption text-muted-foreground tabular-nums">
+              {formatToken(onEthereum)} on Ethereum
+            </span>
+          )}
+        </MenuItem>
         <MenuItem onClick={() => router.push(`/accounts/${address}`)}>
           <UserRound /> View account
         </MenuItem>
-        <MenuItem onClick={copy}>
-          <Copy /> Copy address
-        </MenuItem>
         <MenuSeparator />
         <MenuItem onClick={onSwitch}>
-          <ArrowLeftRight /> Switch wallet
+          <RefreshCw /> Switch wallet
         </MenuItem>
         <MenuItem onClick={() => disconnect()}>
           <LogOut /> Disconnect

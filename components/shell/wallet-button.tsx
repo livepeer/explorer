@@ -3,7 +3,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   AlertTriangle,
-  ArrowLeftRight,
   Check,
   ChevronsUpDown,
   Copy,
@@ -20,7 +19,6 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDisconnect } from "wagmi";
 
-import { useBridge } from "@/components/bridge/context";
 import { Avatar, useIdentity } from "@/components/identity";
 import {
   AddAddressDialog,
@@ -112,7 +110,6 @@ function PortfolioSwitcher({
   const [adding, setAdding] = useState(false);
   const [renaming, setRenaming] = useState<PortfolioAccount | null>(null);
   const { add, remove } = useAddresses();
-  const { bridge } = useBridge();
 
   const copy = async (address: string) => {
     try {
@@ -149,12 +146,6 @@ function PortfolioSwitcher({
       ? accounts.find((a) => a.address === here?.toLowerCase())
       : undefined
     : accounts[0];
-  // Bridge for the wallet that can sign, else the one being viewed.
-  const bridgeTarget = (
-    accounts.find((a) => a.connected) ??
-    viewing ??
-    accounts[0]
-  )?.address;
 
   // All wallets is the portfolio; one wallet is its account page.
   const view = (next: string) =>
@@ -264,11 +255,6 @@ function PortfolioSwitcher({
             </div>
           ))}
           <MenuSeparator />
-          {bridgeTarget && (
-            <MenuItem onClick={() => bridge(bridgeTarget)}>
-              <ArrowLeftRight /> Bridge LPT
-            </MenuItem>
-          )}
           <MenuItem onClick={() => setAdding(true)}>
             <Eye /> Watch address
           </MenuItem>
