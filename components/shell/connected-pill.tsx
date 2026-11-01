@@ -97,7 +97,8 @@ function WalletBalances({ address }: { address: string }) {
     </div>
   );
   return (
-    <div className="grid grid-cols-2 gap-3 px-2 pt-1 pb-2">
+    // The menu items' inset (px-2.5), so figures and icons share an edge.
+    <div className="grid grid-cols-2 gap-3 px-2.5 pt-1 pb-2">
       {figure("LPT", lpt, "On Arbitrum")}
       {figure("ETH", ethAmount, "For gas", lowGas)}
     </div>
@@ -117,7 +118,7 @@ function Identity({
   onCopy: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2.5 px-2 pt-2 pb-2">
+    <div className="flex items-center gap-2.5 px-2.5 pt-2 pb-2">
       {/* Sized to the lines beside it: two with a name, one without. */}
       <Avatar address={address} src={avatar} size={name ? 32 : 28} />
       <div className="flex min-w-0 flex-1 flex-col">
@@ -144,7 +145,8 @@ function Identity({
         onClick={onCopy}
         aria-label="Copy address"
         title="Copy address"
-        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-subtle-foreground outline-none transition-colors hover:bg-hover hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40"
+        // Pulled out by its padding: the icon ends where the items' text does.
+        className="-mr-[7px] flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-subtle-foreground outline-none transition-colors hover:bg-hover hover:text-foreground focus-visible:ring-1 focus-visible:ring-green-bright/40"
       >
         <Copy className="size-3.5" />
       </button>
