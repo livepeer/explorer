@@ -142,6 +142,61 @@ describe("ENS avatar image API", () => {
     expect(res.end).toHaveBeenCalledWith(image);
   });
 
+  it("applies EXIF orientation before re-encoding", async () => {
+    // Stored as 400x200, left half red and right half blue. Orientation 6
+    // displays it rotated 90° clockwise: red on top, blue at the bottom.
+    const red = await sharp({
+      create: { width: 200, height: 200, channels: 3, background: "#f00" },
+    })
+      .png()
+      .toBuffer();
+    const image = await sharp({
+      create: { width: 400, height: 200, channels: 3, background: "#00f" },
+    })
+      .composite([{ input: red, left: 0, top: 0 }])
+      .jpeg()
+      .withMetadata({ orientation: 6 })
+      .toBuffer();
+    fetchMock.mockResolvedValue(
+      new Response(image, { headers: { "content-type": "image/jpeg" } })
+    );
+    const res = response();
+
+    await handler(request("alice.eth"), res);
+
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/webp");
+    const { data, info } = await sharp(res.end.mock.calls[0][0])
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const pixel = (x: number, y: number) => {
+      const i = (y * info.width + x) * info.channels;
+      return { r: data[i], b: data[i + 2] };
+    };
+    const top = pixel(80, 5);
+    const bottom = pixel(80, info.height - 5);
+    expect(top.r).toBeGreaterThan(200);
+    expect(top.b).toBeLessThan(50);
+    expect(bottom.b).toBeGreaterThan(200);
+    expect(bottom.r).toBeLessThan(50);
+  });
+
+  it("serves images over the pixel limit unchanged", async () => {
+    const image = await sharp({
+      create: { width: 4200, height: 4200, channels: 3, background: "#888" },
+    })
+      .png()
+      .toBuffer();
+    fetchMock.mockResolvedValue(
+      new Response(image, { headers: { "content-type": "image/png" } })
+    );
+    const res = response();
+
+    await handler(request("alice.eth"), res);
+
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/png");
+    expect(res.end).toHaveBeenCalledWith(image);
+  });
+
   it("rejects non-image responses", async () => {
     fetchMock.mockResolvedValue(
       new Response("not an image", {
