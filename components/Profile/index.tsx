@@ -296,6 +296,7 @@ const Index = ({
                   <Box
                     as={GlobeIcon}
                     css={{ marginRight: "$1", flexShrink: 0 }}
+                    aria-hidden="true"
                   />
                   <Box
                     as="span"
@@ -327,7 +328,11 @@ const Index = ({
                   align="center"
                   css={{ marginTop: "$2", marginRight: "$3" }}
                 >
-                  <Box as={TwitterLogoIcon} css={{ marginRight: "$1" }} />
+                  <Box
+                    as={TwitterLogoIcon}
+                    css={{ marginRight: "$1" }}
+                    aria-hidden="true"
+                  />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
@@ -353,7 +358,11 @@ const Index = ({
                   align="center"
                   css={{ marginTop: "$2", marginRight: "$3" }}
                 >
-                  <Box as={GitHubLogoIcon} css={{ marginRight: "$1" }} />
+                  <Box
+                    as={GitHubLogoIcon}
+                    css={{ marginRight: "$1" }}
+                    aria-hidden="true"
+                  />
                   <Box
                     css={{
                       "@media (max-width: 400px)": {
