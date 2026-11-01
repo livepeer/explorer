@@ -702,7 +702,7 @@ export function BridgeFlow({
                   ? "It usually lands in 10–15 minutes, ready to delegate."
                   : `Claim it on Ethereum around ${day(
                       nowMs + WITHDRAWAL_DAYS * 86_400_000
-                    )}, from Withdrawals on your portfolio or here.`}
+                    )}, from Pending on your portfolio or here.`}
               </span>
               <span className="flex gap-3 text-ui-caption">
                 {sendTx && (
