@@ -151,7 +151,9 @@ export function ExportEarnings({
         disabled={busy || empty}
         aria-label="Export earnings as CSV"
       >
-        {busy ? <Loader2 className="animate-spin" /> : <Download />} CSV
+        {busy ? <Loader2 className="animate-spin" /> : <Download />}
+        {/* The icon alone on a phone. */}
+        <span className="hidden sm:inline">CSV</span>
       </Button>
     </Tooltip>
   );

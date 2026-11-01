@@ -145,6 +145,25 @@ export function PositionLabel({
       <div className="text-ui-caption text-muted-foreground">Total stake</div>
     );
   }
+  // An orchestrator's own stake: its name is already the page's.
+  if (p.delegate.toLowerCase() === p.account.address.toLowerCase()) {
+    return (
+      <div className="flex min-w-0 items-center gap-1 text-ui-body text-muted-foreground">
+        <span className="shrink-0">Self-delegated</span>
+        <span aria-hidden className="text-subtle-foreground">
+          ·
+        </span>
+        <Link
+          href={`/orchestrators/${p.delegate}`}
+          className="group -my-1 flex items-center gap-1 rounded-md px-1.5 py-1 font-medium text-foreground outline-none transition-colors hover:bg-hover focus-visible:ring-1 focus-visible:ring-green-bright/40"
+        >
+          Orchestrator page
+          <ChevronRight className="size-3.5 shrink-0 text-subtle-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+        {!p.active && <span className="shrink-0 text-warm">Inactive</span>}
+      </div>
+    );
+  }
   return (
     <div className="flex min-w-0 items-center gap-1 text-ui-body text-muted-foreground">
       <span className="shrink-0">Delegated to</span>

@@ -32,7 +32,16 @@ const METRICS = [
   { value: "stake", label: "Stake" },
   { value: "rewards", label: "Rewards" },
   { value: "fees", label: "Fees" },
-  { value: "share", label: "Network share" },
+  {
+    value: "share",
+    // Short on a phone, so the metrics fit on one line.
+    label: (
+      <>
+        <span className="sm:hidden">Share</span>
+        <span className="hidden sm:inline">Network share</span>
+      </>
+    ),
+  },
 ] as const;
 
 const axisLpt = (v: number) =>
@@ -81,10 +90,14 @@ export function PortfolioHero({
   const since = days == null ? 0 : nowSec - days * 86400;
   const earned = sumSince(series, "rewards", since);
   const earnedFees = sumSince(series, "fees", since);
+  // An orchestrator's reward cut is income from other people's stake, so it
+  // stays in what was earned but out of the yield.
+  const commission = sumSince(series, "commission", since);
   // Earned as a share of the stake it was earned on (the period's average),
   // so stake added or removed along the way doesn't skew it.
   const avgStake = averageStakeSince(series, since);
-  const earnedPct = avgStake > 0 ? (earned / avgStake) * 100 : null;
+  const earnedPct =
+    avgStake > 0 ? ((earned - commission) / avgStake) * 100 : null;
 
   const chart = useMemo(() => {
     switch (metric) {
@@ -170,7 +183,14 @@ export function PortfolioHero({
             <span className="text-green-bright">
               +{formatToken(earned)} LPT
               {earnedPct != null && period !== "all" && (
-                <span className="text-green-bright/80">
+                <span
+                  className="text-green-bright/80"
+                  title={
+                    commission > 0
+                      ? "On your own stake, excluding commission"
+                      : undefined
+                  }
+                >
                   {" "}
                   ({formatPercent(earnedPct, { decimals: 2 })})
                 </span>
@@ -247,8 +267,12 @@ export function PortfolioHero({
             onChange={setMetric}
             options={METRICS}
           />
-          <div className="flex items-center gap-1.5">
-            {actions}
+          {/* On a phone this wraps to a line of its own: the range first,
+              the export at the far end. */}
+          <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:justify-start">
+            {actions && (
+              <span className="order-last sm:order-none">{actions}</span>
+            )}
             <Segmented
               label="Time range"
               size="xs"
