@@ -6,11 +6,40 @@ import {
   notFound,
 } from "@lib/api/errors";
 import { NextApiRequest, NextApiResponse } from "next";
+import sharp from "sharp";
 import { normalize } from "viem/ens";
 
 const blacklist = ["salty-minning.eth"];
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 const AVATAR_TIMEOUT_MS = 10_000;
+// Avatars render at 70px at most, so 160px stays sharp on high-density screens.
+const AVATAR_SIZE_PX = 160;
+
+/**
+ * Shrinks a raster avatar to AVATAR_SIZE_PX square WebP, keeping animation.
+ * Returns null when the original should be served as is: SVGs (vector, and
+ * would rasterise at their intrinsic size), images Sharp cannot decode, and
+ * images that would not get smaller.
+ */
+const resizeAvatar = async (
+  image: Buffer,
+  contentType: string
+): Promise<Buffer | null> => {
+  if (contentType === "image/svg+xml") return null;
+
+  try {
+    const resized = await sharp(image, { animated: true })
+      .resize(AVATAR_SIZE_PX, AVATAR_SIZE_PX, {
+        fit: "cover",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+    return resized.length < image.length ? resized : null;
+  } catch {
+    return null;
+  }
+};
 
 const handler = async (
   req: NextApiRequest,
@@ -74,7 +103,10 @@ const handler = async (
             reader.releaseLock();
           }
 
-          res.setHeader("Content-Type", contentType);
+          const original = Buffer.concat(chunks, totalBytes);
+          const resized = await resizeAvatar(original, contentType);
+
+          res.setHeader("Content-Type", resized ? "image/webp" : contentType);
           res.setHeader("X-Content-Type-Options", "nosniff");
           res.setHeader(
             "Content-Security-Policy",
@@ -82,7 +114,7 @@ const handler = async (
           );
           res.setHeader("Cache-Control", getCacheControlHeader("week"));
 
-          return res.end(Buffer.concat(chunks, totalBytes));
+          return res.end(resized ?? original);
         } catch (e) {
           console.error(e);
           return notFound(res, "ENS avatar not found");
