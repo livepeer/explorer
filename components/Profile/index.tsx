@@ -39,6 +39,22 @@ interface Props {
   identity: EnsIdentity;
 }
 
+// Hides the social handles on narrow screens without removing them from the
+// accessibility tree: they are the only accessible name of their links.
+const hiddenOnNarrowScreens = {
+  "@media (max-width: 400px)": {
+    position: "absolute",
+    width: 1,
+    height: 1,
+    padding: 0,
+    margin: -1,
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    whiteSpace: "nowrap",
+    border: 0,
+  },
+} as const;
+
 const Index = ({
   account,
   isMyAccount = false,
@@ -333,15 +349,7 @@ const Index = ({
                     css={{ marginRight: "$1" }}
                     aria-hidden="true"
                   />
-                  <Box
-                    css={{
-                      "@media (max-width: 400px)": {
-                        display: "none",
-                      },
-                    }}
-                  >
-                    @{identity.twitter}
-                  </Box>
+                  <Box css={hiddenOnNarrowScreens}>@{identity.twitter}</Box>
                 </Flex>
               </A>
             )}
@@ -363,15 +371,7 @@ const Index = ({
                     css={{ marginRight: "$1" }}
                     aria-hidden="true"
                   />
-                  <Box
-                    css={{
-                      "@media (max-width: 400px)": {
-                        display: "none",
-                      },
-                    }}
-                  >
-                    {identity.github}
-                  </Box>
+                  <Box css={hiddenOnNarrowScreens}>{identity.github}</Box>
                 </Flex>
               </A>
             )}
