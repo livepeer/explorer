@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, History, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Avatar, Identity, useIdentity } from "@/components/identity";
 import { Card } from "@/components/page";
@@ -275,10 +276,13 @@ function AccountSection({
   account,
   several,
   compact,
+  onItems,
 }: {
   account: string;
   several: boolean;
   compact: boolean;
+  /** Tells the card what this wallet has, for its wording. */
+  onItems: (account: string, held: Held[]) => void;
 }) {
   const sent = useSentMigrations(account);
   // Sent from here: check until Arbitrum has it.
@@ -287,6 +291,10 @@ function AccountSection({
   });
   const { data: claim } = useMigrationClaim(account);
   const items = useWaitingItems(account, leftovers, claim);
+  const held = items.map((i) => i.held).join(",");
+  useEffect(() => {
+    onItems(account, held ? (held.split(",") as Held[]) : []);
+  }, [account, held, onItems]);
   if (!items.length) return null;
   if (compact) {
     return (
@@ -318,6 +326,20 @@ function AccountSection({
 }
 
 /**
+ * What's waiting, worded for how much there is: a claimed item is held on
+ * Arbitrum and claimed, the rest are migrated from Ethereum.
+ */
+function waitingText(held: Held[]) {
+  const claims = held.filter((h) => h === "arbitrum").length;
+  const migrations = held.length - claims;
+  const verb =
+    claims && migrations ? "Claim or migrate" : claims ? "Claim" : "Migrate";
+  return held.length > 1
+    ? `These haven't come over yet. ${verb} each one to use it.`
+    : `This hasn't come over yet. ${verb} it to use it.`;
+}
+
+/**
  * On account pages and the portfolio: everything the shown wallets have
  * left from before the move to Arbitrum, in one card that hides itself
  * when there's nothing. Compact above a portfolio; full when it's the
@@ -334,6 +356,17 @@ export function FromEthereumCard({
   className?: string;
 }) {
   const several = accounts.length > 1;
+  // What every wallet shown has waiting, so the description fits: one item
+  // or several, to claim, to migrate or both.
+  const [held, setHeld] = useState<Record<string, Held[]>>({});
+  const onItems = useCallback(
+    (account: string, items: Held[]) =>
+      setHeld((h) =>
+        h[account]?.join() === items.join() ? h : { ...h, [account]: items }
+      ),
+    []
+  );
+  const all = accounts.flatMap((a) => held[a.toLowerCase()] ?? []);
   return (
     // Hidden until a wallet has a row: each section decides for itself.
     <Card className={cn("mb-5 overflow-hidden not-has-[li]:hidden", className)}>
@@ -352,8 +385,7 @@ export function FromEthereumCard({
             Finish moving to Arbitrum
           </span>
           <span className="text-ui-caption text-pretty text-muted-foreground">
-            Livepeer moved from Ethereum to Arbitrum in 2022. These haven&apos;t
-            come over yet. Claim or migrate each one to use it.
+            Livepeer moved from Ethereum to Arbitrum in 2022. {waitingText(all)}
           </span>
         </div>
       </div>
@@ -364,6 +396,7 @@ export function FromEthereumCard({
             account={a.toLowerCase()}
             several={several}
             compact={!headline}
+            onItems={onItems}
           />
         ))}
       </ul>
