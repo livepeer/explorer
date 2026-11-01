@@ -43,6 +43,10 @@ export const DesktopVoteTable: React.FC<TreasuryVoteTableProps> = ({
             <EthAddressBadge value={row.original.voter.id} />
           </Box>
         ),
+        // ENS names resolve inside each cell, so the row has nothing
+        // meaningful to sort on: `voter` is an object, and sorting by
+        // address would not match the names shown.
+        disableSortBy: true,
       },
       {
         Header: "Support",
