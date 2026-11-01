@@ -11,6 +11,7 @@ const point = (p: Partial<SeriesPoint>): SeriesPoint => ({
   rewards: 0,
   commission: 0,
   fees: 0,
+  feeCommission: 0,
   share: null,
   from: "0xorch",
   ...p,

@@ -82,6 +82,12 @@ export type SeriesPoint = {
   commission: number;
   /** ETH earned this round */
   fees: number;
+  /**
+   * The part of `fees` that is the fee cut an orchestrator bonded to itself
+   * keeps from every job, whoever's stake it came from: like `commission`,
+   * income, but not yield on its own stake.
+   */
+  feeCommission: number;
   /** % of network active stake */
   share: number | null;
   /**
@@ -215,6 +221,7 @@ export function computeAccount({
 
     let rewardWei = 0n;
     let cutWei = 0n;
+    let feeCutWei = 0n;
     let feeWei = 0n;
 
     if (prev?.delegate && prev.shares > 0n) {
@@ -247,7 +254,9 @@ export function computeAccount({
         cutWei += cut;
       }
       if (pool && pool.fees > 0n) {
-        feeWei += (pool.fees * (PPM - pool.feeShare)) / PPM;
+        const feeCut = (pool.fees * (PPM - pool.feeShare)) / PPM;
+        feeWei += feeCut;
+        feeCutWei += feeCut;
       }
     }
 
@@ -267,6 +276,7 @@ export function computeAccount({
       rewards: toFloat(rewardWei),
       commission: toFloat(cutWei),
       fees: toFloat(feeWei),
+      feeCommission: toFloat(feeCutWei),
       share: totalActiveStake > 0 ? (stake / totalActiveStake) * 100 : null,
       from: prev?.delegate ?? (selfDelegated ? id : undefined),
     });
@@ -312,6 +322,7 @@ export function mergeSeries(
         acc.stake += p.stake;
         acc.rewards += p.rewards;
         acc.commission += p.commission;
+        acc.feeCommission += p.feeCommission;
         acc.fees += p.fees;
       } else {
         byRound.set(p.round, { ...p, from: undefined });
@@ -387,7 +398,9 @@ export function trailingRoundRate(series: SeriesPoint[], window = 30) {
 
 /**
  * ETH fees per LPT staked, per round, over the trailing window: the fee
- * counterpart of `trailingRoundRate`.
+ * counterpart of `trailingRoundRate`. The fee cut an orchestrator keeps is
+ * excluded for the same reason its reward cut is: it's earned on everyone's
+ * stake, and over its own bond alone it reads as thousands of percent.
  */
 export function trailingFeeRate(series: SeriesPoint[], window = 30) {
   if (series.length < 2) return 0;
@@ -396,7 +409,7 @@ export function trailingFeeRate(series: SeriesPoint[], window = 30) {
   let stake = 0;
   for (let i = 1; i < tail.length; i++) {
     if (tail[i - 1].stake <= 0) continue;
-    fees += tail[i].fees;
+    fees += tail[i].fees - tail[i].feeCommission;
     stake += tail[i - 1].stake;
   }
   return stake > 0 ? Math.max(0, fees / stake) : 0;
