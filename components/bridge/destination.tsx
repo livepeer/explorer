@@ -148,7 +148,10 @@ function useAccountKind(address: string | null, chainId: number) {
  * Whether every owner is a wallet held by a key on both networks, so the
  * same owners are the same people. An owner that's itself a contract (a
  * Safe owning a Safe) can be run by different people on each network, or
- * not exist on one. Undefined while reading or with no owners to check.
+ * not exist on one. So can a 7702-delegated wallet: a Safe checks an owner
+ * with code through that code, which can accept signatures from others,
+ * by different rules on each network. Only owners with no code at all
+ * count. Undefined while reading or with no owners to check.
  */
 function useOwnersAreKeys(
   owners: readonly string[] | undefined,
@@ -167,7 +170,7 @@ function useOwnersAreKeys(
           [a!, b!].map((c) => c.getCode({ address: o as `0x${string}` }))
         )
       );
-      return codes.every((c) => !c || c === "0x" || isDelegatedWallet(c));
+      return codes.every((c) => !c || c === "0x");
     },
   });
   if (!sorted?.length) return undefined;
@@ -363,7 +366,7 @@ export function useDestination({
     mirror.kind === "wallet"
       ? `This Safe doesn't exist on ${destNetwork}.`
       : twinCandidate
-      ? `One of this Safe's owners is itself a contract, which may be run by other people on ${destNetwork}, or not exist there.`
+      ? `One of this Safe's owners is a contract, or a wallet that runs one, so others may be able to sign for it on ${destNetwork}.`
       : mirror.kind === "safe" && sameSigners(source.signers, mirror.signers)
       ? `The Safe at this address on ${destNetwork} has modules or non-standard code, so its owners may not be the only ones in control.`
       : `This address on ${destNetwork} isn't this Safe with the same owners.`;
