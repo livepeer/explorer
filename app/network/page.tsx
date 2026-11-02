@@ -22,7 +22,12 @@ import {
   Section,
   SectionHeader,
 } from "@/components/page";
-import { Ring, roundState, useNow } from "@/components/shell/round-clock";
+import {
+  Ring,
+  roundState,
+  useNow,
+  useRoundTurn,
+} from "@/components/shell/round-clock";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
@@ -49,6 +54,8 @@ import type { Day, Protocol } from "@/lib/subgraph/network";
 function RoundCard({ protocol }: { protocol: Protocol }) {
   const now = useNow(1000);
   const s = roundState(protocol, now);
+  // The same turnover as the sidebar's ring; its toast shows only once.
+  const turn = useRoundTurn(protocol.currentRound);
   const next = protocol.currentRound + 1;
   const endsAt = new Date(s.endsAt).toLocaleString("en-US", {
     weekday: "short",
@@ -78,9 +85,10 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
         <div className="flex flex-1 items-center gap-5 py-3">
           <Ring
             progress={s.progress}
+            turn={turn?.phase}
             size={104}
             stroke={8}
-            tone={late ? "warning" : "positive"}
+            tone={late && !turn ? "warning" : "positive"}
           >
             <span className="text-[20px] leading-6 font-medium tracking-[-0.01em] tabular-nums">
               {pct}%
