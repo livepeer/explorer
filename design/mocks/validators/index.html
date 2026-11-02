@@ -850,8 +850,8 @@
             </h3>
             <div>
               <p>
-                Filter tabs own membership. Rows stay light. Detail carries the
-                membership pill and cadence sentence.
+                Filter tabs for who’s in the set. Light rows. Detail has the
+                membership pill and how often they filed.
               </p>
             </div>
             <a class="show-in-mock" href="#m-val-1">↑ Show in mock</a>
@@ -862,12 +862,6 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Read-only.</strong> This mock shows the set, status,
-                stake, scores, and pay. Registering, leaving, and filing a score
-                stay off this ticket. Whether those actions belong in Explorer
-                waits on the Validator Track.
-              </li>
-              <li>
                 <strong>Set rule used here.</strong> Active set = the 33
                 highest-staked node operators who have registered. A
                 higher-staked node that has not registered is “Could join”. The
@@ -876,36 +870,26 @@
               </li>
               <li>
                 <strong>Don’t repeat status three times.</strong> Filter tabs
-                own membership. List rows stay light: name, rank, address, and
-                one muted fact (Active / Occasional / Inactive inside the set,
-                or why they are outside). The detail keeps one membership pill
-                and the full cadence sentence with a help tip. Same idea as
-                tabbed member lists and staking product tables: scope in the
-                control, light meta in the row, full story in the pane.
+                for who’s in the set. List rows: name, rank, address, and one
+                muted fact (Active / Occasional / Inactive inside the set, or
+                why they are outside). Detail has one membership pill and the
+                full “how often they filed” sentence with a help tip.
               </li>
               <li>
-                <strong
-                  >Wide opens with the top visible validator selected.</strong
-                >
-                List and detail share the page. The first row in the current
-                filter is selected on load and when the filter changes, so the
-                detail pane is never empty on a wide screen. A deep link still
-                wins when present.
+                <strong>Default selection on wide.</strong> First row in the
+                current filter is selected on load and when the filter changes,
+                so the detail pane isn’t empty. A deep link still wins when
+                present.
               </li>
               <li>
-                <strong>Filed scores link to that node.</strong> Each name under
-                “Scores they filed” jumps to that validator’s detail (and
-                switches the filter if needed).
+                <strong>Filed scores jump to that node.</strong> Each name under
+                “Scores they filed” opens that validator’s detail (and switches
+                the filter if needed).
               </li>
               <li>
-                <strong>List is one panel.</strong> Validator rows share a
-                single bordered sheet with a green wash and 1px ring on the
-                selected row. It looks different from gateway and orchestrator
-                tables on purpose for Livepeer 2.0. @ECWireless flagged the
-                divergence and the busy dual chips; we kept the split
-                list/detail, dropped membership chips from rows (tabs + detail
-                carry membership; cadence is muted row meta), and closed that
-                thread on
+                <strong>List look vs gateway / orchestrator tables.</strong>
+                Split list/detail on purpose for 2.0. No dual membership +
+                filing chips on rows. See
                 <a
                   class="prose-link"
                   href="https://github.com/livepeer/explorer/pull/844#issuecomment-6428113927"
@@ -915,24 +899,19 @@
                 >.
               </li>
               <li>
-                <strong>Blanks are “No score”.</strong> They are left out of the
-                median in this mock. See open questions.
+                <strong>Blanks are “No score”.</strong> Left out of the median
+                in this mock. See open questions.
               </li>
               <li>
                 <strong>Filing habit.</strong> Active, Occasional, and Inactive
-                say how often they filed scores in the last 7 rounds. Same
-                everyday words as the tip. They appear as muted row meta and
-                again as the detail sentence. Slate is Inactive and still paid.
+                mean how often they filed scores in the last 7 rounds. Same
+                words as the tip. Muted under the name and again as the detail
+                sentence. Slate is Inactive and still paid.
               </li>
               <li>
                 <strong>Pay follows delegated stake.</strong> 1% of new LPT,
                 weighted by delegated stake inside the set, then the node’s
-                usual cut. Emissions stay unsettled, so skip a dollar figure.
-              </li>
-              <li>
-                <strong>Sample data.</strong> Sample operators, stake, and
-                scores. Build waits on approval and on the Validator Track for
-                the items below.
+                usual cut. Emissions are still a draft, so no dollar figure.
               </li>
             </ul>
           </div>
@@ -962,9 +941,10 @@
               </li>
               <li>
                 <strong>Health, and pay for quiet validators.</strong>
-                <em>Recommended default:</em> show submission cadence only. Do
-                keep pay as drawn until the Validator Track defines minimum
-                participation. Owner: Validator Track.
+                <em>Recommended default:</em> keep Active / Occasional /
+                Inactive as how often they filed. Leave pay as drawn until the
+                Validator Track sets a minimum filing rule. Owner: Validator
+                Track.
               </li>
               <li>
                 <strong>A validator scoring their own node.</strong>
@@ -983,7 +963,7 @@
                 <strong>Actions in Explorer.</strong> Register, leave, submit a
                 score. <em>Recommended default:</em> leave for a later ticket
                 once the Validator Track says Explorer is the right home. Owner:
-                Validator Track and @ECWireless.
+                Validator Track.
               </li>
               <li>
                 <strong>The constitution.</strong> Expected validator behavior
@@ -1132,7 +1112,7 @@
             registered: "Yes",
             bucket: "set",
             status: "In the set",
-            lede: "Registered and inside the 33. Quiet on scores lately. Membership and cadence are separate.",
+            lede: "Registered and inside the 33. No scores filed lately. Membership and filing habit are separate.",
             part: "quiet",
             partLabel: "Inactive",
             partDetail: "Submitted scores in 0 of the last 7 rounds.",

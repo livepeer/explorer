@@ -63,4 +63,4 @@ Per node per work round, once 2.0 lands:
 
 ## Acceptance
 
-Design mock in `index.html`, posted for approval by @ECWireless. No product UI in `pages/` or `components/` until that gate.
+Design mock in `index.html`, posted for stakeholder approval. No product UI in `pages/` or `components/` until that gate.

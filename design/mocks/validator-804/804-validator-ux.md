@@ -137,4 +137,4 @@ Product today: left masonry of stats (total stake, status, regional transcoding 
 
 ## Acceptance
 
-Design mock in `index.html`, posted for approval by @ECWireless. No product UI in `pages/` or `components/` until that gate. No register, opt-out, or score-submit UI in this ticket.
+Design mock in `index.html`, posted for stakeholder approval. No product UI in `pages/` or `components/` until that gate. No register, opt-out, or score-submit UI in this ticket.
