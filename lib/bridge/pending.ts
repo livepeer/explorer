@@ -97,6 +97,7 @@ export function usePendingDeposits(addresses: string[]) {
       }
     }
     if (landed) {
+      queryClient.invalidateQueries({ queryKey: ["readContract"] });
       queryClient.invalidateQueries({ queryKey: ["readContracts"] });
       queryClient.invalidateQueries({ queryKey: ["portfolio"] });
     }

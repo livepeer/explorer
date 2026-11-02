@@ -1,9 +1,15 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { getAddress } from "viem";
-import { useBytecode, useReadContracts, useStorageAt } from "wagmi";
+import {
+  useBytecode,
+  usePublicClient,
+  useReadContracts,
+  useStorageAt,
+} from "wagmi";
 
 import { Avatar, useIdentity } from "@/components/identity";
 import {
@@ -138,6 +144,38 @@ function useAccountKind(address: string | null, chainId: number) {
   } as Kind;
 }
 
+/**
+ * Whether every owner is a wallet held by a key on both networks, so the
+ * same owners are the same people. An owner that's itself a contract (a
+ * Safe owning a Safe) can be run by different people on each network, or
+ * not exist on one. Undefined while reading or with no owners to check.
+ */
+function useOwnersAreKeys(
+  owners: readonly string[] | undefined,
+  chains: [number, number]
+) {
+  const a = usePublicClient({ chainId: chains[0] });
+  const b = usePublicClient({ chainId: chains[1] });
+  const sorted = owners?.map((o) => o.toLowerCase()).sort();
+  const q = useQuery({
+    queryKey: ["safe-owners-are-keys", chains, sorted],
+    enabled: Boolean(sorted?.length && a && b),
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const codes = await Promise.all(
+        sorted!.flatMap((o) =>
+          [a!, b!].map((c) => c.getCode({ address: o as `0x${string}` }))
+        )
+      );
+      return codes.every((c) => !c || c === "0x" || isDelegatedWallet(c));
+    },
+  });
+  if (!sorted?.length) return undefined;
+  if (q.isError) return { kind: "error" as const, retry: () => q.refetch() };
+  if (q.data == null) return undefined;
+  return { kind: q.data ? ("keys" as const) : ("contract" as const) };
+}
+
 export type Destination = {
   /** Where the LPT lands, once settled (null until chosen and confirmed). */
   to: string | null;
@@ -185,6 +223,19 @@ export function useDestination({
   const mirror = useAccountKind(
     source?.kind === "safe" ? wallet : null,
     destChain
+  );
+  // Same owners and threshold, on genuine Safe code: still the same people
+  // only if every owner is a key-held wallet on both networks.
+  const twinCandidate =
+    source?.kind === "safe" &&
+    mirror?.kind === "safe" &&
+    mirror.genuine &&
+    sameSigners(source.signers, mirror.signers);
+  const owners = useOwnersAreKeys(
+    twinCandidate && source?.kind === "safe"
+      ? source.signers.owners
+      : undefined,
+    [sourceChain, destChain]
   );
   // The address chosen, and the promise to control it, hold only for the
   // network they were made for: swapping direction starts over.
@@ -264,12 +315,25 @@ export function useDestination({
     };
   }
 
+  if (twinCandidate && owners === undefined) {
+    return { ...settled, isSafe: true, to: null, loading: true, ui: null };
+  }
+  if (twinCandidate && owners?.kind === "error") {
+    return {
+      ...settled,
+      isSafe: true,
+      to: null,
+      ui: (
+        <ReadFailed retry={owners.retry}>
+          Couldn&apos;t check this Safe&apos;s owners, so there&apos;s no
+          telling yet whether they control it on {destNetwork}.
+        </ReadFailed>
+      ),
+    };
+  }
+
   // The same Safe on both networks: bridge to itself.
-  if (
-    mirror.kind === "safe" &&
-    mirror.genuine &&
-    sameSigners(source.signers, mirror.signers)
-  ) {
+  if (twinCandidate && owners?.kind === "keys") {
     return {
       ...settled,
       isSafe: true,
@@ -298,6 +362,8 @@ export function useDestination({
   const why =
     mirror.kind === "wallet"
       ? `This Safe doesn't exist on ${destNetwork}.`
+      : twinCandidate
+      ? `One of this Safe's owners is itself a contract, which may be run by other people on ${destNetwork}, or not exist there.`
       : mirror.kind === "safe" && sameSigners(source.signers, mirror.signers)
       ? `The Safe at this address on ${destNetwork} has modules or non-standard code, so its owners may not be the only ones in control.`
       : `This address on ${destNetwork} isn't this Safe with the same owners.`;

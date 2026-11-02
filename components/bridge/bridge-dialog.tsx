@@ -578,6 +578,7 @@ export function BridgeFlow({
       });
     }
     queryClient.invalidateQueries({ queryKey: ["bridge-withdrawals"] });
+    queryClient.invalidateQueries({ queryKey: ["readContract"] });
     queryClient.invalidateQueries({ queryKey: ["readContracts"] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sent.isSuccess]);
@@ -666,6 +667,7 @@ export function BridgeFlow({
               queryClient.invalidateQueries({
                 queryKey: ["bridge-withdrawals"],
               });
+              queryClient.invalidateQueries({ queryKey: ["readContract"] });
               queryClient.invalidateQueries({ queryKey: ["readContracts"] });
             }}
           >

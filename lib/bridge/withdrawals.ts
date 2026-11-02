@@ -51,6 +51,38 @@ function subscribeSent(l: () => void) {
   };
 }
 
+/* ── Withdrawals just claimed from this browser ─────────────────────── */
+
+/**
+ * Claimed here, by id, until when to keep hiding them. The list is cached
+ * by the browser and the CDN, so a refetch right after a claim can still
+ * show it as ready; hidden meanwhile, and fetched past both caches.
+ */
+const claimed = new Map<string, number>();
+const CLAIMED_MS = 10 * 60_000;
+let claimedVersion = 0;
+const claimedListeners = new Set<() => void>();
+
+/** A claim just confirmed: hide it, and fetch the list fresh for a while. */
+export function markClaimed(id: string) {
+  claimed.set(id, Date.now() + CLAIMED_MS);
+  claimedVersion++;
+  claimedListeners.forEach((l) => l());
+}
+
+function subscribeClaimed(l: () => void) {
+  claimedListeners.add(l);
+  return () => {
+    claimedListeners.delete(l);
+  };
+}
+
+function justClaimed() {
+  const now = Date.now();
+  for (const [id, until] of claimed) if (until < now) claimed.delete(id);
+  return claimed;
+}
+
 const EMPTY: SentWithdrawal[] = [];
 let cache: { raw: string; list: SentWithdrawal[] } | null = null;
 function snapshot() {
@@ -89,6 +121,9 @@ export function useBridgeWithdrawals(addresses: string[]) {
     refetchInterval: (q) => {
       // Just sent from here: until the index has it.
       if (sent.length) return 15_000;
+      // Just claimed here: until the server agrees it's gone.
+      const data = q.state.data as BridgeWithdrawal[] | undefined;
+      if (data?.some((w) => justClaimed().has(w.id))) return 15_000;
       // Waiting ones turn claimable on their own: check every minute once
       // one is due, every 10 otherwise, so Claim shows without a reload.
       const waiting = (q.state.data as BridgeWithdrawal[] | undefined)
@@ -103,10 +138,15 @@ export function useBridgeWithdrawals(addresses: string[]) {
       inBatches(
         key,
         async (batch) => {
-          // A withdrawal just sent: skip the browser's cached answer.
-          const res = await fetch(`/api/bridge/withdrawals?address=${batch}`, {
-            cache: sent.length ? "no-store" : "default",
-          });
+          // A withdrawal just sent or claimed: skip the browser's cached
+          // answer, and the CDN's, which is keyed by the whole URL.
+          const fresh = sent.length > 0 || justClaimed().size > 0;
+          const res = await fetch(
+            `/api/bridge/withdrawals?address=${batch}${
+              fresh ? `&fresh=${Date.now()}` : ""
+            }`,
+            { cache: fresh ? "no-store" : "default" }
+          );
           if (!res.ok) throw new Error("Couldn't check bridge withdrawals");
           const { withdrawals } = (await res.json()) as {
             withdrawals: BridgeWithdrawal[];
@@ -130,12 +170,21 @@ export function useBridgeWithdrawals(addresses: string[]) {
 
   // Only to drop local copies the index never showed: a coarse clock is fine.
   const nowSec = Math.floor(useNow(60_000) / 1000);
+  const version = useSyncExternalStore(
+    subscribeClaimed,
+    () => claimedVersion,
+    () => 0
+  );
   const data = useMemo(
     () =>
       query.data || sent.length
-        ? mergeWithdrawals(query.data ?? [], sent, nowSec)
+        ? mergeWithdrawals(query.data ?? [], sent, nowSec).filter(
+            (w) => !justClaimed().has(w.id)
+          )
         : undefined,
-    [query.data, sent, nowSec]
+    // `version`: a claim just confirmed, which the cached list still shows.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [query.data, sent, nowSec, version]
   );
   return { ...query, data };
 }

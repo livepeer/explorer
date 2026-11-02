@@ -3,7 +3,7 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { encodeFunctionData, formatEther } from "viem";
 import {
@@ -37,8 +37,10 @@ import {
 import { checkOutbox } from "@/lib/bridge/guards";
 import { isSafeProxy } from "@/lib/bridge/safe";
 import type { BridgeWithdrawal } from "@/lib/bridge/types";
+import { markClaimed } from "@/lib/bridge/withdrawals";
 import { L1_CHAIN, txUrl } from "@/lib/config";
 import { formatLPT, fromWei } from "@/lib/format";
+import { safeAppUrl } from "@/lib/hooks/safe";
 
 import { errorText } from "./error-text";
 
@@ -129,12 +131,21 @@ export function ClaimFlow({
   const done = receipt.isSuccess && receipt.data?.status === "success";
   const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
 
+  // Claimed: the list, and the Ethereum balances it paid into, wherever
+  // they're shown (single and batched reads alike).
+  const refresh = () => {
+    markClaimed(w.id);
+    queryClient.invalidateQueries({ queryKey: ["bridge-withdrawals"] });
+    queryClient.invalidateQueries({ queryKey: ["readContract"] });
+    queryClient.invalidateQueries({ queryKey: ["readContracts"] });
+  };
+
   useEffect(() => {
     if (reverted) setError("The claim reverted, so nothing changed.");
   }, [reverted]);
   useEffect(() => {
     if (!done || !hash) return;
-    queryClient.invalidateQueries({ queryKey: ["bridge-withdrawals"] });
+    refresh();
     toast.success(`Claimed ${formatLPT(fromWei(BigInt(w.amount)))}`, {
       action: {
         label: "View",
@@ -144,12 +155,37 @@ export function ClaimFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
 
+  // Held from the click, before anything is awaited (the network switch,
+  // the Outbox check), so a second click can't reach the wallet twice.
+  const submitting = useRef(false);
+  const [submitted, setSubmitted] = useState(false);
   const amount = formatLPT(fromWei(BigInt(w.amount)));
-  const busy = signing || (Boolean(hash) && receipt.isLoading);
+  const busy = submitted || signing || (Boolean(hash) && receipt.isLoading);
   const onEthereum = chainId === L1_CHAIN.id;
+  // Safe{Wallet} opens a Safe on one network and can't switch it: a Safe
+  // opened on Arbitrum can't claim on Ethereum from here.
+  const safeElsewhere = safeApp && !onEthereum;
+  const safeOnEthereum = isSafeProxy(code ?? undefined);
+
+  const claim = async () => {
+    if (submitting.current) return;
+    submitting.current = true;
+    setSubmitted(true);
+    setError(null);
+    try {
+      // Claiming happens on Ethereum: the wallet moves there as part of
+      // it, so the button only ever says Claim.
+      if (!onEthereum) await switchChainAsync({ chainId: L1_CHAIN.id });
+      await send();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      submitting.current = false;
+      setSubmitted(false);
+    }
+  };
 
   const send = async () => {
-    setError(null);
     try {
       if (!call || !address) return;
       await checkOutbox(l1!);
@@ -210,11 +246,7 @@ export function ClaimFlow({
             safe={address}
             chain="eth"
             id={safeApp ? proposal : undefined}
-            onExecuted={() =>
-              queryClient.invalidateQueries({
-                queryKey: ["bridge-withdrawals"],
-              })
-            }
+            onExecuted={refresh}
           >
             Once your Safe&apos;s owners sign and execute it, {amount} is
             released on Ethereum.
@@ -275,6 +307,27 @@ export function ClaimFlow({
               Any wallet can claim and pay the network fee. The LPT always goes
               to the address above.
             </Notice>
+            {safeElsewhere && address && (
+              <Notice tone="warning">
+                Your Safe is open on Arbitrum, and claiming happens on Ethereum.{" "}
+                {safeOnEthereum ? (
+                  <>
+                    <a
+                      href={safeAppUrl(address, "eth")}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline"
+                    >
+                      Open the explorer in your Safe on Ethereum
+                      <ExternalLink className="size-3" />
+                    </a>{" "}
+                    to claim, or connect another wallet: any wallet can claim.
+                  </>
+                ) : (
+                  "Connect another wallet to claim: any wallet can, and the LPT still goes to the address above."
+                )}
+              </Notice>
+            )}
             {short && (
               <Notice tone="warning">
                 This wallet doesn&apos;t have enough ETH on Ethereum for the
@@ -320,20 +373,15 @@ export function ClaimFlow({
           <Button
             variant="primary"
             className="w-full sm:w-auto"
-            disabled={!call || busy || switching || short || Boolean(problem)}
-            onClick={async () => {
-              setError(null);
-              try {
-                // Claiming happens on Ethereum: the wallet moves there as
-                // part of it, so the button only ever says Claim.
-                if (!onEthereum) {
-                  await switchChainAsync({ chainId: L1_CHAIN.id });
-                }
-                await send();
-              } catch (e) {
-                setError(errorText(e));
-              }
-            }}
+            disabled={
+              !call ||
+              busy ||
+              switching ||
+              short ||
+              safeElsewhere ||
+              Boolean(problem)
+            }
+            onClick={claim}
           >
             {(busy || switching || prepared.isLoading) && (
               <Loader2 className="animate-spin" />
