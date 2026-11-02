@@ -36,20 +36,37 @@ import {
 import { useAddresses } from "@/lib/hooks/watchlist";
 import type { ActivityEvent } from "@/lib/subgraph/network";
 
-function Name({ address }: { address?: string }) {
+const PROFILE = {
+  account: "/accounts",
+  orchestrator: "/orchestrators",
+  gateway: "/gateways",
+} as const;
+
+/** An address in a sentence, linking to its page: an orchestrator's or a
+ *  gateway's profile where it acts as one, its account otherwise. */
+function Name({
+  address,
+  kind = "account",
+}: {
+  address?: string;
+  kind?: keyof typeof PROFILE;
+}) {
   const { name } = useIdentity(address);
   const { list } = useAddresses();
   const label = list.find((w) => w.address === address?.toLowerCase())?.label;
   if (!address) return null;
   return (
-    <span className="font-medium text-foreground">
+    <Link
+      href={`${PROFILE[kind]}/${address.toLowerCase()}`}
+      className="font-medium text-foreground underline-offset-4 hover:underline"
+    >
       {label ?? name ?? (
         // Quieter than a name: mono is denser, so a step smaller and softer.
         <span className="font-mono text-ui-caption tracking-tight text-foreground/75">
           {shortAddress(address)}
         </span>
       )}
-    </span>
+    </Link>
   );
 }
 
@@ -95,7 +112,8 @@ function describe(e: ActivityEvent): {
           text: (
             <>
               <Name address={e.delegator} /> switched from{" "}
-              <Name address={e.oldDelegate} /> to <Name address={e.delegate} />
+              <Name address={e.oldDelegate} kind="orchestrator" /> to{" "}
+              <Name address={e.delegate} kind="orchestrator" />
               {e.amount ? <> and delegated {formatLPT(e.amount)} more</> : null}
             </>
           ),
@@ -107,7 +125,7 @@ function describe(e: ActivityEvent): {
         text: (
           <>
             <Name address={e.delegator} /> delegated {formatLPT(e.amount ?? 0)}{" "}
-            to <Name address={e.delegate} />
+            to <Name address={e.delegate} kind="orchestrator" />
           </>
         ),
       };
@@ -118,7 +136,8 @@ function describe(e: ActivityEvent): {
         text: (
           <>
             <Name address={e.delegator} /> undelegated{" "}
-            {formatLPT(e.amount ?? 0)} from <Name address={e.delegate} />
+            {formatLPT(e.amount ?? 0)} from{" "}
+            <Name address={e.delegate} kind="orchestrator" />
           </>
         ),
       };
@@ -129,7 +148,8 @@ function describe(e: ActivityEvent): {
         text: (
           <>
             <Name address={e.delegator} /> redelegated{" "}
-            {formatLPT(e.amount ?? 0)} to <Name address={e.delegate} />
+            {formatLPT(e.amount ?? 0)} to{" "}
+            <Name address={e.delegate} kind="orchestrator" />
           </>
         ),
       };
@@ -139,8 +159,8 @@ function describe(e: ActivityEvent): {
         actor: e.delegate,
         text: (
           <>
-            <Name address={e.delegate} /> called reward, minting{" "}
-            {formatLPT(e.amount ?? 0)} to its pool
+            <Name address={e.delegate} kind="orchestrator" /> called reward,
+            minting {formatLPT(e.amount ?? 0)} to its pool
           </>
         ),
       };
@@ -150,7 +170,7 @@ function describe(e: ActivityEvent): {
         actor: e.delegate,
         text: (
           <>
-            <Name address={e.delegate} /> set reward cut to{" "}
+            <Name address={e.delegate} kind="orchestrator" /> set reward cut to{" "}
             {e.rewardCut?.toFixed(1)}% and fee share to {e.feeShare?.toFixed(1)}
             %
           </>
@@ -194,7 +214,8 @@ function describe(e: ActivityEvent): {
         actor: e.delegate,
         text: (
           <>
-            <Name address={e.delegate} /> joined the active set
+            <Name address={e.delegate} kind="orchestrator" /> joined the active
+            set
           </>
         ),
       };
@@ -204,7 +225,8 @@ function describe(e: ActivityEvent): {
         actor: e.delegate,
         text: (
           <>
-            <Name address={e.delegate} /> left the active set
+            <Name address={e.delegate} kind="orchestrator" /> left the active
+            set
           </>
         ),
       };
@@ -214,12 +236,12 @@ function describe(e: ActivityEvent): {
         actor: e.delegate,
         text: (
           <>
-            <Name address={e.delegate} /> earned {formatETH(e.amount ?? 0)} from
-            a winning ticket
+            <Name address={e.delegate} kind="orchestrator" /> earned{" "}
+            {formatETH(e.amount ?? 0)} from a winning ticket
             {e.gateway ? (
               <>
                 {" "}
-                paid by <Name address={e.gateway} />
+                paid by <Name address={e.gateway} kind="gateway" />
               </>
             ) : null}
           </>
@@ -231,7 +253,7 @@ function describe(e: ActivityEvent): {
         actor: e.gateway,
         text: (
           <>
-            Gateway <Name address={e.gateway} /> added{" "}
+            Gateway <Name address={e.gateway} kind="gateway" /> added{" "}
             {formatETH(e.amount ?? 0)} to its deposit
           </>
         ),
@@ -242,7 +264,7 @@ function describe(e: ActivityEvent): {
         actor: e.gateway,
         text: (
           <>
-            Gateway <Name address={e.gateway} /> added{" "}
+            Gateway <Name address={e.gateway} kind="gateway" /> added{" "}
             {formatETH(e.amount ?? 0)} to its reserve
           </>
         ),
@@ -253,7 +275,7 @@ function describe(e: ActivityEvent): {
         actor: e.gateway,
         text: (
           <>
-            Gateway <Name address={e.gateway} /> withdrew{" "}
+            Gateway <Name address={e.gateway} kind="gateway" /> withdrew{" "}
             {formatETH(e.amount ?? 0)} from its deposit and reserve
           </>
         ),
