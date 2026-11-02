@@ -1,10 +1,17 @@
-import { ContractFunctionRevertedError } from "viem";
+import {
+  ContractFunctionRevertedError,
+  encodeAbiParameters,
+  encodeEventTopics,
+  type Hex,
+  pad,
+} from "viem";
 
-import { arbRetryableTxAbi } from "./tickets";
+import { ARB_RETRYABLE_TX, arbRetryableTxAbi } from "./tickets";
 
 const l2 = {
   getTransactionReceipt: jest.fn(),
   readContract: jest.fn(),
+  getBlock: jest.fn(),
 };
 jest.mock("./withdrawals-server", () => ({ l1: {}, l2 }));
 
@@ -19,49 +26,105 @@ const noTicket = () =>
     functionName: "getTimeout",
   });
 
+const id = (n: number) => pad(`0x${n.toString(16)}`, { size: 32 });
+const retryTx = (ticket: Hex) => pad(`0x${ticket.slice(-4)}ff`, { size: 32 });
+
+/** The ticket's creation, logging its automatic redeem. */
+const created = (ticket: Hex, status = "success") => ({
+  status,
+  blockNumber: 1n,
+  logs: [
+    {
+      address: ARB_RETRYABLE_TX,
+      topics: encodeEventTopics({
+        abi: arbRetryableTxAbi,
+        eventName: "RedeemScheduled",
+        args: {
+          ticketId: ticket,
+          retryTxHash: retryTx(ticket),
+          sequenceNum: 0n,
+        },
+      }),
+      data: encodeAbiParameters(
+        [
+          { type: "uint64" },
+          { type: "address" },
+          { type: "uint256" },
+          { type: "uint256" },
+        ],
+        [0n, "0x0000000000000000000000000000000000000001", 0n, 0n]
+      ),
+    },
+  ],
+});
+
+/** Receipts by hash: the creation and its automatic redeem. */
+const receipts = (byHash: Record<string, unknown>) =>
+  l2.getTransactionReceipt.mockImplementation(({ hash }: { hash: Hex }) =>
+    hash in byHash
+      ? Promise.resolve(byHash[hash])
+      : Promise.reject(new Error("not found"))
+  );
+
+const now = Math.floor(Date.now() / 1000);
+
+beforeEach(() => jest.resetAllMocks());
+
 describe("ticketStatus", () => {
   it("is processing until Arbitrum creates the ticket", async () => {
-    l2.getTransactionReceipt.mockRejectedValueOnce(new Error("not found"));
-    await expect(ticketStatus("0x01")).resolves.toEqual({
+    receipts({});
+    await expect(ticketStatus(id(1))).resolves.toEqual({
       status: "processing",
     });
   });
 
+  it("has arrived when the automatic redeem succeeded, and remembers it", async () => {
+    const t = id(2);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "success" } });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+    expect(l2.readContract).not.toHaveBeenCalled();
+    l2.getTransactionReceipt.mockClear();
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+    expect(l2.getTransactionReceipt).not.toHaveBeenCalled();
+  });
+
   it("needs a retry while the ticket still holds a timeout", async () => {
-    l2.getTransactionReceipt.mockResolvedValueOnce({ status: "success" });
+    const t = id(3);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
     l2.readContract.mockResolvedValueOnce(1_800_000_000n);
-    await expect(ticketStatus("0x02")).resolves.toEqual({
+    await expect(ticketStatus(t)).resolves.toEqual({
       status: "retry",
       retryBy: 1_800_000_000,
     });
   });
 
-  it("has arrived once the ticket is gone, and remembers it", async () => {
-    l2.getTransactionReceipt.mockResolvedValueOnce({ status: "success" });
+  it("has arrived when a retried ticket is gone before it could expire", async () => {
+    const t = id(4);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
     l2.readContract.mockRejectedValueOnce(noTicket());
-    await expect(ticketStatus("0x03")).resolves.toEqual({
-      status: "arrived",
-    });
-    l2.getTransactionReceipt.mockClear();
-    await expect(ticketStatus("0x03")).resolves.toEqual({
-      status: "arrived",
-    });
-    expect(l2.getTransactionReceipt).not.toHaveBeenCalled();
+    l2.getBlock.mockResolvedValueOnce({ timestamp: BigInt(now - 86_400) });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+  });
+
+  it("is unconfirmed, not arrived, when it's gone after it could expire", async () => {
+    const t = id(5);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
+    l2.readContract.mockRejectedValueOnce(noTicket());
+    l2.getBlock.mockResolvedValueOnce({ timestamp: BigInt(now - 8 * 86_400) });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "unconfirmed" });
   });
 
   it("failed when the ticket's creation reverted, never arrived", async () => {
-    l2.getTransactionReceipt.mockResolvedValueOnce({ status: "reverted" });
-    await expect(ticketStatus("0x05")).resolves.toEqual({
-      status: "failed",
-    });
-    expect(l2.readContract).not.toHaveBeenCalledWith(
-      expect.objectContaining({ args: ["0x05"] })
-    );
+    const t = id(6);
+    receipts({ [t]: created(t, "reverted") });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "failed" });
+    expect(l2.readContract).not.toHaveBeenCalled();
   });
 
   it("doesn't mistake another failure for arrival", async () => {
-    l2.getTransactionReceipt.mockResolvedValueOnce({ status: "success" });
+    const t = id(7);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
     l2.readContract.mockRejectedValueOnce(new Error("RPC down"));
-    await expect(ticketStatus("0x04")).rejects.toThrow("RPC down");
+    await expect(ticketStatus(t)).rejects.toThrow("RPC down");
   });
 });

@@ -30,9 +30,26 @@ export const messageDelivered = parseAbiItem(
   "event MessageDelivered(uint256 indexed messageIndex, bytes32 indexed beforeInboxAcc, address inbox, uint8 kind, address sender, bytes32 messageDataHash, uint256 baseFeeL1, uint64 timestamp)"
 );
 
-/** Arbitrum's ticket precompile: a ticket's expiry, while it waits. */
+/**
+ * Arbitrum's ticket precompile: a ticket's expiry, while it waits, and the
+ * redeems scheduled for it (number 0 is the automatic one, logged when the
+ * ticket is created).
+ */
 export const ARB_RETRYABLE_TX = "0x000000000000000000000000000000000000006E";
 export const arbRetryableTxAbi = [
+  {
+    type: "event",
+    name: "RedeemScheduled",
+    inputs: [
+      { name: "ticketId", type: "bytes32", indexed: true },
+      { name: "retryTxHash", type: "bytes32", indexed: true },
+      { name: "sequenceNum", type: "uint64", indexed: true },
+      { name: "donatedGas", type: "uint64", indexed: false },
+      { name: "gasDonor", type: "address", indexed: false },
+      { name: "maxRefund", type: "uint256", indexed: false },
+      { name: "submissionFeeRefund", type: "uint256", indexed: false },
+    ],
+  },
   {
     type: "function",
     name: "getTimeout",

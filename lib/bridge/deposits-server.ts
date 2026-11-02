@@ -2,7 +2,9 @@ import {
   BaseError,
   ContractFunctionRevertedError,
   type Hex,
+  isAddressEqual,
   parseAbiItem,
+  parseEventLogs,
 } from "viem";
 
 import { L1_LPT, L1_LPT_GATEWAY } from "./config";
@@ -22,8 +24,7 @@ import { l1, l2 } from "./withdrawals-server";
  * extra day covers that delay, so a deposit waiting for a retry stays
  * listed until its ticket's own deadline (`retryBy`, read from Arbitrum)
  * rather than 7 days from the send. Anything older has either arrived or
- * expired: "no ticket" can't tell the two apart, and there's nothing left
- * to act on anyway.
+ * expired, and there's nothing left to act on.
  */
 const WINDOW_SECONDS = 8 * 86_400;
 /** Ethereum makes a block every 12s; a few extra cover any slow ones. */
@@ -35,11 +36,20 @@ const depositInitiated = parseAbiItem(
   "event DepositInitiated(address l1Token, address indexed _from, address indexed _to, uint256 indexed _sequenceNumber, uint256 _amount)"
 );
 
-type Sent = Omit<TrackedDeposit, "status" | "retryBy">;
+/**
+ * Recent blocks can still be replaced (a reorg), so each scan reads the
+ * last ones again and takes its own findings for them. Two epochs: past
+ * that, Ethereum's blocks are final.
+ */
+const REORG_DEPTH = 64n;
+
+/** A deposit as scanned: with its block, to know which ones a rescan covers. */
+type Sent = Omit<TrackedDeposit, "status" | "retryBy"> & { block: bigint };
 
 /**
- * The week's deposits, scanned once and then from where the last scan
- * stopped, at most every 15s, shared by every request on this instance.
+ * The week's deposits, scanned once and then from shortly before where the
+ * last scan stopped, at most every 15s, shared by every request on this
+ * instance.
  */
 let sent: Sent[] = [];
 let scannedTo = 0n;
@@ -49,8 +59,10 @@ let scanning: Promise<void> | null = null;
 async function scan() {
   const latest = await l1.getBlockNumber();
   const floor = latest > WINDOW_BLOCKS ? latest - WINDOW_BLOCKS : 0n;
+  const resume = scannedTo > REORG_DEPTH ? scannedTo + 1n - REORG_DEPTH : 0n;
+  const start = scannedTo && resume > floor ? resume : floor;
   const found: Sent[] = [];
-  for (let lo = scannedTo ? scannedTo + 1n : floor; lo <= latest; ) {
+  for (let lo = start; lo <= latest; ) {
     const hi = lo + CHUNK - 1n < latest ? lo + CHUNK - 1n : latest;
     const logs = await l1.getLogs({
       address: L1_LPT_GATEWAY,
@@ -71,12 +83,17 @@ async function scan() {
         amount: l.args._amount!.toString(),
         sentAt: times.get(l.blockNumber)!,
         seq: l.args._sequenceNumber!.toString(),
+        block: l.blockNumber,
       });
     }
     lo = hi + 1n;
   }
   const cutoff = Date.now() / 1000 - WINDOW_SECONDS;
-  sent = [...sent, ...found].filter((d) => d.sentAt >= cutoff);
+  // What this scan read again replaces what was there: a deposit in a
+  // replaced block goes, and one in its replacement comes in.
+  sent = [...sent.filter((d) => d.block < start), ...found].filter(
+    (d) => d.sentAt >= cutoff
+  );
   scannedTo = latest;
   scannedAt = Date.now();
 }
@@ -106,9 +123,11 @@ function ticketOf(l1Tx: Hex, seq: string) {
   return t;
 }
 
-/** Tickets known to be redeemed, or never created: neither changes back. */
-const redeemed = new Set<string>();
-const failed = new Set<string>();
+/** A ticket's lifetime on Arbitrum, unless someone pays to extend it. */
+const TICKET_LIFETIME = 7 * 86_400;
+
+/** Ticket states that never change back, once known. */
+const settled = new Map<string, Pick<TrackedDeposit, "status">>();
 
 function noTicket(e: unknown) {
   if (!(e instanceof BaseError)) return false;
@@ -121,24 +140,44 @@ function noTicket(e: unknown) {
 
 /**
  * Where a ticket stands. Not on Arbitrum yet: processing. Its creation
- * reverted: failed, since no ticket was made (and "no ticket" below would
- * otherwise read as arrived). On Arbitrum and still holding a timeout: its
- * automatic redeem failed and it waits for a retry. On Arbitrum with no
- * ticket left: redeemed (within the window, it can't have expired).
+ * reverted: failed, since no ticket was made. Its automatic redeem, run
+ * right after creation, succeeded: arrived. Otherwise it waited for a
+ * retry: still holding a timeout, it's waiting now; gone before it could
+ * have expired, someone redeemed it; gone after that, it was redeemed late
+ * or expired, and only a search of Arbitrum's history would say which, so
+ * it's unconfirmed rather than arrived.
  */
 export async function ticketStatus(
   ticket: Hex
 ): Promise<Pick<TrackedDeposit, "status" | "retryBy">> {
-  if (redeemed.has(ticket)) return { status: "arrived" };
-  if (failed.has(ticket)) return { status: "failed" };
+  const known = settled.get(ticket);
+  if (known) return known;
+  const settle = (status: TrackedDeposit["status"]) => {
+    settled.set(ticket, { status });
+    return { status };
+  };
   const created = await l2
     .getTransactionReceipt({ hash: ticket })
     .catch(() => null);
   if (!created) return { status: "processing" };
-  if (created.status !== "success") {
-    failed.add(ticket);
-    return { status: "failed" };
+  if (created.status !== "success") return settle("failed");
+
+  // The automatic redeem: its own transaction, scheduled by the creation.
+  const auto = parseEventLogs({
+    abi: arbRetryableTxAbi,
+    eventName: "RedeemScheduled",
+    logs: created.logs.filter((l) =>
+      isAddressEqual(l.address, ARB_RETRYABLE_TX)
+    ),
+  }).find((l) => l.args.ticketId === ticket && l.args.sequenceNum === 0n);
+  if (auto) {
+    const redeem = await l2
+      .getTransactionReceipt({ hash: auto.args.retryTxHash })
+      .catch(() => null);
+    if (!redeem) return { status: "processing" };
+    if (redeem.status === "success") return settle("arrived");
   }
+
   try {
     const timeout = await l2.readContract({
       address: ARB_RETRYABLE_TX,
@@ -149,9 +188,10 @@ export async function ticketStatus(
     return { status: "retry", retryBy: Number(timeout) };
   } catch (e) {
     if (!noTicket(e)) throw e;
-    redeemed.add(ticket);
-    return { status: "arrived" };
   }
+  const block = await l2.getBlock({ blockNumber: created.blockNumber });
+  const expiresAt = Number(block.timestamp) + TICKET_LIFETIME;
+  return settle(Date.now() / 1000 < expiresAt ? "arrived" : "unconfirmed");
 }
 
 /** The week's LPT deposits sent from or to these addresses, with state. */
@@ -163,7 +203,9 @@ export async function depositsFor(
     (d) => addresses.includes(d.from) || addresses.includes(d.to)
   );
   const out = await Promise.all(
-    mine.map(async (d) => {
+    // The block is only for rescans, and a bigint doesn't go in JSON.
+    mine.map(async ({ block, ...d }) => {
+      void block;
       const ticket = await ticketOf(d.l1Tx, d.seq!);
       // No matching message would be a gateway change; the health check
       // catches that. Show it as still processing meanwhile.

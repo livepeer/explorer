@@ -111,7 +111,7 @@ export function Transfers({ wallet }: { wallet: string }) {
             </div>
           );
         }
-        if (d.status === "failed") {
+        if (d.status === "failed" || d.status === "unconfirmed") {
           return (
             <div
               key={`${d.l1Tx}-${d.seq ?? ""}`}
@@ -128,9 +128,15 @@ export function Transfers({ wallet }: { wallet: string }) {
                   Details <ExternalLink className="size-3" />
                 </a>
               </div>
-              <span className="text-ui-caption text-destructive">
-                Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
-              </span>
+              {d.status === "failed" ? (
+                <span className="text-ui-caption text-destructive">
+                  Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
+                </span>
+              ) : (
+                <span className="text-ui-caption text-warm">
+                  Its retry window has ended · check whether it arrived
+                </span>
+              )}
             </div>
           );
         }

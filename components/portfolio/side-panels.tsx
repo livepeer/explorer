@@ -374,7 +374,7 @@ export function PendingWithdrawals({
             />
           );
         }
-        if (d.status === "failed") {
+        if (d.status === "failed" || d.status === "unconfirmed") {
           return (
             <PendingRow
               key={`deposit-${d.l1Tx}-${d.seq ?? ""}`}
@@ -382,10 +382,18 @@ export function PendingWithdrawals({
               account={account}
               accounts={accounts}
               status={
-                <span className="text-destructive">
-                  <AlertTriangle className={lead} />
-                  Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
-                </span>
+                d.status === "failed" ? (
+                  <span className="text-destructive">
+                    <AlertTriangle className={lead} />
+                    Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
+                  </span>
+                ) : (
+                  // Redeemed late or expired: the ticket alone can't say.
+                  <span className="text-warm">
+                    <AlertTriangle className={lead} />
+                    Its retry window has ended · check whether it arrived
+                  </span>
+                )
               }
               aside={
                 <Button
