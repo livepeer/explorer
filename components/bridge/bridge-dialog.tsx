@@ -634,19 +634,7 @@ export function BridgeFlow({
   return (
     <>
       <DialogHeader>
-        {/* The title, and whether the wallet whose LPT this is can sign. */}
-        <div className="flex items-center gap-3 pr-8">
-          <DialogTitle>Bridge LPT</DialogTitle>
-          <span className="ml-auto flex shrink-0 items-center gap-1.5 text-ui-caption text-muted-foreground">
-            <span
-              className={cn(
-                "size-1.5 rounded-full",
-                signer ? "bg-green-fill" : "bg-muted-foreground/50"
-              )}
-            />
-            {signer ? "Connected" : "Not connected"}
-          </span>
-        </div>
+        <DialogTitle>Bridge LPT</DialogTitle>
       </DialogHeader>
       <DialogBody>
         {proposal ? (
@@ -734,6 +722,7 @@ export function BridgeFlow({
                 network={NETWORK[direction]}
                 address={wallet}
                 safe={dest.isSafe}
+                connected={signer}
                 balance={balanceOn(sourceWei)}
                 active
               />
@@ -964,6 +953,7 @@ function NetworkCard({
   network,
   address,
   safe = false,
+  connected,
   balance,
   pending,
   note,
@@ -975,6 +965,12 @@ function NetworkCard({
   /** Whose LPT it is on this side; null while it's being chosen. */
   address: string | null;
   safe?: boolean;
+  /**
+   * Whether this side's wallet is the one connected, so it can sign: a dot
+   * on its avatar, as on the header's wallet button, or a line saying not.
+   * Left out for a side that never signs.
+   */
+  connected?: boolean;
   balance?: string;
   /** Shown in place of the address while it's being chosen. */
   pending?: string;
@@ -989,7 +985,7 @@ function NetworkCard({
       <span className="text-ui-caption text-muted-foreground">{role}</span>
       <span className="text-ui-body font-medium">{network}</span>
       {address ? (
-        <CardAddress address={address} safe={safe} />
+        <CardAddress address={address} safe={safe} connected={connected} />
       ) : (
         <span
           className={cn(
@@ -1003,6 +999,11 @@ function NetworkCard({
       {(note ?? balance) != null && (
         <span className="truncate text-ui-caption text-muted-foreground tabular-nums">
           {note ?? balance}
+        </span>
+      )}
+      {address && connected === false && (
+        <span className="text-ui-caption text-muted-foreground">
+          Not connected
         </span>
       )}
     </>
@@ -1034,13 +1035,31 @@ function NetworkCard({
 }
 
 /** A side's address: its avatar and name, as the rest of the app shows it. */
-function CardAddress({ address, safe }: { address: string; safe: boolean }) {
+function CardAddress({
+  address,
+  safe,
+  connected,
+}: {
+  address: string;
+  safe: boolean;
+  connected?: boolean;
+}) {
   const { name, avatar } = useIdentity(address);
   const { list } = useAddresses();
   const label = list.find((w) => w.address === address.toLowerCase())?.label;
   return (
     <span className="mt-1 flex min-w-0 items-center gap-1.5 text-ui-caption">
-      <Avatar address={address} src={avatar} size={14} className="shrink-0" />
+      <span className="relative inline-flex shrink-0">
+        <Avatar address={address} src={avatar} size={14} />
+        {connected && (
+          <span
+            title="Connected"
+            className="absolute -right-0.5 -bottom-0.5 size-1.5 rounded-full bg-green-fill ring-1 ring-popover"
+          >
+            <span className="sr-only">Connected</span>
+          </span>
+        )}
+      </span>
       <span className="truncate">{label ?? name ?? shortAddress(address)}</span>
       {safe && <span className="shrink-0 text-muted-foreground">· Safe</span>}
     </span>
