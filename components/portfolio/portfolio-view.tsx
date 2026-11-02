@@ -727,6 +727,8 @@ export function PortfolioView({
         </div>
 
         <aside className="flex flex-col gap-10">
+          {/* Pending first: it only shows when something needs you. */}
+          {withdrawalsEl}
           <section>
             <SectionHeader title="Projected earnings" />
             {loading ? (
@@ -781,7 +783,6 @@ export function PortfolioView({
               />
             )}
           </section>
-          {withdrawalsEl}
         </aside>
       </div>
     </div>
