@@ -158,6 +158,8 @@ function noTicket(e: unknown) {
  * Whether any redeem of a ticket succeeded: each one scheduled for it
  * since its creation, found in one search (it's at most days old, well
  * inside one query's range on Arbitrum), and its own transaction checked.
+ * A read that fails throws rather than counting as a failed redeem, so
+ * "lapsed", which is kept for good, only follows a complete check.
  */
 async function redeemed(ticket: Hex, created: bigint) {
   const logs = await l2.getLogs({
@@ -168,10 +170,8 @@ async function redeemed(ticket: Hex, created: bigint) {
     toBlock: "latest",
   });
   for (const l of logs) {
-    const r = await l2
-      .getTransactionReceipt({ hash: l.args.retryTxHash! })
-      .catch(() => null);
-    if (r?.status === "success") return true;
+    const r = await l2.getTransactionReceipt({ hash: l.args.retryTxHash! });
+    if (r.status === "success") return true;
   }
   return false;
 }

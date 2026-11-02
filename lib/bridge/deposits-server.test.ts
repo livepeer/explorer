@@ -126,6 +126,29 @@ describe("ticketStatus", () => {
     await expect(ticketStatus(t)).resolves.toEqual({ status: "lapsed" });
   });
 
+  it("doesn't call it lapsed when a retry can't be read, and checks again", async () => {
+    const t = id(8);
+    const manual = pad("0xbeef", { size: 32 });
+    const logs = [
+      { args: { ticketId: t, retryTxHash: retryTx(t), sequenceNum: 0n } },
+      { args: { ticketId: t, retryTxHash: manual, sequenceNum: 1n } },
+    ];
+    // The manual retry's receipt can't be read yet: not found.
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
+    l2.readContract.mockRejectedValueOnce(noTicket());
+    l2.getLogs.mockResolvedValueOnce(logs);
+    await expect(ticketStatus(t)).rejects.toThrow("not found");
+    // Once it can, the deposit has arrived: nothing wrong was kept.
+    receipts({
+      [t]: created(t),
+      [retryTx(t)]: { status: "reverted" },
+      [manual]: { status: "success" },
+    });
+    l2.readContract.mockRejectedValueOnce(noTicket());
+    l2.getLogs.mockResolvedValueOnce(logs);
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+  });
+
   it("failed when the ticket's creation reverted, never arrived", async () => {
     const t = id(6);
     receipts({ [t]: created(t, "reverted") });
