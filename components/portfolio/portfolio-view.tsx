@@ -496,28 +496,35 @@ export function PortfolioView({
         active: false,
       });
     const manage = position ? canManage(position.account.address) : false;
-    // Nothing on Arbitrum to show: no delegation, or only a leftover with no
-    // stake history. A wallet that has delegated there keeps its balance,
-    // delegate and chart, with what's waiting from Ethereum above them.
+    // Anything on Arbitrum to show: stake now or in its history, stake
+    // unlocking or ready to withdraw, fees, or LPT not yet staked. Such a
+    // wallet keeps its balance and chart, with what's waiting from Ethereum
+    // above them, even when it has nothing delegated right now.
     const hasHistory = (view?.series ?? []).some((p) => p.stake >= LPT_DUST);
-    const undelegated =
-      !loading &&
-      (!position?.delegate || (position.stake < LPT_DUST && !hasHistory));
+    const freeLpt = free.get(scoped[0]);
+    const onArbitrum =
+      hasHistory ||
+      (position?.delegate != null && position.stake >= LPT_DUST) ||
+      (position?.fees ?? 0) >= DUST_ETH ||
+      (view?.unbonding.length ?? 0) > 0 ||
+      (freeLpt ?? 0) >= LPT_DUST;
     // Something waiting from Ethereum while nothing's on Arbitrum yet: that
     // is this wallet's position, so it leads the page.
     const fromEthereumLeads =
-      undelegated &&
+      !loading &&
+      !onArbitrum &&
       ((migrationClaim?.status === "claimable" &&
         (migrationClaim.stake > 0 || migrationClaim.fees > 0)) ||
         hasLeftovers(l1Leftovers));
-    const freeLpt = free.get(scoped[0]);
     return (
       <div className="flex flex-col">
         {header}
         {/* Everything waiting from before the move to Arbitrum: a claim and
             anything to migrate. Here, unless it's all this wallet has, when
             it's the headline below instead. */}
-        {!fromEthereumLeads && <FromEthereumCard accounts={scoped} />}
+        {!fromEthereumLeads && (
+          <FromEthereumCard accounts={scoped} canManage={canManage} />
+        )}
         {urgent.length > 0 && (
           <a
             href="#needs-attention"
@@ -541,7 +548,12 @@ export function PortfolioView({
           {fromEthereumLeads ? (
             // Nothing on Arbitrum yet: what's waiting is the position, not
             // "0 LPT, not delegated", which would contradict it.
-            <FromEthereumCard accounts={scoped} headline className="mb-0" />
+            <FromEthereumCard
+              accounts={scoped}
+              canManage={canManage}
+              headline
+              className="mb-0"
+            />
           ) : (
             <AccountHeadline
               loading={loading}
@@ -577,7 +589,7 @@ export function PortfolioView({
     <div className="flex flex-col">
       {header}
       {/* Everything waiting from Ethereum, for every wallet, in one card. */}
-      <FromEthereumCard accounts={scoped} />
+      <FromEthereumCard accounts={scoped} canManage={canManage} />
       {urgent.length > 0 && (
         <a
           href="#needs-attention"

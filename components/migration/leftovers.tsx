@@ -48,12 +48,21 @@ type WaitingItem = {
   action: React.ReactNode;
 };
 
-/** The items for one address: its claim first, then what's to migrate. */
+/**
+ * The items for one address: its claim first, then what's to migrate. On
+ * someone else's account, Claim goes (only the wallet itself can claim);
+ * Migrate stays, since its owner can sign with the CLI and have any wallet
+ * send it.
+ */
 function useWaitingItems(
   account: string,
   leftovers: L1Leftovers | undefined,
-  claim: MigrationClaim | null | undefined
+  claim: MigrationClaim | null | undefined,
+  canAct: boolean
 ): WaitingItem[] {
+  const migrate = (kind: MigrationKind) => (
+    <MigrateAction account={account} kind={kind} />
+  );
   const { open } = useStaking();
   const lockDelegate = useIdentity(leftovers?.locks?.delegate ?? null);
   const poolDelegate = useIdentity(claim?.poolDelegate ?? null);
@@ -91,7 +100,7 @@ function useWaitingItems(
           <ClaimTrust />
         </span>
       ),
-      action: (
+      action: canAct ? (
         <Button
           size="sm"
           variant="primary"
@@ -100,7 +109,7 @@ function useWaitingItems(
         >
           Claim
         </Button>
-      ),
+      ) : null,
     });
   }
   if (leftovers?.locks) {
@@ -112,7 +121,7 @@ function useWaitingItems(
       lands: `Arrives delegated to ${
         lockDelegate.name ?? shortAddress(leftovers.locks.delegate)
       }, ready to unstake or move.`,
-      action: <MigrateAction account={account} kind="locks" />,
+      action: migrate("locks"),
     });
   }
   if (leftovers?.orchestrator) {
@@ -122,7 +131,7 @@ function useWaitingItems(
       held: "ethereum",
       amount: formatLPT(fromWei(leftovers.orchestrator.own)),
       lands: "Arrives staked to this orchestrator, with its fees.",
-      action: <MigrateAction account={account} kind="orchestrator" />,
+      action: migrate("orchestrator"),
     });
   }
   if (leftovers?.sender) {
@@ -134,7 +143,7 @@ function useWaitingItems(
         fromWei(leftovers.sender.deposit + leftovers.sender.reserve)
       ),
       lands: "Arrives as the same deposit and reserve.",
-      action: <MigrateAction account={account} kind="sender" />,
+      action: migrate("sender"),
     });
   }
   return items;
@@ -276,11 +285,14 @@ function AccountSection({
   account,
   several,
   compact,
+  canAct,
   onItems,
 }: {
   account: string;
   several: boolean;
   compact: boolean;
+  /** A wallet of yours: with Claim and Migrate, not just what's there. */
+  canAct: boolean;
   /** Tells the card what this wallet has, for its wording. */
   onItems: (account: string, held: Held[]) => void;
 }) {
@@ -290,7 +302,7 @@ function AccountSection({
     poll: sent.length > 0,
   });
   const { data: claim } = useMigrationClaim(account);
-  const items = useWaitingItems(account, leftovers, claim);
+  const items = useWaitingItems(account, leftovers, claim, canAct);
   const held = items.map((i) => i.held).join(",");
   useEffect(() => {
     onItems(account, held ? (held.split(",") as Held[]) : []);
@@ -329,11 +341,17 @@ function AccountSection({
  * What's waiting, worded for how much there is: a claimed item is held on
  * Arbitrum and claimed, the rest are migrated from Ethereum.
  */
-function waitingText(held: Held[]) {
+function waitingText(held: Held[], canAct: boolean) {
   const claims = held.filter((h) => h === "arbitrum").length;
   const migrations = held.length - claims;
   const verb =
     claims && migrations ? "Claim or migrate" : claims ? "Claim" : "Migrate";
+  // Not yours to move: say what's there, not what to do.
+  if (!canAct) {
+    return held.length > 1
+      ? "These haven't come over yet."
+      : "This hasn't come over yet.";
+  }
   return held.length > 1
     ? `These haven't come over yet. ${verb} each one to use it.`
     : `This hasn't come over yet. ${verb} it to use it.`;
@@ -347,10 +365,13 @@ function waitingText(held: Held[]) {
  */
 export function FromEthereumCard({
   accounts,
+  canManage,
   headline = false,
   className,
 }: {
   accounts: string[];
+  /** Which wallets are yours, to claim or migrate from. */
+  canManage: (address: string) => boolean;
   /** It's the page's main content: full rows, not compact lines. */
   headline?: boolean;
   className?: string;
@@ -367,6 +388,7 @@ export function FromEthereumCard({
     []
   );
   const all = accounts.flatMap((a) => held[a.toLowerCase()] ?? []);
+  const canActAny = accounts.some((a) => canManage(a));
   return (
     // Hidden until a wallet has a row: each section decides for itself.
     <Card className={cn("mb-5 overflow-hidden not-has-[li]:hidden", className)}>
@@ -385,7 +407,8 @@ export function FromEthereumCard({
             Finish moving to Arbitrum
           </span>
           <span className="text-ui-caption text-pretty text-muted-foreground">
-            Livepeer moved from Ethereum to Arbitrum in 2022. {waitingText(all)}
+            Livepeer moved from Ethereum to Arbitrum in 2022.{" "}
+            {waitingText(all, canActAny)}
           </span>
         </div>
       </div>
@@ -396,6 +419,7 @@ export function FromEthereumCard({
             account={a.toLowerCase()}
             several={several}
             compact={!headline}
+            canAct={canManage(a)}
             onItems={onItems}
           />
         ))}
