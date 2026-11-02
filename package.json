@@ -31,7 +31,7 @@
     "@types/react-dom": "19.3.0",
     "@types/react-table": "^7.7.20",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.4.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
@@ -92,7 +92,7 @@
     "remark-gfm": "4.0.1",
     "swr": "^2.5.1",
     "unified": "^11.0.5",
-    "viem": "^2.57.7",
+    "viem": "^2.57.13",
     "wagmi": "^2.19.5",
     "zod": "^4.6.7",
     "zustand": "^4.5.7"
