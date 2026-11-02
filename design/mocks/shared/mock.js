@@ -56,7 +56,7 @@
       var items = radios();
       var i = items.indexOf(document.activeElement);
       if (i < 0) return;
-      var next = i;
+      var next;
       if (e.key === "ArrowRight" || e.key === "ArrowDown")
         next = (i + 1) % items.length;
       else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
@@ -350,7 +350,7 @@
         tablist.addEventListener("keydown", function (e) {
           var i = tabs.indexOf(document.activeElement);
           if (i < 0) return;
-          var next = i;
+          var next;
           if (e.key === "ArrowRight" || e.key === "ArrowDown")
             next = (i + 1) % tabs.length;
           else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
