@@ -8,7 +8,12 @@ import {
 } from "viem";
 
 import { L1_LPT, L1_LPT_GATEWAY } from "./config";
-import { ARB_RETRYABLE_TX, arbRetryableTxAbi, ticketFromLogs } from "./tickets";
+import {
+  ARB_RETRYABLE_TX,
+  arbRetryableTxAbi,
+  redeemScheduled,
+  ticketFromLogs,
+} from "./tickets";
 import type { TrackedDeposit } from "./types";
 import { l1, l2 } from "./withdrawals-server";
 
@@ -43,8 +48,14 @@ const depositInitiated = parseAbiItem(
  */
 const REORG_DEPTH = 64n;
 
-/** A deposit as scanned: with its block, to know which ones a rescan covers. */
-type Sent = Omit<TrackedDeposit, "status" | "retryBy"> & { block: bigint };
+/**
+ * A deposit as scanned: with its block, to know which ones a rescan covers,
+ * and that block's hash, which its ticket depends on.
+ */
+type Sent = Omit<TrackedDeposit, "status" | "retryBy"> & {
+  block: bigint;
+  blockHash: Hex;
+};
 
 /**
  * The week's deposits, scanned once and then from shortly before where the
@@ -84,6 +95,7 @@ async function scan() {
         sentAt: times.get(l.blockNumber)!,
         seq: l.args._sequenceNumber!.toString(),
         block: l.blockNumber,
+        blockHash: l.blockHash,
       });
     }
     lo = hi + 1n;
@@ -104,27 +116,31 @@ async function refresh() {
   await scanning;
 }
 
+/** The transaction is now in another block than the one scanned. */
+class Moved extends Error {}
+
 /**
- * Each deposit's ticket id, fixed once its Ethereum transaction is in.
- * Keyed by transaction and message number: one transaction can hold
- * several deposits, each with its own ticket.
+ * Each deposit's ticket id, fixed once its Ethereum transaction is in a
+ * block. The id depends on that block (its base fee), so a reorg that puts
+ * the same transaction in another block gives it another ticket: keyed by
+ * block too, and only taken from a receipt in the block the scan saw. One
+ * transaction can hold several deposits, each with its own ticket, hence
+ * the message number.
  */
 const tickets = new Map<string, Promise<Hex | null>>();
-function ticketOf(l1Tx: Hex, seq: string) {
-  const key = `${l1Tx}:${seq}`;
+function ticketOf(l1Tx: Hex, seq: string, blockHash: Hex) {
+  const key = `${l1Tx}:${seq}:${blockHash}`;
   let t = tickets.get(key);
   if (!t) {
-    t = l1
-      .getTransactionReceipt({ hash: l1Tx })
-      .then((r) => ticketFromLogs(r.logs, BigInt(seq)));
+    t = l1.getTransactionReceipt({ hash: l1Tx }).then((r) => {
+      if (r.blockHash !== blockHash) throw new Moved();
+      return ticketFromLogs(r.logs, BigInt(seq));
+    });
     t.catch(() => tickets.delete(key));
     tickets.set(key, t);
   }
   return t;
 }
-
-/** A ticket's lifetime on Arbitrum, unless someone pays to extend it. */
-const TICKET_LIFETIME = 7 * 86_400;
 
 /** Ticket states that never change back, once known. */
 const settled = new Map<string, Pick<TrackedDeposit, "status">>();
@@ -139,13 +155,34 @@ function noTicket(e: unknown) {
 }
 
 /**
+ * Whether any redeem of a ticket succeeded: each one scheduled for it
+ * since its creation, found in one search (it's at most days old, well
+ * inside one query's range on Arbitrum), and its own transaction checked.
+ */
+async function redeemed(ticket: Hex, created: bigint) {
+  const logs = await l2.getLogs({
+    address: ARB_RETRYABLE_TX,
+    event: redeemScheduled,
+    args: { ticketId: ticket },
+    fromBlock: created,
+    toBlock: "latest",
+  });
+  for (const l of logs) {
+    const r = await l2
+      .getTransactionReceipt({ hash: l.args.retryTxHash! })
+      .catch(() => null);
+    if (r?.status === "success") return true;
+  }
+  return false;
+}
+
+/**
  * Where a ticket stands. Not on Arbitrum yet: processing. Its creation
  * reverted: failed, since no ticket was made. Its automatic redeem, run
  * right after creation, succeeded: arrived. Otherwise it waited for a
- * retry: still holding a timeout, it's waiting now; gone before it could
- * have expired, someone redeemed it; gone after that, it was redeemed late
- * or expired, and only a search of Arbitrum's history would say which, so
- * it's unconfirmed rather than arrived.
+ * retry: still holding a timeout, it's waiting now. Gone, it was redeemed
+ * by hand, or expired, or was cancelled by its beneficiary: arrived only
+ * if a redeem of it is found to have succeeded, lapsed otherwise.
  */
 export async function ticketStatus(
   ticket: Hex
@@ -189,9 +226,9 @@ export async function ticketStatus(
   } catch (e) {
     if (!noTicket(e)) throw e;
   }
-  const block = await l2.getBlock({ blockNumber: created.blockNumber });
-  const expiresAt = Number(block.timestamp) + TICKET_LIFETIME;
-  return settle(Date.now() / 1000 < expiresAt ? "arrived" : "unconfirmed");
+  return settle(
+    (await redeemed(ticket, created.blockNumber)) ? "arrived" : "lapsed"
+  );
 }
 
 /** The week's LPT deposits sent from or to these addresses, with state. */
@@ -204,9 +241,17 @@ export async function depositsFor(
   );
   const out = await Promise.all(
     // The block is only for rescans, and a bigint doesn't go in JSON.
-    mine.map(async ({ block, ...d }) => {
+    mine.map(async ({ block, blockHash, ...d }) => {
       void block;
-      const ticket = await ticketOf(d.l1Tx, d.seq!);
+      let ticket: Hex | null;
+      try {
+        ticket = await ticketOf(d.l1Tx, d.seq!, blockHash);
+      } catch (e) {
+        // Reorged into another block since the scan: the next scan finds
+        // it there. Processing meanwhile.
+        if (e instanceof Moved) return { ...d, status: "processing" as const };
+        throw e;
+      }
       // No matching message would be a gateway change; the health check
       // catches that. Show it as still processing meanwhile.
       if (!ticket) return { ...d, status: "processing" as const };

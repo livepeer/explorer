@@ -11,7 +11,11 @@ import { fromWei } from "@/lib/format";
 
 import { inBatches } from "./batch";
 import { L1_LPT } from "./config";
-import { mergeWithdrawals, type SentWithdrawal } from "./progress";
+import {
+  isLocalFresh,
+  mergeWithdrawals,
+  type SentWithdrawal,
+} from "./progress";
 import type { BridgeWithdrawal } from "./types";
 
 /* ── Withdrawals sent from this browser, until the index has them ────── */
@@ -105,13 +109,27 @@ export function useBridgeWithdrawals(addresses: string[]) {
     [addresses]
   );
   const all = useSyncExternalStore(subscribeSent, snapshot, () => EMPTY);
+  // Only to tell fresh local copies from expired ones: a coarse clock is fine.
+  const nowSec = Math.floor(useNow(60_000) / 1000);
+  // Copies past their day are dropped: the index never showed them (one
+  // claimed elsewhere first never will), and checking for them every 15s
+  // would never end.
+  useEffect(() => {
+    const expired = all.filter((s) => !isLocalFresh(s.timestamp, nowSec));
+    if (expired.length) {
+      const drop = new Set(expired.map((s) => s.tx));
+      writeSent(readSent().filter((s) => !drop.has(s.tx)));
+    }
+  }, [all, nowSec]);
   const sent = useMemo(
     () =>
       all.filter(
         (s) =>
-          key.includes(s.from.toLowerCase()) || key.includes(s.to.toLowerCase())
+          isLocalFresh(s.timestamp, nowSec) &&
+          (key.includes(s.from.toLowerCase()) ||
+            key.includes(s.to.toLowerCase()))
       ),
-    [all, key]
+    [all, key, nowSec]
   );
   const query = useQuery({
     queryKey: ["bridge-withdrawals", key],
@@ -168,8 +186,6 @@ export function useBridgeWithdrawals(addresses: string[]) {
     }
   }, [query.data, sent]);
 
-  // Only to drop local copies the index never showed: a coarse clock is fine.
-  const nowSec = Math.floor(useNow(60_000) / 1000);
   const version = useSyncExternalStore(
     subscribeClaimed,
     () => claimedVersion,

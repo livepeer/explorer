@@ -12,7 +12,7 @@ import {
   removePendingDeposits,
   subscribePendingDeposits,
 } from "./deposit";
-import { mergeDeposits } from "./progress";
+import { isLocalFresh, mergeDeposits } from "./progress";
 import type { TrackedDeposit } from "./types";
 
 const EMPTY: PendingDeposit[] = [];
@@ -41,13 +41,23 @@ export function usePendingDeposits(addresses: string[]) {
     () => [...addresses].map((a) => a.toLowerCase()).sort(),
     [addresses]
   );
+  // Only to tell fresh local copies from expired ones: a coarse clock is fine.
+  const nowSec = Math.floor(useNow(60_000) / 1000);
+  // Copies past their day are dropped: the chain never showed them, and
+  // checking for them every 20s would never end.
+  useEffect(() => {
+    const expired = all.filter((d) => !isLocalFresh(d.sentAt, nowSec));
+    if (expired.length) removePendingDeposits(expired.map((d) => d.l1Tx));
+  }, [all, nowSec]);
   const local = useMemo(
     () =>
       all.filter(
         (d) =>
-          key.includes(d.to.toLowerCase()) || key.includes(d.from.toLowerCase())
+          isLocalFresh(d.sentAt, nowSec) &&
+          (key.includes(d.to.toLowerCase()) ||
+            key.includes(d.from.toLowerCase()))
       ),
-    [all, key]
+    [all, key, nowSec]
   );
 
   const { data: tracked } = useQuery({
@@ -103,8 +113,6 @@ export function usePendingDeposits(addresses: string[]) {
     }
   }, [tracked, queryClient]);
 
-  // Only to drop local copies the chain never showed: a coarse clock is fine.
-  const nowSec = Math.floor(useNow(60_000) / 1000);
   return useMemo(
     () => mergeDeposits(tracked ?? [], local, nowSec),
     [tracked, local, nowSec]

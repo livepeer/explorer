@@ -59,6 +59,17 @@ export type SentWithdrawal = {
 const WITHDRAWAL_SECONDS = 7 * 86_400;
 
 /**
+ * How long a copy kept in this browser (a withdrawal or deposit just sent)
+ * stands in for the chain's own record. Past this, the chain's record has
+ * long since taken over or never will: the copy is dropped.
+ */
+export const LOCAL_SECONDS = 86_400;
+
+/** Whether a copy kept in this browser is still worth showing and checking. */
+export const isLocalFresh = (sentAt: number, nowSec: number) =>
+  nowSec - sentAt < LOCAL_SECONDS;
+
+/**
  * Indexed withdrawals plus ones just sent from this browser that the index
  * hasn't picked up yet, so a withdrawal shows everywhere the moment it's
  * sent. Once indexed, the index speaks for it; a local copy the index
@@ -72,7 +83,7 @@ export function mergeWithdrawals(
   const known = new Set(indexed.map((w) => w.tx.toLowerCase()));
   const fresh: BridgeWithdrawal[] = sent
     .filter((s) => !known.has(s.tx.toLowerCase()))
-    .filter((s) => nowSec - s.timestamp < 86_400)
+    .filter((s) => isLocalFresh(s.timestamp, nowSec))
     .map((s) => ({
       id: `sent-${s.tx}`,
       from: s.from,
@@ -87,9 +98,6 @@ export function mergeWithdrawals(
   return [...fresh, ...indexed];
 }
 
-/** A deposit sent from here that Ethereum never showed is dropped after this. */
-const LOCAL_SECONDS = 24 * 3600;
-
 /**
  * Deposits found on-chain plus ones just sent from this browser, which
  * Ethereum may not have included yet. Once the chain shows a deposit, it
@@ -103,7 +111,7 @@ export function mergeDeposits(
   const known = new Set(tracked.map((d) => d.l1Tx.toLowerCase()));
   const fresh = local
     .filter((d) => !known.has(d.l1Tx.toLowerCase()))
-    .filter((d) => nowSec - d.sentAt < LOCAL_SECONDS)
+    .filter((d) => isLocalFresh(d.sentAt, nowSec))
     .map((d) => ({ ...d, status: "processing" as const }));
   return [...fresh, ...tracked].filter((d) => d.status !== "arrived");
 }

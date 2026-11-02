@@ -110,13 +110,21 @@ export function ClaimFlow({
   });
   // A Safe on Ethereum claims by proposal: its owners sign, and whoever
   // executes it pays the gas, so its own ETH doesn't matter.
-  const { data: code } = useBytecode({
+  const {
+    data: code,
+    isSuccess: codeRead,
+    isError: codeFailed,
+    refetch: rereadCode,
+  } = useBytecode({
     address,
     chainId: L1_CHAIN.id,
     query: { enabled: Boolean(address), staleTime: 5 * 60_000 },
   });
   const safeApp = connector?.id === "safe";
   const isSafe = safeApp || isSafeProxy(code ?? undefined);
+  // Whether it's a Safe decides what sending returns: a transaction to wait
+  // for, or a proposal that has none. Not sent until that's known.
+  const kindKnown = safeApp || codeRead;
   const short =
     !isSafe && fee.data != null && eth != null && eth.value < fee.data;
 
@@ -168,7 +176,7 @@ export function ClaimFlow({
   const safeOnEthereum = isSafeProxy(code ?? undefined);
 
   const claim = async () => {
-    if (submitting.current) return;
+    if (submitting.current || !kindKnown) return;
     submitting.current = true;
     setSubmitted(true);
     setError(null);
@@ -328,6 +336,19 @@ export function ClaimFlow({
                 )}
               </Notice>
             )}
+            {!safeApp && codeFailed && (
+              <Notice tone="warning">
+                Couldn&apos;t check this wallet on Ethereum, so it can&apos;t
+                claim yet.{" "}
+                <button
+                  type="button"
+                  onClick={() => rereadCode()}
+                  className="cursor-pointer font-medium underline-offset-4 hover:underline"
+                >
+                  Try again
+                </button>
+              </Notice>
+            )}
             {short && (
               <Notice tone="warning">
                 This wallet doesn&apos;t have enough ETH on Ethereum for the
@@ -375,6 +396,7 @@ export function ClaimFlow({
             className="w-full sm:w-auto"
             disabled={
               !call ||
+              !kindKnown ||
               busy ||
               switching ||
               short ||

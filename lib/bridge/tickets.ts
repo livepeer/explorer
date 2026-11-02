@@ -36,20 +36,11 @@ export const messageDelivered = parseAbiItem(
  * ticket is created).
  */
 export const ARB_RETRYABLE_TX = "0x000000000000000000000000000000000000006E";
+export const redeemScheduled = parseAbiItem(
+  "event RedeemScheduled(bytes32 indexed ticketId, bytes32 indexed retryTxHash, uint64 indexed sequenceNum, uint64 donatedGas, address gasDonor, uint256 maxRefund, uint256 submissionFeeRefund)"
+);
 export const arbRetryableTxAbi = [
-  {
-    type: "event",
-    name: "RedeemScheduled",
-    inputs: [
-      { name: "ticketId", type: "bytes32", indexed: true },
-      { name: "retryTxHash", type: "bytes32", indexed: true },
-      { name: "sequenceNum", type: "uint64", indexed: true },
-      { name: "donatedGas", type: "uint64", indexed: false },
-      { name: "gasDonor", type: "address", indexed: false },
-      { name: "maxRefund", type: "uint256", indexed: false },
-      { name: "submissionFeeRefund", type: "uint256", indexed: false },
-    ],
-  },
+  redeemScheduled,
   {
     type: "function",
     name: "getTimeout",

@@ -52,11 +52,11 @@ export type DepositStatus =
   /** Redeemed: the LPT is on Arbitrum. */
   | "arrived"
   /**
-   * Its automatic redeem failed and the ticket is gone, but only after it
-   * could have expired: redeemed late or expired, which the ticket alone
-   * can't tell. Shown with a link to check rather than as arrived.
+   * The ticket is gone and no redeem of it succeeded: it expired, or its
+   * beneficiary cancelled it. The LPT didn't arrive. Rare; shown so it
+   * isn't lost.
    */
-  | "unconfirmed";
+  | "lapsed";
 
 /** An LPT deposit from Ethereum to Arbitrum, and where it stands. */
 export type TrackedDeposit = {

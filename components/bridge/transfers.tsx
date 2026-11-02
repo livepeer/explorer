@@ -111,7 +111,7 @@ export function Transfers({ wallet }: { wallet: string }) {
             </div>
           );
         }
-        if (d.status === "failed" || d.status === "unconfirmed") {
+        if (d.status === "failed" || d.status === "lapsed") {
           return (
             <div
               key={`${d.l1Tx}-${d.seq ?? ""}`}
@@ -133,8 +133,8 @@ export function Transfers({ wallet }: { wallet: string }) {
                   Arbitrum couldn&apos;t start it, so it hasn&apos;t arrived
                 </span>
               ) : (
-                <span className="text-ui-caption text-warm">
-                  Its retry window has ended · check whether it arrived
+                <span className="text-ui-caption text-destructive">
+                  Arbitrum&apos;s retry ticket ended, so it hasn&apos;t arrived
                 </span>
               )}
             </div>

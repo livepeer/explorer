@@ -72,6 +72,10 @@ async function main() {
     );
   }
 
+  // Claimed as of Ethereum's finalized state: the snapshot leaves claimed
+  // ones out for good, and a claim in a recent block could still be undone
+  // by a reorg. One claimed since is left in; the server checks each
+  // withdrawal live before listing it.
   const spent = await Promise.all(
     logs.map((l) =>
       l1.readContract({
@@ -79,6 +83,7 @@ async function main() {
         abi: parseAbi(["function isSpent(uint256) view returns (bool)"]),
         functionName: "isSpent",
         args: [l.args.l2ToL1Id],
+        blockTag: "finalized",
       })
     )
   );

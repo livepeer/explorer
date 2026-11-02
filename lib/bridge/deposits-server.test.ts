@@ -11,7 +11,7 @@ import { ARB_RETRYABLE_TX, arbRetryableTxAbi } from "./tickets";
 const l2 = {
   getTransactionReceipt: jest.fn(),
   readContract: jest.fn(),
-  getBlock: jest.fn(),
+  getLogs: jest.fn(),
 };
 jest.mock("./withdrawals-server", () => ({ l1: {}, l2 }));
 
@@ -66,8 +66,6 @@ const receipts = (byHash: Record<string, unknown>) =>
       : Promise.reject(new Error("not found"))
   );
 
-const now = Math.floor(Date.now() / 1000);
-
 beforeEach(() => jest.resetAllMocks());
 
 describe("ticketStatus", () => {
@@ -98,20 +96,34 @@ describe("ticketStatus", () => {
     });
   });
 
-  it("has arrived when a retried ticket is gone before it could expire", async () => {
+  it("has arrived when a retry of a gone ticket succeeded", async () => {
     const t = id(4);
-    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
+    const manual = pad("0xabcd", { size: 32 });
+    receipts({
+      [t]: created(t),
+      [retryTx(t)]: { status: "reverted" },
+      [manual]: { status: "success" },
+    });
     l2.readContract.mockRejectedValueOnce(noTicket());
-    l2.getBlock.mockResolvedValueOnce({ timestamp: BigInt(now - 86_400) });
+    l2.getLogs.mockResolvedValueOnce([
+      { args: { ticketId: t, retryTxHash: retryTx(t), sequenceNum: 0n } },
+      { args: { ticketId: t, retryTxHash: manual, sequenceNum: 1n } },
+    ]);
     await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+    expect(l2.getLogs).toHaveBeenCalledWith(
+      expect.objectContaining({ args: { ticketId: t }, fromBlock: 1n })
+    );
   });
 
-  it("is unconfirmed, not arrived, when it's gone after it could expire", async () => {
+  it("lapsed, not arrived, when it's gone with no retry succeeding", async () => {
+    // Expired, or cancelled by its beneficiary, at any age.
     const t = id(5);
     receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
     l2.readContract.mockRejectedValueOnce(noTicket());
-    l2.getBlock.mockResolvedValueOnce({ timestamp: BigInt(now - 8 * 86_400) });
-    await expect(ticketStatus(t)).resolves.toEqual({ status: "unconfirmed" });
+    l2.getLogs.mockResolvedValueOnce([
+      { args: { ticketId: t, retryTxHash: retryTx(t), sequenceNum: 0n } },
+    ]);
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "lapsed" });
   });
 
   it("failed when the ticket's creation reverted, never arrived", async () => {
