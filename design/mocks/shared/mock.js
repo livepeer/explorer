@@ -420,6 +420,19 @@
     }
   }
 
+  var hashHandlingBound = false;
+
+  function noteIdForMarker(markerEl) {
+    if (!markerEl) return null;
+    var callout = markerEl.querySelector('a.callout[href^="#n-"]');
+    if (callout) return (callout.getAttribute("href") || "").replace(/^#/, "");
+    var id = markerEl.id;
+    if (!id) return null;
+    var show = document.querySelector('.show-in-mock[href="#' + id + '"]');
+    var note = show && show.closest(".note-card");
+    return note ? note.id : null;
+  }
+
   function bindCallouts(root) {
     var scope = root || document;
     scope.addEventListener("click", function (e) {
@@ -483,6 +496,11 @@
         if (t) t.classList.add("is-lit");
       });
     });
+    if (!hashHandlingBound) {
+      hashHandlingBound = true;
+      applyHash();
+      window.addEventListener("hashchange", applyHash);
+    }
   }
 
   function bindHideMarkers() {
@@ -504,14 +522,20 @@
       if (list && tab) activateTab(list, tab);
       return;
     }
-    if (document.getElementById(hash)) {
-      if (hash.indexOf("n-") === 0)
-        showNote(hash, { scroll: true, focus: true, hash: false });
-      else {
-        var el = document.getElementById(hash);
-        smoothScrollTo(el);
-      }
+    var el = document.getElementById(hash);
+    if (!el) return;
+    if (hash.indexOf("n-") === 0) {
+      showNote(hash, { scroll: true, focus: true, hash: false });
+      return;
     }
+    if (hash.indexOf("m-") === 0 || el.classList.contains("callout-target")) {
+      var noteId = noteIdForMarker(el);
+      if (noteId)
+        showNote(noteId, { scroll: false, focus: false, hash: false });
+      smoothScrollTo(el);
+      return;
+    }
+    smoothScrollTo(el);
   }
 
   function initReviewChrome(root) {
@@ -525,8 +549,6 @@
         g.setAttribute("data-bound", "1");
       }
     });
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
   }
 
   global.MockReview = {

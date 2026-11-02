@@ -469,11 +469,11 @@
                 </div>
                 <div class="pf-stat">
                   <div class="label">Fee cut</div>
-                  <div class="value num">5%</div>
+                  <div class="value num">92%</div>
                 </div>
                 <div class="pf-stat">
                   <div class="label">Reward cut</div>
-                  <div class="value num">10%</div>
+                  <div class="value num">8%</div>
                 </div>
                 <div class="pf-stat">
                   <div class="label">Reward calls</div>
@@ -497,9 +497,17 @@
                 </p>
               </div>
             </div>
-            <aside class="orch-rail" aria-label="Delegate">
+            <aside class="orch-rail" aria-label="Delegate" id="orch-rail">
               <span class="orch-tag">Right rail · Delegate box</span>
               <div class="dw" id="dw">
+                <button
+                  type="button"
+                  class="dw-close"
+                  id="dw-close"
+                  aria-label="Close amount drawer"
+                >
+                  ×
+                </button>
                 <div
                   class="dw-tabs"
                   role="radiogroup"
@@ -1433,7 +1441,9 @@
             <tbody>
               <tr tabindex="0" data-id="northbeam">
                 <td>
-                  <a class="prose-link" href="#set" data-jump="northbeam"
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=northbeam"
                     >Northbeam</a
                   >
                 </td>
@@ -1442,7 +1452,11 @@
               </tr>
               <tr tabindex="0" data-id="kiln">
                 <td>
-                  <a class="prose-link" href="#set" data-jump="kiln">Kiln</a>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=kiln"
+                    >Kiln</a
+                  >
                 </td>
                 <td class="num">100%</td>
                 <td class="num">Round 4218</td>
@@ -1479,7 +1493,11 @@
               </tr>
               <tr tabindex="0" data-id="reed">
                 <td>
-                  <a class="prose-link" href="#set" data-jump="reed">Reed</a>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=reed"
+                    >Reed</a
+                  >
                 </td>
                 <td class="num">95%</td>
                 <td class="num">Round 4218</td>
@@ -1526,7 +1544,9 @@
               </tr>
               <tr tabindex="0" data-id="cinder">
                 <td>
-                  <a class="prose-link" href="#set" data-jump="cinder"
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=cinder"
                     >Cinder</a
                   >
                 </td>
@@ -1558,7 +1578,9 @@
             <tbody>
               <tr>
                 <td>
-                  <a class="prose-link" href="#set" data-jump="northbeam"
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=northbeam"
                     >Northbeam</a
                   >
                 </td>
@@ -1567,21 +1589,31 @@
               </tr>
               <tr>
                 <td>
-                  <a class="prose-link" href="#set" data-jump="kiln">Kiln</a>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=kiln"
+                    >Kiln</a
+                  >
                 </td>
                 <td class="num">90%</td>
                 <td class="num">Round 4216</td>
               </tr>
               <tr>
                 <td>
-                  <a class="prose-link" href="#set" data-jump="reed">Reed</a>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=reed"
+                    >Reed</a
+                  >
                 </td>
                 <td class="num">90%</td>
                 <td class="num">Round 4216</td>
               </tr>
               <tr>
                 <td>
-                  <a class="prose-link" href="#set" data-jump="cinder"
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=cinder"
                     >Cinder</a
                   >
                 </td>
@@ -1727,12 +1759,106 @@
           });
         });
 
+        var orchBody = document.querySelector(".orch-body");
+        var orchRail = document.getElementById("orch-rail");
+        var dwClose = document.getElementById("dw-close");
+        var drawerReturn = null;
+        var drawerTrap = null;
+
+        function isOrchNarrow() {
+          return window.matchMedia("(max-width: 1199px)").matches;
+        }
+
+        function ensureOrchBackdrop() {
+          if (!orchBody) return null;
+          var backdrop = orchBody.querySelector(".orch-drawer-backdrop");
+          if (backdrop) return backdrop;
+          backdrop = document.createElement("button");
+          backdrop.type = "button";
+          backdrop.className = "orch-drawer-backdrop";
+          backdrop.setAttribute("aria-label", "Close amount drawer");
+          orchBody.insertBefore(backdrop, orchRail);
+          backdrop.addEventListener("click", function () {
+            setOrchDrawer(false);
+          });
+          return backdrop;
+        }
+
+        function orchDrawerFocusables() {
+          if (!orchRail) return [];
+          return Array.prototype.filter.call(
+            orchRail.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            ),
+            function (el) {
+              return !el.disabled && el.offsetParent !== null;
+            }
+          );
+        }
+
+        function setOrchDrawer(open, returnTo) {
+          if (!orchBody || !orchRail) return;
+          ensureOrchBackdrop();
+          orchBody.classList.toggle("is-drawer-open", open);
+          document.body.style.overflow = open ? "hidden" : "";
+          if (drawerTrap) {
+            document.removeEventListener("keydown", drawerTrap, true);
+            drawerTrap = null;
+          }
+          if (open) {
+            if (returnTo) drawerReturn = returnTo;
+            drawerTrap = function (e) {
+              if (e.key === "Escape") {
+                e.preventDefault();
+                setOrchDrawer(false);
+                return;
+              }
+              if (e.key !== "Tab") return;
+              var items = orchDrawerFocusables();
+              if (!items.length) return;
+              var first = items[0];
+              var last = items[items.length - 1];
+              if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            };
+            document.addEventListener("keydown", drawerTrap, true);
+            var input = orchRail.querySelector("#dw-amount, .dw-input");
+            if (input) input.focus();
+            else if (dwClose) dwClose.focus();
+          } else {
+            var back = drawerReturn;
+            drawerReturn = null;
+            if (back && back.focus) back.focus();
+          }
+        }
+
+        if (dwClose) {
+          dwClose.addEventListener("click", function () {
+            setOrchDrawer(false);
+          });
+        }
+
+        window
+          .matchMedia("(max-width: 1199px)")
+          .addEventListener("change", function (mq) {
+            if (!mq.matches) setOrchDrawer(false);
+          });
+
         document.addEventListener("click", function (e) {
           var opener = e.target.closest("[data-focus-widget]");
           if (!opener) return;
           var rail = document.getElementById("dw");
           if (!rail) return;
           e.preventDefault();
+          if (isOrchNarrow()) {
+            setOrchDrawer(true, opener);
+            return;
+          }
           rail.scrollIntoView({
             behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
               .matches

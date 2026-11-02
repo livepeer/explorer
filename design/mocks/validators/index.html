@@ -1353,14 +1353,14 @@
           });
         }
 
-        function jumpToValidator(id, opts) {
+        function jumpToValidator(id) {
           var node = NODES[id];
           if (!node) return;
-          opts = opts || {};
           applyFilter(node.bucket);
           selectId(id, { activate: isNarrow() });
           if (isNarrow()) setMobilePane("detail");
-          if (opts.closeSheet) closeScoreSheet({ skipFocus: true });
+          var title = document.getElementById("detail-title");
+          if (title) title.focus({ preventScroll: true });
         }
 
         var FILTER_COPY = {
@@ -1485,9 +1485,7 @@
           var id = link.getAttribute("data-jump");
           if (!NODES[id]) return;
           e.preventDefault();
-          jumpToValidator(id, {
-            closeSheet: !!link.closest("#score-sheet"),
-          });
+          jumpToValidator(id);
         });
 
         document.querySelectorAll(".help").forEach(function (help) {
@@ -1513,6 +1511,8 @@
             applyFilter(NODES[deep].bucket, { deferSelection: true });
             selectId(deep, { activate: isNarrow() });
             if (isNarrow()) setMobilePane("detail");
+            var deepTitle = document.getElementById("detail-title");
+            if (deepTitle) deepTitle.focus({ preventScroll: true });
           } else {
             selectId("northbeam", {
               activate: false,
@@ -1527,139 +1527,6 @@
             quiet: true,
           });
         }
-
-        var dwTabs = document.getElementById("dw-tabs");
-        var dwGo = document.getElementById("dw-go");
-        var dwNote = document.getElementById("dw-note");
-        var dwLabel = document.getElementById("dw-amount-label");
-        bindRadioGroup(dwTabs, "data-dw", function (mode) {
-          var delegating = mode === "delegate";
-          if (dwGo) dwGo.textContent = delegating ? "Delegate" : "Undelegate";
-          if (dwLabel)
-            dwLabel.textContent = delegating ? "Amount" : "Amount to remove";
-          if (dwNote) {
-            dwNote.textContent = delegating
-              ? "Stays in this rail. The cards on the left explain. This box is where the amount is entered. Under 1200px the product opens it as a bottom drawer."
-              : "Undelegate uses the same rail. Moving stake still waits about 21 days before it earns anywhere else.";
-          }
-        });
-
-        var openScores = document.getElementById("open-scores");
-        var scoreSheet = document.getElementById("score-sheet");
-        var scoreDialog = document.getElementById("score-dialog");
-        var closeScores = document.getElementById("close-scores");
-        var plotTabs = document.getElementById("plot-tabs");
-        var scoresReturn = null;
-
-        function sheetFocusables() {
-          return Array.prototype.filter.call(
-            scoreDialog.querySelectorAll("button, a[href]"),
-            function (el) {
-              return !el.closest("[hidden]");
-            }
-          );
-        }
-
-        function setSheetMode(mode) {
-          var received = mode !== "filed";
-          document.getElementById("sheet-received").hidden = !received;
-          document.getElementById("sheet-filed").hidden = received;
-          document.getElementById("sheet-kicker").textContent = received
-            ? "Scores on this node"
-            : "Scores this validator gave other nodes";
-          document.getElementById("sheet-title").textContent = received
-            ? "How it was scored"
-            : "How it scored others";
-        }
-
-        function openScoreSheet(mode) {
-          setSheetMode(mode);
-          scoresReturn = document.activeElement;
-          scoreSheet.hidden = false;
-          document.body.style.overflow = "hidden";
-          closeScores.focus();
-        }
-
-        function closeScoreSheet(opts) {
-          opts = opts || {};
-          scoreSheet.hidden = true;
-          document.body.style.overflow = "";
-          if (!opts.skipFocus && scoresReturn && scoresReturn.focus)
-            scoresReturn.focus();
-        }
-
-        openScores.addEventListener("click", function () {
-          openScoreSheet("received");
-        });
-        document
-          .getElementById("open-filed")
-          .addEventListener("click", function () {
-            openScoreSheet("filed");
-          });
-        closeScores.addEventListener("click", closeScoreSheet);
-        scoreSheet.addEventListener("click", function (e) {
-          if (e.target === scoreSheet) closeScoreSheet();
-        });
-        scoreDialog.addEventListener("keydown", function (e) {
-          if (e.key === "Escape") {
-            e.preventDefault();
-            e.stopPropagation();
-            closeScoreSheet();
-            return;
-          }
-          if (e.key !== "Tab") return;
-          var items = sheetFocusables();
-          if (!items.length) return;
-          var first = items[0];
-          var last = items[items.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        });
-        bindRadioGroup(plotTabs, "data-plot", function (mode) {
-          document.getElementById("plot-spread").hidden = mode !== "spread";
-          document.getElementById("plot-time").hidden = mode !== "time";
-        });
-
-        var scoreRows = document.querySelectorAll("#score-list tbody tr");
-        function markScore(id) {
-          scoreSheet
-            .querySelectorAll("circle[data-id]")
-            .forEach(function (dot) {
-              dot.classList.toggle(
-                "is-on",
-                !!id && dot.getAttribute("data-id") === id
-              );
-            });
-          scoreSheet.querySelectorAll(".plot svg").forEach(function (svg) {
-            svg.classList.toggle("is-hilite", !!id);
-          });
-          scoreRows.forEach(function (row) {
-            row.classList.toggle(
-              "is-on",
-              !!id && row.getAttribute("data-id") === id
-            );
-          });
-        }
-        scoreRows.forEach(function (row) {
-          var id = row.getAttribute("data-id");
-          row.addEventListener("mouseenter", function () {
-            markScore(id);
-          });
-          row.addEventListener("mouseleave", function () {
-            markScore(null);
-          });
-          row.addEventListener("focusin", function () {
-            markScore(id);
-          });
-          row.addEventListener("focusout", function (e) {
-            if (!row.contains(e.relatedTarget)) markScore(null);
-          });
-        });
       })();
 
       MockReview.bindHelpTips();

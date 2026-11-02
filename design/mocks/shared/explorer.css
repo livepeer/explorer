@@ -3773,7 +3773,72 @@ button:focus-visible,
     display: block;
   }
 }
-@media (min-width: 1041px) {
+@media (max-width: 1199px) {
+  .orch-rail {
+    display: none;
+  }
+  .orch-body.is-drawer-open .orch-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 40;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .orch-body.is-drawer-open .orch-rail {
+    display: block;
+    position: fixed;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 50;
+    max-height: 85vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: var(--panel);
+    border: 1px solid var(--neutral4);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+      hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  }
+}
+.orch-drawer-backdrop {
+  display: none;
+}
+.orch-rail .dw-close {
+  display: none;
+}
+@media (max-width: 1199px) {
+  .orch-body.is-drawer-open .orch-rail .dw-close {
+    display: inline-flex;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--neutral11);
+    font: inherit;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .orch-body.is-drawer-open .orch-rail .dw {
+    position: relative;
+    padding-top: 8px;
+  }
+}
+@media (min-width: 1200px) {
   /* from 804 */
 
   .orch-body {
