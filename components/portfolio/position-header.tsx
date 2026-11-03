@@ -82,7 +82,12 @@ function DelegationActions({
         variant="primary"
         className="flex-1 sm:flex-none"
         onClick={() =>
-          open({ kind: "delegate", to: delegate, account, amount: freeLpt })
+          open({
+            kind: "delegate",
+            to: delegate,
+            account,
+            wholeWallet: Boolean(freeLpt),
+          })
         }
       >
         <Plus /> Delegate
@@ -334,7 +339,7 @@ export function AccountHeadline({
                     kind: "delegate",
                     to: p.delegate!,
                     account,
-                    amount: freeLpt ?? held.arbitrum,
+                    wholeWallet: Boolean(freeLpt ?? held.arbitrum),
                   }),
               }
             : // No orchestrator yet: the same move, by way of choosing one.
