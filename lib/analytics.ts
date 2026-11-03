@@ -1,18 +1,20 @@
 import { type BeforeSend, track } from "@vercel/analytics";
-import type { InputData, TransactionIdentifier } from "hooks/useExplorerStore";
 import type { Config } from "wagmi";
 import { getPublicClient } from "wagmi/actions";
 
-/**
- * Replaces wallet addresses in tracked URLs (e.g. `/accounts/0x…`), so
- * pageviews and events can't be tied to a visitor's wallet.
- */
-export const redactAddresses: BeforeSend = (event) => ({
-  ...event,
-  url: event.url.replace(/0x[0-9a-fA-F]{40}/g, "[address]"),
-});
+import { L2_CHAIN } from "@/lib/config";
 
-export type DelegationFunnelEvent =
+/*
+ * The delegation funnel from the instrumentation plan (livepeer/explorer#722).
+ * Event names match the previous explorer's, so the two versions can be
+ * compared event for event in Web Analytics, split by hostname.
+ *
+ * Nothing tracked identifies anyone: no addresses, ENS names, transaction
+ * hashes or error text, in event properties or in URLs.
+ */
+
+export type FunnelEvent =
+  | "earn_entry_point_clicked"
   | "orchestrators_nav_clicked"
   | "orchestrators_page_viewed"
   | "orchestrator_detail_viewed"
@@ -25,147 +27,134 @@ export type DelegationFunnelEvent =
   | "redelegation_started"
   | "unbonding_or_exit_started";
 
-export const trackVercelAnalyticsEvent = (
-  event: DelegationFunnelEvent,
-  properties?: Parameters<typeof track>[1]
-) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  track(event, properties);
-};
-
-const NON_DELEGATION_PATHS = ["/migrate", "/voting", "/treasury"];
-
-/** Coarse entry point a wallet was connected from; never identifying. */
-const getWalletConnectSurface = (path: string) => {
-  if (path === "/") {
-    return "home";
-  }
-  if (path.startsWith("/orchestrators")) {
-    return "orchestrators_list";
-  }
-  if (path.startsWith("/accounts/")) {
-    return path.includes("/orchestrating") ? "orchestrator_detail" : "account";
-  }
-  return "other";
-};
+/** Query parameters holding what someone typed, sent only as "[query]". */
+const TYPED_PARAMS = /([?&]q=)[^&#]*/g;
 
 /**
- * Tracks a wallet connect as delegation intent, tagged with the page it was
- * made from. Migration and governance need a wallet for their own reasons,
- * so connects there aren't tracked at all.
+ * Replaces addresses and ENS names in tracked URLs, e.g. `/accounts/0x…`,
+ * and drops search text entirely: names can end in any TLD (`alice.xyz`),
+ * so a pattern can't reliably catch them there.
  */
-export const trackWalletConnected = (asPath: string) => {
-  const path = asPath.split("?")[0];
+export const redactUrl: BeforeSend = (event) => ({
+  ...event,
+  url: event.url
+    .replace(TYPED_PARAMS, "$1[query]")
+    .replace(/0x[0-9a-fA-F]{40}/g, "[address]")
+    .replace(/[\w-]+(\.[\w-]+)*\.eth\b/gi, "[name]"),
+});
 
-  if (
-    NON_DELEGATION_PATHS.some((nonDelegation) => path.startsWith(nonDelegation))
-  ) {
-    return;
-  }
+let queued = false;
 
-  trackVercelAnalyticsEvent("wallet_connected", {
-    surface: getWalletConnectSurface(path),
-  });
-};
+/**
+ * `track` drops events until <Analytics /> has mounted and set up its queue,
+ * and on a full page load a page's own effects run first. So set up the same
+ * queue here, with the redaction ahead of any event, and let the script work
+ * through it once it loads.
+ */
+function ensureQueue() {
+  if (queued) return;
+  queued = true;
+  window.va ??= (...params: [string, unknown?]) => {
+    (window.vaq ??= []).push(params);
+  };
+  window.va("beforeSend", redactUrl);
+}
+
+export function trackEvent(
+  event: FunnelEvent,
+  properties?: Record<string, string>
+) {
+  if (typeof window === "undefined") return;
+  ensureQueue();
+  track(event, properties);
+}
 
 const trackedOnce = new Set<string>();
 
 /**
  * Tracks `event` at most once per page session for `key`, e.g. once per
- * orchestrator no matter how often its pages are revisited.
+ * orchestrator however often its page is revisited.
  */
-export const trackVercelAnalyticsEventOnce = (
-  event: DelegationFunnelEvent,
-  key: string
-) => {
+export function trackEventOnce(event: FunnelEvent, key: string) {
   const id = `${event}:${key.toLowerCase()}`;
+  if (trackedOnce.has(id)) return;
+  trackedOnce.add(id);
+  trackEvent(event);
+}
 
-  if (!trackedOnce.has(id)) {
-    trackedOnce.add(id);
-    trackVercelAnalyticsEvent(event);
-  }
-};
+/** Coarse page a wallet was connected from; never identifying. */
+function connectSurface(path: string) {
+  if (path === "/") return "home";
+  if (path === "/orchestrators") return "orchestrators_list";
+  if (path.startsWith("/orchestrators/")) return "orchestrator_detail";
+  if (path.startsWith("/accounts/")) return "account";
+  return "other";
+}
+
+/**
+ * Tracks a wallet connect as delegation intent, tagged with the page it was
+ * made from. Governance needs a wallet for its own reasons, so connects
+ * there aren't tracked.
+ */
+export function trackWalletConnected(path: string) {
+  if (path.startsWith("/governance")) return;
+  trackEvent("wallet_connected", { surface: connectSurface(path) });
+}
 
 type TransactionEvents = {
-  submitted: DelegationFunnelEvent;
-  confirmed?: DelegationFunnelEvent;
-  failed?: DelegationFunnelEvent;
+  submitted: FunnelEvent;
+  confirmed?: FunnelEvent;
+  failed?: FunnelEvent;
 };
 
-const REDELEGATION_EVENTS: TransactionEvents = {
+export const DELEGATION_EVENTS: TransactionEvents = {
+  submitted: "delegation_transaction_submitted",
+  confirmed: "delegation_transaction_confirmed",
+  failed: "delegation_transaction_failed",
+};
+/** Switching orchestrator, or putting undelegating LPT back. */
+export const REDELEGATION_EVENTS: TransactionEvents = {
   submitted: "redelegation_started",
 };
-
-const DELEGATION_EVENTS: Partial<
-  Record<TransactionIdentifier, TransactionEvents>
-> = {
-  bond: {
-    submitted: "delegation_transaction_submitted",
-    confirmed: "delegation_transaction_confirmed",
-    failed: "delegation_transaction_failed",
-  },
-  unbond: { submitted: "unbonding_or_exit_started" },
-  rebond: REDELEGATION_EVENTS,
-  rebondFromUnbonded: REDELEGATION_EVENTS,
+export const UNBONDING_EVENTS: TransactionEvents = {
+  submitted: "unbonding_or_exit_started",
 };
 
 /**
- * Tracks the funnel events for a submitted contract interaction: submitted
- * right away, then confirmed or failed once it is mined. The receipt is
- * awaited outside React, so the result is still tracked if the sending
- * component unmounts, e.g. when the mobile delegate sheet is closed.
- * "Move Delegated Stake" is a `bond` but counts as a redelegation.
+ * Tracks a sent transaction: submitted right away, then confirmed or failed
+ * once it's mined. The receipt is awaited outside React, so the result is
+ * still tracked if the dialog is closed first. Only for transactions with an
+ * on-chain hash, never Safe proposals.
  */
-export const trackTransaction = (
+export function trackTransaction(
   config: Config,
-  id: TransactionIdentifier,
-  args: InputData,
+  events: TransactionEvents,
   hash: `0x${string}`
-) => {
-  const isRedelegation = id === "bond" && args.isTransferStake;
-  const events = isRedelegation ? REDELEGATION_EVENTS : DELEGATION_EVENTS[id];
-
-  if (!events) {
-    return;
-  }
-
-  trackVercelAnalyticsEvent(events.submitted);
+) {
+  trackEvent(events.submitted);
 
   const { confirmed, failed } = events;
-  const client = getPublicClient(config);
-
-  if ((!confirmed && !failed) || !client) {
-    return;
-  }
+  const client = getPublicClient(config, { chainId: L2_CHAIN.id });
+  if ((!confirmed && !failed) || !client) return;
 
   // Replacing the transaction in the wallet with a cancel, or with an
-  // unrelated transaction, means this interaction never happened, so neither
-  // outcome is tracked. Speeding it up is the same interaction and counts.
-  let isAbandoned = false;
-
+  // unrelated transaction, means this one never happened, so neither outcome
+  // is tracked. Speeding it up is the same transaction and counts.
+  let abandoned = false;
   client
     .waitForTransactionReceipt({
       hash,
       timeout: 0,
       onReplaced: ({ reason }) => {
-        isAbandoned = reason !== "repriced";
+        abandoned = reason !== "repriced";
       },
     })
     .then((receipt) => {
-      if (isAbandoned) {
-        return;
-      }
-
+      if (abandoned) return;
       const event = receipt.status === "success" ? confirmed : failed;
-
-      if (event) {
-        trackVercelAnalyticsEvent(event);
-      }
+      if (event) trackEvent(event);
     })
-    // A receipt we can't fetch, e.g. because of an RPC error, says nothing
-    // about whether the interaction succeeded.
+    // A receipt we can't fetch, e.g. after an RPC error, says nothing about
+    // whether the transaction succeeded.
     .catch(() => undefined);
-};
+}

@@ -6,8 +6,10 @@ updates:
       interval: weekly
     # Never install a release younger than a week: gives the ecosystem time
     # to detect and yank compromised versions before we ever resolve them.
+    # Patch releases carry most security fixes, so they wait only two days.
     cooldown:
       default-days: 7
+      semver-patch-days: 2
     # One combined PR per week instead of one per package.
     groups:
       minor-and-patch:
@@ -21,9 +23,21 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Same wait as npm: a hijacked action tag is the same kind of attack.
+    cooldown:
+      default-days: 7
     # One combined PR; action majors are routine tag moves and CI
     # validates the grouped PR anyway.
     groups:
       actions:
         patterns:
           - "*"
+
+  # Lighthouse CI is locked on its own, away from the app's install.
+  - package-ecosystem: npm
+    directory: /tools/lhci
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      semver-patch-days: 2

@@ -3,114 +3,116 @@
 ![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D10.33.0-blue)
 
-## Prerequisites
+The Livepeer Explorer is where LPT holders manage their stake. The default
+view is a **portfolio**: stake, rewards and fees for every wallet you care
+about, reconstructed round by round, with early warnings when an orchestrator
+slips. Around it sit the orchestrator directory, network health, governance
+and a live activity feed.
 
-Before getting started, ensure you have the following installed on your system:
+## What's in it
 
-- [Node.js 24.x](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (includes npm)
-- [pnpm v10.x](https://pnpm.io/installation) - you can install it with `npm install -g pnpm` or `corepack enable`
-- [Docker](https://docs.docker.com/get-docker/) (optional) — required for the dev container
+| Route                                                | What it's for                                                                                                                          |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                                  | Portfolio across the addresses you add (stored in the browser); acting for one asks you to connect it. Onboarding when there are none. |
+| `/accounts/[address]`                                | The same portfolio view for any single address.                                                                                        |
+| `/orchestrators`                                     | Active set ranked by expected yield (rewards plus fees), with reward-call reliability, cuts, fees and a stake-size estimator.          |
+| `/orchestrators/[address]`                           | Profile, per-round yield / stake / fee charts, reward-call history, cut history, delegators.                                           |
+| `/gateways`, `/gateways/[address]`                   | Gateways with fees paid, deposit and reserve, and payouts by orchestrator.                                                             |
+| `/network`                                           | Current round, participation, inflation and fee volume, with 30-day trends.                                                            |
+| `/governance`                                        | Treasury proposals and LIP polls, with voting.                                                                                         |
+| `/governance/polls/new`, `/governance/proposals/new` | Create a poll for a proposed LIP, or a treasury proposal.                                                                              |
+| `/activity`                                          | Protocol events as they happen, filterable and searchable.                                                                             |
 
-> [!TIP]
-> Use `nvm install` or `asdf install` to automatically switch to the correct versions.
+Staking actions (delegate, stake more, move, unstake, restake, withdraw stake,
+withdraw fees) run in a single dialog flow from wherever they're relevant.
 
-## Dev Container (Recommended)
+## How the portfolio numbers are computed
 
-Develop inside a pre-configured container — consistent tooling, zero local setup, and isolation from your host machine.
+The explorer reads the Livepeer subgraph, including the fields added in
+`livepeer/subgraph#217`: delegator `shares`, per-event `DelegatorSnapshot`s,
+and cumulative reward/fee factors on every pool. With those, history is exact
+rather than estimated:
 
-1. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VS Code
-2. `Ctrl+Shift+P` → **"Dev Containers: Reopen in Container"**
+```
+stake[r]  = shares[r]   · CRF[r] / 1e27
+reward[r] = shares[r-1] · (CRF[r] − CRF[r-1]) / 1e27
+fees[r]   = shares[r-1] · (CFF[r] − CFF[r-1]) / 1e27
+```
 
-## Getting Started
+Rewards come from factor growth, never balance differences, so bonding,
+unbonding and moving stake are never mistaken for earnings. Self-delegated
+orchestrators also get their reward-cut commission reconstructed. See
+`lib/portfolio/compute.ts` and its tests.
 
-To run the Livepeer Explorer application, follow these steps to set up your environment correctly. This involves installing pnpm, installing dependencies, and configuring environment variables.
+"Realised APR" is the yield actually paid over the last 30 rounds, compounded
+to a year, not a projection from protocol parameters. The orchestrator list
+adds fees (the last 90 days at today's fee share, valued at today's ETH/LPT
+price, leaving out fees an orchestrator paid itself) and ranks on the yield at
+today's reward cut when a cut was raised. See `lib/orchestrators/ranking.ts`.
 
-### Install Runtime Dependencies
+## Stack
 
-With pnpm installed, navigate to the root directory of the project and install all runtime dependencies using:
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS v4 with the Livepeer Design System tokens (`app/globals.css`),
+  from the Livepeer UI registry (`livepeer.peaceno.de`)
+- Base UI primitives in `components/ui`, Lucide icons, Motion
+- TanStack Query over plain GraphQL `fetch` (`lib/subgraph`)
+- wagmi + viem + RainbowKit for wallets and transactions
+- Recharts for charts
+
+## Getting started
 
 ```bash
 pnpm install
-```
-
-### Setup Environment Variables
-
-Before running the application, you must configure your environment variables:
-
-1. **Rename the Example Environment File:**
-
-   Rename the `.env.example` file in the root of the project to `.env`.
-
-2. **Update Environment Variables:**
-
-   Open the `.env` file and update the necessary environment variables. For a reference of key settings, see the [Key Environment Variables](#key-environment-variables) section below.
-
-### Run the Explorer Application
-
-#### Development Mode
-
-To run the application in development mode, which enables hot-reloading (automatic server restarts upon code changes), use the following command:
-
-```bash
+cp .env.example .env   # all values are optional
 pnpm dev
 ```
 
-This will start the application and deploy changes to your browser without needing to restart the server manually.
+With no environment set, the app uses the rate-limited Subgraph Studio URL and
+public RPCs, which is fine for local development.
 
-#### Production Mode
+### Environment
 
-To run the application in production mode, follow these steps:
+| Variable                                                                     | Purpose                                                                                              |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUBGRAPH_API_KEY`                                               | Graph gateway key for the published subgraph. Used from the browser, so restrict it to your domains. |
+| `NEXT_PUBLIC_SUBGRAPH_DEPLOYMENT`                                            | Pins one subgraph version by deployment id (`Qm…`).                                                  |
+| `NEXT_PUBLIC_SUBGRAPH_ENDPOINT`                                              | Full subgraph URL; overrides the two above.                                                          |
+| `NEXT_PUBLIC_INFURA_KEY`, `NEXT_PUBLIC_L1_RPC_URL`, `NEXT_PUBLIC_L2_RPC_URL` | RPC endpoints (Arbitrum for staking, mainnet for ENS).                                               |
+| `NEXT_PUBLIC_REOWN_PROJECT_ID`                                               | Reown (WalletConnect) project; its allowlist must include each domain the app runs on.               |
+| `SITE_URL`                                                                   | Absolute URLs for share images.                                                                      |
+| `PINATA_JWT`                                                                 | Pins LIP text to IPFS when creating a poll. Server-only.                                             |
+| `GITHUB_ACCESS_TOKEN`                                                        | Optional; raises the GitHub rate limit for reading LIPs. Server-only.                                |
 
-1. **Build the Application:**
+## Scripts
 
-   Compile and optimize the application for production by running:
+| Command                     |                                                                          |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `pnpm dev`                  | Dev server                                                               |
+| `pnpm build` / `pnpm start` | Production build / serve                                                 |
+| `pnpm lint`                 | ESLint, zero warnings                                                    |
+| `pnpm typecheck`            | `tsc --noEmit`                                                           |
+| `pnpm format`               | Prettier                                                                 |
+| `pnpm test`                 | Jest (portfolio maths, orchestrator ranking, paging, governance, CSV, …) |
 
-   ```bash
-   pnpm build
-   ```
+`scripts/mock` contains a local mock of the subgraph and a Playwright
+screenshot script for working on the UI offline.
 
-2. **Start the Production Server:**
+## Design conventions
 
-   After building, start the application in production mode with:
+These follow the Livepeer Design System so Livepeer products feel like one
+family:
 
-   ```bash
-   pnpm start
-   ```
+- **Ink and paper.** Neutral surfaces; Livepeer green is an accent for status,
+  liveness, positive deltas and focus — never a button fill.
+- **One primary action per panel**; everything else is outline or ghost.
+- **Section titles sit above cards**, not inside them.
+- **Sans for language, mono for quantity.** Figures in columns use
+  `font-mono tabular-nums`; the hero number uses proportional figures.
+- **Charts:** fixed series colours (`--series-1…7`), 2px lines, hairline
+  grids, no legend for a single series, never a second y-axis.
+- **Honest UI:** no invented numbers — unknown values render as "—".
 
-## Key Environment Variables
+## Contributing
 
-| Environment Variable                    | Description                                                                                                                                                                                                       |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PINATA_JWT`                            | JWT token used to create Polls data in IPFS for LIPs.                                                                                                                                                             |
-| `NEXT_PUBLIC_NETWORK`                   | The network/chain the Explorer will interact with. The default is `ARBITRUM_ONE`.                                                                                                                                 |
-| `NEXT_PUBLIC_INFURA_KEY`                | The private API key used to interact with the Infura RPC endpoints. If you prefer to use your own RPC, you can ignore this and instead set the RPC URLs in `NEXT_PUBLIC_L1_RPC_URL` and `NEXT_PUBLIC_L2_RPC_URL`. |
-| `NEXT_PUBLIC_L1_RPC_URL` (Optional)     | The L1 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
-| `NEXT_PUBLIC_L2_RPC_URL` (Optional)     | The L2 RPC URL endpoint to use if not using Infura, or as a supplementary fallback.                                                                                                                               |
-| `NEXT_PUBLIC_SUBGRAPH_API_KEY`          | The API key to interact with the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                           |
-| `NEXT_PUBLIC_SUBGRAPH_ID`               | The ID of the Livepeer published subgraph. This is used for various functions such as displaying current round data.                                                                                              |
-| `NEXT_PUBLIC_SUBGRAPH_ENDPOINT`         | Optional override for the subgraph URL. Must be a full URL (for example, a gateway deployments URL or a Studio URL).                                                                                              |
-| `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | WalletConnect (Reown) Cloud Project ID. Used to enhance wallet UX for users of Explorer.                                                                                                                          |
-| `NEXT_PUBLIC_METRICS_SERVER_URL`        | The Transcoding performance API server used by Explorer.                                                                                                                                                          |
-| `NEXT_PUBLIC_AI_METRICS_SERVER_URL`     | The AI performance API server used by Explorer.                                                                                                                                                                   |
-
-## Testing LIPs
-
-To test Livepeer Improvement Proposals (LIPs), follow these steps:
-
-1. **Set the GitHub Namespace:**
-
-   In your `.env` file, set the `NEXT_PUBLIC_GITHUB_LIP_NAMESPACE` variable to your GitHub username:
-
-   ```env
-   NEXT_PUBLIC_GITHUB_LIP_NAMESPACE=your_github_username
-   ```
-
-2. **Fork the LIPs Repository:**
-
-   Fork the [LIPs repository](https://github.com/livepeer/LIPs) to your GitHub account.
-
-3. **Use Your Fork for Local Testing:**
-
-   With the namespace and your forked repository, you can now test LIPs locally within the application.
-
----
+See [CONTRIBUTING.md](CONTRIBUTING.md).
