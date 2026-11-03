@@ -103,36 +103,62 @@ async function refresh() {
 /**
  * How far Ethereum has confirmed Arbitrum: withdrawals numbered below
  * `sendCount` can be claimed. From the Outbox's latest SendRootUpdated,
- * which names the Arbitrum block it covers. Confirmations land about
- * hourly, so the last ~10 hours of Ethereum blocks always hold one.
+ * which names the Arbitrum block it covers.
  */
 let confirmed: { sendCount: bigint; timestamp: number; at: number } | null =
   null;
+
+/**
+ * Ethereum blocks searched at a time: about 10 hours, which normally holds
+ * several confirmations (they land about hourly).
+ */
+const CONFIRMATION_CHUNK = 3_000n;
+/**
+ * How far back to look if confirmations have paused: about a week. A
+ * pause doesn't undo the last one, so it still says what can be claimed.
+ */
+const CONFIRMATION_LOOKBACK = 50_000n;
+
+/** The most recent SendRootUpdated, searching back a chunk at a time. */
+async function lastSendRoot() {
+  const head = await l1.getBlockNumber();
+  const floor = head - CONFIRMATION_LOOKBACK;
+  for (let to = head; to > floor; to -= CONFIRMATION_CHUNK) {
+    const logs = await l1.getContractEvents({
+      address: ARB_OUTBOX,
+      abi: outboxAbi,
+      eventName: "SendRootUpdated",
+      fromBlock: to - CONFIRMATION_CHUNK + 1n,
+      toBlock: to,
+    });
+    const last = logs.at(-1);
+    if (last?.args.l2BlockHash) return last.args.l2BlockHash;
+  }
+  return null;
+}
+
 async function latestConfirmation() {
   if (confirmed && Date.now() - confirmed.at < 5 * 60_000) return confirmed;
-  const head = await l1.getBlockNumber();
-  const logs = await l1.getContractEvents({
-    address: ARB_OUTBOX,
-    abi: outboxAbi,
-    eventName: "SendRootUpdated",
-    fromBlock: head - 3_000n,
-    toBlock: head,
-  });
-  const last = logs.at(-1);
-  if (!last?.args.l2BlockHash) {
-    throw new Error("No recent Arbitrum confirmation found on Ethereum");
+  try {
+    const hash = await lastSendRoot();
+    if (!hash) throw new Error("No Arbitrum confirmation found on Ethereum");
+    const block = (await l2.request({
+      method: "eth_getBlockByHash",
+      params: [hash, false],
+    })) as { sendCount: `0x${string}`; timestamp: `0x${string}` } | null;
+    if (!block) throw new Error("Confirmed Arbitrum block not found");
+    confirmed = {
+      sendCount: BigInt(block.sendCount),
+      timestamp: Number(block.timestamp),
+      at: Date.now(),
+    };
+    return confirmed;
+  } catch (e) {
+    // A confirmation already found still holds (they're only ever added
+    // to), so a failed or empty lookup keeps claims working with it.
+    if (confirmed) return confirmed;
+    throw e;
   }
-  const block = (await l2.request({
-    method: "eth_getBlockByHash",
-    params: [last.args.l2BlockHash, false],
-  })) as { sendCount: `0x${string}`; timestamp: `0x${string}` } | null;
-  if (!block) throw new Error("Confirmed Arbitrum block not found");
-  confirmed = {
-    sendCount: BigInt(block.sendCount),
-    timestamp: Number(block.timestamp),
-    at: Date.now(),
-  };
-  return confirmed;
 }
 
 /** Unclaimed withdrawals sent from or to any of these addresses. */
