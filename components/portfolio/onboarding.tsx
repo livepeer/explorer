@@ -205,13 +205,8 @@ export function Onboarding() {
         <KpiStrip>
           <Kpi
             label="Participation"
-            value={
-              protocol ? (
-                formatPercent(protocol.participationRate)
-              ) : (
-                <Skeleton className="h-6 w-24" />
-              )
-            }
+            loading={!protocol}
+            value={protocol && formatPercent(protocol.participationRate)}
             sub={
               protocol
                 ? `${formatLPT(protocol.totalActiveStake, {
@@ -222,26 +217,16 @@ export function Onboarding() {
           />
           <Kpi
             label="Median realised APR"
-            value={
-              medianApr != null ? (
-                `${medianApr.toFixed(1)}%`
-              ) : (
-                <Skeleton className="h-6 w-16" />
-              )
-            }
+            loading={medianApr == null}
+            value={medianApr != null && `${medianApr.toFixed(1)}%`}
             sub="Reliable orchestrators, last 30 rounds"
           />
           {/* What delegating pays out: new LPT each round, less the
               treasury's share. */}
           <Kpi
             label="Rewards · 30 days"
-            value={
-              rewards30 != null ? (
-                formatLPT(rewards30, { compact: true })
-              ) : (
-                <Skeleton className="h-6 w-24" />
-              )
-            }
+            loading={rewards30 == null}
+            value={rewards30 != null && formatLPT(rewards30, { compact: true })}
             sub={
               rewards30 != null && prices?.lpt != null
                 ? `≈ ${formatUSD(rewards30 * prices.lpt, {
@@ -254,9 +239,8 @@ export function Onboarding() {
               round number is already in the sidebar. */}
           <Kpi
             label="Fees · 30 days"
-            value={
-              days ? formatETH(fees30.eth) : <Skeleton className="h-6 w-24" />
-            }
+            loading={!days}
+            value={days && formatETH(fees30.eth)}
             sub={
               days ? `≈ ${formatUSD(fees30.usd, { compact: true })}` : undefined
             }

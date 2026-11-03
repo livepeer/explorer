@@ -36,6 +36,17 @@ export function Skeleton({ className }: { className?: string }) {
   );
 }
 
+/**
+ * A placeholder for a figure inside a line of text. Inline, so the line
+ * keeps the height its text gives it, and words around it stay put: the
+ * loading state takes the loaded one's shape without fixing any heights.
+ */
+export function InlineSkeleton({ className }: { className?: string }) {
+  return (
+    <Skeleton className={cn("inline-block h-3 align-middle", className)} />
+  );
+}
+
 /* ── Segmented control ───────────────────────────────────────────────────── */
 
 export function Segmented<T extends string>({

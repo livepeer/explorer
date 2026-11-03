@@ -72,22 +72,24 @@ function GatewayKpis({ data }: { data?: Gateway[] }) {
       top3Share: fees90 > 0 ? top3 / fees90 : 0,
     };
   }, [data]);
-  const loading = <Skeleton className="h-6 w-20" />;
   return (
     <KpiStrip className="mb-8">
       <Kpi
         label="Paying gateways"
-        value={stats ? stats.paying : loading}
-        sub={stats ? "Paid fees in the last 90 days" : undefined}
+        loading={!stats}
+        value={stats && stats.paying}
+        sub="Paid fees in the last 90 days"
       />
       <Kpi
         label="Fees · 30 days"
-        value={stats ? formatETH(stats.fees30) : loading}
+        loading={!stats}
+        value={stats && formatETH(stats.fees30)}
         sub={stats ? `${formatETH(stats.fees90)} over 90 days` : undefined}
       />
       <Kpi
         label="Held in deposits"
-        value={stats ? formatETH(stats.deposits) : loading}
+        loading={!stats}
+        value={stats && formatETH(stats.deposits)}
         sub={stats ? `+ ${formatETH(stats.reserves)} in reserves` : undefined}
       />
       <Kpi
@@ -98,8 +100,9 @@ function GatewayKpis({ data }: { data?: Gateway[] }) {
             </span>
           </Tooltip>
         }
-        value={stats ? `${(stats.top3Share * 100).toFixed(0)}%` : loading}
-        sub={stats ? "Of 90-day fees" : undefined}
+        loading={!stats}
+        value={stats && `${(stats.top3Share * 100).toFixed(0)}%`}
+        sub="Of 90-day fees"
       />
     </KpiStrip>
   );

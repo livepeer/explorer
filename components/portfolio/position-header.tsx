@@ -142,7 +142,10 @@ export function PositionLabel({
   const { name, avatar, display } = useIdentity(p?.delegate ?? null);
   if (loading || !p?.delegate) {
     return (
-      <div className="text-ui-caption text-muted-foreground">Total stake</div>
+      // A delegate's line high, so the label keeps its height when one loads.
+      <div className="text-ui-caption leading-5 text-muted-foreground">
+        Total stake
+      </div>
     );
   }
   // An orchestrator's own stake: its name is already the page's.

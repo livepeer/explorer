@@ -23,7 +23,12 @@ import {
   SectionHeader,
 } from "@/components/page";
 import { Ring, roundState, useNow } from "@/components/shell/round-clock";
-import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
+import {
+  InlineSkeleton,
+  Segmented,
+  Skeleton,
+  StatusDot,
+} from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import {
@@ -255,76 +260,50 @@ function KpiTrend({
   );
 }
 
-/** A trend's space while its figures load: the chart, then its caption. */
+/**
+ * A trend while its figures load: the chart's space, then its caption, the
+ * same line a loaded one has.
+ */
 function TrendSkeleton() {
   return (
     <div className="flex flex-col gap-1.5">
-      <Skeleton className="h-7" />
-      <div className="flex h-4 items-center justify-between">
-        <Skeleton className="h-3 w-12" />
-        <Skeleton className="h-3 w-10" />
+      <div style={{ height: TREND_HEIGHT }}>
+        <Skeleton className="h-full" />
+      </div>
+      <div className="flex justify-between text-ui-caption text-subtle-foreground">
+        <span>30 days</span>
+        <InlineSkeleton className="w-10" />
       </div>
     </div>
   );
 }
 
-/** A KPI tile while loading, row for row the height of a loaded one. */
-function KpiSkeleton({ wraps }: { wraps?: boolean }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1.5 px-4 py-4 sm:px-5">
-      <div className="flex h-4 items-center">
-        <Skeleton className="h-3 w-20" />
-      </div>
-      <div className="flex h-7 items-center">
-        <Skeleton className="h-6 w-28" />
-      </div>
-      <div
-        className={cn(
-          "flex flex-col justify-center gap-1 sm:h-4",
-          wraps ? "h-8" : "h-4"
-        )}
-      >
-        <Skeleton className="h-3 w-36 max-w-full" />
-        {wraps && <Skeleton className="h-3 w-20 sm:hidden" />}
-      </div>
-      <div className="mt-auto pt-3">
-        <TrendSkeleton />
-      </div>
-    </div>
-  );
-}
-
-function NetworkKpis({ protocol }: { protocol?: Protocol }) {
+function NetworkKpis({ protocol: p }: { protocol?: Protocol }) {
   // Shares the history chart's cache: no extra request.
   const { data: days } = useDays();
-  if (!protocol) {
-    return (
-      <KpiStrip cols={2} className="h-full">
-        {/* The top tiles' captions run to two lines on a phone. */}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <KpiSkeleton key={i} wraps={i < 2} />
-        ))}
-      </KpiStrip>
-    );
-  }
   const recent = days?.slice(-30) ?? [];
   const fees30 = recent.reduce((s, d) => s + d.volumeETH, 0);
-  // Until the daily figures arrive, hold each trend's space.
+  // The tiles themselves from the start, with placeholders for what hasn't
+  // loaded, so they keep their shape as it arrives.
   const trend = (el: React.ReactNode) => (days ? el : <TrendSkeleton />);
 
   return (
     <KpiStrip cols={2} className="h-full">
       <Kpi
         label="Participation"
-        value={formatPercent(protocol.participationRate, { decimals: 2 })}
+        loading={!p}
+        value={p && formatPercent(p.participationRate, { decimals: 2 })}
         // Participation is staked LPT over total supply, so show both.
-        sub={`${formatNumber(protocol.totalActiveStake, {
-          compact: true,
-        })} of ${formatLPT(protocol.totalSupply, {
-          compact: true,
-        })} staked · target ${formatPercent(protocol.targetBondingRate, {
-          decimals: 0,
-        })}`}
+        sub={
+          p &&
+          `${formatNumber(p.totalActiveStake, {
+            compact: true,
+          })} of ${formatLPT(p.totalSupply, {
+            compact: true,
+          })} staked · target ${formatPercent(p.targetBondingRate, {
+            decimals: 0,
+          })}`
+        }
         trend={trend(
           <KpiTrend
             days={recent}
@@ -336,13 +315,15 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
       />
       <Kpi
         label="Inflation per round"
-        value={formatPercent(protocol.inflation / 1e7, { decimals: 4 })}
+        loading={!p}
+        value={p && formatPercent(p.inflation / 1e7, { decimals: 4 })}
         sub={
           // The minter nudges inflation toward the target bonding rate:
           // up while participation is below it, down while above.
-          protocol.participationRate < protocol.targetBondingRate
+          p &&
+          (p.participationRate < p.targetBondingRate
             ? "Rising: participation is below target"
-            : "Falling: participation is above target"
+            : "Falling: participation is above target")
         }
         trend={trend(
           <KpiTrend
@@ -357,14 +338,9 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
       />
       <Kpi
         label="Fees · 30 days"
-        value={
-          days ? (
-            formatETH(fees30)
-          ) : (
-            <Skeleton className="inline-block h-6 w-28 align-middle" />
-          )
-        }
-        sub={`${formatETH(protocol.totalVolumeETH)} all time`}
+        loading={!p || !days}
+        value={formatETH(fees30)}
+        sub={p && `${formatETH(p.totalVolumeETH)} all time`}
         trend={trend(
           <KpiTrend
             days={recent}
@@ -379,8 +355,12 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
       />
       <Kpi
         label="Delegators"
-        value={protocol.delegatorsCount.toLocaleString()}
-        sub={`${protocol.activeTranscoderCount.toLocaleString()} active orchestrators`}
+        loading={!p}
+        value={p?.delegatorsCount.toLocaleString()}
+        sub={
+          p &&
+          `${p.activeTranscoderCount.toLocaleString()} active orchestrators`
+        }
         trend={trend(
           <KpiTrend
             days={recent}
@@ -816,9 +796,12 @@ function RewardCalls({ round }: { round?: number }) {
 
 /* ── Latest activity ─────────────────────────────────────────────────────── */
 
+/** How many of the latest events the page shows. */
+const LATEST = 8;
+
 function LatestActivity() {
   const { data, isLoading, error, dataUpdatedAt } = useEvents(200);
-  const latest = useMemo(() => data?.slice(0, 8), [data]);
+  const latest = useMemo(() => data?.slice(0, LATEST), [data]);
   // The feed sits below the fold, so never hold arrivals back for scrolling.
   const { shown, fresh } = useLiveFeed(latest, { holdBelow: Infinity });
   return (
@@ -841,7 +824,7 @@ function LatestActivity() {
       <ActivityList
         events={shown}
         loading={isLoading || !shown}
-        loadingRows={8}
+        loadingRows={LATEST}
         fresh={fresh}
       />
     </Section>

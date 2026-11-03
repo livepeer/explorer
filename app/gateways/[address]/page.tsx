@@ -30,7 +30,7 @@ import {
 } from "@/components/page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton, StatusDot } from "@/components/ui/misc";
+import { InlineSkeleton, Skeleton, StatusDot } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { addressUrl } from "@/lib/config";
@@ -162,7 +162,9 @@ export default function GatewayPage() {
     isLoading,
     refetch,
   } = useGateway(valid ? address : null);
-  const { data: payouts } = useGatewayPayouts(g ? address : undefined);
+  const { data: payouts, isError: payoutsFailed } = useGatewayPayouts(
+    g ? address : undefined
+  );
   const { data: events, isLoading: eventsLoading } = useGatewayEvents(
     g ? address : undefined,
     30
@@ -237,6 +239,14 @@ export default function GatewayPage() {
                 </a>
                 <CopyButton value={address} />
               </span>
+              {/* Until it loads, room for the dates, so the line wraps (on
+                  a phone) where it will when they arrive. */}
+              {!g && (
+                <>
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </>
+              )}
               {g && g.firstActiveDay > 0 && (
                 <span>
                   Active since{" "}
@@ -303,28 +313,20 @@ export default function GatewayPage() {
           <KpiStrip>
             <Kpi
               label="Fees · 90 days"
-              value={
-                g ? (
-                  formatETH(g.ninetyDayVolumeETH)
-                ) : (
-                  <Skeleton className="h-6 w-24" />
-                )
-              }
+              loading={!g}
+              value={g && formatETH(g.ninetyDayVolumeETH)}
               sub={g ? `${formatETH(g.thirtyDayVolumeETH)} in 30 days` : null}
             />
             <Kpi
               label="All-time fees"
-              value={
-                g ? (
-                  formatETH(g.totalVolumeETH)
-                ) : (
-                  <Skeleton className="h-6 w-24" />
-                )
-              }
+              loading={!g}
+              value={g && formatETH(g.totalVolumeETH)}
               sub={
-                payouts
-                  ? `${payouts.recipients.length} orchestrators paid in 90 days`
-                  : undefined
+                payouts ? (
+                  `${payouts.recipients.length} orchestrators paid in 90 days`
+                ) : payoutsFailed ? undefined : (
+                  <InlineSkeleton className="w-32" />
+                )
               }
             />
             <Kpi
@@ -335,9 +337,8 @@ export default function GatewayPage() {
                   </span>
                 </Tooltip>
               }
-              value={
-                g ? formatETH(g.deposit) : <Skeleton className="h-6 w-24" />
-              }
+              loading={!g}
+              value={g && formatETH(g.deposit)}
               sub={
                 g ? (
                   runway != null ? (
@@ -352,10 +353,9 @@ export default function GatewayPage() {
             />
             <Kpi
               label="Reserve"
-              value={
-                g ? formatETH(g.reserve) : <Skeleton className="h-6 w-24" />
-              }
-              sub={g ? "Backs tickets if the deposit runs out" : undefined}
+              loading={!g}
+              value={g && formatETH(g.reserve)}
+              sub="Backs tickets if the deposit runs out"
             />
           </KpiStrip>
 

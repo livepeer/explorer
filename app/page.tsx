@@ -3,7 +3,6 @@
 import { Page, PageHeader } from "@/components/page";
 import { Onboarding } from "@/components/portfolio/onboarding";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
-import { Skeleton } from "@/components/ui/misc";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 
 export default function PortfolioPage() {
@@ -11,12 +10,13 @@ export default function PortfolioPage() {
     usePortfolioAccounts();
 
   // Saved wallets are read after hydration, and a wallet may still be
-  // reconnecting: show the portfolio's shape, not onboarding, until then.
+  // reconnecting: until then, the portfolio's own loading state (it has no
+  // wallets to load yet), so the page loads once rather than twice.
   if ((!loaded || isReconnecting) && accounts.length === 0) {
     return (
       <Page>
-        <Skeleton className="mb-8 h-9 w-48" />
-        <Skeleton className="h-[420px] w-full rounded-md" />
+        <PageHeader title="Portfolio" className="mb-5" />
+        <PortfolioView accounts={[]} canManage={() => false} />
       </Page>
     );
   }

@@ -159,21 +159,34 @@ export function PortfolioHero({
       {label ?? (
         <div className="text-ui-caption text-muted-foreground">Total stake</div>
       )}
-      {loading ? (
-        <Skeleton className="h-12 w-72" />
-      ) : (
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-display-md font-light tracking-[-0.02em]">
-            {formatToken(stake)}
-          </span>
-          <span className="text-[20px] font-light text-muted-foreground">
-            LPT
-          </span>
-        </div>
-      )}
-      {/* Nothing staked and nothing earned: no line of zeros. */}
+      {/* While loading, the same row unseen under its placeholder, so the
+          figure takes exactly the space it held. */}
+      <div className="relative flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span
+          className={cn(
+            "text-display-md font-light tracking-[-0.02em]",
+            loading && "invisible"
+          )}
+        >
+          {loading ? "0" : formatToken(stake)}
+        </span>
+        <span
+          className={cn(
+            "text-[20px] font-light text-muted-foreground",
+            loading && "invisible"
+          )}
+        >
+          LPT
+        </span>
+        {loading && (
+          <Skeleton className="absolute inset-y-0 left-0 w-72 max-w-full" />
+        )}
+      </div>
+      {/* Nothing staked and nothing earned: no line of zeros. While
+          loading, a line's space: this, or the note below that replaces it. */}
       {(loading || stake > 0 || earned > 0) && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+        <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+          {loading && <Skeleton className="h-3.5 w-56 max-w-full" />}
           {lptPrice != null && !loading && (
             <span className="text-muted-foreground">
               {formatUSD(stake * lptPrice)}
