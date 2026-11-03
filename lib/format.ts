@@ -5,11 +5,17 @@
 
 const WEI = 10n ** 18n;
 
-/** Wei (bigint) → float in whole tokens. Safe for display, not for math. */
+/**
+ * Wei (bigint) → float in whole tokens. Safe for display, not for math.
+ * Parsed from the exact decimal, so it rounds once and matches what the
+ * same amount typed in parses to (adding the two parts would round twice
+ * and can land a hair below it).
+ */
 export function fromWei(wei: bigint): number {
-  const whole = wei / WEI;
-  const frac = wei % WEI;
-  return Number(whole) + Number(frac) / 1e18;
+  const sign = wei < 0n ? "-" : "";
+  const abs = wei < 0n ? -wei : wei;
+  const frac = (abs % WEI).toString().padStart(18, "0");
+  return Number(`${sign}${abs / WEI}.${frac}`);
 }
 
 export function toWei(amount: string): bigint {
