@@ -52,7 +52,10 @@ let scannedAt = 0;
  * snapshot, a server catches up within a few requests.
  */
 async function scanNew() {
-  const latest = await l2.getBlockNumber();
+  // Up to Arbitrum's finalized block (about 15 minutes behind), never
+  // past it: what's scanned isn't read again, so it must not be replaced.
+  // A withdrawal sent from here shows meanwhile from this browser's copy.
+  const latest = (await l2.getBlock({ blockTag: "finalized" })).number;
   for (let lo = scannedTo + 1n; lo <= latest; lo += LOG_RANGE) {
     const hi = lo + LOG_RANGE - 1n < latest ? lo + LOG_RANGE - 1n : latest;
     const logs = await l2.getLogs({

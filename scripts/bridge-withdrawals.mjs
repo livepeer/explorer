@@ -58,7 +58,9 @@ const event = parseAbiItem(
 );
 
 async function main() {
-  const toBlock = await l2.getBlockNumber();
+  // Through Arbitrum's finalized block: servers carry on from here and never
+  // read it again, so it must not be replaced by a reorg.
+  const toBlock = (await l2.getBlock({ blockTag: "finalized" })).number;
   const logs = [];
   for (let lo = NITRO_L2_BLOCK; lo <= toBlock; lo += RANGE) {
     const hi = lo + RANGE - 1n < toBlock ? lo + RANGE - 1n : toBlock;

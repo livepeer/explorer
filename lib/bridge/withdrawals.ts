@@ -11,6 +11,7 @@ import { fromWei } from "@/lib/format";
 
 import { inBatches } from "./batch";
 import { L1_LPT } from "./config";
+import { localList } from "./local-list";
 import {
   isLocalFresh,
   mergeWithdrawals,
@@ -20,39 +21,16 @@ import type { BridgeWithdrawal } from "./types";
 
 /* ── Withdrawals sent from this browser, until the index has them ────── */
 
-const KEY = "livepeer-explorer.bridge-withdrawals-sent";
-const listeners = new Set<() => void>();
-
-function readSent(): SentWithdrawal[] {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function writeSent(list: SentWithdrawal[]) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(list));
-  } catch {
-    // Private mode: it just won't survive a reload.
-  }
-  listeners.forEach((l) => l());
-}
+const sent = localList<SentWithdrawal>(
+  "livepeer-explorer.bridge-withdrawals-sent"
+);
+const readSent = sent.read;
+const writeSent = sent.write;
+const subscribeSent = sent.subscribe;
 
 /** Remember a withdrawal just sent, so every view shows it at once. */
 export function addSentWithdrawal(w: SentWithdrawal) {
   writeSent([...readSent().filter((x) => x.tx !== w.tx), w]);
-}
-
-function subscribeSent(l: () => void) {
-  listeners.add(l);
-  const onStorage = (e: StorageEvent) => e.key === KEY && l();
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(l);
-    window.removeEventListener("storage", onStorage);
-  };
 }
 
 /* ── Withdrawals just claimed from this browser ─────────────────────── */

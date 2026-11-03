@@ -17,6 +17,7 @@ import {
   L2_LPT_GATEWAY,
   NODE_INTERFACE,
 } from "./config";
+import { localList } from "./local-list";
 
 /**
  * What a deposit pays for its message on Arbitrum, sent as ETH with it:
@@ -146,25 +147,11 @@ export type PendingDeposit = {
   sentAt: number;
 };
 
-const KEY = "livepeer-explorer.bridge-deposits";
-const listeners = new Set<() => void>();
+const store = localList<PendingDeposit>("livepeer-explorer.bridge-deposits");
 
-export function readPendingDeposits(): PendingDeposit[] {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function write(list: PendingDeposit[]) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(list));
-  } catch {
-    // Private mode: it just won't survive a reload.
-  }
-  listeners.forEach((l) => l());
-}
+export const readPendingDeposits = store.read;
+export const subscribePendingDeposits = store.subscribe;
+const write = store.write;
 
 export function addPendingDeposit(d: PendingDeposit) {
   write([...readPendingDeposits().filter((x) => x.l1Tx !== d.l1Tx), d]);
@@ -172,14 +159,4 @@ export function addPendingDeposit(d: PendingDeposit) {
 
 export function removePendingDeposits(l1Txs: string[]) {
   write(readPendingDeposits().filter((x) => !l1Txs.includes(x.l1Tx)));
-}
-
-export function subscribePendingDeposits(l: () => void) {
-  listeners.add(l);
-  const onStorage = (e: StorageEvent) => e.key === KEY && l();
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(l);
-    window.removeEventListener("storage", onStorage);
-  };
 }
