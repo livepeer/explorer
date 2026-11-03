@@ -59,6 +59,7 @@ import { cn } from "@/lib/cn";
 import { L1_CHAIN, L2_CHAIN, txUrl } from "@/lib/config";
 import {
   formatLPT,
+  formatToken,
   formatUSD,
   fromWei,
   shortAddress,
@@ -292,15 +293,14 @@ export function BridgeFlow({
     query: LIVE_READ,
   });
 
-  // The amount: everything there (to 4 places), refilled on each swap.
+  // The amount: everything there, exactly, so nothing is left behind (as
+  // Max and the delegate dialog do). Refilled on each swap.
   const [amount, setAmount] = useState("");
   const filled = useRef<Direction | null>(null);
   useEffect(() => {
     if (sourceWei == null || filled.current === direction) return;
     filled.current = direction;
-    setAmount(
-      sourceWei > 0n ? String(Math.floor(fromWei(sourceWei) * 1e4) / 1e4) : ""
-    );
+    setAmount(sourceWei > 0n ? formatUnits(sourceWei, 18) : "");
   }, [sourceWei, direction]);
   const amountWei = (() => {
     try {
@@ -629,8 +629,9 @@ export function BridgeFlow({
   // What was sent, for the messages after: not what the form shows now.
   const sentAmount = flight?.amount ?? amountWei;
 
+  // Rounded down, like the amount's own label: never more than is there.
   const balanceOn = (wei?: bigint) =>
-    wei == null ? "…" : `${formatLPT(fromWei(wei))}`;
+    wei == null ? "…" : `${formatToken(fromWei(wei), { floor: true })} LPT`;
 
   return (
     <>
