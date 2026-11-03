@@ -577,10 +577,13 @@ export function PortfolioView({
         )}
         {/* While what's waiting is the headline, an empty history says
             nothing: show activity once there is some (after claiming or
-            migrating, there is). */}
-        {!(fromEthereumLeads && !eventsLoading && !events?.length) && (
-          <div className="mt-10 min-w-0">{activityEl}</div>
-        )}
+            migrating, there is). And only once the account has loaded, so
+            what lands above it (withdrawals, needs attention) doesn't push
+            it down. */}
+        {!loading &&
+          !(fromEthereumLeads && !eventsLoading && !events?.length) && (
+            <div className="mt-10 min-w-0">{activityEl}</div>
+          )}
       </div>
     );
   }
@@ -611,10 +614,9 @@ export function PortfolioView({
         <KpiStrip>
           <Kpi
             label="Rewards · 30 days"
+            loading={loading}
             value={
-              loading ? (
-                <Skeleton className="h-6 w-28" />
-              ) : (
+              !loading && (
                 <>
                   +
                   {formatNumber(view!.rewards30, {
@@ -636,13 +638,8 @@ export function PortfolioView({
                 </span>
               </Tooltip>
             }
-            value={
-              loading ? (
-                <Skeleton className="h-6 w-20" />
-              ) : (
-                `${(view!.apr + (feeApr ?? 0)).toFixed(2)}%`
-              )
-            }
+            loading={loading}
+            value={!loading && `${(view!.apr + (feeApr ?? 0)).toFixed(2)}%`}
             sub={
               view && view.commission > 0
                 ? "On your own stake, excluding commission"
@@ -655,13 +652,8 @@ export function PortfolioView({
           />
           <Kpi
             label="Unclaimed fees"
-            value={
-              loading ? (
-                <Skeleton className="h-6 w-24" />
-              ) : (
-                formatETH(view!.fees)
-              )
-            }
+            loading={loading}
+            value={!loading && formatETH(view!.fees)}
             sub={
               withdrawable.length ? (
                 <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
@@ -689,14 +681,13 @@ export function PortfolioView({
           />
           <Kpi
             label="Network share"
+            loading={loading}
             value={
-              loading ? (
-                <Skeleton className="h-6 w-20" />
-              ) : view!.share != null ? (
-                `${view!.share.toFixed(4)}%`
-              ) : (
-                "—"
-              )
+              loading
+                ? null
+                : view!.share != null
+                ? `${view!.share.toFixed(4)}%`
+                : "—"
             }
             sub={
               protocol

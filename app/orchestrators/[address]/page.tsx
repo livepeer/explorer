@@ -466,6 +466,14 @@ export default function OrchestratorPage() {
                 </a>
                 <CopyButton value={address} />
               </span>
+              {/* Until it loads, room for the host and start date, so the
+                  line wraps (on a phone) where it will when they arrive. */}
+              {!o && (
+                <>
+                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-3 w-32" />
+                </>
+              )}
               {host && (
                 <span className="flex items-center gap-1">
                   <Globe className="size-3" /> {host}
@@ -548,13 +556,8 @@ export default function OrchestratorPage() {
           <KpiStrip>
             <Kpi
               label={<Term hint={TERMS.totalStake}>Total stake</Term>}
-              value={
-                o ? (
-                  formatLPT(o.totalStake, { compact: true })
-                ) : (
-                  <Skeleton className="h-6 w-24" />
-                )
-              }
+              loading={!o}
+              value={o && formatLPT(o.totalStake, { compact: true })}
               sub={
                 o
                   ? `${
@@ -565,16 +568,10 @@ export default function OrchestratorPage() {
             />
             <Kpi
               label={<Term hint={TERMS.realisedApr}>Realised APR</Term>}
+              loading={!o}
               value={
-                o ? (
-                  o.realizedApr != null ? (
-                    `${o.realizedApr.toFixed(2)}%`
-                  ) : (
-                    "—"
-                  )
-                ) : (
-                  <Skeleton className="h-6 w-16" />
-                )
+                o &&
+                (o.realizedApr != null ? `${o.realizedApr.toFixed(2)}%` : "—")
               }
               sub={
                 o
@@ -589,24 +586,16 @@ export default function OrchestratorPage() {
                   <Term hint={TERMS.feeShare}>Fee share</Term>
                 </>
               }
+              loading={!o}
               value={
-                o ? (
-                  `${o.rewardCut.toFixed(1)}% · ${o.feeShare.toFixed(1)}%`
-                ) : (
-                  <Skeleton className="h-6 w-28" />
-                )
+                o && `${o.rewardCut.toFixed(1)}% · ${o.feeShare.toFixed(1)}%`
               }
               sub={o ? <CutUpdated o={o} /> : undefined}
             />
             <Kpi
               label={<Term hint={TERMS.fees30d}>Fees · 30 days</Term>}
-              value={
-                o ? (
-                  formatETH(o.thirtyDayVolumeETH)
-                ) : (
-                  <Skeleton className="h-6 w-24" />
-                )
-              }
+              loading={!o}
+              value={o && formatETH(o.thirtyDayVolumeETH)}
               sub={o ? `${formatETH(o.totalVolumeETH)} all time` : undefined}
             />
           </KpiStrip>
@@ -698,7 +687,9 @@ export default function OrchestratorPage() {
                 <Card className="p-5">
                   <label className="flex flex-col gap-1.5">
                     <span className="text-ui-caption text-muted-foreground">
-                      {delegatedHere ? "If you delegate more" : "If you delegate"}
+                      {delegatedHere
+                        ? "If you delegate more"
+                        : "If you delegate"}
                     </span>
                     <span className="flex items-baseline gap-2 border-b border-hairline pb-2 focus-within:border-ring">
                       <input

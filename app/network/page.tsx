@@ -28,7 +28,12 @@ import {
   useNow,
   useRoundTurn,
 } from "@/components/shell/round-clock";
-import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
+import {
+  InlineSkeleton,
+  Segmented,
+  Skeleton,
+  StatusDot,
+} from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import {
@@ -123,20 +128,25 @@ function RoundCard({ protocol }: { protocol: Protocol }) {
 function RoundCardSkeleton() {
   return (
     <Card className="flex h-full flex-col">
-      <div className="flex flex-1 flex-col gap-2 px-4 py-4 sm:px-5">
-        <Skeleton className="h-3 w-24" />
+      {/* Row for row the loaded card's heights, so nothing moves. */}
+      <div className="flex flex-1 flex-col gap-1.5 px-4 py-4 sm:px-5">
+        <div className="flex h-4 items-center justify-between">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-20" />
+        </div>
         <div className="flex flex-1 items-center gap-5 py-3">
           <Skeleton className="size-[104px] shrink-0 rounded-full" />
-          <div className="flex flex-1 flex-col gap-2">
-            <Skeleton className="h-6 w-20" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-3 w-44" />
+          <div className="flex flex-1 flex-col gap-1.5">
+            <div className="flex h-7 items-center">
+              <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="flex h-4 items-center">
+              <Skeleton className="h-3 w-44 max-w-full" />
+            </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-hairline px-5 py-3.5 sm:px-6">
-        <Skeleton className="h-3.5 w-full" />
-      </div>
+      <RewardCalls />
     </Card>
   );
 }
@@ -258,58 +268,72 @@ function KpiTrend({
   );
 }
 
-function NetworkKpis({ protocol }: { protocol?: Protocol }) {
+/**
+ * A trend while its figures load: the chart's space, then its caption, the
+ * same line a loaded one has.
+ */
+function TrendSkeleton() {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div style={{ height: TREND_HEIGHT }}>
+        <Skeleton className="h-full" />
+      </div>
+      <div className="flex justify-between text-ui-caption text-subtle-foreground">
+        <span>30 days</span>
+        <InlineSkeleton className="w-10" />
+      </div>
+    </div>
+  );
+}
+
+function NetworkKpis({ protocol: p }: { protocol?: Protocol }) {
   // Shares the history chart's cache: no extra request.
   const { data: days } = useDays();
-  if (!protocol) {
-    return (
-      <KpiStrip cols={2} className="h-full">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex flex-col gap-2 px-4 py-4 sm:px-5">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-6 w-28" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        ))}
-      </KpiStrip>
-    );
-  }
   const recent = days?.slice(-30) ?? [];
   const fees30 = recent.reduce((s, d) => s + d.volumeETH, 0);
+  // The tiles themselves from the start, with placeholders for what hasn't
+  // loaded, so they keep their shape as it arrives.
+  const trend = (el: React.ReactNode) => (days ? el : <TrendSkeleton />);
 
   return (
     <KpiStrip cols={2} className="h-full">
       <Kpi
         label="Participation"
-        value={formatPercent(protocol.participationRate, { decimals: 2 })}
+        loading={!p}
+        value={p && formatPercent(p.participationRate, { decimals: 2 })}
         // Participation is staked LPT over total supply, so show both.
-        sub={`${formatNumber(protocol.totalActiveStake, {
-          compact: true,
-        })} of ${formatLPT(protocol.totalSupply, {
-          compact: true,
-        })} staked · target ${formatPercent(protocol.targetBondingRate, {
-          decimals: 0,
-        })}`}
-        trend={
+        sub={
+          p &&
+          `${formatNumber(p.totalActiveStake, {
+            compact: true,
+          })} of ${formatLPT(p.totalSupply, {
+            compact: true,
+          })} staked · target ${formatPercent(p.targetBondingRate, {
+            decimals: 0,
+          })}`
+        }
+        trend={trend(
           <KpiTrend
             days={recent}
             pick={(d) => d.participationRate}
             format={(v) => formatPercent(v, { decimals: 2 })}
             change={(a, b) => `${signed(b - a, 2)} pts`}
           />
-        }
+        )}
       />
       <Kpi
         label="Inflation per round"
-        value={formatPercent(protocol.inflation / 1e7, { decimals: 4 })}
+        loading={!p}
+        value={p && formatPercent(p.inflation / 1e7, { decimals: 4 })}
         sub={
           // The minter nudges inflation toward the target bonding rate:
           // up while participation is below it, down while above.
-          protocol.participationRate < protocol.targetBondingRate
+          p &&
+          (p.participationRate < p.targetBondingRate
             ? "Rising: participation is below target"
-            : "Falling: participation is above target"
+            : "Falling: participation is above target")
         }
-        trend={
+        trend={trend(
           <KpiTrend
             days={recent}
             pick={(d) => d.inflation}
@@ -318,13 +342,14 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
               a > 0 ? `${signed(((b - a) / a) * 100, 1)}%` : ""
             }
           />
-        }
+        )}
       />
       <Kpi
         label="Fees · 30 days"
-        value={days ? formatETH(fees30) : <Skeleton className="h-6 w-28" />}
-        sub={`${formatETH(protocol.totalVolumeETH)} all time`}
-        trend={
+        loading={!p || !days}
+        value={formatETH(fees30)}
+        sub={p && `${formatETH(p.totalVolumeETH)} all time`}
+        trend={trend(
           <KpiTrend
             days={recent}
             pick={(d) => d.volumeETH}
@@ -334,13 +359,17 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
               a > 0 ? `${signed(((b - a) / a) * 100, 1)}%` : ""
             }
           />
-        }
+        )}
       />
       <Kpi
         label="Delegators"
-        value={protocol.delegatorsCount.toLocaleString()}
-        sub={`${protocol.activeTranscoderCount.toLocaleString()} active orchestrators`}
-        trend={
+        loading={!p}
+        value={p?.delegatorsCount.toLocaleString()}
+        sub={
+          p &&
+          `${p.activeTranscoderCount.toLocaleString()} active orchestrators`
+        }
+        trend={trend(
           <KpiTrend
             days={recent}
             pick={(d) => d.delegatorsCount}
@@ -349,7 +378,7 @@ function NetworkKpis({ protocol }: { protocol?: Protocol }) {
               a > 0 ? `${signed(((b - a) / a) * 100, 1)}%` : ""
             }
           />
-        }
+        )}
       />
     </KpiStrip>
   );
@@ -619,8 +648,12 @@ function HistorySection() {
           <div className="flex min-h-[52px] flex-col gap-0.5 px-4 pt-4 sm:px-5">
             {isLoading ? (
               <>
-                <Skeleton className="h-6 w-28" />
-                <Skeleton className="h-3 w-40" />
+                <div className="flex h-7 items-center">
+                  <Skeleton className="h-6 w-28" />
+                </div>
+                <div className="flex h-4 items-center">
+                  <Skeleton className="h-3 w-40" />
+                </div>
               </>
             ) : readout ? (
               <>
@@ -712,10 +745,15 @@ function FooterStat({
  * out so far. Three columns when the card is wide; on a narrow card the
  * reward calls take a full row so the bar keeps a useful length.
  */
-function RewardCalls({ round }: { round: number }) {
+function RewardCalls({ round }: { round?: number }) {
   const { data } = useRewardProgress(round);
   const pct = data && data.total > 0 ? (data.called / data.total) * 100 : 0;
-  const loading = <Skeleton className="h-3.5 w-14" />;
+  // A full line's height, like the figure it stands in for.
+  const loading = (
+    <span className="flex h-5 items-center">
+      <Skeleton className="h-3.5 w-14" />
+    </span>
+  );
   return (
     <div className="@container border-t border-hairline">
       <div className="grid grid-cols-2 @min-[26rem]:grid-cols-3">
@@ -766,9 +804,12 @@ function RewardCalls({ round }: { round: number }) {
 
 /* ── Latest activity ─────────────────────────────────────────────────────── */
 
+/** How many of the latest events the page shows. */
+const LATEST = 8;
+
 function LatestActivity() {
   const { data, isLoading, error, dataUpdatedAt } = useEvents(200);
-  const latest = useMemo(() => data?.slice(0, 8), [data]);
+  const latest = useMemo(() => data?.slice(0, LATEST), [data]);
   // The feed sits below the fold, so never hold arrivals back for scrolling.
   const { shown, fresh } = useLiveFeed(latest, { holdBelow: Infinity });
   return (
@@ -791,6 +832,7 @@ function LatestActivity() {
       <ActivityList
         events={shown}
         loading={isLoading || !shown}
+        loadingRows={LATEST}
         fresh={fresh}
       />
     </Section>

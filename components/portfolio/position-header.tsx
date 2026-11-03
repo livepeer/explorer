@@ -303,8 +303,11 @@ export function AccountHeadline({
   const { bridge } = useBridge();
   const account = p?.account.address;
   const held = useHeld(account);
+  // A delegate's line high, so the label keeps its height when one loads.
   const caption = (text: string) => (
-    <div className="text-ui-caption text-muted-foreground">{text}</div>
+    <div className="text-ui-caption leading-5 text-muted-foreground">
+      {text}
+    </div>
   );
   if (loading || !p || !account) {
     return render({
@@ -359,9 +362,7 @@ export function AccountHeadline({
       : [],
   };
   const chip = (balances: Balance[], total?: boolean) =>
-    balances.length ? (
-      <BalanceChip balances={balances} total={total} />
-    ) : null;
+    balances.length ? <BalanceChip balances={balances} total={total} /> : null;
   const note = (text: string) => (
     <p className="text-ui-body text-muted-foreground">{text}</p>
   );

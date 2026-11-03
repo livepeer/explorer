@@ -1,3 +1,4 @@
+import { InlineSkeleton } from "@/components/ui/misc";
 import { cn } from "@/lib/cn";
 
 /**
@@ -95,13 +96,20 @@ export function Kpi({
   value,
   sub,
   trend,
+  loading,
   className,
 }: {
   label: React.ReactNode;
-  value: React.ReactNode;
+  value?: React.ReactNode;
   sub?: React.ReactNode;
   /** A small chart pinned to the bottom of the tile. */
   trend?: React.ReactNode;
+  /**
+   * A placeholder in the value's line, and in the caption's unless one is
+   * given: a caption that's fixed text shows while loading, wrapping where
+   * it will, so the tile doesn't change shape when the figures arrive.
+   */
+  loading?: boolean;
   className?: string;
 }) {
   return (
@@ -115,10 +123,12 @@ export function Kpi({
         {label}
       </div>
       <div className="truncate text-[22px] leading-7 font-medium tracking-[-0.01em] text-foreground">
-        {value}
+        {loading ? <InlineSkeleton className="h-6 w-24" /> : value}
       </div>
-      {sub && (
-        <div className="text-ui-caption text-muted-foreground">{sub}</div>
+      {(sub || loading) && (
+        <div className="text-ui-caption text-muted-foreground">
+          {sub ?? <InlineSkeleton className="w-32 max-w-full" />}
+        </div>
       )}
       {trend && <div className="mt-auto pt-3">{trend}</div>}
     </div>

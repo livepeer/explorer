@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { Card } from "@/components/page";
-import { Segmented, Skeleton } from "@/components/ui/misc";
+import { InlineSkeleton, Segmented, Skeleton } from "@/components/ui/misc";
 import { cn } from "@/lib/cn";
 import {
   formatETH,
@@ -170,18 +170,29 @@ export function PortfolioHero({
           Total delegated
         </div>
       )}
-      {loading ? (
-        <Skeleton className="h-12 w-72" />
-      ) : (
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-display-md font-light tracking-[-0.02em]">
-            {formatToken(headline ?? stake)}
-          </span>
-          <span className="text-[20px] font-light text-muted-foreground">
-            LPT
-          </span>
-        </div>
-      )}
+      {/* While loading, the same row unseen under its placeholder, so the
+          figure takes exactly the space it held. */}
+      <div className="relative flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span
+          className={cn(
+            "text-display-md font-light tracking-[-0.02em]",
+            loading && "invisible"
+          )}
+        >
+          {loading ? "0" : formatToken(headline ?? stake)}
+        </span>
+        <span
+          className={cn(
+            "text-[20px] font-light text-muted-foreground",
+            loading && "invisible"
+          )}
+        >
+          LPT
+        </span>
+        {loading && (
+          <Skeleton className="absolute inset-y-0 left-0 w-72 max-w-full" />
+        )}
+      </div>
       {headline != null ? (
         // Held, not delegated: what it's worth, then what to do about it.
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5 text-ui-body">
@@ -193,9 +204,11 @@ export function PortfolioHero({
           {position}
         </div>
       ) : (
-        /* Nothing staked: no line of zeros, nor dust left from before. */
+        /* Nothing staked: no line of zeros, nor dust left from before.
+           While loading, a line's space: this, or what replaces it. */
         (loading || stake > 0 || earned >= 0.01) && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+          <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+            {loading && <InlineSkeleton className="h-3.5 w-56 max-w-full" />}
             {lptPrice != null && !loading && stake * lptPrice >= 0.005 && (
               <span className="text-muted-foreground">
                 {formatUSD(stake * lptPrice)}
