@@ -53,12 +53,24 @@ export function formatNumber(
 }
 
 /** Adaptive precision: big balances lose their cents, dust keeps its digits. */
-export function formatToken(value: number, opts: { compact?: boolean } = {}) {
+export function formatToken(
+  value: number,
+  /**
+   * `floor` rounds down rather than to nearest: for what's available, which
+   * shouldn't read as more than there is.
+   */
+  opts: { compact?: boolean; floor?: boolean } = {}
+) {
   const abs = Math.abs(value);
   // Too small for four places: say so, rather than "0.0000", which reads
   // as nothing at all.
   if (abs > 0 && abs < 0.00005) return `${value < 0 ? "-" : ""}<0.0001`;
   const decimals = abs === 0 ? 0 : abs >= 1000 ? 0 : abs >= 1 ? 2 : 4;
+  if (opts.floor && !opts.compact) {
+    const f = 10 ** decimals;
+    // The nudge keeps a float like 1.15 (1.1499…) from flooring a step low.
+    value = Math.floor(value * f + 1e-7) / f;
+  }
   return formatNumber(value, { decimals, compact: opts.compact });
 }
 

@@ -47,3 +47,12 @@ describe("fromWei", () => {
     expect(fromWei(0n)).toBe(0);
   });
 });
+
+describe("formatToken floor", () => {
+  it("never shows more than is available", () => {
+    expect(formatToken(0.50897, { floor: true })).toBe("0.5089");
+    expect(formatToken(0.50897)).toBe("0.5090");
+    expect(formatToken(1.15, { floor: true })).toBe("1.15");
+    expect(formatToken(1.999, { floor: true })).toBe("1.99");
+  });
+});

@@ -47,7 +47,12 @@ function DelegationActions({
         variant="primary"
         className="flex-1 sm:flex-none"
         onClick={() =>
-          open({ kind: "delegate", to: delegate, account, amount: freeLpt })
+          open({
+            kind: "delegate",
+            to: delegate,
+            account,
+            wholeWallet: Boolean(freeLpt),
+          })
         }
       >
         <Plus /> Delegate

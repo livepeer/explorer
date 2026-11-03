@@ -78,6 +78,7 @@ import {
   formatETH,
   formatLPT,
   formatRelativeTime,
+  formatToken,
   formatUSD,
   fromWei,
   shortAddress,
@@ -127,8 +128,8 @@ export type StakingAction = (
   | {
       kind: "delegate";
       to: string;
-      /** Pre-filled amount in LPT, e.g. a wallet's unstaked balance. */
-      amount?: number;
+      /** Pre-fill the wallet's whole balance, exactly, as Max does. */
+      wholeWallet?: boolean;
     }
   | { kind: "undelegate"; delegate: string; staked: number }
   | { kind: "withdrawStake"; lockId: number; amount: number }
@@ -393,7 +394,7 @@ function AmountField({
           >
             {maxLabel}:{" "}
             <span className="tabular-nums">
-              {formatLPT(max).replace(" LPT", "")}
+              {formatToken(max, { floor: true })}
             </span>{" "}
             <span className="font-medium text-foreground">Max</span>
           </button>
@@ -669,11 +670,7 @@ function StakingFlow({
   // chosen in the dialog (preselected: the best reliable orchestrator).
   const [claimTo, setClaimTo] = useState<string>();
   const { data: prices } = usePrices();
-  const [amount, setAmount] = useState(() =>
-    action.kind === "delegate" && action.amount
-      ? String(Math.floor(action.amount * 1e4) / 1e4)
-      : ""
-  );
+  const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const account = address?.toLowerCase();
@@ -819,6 +816,16 @@ function StakingFlow({
   // Exact amounts for Max, so it fills what's really there.
   const balanceExact =
     balanceWei != null ? formatUnits(balanceWei as bigint, 18) : undefined;
+  // Opened to delegate the whole wallet: its exact balance once read, as
+  // Max fills it, so nothing is left behind. Once only, so it never
+  // overwrites what's been typed.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || balanceExact == null) return;
+    if (action.kind !== "delegate" || !action.wholeWallet) return;
+    prefilled.current = true;
+    if (balanceWei !== 0n) setAmount((a) => a || balanceExact);
+  }, [action, balanceExact, balanceWei]);
   const bondedExact =
     pendingStakeWei != null
       ? formatUnits(pendingStakeWei as bigint, 18)

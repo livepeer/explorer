@@ -94,7 +94,7 @@ export function IdleLptAction({
       kind: "delegate",
       to: w.delegate,
       account: w.address,
-      amount: w.lpt,
+      wholeWallet: true,
     });
   };
 
