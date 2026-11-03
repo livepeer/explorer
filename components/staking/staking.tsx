@@ -335,6 +335,15 @@ function errorMessage(e: unknown) {
 
 /* ── UI pieces ───────────────────────────────────────────────────────────── */
 
+/** Whether a typed amount is more than an exact one, compared in wei. */
+function exceeds(value: string, exact: string) {
+  try {
+    return toWei(value || "0") > toWei(exact);
+  } catch {
+    return false;
+  }
+}
+
 function AmountField({
   value,
   onChange,
@@ -360,7 +369,11 @@ function AmountField({
    */
   maxExact?: string;
 }) {
-  const invalid = max != null && Number(value) > max;
+  // Against the exact maximum when there is one, so Max itself never reads
+  // as too much; decimals can round either way at the last digit.
+  const invalid =
+    max != null &&
+    (maxExact != null ? exceeds(value, maxExact) : Number(value) > max);
   return (
     <div
       className={cn(
@@ -991,7 +1004,8 @@ function StakingFlow({
         Boolean(token) &&
         !syncingApproval &&
         (amountWei > 0n || Boolean(moving)) &&
-        Number(amount || 0) <= balance;
+        // In wei, so the whole balance (Max) counts as enough.
+        amountWei <= ((balanceWei as bigint | undefined) ?? 0n);
       successTitle = moving ? "Orchestrator switched" : "Delegated";
       const orch = orchestrators?.find((o) => o.id === to);
       body = (
