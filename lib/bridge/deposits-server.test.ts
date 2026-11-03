@@ -4,6 +4,7 @@ import {
   encodeEventTopics,
   type Hex,
   pad,
+  TransactionReceiptNotFoundError,
 } from "viem";
 
 import { ARB_RETRYABLE_TX, arbRetryableTxAbi } from "./tickets";
@@ -63,7 +64,7 @@ const receipts = (byHash: Record<string, unknown>) =>
   l2.getTransactionReceipt.mockImplementation(({ hash }: { hash: Hex }) =>
     hash in byHash
       ? Promise.resolve(byHash[hash])
-      : Promise.reject(new Error("not found"))
+      : Promise.reject(new TransactionReceiptNotFoundError({ hash }))
   );
 
 beforeEach(() => jest.resetAllMocks());
@@ -137,7 +138,7 @@ describe("ticketStatus", () => {
     receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
     l2.readContract.mockRejectedValueOnce(noTicket());
     l2.getLogs.mockResolvedValueOnce(logs);
-    await expect(ticketStatus(t)).rejects.toThrow("not found");
+    await expect(ticketStatus(t)).rejects.toThrow("could not be found");
     // Once it can, the deposit has arrived: nothing wrong was kept.
     receipts({
       [t]: created(t),
@@ -154,6 +155,12 @@ describe("ticketStatus", () => {
     receipts({ [t]: created(t, "reverted") });
     await expect(ticketStatus(t)).resolves.toEqual({ status: "failed" });
     expect(l2.readContract).not.toHaveBeenCalled();
+  });
+
+  it("fails, rather than reporting processing, when a receipt can't be read", async () => {
+    // A timeout isn't "no receipt yet": the client keeps what it knew.
+    l2.getTransactionReceipt.mockRejectedValue(new Error("timeout"));
+    await expect(ticketStatus(id(20))).rejects.toThrow("timeout");
   });
 
   it("doesn't mistake another failure for arrival", async () => {

@@ -95,15 +95,19 @@ export function usePendingDeposits(addresses: string[]) {
   }, [tracked, local]);
 
   // One arrived while we watched: Ethereum and Arbitrum balances changed.
+  // Sent from here counts as watched from the start, even if the chain
+  // reports it only once it has already arrived.
   const moving = useRef(new Set<string>());
   useEffect(() => {
+    for (const d of local) moving.current.add(d.l1Tx.toLowerCase());
     if (!tracked) return;
     let landed = false;
     for (const d of tracked) {
+      const tx = d.l1Tx.toLowerCase();
       if (d.status === "arrived") {
-        if (moving.current.delete(d.l1Tx)) landed = true;
+        if (moving.current.delete(tx)) landed = true;
       } else {
-        moving.current.add(d.l1Tx);
+        moving.current.add(tx);
       }
     }
     if (landed) {
@@ -111,7 +115,7 @@ export function usePendingDeposits(addresses: string[]) {
       queryClient.invalidateQueries({ queryKey: ["readContracts"] });
       queryClient.invalidateQueries({ queryKey: ["portfolio"] });
     }
-  }, [tracked, queryClient]);
+  }, [tracked, local, queryClient]);
 
   return useMemo(
     () => mergeDeposits(tracked ?? [], local, nowSec),

@@ -5,6 +5,7 @@ import {
   isAddressEqual,
   parseAbiItem,
   parseEventLogs,
+  TransactionReceiptNotFoundError,
 } from "viem";
 
 import { L1_LPT, L1_LPT_GATEWAY } from "./config";
@@ -177,6 +178,19 @@ async function redeemed(ticket: Hex, created: bigint) {
 }
 
 /**
+ * A transaction's receipt, or null while it has none yet. Only "not found"
+ * means that: a failed read (a timeout, the RPC down) throws, so the
+ * request fails and the client keeps what it last knew, rather than being
+ * told a deposit is back to processing.
+ */
+function receiptOrNull(hash: Hex) {
+  return l2.getTransactionReceipt({ hash }).catch((e: unknown) => {
+    if (e instanceof TransactionReceiptNotFoundError) return null;
+    throw e;
+  });
+}
+
+/**
  * Where a ticket stands. Not on Arbitrum yet: processing. Its creation
  * reverted: failed, since no ticket was made. Its automatic redeem, run
  * right after creation, succeeded: arrived. Otherwise it waited for a
@@ -193,9 +207,7 @@ export async function ticketStatus(
     settled.set(ticket, { status });
     return { status };
   };
-  const created = await l2
-    .getTransactionReceipt({ hash: ticket })
-    .catch(() => null);
+  const created = await receiptOrNull(ticket);
   if (!created) return { status: "processing" };
   if (created.status !== "success") return settle("failed");
 
@@ -208,9 +220,7 @@ export async function ticketStatus(
     ),
   }).find((l) => l.args.ticketId === ticket && l.args.sequenceNum === 0n);
   if (auto) {
-    const redeem = await l2
-      .getTransactionReceipt({ hash: auto.args.retryTxHash })
-      .catch(() => null);
+    const redeem = await receiptOrNull(auto.args.retryTxHash);
     if (!redeem) return { status: "processing" };
     if (redeem.status === "success") return settle("arrived");
   }
