@@ -119,9 +119,12 @@ const CONFIRMATION_CHUNK = 3_000n;
  */
 const CONFIRMATION_LOOKBACK = 50_000n;
 
-/** The most recent SendRootUpdated, searching back a chunk at a time. */
+/** The most recent SendRootUpdated, searching back a chunk at a time. From
+ * Ethereum's finalized head, so one found can't be undone by a reorg: it's
+ * kept as the fallback, and claims are proven against it.
+ */
 async function lastSendRoot() {
-  const head = await l1.getBlockNumber();
+  const head = (await l1.getBlock({ blockTag: "finalized" })).number;
   const floor = head - CONFIRMATION_LOOKBACK;
   for (let to = head; to > floor; to -= CONFIRMATION_CHUNK) {
     const logs = await l1.getContractEvents({
