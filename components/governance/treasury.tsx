@@ -334,7 +334,8 @@ export function TreasuryCard() {
 export function TreasuryStrip() {
   const { treasury, view } = useTreasuryView();
   if (treasury.error) return null;
-  if (!view) return <Skeleton className="h-[74px] w-full rounded-md" />;
+  if (!view)
+    return <Skeleton className="h-[148px] w-full rounded-md sm:h-[76px]" />;
   const { t, share, status, fullBy, pace } = view;
   // Label over value, like the tiles above it, with the bar between.
   return (

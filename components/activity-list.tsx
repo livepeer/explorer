@@ -324,9 +324,12 @@ export function ActivityList({
   emptyText = "No activity yet.",
   showActor = true,
   fresh,
+  loadingRows = 5,
 }: {
   events?: ActivityEvent[];
   loading?: boolean;
+  /** Rows to hold while loading: as many as will show, so nothing jumps. */
+  loadingRows?: number;
   emptyText?: string;
   showActor?: boolean;
   /** Ids that just arrived; they slide in with a brief highlight. */
@@ -337,10 +340,20 @@ export function ActivityList({
   if (loading) {
     return (
       <Card className="divide-y divide-(--hairline)">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 px-4 py-3.5">
-            <Skeleton className="size-7 rounded-full" />
-            <Skeleton className="h-3.5 w-2/3" />
+        {Array.from({ length: loadingRows }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-3">
+            <Skeleton className="size-7 shrink-0 rounded-full" />
+            {/* Shaped like a loaded row: on a phone, a sentence that runs
+                to two lines with the time under it. */}
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <div className="flex h-10 flex-col justify-center gap-1.5 sm:h-5">
+                <Skeleton className="h-3.5 w-full sm:w-2/3" />
+                <Skeleton className="h-3.5 w-1/2 sm:hidden" />
+              </div>
+              <div className="flex h-4 items-center sm:hidden">
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
           </div>
         ))}
       </Card>
