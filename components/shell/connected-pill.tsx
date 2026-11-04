@@ -3,6 +3,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   AlertTriangle,
+  ArrowLeftRight,
   ChevronDown,
   Copy,
   LogOut,
@@ -11,9 +12,11 @@ import {
   Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { useBalance, useDisconnect, useReadContract } from "wagmi";
 
+import { useBridge } from "@/components/bridge/context";
 import { Avatar, useIdentity } from "@/components/identity";
 import {
   Menu,
@@ -24,6 +27,7 @@ import {
   Skeleton,
 } from "@/components/ui/misc";
 import { livepeerToken } from "@/lib/abis/LivepeerToken";
+import { useL1Lpt } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import { L2_CHAIN } from "@/lib/config";
 import { formatToken, fromWei, shortAddress } from "@/lib/format";
@@ -43,7 +47,8 @@ const LOW_GAS_ETH = 0.0002;
 
 /**
  * What the wallet holds, wherever you are in the app: LPT to delegate, and
- * ETH on Arbitrum for gas, which nothing works without.
+ * ETH on Arbitrum for gas, which nothing works without. LPT on Ethereum is
+ * named on the Bridge item, the one thing to do with it.
  */
 function WalletBalances({ address }: { address: string }) {
   const token = useProtocolContract("LivepeerToken");
@@ -158,6 +163,9 @@ function Connected({
 }) {
   const router = useRouter();
   const { disconnect } = useDisconnect();
+  const { bridge } = useBridge();
+  const addresses = useMemo(() => [address], [address]);
+  const onEthereum = useL1Lpt(addresses).get(address);
   const { name, avatar } = useIdentity(address);
   const { list } = useAddresses();
   const label = list.find((w) => w.address === address.toLowerCase())?.label;
@@ -203,6 +211,16 @@ function Connected({
         />
         <WalletBalances address={address} />
         <MenuSeparator />
+        {/* Starts where the LPT is: from Ethereum if there's some there,
+            which it names, since that's what it would bridge. */}
+        <MenuItem onClick={() => bridge(address)}>
+          <ArrowLeftRight /> Bridge LPT
+          {onEthereum != null && (
+            <span className="ml-auto text-ui-caption text-muted-foreground tabular-nums">
+              {formatToken(onEthereum)} on Ethereum
+            </span>
+          )}
+        </MenuItem>
         <MenuItem onClick={() => router.push(`/accounts/${address}`)}>
           <UserRound /> View account
         </MenuItem>

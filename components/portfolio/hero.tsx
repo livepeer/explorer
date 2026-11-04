@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { Card } from "@/components/page";
-import { Segmented, Skeleton } from "@/components/ui/misc";
+import { InlineSkeleton, Segmented, Skeleton } from "@/components/ui/misc";
 import { cn } from "@/lib/cn";
 import {
   formatETH,
@@ -57,6 +57,8 @@ export function PortfolioHero({
   label,
   position,
   positionActions,
+  headline,
+  balances,
   variant = "card",
 }: {
   series: SeriesPoint[];
@@ -66,12 +68,19 @@ export function PortfolioHero({
   loading?: boolean;
   /** Beside the time range, e.g. an export. */
   actions?: React.ReactNode;
-  /** Over the balance in place of "Total stake": who it's delegated to. */
+  /** Over the balance in place of "Total delegated": who it's delegated to. */
   label?: React.ReactNode;
   /** Under the balance on a single wallet's page: what it earns. */
   position?: React.ReactNode;
   /** Beside the balance on a single wallet's page: Delegate, Undelegate. */
   positionActions?: React.ReactNode;
+  /**
+   * The big number when it isn't delegated stake: with nothing delegated,
+   * the LPT the wallet holds. It earns nothing, so no earnings line.
+   */
+  headline?: number;
+  /** Under the balance on a single wallet's page: LPT by network, with actions. */
+  balances?: React.ReactNode;
   /**
    * "page": the balance as the page's headline, on the page itself, with the
    * chart's controls on one line above the chart in its own card (a single
@@ -110,7 +119,7 @@ export function PortfolioHero({
           ),
           format: (v: number) => formatLPT(v),
           axis: axisLpt,
-          label: "Total stake over time",
+          label: "Delegated stake over time",
         };
       case "rewards":
         return {
@@ -157,7 +166,9 @@ export function PortfolioHero({
   const numberEl = (
     <div className="flex min-w-0 flex-col gap-2">
       {label ?? (
-        <div className="text-ui-caption text-muted-foreground">Total stake</div>
+        <div className="text-ui-caption text-muted-foreground">
+          Total delegated
+        </div>
       )}
       {/* While loading, the same row unseen under its placeholder, so the
           figure takes exactly the space it held. */}
@@ -168,7 +179,7 @@ export function PortfolioHero({
             loading && "invisible"
           )}
         >
-          {loading ? "0" : formatToken(stake)}
+          {loading ? "0" : formatToken(headline ?? stake)}
         </span>
         <span
           className={cn(
@@ -182,42 +193,55 @@ export function PortfolioHero({
           <Skeleton className="absolute inset-y-0 left-0 w-72 max-w-full" />
         )}
       </div>
-      {/* Nothing staked and nothing earned: no line of zeros. While
-          loading, a line's space: this, or the note below that replaces it. */}
-      {(loading || stake > 0 || earned > 0) && (
-        <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
-          {loading && <Skeleton className="h-3.5 w-56 max-w-full" />}
-          {lptPrice != null && !loading && (
+      {headline != null ? (
+        // Held, not delegated: what it's worth, then what to do about it.
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5 text-ui-body">
+          {lptPrice != null && !loading && headline * lptPrice >= 0.005 && (
             <span className="text-muted-foreground">
-              {formatUSD(stake * lptPrice)}
+              {formatUSD(headline * lptPrice)}
             </span>
           )}
-          {!loading && (
-            <span className="text-green-bright">
-              +{formatToken(earned)} LPT
-              {earnedPct != null && period !== "all" && (
-                <span
-                  className="text-green-bright/80"
-                  title={
-                    commission > 0
-                      ? "On your own stake, excluding commission"
-                      : undefined
-                  }
-                >
-                  {" "}
-                  ({formatPercent(earnedPct, { decimals: 2 })})
-                </span>
-              )}
-            </span>
-          )}
-          {!loading && (
-            <span className="text-muted-foreground">
-              earned {periodLabel(period)}
-            </span>
-          )}
+          {position}
         </div>
+      ) : (
+        /* Nothing staked: no line of zeros, nor dust left from before.
+           While loading, a line's space: this, or what replaces it. */
+        (loading || stake > 0 || earned >= 0.01) && (
+          <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1.5 text-ui-body">
+            {loading && <InlineSkeleton className="h-3.5 w-56 max-w-full" />}
+            {lptPrice != null && !loading && stake * lptPrice >= 0.005 && (
+              <span className="text-muted-foreground">
+                {formatUSD(stake * lptPrice)}
+              </span>
+            )}
+            {!loading && (
+              <span className="text-green-bright">
+                +{formatToken(earned)} LPT
+                {earnedPct != null && period !== "all" && (
+                  <span
+                    className="text-green-bright/80"
+                    title={
+                      commission > 0
+                        ? "On your own stake, excluding commission"
+                        : undefined
+                    }
+                  >
+                    {" "}
+                    ({formatPercent(earnedPct, { decimals: 2 })})
+                  </span>
+                )}
+              </span>
+            )}
+            {!loading && (
+              <span className="text-muted-foreground">
+                earned {periodLabel(period)}
+              </span>
+            )}
+          </div>
+        )
       )}
-      {position}
+      {headline == null && position}
+      {balances}
     </div>
   );
   const chartEl = (

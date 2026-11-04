@@ -39,36 +39,46 @@ export function roundState(p: Protocol, nowMs: number) {
   };
 }
 
+/**
+ * A round turning over: the ring closes, ripples once as it does, then
+ * unwinds into the top, its tail chasing round after its head, so the new
+ * round's arc grows from nothing instead of the full ring vanishing.
+ */
+export type TurnPhase = "fill" | "unwind" | "reset";
+
+const TURN_MS = { unwind: 1000, reset: 1750, done: 2600 };
+
 export function Ring({
   progress,
   size = 28,
   stroke = 3,
   tone = "positive",
-  instant = false,
-  pulse = false,
+  turn,
   children,
 }: {
   progress: number;
   size?: number;
   stroke?: number;
   tone?: "positive" | "warning";
-  /** Jump to `progress` without animating (e.g. back to the start). */
-  instant?: boolean;
-  /** A ripple outward, for a round turning over. */
-  pulse?: boolean;
+  /** Where a round turning over has got to (see useRoundTurn). */
+  turn?: TurnPhase | null;
   children?: React.ReactNode;
 }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
+  const shown = turn === "fill" ? 1 : progress;
+  // Unwinding slides the dash forward off the end of the circle.
+  const offset = turn === "unwind" ? -c : c * (1 - shown);
   return (
     <span
       className="relative inline-flex shrink-0"
       style={{ width: size, height: size }}
     >
-      {pulse && (
+      {turn && (
+        // Hidden but for the ripple, which waits for the ring to close.
         <span
           aria-hidden="true"
-          className="absolute inset-0 rounded-full border-2 border-green-bright motion-safe:animate-[ring-turn_1.1s_var(--ease-out)_2]"
+          className="absolute inset-0 rounded-full border-2 border-green-bright opacity-0 motion-safe:animate-[ring-turn_900ms_var(--ease-out)_420ms]"
         />
       )}
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
@@ -89,12 +99,22 @@ export function Ring({
           // Round caps add half the stroke at each end, so a short arc
           // (a round just begun) would draw as a blob: square ends until
           // the arc is long enough for the caps to read as an arc.
-          strokeLinecap={c * progress > stroke * 2 ? "round" : "butt"}
+          // Square ends while unwinding too, so the closing tail leaves no
+          // dot behind at the top.
+          strokeLinecap={
+            turn !== "unwind" && c * shown > stroke * 2 ? "round" : "butt"
+          }
           strokeDasharray={c}
-          strokeDashoffset={c * (1 - progress)}
+          strokeDashoffset={offset}
           className={cn(
-            !instant &&
-              "transition-[stroke-dashoffset] duration-1000 ease-linear",
+            turn === "fill"
+              ? "transition-[stroke-dashoffset,stroke] duration-500 ease-out"
+              : turn === "unwind"
+              ? "transition-[stroke-dashoffset] duration-700 ease-in-out"
+              : // Back to the start in one frame, from an empty ring.
+              turn === "reset"
+              ? undefined
+              : "transition-[stroke-dashoffset,stroke] duration-1000 ease-linear",
             tone === "positive" ? "stroke-green-fill" : "stroke-warm"
           )}
         />
@@ -108,14 +128,14 @@ export function Ring({
   );
 }
 
-type Turn = { from: number; to: number; phase: "complete" | "reset" };
+type Turn = { from: number; to: number; phase: TurnPhase };
 
 /**
  * A round turning over while the explorer is open: the ring fills and
  * ripples, then starts again, and a toast says how the last round went.
  * Not on first load; only a change seen live.
  */
-function useRoundTurn(round: number | undefined) {
+export function useRoundTurn(round: number | undefined) {
   // Noticed during render, so the new number and the celebration arrive
   // in the same frame rather than one after the other.
   const [last, setLast] = useState(round);
@@ -123,7 +143,7 @@ function useRoundTurn(round: number | undefined) {
   if (round !== last) {
     setLast(round);
     if (last != null && round != null && round > last)
-      setTurn({ from: last, to: round, phase: "complete" });
+      setTurn({ from: last, to: round, phase: "fill" });
   }
 
   const queryClient = useQueryClient();
@@ -133,11 +153,13 @@ function useRoundTurn(round: number | undefined) {
 
   useEffect(() => {
     if (to == null || from == null) return;
-    const reset = setTimeout(
-      () => setTurn((t) => t && { ...t, phase: "reset" }),
-      1400
-    );
-    const done = setTimeout(() => setTurn(null), 2600);
+    const phase = (p: TurnPhase) => () =>
+      setTurn((t) => t && { ...t, phase: p });
+    const timers = [
+      setTimeout(phase("unwind"), TURN_MS.unwind),
+      setTimeout(phase("reset"), TURN_MS.reset),
+      setTimeout(() => setTurn(null), TURN_MS.done),
+    ];
 
     // One toast per round, however many clocks are mounted.
     const id = `round-${to}`;
@@ -170,10 +192,7 @@ function useRoundTurn(round: number | undefined) {
       })
       .catch(() => {});
 
-    return () => {
-      clearTimeout(reset);
-      clearTimeout(done);
-    };
+    return () => timers.forEach(clearTimeout);
   }, [to, from, queryClient, router]);
 
   return turn;
@@ -226,9 +245,8 @@ export function SidebarRoundClock() {
         className="flex items-center gap-3 rounded-sm px-2 py-2 transition-colors hover:bg-hover"
       >
         <Ring
-          progress={turn?.phase === "complete" ? 1 : s.progress}
-          instant={turn?.phase === "reset"}
-          pulse={turn != null}
+          progress={s.progress}
+          turn={turn?.phase}
           tone={turn || !(s.overdue || !s.initialized) ? "positive" : "warning"}
         />
         <span className="flex min-w-0 flex-col">
@@ -237,7 +255,7 @@ export function SidebarRoundClock() {
             <span
               key={data.currentRound}
               className={cn(
-                "inline-block tabular-nums",
+                "inline-block tabular-nums transition-colors duration-700",
                 turn && "text-green-bright motion-safe:animate-rise"
               )}
             >

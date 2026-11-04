@@ -19,6 +19,8 @@ import { useStaking } from "@/components/staking/staking";
 import { Skeleton } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { trackEventOnce } from "@/lib/analytics";
+import { usePendingDeposits } from "@/lib/bridge/pending";
+import { useBridgeWithdrawals } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import {
   formatETH,
@@ -50,14 +52,11 @@ import {
   trailingRoundRate,
 } from "@/lib/portfolio/compute";
 
+import { useBridgeInsights } from "./bridge-insights";
 import { IdleLptAction, useIdleLpt } from "./delegate";
 import { ExportEarnings } from "./export-earnings";
 import { PortfolioHero } from "./hero";
-import {
-  PositionActions,
-  PositionLabel,
-  PositionNote,
-} from "./position-header";
+import { AccountHeadline, type HeadlineSlots } from "./position-header";
 import { DUST_ETH, LPT_DUST, type Position, Positions } from "./positions";
 import { safeInsights } from "./safe-insights";
 import {
@@ -223,10 +222,15 @@ export function PortfolioView({
     [view]
   );
   const votes = useVoteInsights(holdings);
+  const bridge = useBridgeInsights(scoped, accounts);
+  const { data: bridged = [] } = useBridgeWithdrawals(scoped);
+  const arriving = usePendingDeposits(scoped);
   const insights = useMemo<Insight[]>(() => {
     if (!view || !data) return [];
     // Actions waiting on a Safe's signers come first: they're blocked on you.
     const out: Insight[] = safeInsights(proposals, accounts);
+    // Then a deposit to Arbitrum that's late.
+    out.push(...bridge);
     // Then open votes, soonest to close first.
     out.push(...votes);
     for (const d of delegates) {
@@ -333,6 +337,7 @@ export function PortfolioView({
     proposals,
     accounts,
     votes,
+    bridge,
   ]);
 
   if (error) return <ErrorNotice error={error} onRetry={() => refetch()} />;
@@ -375,16 +380,14 @@ export function PortfolioView({
       .filter((p) => canManage(p.account.address) && p.fees >= DUST_ETH)
       .sort((a, b) => b.fees - a.fees) ?? [];
 
-  const heroEl = (slots?: {
-    label: React.ReactNode;
-    position: React.ReactNode;
-    actions: React.ReactNode;
-  }) => (
+  const heroEl = (slots?: HeadlineSlots) => (
     <PortfolioHero
       variant={single ? "page" : "card"}
       label={slots?.label}
+      headline={slots?.headline}
       position={slots?.position}
       positionActions={slots?.actions}
+      balances={slots?.balances}
       series={view?.series ?? []}
       stake={view?.stake ?? 0}
       lptPrice={lpt}
@@ -414,7 +417,7 @@ export function PortfolioView({
     <Section id="needs-attention">
       <SectionHeader
         title="Needs attention"
-        description="Open votes, pending Safe actions, and your orchestrators' last 30 rounds"
+        description="Open votes, pending Safe actions, bridge deposits to retry, and your orchestrators' last 30 rounds"
       />
       <Insights items={insights} />
     </Section>
@@ -450,32 +453,27 @@ export function PortfolioView({
           .filter((p) => p.fees >= DUST_ETH)
           .map((p) => ({ account: p.account.address, amount: p.fees }))
       : [];
-  const unbondingLpt = view
-    ? view.unbonding.reduce((s, l) => s + l.amount, 0)
-    : 0;
+  // Everything on its way or waiting to be taken: unlocking stake, fees,
+  // and LPT crossing the bridge in either direction.
   const withdrawalsEl = view &&
     data &&
-    (view.unbonding.length > 0 || feeItems.length > 0) && (
+    (view.unbonding.length > 0 ||
+      feeItems.length > 0 ||
+      bridged.length > 0 ||
+      arriving.length > 0) && (
       <section>
-        <SectionHeader
-          title="Withdrawals"
-          description={[
-            unbondingLpt > 0 && `${formatLPT(unbondingLpt)} undelegating`,
-            feeItems.length > 0 &&
-              `${formatETH(
-                feeItems.reduce((s, f) => s + f.amount, 0)
-              )} in fees`,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        />
+        {/* Each row says its own amount and status; no summary needed. */}
+        <SectionHeader title="Pending" />
         <PendingWithdrawals
           locks={view.unbonding}
           currentRound={data.currentRound}
           roundSeconds={view.roundSeconds}
           canManage={canManage}
           fees={feeItems}
+          bridge={bridged}
+          deposits={arriving}
           ethPrice={prices?.eth}
+          accounts={single ? undefined : accounts}
         />
       </section>
     );
@@ -518,14 +516,6 @@ export function PortfolioView({
       ((migrationClaim?.status === "claimable" &&
         (migrationClaim.stake > 0 || migrationClaim.fees > 0)) ||
         hasLeftovers(l1Leftovers));
-    const positionEl = (
-      <PositionNote
-        loading={loading}
-        position={position}
-        canManage={manage}
-        freeLpt={freeLpt}
-      />
-    );
     return (
       <div className="flex flex-col">
         {header}
@@ -565,18 +555,13 @@ export function PortfolioView({
               className="mb-0"
             />
           ) : (
-            heroEl({
-              label: <PositionLabel loading={loading} position={position} />,
-              position: positionEl,
-              actions: manage && (
-                <PositionActions
-                  loading={loading}
-                  position={position}
-                  canManage={manage}
-                  freeLpt={freeLpt}
-                />
-              ),
-            })
+            <AccountHeadline
+              loading={loading}
+              position={position}
+              canManage={manage}
+              freeLpt={freeLpt}
+              render={heroEl}
+            />
           )}
         </div>
         {(insightsEl || withdrawalsEl) && (
