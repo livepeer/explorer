@@ -2,13 +2,7 @@
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeftRight,
-  CalendarPlus,
-  Check,
-  ExternalLink,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeftRight, Check, ExternalLink, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   encodeFunctionData,
@@ -60,7 +54,6 @@ import {
   priceDeposit,
 } from "@/lib/bridge/deposit";
 import { checkRoute } from "@/lib/bridge/guards";
-import { downloadClaimReminder } from "@/lib/bridge/reminder";
 import { addSentWithdrawal } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import { L1_CHAIN, L2_CHAIN, txUrl } from "@/lib/config";
@@ -80,6 +73,7 @@ import { useAddresses } from "@/lib/hooks/watchlist";
 import type { Direction } from "./context";
 import { useDestination } from "./destination";
 import { errorText } from "./error-text";
+import { ReminderMenu } from "./reminder-menu";
 import { Transfers } from "./transfers";
 
 /** Ethereum gas: a claim (measured 164k–183k) and a deposit, for estimates. */
@@ -715,20 +709,13 @@ export function BridgeFlow({
                 )}
                 {/* Nothing else will remind them in a week. */}
                 {!toArbitrum && sendTx && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      downloadClaimReminder({
-                        id: sendTx,
-                        amount: formatLPT(fromWei(sentAmount)),
-                        at: Math.floor(nowMs / 1000) + WITHDRAWAL_DAYS * 86_400,
-                        url: `${window.location.origin}/`,
-                      })
-                    }
-                    className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                  >
-                    <CalendarPlus className="size-3" /> Add a reminder
-                  </button>
+                  <ReminderMenu
+                    reminder={{
+                      id: sendTx,
+                      amount: formatLPT(fromWei(sentAmount)),
+                      at: Math.floor(nowMs / 1000) + WITHDRAWAL_DAYS * 86_400,
+                    }}
+                  />
                 )}
                 <button
                   type="button"

@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   ArrowLeftRight,
   ArrowUpRight,
-  CalendarPlus,
   CircleDollarSign,
   Clock,
   Info,
@@ -15,6 +14,7 @@ import {
 import Link from "next/link";
 
 import { useBridge } from "@/components/bridge/context";
+import { ReminderMenu } from "@/components/bridge/reminder-menu";
 import { Avatar, useIdentity } from "@/components/identity";
 import { Card } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
@@ -27,7 +27,6 @@ import {
   withdrawalDay,
   withdrawalProgress,
 } from "@/lib/bridge/progress";
-import { downloadClaimReminder } from "@/lib/bridge/reminder";
 import type { BridgeWithdrawal, TrackedDeposit } from "@/lib/bridge/types";
 import { cn } from "@/lib/cn";
 import { txUrl } from "@/lib/config";
@@ -483,24 +482,16 @@ export function PendingWithdrawals({
                 // The end of a withdrawal is a claim you make, so say so,
                 // with a reminder for the day: nothing else will.
                 <span className="flex items-center gap-2">
-                  <Button
-                    size="icon-xs"
-                    variant="ghost"
-                    aria-label="Add a reminder to claim"
-                    title="Add a reminder to claim to your calendar"
-                    onClick={() =>
-                      downloadClaimReminder({
-                        // By transaction, as from the bridge dialog, so
-                        // saving both updates one event.
-                        id: w.tx,
-                        amount: formatLPT(fromWei(BigInt(w.amount))),
-                        at: w.readyAt!,
-                        url: `${window.location.origin}/`,
-                      })
-                    }
-                  >
-                    <CalendarPlus />
-                  </Button>
+                  <ReminderMenu
+                    compact
+                    reminder={{
+                      // By transaction, as from the bridge dialog, so
+                      // saving both updates one event.
+                      id: w.tx,
+                      amount: formatLPT(fromWei(BigInt(w.amount))),
+                      at: w.readyAt!,
+                    }}
+                  />
                   <Due
                     lead="Claim in"
                     when={waitText(w.readyAt! - nowSec)}

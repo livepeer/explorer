@@ -1,4 +1,4 @@
-import { claimReminder } from "./reminder";
+import { claimReminder, googleCalendarUrl } from "./reminder";
 
 describe("claimReminder", () => {
   const ics = claimReminder({
@@ -27,5 +27,33 @@ describe("claimReminder", () => {
 
   it("ends lines with CRLF", () => {
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
+  });
+});
+
+describe("googleCalendarUrl", () => {
+  const url = new URL(
+    googleCalendarUrl({
+      id: "0xabc",
+      amount: "1,250 LPT",
+      at: 1_794_000_000,
+      url: "https://explorer.livepeer.org/",
+    })
+  );
+
+  it("opens Google Calendar's new-event page", () => {
+    expect(url.origin + url.pathname).toBe(
+      "https://calendar.google.com/calendar/render"
+    );
+    expect(url.searchParams.get("action")).toBe("TEMPLATE");
+  });
+
+  it("fills in the same event as the .ics", () => {
+    expect(url.searchParams.get("text")).toBe("Claim 1,250 LPT on Ethereum");
+    expect(url.searchParams.get("dates")).toBe(
+      "20261106T212000Z/20261106T215000Z"
+    );
+    expect(url.searchParams.get("details")).toContain(
+      "https://explorer.livepeer.org/"
+    );
   });
 });
