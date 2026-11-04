@@ -90,6 +90,7 @@
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "4.0.1",
+    "sharp": "^0.35.5",
     "swr": "^2.5.1",
     "unified": "^11.0.5",
     "viem": "^2.57.7",
