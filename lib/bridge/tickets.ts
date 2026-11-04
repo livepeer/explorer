@@ -31,9 +31,9 @@ export const messageDelivered = parseAbiItem(
 );
 
 /**
- * Arbitrum's ticket precompile: a ticket's expiry, while it waits, and the
+ * Arbitrum's ticket precompile: a ticket's expiry, while it waits, the
  * redeems scheduled for it (number 0 is the automatic one, logged when the
- * ticket is created).
+ * ticket is created), and redeem, which anyone can call to retry it.
  */
 export const ARB_RETRYABLE_TX = "0x000000000000000000000000000000000000006E";
 export const redeemScheduled = parseAbiItem(
@@ -47,6 +47,13 @@ export const arbRetryableTxAbi = [
     stateMutability: "view",
     inputs: [{ name: "ticketId", type: "bytes32" }],
     outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "redeem",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "ticketId", type: "bytes32" }],
+    outputs: [{ type: "bytes32" }],
   },
   { type: "error", name: "NoTicketWithID", inputs: [] },
 ] as const;

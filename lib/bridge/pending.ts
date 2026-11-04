@@ -15,6 +15,29 @@ import {
 import { isLocalFresh, mergeDeposits } from "./progress";
 import type { TrackedDeposit } from "./types";
 
+/* ── Arrivals, announced once however many views watch them ────────── */
+
+const arrivalListeners = new Set<(d: TrackedDeposit) => void>();
+const announced = new Set<string>();
+
+/**
+ * Hears each deposit that lands on Arbitrum while some view was watching
+ * it, once. Returns the unsubscribe.
+ */
+export function onDepositArrived(l: (d: TrackedDeposit) => void) {
+  arrivalListeners.add(l);
+  return () => {
+    arrivalListeners.delete(l);
+  };
+}
+
+function announce(d: TrackedDeposit) {
+  const id = `${d.l1Tx.toLowerCase()}:${d.seq ?? ""}`;
+  if (announced.has(id)) return;
+  announced.add(id);
+  arrivalListeners.forEach((l) => l(d));
+}
+
 const EMPTY: PendingDeposit[] = [];
 let cache: { raw: string; list: PendingDeposit[] } | null = null;
 function snapshot() {
@@ -101,16 +124,17 @@ export function usePendingDeposits(addresses: string[]) {
   useEffect(() => {
     for (const d of local) moving.current.add(d.l1Tx.toLowerCase());
     if (!tracked) return;
-    let landed = false;
+    const landed: TrackedDeposit[] = [];
     for (const d of tracked) {
       const tx = d.l1Tx.toLowerCase();
       if (d.status === "arrived") {
-        if (moving.current.delete(tx)) landed = true;
+        if (moving.current.delete(tx)) landed.push(d);
       } else {
         moving.current.add(tx);
       }
     }
-    if (landed) {
+    landed.forEach(announce);
+    if (landed.length) {
       queryClient.invalidateQueries({ queryKey: ["readContract"] });
       queryClient.invalidateQueries({ queryKey: ["readContracts"] });
       queryClient.invalidateQueries({ queryKey: ["portfolio"] });

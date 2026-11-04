@@ -2,7 +2,13 @@
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftRight, Check, ExternalLink, Loader2 } from "lucide-react";
+import {
+  ArrowLeftRight,
+  CalendarPlus,
+  Check,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   encodeFunctionData,
@@ -54,6 +60,7 @@ import {
   priceDeposit,
 } from "@/lib/bridge/deposit";
 import { checkRoute } from "@/lib/bridge/guards";
+import { downloadClaimReminder } from "@/lib/bridge/reminder";
 import { addSentWithdrawal } from "@/lib/bridge/withdrawals";
 import { cn } from "@/lib/cn";
 import { L1_CHAIN, L2_CHAIN, txUrl } from "@/lib/config";
@@ -706,6 +713,23 @@ export function BridgeFlow({
                     View transaction <ExternalLink className="size-3" />
                   </a>
                 )}
+                {/* Nothing else will remind them in a week. */}
+                {!toArbitrum && sendTx && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadClaimReminder({
+                        id: sendTx,
+                        amount: formatLPT(fromWei(sentAmount)),
+                        at: Math.floor(nowMs / 1000) + WITHDRAWAL_DAYS * 86_400,
+                        url: `${window.location.origin}/`,
+                      })
+                    }
+                    className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <CalendarPlus className="size-3" /> Add a reminder
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={startOver}
@@ -807,6 +831,14 @@ export function BridgeFlow({
                   </li>
                 ))}
               </ol>
+              {/* Deposits land by themselves; withdrawals don't, so say so
+                  before anything is signed. */}
+              {!toArbitrum && (
+                <p className="text-ui-caption text-muted-foreground">
+                  It won&apos;t arrive on its own: come back after{" "}
+                  {WITHDRAWAL_DAYS} days to claim it on Ethereum.
+                </p>
+              )}
             </div>
             {safeElsewhere && (
               <Notice tone="warning">

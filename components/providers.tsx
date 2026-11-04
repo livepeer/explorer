@@ -27,6 +27,7 @@ import { createConnector, WagmiProvider } from "wagmi";
 import { safe } from "wagmi/connectors";
 
 import { Analytics } from "@/components/analytics";
+import { DepositArrivals } from "@/components/bridge/arrivals";
 import { BridgeProvider } from "@/components/bridge/provider";
 import { MigrateProvider } from "@/components/migration/migrate";
 import { FollowWallet } from "@/components/shell/follow-wallet";
@@ -178,6 +179,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <StakingProvider>
                   <AddressMemory />
                   <FollowWallet />
+                  <DepositArrivals />
                   <Analytics />
                   <MigrateProvider>{children}</MigrateProvider>
                 </StakingProvider>

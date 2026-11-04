@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ArrowLeftRight,
   ArrowUpRight,
+  CalendarPlus,
   CircleDollarSign,
   Clock,
   Info,
@@ -26,6 +27,7 @@ import {
   withdrawalDay,
   withdrawalProgress,
 } from "@/lib/bridge/progress";
+import { downloadClaimReminder } from "@/lib/bridge/reminder";
 import type { BridgeWithdrawal, TrackedDeposit } from "@/lib/bridge/types";
 import { cn } from "@/lib/cn";
 import { txUrl } from "@/lib/config";
@@ -283,7 +285,7 @@ export function PendingWithdrawals({
   accounts?: PortfolioAccount[];
 }) {
   const { open } = useStaking();
-  const { claim } = useBridge();
+  const { claim, retry } = useBridge();
   const nowSec = Math.floor(useNow(30_000) / 1000);
   // A bridge transfer has two ends; name the one that's in view.
   const ours = (a: string, b: string) =>
@@ -354,22 +356,28 @@ export function PendingWithdrawals({
                   {shortDate(d.retryBy!)}
                 </span>
               }
-              // Anyone can retry it, on Arbitrum's tool; the LPT still goes
-              // to the recipient.
+              // Anyone can retry it; the LPT still goes to the recipient.
+              // Without its ticket, on Arbitrum's tool instead.
               aside={
-                <Button
-                  size="xs"
-                  variant="primary"
-                  render={
-                    <a
-                      href={retryableUrl(d.l1Tx)}
-                      target="_blank"
-                      rel="noreferrer"
-                    />
-                  }
-                >
-                  Retry <ArrowUpRight className="size-3" />
-                </Button>
+                d.ticket ? (
+                  <Button size="xs" variant="primary" onClick={() => retry(d)}>
+                    Retry
+                  </Button>
+                ) : (
+                  <Button
+                    size="xs"
+                    variant="primary"
+                    render={
+                      <a
+                        href={retryableUrl(d.l1Tx)}
+                        target="_blank"
+                        rel="noreferrer"
+                      />
+                    }
+                  >
+                    Retry <ArrowUpRight className="size-3" />
+                  </Button>
+                )
               }
             />
           );
@@ -472,12 +480,33 @@ export function PendingWithdrawals({
                   Claim
                 </Button>
               ) : (
-                // The end of a withdrawal is a claim you make, so say so.
-                <Due
-                  lead="Claim in"
-                  when={waitText(w.readyAt! - nowSec)}
-                  title={`Claimable around ${shortDate(w.readyAt!)}`}
-                />
+                // The end of a withdrawal is a claim you make, so say so,
+                // with a reminder for the day: nothing else will.
+                <span className="flex items-center gap-2">
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    aria-label="Add a reminder to claim"
+                    title="Add a reminder to claim to your calendar"
+                    onClick={() =>
+                      downloadClaimReminder({
+                        // By transaction, as from the bridge dialog, so
+                        // saving both updates one event.
+                        id: w.tx,
+                        amount: formatLPT(fromWei(BigInt(w.amount))),
+                        at: w.readyAt!,
+                        url: `${window.location.origin}/`,
+                      })
+                    }
+                  >
+                    <CalendarPlus />
+                  </Button>
+                  <Due
+                    lead="Claim in"
+                    when={waitText(w.readyAt! - nowSec)}
+                    title={`Claimable around ${shortDate(w.readyAt!)}`}
+                  />
+                </span>
               )
             }
             progress={ready ? undefined : withdrawalProgress(w, nowSec)}

@@ -64,7 +64,7 @@ export function Transfers({ wallet }: { wallet: string }) {
   // Includes withdrawals just sent from this browser, before they're indexed.
   const { data: withdrawals = [] } = useBridgeWithdrawals(addresses);
   const deposits = usePendingDeposits(addresses);
-  const { claim } = useBridge();
+  const { claim, retry } = useBridge();
   const nowSec = Math.floor(useNow(30_000) / 1000);
   if (!withdrawals.length && !deposits.length) return null;
 
@@ -89,20 +89,27 @@ export function Transfers({ wallet }: { wallet: string }) {
             >
               <div className="flex items-center justify-between gap-3 text-ui-body">
                 <Leg amount={amount} to="Arbitrum" href={l1TxUrl(d.l1Tx)} />
-                {/* Anyone can retry it; the LPT still goes to the recipient. */}
-                <Button
-                  size="xs"
-                  variant="primary"
-                  render={
-                    <a
-                      href={retryableUrl(d.l1Tx)}
-                      target="_blank"
-                      rel="noreferrer"
-                    />
-                  }
-                >
-                  Retry <ExternalLink className="size-3" />
-                </Button>
+                {/* Anyone can retry it; the LPT still goes to the recipient.
+                    Without its ticket, on Arbitrum's tool instead. */}
+                {d.ticket ? (
+                  <Button size="xs" variant="primary" onClick={() => retry(d)}>
+                    Retry
+                  </Button>
+                ) : (
+                  <Button
+                    size="xs"
+                    variant="primary"
+                    render={
+                      <a
+                        href={retryableUrl(d.l1Tx)}
+                        target="_blank"
+                        rel="noreferrer"
+                      />
+                    }
+                  >
+                    Retry <ExternalLink className="size-3" />
+                  </Button>
+                )}
               </div>
               <span className="text-ui-caption text-warm">
                 Arbitrum couldn&apos;t finish it · retry by{" "}

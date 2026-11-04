@@ -265,7 +265,7 @@ export async function depositsFor(
       // No matching message would be a gateway change; the health check
       // catches that. Show it as still processing meanwhile.
       if (!ticket) return { ...d, status: "processing" as const };
-      return { ...d, ...(await ticketStatus(ticket)) };
+      return { ...d, ticket, ...(await ticketStatus(ticket)) };
     })
   );
   return out.sort((a, b) => b.sentAt - a.sentAt);

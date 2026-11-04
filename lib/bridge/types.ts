@@ -75,4 +75,9 @@ export type TrackedDeposit = {
    * deposits that share one Ethereum transaction.
    */
   seq?: string;
+  /**
+   * Its retry ticket on Arbitrum, once known: what a manual retry redeems
+   * (ArbRetryableTx.redeem).
+   */
+  ticket?: `0x${string}`;
 };

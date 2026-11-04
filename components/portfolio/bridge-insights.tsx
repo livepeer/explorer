@@ -2,7 +2,9 @@
 
 import { useMemo } from "react";
 
+import { useBridge } from "@/components/bridge/context";
 import { useIdentity } from "@/components/identity";
+import { Button } from "@/components/ui/button";
 import { retryableUrl } from "@/lib/bridge/config";
 import { usePendingDeposits } from "@/lib/bridge/pending";
 import { formatDate, formatLPT, fromWei, shortAddress } from "@/lib/format";
@@ -38,6 +40,7 @@ export function useBridgeInsights(
   accounts: PortfolioAccount[]
 ): Insight[] {
   const deposits = usePendingDeposits(addresses);
+  const { retry } = useBridge();
 
   return useMemo(
     () =>
@@ -47,8 +50,16 @@ export function useBridgeInsights(
           id: `deposit-${d.l1Tx}-${d.seq ?? ""}`,
           tone: "warning" as const,
           kind: "bridge" as const,
-          href: retryableUrl(d.l1Tx),
-          external: true,
+          // Retried here when its ticket is known; on Arbitrum's tool if not.
+          ...(d.ticket
+            ? {
+                action: (
+                  <Button size="xs" variant="primary" onClick={() => retry(d)}>
+                    Retry
+                  </Button>
+                ),
+              }
+            : { href: retryableUrl(d.l1Tx), external: true }),
           title: (
             <>
               {formatLPT(fromWei(BigInt(d.amount)))} bridged to{" "}
@@ -56,10 +67,10 @@ export function useBridgeInsights(
               Arbitrum
             </>
           ),
-          detail: `Arbitrum couldn't finish it automatically. Retry it with Arbitrum's tool by ${formatDate(
+          detail: `Arbitrum couldn't finish it automatically. Retry it by ${formatDate(
             d.retryBy!
           )}, or the deposit expires. Anyone can retry it; the LPT still goes to the recipient.`,
         })),
-    [deposits, accounts]
+    [deposits, accounts, retry]
   );
 }
