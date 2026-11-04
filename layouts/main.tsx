@@ -750,6 +750,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
@@ -830,6 +831,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   </Container>
                 </AppBar>
                 <Flex
+                  as="main"
                   css={{
                     position: "relative",
                     width: "100%",
@@ -943,6 +945,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}
+            aria-hidden="true"
           />
         </Flex>
       </PopoverTrigger>
@@ -1033,36 +1036,28 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 </Flex>
               ))}
 
-            <Link
-              passHref
-              href="https://docs.livepeer.org/network/reference/contracts#contract-addresses"
-            >
-              <A>
-                <Flex
+            <A href="https://docs.livepeer.org/network/reference/contracts#contract-addresses">
+              <Flex
+                css={{
+                  marginTop: "$2",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text css={{ whiteSpace: "nowrap" }} variant="neutral" size="1">
+                  Learn more about these contracts
+                </Text>
+                <Box
                   css={{
-                    marginTop: "$2",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    marginLeft: "$1",
+                    width: 15,
+                    height: 15,
                   }}
-                >
-                  <Text
-                    css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
-                    size="1"
-                  >
-                    Learn more about these contracts
-                  </Text>
-                  <Box
-                    css={{
-                      marginLeft: "$1",
-                      width: 15,
-                      height: 15,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Flex>
-              </A>
-            </Link>
+                  as={ArrowTopRightIcon}
+                  aria-hidden="true"
+                />
+              </Flex>
+            </A>
           </Box>
         </Box>
       </PopoverContent>
