@@ -1,5 +1,5 @@
+import LptValue from "@components/LptValue";
 import { Box, Card, Flex, Heading, Text } from "@livepeer/design-system";
-import { formatLPT } from "@utils/numberFormatters";
 import { formatAddress } from "@utils/web3";
 import { UnbondingLock } from "apollo";
 import { useMemo } from "react";
@@ -134,7 +134,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {formatLPT(lock.amount)}
+                        <LptValue value={lock.amount} />
                       </Box>
                     </Box>
                   </Flex>
@@ -245,7 +245,7 @@ const Index = ({ delegator, transcoders, currentRound, isMyAccount }) => {
                       }}
                     >
                       <Box as="span" css={{ fontFamily: "$monospace" }}>
-                        {formatLPT(lock.amount)}
+                        <LptValue value={lock.amount} />
                       </Box>
                     </Box>
                   </Flex>
