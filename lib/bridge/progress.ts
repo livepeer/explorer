@@ -115,3 +115,35 @@ export function mergeDeposits(
     .map((d) => ({ ...d, status: "processing" as const }));
   return [...fresh, ...tracked].filter((d) => d.status !== "arrived");
 }
+
+/** A deposit's identity: one transaction can carry several deposits. */
+export const depositKey = (d: { l1Tx: string; seq?: string }) =>
+  `${d.l1Tx.toLowerCase()}:${d.seq ?? ""}`;
+
+/**
+ * Which deposits landed since the last look, given what's being watched:
+ * deposits seen on their way (by depositKey), and transactions sent from
+ * this browser before the chain reported them (by hash alone, as their
+ * message numbers aren't known yet, counting for every deposit in them).
+ * Updates `watching` in place: on-the-way ones are added, landed ones and
+ * their transactions removed.
+ */
+export function landedSince(
+  watching: Set<string>,
+  tracked: TrackedDeposit[]
+): TrackedDeposit[] {
+  const landed: TrackedDeposit[] = [];
+  const sentHere = new Set<string>();
+  for (const d of tracked) {
+    const tx = d.l1Tx.toLowerCase();
+    if (d.status === "arrived") {
+      const seen = watching.delete(depositKey(d));
+      if (watching.has(tx)) sentHere.add(tx);
+      if (seen || watching.has(tx)) landed.push(d);
+    } else {
+      watching.add(depositKey(d));
+    }
+  }
+  sentHere.forEach((tx) => watching.delete(tx));
+  return landed;
+}

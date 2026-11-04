@@ -3,7 +3,7 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatEther } from "viem";
 import {
   useAccount,
@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { retryableUrl } from "@/lib/bridge/config";
-import { usePendingDeposits } from "@/lib/bridge/pending";
+import { useDepositStatus } from "@/lib/bridge/pending";
 import { isSafeProxy } from "@/lib/bridge/safe";
 import { ARB_RETRYABLE_TX, arbRetryableTxAbi } from "@/lib/bridge/tickets";
 import type { TrackedDeposit } from "@/lib/bridge/types";
@@ -102,21 +102,12 @@ export function RetryFlow({
   const receipt = useWaitForTransactionReceipt({ hash, chainId: L2_CHAIN.id });
   const sent = receipt.isSuccess && receipt.data?.status === "success";
 
-  // After the redeem: the deposit's status says whether the retry minted
-  // the LPT. Arrived deposits drop out of the list.
-  const watching = useMemo(() => [d.to], [d.to]);
-  const pending = usePendingDeposits(watching);
-  const still = pending.find(
-    (p) =>
-      p.l1Tx.toLowerCase() === d.l1Tx.toLowerCase() &&
-      (p.seq ?? "") === (d.seq ?? "")
-  );
-  // Seen in the list at least once, so its absence means it arrived rather
-  // than that the list hasn't loaded.
-  const [seen, setSeen] = useState(false);
-  if (still && !seen) setSeen(true);
+  // After the redeem: the deposit's own status says whether the retry
+  // minted the LPT. Read with arrived included, so a list first loaded
+  // after it landed still says so.
+  const status = useDepositStatus(d);
   const [sentAt, setSentAt] = useState<number | null>(null);
-  const arrived = sent && seen && !still;
+  const arrived = sent && status === "arrived";
   const [stalled, setStalled] = useState(false);
 
   useEffect(() => {

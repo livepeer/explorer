@@ -12,7 +12,12 @@ import {
   removePendingDeposits,
   subscribePendingDeposits,
 } from "./deposit";
-import { isLocalFresh, mergeDeposits } from "./progress";
+import {
+  depositKey,
+  isLocalFresh,
+  landedSince,
+  mergeDeposits,
+} from "./progress";
 import type { TrackedDeposit } from "./types";
 
 /* ── Arrivals, announced once however many views watch them ────────── */
@@ -32,7 +37,7 @@ export function onDepositArrived(l: (d: TrackedDeposit) => void) {
 }
 
 function announce(d: TrackedDeposit) {
-  const id = `${d.l1Tx.toLowerCase()}:${d.seq ?? ""}`;
+  const id = depositKey(d);
   if (announced.has(id)) return;
   announced.add(id);
   arrivalListeners.forEach((l) => l(d));
@@ -45,6 +50,51 @@ function snapshot() {
   const raw = JSON.stringify(list);
   if (!cache || cache.raw !== raw) cache = { raw, list };
   return cache.list;
+}
+
+/**
+ * The deposits these (sorted, lowercased) addresses sent or received this
+ * week, every status included, as the server reports them. Shared by every
+ * view of the same addresses. Checks every 20s while any are on their way
+ * (`sentHere`: some sent from this browser aren't reported yet).
+ */
+function depositsQuery(key: string[], sentHere: boolean) {
+  return {
+    queryKey: ["bridge-deposits", key],
+    enabled: key.length > 0,
+    staleTime: 15_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: (q: { state: { data?: TrackedDeposit[] } }) => {
+      const list = q.state.data;
+      // A failed one won't change: no need to keep checking for it.
+      const moving =
+        sentHere ||
+        list?.some((d) => d.status === "processing" || d.status === "retry");
+      return moving ? 20_000 : 5 * 60_000;
+    },
+    // Any size of portfolio: the API takes 20 addresses a request.
+    queryFn: () =>
+      inBatches(
+        key,
+        async (batch) => {
+          const res = await fetch(`/api/bridge/deposits?address=${batch}`);
+          if (!res.ok) throw new Error("Couldn't check deposits");
+          return (await res.json()).deposits as TrackedDeposit[];
+        },
+        depositKey
+      ).then((list) => list.sort((a, b) => b.sentAt - a.sentAt)),
+  };
+}
+
+/**
+ * Where one deposit stands now, from its recipient's deposits: arrived
+ * included, which the pending list leaves out. Undefined until the list
+ * loads, or if the list doesn't have it.
+ */
+export function useDepositStatus(d: TrackedDeposit) {
+  const key = useMemo(() => [d.to.toLowerCase()], [d.to]);
+  const { data } = useQuery(depositsQuery(key, false));
+  return data?.find((x) => depositKey(x) === depositKey(d))?.status;
 }
 
 /**
@@ -83,31 +133,7 @@ export function usePendingDeposits(addresses: string[]) {
     [all, key, nowSec]
   );
 
-  const { data: tracked } = useQuery({
-    queryKey: ["bridge-deposits", key],
-    enabled: key.length > 0,
-    staleTime: 15_000,
-    refetchOnWindowFocus: true,
-    refetchInterval: (q) => {
-      const list = q.state.data as TrackedDeposit[] | undefined;
-      // A failed one won't change: no need to keep checking for it.
-      const moving =
-        local.length > 0 ||
-        list?.some((d) => d.status === "processing" || d.status === "retry");
-      return moving ? 20_000 : 5 * 60_000;
-    },
-    // Any size of portfolio: the API takes 20 addresses a request.
-    queryFn: () =>
-      inBatches(
-        key,
-        async (batch) => {
-          const res = await fetch(`/api/bridge/deposits?address=${batch}`);
-          if (!res.ok) throw new Error("Couldn't check deposits");
-          return (await res.json()).deposits as TrackedDeposit[];
-        },
-        (d) => `${d.l1Tx.toLowerCase()}:${d.seq ?? ""}`
-      ).then((list) => list.sort((a, b) => b.sentAt - a.sentAt)),
-  });
+  const { data: tracked } = useQuery(depositsQuery(key, local.length > 0));
 
   // The chain has them now: this browser's copies aren't needed.
   useEffect(() => {
@@ -120,19 +146,15 @@ export function usePendingDeposits(addresses: string[]) {
   // One arrived while we watched: Ethereum and Arbitrum balances changed.
   // Sent from here counts as watched from the start, even if the chain
   // reports it only once it has already arrived.
+  // Watched by deposit (transaction and message number), so one landing
+  // from a batch doesn't stand for the rest. A copy sent from here has no
+  // message number yet: it's watched by its transaction, which counts for
+  // every deposit in it.
   const moving = useRef(new Set<string>());
   useEffect(() => {
     for (const d of local) moving.current.add(d.l1Tx.toLowerCase());
     if (!tracked) return;
-    const landed: TrackedDeposit[] = [];
-    for (const d of tracked) {
-      const tx = d.l1Tx.toLowerCase();
-      if (d.status === "arrived") {
-        if (moving.current.delete(tx)) landed.push(d);
-      } else {
-        moving.current.add(tx);
-      }
-    }
+    const landed = landedSince(moving.current, tracked);
     landed.forEach(announce);
     if (landed.length) {
       queryClient.invalidateQueries({ queryKey: ["readContract"] });
