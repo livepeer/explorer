@@ -12,12 +12,14 @@ import {
   StakingAction,
   useAccountAddress,
   useAccountBalanceData,
+  useDelegationReview,
   useExpectedChainId,
   usePendingFeesAndStakeData,
 } from "hooks";
 import { CHAIN_INFO } from "lib/chains";
 import { useMemo } from "react";
 
+import DelegationReview from "../DelegationReview";
 import Delegate from "./Delegate";
 import Footnote from "./Footnote";
 import Undelegate from "./Undelegate";
@@ -75,15 +77,23 @@ const Footer = ({
   );
   const accountBalance = useAccountBalanceData(accountAddress);
 
-  const tokenBalance = useMemo(() => accountBalance?.balance, [accountBalance]);
-  const transferAllowance = useMemo(
-    () => accountBalance?.allowance,
-    [accountBalance]
-  );
+  const tokenBalance = accountBalance?.balance;
+  const transferAllowance = accountBalance?.allowance;
   const delegatorStatus = useMemo(
     () => getDelegatorStatus(delegator, currentRound),
     [currentRound, delegator]
   );
+  const delegationReviewAction = isTransferStake
+    ? "moveStake"
+    : action === "delegate"
+    ? "delegate"
+    : "undelegate";
+
+  const { delegationWarning } = useDelegationReview({
+    delegator,
+    currentRound,
+    action: delegationReviewAction,
+  });
   const stakeWei = useMemo(
     () =>
       delegatorPendingStakeAndFees?.pendingStake
@@ -194,6 +204,12 @@ const Footer = ({
             currDelegateNewPosNext: currDelegateNewPosNext,
           }}
         />
+        {delegationWarning && (isTransferStake || amount) && (
+          <DelegationReview
+            warning={delegationWarning}
+            css={{ marginTop: "$3" }}
+          />
+        )}
       </Box>
     );
   }
@@ -213,6 +229,12 @@ const Footer = ({
         isDelegated,
         sufficientStake,
         isMyTranscoder
+      )}
+      {delegationWarning && amount && (
+        <DelegationReview
+          warning={delegationWarning}
+          css={{ marginTop: "$3" }}
+        />
       )}
     </Box>
   );
